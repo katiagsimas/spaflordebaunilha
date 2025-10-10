@@ -1,70 +1,118 @@
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShoppingBag, TrendingUp, DollarSign, Package } from "lucide-react";
+import { ShoppingBag, TrendingUp, DollarSign, Package, Clock } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface Order {
   id: string;
+  orderNumber: number;
   client: string;
+  product: string;
   total: number;
   status: string;
   deliveryDate: string;
+  createdAt: string;
 }
 
 const Dashboard = () => {
   const [orders] = useLocalStorage<Order[]>("orders", []);
 
-  const activeOrders = orders.filter(o => o.status !== "Concluído").length;
-  const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
-  const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+  
+  const monthlyOrders = orders.filter(o => {
+    const orderDate = new Date(o.createdAt);
+    return orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear;
+  });
 
-  const monthlyData = [
-    { month: "Jan", revenue: 2400, orders: 12 },
-    { month: "Fev", revenue: 3800, orders: 18 },
-    { month: "Mar", revenue: 3200, orders: 15 },
-    { month: "Abr", revenue: 4500, orders: 22 },
-    { month: "Mai", revenue: 3900, orders: 19 },
-    { month: "Jun", revenue: 5200, orders: 25 },
-  ];
+  const monthlyRevenue = monthlyOrders.reduce((sum, order) => sum + order.total, 0);
+  const pendingOrders = orders.filter(o => o.status === "Pendente" || o.status === "Confirmado").length;
+
+  const productCount: Record<string, number> = {};
+  orders.forEach(order => {
+    productCount[order.product] = (productCount[order.product] || 0) + 1;
+  });
+  const topProduct = Object.entries(productCount).sort((a, b) => b[1] - a[1])[0];
+
+  const last6Months = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(currentYear, currentMonth - (5 - i), 1);
+    return {
+      month: d.toLocaleDateString("pt-BR", { month: "short" }),
+      revenue: orders
+        .filter(o => {
+          const od = new Date(o.createdAt);
+          return od.getMonth() === d.getMonth() && od.getFullYear() === d.getFullYear();
+        })
+        .reduce((sum, o) => sum + o.total, 0)
+    };
+  });
+
+  const upcomingOrders = orders
+    .filter(o => {
+      const deliveryDate = new Date(o.deliveryDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return deliveryDate >= today && o.status !== "Concluído";
+    })
+    .sort((a, b) => new Date(a.deliveryDate).getTime() - new Date(b.deliveryDate).getTime())
+    .slice(0, 5);
+
+  const greeting = () => {
+    const hour = now.getHours();
+    if (hour < 12) return "Bom dia";
+    if (hour < 18) return "Boa tarde";
+    return "Boa noite";
+  };
 
   const stats = [
     {
-      title: "Encomendas Ativas",
-      value: activeOrders,
+      title: "Encomendas do Mês",
+      value: monthlyOrders.length,
       icon: ShoppingBag,
       color: "text-primary",
       bgColor: "bg-primary/10",
     },
     {
-      title: "Receita Total",
-      value: `R$ ${totalRevenue.toFixed(2)}`,
+      title: "Receita do Mês",
+      value: `R$ ${monthlyRevenue.toFixed(2)}`,
       icon: DollarSign,
-      color: "text-accent",
-      bgColor: "bg-accent/10",
+      color: "text-success",
+      bgColor: "bg-success/10",
     },
     {
-      title: "Ticket Médio",
-      value: `R$ ${avgOrderValue.toFixed(2)}`,
-      icon: TrendingUp,
-      color: "text-green-600",
-      bgColor: "bg-green-100",
+      title: "Encomendas Pendentes",
+      value: pendingOrders,
+      icon: Clock,
+      color: "text-warning",
+      bgColor: "bg-warning/10",
     },
     {
-      title: "Total de Pedidos",
-      value: orders.length,
+      title: "Produto Mais Vendido",
+      value: topProduct ? topProduct[0] : "—",
+      subtitle: topProduct ? `${topProduct[1]} vendas` : "",
       icon: Package,
-      color: "text-blue-600",
-      bgColor: "bg-blue-100",
+      color: "text-info",
+      bgColor: "bg-info/10",
     },
   ];
 
   return (
     <div className="space-y-8">
-      <PageHeader
-        title="Dashboard"
-        description="Visão geral do seu negócio de confeitaria"
-      />
+      <div className="space-y-2">
+        <h1 className="text-4xl font-bold">
+          {greeting()}! 👋
+        </h1>
+        <p className="text-muted-foreground text-lg">
+          {now.toLocaleDateString("pt-BR", { 
+            weekday: "long", 
+            year: "numeric", 
+            month: "long", 
+            day: "numeric" 
+          })}
+        </p>
+      </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => {
@@ -81,95 +129,82 @@ const Dashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stat.value}</div>
+                {stat.subtitle && (
+                  <p className="text-xs text-muted-foreground mt-1">{stat.subtitle}</p>
+                )}
               </CardContent>
             </Card>
           );
         })}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card className="shadow-soft">
-          <CardHeader>
-            <CardTitle>Receita Mensal</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={monthlyData}>
-                <defs>
-                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
-                <YAxis stroke="hsl(var(--muted-foreground))" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "0.5rem",
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="hsl(var(--primary))"
-                  fillOpacity={1}
-                  fill="url(#colorRevenue)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+      <Card className="shadow-soft">
+        <CardHeader>
+          <CardTitle>Faturamento dos Últimos 6 Meses</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={last6Months}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis 
+                dataKey="month" 
+                stroke="hsl(var(--muted-foreground))"
+                style={{ textTransform: 'capitalize' }}
+              />
+              <YAxis stroke="hsl(var(--muted-foreground))" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "hsl(var(--card))",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "0.5rem",
+                }}
+                formatter={(value: number) => `R$ ${value.toFixed(2)}`}
+              />
+              <Line
+                type="monotone"
+                dataKey="revenue"
+                stroke="hsl(var(--primary))"
+                strokeWidth={3}
+                dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
 
-        <Card className="shadow-soft">
-          <CardHeader>
-            <CardTitle>Pedidos por Mês</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
-                <YAxis stroke="hsl(var(--muted-foreground))" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "0.5rem",
-                  }}
-                />
-                <Bar dataKey="orders" fill="hsl(var(--accent))" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
-
-      {orders.length > 0 && (
-        <Card className="shadow-soft">
-          <CardHeader>
-            <CardTitle>Encomendas Recentes</CardTitle>
-          </CardHeader>
-          <CardContent>
+      <Card className="shadow-soft">
+        <CardHeader>
+          <CardTitle>Próximas Entregas</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {upcomingOrders.length === 0 ? (
+            <p className="text-muted-foreground text-center py-8">
+              Nenhuma entrega programada
+            </p>
+          ) : (
             <div className="space-y-4">
-              {orders.slice(0, 5).map((order) => (
-                <div key={order.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
-                  <div>
-                    <p className="font-medium">{order.client}</p>
-                    <p className="text-sm text-muted-foreground">Entrega: {order.deliveryDate}</p>
+              {upcomingOrders.map((order) => (
+                <div key={order.id} className="flex items-center justify-between p-4 border border-border rounded-lg hover:border-primary transition-colors">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold">{order.client}</p>
+                      <span className="text-xs text-muted-foreground">#{order.orderNumber}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">{order.product}</p>
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-primary">R$ {order.total.toFixed(2)}</p>
-                    <p className="text-sm text-muted-foreground">{order.status}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(order.deliveryDate).toLocaleDateString("pt-BR")}
+                    </p>
                   </div>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

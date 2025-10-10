@@ -7,44 +7,66 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Eye } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 interface Order {
   id: string;
+  orderNumber: number;
   client: string;
   phone: string;
   product: string;
   quantity: number;
   total: number;
-  status: "Pendente" | "Em Produção" | "Pronto" | "Concluído";
+  downPayment: number;
+  balance: number;
+  status: "Pendente" | "Confirmado" | "Em Produção" | "Pronto" | "Entregue" | "Cancelado";
+  orderDate: string;
   deliveryDate: string;
+  deliveryTime: string;
+  address: string;
   notes: string;
   createdAt: string;
 }
 
 const statusColors = {
-  Pendente: "bg-yellow-100 text-yellow-800",
-  "Em Produção": "bg-blue-100 text-blue-800",
-  Pronto: "bg-green-100 text-green-800",
-  Concluído: "bg-gray-100 text-gray-800",
+  Pendente: "bg-yellow-100 text-yellow-800 border-yellow-200",
+  Confirmado: "bg-blue-100 text-blue-800 border-blue-200",
+  "Em Produção": "bg-purple-100 text-purple-800 border-purple-200",
+  Pronto: "bg-green-100 text-green-800 border-green-200",
+  Entregue: "bg-gray-100 text-gray-800 border-gray-200",
+  Cancelado: "bg-red-100 text-red-800 border-red-200",
 };
 
 const Encomendas = () => {
   const [orders, setOrders] = useLocalStorage<Order[]>("orders", []);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("Todos");
+  
   const [formData, setFormData] = useState({
     client: "",
     phone: "",
     product: "",
     quantity: 1,
     total: 0,
+    downPayment: 0,
     status: "Pendente" as Order["status"],
+    orderDate: new Date().toISOString().split("T")[0],
     deliveryDate: "",
+    deliveryTime: "",
+    address: "",
     notes: "",
   });
+
+  const getNextOrderNumber = () => {
+    if (orders.length === 0) return 1;
+    return Math.max(...orders.map(o => o.orderNumber)) + 1;
+  };
 
   const resetForm = () => {
     setFormData({
@@ -53,8 +75,12 @@ const Encomendas = () => {
       product: "",
       quantity: 1,
       total: 0,
+      downPayment: 0,
       status: "Pendente",
+      orderDate: new Date().toISOString().split("T")[0],
       deliveryDate: "",
+      deliveryTime: "",
+      address: "",
       notes: "",
     });
     setEditingOrder(null);
@@ -63,21 +89,31 @@ const Encomendas = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    const balance = formData.total - formData.downPayment;
+    
     if (editingOrder) {
       setOrders(
         orders.map((order) =>
           order.id === editingOrder.id
-            ? { ...editingOrder, ...formData }
+            ? { 
+                ...order,
+                ...formData,
+                balance,
+              }
             : order
         )
       );
+      toast.success("Encomenda atualizada!");
     } else {
       const newOrder: Order = {
         id: Date.now().toString(),
+        orderNumber: getNextOrderNumber(),
         ...formData,
+        balance,
         createdAt: new Date().toISOString(),
       };
       setOrders([...orders, newOrder]);
+      toast.success("Encomenda criada com sucesso!");
     }
     
     setDialogOpen(false);
@@ -92,8 +128,12 @@ const Encomendas = () => {
       product: order.product,
       quantity: order.quantity,
       total: order.total,
+      downPayment: order.downPayment,
       status: order.status,
+      orderDate: order.orderDate,
       deliveryDate: order.deliveryDate,
+      deliveryTime: order.deliveryTime,
+      address: order.address,
       notes: order.notes,
     });
     setDialogOpen(true);
@@ -102,18 +142,74 @@ const Encomendas = () => {
   const handleDelete = (id: string) => {
     if (confirm("Tem certeza que deseja excluir esta encomenda?")) {
       setOrders(orders.filter((order) => order.id !== id));
+      toast.success("Encomenda excluída!");
     }
   };
 
-  const filteredOrders = orders.sort((a, b) => 
-    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
+  const filteredOrders = orders
+    .filter(o => {
+      const matchesSearch = o.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          o.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          o.orderNumber.toString().includes(searchTerm);
+      const matchesStatus = statusFilter === "Todos" || o.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const weekFromNow = new Date(today);
+  weekFromNow.setDate(weekFromNow.getDate() + 7);
+
+  const todayOrders = orders.filter(o => {
+    const deliveryDate = new Date(o.deliveryDate);
+    return deliveryDate.getTime() === today.getTime() && o.status !== "Entregue" && o.status !== "Cancelado";
+  }).length;
+
+  const weekOrders = orders.filter(o => {
+    const deliveryDate = new Date(o.deliveryDate);
+    return deliveryDate >= today && deliveryDate <= weekFromNow && o.status !== "Entregue" && o.status !== "Cancelado";
+  }).length;
+
+  const totalReceivable = orders.filter(o => o.status !== "Entregue" && o.status !== "Cancelado")
+    .reduce((sum, o) => sum + o.balance, 0);
+
+  const stats = [
+    {
+      title: "Total de Encomendas",
+      value: orders.length,
+      icon: ShoppingBag,
+      color: "text-primary",
+      bgColor: "bg-primary/10",
+    },
+    {
+      title: "Entregas Hoje",
+      value: todayOrders,
+      icon: CalendarCheck,
+      color: "text-info",
+      bgColor: "bg-info/10",
+    },
+    {
+      title: "Entregas na Semana",
+      value: weekOrders,
+      icon: Clock,
+      color: "text-warning",
+      bgColor: "bg-warning/10",
+    },
+    {
+      title: "Valor a Receber",
+      value: `R$ ${totalReceivable.toFixed(2)}`,
+      icon: DollarSign,
+      color: "text-success",
+      bgColor: "bg-success/10",
+    },
+  ];
 
   return (
     <div className="space-y-8">
       <PageHeader
-        title="Encomendas"
-        description="Gerencie todos os pedidos da sua confeitaria"
+        title="Gestor de Encomendas"
+        description="Controle completo de pedidos do cliente até a entrega"
         actions={
           <Dialog open={dialogOpen} onOpenChange={(open) => {
             setDialogOpen(open);
@@ -125,16 +221,16 @@ const Encomendas = () => {
                 Nova Encomenda
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
-                  {editingOrder ? "Editar Encomenda" : "Nova Encomenda"}
+                  {editingOrder ? `Editar Encomenda #${editingOrder.orderNumber}` : "Nova Encomenda"}
                 </DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="client">Cliente *</Label>
+                    <Label htmlFor="client">Nome do Cliente *</Label>
                     <Input
                       id="client"
                       required
@@ -145,7 +241,7 @@ const Encomendas = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Telefone</Label>
+                    <Label htmlFor="phone">Telefone/WhatsApp</Label>
                     <Input
                       id="phone"
                       type="tel"
@@ -159,7 +255,7 @@ const Encomendas = () => {
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="product">Produto *</Label>
+                    <Label htmlFor="product">Produto Encomendado *</Label>
                     <Input
                       id="product"
                       required
@@ -186,6 +282,68 @@ const Encomendas = () => {
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
+                    <Label htmlFor="orderDate">Data do Pedido *</Label>
+                    <Input
+                      id="orderDate"
+                      type="date"
+                      required
+                      value={formData.orderDate}
+                      onChange={(e) =>
+                        setFormData({ ...formData, orderDate: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="status">Status</Label>
+                    <Select
+                      value={formData.status}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, status: value as Order["status"] })
+                      }
+                    >
+                      <SelectTrigger className="bg-popover">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover z-50">
+                        <SelectItem value="Pendente">Pendente</SelectItem>
+                        <SelectItem value="Confirmado">Confirmado</SelectItem>
+                        <SelectItem value="Em Produção">Em Produção</SelectItem>
+                        <SelectItem value="Pronto">Pronto</SelectItem>
+                        <SelectItem value="Entregue">Entregue</SelectItem>
+                        <SelectItem value="Cancelado">Cancelado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="deliveryDate">Data de Entrega *</Label>
+                    <Input
+                      id="deliveryDate"
+                      type="date"
+                      required
+                      value={formData.deliveryDate}
+                      onChange={(e) =>
+                        setFormData({ ...formData, deliveryDate: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="deliveryTime">Hora de Entrega</Label>
+                    <Input
+                      id="deliveryTime"
+                      type="time"
+                      value={formData.deliveryTime}
+                      onChange={(e) =>
+                        setFormData({ ...formData, deliveryTime: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="space-y-2">
                     <Label htmlFor="total">Valor Total (R$) *</Label>
                     <Input
                       id="total"
@@ -200,37 +358,37 @@ const Encomendas = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="deliveryDate">Data de Entrega *</Label>
+                    <Label htmlFor="downPayment">Valor de Entrada (R$)</Label>
                     <Input
-                      id="deliveryDate"
-                      type="date"
-                      required
-                      value={formData.deliveryDate}
+                      id="downPayment"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.downPayment || ""}
                       onChange={(e) =>
-                        setFormData({ ...formData, deliveryDate: e.target.value })
+                        setFormData({ ...formData, downPayment: Number(e.target.value) })
                       }
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Saldo Restante</Label>
+                    <div className="h-10 px-3 py-2 rounded-md border bg-muted flex items-center">
+                      <span className="font-semibold text-primary">
+                        R$ {(formData.total - formData.downPayment).toFixed(2)}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
-                  <Select
-                    value={formData.status}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, status: value as Order["status"] })
+                  <Label htmlFor="address">Endereço de Entrega</Label>
+                  <Input
+                    id="address"
+                    value={formData.address}
+                    onChange={(e) =>
+                      setFormData({ ...formData, address: e.target.value })
                     }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Pendente">Pendente</SelectItem>
-                      <SelectItem value="Em Produção">Em Produção</SelectItem>
-                      <SelectItem value="Pronto">Pronto</SelectItem>
-                      <SelectItem value="Concluído">Concluído</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -266,78 +424,146 @@ const Encomendas = () => {
         }
       />
 
-      {filteredOrders.length === 0 ? (
-        <Card className="shadow-soft">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <p className="text-muted-foreground mb-4">Nenhuma encomenda cadastrada ainda</p>
-            <Button onClick={() => setDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Criar Primeira Encomenda
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredOrders.map((order) => (
-            <Card key={order.id} className="shadow-soft hover:shadow-elevated transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg">{order.client}</CardTitle>
-                    <p className="text-sm text-muted-foreground mt-1">{order.phone}</p>
-                  </div>
-                  <Badge className={statusColors[order.status]}>
-                    {order.status}
-                  </Badge>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <Card key={stat.title} className="shadow-soft">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  {stat.title}
+                </CardTitle>
+                <div className={`${stat.bgColor} p-2 rounded-lg`}>
+                  <Icon className={`h-4 w-4 ${stat.color}`} />
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Produto:</span>
-                    <span className="font-medium">{order.product}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Quantidade:</span>
-                    <span className="font-medium">{order.quantity}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Entrega:</span>
-                    <span className="font-medium">
-                      {new Date(order.deliveryDate).toLocaleDateString("pt-BR")}
-                    </span>
-                  </div>
-                  <div className="flex justify-between pt-2 border-t">
-                    <span className="font-semibold">Total:</span>
-                    <span className="font-bold text-primary">
-                      R$ {order.total.toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => handleEdit(order)}
-                  >
-                    <Pencil className="h-4 w-4 mr-2" />
-                    Editar
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDelete(order.id)}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
+              <CardContent>
+                <div className="text-2xl font-bold">{stat.value}</div>
               </CardContent>
             </Card>
-          ))}
-        </div>
-      )}
+          );
+        })}
+      </div>
+
+      <Card className="shadow-soft">
+        <CardHeader>
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <CardTitle>Lista de Encomendas</CardTitle>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar por cliente ou produto..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9 w-full sm:w-64"
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-40 bg-popover">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  <SelectItem value="Todos">Todos</SelectItem>
+                  <SelectItem value="Pendente">Pendente</SelectItem>
+                  <SelectItem value="Confirmado">Confirmado</SelectItem>
+                  <SelectItem value="Em Produção">Em Produção</SelectItem>
+                  <SelectItem value="Pronto">Pronto</SelectItem>
+                  <SelectItem value="Entregue">Entregue</SelectItem>
+                  <SelectItem value="Cancelado">Cancelado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {filteredOrders.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground mb-4">Nenhuma encomenda encontrada</p>
+              <Button onClick={() => setDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Criar Primeira Encomenda
+              </Button>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-16">Nº</TableHead>
+                    <TableHead>Cliente</TableHead>
+                    <TableHead>Produto</TableHead>
+                    <TableHead>Data Entrega</TableHead>
+                    <TableHead className="text-right">Valor</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredOrders.map((order) => (
+                    <TableRow key={order.id}>
+                      <TableCell className="font-medium">#{order.orderNumber}</TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{order.client}</p>
+                          {order.phone && (
+                            <p className="text-xs text-muted-foreground">{order.phone}</p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p>{order.product}</p>
+                          <p className="text-xs text-muted-foreground">Qtd: {order.quantity}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p>{new Date(order.deliveryDate).toLocaleDateString("pt-BR")}</p>
+                          {order.deliveryTime && (
+                            <p className="text-xs text-muted-foreground">{order.deliveryTime}</p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div>
+                          <p className="font-semibold">R$ {order.total.toFixed(2)}</p>
+                          {order.balance > 0 && (
+                            <p className="text-xs text-warning">Falta: R$ {order.balance.toFixed(2)}</p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={statusColors[order.status]} variant="outline">
+                          {order.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex gap-1 justify-end">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(order)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(order.id)}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
