@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import donnasLogo from "@/assets/donnas-logo.png";
 
 export default function Login() {
   const [nome, setNome] = useState("");
@@ -30,9 +31,11 @@ export default function Login() {
       <Card className="w-full max-w-md shadow-elevated">
         <CardHeader className="text-center space-y-2">
           <div className="flex justify-center mb-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl gradient-primary">
-              <span className="text-4xl">🧁</span>
-            </div>
+            <img 
+              src={donnasLogo} 
+              alt="Donnas da Confeitaria" 
+              className="h-24 w-auto object-contain"
+            />
           </div>
           <CardTitle className="text-3xl">DONNAS SISTEMA</CardTitle>
           <CardDescription className="text-base">

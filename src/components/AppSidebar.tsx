@@ -16,6 +16,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import donnasLogo from "@/assets/donnas-logo.png";
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard, active: true },
@@ -41,9 +42,11 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border p-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg gradient-primary">
-            <span className="text-xl">🧁</span>
-          </div>
+          <img 
+            src={donnasLogo} 
+            alt="Donnas" 
+            className="h-10 w-auto object-contain"
+          />
           {open && (
             <div>
               <h2 className="text-lg font-semibold text-sidebar-foreground">DONNAS SISTEMA</h2>
