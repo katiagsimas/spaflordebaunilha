@@ -39,7 +39,7 @@ export default function Login() {
           </div>
           <CardTitle className="text-3xl">SugarBox</CardTitle>
           <CardDescription className="text-base">
-            O Sistema Completo da Confeiteira
+            Tudo que você precisa, numa caixa só!
           </CardDescription>
         </CardHeader>
         <CardContent>
