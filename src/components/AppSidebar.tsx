@@ -1,5 +1,5 @@
-import { LayoutDashboard, Calculator, ShoppingBag, CalendarClock, BookOpen, DollarSign, TrendingUp } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { LayoutDashboard, Calculator, ShoppingBag, CalendarClock, BookOpen, DollarSign, TrendingUp, LogOut } from "lucide-react";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -10,9 +10,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
+  SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard, active: true },
@@ -26,18 +29,25 @@ const menuItems = [
 
 export function AppSidebar() {
   const { open } = useSidebar();
+  const [nomeNegocio, setNomeNegocio] = useLocalStorage<string>("nomeNegocio", "");
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    setNomeNegocio("");
+    navigate("/login");
+  };
 
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border p-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg gradient-primary">
             <span className="text-xl">🧁</span>
           </div>
           {open && (
             <div>
-              <h2 className="text-lg font-semibold text-sidebar-foreground">Sweet Manager</h2>
-              <p className="text-xs text-muted-foreground">Gestão de Confeitaria</p>
+              <h2 className="text-lg font-semibold text-sidebar-foreground">DONNAS SISTEMA</h2>
+              <p className="text-xs text-muted-foreground">Sistema da Confeiteira</p>
             </div>
           )}
         </div>
@@ -78,6 +88,25 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      {open && nomeNegocio && (
+        <SidebarFooter className="border-t border-sidebar-border p-4">
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-sidebar-foreground truncate">
+              {nomeNegocio}
+            </p>
+            <Button 
+              onClick={handleLogout}
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sair
+            </Button>
+          </div>
+        </SidebarFooter>
+      )}
     </Sidebar>
   );
 }
