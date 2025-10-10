@@ -34,7 +34,7 @@ export default function Login() {
             <img 
               src={donnasLogo} 
               alt="Donnas da Confeitaria" 
-              className="h-24 w-auto object-contain"
+              className="h-40 w-auto object-contain"
             />
           </div>
           <CardTitle className="text-3xl">DONNAS SISTEMA</CardTitle>
