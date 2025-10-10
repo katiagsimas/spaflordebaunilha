@@ -49,7 +49,7 @@ export function AppSidebar() {
           />
           {open && (
             <div>
-              <h2 className="text-lg font-semibold text-sidebar-foreground">DONNAS SISTEMA</h2>
+              <h2 className="text-lg font-semibold text-sidebar-foreground">SugarBox</h2>
               <p className="text-xs text-muted-foreground">Sistema da Confeiteira</p>
             </div>
           )}

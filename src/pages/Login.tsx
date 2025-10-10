@@ -37,7 +37,7 @@ export default function Login() {
               className="h-40 w-auto object-contain"
             />
           </div>
-          <CardTitle className="text-3xl">DONNAS SISTEMA</CardTitle>
+          <CardTitle className="text-3xl">SugarBox</CardTitle>
           <CardDescription className="text-base">
             O Sistema Completo da Confeiteira
           </CardDescription>
