@@ -1,4 +1,5 @@
-import { LayoutDashboard, Calculator, ShoppingBag, CalendarClock, BookOpen, DollarSign, TrendingUp, LogOut, Gift } from "lucide-react";
+import { LayoutDashboard, Calculator, ShoppingBag, CalendarClock, BookOpen, DollarSign, TrendingUp, LogOut } from "lucide-react";
+import sugarboxHeader from "@/assets/sugarbox-header.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   Sidebar,
@@ -40,15 +41,11 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" className="border-r border-border bg-card shadow-[2px_0_12px_rgba(107,80,71,0.06)]" style={{ width: open ? '280px' : undefined }}>
       <SidebarHeader className="border-b border-border p-6">
-        <div className="flex items-center gap-3">
-          <Gift className="h-8 w-8 text-primary flex-shrink-0" />
-          {open && (
-            <div>
-              <h2 className="text-2xl font-logo text-primary">SugarBox</h2>
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">Confectionery Platform</p>
-            </div>
-          )}
-        </div>
+        {open && (
+          <div className="flex justify-center">
+            <img src={sugarboxHeader} alt="Sugar Box - O Sistema Completo da Confeiteira" className="w-full h-auto object-contain" />
+          </div>
+        )}
       </SidebarHeader>
 
       <SidebarContent>
