@@ -49,7 +49,7 @@ export default function SubReceitaForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [subReceitas, setSubReceitas] = useLocalStorage<SubReceita[]>("subReceitas", []);
-  const [ingredientesCadastrados] = useLocalStorage<Ingrediente[]>("ingredientes", []);
+  const [ingredientesCadastrados, setIngredientesCadastrados] = useLocalStorage<Ingrediente[]>("ingredientes", []);
 
   const [formData, setFormData] = useState({
     nome: "",
@@ -151,8 +151,9 @@ export default function SubReceitaForm() {
       return;
     }
 
+    const subReceitaId = id || Date.now().toString();
     const subReceita: SubReceita = {
-      id: id || Date.now().toString(),
+      id: subReceitaId,
       nome: formData.nome,
       tempoPreparo: Number(formData.tempoPreparo),
       unidadeTempo: formData.unidadeTempo,
@@ -162,11 +163,30 @@ export default function SubReceitaForm() {
       custoTotal,
     };
 
+    // Criar ou atualizar o ingrediente correspondente à sub-receita
+    const ingredienteSubReceita: Ingrediente = {
+      id: `sub-receita-${subReceitaId}`,
+      nome: formData.nome,
+      marca: "Sub-Receita",
+      quantidade: Number(formData.rendimento),
+      unidadeMedida: formData.unidadeRendimento === "gramas" ? "g" : "un",
+      preco: custoTotal,
+      dataAtualizacao: new Date().toISOString().split('T')[0],
+    };
+
     if (id) {
       setSubReceitas(subReceitas.map(s => s.id === id ? subReceita : s));
+      // Atualizar o ingrediente existente
+      setIngredientesCadastrados(
+        ingredientesCadastrados.map(ing => 
+          ing.id === `sub-receita-${id}` ? ingredienteSubReceita : ing
+        )
+      );
       toast.success("Sub-receita atualizada com sucesso!");
     } else {
       setSubReceitas([...subReceitas, subReceita]);
+      // Adicionar novo ingrediente
+      setIngredientesCadastrados([...ingredientesCadastrados, ingredienteSubReceita]);
       toast.success("Sub-receita criada com sucesso!");
     }
 
