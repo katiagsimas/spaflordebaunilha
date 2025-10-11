@@ -1,4 +1,4 @@
-import { LayoutDashboard, Calculator, ShoppingBag, CalendarClock, BookOpen, DollarSign, TrendingUp, LogOut } from "lucide-react";
+import { LayoutDashboard, Calculator, ShoppingBag, CalendarClock, BookOpen, DollarSign, TrendingUp, LogOut, Users } from "lucide-react";
 import sugarboxSidebar from "@/assets/sugarbox-sidebar.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
@@ -23,6 +23,7 @@ const menuItems = [
   { title: "Calculadora", url: "/calculadora", icon: Calculator, active: true },
   { title: "Encomendas", url: "/encomendas", icon: ShoppingBag, active: true },
   { title: "Produção", url: "/producao", icon: CalendarClock, active: true },
+  { title: "Clientes", url: "/clientes", icon: Users, active: true },
   { title: "Biblioteca", url: "/biblioteca", icon: BookOpen, active: false },
   { title: "Financeiro", url: "/financeiro", icon: DollarSign, active: false },
   { title: "Relatórios", url: "/relatorios", icon: TrendingUp, active: false },

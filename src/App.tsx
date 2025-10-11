@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Calculadora from "./pages/Calculadora";
 import Encomendas from "./pages/Encomendas";
 import Producao from "./pages/Producao";
+import Clientes from "./pages/Clientes";
 import ComingSoon from "./pages/ComingSoon";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
@@ -54,7 +55,8 @@ const App = () => (
           <Route path="/calculadora" element={<ProtectedRoute><Layout><Calculadora /></Layout></ProtectedRoute>} />
           <Route path="/encomendas" element={<ProtectedRoute><Layout><Encomendas /></Layout></ProtectedRoute>} />
           <Route path="/producao" element={<ProtectedRoute><Layout><Producao /></Layout></ProtectedRoute>} />
-          <Route 
+          <Route path="/clientes" element={<ProtectedRoute><Layout><Clientes /></Layout></ProtectedRoute>} />
+          <Route
             path="/biblioteca" 
             element={<ProtectedRoute><Layout><ComingSoon title="Biblioteca de Receitas" description="Organize e gerencie todas as suas receitas" /></Layout></ProtectedRoute>} 
           />
