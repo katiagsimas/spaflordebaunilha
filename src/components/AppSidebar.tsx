@@ -1,5 +1,5 @@
 import { LayoutDashboard, Calculator, ShoppingBag, CalendarClock, BookOpen, DollarSign, TrendingUp, LogOut } from "lucide-react";
-import sugarboxHeader from "@/assets/sugarbox-header.png";
+import sugarboxSidebar from "@/assets/sugarbox-sidebar.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   Sidebar,
@@ -43,7 +43,7 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-border p-6">
         {open && (
           <div className="flex justify-center">
-            <img src={sugarboxHeader} alt="Sugar Box - O Sistema Completo da Confeiteira" className="w-full h-auto object-contain" />
+            <img src={sugarboxSidebar} alt="Sugar Box - O Sistema Completo da Confeiteira" className="w-full h-auto object-contain" />
           </div>
         )}
       </SidebarHeader>
