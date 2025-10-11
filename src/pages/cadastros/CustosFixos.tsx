@@ -22,6 +22,8 @@ interface CustoFixo {
 export default function CustosFixos() {
   const navigate = useNavigate();
   const [custos, setCustos] = useLocalStorage<CustoFixo[]>("custosFixos", []);
+  const [diasTrabalho, setDiasTrabalho] = useLocalStorage<number>("diasTrabalhoMes", 22);
+  const [horasDiarias, setHorasDiarias] = useLocalStorage<number>("horasDiariaTrabalho", 8);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCusto, setEditingCusto] = useState<CustoFixo | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -77,6 +79,8 @@ export default function CustosFixos() {
   };
 
   const totalCustos = custos.reduce((acc, custo) => acc + custo.valor, 0);
+  const horasMes = diasTrabalho * horasDiarias;
+  const custoPorHora = horasMes > 0 ? totalCustos / horasMes : 0;
 
   return (
     <div className="space-y-6">
@@ -98,13 +102,79 @@ export default function CustosFixos() {
         </AlertDescription>
       </Alert>
 
+      <div className="grid gap-6 md:grid-cols-2 mb-6">
+        <Card className="border-2">
+          <CardHeader>
+            <CardTitle className="text-xl">💰 Total Mensal</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-4xl font-bold text-primary">
+              R$ {totalCustos.toFixed(2)}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-2 border-primary bg-primary/5">
+          <CardHeader>
+            <CardTitle className="text-xl">⏱️ Valor do Custo Fixo por Hora</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-4xl font-bold text-primary">
+              R$ {custoPorHora.toFixed(2)}
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Baseado em {horasMes} horas/mês
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Configuração de Horas de Trabalho</CardTitle>
+          <CardDescription>
+            Defina sua jornada de trabalho para calcular o custo por hora
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="diasTrabalho">Dias de Trabalho/Mês</Label>
+              <Input
+                id="diasTrabalho"
+                type="number"
+                min="1"
+                max="31"
+                value={diasTrabalho}
+                onChange={(e) => setDiasTrabalho(Number(e.target.value))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="horasDiarias">Horas Diárias de Trabalho</Label>
+              <Input
+                id="horasDiarias"
+                type="number"
+                min="1"
+                max="24"
+                step="0.5"
+                value={horasDiarias}
+                onChange={(e) => setHorasDiarias(Number(e.target.value))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Total de Horas/Mês</Label>
+              <div className="h-10 flex items-center px-4 rounded-lg bg-muted border-2 border-border">
+                <p className="text-lg font-bold text-primary">
+                  {horasMes} horas
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold">Total Mensal</h2>
-          <p className="text-3xl font-bold text-primary mt-1">
-            R$ {totalCustos.toFixed(2)}
-          </p>
-        </div>
+        <h2 className="text-2xl font-bold">Seus Custos Fixos</h2>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={() => resetForm()}>
