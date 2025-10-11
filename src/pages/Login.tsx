@@ -25,7 +25,7 @@ export default function Login() {
   };
   return <div className="min-h-screen flex items-center justify-center gradient-subtle p-4 relative overflow-hidden">
       <div 
-        className="absolute inset-0 bg-cover bg-center opacity-10"
+        className="absolute inset-0 bg-cover bg-center opacity-20"
         style={{ backgroundImage: `url(${docesBackground})` }}
       />
       <Card className="w-full max-w-md shadow-elevated bg-white relative z-10">
