@@ -76,6 +76,9 @@ interface Receita {
   embalagens: EmbalagemReceita[];
   modoPreparo?: string;
   custoTotal: number;
+  valorVenda?: number;
+  outrosGastosPersonalizados?: Array<{ id: string; nome: string; valor: number }>;
+  despesasVenda?: Array<{ id: string; nome: string; percentual: number; valor: number }>;
 }
 
 export default function ReceitaForm() {
@@ -127,6 +130,13 @@ export default function ReceitaForm() {
         setIngredientes(receita.ingredientes);
         setEmbalagens(receita.embalagens || []);
         setModoPreparo(receita.modoPreparo || "");
+        setValorVenda(receita.valorVenda || 0);
+        if (receita.outrosGastosPersonalizados) {
+          setOutrosGastosPersonalizados(receita.outrosGastosPersonalizados);
+        }
+        if (receita.despesasVenda) {
+          setDespesasVenda(receita.despesasVenda);
+        }
       }
     }
   }, [id, receitas]);
@@ -344,6 +354,9 @@ export default function ReceitaForm() {
       embalagens,
       modoPreparo,
       custoTotal,
+      valorVenda,
+      outrosGastosPersonalizados,
+      despesasVenda,
     };
 
     if (id) {
