@@ -2,13 +2,15 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, ChefHat } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
 interface CustoFixo {
@@ -72,6 +74,7 @@ interface Receita {
   unidadeRendimento: "gramas" | "unidades";
   ingredientes: IngredienteReceita[];
   embalagens: EmbalagemReceita[];
+  modoPreparo?: string;
   custoTotal: number;
 }
 
@@ -93,6 +96,7 @@ export default function ReceitaForm() {
 
   const [ingredientes, setIngredientes] = useState<IngredienteReceita[]>([]);
   const [embalagens, setEmbalagens] = useState<EmbalagemReceita[]>([]);
+  const [modoPreparo, setModoPreparo] = useState("");
   
   // Estados para precificação
   const [outrosGastos, setOutrosGastos] = useState(0);
@@ -113,6 +117,7 @@ export default function ReceitaForm() {
         });
         setIngredientes(receita.ingredientes);
         setEmbalagens(receita.embalagens || []);
+        setModoPreparo(receita.modoPreparo || "");
       }
     }
   }, [id, receitas]);
@@ -291,6 +296,7 @@ export default function ReceitaForm() {
       unidadeRendimento: formData.unidadeRendimento,
       ingredientes,
       embalagens,
+      modoPreparo,
       custoTotal,
     };
 
@@ -578,6 +584,28 @@ export default function ReceitaForm() {
               </div>
             )}
           </div>
+
+          {/* Modo de Preparo */}
+          {(ingredientes.length > 0 || embalagens.length > 0) && (
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="modo-preparo" className="border rounded-lg px-4">
+                <AccordionTrigger className="hover:no-underline">
+                  <div className="flex items-center gap-2">
+                    <ChefHat className="h-5 w-5 text-primary" />
+                    <span className="font-semibold">Modo de Preparo e Montagem</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pt-4 pb-4">
+                  <Textarea
+                    value={modoPreparo}
+                    onChange={(e) => setModoPreparo(e.target.value)}
+                    placeholder="Descreva o passo a passo do preparo e montagem do produto...&#10;&#10;Exemplo:&#10;1. Pré-aqueça o forno a 180°C&#10;2. Misture os ingredientes secos em uma tigela&#10;3. Adicione os ingredientes líquidos..."
+                    className="min-h-[200px] resize-y"
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          )}
 
           {/* Quadro de Precificação */}
           {(ingredientes.length > 0 || embalagens.length > 0) && (
