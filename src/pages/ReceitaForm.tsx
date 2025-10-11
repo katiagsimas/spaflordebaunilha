@@ -302,9 +302,16 @@ export default function ReceitaForm() {
   const cmv = custoTotal + totalDespesasVenda;
   const percentualCMV = valorVenda > 0 ? (cmv / valorVenda) * 100 : 0;
   
-  // Sugestão de venda (CMV de 30% é considerado saudável)
-  const cmvSaudavel = 30;
-  const valorVendaSugerido = custoTotal > 0 ? custoTotal / (cmvSaudavel / 100) : 0;
+  // Sugestões de venda com diferentes CMVs
+  const sugestoesCMV = [
+    { cmv: 30, valorVenda: custoTotal > 0 ? custoTotal / 0.30 : 0 },
+    { cmv: 40, valorVenda: custoTotal > 0 ? custoTotal / 0.40 : 0 },
+    { cmv: 50, valorVenda: custoTotal > 0 ? custoTotal / 0.50 : 0 },
+  ].map(sugestao => ({
+    ...sugestao,
+    margemContribuicao: sugestao.valorVenda - custoTotal,
+    percentualMargem: sugestao.valorVenda > 0 ? ((sugestao.valorVenda - custoTotal) / sugestao.valorVenda) * 100 : 0,
+  }));
   
   // Margem de contribuição
   const margemContribuicao = valorVenda - cmv;
@@ -786,17 +793,32 @@ export default function ReceitaForm() {
                 </div>
 
                 {/* Precificação */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
-                  <div className="space-y-3 p-4 rounded-lg bg-accent/50 border-2 border-accent">
-                    <h4 className="font-semibold">💡 Sugestão de Venda (CMV 30%)</h4>
-                    <div className="text-2xl font-bold text-accent-foreground">
-                      R$ {valorVendaSugerido.toFixed(2)}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
+                  {sugestoesCMV.map((sugestao, index) => (
+                    <div key={sugestao.cmv} className={`space-y-3 p-4 rounded-lg border-2 ${index === 0 ? 'bg-accent/50 border-accent' : 'bg-card border-muted'}`}>
+                      <h4 className="font-semibold">💡 Sugestão CMV {sugestao.cmv}%</h4>
+                      <div className="space-y-2">
+                        <div>
+                          <p className="text-xs text-muted-foreground">Valor de Venda</p>
+                          <div className="text-2xl font-bold text-primary">
+                            R$ {sugestao.valorVenda.toFixed(2)}
+                          </div>
+                        </div>
+                        <div className="pt-2 border-t">
+                          <p className="text-xs text-muted-foreground">Margem de Contribuição</p>
+                          <div className="text-lg font-bold text-chart-2">
+                            R$ {sugestao.margemContribuicao.toFixed(2)}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {sugestao.percentualMargem.toFixed(1)}% do valor de venda
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      Baseado em um CMV saudável de 30%
-                    </p>
-                  </div>
+                  ))}
+                </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
                   <div className="space-y-3 p-4 rounded-lg bg-card border-2">
                     <h4 className="font-semibold">🎯 Valor de Venda</h4>
                     <Input
