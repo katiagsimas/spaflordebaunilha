@@ -901,14 +901,65 @@ export default function ReceitaForm() {
                       </div>
                     </div>
 
-                    <div className="space-y-2 p-4 rounded-lg bg-card border">
-                      <h4 className="font-semibold text-sm">💵 Margem de Contribuição</h4>
-                      <div className="text-2xl font-bold text-chart-2">
-                        R$ {margemContribuicao.toFixed(2)}
+                    <div className="space-y-3">
+                      <div className={`space-y-2 p-4 rounded-lg border-2 transition-all duration-300 ${
+                        percentualMargemContribuicao >= 65 
+                          ? 'bg-green-50 border-green-500 shadow-lg shadow-green-200' 
+                          : percentualMargemContribuicao >= 55 
+                            ? 'bg-yellow-50 border-yellow-500 shadow-lg shadow-yellow-200' 
+                            : 'bg-red-50 border-red-500 shadow-lg shadow-red-200 animate-pulse'
+                      }`}>
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">
+                            {percentualMargemContribuicao >= 65 ? '✅' : percentualMargemContribuicao >= 55 ? '⚠️' : '❌'}
+                          </span>
+                          <h4 className="font-semibold text-sm">💵 Margem de Contribuição</h4>
+                          <span className="text-2xl ml-auto">
+                            {percentualMargemContribuicao >= 65 ? '🎊' : percentualMargemContribuicao >= 55 ? '😕' : '😱'}
+                          </span>
+                        </div>
+                        <div className={`font-bold transition-all ${
+                          percentualMargemContribuicao >= 65 
+                            ? 'text-4xl text-green-600' 
+                            : percentualMargemContribuicao >= 55 
+                              ? 'text-3xl text-yellow-600' 
+                              : 'text-5xl text-red-600'
+                        }`}>
+                          R$ {margemContribuicao.toFixed(2)}
+                        </div>
+                        <p className={`text-sm font-semibold ${
+                          percentualMargemContribuicao >= 65 
+                            ? 'text-green-700' 
+                            : percentualMargemContribuicao >= 55 
+                              ? 'text-yellow-700' 
+                              : 'text-red-700'
+                        }`}>
+                          {percentualMargemContribuicao.toFixed(1)}% do valor de venda
+                        </p>
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        {percentualMargemContribuicao.toFixed(1)}% do valor de venda
-                      </p>
+                      
+                      <div className={`text-sm p-3 rounded-lg font-medium ${
+                        percentualMargemContribuicao >= 65 
+                          ? 'bg-green-100 text-green-800 border border-green-300' 
+                          : percentualMargemContribuicao >= 55 
+                            ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' 
+                            : 'bg-red-100 text-red-800 border border-red-300'
+                      }`}>
+                        <p className="font-bold text-base mb-1">
+                          {percentualMargemContribuicao >= 65 
+                            ? '🎉 EXCELENTE MARGEM!' 
+                            : percentualMargemContribuicao >= 55 
+                              ? '💡 MARGEM RAZOÁVEL!' 
+                              : '🚨 MARGEM MUITO BAIXA!'}
+                        </p>
+                        <p className="text-xs leading-relaxed">
+                          {percentualMargemContribuicao >= 65 
+                            ? 'Ótima margem de contribuição! Você tem recursos suficientes para cobrir despesas operacionais, investir no negócio e garantir um bom lucro.' 
+                            : percentualMargemContribuicao >= 55 
+                              ? 'Margem aceitável, mas pode ser melhorada. Busque reduzir custos ou aumentar o preço de venda para ter mais recursos disponíveis após cobrir o CMV.' 
+                              : 'Margem insuficiente! Com essa margem baixa, pode ser difícil cobrir todas as despesas operacionais (aluguel, luz, salários, etc.) e ainda ter lucro. É crucial revisar sua precificação ou reduzir custos.'}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 )}
