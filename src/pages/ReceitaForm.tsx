@@ -101,7 +101,13 @@ export default function ReceitaForm() {
   // Estados para precificação
   const [outrosGastos, setOutrosGastos] = useState(0);
   const [outrosGastosTipo, setOutrosGastosTipo] = useState<"valor" | "percentual">("valor");
-  const [percentualCartao, setPercentualCartao] = useState(0);
+  const [despesasVenda, setDespesasVenda] = useState([
+    { id: 'impostos', nome: 'Impostos', percentual: 0, valor: 0 },
+    { id: 'taxa_cartao', nome: 'Taxa de Cartão', percentual: 0, valor: 0 },
+    { id: 'comissao_delivery', nome: 'Comissão Delivery', percentual: 0, valor: 0 },
+    { id: 'entrega', nome: 'Entrega', percentual: 0, valor: 0 },
+    { id: 'outros_despesas', nome: 'Outros', percentual: 0, valor: 0 },
+  ]);
   const [valorVenda, setValorVenda] = useState(0);
 
   useEffect(() => {
@@ -256,11 +262,23 @@ export default function ReceitaForm() {
   // Custo total sem taxas
   const custoTotal = custoIngredientes + custoEmbalagens + custoFixoReceita + outrosGastosValor;
   
-  // Calcular valor do cartão
-  const valorCartao = valorVenda * (percentualCartao / 100);
+  // Calcular despesas de venda
+  const handleDespesaChange = (index: number, field: 'percentual' | 'valor', value: number) => {
+    const novasDespesas = [...despesasVenda];
+    if (field === 'percentual') {
+      novasDespesas[index].percentual = value;
+      novasDespesas[index].valor = valorVenda * (value / 100);
+    } else {
+      novasDespesas[index].valor = value;
+      novasDespesas[index].percentual = valorVenda > 0 ? (value / valorVenda) * 100 : 0;
+    }
+    setDespesasVenda(novasDespesas);
+  };
+
+  const totalDespesasVenda = despesasVenda.reduce((acc, despesa) => acc + despesa.valor, 0);
   
   // CMV (Custo da Mercadoria Vendida)
-  const cmv = custoTotal + valorCartao;
+  const cmv = custoTotal + totalDespesasVenda;
   const percentualCMV = valorVenda > 0 ? (cmv / valorVenda) * 100 : 0;
   
   // Sugestão de venda (CMV de 30% é considerado saudável)
@@ -664,20 +682,61 @@ export default function ReceitaForm() {
                     </div>
                   </div>
 
-                  {/* Taxa de Cartão */}
-                  <div className="space-y-3 p-4 rounded-lg bg-card border">
-                    <h4 className="font-semibold text-sm text-muted-foreground">Taxa de Cartão (%)</h4>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="100"
-                      step="0.01"
-                      value={percentualCartao || ""}
-                      onChange={(e) => setPercentualCartao(parseFloat(e.target.value) || 0)}
-                      placeholder="0"
-                    />
-                    <div className="text-sm text-muted-foreground">
-                      Valor: R$ {valorCartao.toFixed(2)}
+                  {/* Impostos / Despesas de Venda */}
+                  <div className="md:col-span-2 space-y-3 p-4 rounded-lg bg-card border">
+                    <h4 className="font-semibold text-sm text-muted-foreground">Impostos / Despesas de Venda</h4>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-[150px]">Tipo</TableHead>
+                            <TableHead className="w-[120px]">Percentual (%)</TableHead>
+                            <TableHead className="w-[120px]">Valor (R$)</TableHead>
+                            <TableHead className="w-[120px]">Calculado</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {despesasVenda.map((despesa, index) => {
+                            const valorCalculado = valorVenda > 0 ? despesa.valor : 0;
+                            return (
+                              <TableRow key={despesa.id}>
+                                <TableCell className="font-medium">{despesa.nome}</TableCell>
+                                <TableCell>
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    step="0.01"
+                                    value={despesa.percentual || ""}
+                                    onChange={(e) => handleDespesaChange(index, 'percentual', parseFloat(e.target.value) || 0)}
+                                    placeholder="0"
+                                    className="w-full"
+                                  />
+                                </TableCell>
+                                <TableCell>
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={despesa.valor || ""}
+                                    onChange={(e) => handleDespesaChange(index, 'valor', parseFloat(e.target.value) || 0)}
+                                    placeholder="0.00"
+                                    className="w-full"
+                                  />
+                                </TableCell>
+                                <TableCell className="font-semibold text-primary">
+                                  R$ {valorCalculado.toFixed(2)}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    <div className="flex justify-end pt-2 border-t">
+                      <div className="text-sm font-bold">
+                        Total Despesas: R$ {totalDespesasVenda.toFixed(2)}
+                      </div>
                     </div>
                   </div>
 
