@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { Plus, Pencil, Trash2, Package, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -28,7 +29,7 @@ interface Embalagem {
 export default function Embalagens() {
   const navigate = useNavigate();
   const [embalagens, setEmbalagens] = useLocalStorage<Embalagem[]>("embalagens", []);
-  const [unidades] = useLocalStorage<{ id: string; nome: string; sigla: string }[]>("unidadesMedida", []);
+  const [unidades] = useUnidadesMedida();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingEmbalagem, setEditingEmbalagem] = useState<Embalagem | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);

@@ -9,27 +9,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useUnidadesMedida, UnidadeMedida } from "@/hooks/useUnidadesMedida";
 import { Plus, Pencil, Trash2, Ruler, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
-interface UnidadeMedida {
-  id: string;
-  nome: string;
-  sigla: string;
-}
-
 export default function UnidadesMedida() {
   const navigate = useNavigate();
-  const [unidades, setUnidades] = useLocalStorage<UnidadeMedida[]>("unidadesMedida", [
-    { id: "1", nome: "Unidades", sigla: "un" },
-    { id: "2", nome: "Gramas", sigla: "g" },
-    { id: "3", nome: "Quilogramas", sigla: "kg" },
-    { id: "4", nome: "Mililitros", sigla: "ml" },
-    { id: "5", nome: "Litros", sigla: "l" },
-    { id: "6", nome: "Centímetros", sigla: "cm" },
-    { id: "7", nome: "Metros", sigla: "m" },
-  ]);
+  const [unidades, setUnidades] = useUnidadesMedida();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUnidade, setEditingUnidade] = useState<UnidadeMedida | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);

@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { Plus, Pencil, Trash2, Boxes, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -28,7 +29,7 @@ interface Ingrediente {
 export default function Ingredientes() {
   const navigate = useNavigate();
   const [ingredientes, setIngredientes] = useLocalStorage<Ingrediente[]>("ingredientes", []);
-  const [unidades] = useLocalStorage<{ id: string; nome: string; sigla: string }[]>("unidadesMedida", []);
+  const [unidades] = useUnidadesMedida();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingIngrediente, setEditingIngrediente] = useState<Ingrediente | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
