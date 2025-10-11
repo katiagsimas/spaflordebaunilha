@@ -1,4 +1,4 @@
-import { LayoutDashboard, Calculator, ShoppingBag, CalendarClock, BookOpen, DollarSign, TrendingUp, LogOut } from "lucide-react";
+import { LayoutDashboard, Calculator, ShoppingBag, CalendarClock, BookOpen, DollarSign, TrendingUp, LogOut, Gift } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   Sidebar,
@@ -16,7 +16,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import donnasLogo from "@/assets/donnas-logo.png";
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard, active: true },
@@ -39,18 +38,14 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border p-4">
+    <Sidebar collapsible="icon" className="border-r border-border bg-card shadow-[2px_0_12px_rgba(107,80,71,0.06)]" style={{ width: open ? '280px' : undefined }}>
+      <SidebarHeader className="border-b border-border p-6">
         <div className="flex items-center gap-3">
-          <img 
-            src={donnasLogo} 
-            alt="Donnas" 
-            className="h-10 w-auto object-contain"
-          />
+          <Gift className="h-8 w-8 text-primary flex-shrink-0" />
           {open && (
             <div>
-              <h2 className="text-lg font-semibold text-sidebar-foreground">SugarBox</h2>
-              <p className="text-xs text-muted-foreground">Sistema da Confeiteira</p>
+              <h2 className="text-2xl font-logo text-primary">SugarBox</h2>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">Confectionery Platform</p>
             </div>
           )}
         </div>
@@ -61,41 +56,52 @@ export function AppSidebar() {
           <SidebarGroupLabel>Menu Principal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={false} disabled={!item.active}>
-                    <NavLink
-                      to={item.url}
-                      end
-                      className={({ isActive }) =>
-                        `flex items-center gap-3 ${
-                          isActive && item.active
-                            ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                            : ""
-                        } ${!item.active ? "opacity-60 cursor-not-allowed" : ""}`
-                      }
-                      onClick={(e) => !item.active && e.preventDefault()}
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span className="flex-1">{item.title}</span>
-                      {!item.active && open && (
-                        <Badge variant="secondary" className="text-xs">
-                          Em breve
-                        </Badge>
-                      )}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={false} disabled={!item.active}>
+                      <NavLink
+                        to={item.url}
+                        end
+                        className={({ isActive }) =>
+                          `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
+                            isActive && item.active
+                              ? "bg-secondary text-primary font-semibold border-l-4 border-primary"
+                              : "text-foreground hover:bg-secondary hover:text-primary"
+                          } ${!item.active ? "opacity-60 cursor-not-allowed" : ""}`
+                        }
+                        onClick={(e) => !item.active && e.preventDefault()}
+                      >
+                        {({ isActive }) => (
+                          <>
+                            <Icon className={`h-5 w-5 ${isActive && item.active ? 'text-primary' : 'text-muted-foreground'}`} />
+                            {open && (
+                              <>
+                                <span className="flex-1">{item.title}</span>
+                                {!item.active && (
+                                  <Badge className="bg-warning text-foreground text-xs px-2 py-0.5 rounded-full font-medium">
+                                    Em breve
+                                  </Badge>
+                                )}
+                              </>
+                            )}
+                          </>
+                        )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 
       {open && nomeNegocio && (
-        <SidebarFooter className="border-t border-sidebar-border p-4">
+        <SidebarFooter className="border-t border-border p-6">
           <div className="space-y-2">
-            <p className="text-sm font-medium text-sidebar-foreground truncate">
+            <p className="text-sm font-semibold text-foreground truncate">
               {nomeNegocio}
             </p>
             <Button 
