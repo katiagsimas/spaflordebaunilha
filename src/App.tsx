@@ -19,6 +19,7 @@ import UnidadesMedida from "./pages/cadastros/UnidadesMedida";
 import Ingredientes from "./pages/cadastros/Ingredientes";
 import Embalagens from "./pages/cadastros/Embalagens";
 import SubReceitas from "./pages/SubReceitas";
+import SubReceitaForm from "./pages/SubReceitaForm";
 import ComingSoon from "./pages/ComingSoon";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
@@ -72,6 +73,8 @@ const App = () => (
           <Route path="/cadastros/ingredientes" element={<ProtectedRoute><Layout><Ingredientes /></Layout></ProtectedRoute>} />
           <Route path="/cadastros/embalagens" element={<ProtectedRoute><Layout><Embalagens /></Layout></ProtectedRoute>} />
           <Route path="/sub-receitas" element={<ProtectedRoute><Layout><SubReceitas /></Layout></ProtectedRoute>} />
+          <Route path="/sub-receitas/nova" element={<ProtectedRoute><Layout><SubReceitaForm /></Layout></ProtectedRoute>} />
+          <Route path="/sub-receitas/editar/:id" element={<ProtectedRoute><Layout><SubReceitaForm /></Layout></ProtectedRoute>} />
           <Route
             path="/biblioteca" 
             element={<ProtectedRoute><Layout><ComingSoon title="Biblioteca de Receitas" description="Organize e gerencie todas as suas receitas" /></Layout></ProtectedRoute>} 
