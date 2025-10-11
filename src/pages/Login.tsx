@@ -6,18 +6,15 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import sugarboxLogo from "@/assets/sugarbox-logo.png";
-
 export default function Login() {
   const [nome, setNome] = useState("");
   const [nomeNegocio, setNomeNegocio] = useLocalStorage<string>("nomeNegocio", "");
   const navigate = useNavigate();
-
   useEffect(() => {
     if (nomeNegocio) {
       navigate("/");
     }
   }, [nomeNegocio, navigate]);
-
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (nome.trim()) {
@@ -25,35 +22,19 @@ export default function Login() {
       navigate("/");
     }
   };
-
-  return (
-    <div className="min-h-screen flex items-center justify-center gradient-subtle p-4">
+  return <div className="min-h-screen flex items-center justify-center gradient-subtle p-4">
       <Card className="w-full max-w-md shadow-elevated">
         <CardHeader className="text-center space-y-2">
           <div className="flex justify-center mb-4">
-            <img 
-              src={sugarboxLogo} 
-              alt="SugarBox - O Sistema Completo da Confeiteira" 
-              className="h-40 w-auto object-contain"
-            />
+            <img src={sugarboxLogo} alt="SugarBox - O Sistema Completo da Confeiteira" className="h-40 w-auto object-contain" />
           </div>
-          <CardDescription className="text-xs uppercase tracking-widest text-muted-foreground">
-            Tudo que você precisa, numa caixa só!
-          </CardDescription>
+          <CardDescription className="text-xs uppercase tracking-widest text-muted-foreground">TUDO QUE VOCÊ PRECEISA, NUMA CAIXA SÓ!</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="nome">Nome da Confeiteira/Negócio</Label>
-              <Input
-                id="nome"
-                type="text"
-                placeholder="Digite seu nome ou nome do negócio"
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-                required
-                className="h-12"
-              />
+              <Input id="nome" type="text" placeholder="Digite seu nome ou nome do negócio" value={nome} onChange={e => setNome(e.target.value)} required className="h-12" />
             </div>
             <Button type="submit" className="w-full h-12 text-base" size="lg">
               Entrar no Sistema
@@ -64,6 +45,5 @@ export default function Login() {
           </p>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 }
