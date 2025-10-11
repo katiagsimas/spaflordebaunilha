@@ -7,7 +7,6 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import Dashboard from "./pages/Dashboard";
-import Calculadora from "./pages/Calculadora";
 import Encomendas from "./pages/Encomendas";
 import Producao from "./pages/Producao";
 import Cadastros from "./pages/Cadastros";
@@ -63,7 +62,6 @@ const App = () => (
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
-          <Route path="/calculadora" element={<ProtectedRoute><Layout><Calculadora /></Layout></ProtectedRoute>} />
           <Route path="/encomendas" element={<ProtectedRoute><Layout><Encomendas /></Layout></ProtectedRoute>} />
           <Route path="/producao" element={<ProtectedRoute><Layout><Producao /></Layout></ProtectedRoute>} />
           <Route path="/cadastros" element={<ProtectedRoute><Layout><Cadastros /></Layout></ProtectedRoute>} />
@@ -80,10 +78,6 @@ const App = () => (
           <Route path="/sub-receitas" element={<ProtectedRoute><Layout><SubReceitas /></Layout></ProtectedRoute>} />
           <Route path="/sub-receitas/nova" element={<ProtectedRoute><Layout><SubReceitaForm /></Layout></ProtectedRoute>} />
           <Route path="/sub-receitas/editar/:id" element={<ProtectedRoute><Layout><SubReceitaForm /></Layout></ProtectedRoute>} />
-          <Route
-            path="/biblioteca" 
-            element={<ProtectedRoute><Layout><ComingSoon title="Biblioteca de Receitas" description="Organize e gerencie todas as suas receitas" /></Layout></ProtectedRoute>} 
-          />
           <Route 
             path="/financeiro" 
             element={<ProtectedRoute><Layout><ComingSoon title="Financeiro" description="Controle completo das suas finanças" /></Layout></ProtectedRoute>} 

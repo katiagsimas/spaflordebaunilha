@@ -1,4 +1,4 @@
-import { LayoutDashboard, Calculator, ShoppingBag, CalendarClock, BookOpen, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot } from "lucide-react";
 import sugarboxSidebar from "@/assets/sugarbox-sidebar.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
@@ -20,13 +20,11 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard, active: true },
-  { title: "Calculadora", url: "/calculadora", icon: Calculator, active: true },
   { title: "Encomendas", url: "/encomendas", icon: ShoppingBag, active: true },
   { title: "Produção", url: "/producao", icon: CalendarClock, active: true },
   { title: "Receitas", url: "/receitas", icon: CookingPot, active: true },
   { title: "Sub-Receitas", url: "/sub-receitas", icon: ChefHat, active: true },
   { title: "Cadastros", url: "/cadastros", icon: Users, active: true },
-  { title: "Biblioteca", url: "/biblioteca", icon: BookOpen, active: false },
   { title: "Financeiro", url: "/financeiro", icon: DollarSign, active: false },
   { title: "Relatórios", url: "/relatorios", icon: TrendingUp, active: false },
 ];
