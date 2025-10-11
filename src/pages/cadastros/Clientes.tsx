@@ -1,0 +1,245 @@
+import { useState, useEffect } from "react";
+import { PageHeader } from "@/components/PageHeader";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { EmptyState } from "@/components/EmptyState";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { Plus, Pencil, Trash2, Users } from "lucide-react";
+import { toast } from "sonner";
+import { format } from "date-fns";
+
+interface Cliente {
+  id: string;
+  nome: string;
+  telefone: string;
+  endereco: string;
+  cpf: string;
+  aniversario: string;
+  instagram: string;
+}
+
+export default function Clientes() {
+  const [clientes, setClientes] = useLocalStorage<Cliente[]>("clientes", []);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const [formData, setFormData] = useState({
+    nome: "",
+    telefone: "",
+    endereco: "",
+    cpf: "",
+    aniversario: "",
+    instagram: "",
+  });
+
+  useEffect(() => {
+    if (editingCliente) {
+      setFormData(editingCliente);
+      setIsDialogOpen(true);
+    }
+  }, [editingCliente]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (editingCliente) {
+      setClientes(clientes.map(c => c.id === editingCliente.id ? { ...formData, id: c.id } : c));
+      toast.success("Cliente atualizado com sucesso!");
+    } else {
+      const newCliente: Cliente = {
+        ...formData,
+        id: Date.now().toString(),
+      };
+      setClientes([...clientes, newCliente]);
+      toast.success("Cliente cadastrado com sucesso!");
+    }
+
+    resetForm();
+  };
+
+  const resetForm = () => {
+    setFormData({
+      nome: "",
+      telefone: "",
+      endereco: "",
+      cpf: "",
+      aniversario: "",
+      instagram: "",
+    });
+    setEditingCliente(null);
+    setIsDialogOpen(false);
+  };
+
+  const handleDelete = (id: string) => {
+    setClientes(clientes.filter(c => c.id !== id));
+    setDeleteId(null);
+    toast.success("Cliente excluído com sucesso!");
+  };
+
+  const handleEdit = (cliente: Cliente) => {
+    setEditingCliente(cliente);
+  };
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Clientes"
+        description="Gerencie seus clientes"
+      />
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Lista de Clientes</CardTitle>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => setEditingCliente(null)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Novo Cliente
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>{editingCliente ? "Editar Cliente" : "Novo Cliente"}</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="nome">Nome *</Label>
+                    <Input
+                      id="nome"
+                      value={formData.nome}
+                      onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="telefone">Telefone/WhatsApp *</Label>
+                    <Input
+                      id="telefone"
+                      value={formData.telefone}
+                      onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="endereco">Endereço Completo</Label>
+                    <Input
+                      id="endereco"
+                      value={formData.endereco}
+                      onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cpf">CPF</Label>
+                    <Input
+                      id="cpf"
+                      value={formData.cpf}
+                      onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="aniversario">Data de Aniversário</Label>
+                    <Input
+                      id="aniversario"
+                      type="date"
+                      value={formData.aniversario}
+                      onChange={(e) => setFormData({ ...formData, aniversario: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="instagram">Instagram (@)</Label>
+                    <Input
+                      id="instagram"
+                      value={formData.instagram}
+                      onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
+                      placeholder="@usuario"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-2 justify-end">
+                  <Button type="button" variant="outline" onClick={resetForm}>
+                    Cancelar
+                  </Button>
+                  <Button type="submit">
+                    {editingCliente ? "Atualizar" : "Cadastrar"}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </CardHeader>
+        <CardContent>
+          {clientes.length === 0 ? (
+            <EmptyState
+              icon={Users}
+              title="Nenhum cliente cadastrado"
+              description="Comece adicionando seu primeiro cliente"
+            />
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Telefone</TableHead>
+                    <TableHead>Endereço</TableHead>
+                    <TableHead>CPF</TableHead>
+                    <TableHead>Aniversário</TableHead>
+                    <TableHead>Instagram</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {clientes.map((cliente) => (
+                    <TableRow key={cliente.id}>
+                      <TableCell className="font-medium">{cliente.nome}</TableCell>
+                      <TableCell>{cliente.telefone}</TableCell>
+                      <TableCell>{cliente.endereco}</TableCell>
+                      <TableCell>{cliente.cpf}</TableCell>
+                      <TableCell>
+                        {cliente.aniversario ? format(new Date(cliente.aniversario + 'T00:00:00'), 'dd/MM/yyyy') : '-'}
+                      </TableCell>
+                      <TableCell>{cliente.instagram}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex gap-2 justify-end">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(cliente)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setDeleteId(cliente.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <ConfirmDialog
+        open={!!deleteId}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        onConfirm={() => deleteId && handleDelete(deleteId)}
+        title="Excluir Cliente"
+        description="Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita."
+      />
+    </div>
+  );
+}

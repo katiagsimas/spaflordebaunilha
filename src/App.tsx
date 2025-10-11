@@ -10,7 +10,12 @@ import Dashboard from "./pages/Dashboard";
 import Calculadora from "./pages/Calculadora";
 import Encomendas from "./pages/Encomendas";
 import Producao from "./pages/Producao";
-import Clientes from "./pages/Clientes";
+import Cadastros from "./pages/Cadastros";
+import Clientes from "./pages/cadastros/Clientes";
+import Fornecedores from "./pages/cadastros/Fornecedores";
+import UnidadesMedida from "./pages/cadastros/UnidadesMedida";
+import Ingredientes from "./pages/cadastros/Ingredientes";
+import Embalagens from "./pages/cadastros/Embalagens";
 import ComingSoon from "./pages/ComingSoon";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
@@ -55,7 +60,12 @@ const App = () => (
           <Route path="/calculadora" element={<ProtectedRoute><Layout><Calculadora /></Layout></ProtectedRoute>} />
           <Route path="/encomendas" element={<ProtectedRoute><Layout><Encomendas /></Layout></ProtectedRoute>} />
           <Route path="/producao" element={<ProtectedRoute><Layout><Producao /></Layout></ProtectedRoute>} />
-          <Route path="/clientes" element={<ProtectedRoute><Layout><Clientes /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros" element={<ProtectedRoute><Layout><Cadastros /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros/clientes" element={<ProtectedRoute><Layout><Clientes /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros/fornecedores" element={<ProtectedRoute><Layout><Fornecedores /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros/unidades" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros/ingredientes" element={<ProtectedRoute><Layout><Ingredientes /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros/embalagens" element={<ProtectedRoute><Layout><Embalagens /></Layout></ProtectedRoute>} />
           <Route
             path="/biblioteca" 
             element={<ProtectedRoute><Layout><ComingSoon title="Biblioteca de Receitas" description="Organize e gerencie todas as suas receitas" /></Layout></ProtectedRoute>} 

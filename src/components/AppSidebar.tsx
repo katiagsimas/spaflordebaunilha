@@ -23,7 +23,7 @@ const menuItems = [
   { title: "Calculadora", url: "/calculadora", icon: Calculator, active: true },
   { title: "Encomendas", url: "/encomendas", icon: ShoppingBag, active: true },
   { title: "Produção", url: "/producao", icon: CalendarClock, active: true },
-  { title: "Clientes", url: "/clientes", icon: Users, active: true },
+  { title: "Cadastros", url: "/cadastros", icon: Users, active: true },
   { title: "Biblioteca", url: "/biblioteca", icon: BookOpen, active: false },
   { title: "Financeiro", url: "/financeiro", icon: DollarSign, active: false },
   { title: "Relatórios", url: "/relatorios", icon: TrendingUp, active: false },
