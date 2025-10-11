@@ -11,6 +11,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 
+interface CustoFixo {
+  id: string;
+  nome: string;
+  valor: number;
+}
+
 interface Embalagem {
   id: string;
   nome: string;
@@ -75,6 +81,7 @@ export default function ReceitaForm() {
   const [receitas, setReceitas] = useLocalStorage<Receita[]>("receitas", []);
   const [ingredientesCadastrados] = useLocalStorage<Ingrediente[]>("ingredientes", []);
   const [embalagensCadastradas] = useLocalStorage<Embalagem[]>("embalagens", []);
+  const [custosFixos] = useLocalStorage<CustoFixo[]>("custosFixos", []);
 
   const [formData, setFormData] = useState({
     nome: "",
@@ -86,6 +93,12 @@ export default function ReceitaForm() {
 
   const [ingredientes, setIngredientes] = useState<IngredienteReceita[]>([]);
   const [embalagens, setEmbalagens] = useState<EmbalagemReceita[]>([]);
+  
+  // Estados para precificação
+  const [outrosGastos, setOutrosGastos] = useState(0);
+  const [outrosGastosTipo, setOutrosGastosTipo] = useState<"valor" | "percentual">("valor");
+  const [percentualCartao, setPercentualCartao] = useState(0);
+  const [valorVenda, setValorVenda] = useState(0);
 
   useEffect(() => {
     if (id) {
@@ -217,9 +230,41 @@ export default function ReceitaForm() {
     setEmbalagens(embalagens.filter((_, i) => i !== index));
   };
 
-  const custoTotal = 
-    ingredientes.reduce((total, ing) => total + ing.custoReceita, 0) +
-    embalagens.reduce((total, emb) => total + emb.custoReceita, 0);
+  // Cálculos de custos
+  const custoIngredientes = ingredientes.reduce((total, ing) => total + ing.custoReceita, 0);
+  const custoEmbalagens = embalagens.reduce((total, emb) => total + emb.custoReceita, 0);
+  
+  // Calcular custo fixo baseado no tempo de preparo
+  const totalCustosFixosMensal = custosFixos.reduce((acc, custo) => acc + custo.valor, 0);
+  const horasTrabalhadasMes = 176; // ~22 dias * 8 horas
+  const custoFixoPorHora = totalCustosFixosMensal / horasTrabalhadasMes;
+  const tempoPreparoHoras = formData.unidadeTempo === "horas" 
+    ? Number(formData.tempoPreparo) 
+    : Number(formData.tempoPreparo) / 60;
+  const custoFixoReceita = custoFixoPorHora * tempoPreparoHoras;
+  
+  // Calcular outros gastos
+  const outrosGastosValor = outrosGastosTipo === "valor" 
+    ? outrosGastos 
+    : (custoIngredientes + custoEmbalagens + custoFixoReceita) * (outrosGastos / 100);
+  
+  // Custo total sem taxas
+  const custoTotal = custoIngredientes + custoEmbalagens + custoFixoReceita + outrosGastosValor;
+  
+  // Calcular valor do cartão
+  const valorCartao = valorVenda * (percentualCartao / 100);
+  
+  // CMV (Custo da Mercadoria Vendida)
+  const cmv = custoTotal + valorCartao;
+  const percentualCMV = valorVenda > 0 ? (cmv / valorVenda) * 100 : 0;
+  
+  // Sugestão de venda (CMV de 30% é considerado saudável)
+  const cmvSaudavel = 30;
+  const valorVendaSugerido = custoTotal > 0 ? custoTotal / (cmvSaudavel / 100) : 0;
+  
+  // Margem de contribuição
+  const margemContribuicao = valorVenda - cmv;
+  const percentualMargemContribuicao = valorVenda > 0 ? (margemContribuicao / valorVenda) * 100 : 0;
 
   const handleSave = () => {
     if (!formData.nome.trim()) {
@@ -345,6 +390,141 @@ export default function ReceitaForm() {
               </div>
             </div>
           </div>
+
+          {/* Quadro de Precificação */}
+          <Card className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border-primary/20">
+            <CardContent className="pt-6 space-y-4">
+              <h3 className="text-xl font-bold text-primary mb-4">💰 Precificação</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Custos Automáticos */}
+                <div className="space-y-3 p-4 rounded-lg bg-card border">
+                  <h4 className="font-semibold text-sm text-muted-foreground">Custos Calculados</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Ingredientes:</span>
+                      <span className="font-semibold text-primary">R$ {custoIngredientes.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Embalagens:</span>
+                      <span className="font-semibold text-primary">R$ {custoEmbalagens.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Custos Fixos:</span>
+                      <span className="font-semibold text-primary">R$ {custoFixoReceita.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Outros Gastos */}
+                <div className="space-y-3 p-4 rounded-lg bg-card border">
+                  <h4 className="font-semibold text-sm text-muted-foreground">Outros Gastos</h4>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={outrosGastos || ""}
+                      onChange={(e) => setOutrosGastos(parseFloat(e.target.value) || 0)}
+                      placeholder="0"
+                      className="flex-1"
+                    />
+                    <Select
+                      value={outrosGastosTipo}
+                      onValueChange={(value: "valor" | "percentual") => setOutrosGastosTipo(value)}
+                    >
+                      <SelectTrigger className="w-28">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="valor">R$</SelectItem>
+                        <SelectItem value="percentual">%</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Valor: R$ {outrosGastosValor.toFixed(2)}
+                  </div>
+                </div>
+
+                {/* Taxa de Cartão */}
+                <div className="space-y-3 p-4 rounded-lg bg-card border">
+                  <h4 className="font-semibold text-sm text-muted-foreground">Taxa de Cartão (%)</h4>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    value={percentualCartao || ""}
+                    onChange={(e) => setPercentualCartao(parseFloat(e.target.value) || 0)}
+                    placeholder="0"
+                  />
+                  <div className="text-sm text-muted-foreground">
+                    Valor: R$ {valorCartao.toFixed(2)}
+                  </div>
+                </div>
+
+                {/* Custo Total */}
+                <div className="space-y-3 p-4 rounded-lg bg-primary/10 border-primary/30 border-2">
+                  <h4 className="font-semibold text-sm">Custo Total (CMV)</h4>
+                  <div className="text-3xl font-bold text-primary">
+                    R$ {cmv.toFixed(2)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Precificação */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+                <div className="space-y-3 p-4 rounded-lg bg-accent/50 border-2 border-accent">
+                  <h4 className="font-semibold">💡 Sugestão de Venda (CMV 30%)</h4>
+                  <div className="text-2xl font-bold text-accent-foreground">
+                    R$ {valorVendaSugerido.toFixed(2)}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Baseado em um CMV saudável de 30%
+                  </p>
+                </div>
+
+                <div className="space-y-3 p-4 rounded-lg bg-card border-2">
+                  <h4 className="font-semibold">🎯 Valor de Venda</h4>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={valorVenda || ""}
+                    onChange={(e) => setValorVenda(parseFloat(e.target.value) || 0)}
+                    placeholder="0.00"
+                    className="text-xl font-bold"
+                  />
+                </div>
+              </div>
+
+              {/* Análise da Venda */}
+              {valorVenda > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+                  <div className="space-y-2 p-4 rounded-lg bg-card border">
+                    <h4 className="font-semibold text-sm">📊 CMV Real</h4>
+                    <div className="text-2xl font-bold" style={{ color: percentualCMV <= 35 ? 'hsl(var(--chart-2))' : percentualCMV <= 45 ? 'hsl(var(--chart-4))' : 'hsl(var(--destructive))' }}>
+                      {percentualCMV.toFixed(1)}%
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {percentualCMV <= 35 ? '✓ Excelente' : percentualCMV <= 45 ? '⚠ Aceitável' : '✗ Alto'}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2 p-4 rounded-lg bg-card border">
+                    <h4 className="font-semibold text-sm">💵 Margem de Contribuição</h4>
+                    <div className="text-2xl font-bold text-chart-2">
+                      R$ {margemContribuicao.toFixed(2)}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {percentualMargemContribuicao.toFixed(1)}% do valor de venda
+                    </p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           <div className="space-y-4">
             <div className="flex justify-between items-center">
