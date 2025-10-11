@@ -874,6 +874,19 @@ export default function ReceitaForm() {
                             ? '⚠ Aceitável, mas pode melhorar' 
                             : '✗ ATENÇÃO! CMV muito alto'}
                       </p>
+                      <div className={`text-xs mt-2 p-2 rounded ${
+                        percentualCMV <= 35 
+                          ? 'bg-green-100 text-green-800' 
+                          : percentualCMV <= 45 
+                            ? 'bg-yellow-100 text-yellow-800' 
+                            : 'bg-red-100 text-red-800'
+                      }`}>
+                        {percentualCMV <= 35 
+                          ? '🎉 Parabéns! Sua margem de lucro está ótima. Com esse CMV, você terá uma boa margem para cobrir despesas operacionais e ainda gerar lucro.' 
+                          : percentualCMV <= 45 
+                            ? '💡 Seu CMV está na faixa aceitável, mas há espaço para otimização. Considere revisar custos de ingredientes ou ajustar o preço de venda para aumentar sua margem.' 
+                            : '🚨 ALERTA! CMV acima de 45% pode comprometer sua lucratividade! Riscos: pouca margem para despesas operacionais, dificuldade em cobrir custos fixos, vulnerabilidade a variações de preço. Recomenda-se: renegociar preços com fornecedores, otimizar receita ou aumentar preço de venda.'}
+                      </div>
                     </div>
 
                     <div className="space-y-2 p-4 rounded-lg bg-card border">
