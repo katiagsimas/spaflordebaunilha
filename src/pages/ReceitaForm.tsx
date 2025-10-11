@@ -391,141 +391,6 @@ export default function ReceitaForm() {
             </div>
           </div>
 
-          {/* Quadro de Precificação */}
-          <Card className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border-primary/20">
-            <CardContent className="pt-6 space-y-4">
-              <h3 className="text-xl font-bold text-primary mb-4">💰 Precificação</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Custos Automáticos */}
-                <div className="space-y-3 p-4 rounded-lg bg-card border">
-                  <h4 className="font-semibold text-sm text-muted-foreground">Custos Calculados</h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Ingredientes:</span>
-                      <span className="font-semibold text-primary">R$ {custoIngredientes.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Embalagens:</span>
-                      <span className="font-semibold text-primary">R$ {custoEmbalagens.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Custos Fixos:</span>
-                      <span className="font-semibold text-primary">R$ {custoFixoReceita.toFixed(2)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Outros Gastos */}
-                <div className="space-y-3 p-4 rounded-lg bg-card border">
-                  <h4 className="font-semibold text-sm text-muted-foreground">Outros Gastos</h4>
-                  <div className="flex gap-2">
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={outrosGastos || ""}
-                      onChange={(e) => setOutrosGastos(parseFloat(e.target.value) || 0)}
-                      placeholder="0"
-                      className="flex-1"
-                    />
-                    <Select
-                      value={outrosGastosTipo}
-                      onValueChange={(value: "valor" | "percentual") => setOutrosGastosTipo(value)}
-                    >
-                      <SelectTrigger className="w-28">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="valor">R$</SelectItem>
-                        <SelectItem value="percentual">%</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Valor: R$ {outrosGastosValor.toFixed(2)}
-                  </div>
-                </div>
-
-                {/* Taxa de Cartão */}
-                <div className="space-y-3 p-4 rounded-lg bg-card border">
-                  <h4 className="font-semibold text-sm text-muted-foreground">Taxa de Cartão (%)</h4>
-                  <Input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.01"
-                    value={percentualCartao || ""}
-                    onChange={(e) => setPercentualCartao(parseFloat(e.target.value) || 0)}
-                    placeholder="0"
-                  />
-                  <div className="text-sm text-muted-foreground">
-                    Valor: R$ {valorCartao.toFixed(2)}
-                  </div>
-                </div>
-
-                {/* Custo Total */}
-                <div className="space-y-3 p-4 rounded-lg bg-primary/10 border-primary/30 border-2">
-                  <h4 className="font-semibold text-sm">Custo Total (CMV)</h4>
-                  <div className="text-3xl font-bold text-primary">
-                    R$ {cmv.toFixed(2)}
-                  </div>
-                </div>
-              </div>
-
-              {/* Precificação */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
-                <div className="space-y-3 p-4 rounded-lg bg-accent/50 border-2 border-accent">
-                  <h4 className="font-semibold">💡 Sugestão de Venda (CMV 30%)</h4>
-                  <div className="text-2xl font-bold text-accent-foreground">
-                    R$ {valorVendaSugerido.toFixed(2)}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Baseado em um CMV saudável de 30%
-                  </p>
-                </div>
-
-                <div className="space-y-3 p-4 rounded-lg bg-card border-2">
-                  <h4 className="font-semibold">🎯 Valor de Venda</h4>
-                  <Input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={valorVenda || ""}
-                    onChange={(e) => setValorVenda(parseFloat(e.target.value) || 0)}
-                    placeholder="0.00"
-                    className="text-xl font-bold"
-                  />
-                </div>
-              </div>
-
-              {/* Análise da Venda */}
-              {valorVenda > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
-                  <div className="space-y-2 p-4 rounded-lg bg-card border">
-                    <h4 className="font-semibold text-sm">📊 CMV Real</h4>
-                    <div className="text-2xl font-bold" style={{ color: percentualCMV <= 35 ? 'hsl(var(--chart-2))' : percentualCMV <= 45 ? 'hsl(var(--chart-4))' : 'hsl(var(--destructive))' }}>
-                      {percentualCMV.toFixed(1)}%
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {percentualCMV <= 35 ? '✓ Excelente' : percentualCMV <= 45 ? '⚠ Aceitável' : '✗ Alto'}
-                    </p>
-                  </div>
-
-                  <div className="space-y-2 p-4 rounded-lg bg-card border">
-                    <h4 className="font-semibold text-sm">💵 Margem de Contribuição</h4>
-                    <div className="text-2xl font-bold text-chart-2">
-                      R$ {margemContribuicao.toFixed(2)}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {percentualMargemContribuicao.toFixed(1)}% do valor de venda
-                    </p>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <Label>Ingredientes</Label>
@@ -714,14 +579,142 @@ export default function ReceitaForm() {
             )}
           </div>
 
+          {/* Quadro de Precificação */}
           {(ingredientes.length > 0 || embalagens.length > 0) && (
-            <div className="flex justify-end pt-4 border-t">
-              <div className="text-xl font-bold text-primary">
-                Custo Total da Receita: R$ {custoTotal.toFixed(2)}
-              </div>
-            </div>
-          )}
+            <Card className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border-primary/20">
+              <CardContent className="pt-6 space-y-4">
+                <h3 className="text-xl font-bold text-primary mb-4">💰 Precificação</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Custos Automáticos */}
+                  <div className="space-y-3 p-4 rounded-lg bg-card border">
+                    <h4 className="font-semibold text-sm text-muted-foreground">Custos Calculados</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Ingredientes:</span>
+                        <span className="font-semibold text-primary">R$ {custoIngredientes.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Embalagens:</span>
+                        <span className="font-semibold text-primary">R$ {custoEmbalagens.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Custos Fixos:</span>
+                        <span className="font-semibold text-primary">R$ {custoFixoReceita.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
 
+                  {/* Outros Gastos */}
+                  <div className="space-y-3 p-4 rounded-lg bg-card border">
+                    <h4 className="font-semibold text-sm text-muted-foreground">Outros Gastos</h4>
+                    <div className="flex gap-2">
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={outrosGastos || ""}
+                        onChange={(e) => setOutrosGastos(parseFloat(e.target.value) || 0)}
+                        placeholder="0"
+                        className="flex-1"
+                      />
+                      <Select
+                        value={outrosGastosTipo}
+                        onValueChange={(value: "valor" | "percentual") => setOutrosGastosTipo(value)}
+                      >
+                        <SelectTrigger className="w-28">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="valor">R$</SelectItem>
+                          <SelectItem value="percentual">%</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Valor: R$ {outrosGastosValor.toFixed(2)}
+                    </div>
+                  </div>
+
+                  {/* Taxa de Cartão */}
+                  <div className="space-y-3 p-4 rounded-lg bg-card border">
+                    <h4 className="font-semibold text-sm text-muted-foreground">Taxa de Cartão (%)</h4>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                      value={percentualCartao || ""}
+                      onChange={(e) => setPercentualCartao(parseFloat(e.target.value) || 0)}
+                      placeholder="0"
+                    />
+                    <div className="text-sm text-muted-foreground">
+                      Valor: R$ {valorCartao.toFixed(2)}
+                    </div>
+                  </div>
+
+                  {/* Custo Total */}
+                  <div className="space-y-3 p-4 rounded-lg bg-primary/10 border-primary/30 border-2">
+                    <h4 className="font-semibold text-sm">Custo Total (CMV)</h4>
+                    <div className="text-3xl font-bold text-primary">
+                      R$ {cmv.toFixed(2)}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Precificação */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+                  <div className="space-y-3 p-4 rounded-lg bg-accent/50 border-2 border-accent">
+                    <h4 className="font-semibold">💡 Sugestão de Venda (CMV 30%)</h4>
+                    <div className="text-2xl font-bold text-accent-foreground">
+                      R$ {valorVendaSugerido.toFixed(2)}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Baseado em um CMV saudável de 30%
+                    </p>
+                  </div>
+
+                  <div className="space-y-3 p-4 rounded-lg bg-card border-2">
+                    <h4 className="font-semibold">🎯 Valor de Venda</h4>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={valorVenda || ""}
+                      onChange={(e) => setValorVenda(parseFloat(e.target.value) || 0)}
+                      placeholder="0.00"
+                      className="text-xl font-bold"
+                    />
+                  </div>
+                </div>
+
+                {/* Análise da Venda */}
+                {valorVenda > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+                    <div className="space-y-2 p-4 rounded-lg bg-card border">
+                      <h4 className="font-semibold text-sm">📊 CMV Real</h4>
+                      <div className="text-2xl font-bold" style={{ color: percentualCMV <= 35 ? 'hsl(var(--chart-2))' : percentualCMV <= 45 ? 'hsl(var(--chart-4))' : 'hsl(var(--destructive))' }}>
+                        {percentualCMV.toFixed(1)}%
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {percentualCMV <= 35 ? '✓ Excelente' : percentualCMV <= 45 ? '⚠ Aceitável' : '✗ Alto'}
+                      </p>
+                    </div>
+
+                    <div className="space-y-2 p-4 rounded-lg bg-card border">
+                      <h4 className="font-semibold text-sm">💵 Margem de Contribuição</h4>
+                      <div className="text-2xl font-bold text-chart-2">
+                        R$ {margemContribuicao.toFixed(2)}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {percentualMargemContribuicao.toFixed(1)}% do valor de venda
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           <div className="flex gap-2 justify-end pt-4 border-t">
             <Button variant="outline" onClick={() => navigate("/receitas")}>
