@@ -836,56 +836,68 @@ export default function ReceitaForm() {
                 {/* Análise da Venda */}
                 {valorVenda > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
-                    <div className={`space-y-2 p-4 rounded-lg border-2 transition-all duration-300 ${
-                      percentualCMV <= 35 
-                        ? 'bg-green-50 border-green-500 shadow-lg shadow-green-200' 
-                        : percentualCMV <= 45 
-                          ? 'bg-yellow-50 border-yellow-500 shadow-lg shadow-yellow-200' 
-                          : 'bg-red-50 border-red-500 shadow-lg shadow-red-200'
-                    }`}>
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl">
-                          {percentualCMV <= 35 ? '✅' : percentualCMV <= 45 ? '⚠️' : '❌'}
-                        </span>
-                        <h4 className="font-semibold text-sm">📊 CMV Real</h4>
-                        <span className="text-2xl ml-auto">
-                          {percentualCMV <= 35 ? '😊' : percentualCMV <= 45 ? '😐' : '😰'}
-                        </span>
+                    <div className="space-y-3">
+                      <div className={`space-y-2 p-4 rounded-lg border-2 transition-all duration-300 ${
+                        percentualCMV <= 35 
+                          ? 'bg-green-50 border-green-500 shadow-lg shadow-green-200' 
+                          : percentualCMV <= 45 
+                            ? 'bg-yellow-50 border-yellow-500 shadow-lg shadow-yellow-200' 
+                            : 'bg-red-50 border-red-500 shadow-lg shadow-red-200 animate-pulse'
+                      }`}>
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">
+                            {percentualCMV <= 35 ? '✅' : percentualCMV <= 45 ? '⚠️' : '❌'}
+                          </span>
+                          <h4 className="font-semibold text-sm">📊 CMV Real</h4>
+                          <span className="text-2xl ml-auto">
+                            {percentualCMV <= 35 ? '😊' : percentualCMV <= 45 ? '😐' : '😰'}
+                          </span>
+                        </div>
+                        <div className={`font-bold transition-all ${
+                          percentualCMV <= 35 
+                            ? 'text-4xl text-green-600' 
+                            : percentualCMV <= 45 
+                              ? 'text-3xl text-yellow-600' 
+                              : 'text-5xl text-red-600'
+                        }`}>
+                          {percentualCMV.toFixed(1)}%
+                        </div>
+                        <p className={`text-sm font-semibold ${
+                          percentualCMV <= 35 
+                            ? 'text-green-700' 
+                            : percentualCMV <= 45 
+                              ? 'text-yellow-700' 
+                              : 'text-red-700'
+                        }`}>
+                          {percentualCMV <= 35 
+                            ? '✓ Excelente! CMV muito saudável' 
+                            : percentualCMV <= 45 
+                              ? '⚠ Aceitável, mas pode melhorar' 
+                              : '✗ ATENÇÃO! CMV muito alto'}
+                        </p>
                       </div>
-                      <div className={`font-bold transition-all ${
+                      
+                      <div className={`text-sm p-3 rounded-lg font-medium ${
                         percentualCMV <= 35 
-                          ? 'text-4xl text-green-600' 
+                          ? 'bg-green-100 text-green-800 border border-green-300' 
                           : percentualCMV <= 45 
-                            ? 'text-3xl text-yellow-600' 
-                            : 'text-5xl text-red-600'
+                            ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' 
+                            : 'bg-red-100 text-red-800 border border-red-300'
                       }`}>
-                        {percentualCMV.toFixed(1)}%
-                      </div>
-                      <p className={`text-sm font-semibold ${
-                        percentualCMV <= 35 
-                          ? 'text-green-700' 
-                          : percentualCMV <= 45 
-                            ? 'text-yellow-700' 
-                            : 'text-red-700'
-                      }`}>
-                        {percentualCMV <= 35 
-                          ? '✓ Excelente! CMV muito saudável' 
-                          : percentualCMV <= 45 
-                            ? '⚠ Aceitável, mas pode melhorar' 
-                            : '✗ ATENÇÃO! CMV muito alto'}
-                      </p>
-                      <div className={`text-xs mt-2 p-2 rounded ${
-                        percentualCMV <= 35 
-                          ? 'bg-green-100 text-green-800' 
-                          : percentualCMV <= 45 
-                            ? 'bg-yellow-100 text-yellow-800' 
-                            : 'bg-red-100 text-red-800'
-                      }`}>
-                        {percentualCMV <= 35 
-                          ? '🎉 Parabéns! Sua margem de lucro está ótima. Com esse CMV, você terá uma boa margem para cobrir despesas operacionais e ainda gerar lucro.' 
-                          : percentualCMV <= 45 
-                            ? '💡 Seu CMV está na faixa aceitável, mas há espaço para otimização. Considere revisar custos de ingredientes ou ajustar o preço de venda para aumentar sua margem.' 
-                            : '🚨 ALERTA! CMV acima de 45% pode comprometer sua lucratividade! Riscos: pouca margem para despesas operacionais, dificuldade em cobrir custos fixos, vulnerabilidade a variações de preço. Recomenda-se: renegociar preços com fornecedores, otimizar receita ou aumentar preço de venda.'}
+                        <p className="font-bold text-base mb-1">
+                          {percentualCMV <= 35 
+                            ? '🎉 PARABÉNS!' 
+                            : percentualCMV <= 45 
+                              ? '💡 ATENÇÃO!' 
+                              : '🚨 ALERTA IMPORTANTE!'}
+                        </p>
+                        <p className="text-xs leading-relaxed">
+                          {percentualCMV <= 35 
+                            ? 'Sua margem de lucro está ótima. Com esse CMV, você terá uma boa margem para cobrir despesas operacionais e ainda gerar lucro.' 
+                            : percentualCMV <= 45 
+                              ? 'Seu CMV está na faixa aceitável, mas há espaço para otimização. Considere revisar custos de ingredientes ou ajustar o preço de venda para aumentar sua margem.' 
+                              : 'CMV acima de 45% pode comprometer sua lucratividade! Riscos: pouca margem para despesas operacionais, dificuldade em cobrir custos fixos, vulnerabilidade a variações de preço. Recomenda-se: renegociar preços com fornecedores, otimizar receita ou aumentar preço de venda.'}
+                        </p>
                       </div>
                     </div>
 
