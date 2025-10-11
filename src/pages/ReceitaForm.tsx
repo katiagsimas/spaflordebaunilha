@@ -99,8 +99,11 @@ export default function ReceitaForm() {
   const [modoPreparo, setModoPreparo] = useState("");
   
   // Estados para precificação
-  const [outrosGastos, setOutrosGastos] = useState(0);
-  const [outrosGastosTipo, setOutrosGastosTipo] = useState<"valor" | "percentual">("valor");
+  const [outrosGastosPersonalizados, setOutrosGastosPersonalizados] = useState([
+    { id: '1', nome: '', valor: 0 },
+    { id: '2', nome: '', valor: 0 },
+    { id: '3', nome: '', valor: 0 },
+  ]);
   const [despesasVenda, setDespesasVenda] = useState([
     { id: 'impostos', nome: 'Impostos', percentual: 0, valor: 0 },
     { id: 'taxa_cartao', nome: 'Taxa de Cartão', percentual: 0, valor: 0 },
@@ -254,10 +257,28 @@ export default function ReceitaForm() {
     : Number(formData.tempoPreparo) / 60;
   const custoFixoReceita = custoFixoPorHora * tempoPreparoHoras;
   
-  // Calcular outros gastos
-  const outrosGastosValor = outrosGastosTipo === "valor" 
-    ? outrosGastos 
-    : (custoIngredientes + custoEmbalagens + custoFixoReceita) * (outrosGastos / 100);
+  // Calcular outros gastos personalizados
+  const handleOutroGastoChange = (index: number, field: 'nome' | 'valor', value: string | number) => {
+    const novosGastos = [...outrosGastosPersonalizados];
+    if (field === 'nome') {
+      novosGastos[index].nome = value as string;
+    } else {
+      novosGastos[index].valor = value as number;
+    }
+    setOutrosGastosPersonalizados(novosGastos);
+  };
+
+  const handleAddOutroGasto = () => {
+    setOutrosGastosPersonalizados([...outrosGastosPersonalizados, { id: Date.now().toString(), nome: '', valor: 0 }]);
+  };
+
+  const handleRemoveOutroGasto = (index: number) => {
+    if (outrosGastosPersonalizados.length > 3) {
+      setOutrosGastosPersonalizados(outrosGastosPersonalizados.filter((_, i) => i !== index));
+    }
+  };
+
+  const outrosGastosValor = outrosGastosPersonalizados.reduce((acc, gasto) => acc + (gasto.valor || 0), 0);
   
   // Custo total sem taxas
   const custoTotal = custoIngredientes + custoEmbalagens + custoFixoReceita + outrosGastosValor;
@@ -653,32 +674,47 @@ export default function ReceitaForm() {
 
                   {/* Outros Gastos */}
                   <div className="space-y-3 p-4 rounded-lg bg-card border">
-                    <h4 className="font-semibold text-sm text-muted-foreground">Outros Gastos</h4>
-                    <div className="flex gap-2">
-                      <Input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={outrosGastos || ""}
-                        onChange={(e) => setOutrosGastos(parseFloat(e.target.value) || 0)}
-                        placeholder="0"
-                        className="flex-1"
-                      />
-                      <Select
-                        value={outrosGastosTipo}
-                        onValueChange={(value: "valor" | "percentual") => setOutrosGastosTipo(value)}
-                      >
-                        <SelectTrigger className="w-28">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="valor">R$</SelectItem>
-                          <SelectItem value="percentual">%</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-semibold text-sm text-muted-foreground">Outros Gastos</h4>
+                      <Button type="button" variant="outline" size="sm" onClick={handleAddOutroGasto}>
+                        <Plus className="h-3 w-3 mr-1" />
+                        Adicionar
+                      </Button>
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      Valor: R$ {outrosGastosValor.toFixed(2)}
+                    <div className="space-y-2">
+                      {outrosGastosPersonalizados.map((gasto, index) => (
+                        <div key={gasto.id} className="flex gap-2 items-center">
+                          <Input
+                            type="text"
+                            value={gasto.nome}
+                            onChange={(e) => handleOutroGastoChange(index, 'nome', e.target.value)}
+                            placeholder="Ex: Topo de bolo"
+                            className="flex-1"
+                          />
+                          <Input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={gasto.valor || ""}
+                            onChange={(e) => handleOutroGastoChange(index, 'valor', parseFloat(e.target.value) || 0)}
+                            placeholder="R$ 0.00"
+                            className="w-32"
+                          />
+                          {outrosGastosPersonalizados.length > 3 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleRemoveOutroGasto(index)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex justify-end pt-2 border-t text-sm font-bold">
+                      Total: R$ {outrosGastosValor.toFixed(2)}
                     </div>
                   </div>
 
