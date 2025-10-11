@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import sugarboxLogo from "@/assets/sugarbox-logo.png";
+import docesBackground from "@/assets/doces-background.jpg";
 export default function Login() {
   const [nome, setNome] = useState("");
   const [nomeNegocio, setNomeNegocio] = useLocalStorage<string>("nomeNegocio", "");
@@ -22,7 +23,11 @@ export default function Login() {
       navigate("/");
     }
   };
-  return <div className="min-h-screen flex items-center justify-center gradient-subtle p-4">
+  return <div className="min-h-screen flex items-center justify-center gradient-subtle p-4 relative overflow-hidden">
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-10"
+        style={{ backgroundImage: `url(${docesBackground})` }}
+      />
       <Card className="w-full max-w-md shadow-elevated">
         <CardHeader className="text-center pb-2">
           <div className="flex justify-center">
