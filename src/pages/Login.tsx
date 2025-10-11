@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import donnasLogo from "@/assets/donnas-logo.png";
+import sugarboxLogo from "@/assets/sugarbox-logo.png";
 
 export default function Login() {
   const [nome, setNome] = useState("");
@@ -32,8 +32,8 @@ export default function Login() {
         <CardHeader className="text-center space-y-2">
           <div className="flex justify-center mb-4">
             <img 
-              src={donnasLogo} 
-              alt="Donnas da Confeitaria" 
+              src={sugarboxLogo} 
+              alt="SugarBox - O Sistema Completo da Confeiteira" 
               className="h-40 w-auto object-contain"
             />
           </div>
