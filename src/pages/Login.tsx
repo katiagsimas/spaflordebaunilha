@@ -24,11 +24,10 @@ export default function Login() {
   };
   return <div className="min-h-screen flex items-center justify-center gradient-subtle p-4">
       <Card className="w-full max-w-md shadow-elevated">
-        <CardHeader className="text-center space-y-2">
-          <div className="flex justify-center mb-4">
-            <img src={sugarboxLogo} alt="SugarBox - O Sistema Completo da Confeiteira" className="h-40 w-auto object-contain" />
+        <CardHeader className="text-center pb-2">
+          <div className="flex justify-center">
+            <img src={sugarboxLogo} alt="SugarBox - O Sistema Completo da Confeiteira" className="h-52 w-auto object-contain" />
           </div>
-          
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
