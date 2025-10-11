@@ -65,9 +65,15 @@ interface EmbalagemReceita {
   custoReceita: number;
 }
 
+interface Categoria {
+  id: string;
+  nome: string;
+}
+
 interface Receita {
   id: string;
   nome: string;
+  categoria?: string;
   tempoPreparo: number;
   unidadeTempo: "minutos" | "horas";
   rendimento: number;
@@ -88,9 +94,11 @@ export default function ReceitaForm() {
   const [ingredientesCadastrados] = useLocalStorage<Ingrediente[]>("ingredientes", []);
   const [embalagensCadastradas] = useLocalStorage<Embalagem[]>("embalagens", []);
   const [custosFixos] = useLocalStorage<CustoFixo[]>("custosFixos", []);
+  const [categorias] = useLocalStorage<Categoria[]>("categorias", []);
 
   const [formData, setFormData] = useState({
     nome: "",
+    categoria: "",
     tempoPreparo: "",
     unidadeTempo: "minutos" as "minutos" | "horas",
     rendimento: "",
@@ -122,6 +130,7 @@ export default function ReceitaForm() {
       if (receita) {
         setFormData({
           nome: receita.nome,
+          categoria: receita.categoria || "",
           tempoPreparo: receita.tempoPreparo.toString(),
           unidadeTempo: receita.unidadeTempo,
           rendimento: receita.rendimento.toString(),
@@ -346,6 +355,7 @@ export default function ReceitaForm() {
     const receita: Receita = {
       id: id || Date.now().toString(),
       nome: formData.nome,
+      categoria: formData.categoria,
       tempoPreparo: Number(formData.tempoPreparo),
       unidadeTempo: formData.unidadeTempo,
       rendimento: Number(formData.rendimento),
@@ -400,6 +410,27 @@ export default function ReceitaForm() {
                 placeholder="Ex: Bolo de Chocolate"
               />
             </div>
+
+            <div>
+              <Label htmlFor="categoria">Categoria</Label>
+              <Select
+                value={formData.categoria}
+                onValueChange={(value) => setFormData({ ...formData, categoria: value })}
+              >
+                <SelectTrigger id="categoria">
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categorias.map((categoria) => (
+                    <SelectItem key={categoria.id} value={categoria.nome}>
+                      {categoria.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div></div>
 
             <div>
               <Label htmlFor="tempoPreparo">Tempo de Preparo *</Label>

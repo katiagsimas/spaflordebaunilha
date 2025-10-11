@@ -1,7 +1,7 @@
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Users, Truck, Ruler, Boxes, Package, UserCircle, DollarSign } from "lucide-react";
+import { Users, Truck, Ruler, Boxes, Package, UserCircle, DollarSign, Tag } from "lucide-react";
 
 const cadastros = [
   {
@@ -17,6 +17,13 @@ const cadastros = [
     icon: DollarSign,
     url: "/cadastros/custos-fixos",
     color: "text-red-600 bg-red-50 dark:bg-red-950",
+  },
+  {
+    title: "Categorias",
+    description: "Categorias de receitas",
+    icon: Tag,
+    url: "/cadastros/categorias",
+    color: "text-cyan-600 bg-cyan-50 dark:bg-cyan-950",
   },
   {
     title: "Clientes",
