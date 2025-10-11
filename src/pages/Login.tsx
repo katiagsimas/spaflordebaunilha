@@ -28,7 +28,7 @@ export default function Login() {
         className="absolute inset-0 bg-cover bg-center opacity-10"
         style={{ backgroundImage: `url(${docesBackground})` }}
       />
-      <Card className="w-full max-w-md shadow-elevated">
+      <Card className="w-full max-w-md shadow-elevated bg-white relative z-10">
         <CardHeader className="text-center pb-2">
           <div className="flex justify-center">
             <img src={sugarboxLogo} alt="SugarBox - O Sistema Completo da Confeiteira" className="h-52 w-auto object-contain" />
