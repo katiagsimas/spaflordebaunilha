@@ -27,7 +27,7 @@ const cadastros = [
   },
   {
     title: "Ingredientes",
-    description: "Cadastro de ingredientes e insumos",
+    description: "Cadastro de Insumos",
     icon: Boxes,
     url: "/cadastros/ingredientes",
     color: "text-orange-600 bg-orange-50 dark:bg-orange-950",
