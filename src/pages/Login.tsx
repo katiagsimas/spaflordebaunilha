@@ -37,8 +37,8 @@ export default function Login() {
               className="h-40 w-auto object-contain"
             />
           </div>
-          <CardTitle className="text-3xl">SugarBox</CardTitle>
-          <CardDescription className="text-base">
+          <CardTitle className="text-5xl font-logo text-primary">SugarBox</CardTitle>
+          <CardDescription className="text-xs uppercase tracking-widest text-muted-foreground">
             Tudo que você precisa, numa caixa só!
           </CardDescription>
         </CardHeader>
