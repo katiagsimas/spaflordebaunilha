@@ -836,13 +836,43 @@ export default function ReceitaForm() {
                 {/* Análise da Venda */}
                 {valorVenda > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
-                    <div className="space-y-2 p-4 rounded-lg bg-card border">
-                      <h4 className="font-semibold text-sm">📊 CMV Real</h4>
-                      <div className="text-2xl font-bold" style={{ color: percentualCMV <= 35 ? 'hsl(var(--chart-2))' : percentualCMV <= 45 ? 'hsl(var(--chart-4))' : 'hsl(var(--destructive))' }}>
+                    <div className={`space-y-2 p-4 rounded-lg border-2 transition-all duration-300 ${
+                      percentualCMV <= 35 
+                        ? 'bg-green-50 border-green-500 shadow-lg shadow-green-200' 
+                        : percentualCMV <= 45 
+                          ? 'bg-yellow-50 border-yellow-500 shadow-lg shadow-yellow-200' 
+                          : 'bg-red-50 border-red-500 shadow-lg shadow-red-200 animate-pulse'
+                    }`}>
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl">
+                          {percentualCMV <= 35 ? '✅' : percentualCMV <= 45 ? '⚠️' : '❌'}
+                        </span>
+                        <h4 className="font-semibold text-sm">📊 CMV Real</h4>
+                        <span className="text-2xl ml-auto">
+                          {percentualCMV <= 35 ? '😊' : percentualCMV <= 45 ? '😐' : '😰'}
+                        </span>
+                      </div>
+                      <div className={`font-bold transition-all ${
+                        percentualCMV <= 35 
+                          ? 'text-4xl text-green-600' 
+                          : percentualCMV <= 45 
+                            ? 'text-3xl text-yellow-600' 
+                            : 'text-5xl text-red-600'
+                      }`}>
                         {percentualCMV.toFixed(1)}%
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        {percentualCMV <= 35 ? '✓ Excelente' : percentualCMV <= 45 ? '⚠ Aceitável' : '✗ Alto'}
+                      <p className={`text-sm font-semibold ${
+                        percentualCMV <= 35 
+                          ? 'text-green-700' 
+                          : percentualCMV <= 45 
+                            ? 'text-yellow-700' 
+                            : 'text-red-700'
+                      }`}>
+                        {percentualCMV <= 35 
+                          ? '✓ Excelente! CMV muito saudável' 
+                          : percentualCMV <= 45 
+                            ? '⚠ Aceitável, mas pode melhorar' 
+                            : '✗ ATENÇÃO! CMV muito alto'}
                       </p>
                     </div>
 
