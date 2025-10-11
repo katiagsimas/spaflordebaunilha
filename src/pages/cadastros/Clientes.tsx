@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { Plus, Pencil, Trash2, Users } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -24,6 +25,7 @@ interface Cliente {
 }
 
 export default function Clientes() {
+  const navigate = useNavigate();
   const [clientes, setClientes] = useLocalStorage<Cliente[]>("clientes", []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
@@ -88,10 +90,21 @@ export default function Clientes() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Clientes"
-        description="Gerencie seus clientes"
-      />
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => navigate("/cadastros")}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Clientes"
+            description="Gerencie seus clientes"
+          />
+        </div>
+      </div>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">

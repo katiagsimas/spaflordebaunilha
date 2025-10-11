@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { Plus, Pencil, Trash2, Ruler } from "lucide-react";
+import { Plus, Pencil, Trash2, Ruler, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 interface UnidadeMedida {
@@ -19,6 +20,7 @@ interface UnidadeMedida {
 }
 
 export default function UnidadesMedida() {
+  const navigate = useNavigate();
   const [unidades, setUnidades] = useLocalStorage<UnidadeMedida[]>("unidadesMedida", [
     { id: "1", nome: "Unidades", sigla: "un" },
     { id: "2", nome: "Gramas", sigla: "g" },
@@ -83,10 +85,21 @@ export default function UnidadesMedida() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Unidades de Medidas"
-        description="Gerencie as unidades de medida"
-      />
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => navigate("/cadastros")}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Unidades de Medidas"
+            description="Gerencie as unidades de medida"
+          />
+        </div>
+      </div>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">

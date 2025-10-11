@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { Plus, Pencil, Trash2, Boxes } from "lucide-react";
+import { Plus, Pencil, Trash2, Boxes, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -25,6 +26,7 @@ interface Ingrediente {
 }
 
 export default function Ingredientes() {
+  const navigate = useNavigate();
   const [ingredientes, setIngredientes] = useLocalStorage<Ingrediente[]>("ingredientes", []);
   const [unidades] = useLocalStorage<{ id: string; nome: string; sigla: string }[]>("unidadesMedida", []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -90,10 +92,21 @@ export default function Ingredientes() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Ingredientes"
-        description="Gerencie seus ingredientes e insumos"
-      />
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => navigate("/cadastros")}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Ingredientes"
+            description="Gerencie seus ingredientes e insumos"
+          />
+        </div>
+      </div>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
