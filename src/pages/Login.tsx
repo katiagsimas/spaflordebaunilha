@@ -28,7 +28,7 @@ export default function Login() {
           <div className="flex justify-center mb-4">
             <img src={sugarboxLogo} alt="SugarBox - O Sistema Completo da Confeiteira" className="h-40 w-auto object-contain" />
           </div>
-          <CardDescription className="text-xs uppercase tracking-widest text-muted-foreground">TUDO QUE VOCÊ PRECEISA, NUMA CAIXA SÓ!</CardDescription>
+          
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
