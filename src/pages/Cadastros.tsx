@@ -1,9 +1,23 @@
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Users, Truck, Ruler, Boxes, Package } from "lucide-react";
+import { Users, Truck, Ruler, Boxes, Package, UserCircle, DollarSign } from "lucide-react";
 
 const cadastros = [
+  {
+    title: "Seus Dados",
+    description: "Dados da sua empresa",
+    icon: UserCircle,
+    url: "/cadastros/seus-dados",
+    color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-950",
+  },
+  {
+    title: "Custos Fixos",
+    description: "Despesas mensais fixas",
+    icon: DollarSign,
+    url: "/cadastros/custos-fixos",
+    color: "text-red-600 bg-red-50 dark:bg-red-950",
+  },
   {
     title: "Clientes",
     description: "Cadastro de clientes",

@@ -11,6 +11,8 @@ import Calculadora from "./pages/Calculadora";
 import Encomendas from "./pages/Encomendas";
 import Producao from "./pages/Producao";
 import Cadastros from "./pages/Cadastros";
+import SeusDados from "./pages/cadastros/SeusDados";
+import CustosFixos from "./pages/cadastros/CustosFixos";
 import Clientes from "./pages/cadastros/Clientes";
 import Fornecedores from "./pages/cadastros/Fornecedores";
 import UnidadesMedida from "./pages/cadastros/UnidadesMedida";
@@ -61,6 +63,8 @@ const App = () => (
           <Route path="/encomendas" element={<ProtectedRoute><Layout><Encomendas /></Layout></ProtectedRoute>} />
           <Route path="/producao" element={<ProtectedRoute><Layout><Producao /></Layout></ProtectedRoute>} />
           <Route path="/cadastros" element={<ProtectedRoute><Layout><Cadastros /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros/seus-dados" element={<ProtectedRoute><Layout><SeusDados /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros/custos-fixos" element={<ProtectedRoute><Layout><CustosFixos /></Layout></ProtectedRoute>} />
           <Route path="/cadastros/clientes" element={<ProtectedRoute><Layout><Clientes /></Layout></ProtectedRoute>} />
           <Route path="/cadastros/fornecedores" element={<ProtectedRoute><Layout><Fornecedores /></Layout></ProtectedRoute>} />
           <Route path="/cadastros/unidades" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
