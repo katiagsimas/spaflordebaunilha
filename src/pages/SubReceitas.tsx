@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, ArrowLeft, ChefHat } from "lucide-react";
@@ -50,10 +50,40 @@ interface SubReceita {
 export default function SubReceitas() {
   const navigate = useNavigate();
   const [subReceitas, setSubReceitas] = useLocalStorage<SubReceita[]>("subReceitas", []);
-  const [ingredientesCadastrados] = useLocalStorage<Ingrediente[]>("ingredientes", []);
+  const [ingredientesCadastrados, setIngredientesCadastrados] = useLocalStorage<Ingrediente[]>("ingredientes", []);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Migração automática: converter sub-receitas existentes em ingredientes
+  useEffect(() => {
+    let houveMigracao = false;
+    const novosIngredientes = [...ingredientesCadastrados];
+
+    subReceitas.forEach((subReceita) => {
+      const ingredienteId = `sub-receita-${subReceita.id}`;
+      const ingredienteExiste = ingredientesCadastrados.some(ing => ing.id === ingredienteId);
+
+      if (!ingredienteExiste) {
+        const ingredienteSubReceita: Ingrediente = {
+          id: ingredienteId,
+          nome: subReceita.nome,
+          marca: "Sub-Receita",
+          quantidade: subReceita.rendimento,
+          unidadeMedida: subReceita.unidadeRendimento === "gramas" ? "g" : "un",
+          preco: subReceita.custoTotal,
+          dataAtualizacao: new Date().toISOString().split('T')[0],
+        };
+        novosIngredientes.push(ingredienteSubReceita);
+        houveMigracao = true;
+      }
+    });
+
+    if (houveMigracao) {
+      setIngredientesCadastrados(novosIngredientes);
+      toast.success("Sub-receitas migradas para ingredientes com sucesso!");
+    }
+  }, []); // Executa apenas uma vez ao carregar
 
   const handleDelete = (id: string) => {
     setDeletingId(id);
