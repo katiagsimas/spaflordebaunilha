@@ -841,7 +841,7 @@ export default function ReceitaForm() {
                         ? 'bg-green-50 border-green-500 shadow-lg shadow-green-200' 
                         : percentualCMV <= 45 
                           ? 'bg-yellow-50 border-yellow-500 shadow-lg shadow-yellow-200' 
-                          : 'bg-red-50 border-red-500 shadow-lg shadow-red-200 animate-pulse'
+                          : 'bg-red-50 border-red-500 shadow-lg shadow-red-200'
                     }`}>
                       <div className="flex items-center gap-2">
                         <span className="text-2xl">
