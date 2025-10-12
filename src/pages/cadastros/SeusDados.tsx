@@ -13,9 +13,15 @@ import { useState } from "react";
 interface SeusDadosForm {
   razaoSocial: string;
   cnpjCpf: string;
+  inscricaoEstadual: string;
   nomeResponsavel: string;
   telefone: string;
   email: string;
+  endereco: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+  cep: string;
   logomarca?: string;
 }
 
@@ -24,9 +30,15 @@ export default function SeusDados() {
   const [dados, setDados] = useLocalStorage<SeusDadosForm>("seusDados", {
     razaoSocial: "",
     cnpjCpf: "",
+    inscricaoEstadual: "",
     nomeResponsavel: "",
     telefone: "",
     email: "",
+    endereco: "",
+    bairro: "",
+    cidade: "",
+    estado: "",
+    cep: "",
     logomarca: "",
   });
 
@@ -97,6 +109,15 @@ export default function SeusDados() {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="inscricaoEstadual">Inscrição Estadual</Label>
+              <Input
+                id="inscricaoEstadual"
+                {...register("inscricaoEstadual")}
+                placeholder="000.000.000.000"
+              />
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="nomeResponsavel">Nome da(o) Responsável</Label>
               <Input
                 id="nomeResponsavel"
@@ -105,22 +126,73 @@ export default function SeusDados() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="telefone">Telefone/WhatsApp</Label>
-              <Input
-                id="telefone"
-                {...register("telefone")}
-                placeholder="(00) 00000-0000"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="telefone">Telefone/WhatsApp</Label>
+                <Input
+                  id="telefone"
+                  {...register("telefone")}
+                  placeholder="(00) 00000-0000"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">E-mail</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  {...register("email")}
+                  placeholder="seu@email.com"
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
+              <Label htmlFor="endereco">Endereço</Label>
               <Input
-                id="email"
-                type="email"
-                {...register("email")}
-                placeholder="seu@email.com"
+                id="endereco"
+                {...register("endereco")}
+                placeholder="Rua, número"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="bairro">Bairro</Label>
+                <Input
+                  id="bairro"
+                  {...register("bairro")}
+                  placeholder="Bairro"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="cidade">Cidade</Label>
+                <Input
+                  id="cidade"
+                  {...register("cidade")}
+                  placeholder="Cidade"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="estado">Estado</Label>
+                <Input
+                  id="estado"
+                  {...register("estado")}
+                  placeholder="UF"
+                  maxLength={2}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="cep">CEP</Label>
+              <Input
+                id="cep"
+                {...register("cep")}
+                placeholder="00000-000"
+                className="max-w-xs"
               />
             </div>
 
