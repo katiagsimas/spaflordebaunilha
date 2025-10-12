@@ -4,7 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { ArrowLeft, Save, Upload, X } from "lucide-react";
+import { useViaCEP } from "@/hooks/useViaCEP";
+import { ArrowLeft, Save, Upload, X, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -43,10 +44,13 @@ export default function SeusDados() {
   });
 
   const [logomarca, setLogomarca] = useState<string>(dados.logomarca || "");
+  const { buscarCEP, loading } = useViaCEP();
 
-  const { register, handleSubmit } = useForm<SeusDadosForm>({
+  const { register, handleSubmit, setValue, watch } = useForm<SeusDadosForm>({
     defaultValues: dados,
   });
+
+  const cepValue = watch("cep");
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -67,6 +71,16 @@ export default function SeusDados() {
 
   const handleRemoveImage = () => {
     setLogomarca("");
+  };
+
+  const handleBuscarCEP = async () => {
+    const endereco = await buscarCEP(cepValue);
+    if (endereco) {
+      setValue("endereco", endereco.endereco);
+      setValue("bairro", endereco.bairro);
+      setValue("cidade", endereco.cidade);
+      setValue("estado", endereco.estado);
+    }
   };
 
   const onSubmit = (data: SeusDadosForm) => {
@@ -148,6 +162,31 @@ export default function SeusDados() {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="cep">CEP</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="cep"
+                  {...register("cep")}
+                  placeholder="00000-000"
+                  maxLength={9}
+                  className="max-w-xs"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleBuscarCEP}
+                  disabled={loading || !cepValue}
+                >
+                  <Search className="h-4 w-4 mr-2" />
+                  {loading ? "Buscando..." : "Buscar"}
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Digite o CEP e clique em Buscar para preencher automaticamente
+              </p>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="endereco">Endereço</Label>
               <Input
                 id="endereco"
@@ -184,16 +223,6 @@ export default function SeusDados() {
                   maxLength={2}
                 />
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="cep">CEP</Label>
-              <Input
-                id="cep"
-                {...register("cep")}
-                placeholder="00000-000"
-                className="max-w-xs"
-              />
             </div>
 
             <div className="space-y-2">
