@@ -1,4 +1,4 @@
-import { DollarSign, ArrowDownCircle, ArrowUpCircle, FileText, Settings } from "lucide-react";
+import { DollarSign, ArrowDownCircle, ArrowUpCircle, FileText } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
@@ -27,14 +27,6 @@ const opcoes = [
     color: "text-primary bg-primary/10",
     active: false,
     url: undefined,
-  },
-  {
-    title: "Configurações",
-    description: "Configure categorias e formas de pagamento",
-    icon: Settings,
-    color: "text-accent bg-accent/10",
-    active: true,
-    url: "/financeiro/configuracoes",
   },
 ];
 
