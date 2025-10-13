@@ -18,9 +18,19 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { SelectCategoria } from "@/components/SelectCategoria";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Card } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface CategoriaFinanceira {
   id: string;
@@ -28,6 +38,7 @@ interface CategoriaFinanceira {
   tipo: 'receita' | 'despesa';
   cor: string;
   icone: string;
+  ativo: boolean;
 }
 
 interface PlanoConta {
@@ -1192,40 +1203,136 @@ export default function PlanosContas() {
                 : 'Preencha os dados para criar um novo plano de conta'}
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Categoria */}
             <div className="space-y-2">
-              <Label htmlFor="nome">Nome *</Label>
+              <Label htmlFor="categoria">Categoria *</Label>
+              <Select
+                value={formData.categoriaId}
+                onValueChange={(value) => {
+                  const categoria = categorias.find(c => c.id === value);
+                  if (categoria) {
+                    setFormData({ 
+                      ...formData, 
+                      categoriaId: value,
+                      tipo: categoria.tipo
+                    });
+                  }
+                }}
+              >
+                <SelectTrigger className="w-full bg-background">
+                  <SelectValue placeholder="Selecione a categoria..." />
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px] bg-background z-50">
+                  {/* Receitas */}
+                  <SelectGroup>
+                    <SelectLabel className="text-success font-semibold">🟢 Receitas</SelectLabel>
+                    {categorias
+                      .filter(c => c.tipo === 'receita' && c.ativo)
+                      .map(categoria => (
+                        <SelectItem key={categoria.id} value={categoria.id}>
+                          {categoria.nome}
+                        </SelectItem>
+                      ))
+                    }
+                  </SelectGroup>
+                  
+                  {/* Despesas */}
+                  <SelectGroup>
+                    <SelectLabel className="text-destructive font-semibold">🔴 Despesas</SelectLabel>
+                    {categorias
+                      .filter(c => c.tipo === 'despesa' && c.ativo)
+                      .map(categoria => (
+                        <SelectItem key={categoria.id} value={categoria.id}>
+                          {categoria.nome}
+                        </SelectItem>
+                      ))
+                    }
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Tipo (readonly) */}
+            {formData.categoriaId && (
+              <div className="space-y-2">
+                <Label>Tipo</Label>
+                <div>
+                  <Badge 
+                    variant={formData.tipo === 'receita' ? 'default' : 'destructive'}
+                    className={formData.tipo === 'receita' ? 'bg-success hover:bg-success' : ''}
+                  >
+                    {formData.tipo === 'receita' ? 'Receita' : 'Despesa'}
+                  </Badge>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Preenchido automaticamente pela categoria
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Nome do Plano de Contas */}
+            <div className="space-y-2">
+              <Label htmlFor="nome">Nome do Plano de Contas *</Label>
               <Input
                 id="nome"
                 value={formData.nome}
                 onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                placeholder="Ex: Água, Luz, Receitas com Produtos"
+                placeholder="Ex: Água, Luz, Internet, Receitas com Produtos"
+                maxLength={100}
                 required
               />
+              <p className="text-xs text-muted-foreground">
+                Máximo 100 caracteres
+              </p>
             </div>
 
+            {/* Descrição */}
             <div className="space-y-2">
-              <Label htmlFor="descricao">Descrição</Label>
+              <Label htmlFor="descricao">Descrição (opcional)</Label>
               <Textarea
                 id="descricao"
                 value={formData.descricao}
                 onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-                placeholder="Descrição adicional (opcional)"
+                placeholder="Ex: Conta de água da Sabesp, Receitas de encomendas especiais"
                 rows={3}
+                maxLength={200}
               />
+              <p className="text-xs text-muted-foreground">
+                Máximo 200 caracteres
+              </p>
             </div>
 
+            {/* Status */}
             <div className="space-y-2">
-              <SelectCategoria
-                value={formData.categoriaId}
-                onValueChange={(value) => setFormData({ ...formData, categoriaId: value })}
-                label="Categoria *"
-                placeholder="Selecione a categoria"
-                required
-              />
+              <TooltipProvider>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="ativo"
+                    checked={formData.ativo}
+                    onCheckedChange={(checked) => 
+                      setFormData({ ...formData, ativo: checked as boolean })
+                    }
+                  />
+                  <Label 
+                    htmlFor="ativo" 
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  >
+                    Plano ativo
+                  </Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="text-muted-foreground cursor-help">ⓘ</span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-sm">Planos inativos não aparecem em novos lançamentos</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </TooltipProvider>
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="gap-2">
               <Button type="button" variant="outline" onClick={handleCloseDialog}>
                 Cancelar
               </Button>
