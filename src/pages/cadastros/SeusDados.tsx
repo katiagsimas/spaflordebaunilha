@@ -19,6 +19,7 @@ interface SeusDadosForm {
   telefone: string;
   email: string;
   endereco: string;
+  numero: string;
   bairro: string;
   cidade: string;
   estado: string;
@@ -36,6 +37,7 @@ export default function SeusDados() {
     telefone: "",
     email: "",
     endereco: "",
+    numero: "",
     bairro: "",
     cidade: "",
     estado: "",
@@ -226,13 +228,24 @@ export default function SeusDados() {
               </p>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="endereco">Endereço</Label>
-              <Input
-                id="endereco"
-                {...register("endereco")}
-                placeholder="Rua, número"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="endereco">Endereço</Label>
+                <Input
+                  id="endereco"
+                  {...register("endereco")}
+                  placeholder="Rua, Avenida"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="numero">Número</Label>
+                <Input
+                  id="numero"
+                  {...register("numero")}
+                  placeholder="Nº"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
