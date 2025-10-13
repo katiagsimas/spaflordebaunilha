@@ -27,6 +27,7 @@ import SubReceitaForm from "./pages/SubReceitaForm";
 import Receitas from "./pages/Receitas";
 import ReceitaForm from "./pages/ReceitaForm";
 import ComingSoon from "./pages/ComingSoon";
+import Financeiro from "./pages/Financeiro";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -90,7 +91,7 @@ const App = () => (
           <Route path="/sub-receitas/editar/:id" element={<ProtectedRoute><Layout><SubReceitaForm /></Layout></ProtectedRoute>} />
           <Route 
             path="/financeiro" 
-            element={<ProtectedRoute><Layout><ComingSoon title="Financeiro" description="Controle completo das suas finanças" /></Layout></ProtectedRoute>} 
+            element={<ProtectedRoute><Layout><Financeiro /></Layout></ProtectedRoute>} 
           />
           <Route 
             path="/relatorios" 

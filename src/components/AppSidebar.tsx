@@ -25,7 +25,7 @@ const menuItems = [
   { title: "Precificação", url: "/precificacao", icon: Calculator, active: true },
   { title: "Planejamento Financeiro e Metas", url: "/planejamento", icon: Clipboard, active: true },
   { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: UserCircle, active: true },
-  { title: "Financeiro", url: "/financeiro", icon: DollarSign, active: false },
+  { title: "Financeiro", url: "/financeiro", icon: DollarSign, active: true },
   { title: "Relatórios", url: "/relatorios", icon: TrendingUp, active: false },
 ];
 
