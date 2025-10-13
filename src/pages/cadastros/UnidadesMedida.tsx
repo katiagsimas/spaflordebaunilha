@@ -73,7 +73,7 @@ export default function UnidadesMedida() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <BackButton to="/cadastros" />
+        <BackButton to="/configuracoes" />
         <div className="flex-1">
           <PageHeader
             title="Unidades de Medidas"

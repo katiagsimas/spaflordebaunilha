@@ -2,36 +2,15 @@ import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Ruler, Boxes, Package, UserCircle, DollarSign, Tag } from "lucide-react";
+import { Boxes, Package, DollarSign } from "lucide-react";
 
 const cadastros = [
-  {
-    title: "Dados da sua Confeitaria",
-    description: "Dados da sua empresa",
-    icon: UserCircle,
-    url: "/cadastros/seus-dados",
-    color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-950",
-  },
   {
     title: "Custos Fixos",
     description: "Despesas mensais fixas",
     icon: DollarSign,
     url: "/cadastros/custos-fixos",
     color: "text-red-600 bg-red-50 dark:bg-red-950",
-  },
-  {
-    title: "Categorias",
-    description: "Categorias de receitas",
-    icon: Tag,
-    url: "/cadastros/categorias",
-    color: "text-cyan-600 bg-cyan-50 dark:bg-cyan-950",
-  },
-  {
-    title: "Unidades de Medidas",
-    description: "Cadastro de unidades de medidas",
-    icon: Ruler,
-    url: "/cadastros/unidades",
-    color: "text-purple-600 bg-purple-50 dark:bg-purple-950",
   },
   {
     title: "Ingredientes",

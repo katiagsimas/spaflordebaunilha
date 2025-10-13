@@ -1,11 +1,32 @@
-import { Settings, Tag, FileText, CreditCard, Building2 } from "lucide-react";
+import { Settings, Tag, FileText, CreditCard, Building2, UserCircle, Ruler } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
 
 const opcoes = [
   {
-    title: "Categorias",
+    title: "Dados da sua Confeitaria",
+    description: "Dados da sua empresa",
+    icon: UserCircle,
+    url: "/configuracoes/seus-dados",
+    color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-950",
+  },
+  {
+    title: "Categorias de Receitas",
+    description: "Categorias de receitas",
+    icon: Tag,
+    url: "/configuracoes/categorias-receitas",
+    color: "text-cyan-600 bg-cyan-50 dark:bg-cyan-950",
+  },
+  {
+    title: "Unidades de Medidas",
+    description: "Cadastro de unidades de medidas",
+    icon: Ruler,
+    url: "/configuracoes/unidades",
+    color: "text-purple-600 bg-purple-50 dark:bg-purple-950",
+  },
+  {
+    title: "Categorias Financeiras",
     description: "Gerencie categorias de receitas e despesas",
     icon: Tag,
     color: "text-primary bg-primary/10",
