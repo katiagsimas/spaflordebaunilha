@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { Plus, Pencil, FolderTree, ChevronDown, ChevronRight, Search, Trash2, AlertTriangle } from "lucide-react";
+import { Plus, Pencil, FolderTree, ChevronDown, ChevronRight, Search, Trash2, AlertTriangle, Package, Search as SearchIcon } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
+import { ExportImport } from "@/components/ExportImport";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -1167,7 +1168,13 @@ export default function PlanosContas() {
 
   return (
     <div className="space-y-6">
-      <BackButton to="/configuracoes" label="Voltar para Configurações" />
+      <div className="flex items-center justify-between">
+        <BackButton to="/configuracoes" label="Voltar para Configurações" />
+        <ExportImport 
+          storageKey="sugarbox_planos_contas"
+          dataLabel="Planos de Contas"
+        />
+      </div>
       
       <PageHeader
         title="Planos de Contas"
@@ -1225,6 +1232,43 @@ export default function PlanosContas() {
           </select>
         </div>
       </div>
+
+      {/* Estado vazio quando não há planos */}
+      {groupedByCategoria.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-16 px-4">
+          {searchTerm ? (
+            <>
+              <SearchIcon className="h-16 w-16 text-muted-foreground/30 mb-4" />
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                Nenhum plano encontrado
+              </h3>
+              <p className="text-sm text-muted-foreground mb-6 text-center">
+                Nenhum resultado para "{searchTerm}"
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => setSearchTerm('')}
+              >
+                Limpar Busca
+              </Button>
+            </>
+          ) : (
+            <>
+              <Package className="h-16 w-16 text-muted-foreground/30 mb-4" />
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                Nenhum plano de contas ainda
+              </h3>
+              <p className="text-sm text-muted-foreground mb-6 text-center">
+                Comece adicionando seu primeiro plano de contas
+              </p>
+              <Button onClick={() => handleOpenDialog()}>
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar Primeiro Plano
+              </Button>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Lista Agrupada por Categoria */}
       <div className="space-y-3">
