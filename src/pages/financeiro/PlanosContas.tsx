@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, FolderTree } from "lucide-react";
+import { Plus, Pencil, FolderTree } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
@@ -16,11 +16,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { SelectCategoria } from "@/components/SelectCategoria";
-import { getCategoriaPorId, formatarCategoriaCompleta } from "@/utils/categoriasPlanoContas";
 
 interface PlanoConta {
   id: string;
@@ -40,7 +38,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-rec-001',
     nome: 'Receitas com Produtos',
     descricao: 'Vendas de bolos, doces, tortas, etc',
-    categoriaId: 'cat-rec-001',
+    categoriaId: 'cat-rec-001', // Receitas com Vendas
     tipo: 'receita',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -50,7 +48,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-rec-002',
     nome: 'Receitas com Encomendas',
     descricao: 'Encomendas personalizadas',
-    categoriaId: 'cat-rec-001',
+    categoriaId: 'cat-rec-001', // Receitas com Vendas
     tipo: 'receita',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -60,7 +58,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-rec-003',
     nome: 'Receitas com Delivery',
     descricao: 'Vendas por delivery (iFood, Rappi, etc)',
-    categoriaId: 'cat-rec-001',
+    categoriaId: 'cat-rec-001', // Receitas com Vendas
     tipo: 'receita',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -71,7 +69,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-rec-004',
     nome: 'Receitas com Cursos',
     descricao: 'Aulas e workshops de confeitaria',
-    categoriaId: 'cat-rec-002',
+    categoriaId: 'cat-rec-002', // Receitas com Serviços
     tipo: 'receita',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -81,7 +79,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-rec-005',
     nome: 'Receitas com Consultoria',
     descricao: 'Serviços de consultoria em confeitaria',
-    categoriaId: 'cat-rec-002',
+    categoriaId: 'cat-rec-002', // Receitas com Serviços
     tipo: 'receita',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -91,7 +89,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-rec-006',
     nome: 'Receitas com Degustação',
     descricao: 'Eventos de degustação',
-    categoriaId: 'cat-rec-002',
+    categoriaId: 'cat-rec-002', // Receitas com Serviços
     tipo: 'receita',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -102,7 +100,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-rec-007',
     nome: 'Juros Recebidos',
     descricao: 'Juros de aplicações financeiras',
-    categoriaId: 'cat-rec-003',
+    categoriaId: 'cat-rec-003', // Receitas Financeiras
     tipo: 'receita',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -112,18 +110,18 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-rec-008',
     nome: 'Rendimentos de Investimentos',
     descricao: 'Rendimentos de poupança, CDB, etc',
-    categoriaId: 'cat-rec-003',
+    categoriaId: 'cat-rec-003', // Receitas Financeiras
     tipo: 'receita',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
     updatedAt: '2025-01-01T00:00:00Z'
   },
-  // CUSTO DE MERCADORIA VENDIDA
+  // CUSTOS DE PRODUÇÃO
   {
     id: 'pc-desp-001',
     nome: 'Custo com Ingredientes',
     descricao: 'Farinha, açúcar, ovos, etc',
-    categoriaId: 'cat-desp-001',
+    categoriaId: 'cat-desp-008', // Custos de Produção
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -133,7 +131,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-desp-002',
     nome: 'Custo com Embalagens',
     descricao: 'Caixas, formas, sacos, etc',
-    categoriaId: 'cat-desp-001',
+    categoriaId: 'cat-desp-008', // Custos de Produção
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -143,7 +141,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-desp-003',
     nome: 'Mão de Obra Direta',
     descricao: 'Confeiteiros e auxiliares de produção',
-    categoriaId: 'cat-desp-001',
+    categoriaId: 'cat-desp-003', // Despesas com Pessoal
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -154,7 +152,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-desp-004',
     nome: 'Aluguel',
     descricao: 'Aluguel do estabelecimento',
-    categoriaId: 'cat-desp-002',
+    categoriaId: 'cat-desp-001', // Despesas Fixas
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -164,7 +162,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-desp-005',
     nome: 'Água',
     descricao: 'Conta de água',
-    categoriaId: 'cat-desp-002',
+    categoriaId: 'cat-desp-001', // Despesas Fixas
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -174,7 +172,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-desp-006',
     nome: 'Luz',
     descricao: 'Conta de energia elétrica',
-    categoriaId: 'cat-desp-002',
+    categoriaId: 'cat-desp-001', // Despesas Fixas
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -184,7 +182,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-desp-007',
     nome: 'Internet',
     descricao: 'Internet e telefone',
-    categoriaId: 'cat-desp-002',
+    categoriaId: 'cat-desp-001', // Despesas Fixas
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -194,7 +192,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-desp-008',
     nome: 'Gás',
     descricao: 'Gás para produção',
-    categoriaId: 'cat-desp-002',
+    categoriaId: 'cat-desp-001', // Despesas Fixas
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -205,7 +203,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-desp-009',
     nome: 'Comissões de Vendas',
     descricao: 'Comissões de vendedores',
-    categoriaId: 'cat-desp-003',
+    categoriaId: 'cat-desp-006', // Despesas com Vendas
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -215,7 +213,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-desp-010',
     nome: 'Marketing e Publicidade',
     descricao: 'Anúncios, redes sociais, etc',
-    categoriaId: 'cat-desp-003',
+    categoriaId: 'cat-desp-005', // Despesas com Marketing
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -225,7 +223,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-desp-011',
     nome: 'Taxas de Delivery',
     descricao: 'Taxas de iFood, Rappi, Uber Eats, etc',
-    categoriaId: 'cat-desp-003',
+    categoriaId: 'cat-desp-006', // Despesas com Vendas
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -236,7 +234,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-desp-012',
     nome: 'Salários Administrativos',
     descricao: 'Salários de pessoal administrativo',
-    categoriaId: 'cat-desp-004',
+    categoriaId: 'cat-desp-004', // Despesas Administrativas
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -246,7 +244,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-desp-013',
     nome: 'Material de Escritório',
     descricao: 'Papelaria, impressões, etc',
-    categoriaId: 'cat-desp-004',
+    categoriaId: 'cat-desp-004', // Despesas Administrativas
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -256,7 +254,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-desp-014',
     nome: 'Contador',
     descricao: 'Honorários contábeis',
-    categoriaId: 'cat-desp-004',
+    categoriaId: 'cat-desp-004', // Despesas Administrativas
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -267,7 +265,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-desp-015',
     nome: 'Juros Pagos',
     descricao: 'Juros de empréstimos e financiamentos',
-    categoriaId: 'cat-desp-005',
+    categoriaId: 'cat-desp-007', // Despesas Financeiras
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -277,7 +275,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-desp-016',
     nome: 'Tarifas Bancárias',
     descricao: 'Taxas de manutenção de conta, TED, DOC, etc',
-    categoriaId: 'cat-desp-005',
+    categoriaId: 'cat-desp-007', // Despesas Financeiras
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -287,7 +285,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-desp-017',
     nome: 'Taxas de Cartão',
     descricao: 'Taxas de máquina de cartão',
-    categoriaId: 'cat-desp-005',
+    categoriaId: 'cat-desp-007', // Despesas Financeiras
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -300,9 +298,7 @@ const STORAGE_KEY = 'sugarbox_planos_contas';
 export default function PlanosContas() {
   const [planosContas, setPlanosContas] = useLocalStorage<PlanoConta[]>(STORAGE_KEY, []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editingPlanoConta, setEditingPlanoConta] = useState<PlanoConta | null>(null);
-  const [deletingPlanoContaId, setDeletingPlanoContaId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     nome: '',
     descricao: '',
@@ -375,9 +371,11 @@ export default function PlanosContas() {
       return;
     }
 
-    const categoria = getCategoriaPorId(formData.categoriaId);
+    // Buscar categoria das categorias financeiras
+    const categorias = JSON.parse(localStorage.getItem('sugarbox_categorias_financeiras') || '[]');
+    const categoria = categorias.find((c: any) => c.id === formData.categoriaId);
     if (categoria) {
-      formData.tipo = categoria.indicador as 'receita' | 'despesa';
+      formData.tipo = categoria.tipo as 'receita' | 'despesa';
     }
 
     if (editingPlanoConta) {
@@ -412,26 +410,10 @@ export default function PlanosContas() {
     handleCloseDialog();
   };
 
-  const handleDelete = () => {
-    if (deletingPlanoContaId) {
-      setPlanosContas(planosContas.filter(pc => pc.id !== deletingPlanoContaId));
-      toast({
-        title: "Sucesso",
-        description: "Plano de conta excluído com sucesso",
-      });
-      setIsDeleteDialogOpen(false);
-      setDeletingPlanoContaId(null);
-    }
-  };
-
-  const openDeleteDialog = (id: string) => {
-    setDeletingPlanoContaId(id);
-    setIsDeleteDialogOpen(true);
-  };
-
   const getCategoriaNome = (categoriaId: string): string => {
-    const categoria = getCategoriaPorId(categoriaId);
-    return categoria ? formatarCategoriaCompleta(categoria) : 'Categoria não encontrada';
+    const categorias = JSON.parse(localStorage.getItem('sugarbox_categorias_financeiras') || '[]');
+    const categoria = categorias.find((c: any) => c.id === categoriaId);
+    return categoria ? categoria.nome : 'Categoria não encontrada';
   };
 
   // Agrupar por tipo
@@ -473,7 +455,7 @@ export default function PlanosContas() {
                     <TableHead>Descrição</TableHead>
                     <TableHead>Categoria</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
+                    <TableHead className="w-[100px] text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -492,22 +474,13 @@ export default function PlanosContas() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleOpenDialog(planoConta)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => openDeleteDialog(planoConta.id)}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleOpenDialog(planoConta)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -540,7 +513,7 @@ export default function PlanosContas() {
                     <TableHead>Descrição</TableHead>
                     <TableHead>Categoria</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
+                    <TableHead className="w-[100px] text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -559,22 +532,13 @@ export default function PlanosContas() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleOpenDialog(planoConta)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => openDeleteDialog(planoConta.id)}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleOpenDialog(planoConta)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -646,17 +610,6 @@ export default function PlanosContas() {
           </form>
         </DialogContent>
       </Dialog>
-
-      {/* Dialog de Confirmação de Exclusão */}
-      <ConfirmDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-        onConfirm={handleDelete}
-        title="Excluir Plano de Conta"
-        description="Tem certeza que deseja excluir este plano de conta? Esta ação não pode ser desfeita."
-        confirmLabel="Excluir"
-        cancelLabel="Cancelar"
-      />
     </div>
   );
 }
