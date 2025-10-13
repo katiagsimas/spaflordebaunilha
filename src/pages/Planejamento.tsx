@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, Target, LineChart, Settings, Lightbulb } from "lucide-react";
+import { Target, Settings, Lightbulb } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,7 @@ import { usePlanejamento, type PrevisaoFaturamento } from "@/hooks/usePlanejamen
 import { gerarInsights, type Insight, type InsightType } from "@/utils/insightsGenerator";
 import { PrevisaoFaturamentoCard } from "@/components/PrevisaoFaturamentoCard";
 import { CMVGlobalCard } from "@/components/CMVGlobalCard";
+import { ProjecaoVendasCard } from "@/components/ProjecaoVendasCard";
 
 const opcoes = [
   {
@@ -16,14 +17,6 @@ const opcoes = [
     description: "Em breve",
     icon: Target,
     color: "text-success bg-success/10",
-    active: false,
-    url: undefined,
-  },
-  {
-    title: "Projeção de Vendas",
-    description: "Em breve",
-    icon: LineChart,
-    color: "text-warning bg-warning/10",
     active: false,
     url: undefined,
   },
@@ -173,6 +166,9 @@ export default function Planejamento() {
 
         {/* Card de CMV Global */}
         <CMVGlobalCard />
+
+        {/* Card de Projeção de Vendas */}
+        <ProjecaoVendasCard />
 
         {/* Demais cards */}
         {opcoes.map((opcao) => {
