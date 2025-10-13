@@ -2,15 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Trash2, ChefHat } from "lucide-react";
+import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
 interface Ingrediente {
@@ -44,7 +42,6 @@ interface SubReceita {
   rendimento: number;
   unidadeRendimento: "gramas" | "unidades";
   ingredientes: IngredienteReceita[];
-  modoPreparo?: string;
   custoTotal: number;
 }
 
@@ -63,7 +60,6 @@ export default function SubReceitaForm() {
   });
 
   const [ingredientes, setIngredientes] = useState<IngredienteReceita[]>([]);
-  const [modoPreparo, setModoPreparo] = useState("");
 
   useEffect(() => {
     if (id) {
@@ -77,7 +73,6 @@ export default function SubReceitaForm() {
           unidadeRendimento: subReceita.unidadeRendimento,
         });
         setIngredientes(subReceita.ingredientes);
-        setModoPreparo(subReceita.modoPreparo || "");
       }
     }
   }, [id, subReceitas]);
@@ -165,7 +160,6 @@ export default function SubReceitaForm() {
       rendimento: Number(formData.rendimento),
       unidadeRendimento: formData.unidadeRendimento,
       ingredientes,
-      modoPreparo,
       custoTotal,
     };
 
@@ -378,25 +372,6 @@ export default function SubReceitaForm() {
               </div>
             )}
           </div>
-
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="modo-preparo">
-              <AccordionTrigger className="text-base font-semibold">
-                <div className="flex items-center gap-2">
-                  <ChefHat className="h-5 w-5" />
-                  Modo de Preparo
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <Textarea
-                  value={modoPreparo}
-                  onChange={(e) => setModoPreparo(e.target.value)}
-                  placeholder="Descreva o modo de preparo da sub-receita..."
-                  className="min-h-[200px]"
-                />
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
 
           <div className="flex gap-2 justify-end pt-4 border-t">
             <Button variant="outline" onClick={() => navigate("/sub-receitas")}>

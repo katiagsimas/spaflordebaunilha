@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShoppingBag, TrendingUp, DollarSign, Package, Clock } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { HelpTooltip } from "@/components/HelpTooltip";
 
 interface Order {
   id: string;
@@ -18,7 +17,6 @@ interface Order {
 
 const Dashboard = () => {
   const [orders] = useLocalStorage<Order[]>("orders", []);
-  const [nomeNegocio] = useLocalStorage<string>("nomeNegocio", "");
 
   const now = new Date();
   const currentMonth = now.getMonth();
@@ -103,9 +101,8 @@ const Dashboard = () => {
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <h1 className="text-4xl font-bold flex items-center gap-2">
-          {greeting()}, {nomeNegocio}! 👋
-          <HelpTooltip content="Aqui você tem uma visão geral do seu negócio. Acompanhe suas encomendas, faturamento e próximas entregas." />
+        <h1 className="text-4xl font-bold">
+          {greeting()}! 👋
         </h1>
         <p className="text-muted-foreground text-lg">
           {now.toLocaleDateString("pt-BR", { 
