@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { FolderTree, Plus, Pencil, Trash2, Lock, Search, ChevronRight, ChevronDown, Maximize2, Minimize2, AlertTriangle } from "lucide-react";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { FolderTree, Plus, Pencil, Trash2, Lock, Search, ChevronRight, ChevronDown, Maximize2, Minimize2, AlertTriangle, Download, Upload } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
@@ -98,6 +98,17 @@ export default function CategoriasPlanoContas() {
   const [filterStatus, setFilterStatus] = useState<string>("ativo");
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [expandAll, setExpandAll] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Inicialização automática das categorias
+  useEffect(() => {
+    if (categorias.length === 0) {
+      setCategorias(categoriasIniciais);
+      toast.success('✓ Sistema inicializado com 37 categorias padrão para confeitaria!', {
+        duration: 5000
+      });
+    }
+  }, []);
   
   const [formData, setFormData] = useState({
     codigo: "",
@@ -628,6 +639,69 @@ export default function CategoriasPlanoContas() {
     return styles[indicador as keyof typeof styles] || "";
   };
 
+  // Exportar categorias para JSON
+  const exportarCategorias = () => {
+    const json = JSON.stringify(categorias, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    const dataAtual = new Date().toISOString().split('T')[0];
+    link.download = `categorias-plano-contas-${dataAtual}.json`;
+    link.click();
+    
+    URL.revokeObjectURL(url);
+    toast.success('✓ Categorias exportadas com sucesso!');
+  };
+
+  // Importar categorias de JSON
+  const importarCategorias = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      try {
+        const resultado = e.target?.result as string;
+        const categoriasImportadas = JSON.parse(resultado);
+        
+        // Validar estrutura
+        if (!Array.isArray(categoriasImportadas)) {
+          throw new Error('Arquivo inválido: não é uma lista de categorias');
+        }
+        
+        // Validar cada categoria
+        categoriasImportadas.forEach((cat: any, index: number) => {
+          if (!cat.codigo || !cat.descricao || !cat.indicador) {
+            throw new Error(`Categoria ${index + 1} está incompleta`);
+          }
+        });
+        
+        // Confirmar importação
+        if (window.confirm(
+          `Foram encontradas ${categoriasImportadas.length} categorias.\n\n` +
+          `Isso vai SUBSTITUIR todas as ${categorias.length} categorias atuais.\n\n` +
+          `Deseja continuar?`
+        )) {
+          setCategorias(categoriasImportadas);
+          toast.success(`✓ ${categoriasImportadas.length} categorias importadas com sucesso!`);
+        }
+        
+      } catch (error: any) {
+        toast.error('Erro ao importar arquivo: ' + error.message);
+      }
+    };
+    
+    reader.readAsText(file);
+    
+    // Limpar o input para permitir importar o mesmo arquivo novamente
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mb-6">
@@ -641,17 +715,41 @@ export default function CategoriasPlanoContas() {
             <h1 className="text-3xl font-bold text-[#6B5047] mb-2">Categorias de Planos de Contas</h1>
             <p className="text-base text-[#9C8B82]">Estrutura contábil para organização financeira</p>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={(open) => {
-            setDialogOpen(open);
-            if (!open) resetForm();
-          }}>
-            <DialogTrigger asChild>
-              <Button className="bg-[#D89B8C] hover:bg-[#B87C6D] text-white">
-                <Plus className="mr-2 h-4 w-4" />
-                Nova Categoria
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="flex flex-wrap gap-2">
+            <Button 
+              variant="outline" 
+              onClick={exportarCategorias}
+              className="border-[#D89B8C] text-[#D89B8C] hover:bg-[#F5E6E0]"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Exportar
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => fileInputRef.current?.click()}
+              className="border-[#D89B8C] text-[#D89B8C] hover:bg-[#F5E6E0]"
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              Importar
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json"
+              onChange={importarCategorias}
+              className="hidden"
+            />
+            <Dialog open={dialogOpen} onOpenChange={(open) => {
+              setDialogOpen(open);
+              if (!open) resetForm();
+            }}>
+              <DialogTrigger asChild>
+                <Button className="bg-[#D89B8C] hover:bg-[#B87C6D] text-white">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Nova Categoria
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="text-2xl font-bold text-[#6B5047]">
                   {editingCategoria ? "Editar Categoria" : "Nova Categoria"}
@@ -856,6 +954,7 @@ export default function CategoriasPlanoContas() {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
       </div>
 
