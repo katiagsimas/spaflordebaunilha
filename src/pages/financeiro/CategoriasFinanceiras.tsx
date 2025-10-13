@@ -339,6 +339,28 @@ const categoriasIniciais: CategoriaFinanceira[] = [
 
 const STORAGE_KEY = 'sugarbox_categorias_financeiras';
 
+// Funções auxiliares de localStorage
+export function getCategorias(): CategoriaFinanceira[] {
+  const str = localStorage.getItem(STORAGE_KEY);
+  return str ? JSON.parse(str) : [];
+}
+
+export function setCategorias(categorias: CategoriaFinanceira[]) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(categorias));
+}
+
+export function getCategoriaPorId(id: string): CategoriaFinanceira | undefined {
+  return getCategorias().find(c => c.id === id);
+}
+
+export function getCategoriasAtivas(): CategoriaFinanceira[] {
+  return getCategorias().filter(c => c.ativo);
+}
+
+export function getCategoriasPorTipo(tipo: 'receita' | 'despesa'): CategoriaFinanceira[] {
+  return getCategorias().filter(c => c.tipo === tipo && c.ativo);
+}
+
 // Paletas de cores sugeridas
 const coresReceitas = ['#8BA888', '#7FA68C', '#6BA888', '#90C49C', '#A8D5BA', '#85C99C', '#9BD4A8', '#A5D9B3', '#B5E0C0'];
 const coresDespesas = ['#D88B8B', '#E09999', '#C67C7C', '#D49595', '#E5A3A3', '#D07878', '#E8A8A8', '#C86C6C', '#DC9090', '#E39E9E', '#D88484', '#EBACAC', '#D77E7E', '#EFB4B4', '#F2BCBC'];
@@ -365,23 +387,39 @@ export default function CategoriasFinanceiras() {
 
   // Carregar categorias do localStorage
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      setCategorias(JSON.parse(stored));
-    } else {
-      // Inicializar com categorias padrão
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(categoriasIniciais));
+    inicializarCategorias();
+    carregarCategorias();
+  }, []);
+
+  function inicializarCategorias() {
+    const categoriasStr = localStorage.getItem(STORAGE_KEY);
+    
+    if (!categoriasStr) {
+      // Primeira vez: criar categorias pré-configuradas
       setCategorias(categoriasIniciais);
       toast({
         title: '✓ Sistema Inicializado',
-        description: `${categoriasIniciais.length} categorias essenciais carregadas`,
+        description: `${categoriasIniciais.length} categorias padrão carregadas`,
       });
     }
-  }, []);
+  }
+
+  function carregarCategorias() {
+    const cats = getCategorias();
+    setCategorias(cats);
+  }
 
   const salvarCategorias = (novasCategorias: CategoriaFinanceira[]) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(novasCategorias));
+    // Ordenar por tipo e nome
+    novasCategorias.sort((a, b) => {
+      if (a.tipo !== b.tipo) {
+        return a.tipo === 'receita' ? -1 : 1;
+      }
+      return a.nome.localeCompare(b.nome);
+    });
+    
     setCategorias(novasCategorias);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(novasCategorias));
   };
 
   const resetarFormulario = () => {
@@ -516,6 +554,10 @@ export default function CategoriasFinanceiras() {
       });
       return;
     }
+
+    // Verificar se tem planos de contas vinculados
+    // Por enquanto, apenas confirmar exclusão
+    // TODO: verificar vínculos quando Planos de Contas estiver implementado
     setCategoriaExcluindo(categoria);
     setAlertDialogAberto(true);
   };
@@ -531,6 +573,21 @@ export default function CategoriasFinanceiras() {
     });
     setAlertDialogAberto(false);
     setCategoriaExcluindo(null);
+    carregarCategorias();
+  };
+
+  const desativarCategoria = (categoriaId: string) => {
+    const novasCategorias = categorias.map((cat) =>
+      cat.id === categoriaId
+        ? { ...cat, ativo: false, updatedAt: new Date().toISOString() }
+        : cat
+    );
+    salvarCategorias(novasCategorias);
+    toast({
+      title: '✓ Categoria Desativada',
+      description: 'A categoria não aparecerá em novos lançamentos',
+    });
+    carregarCategorias();
   };
 
   // Filtrar e ordenar categorias
@@ -677,16 +734,27 @@ export default function CategoriasFinanceiras() {
                     <Edit2 className="h-4 w-4 mr-1" />
                     Editar
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => confirmarExclusao(categoria)}
-                    disabled={!categoria.editavel}
-                    className="text-error hover:text-error"
-                  >
-                    <Trash2 className="h-4 w-4 mr-1" />
-                    Excluir
-                  </Button>
+                  {categoria.editavel ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => confirmarExclusao(categoria)}
+                      className="text-error hover:text-error"
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Excluir
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => desativarCategoria(categoria.id)}
+                      disabled={!categoria.ativo}
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Desativar
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
@@ -745,17 +813,30 @@ export default function CategoriasFinanceiras() {
                           size="icon"
                           onClick={() => abrirDialog(categoria)}
                           disabled={!categoria.editavel}
+                          title="Editar"
                         >
                           <Edit2 className="h-4 w-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => confirmarExclusao(categoria)}
-                          disabled={!categoria.editavel}
-                        >
-                          <Trash2 className="h-4 w-4 text-error" />
-                        </Button>
+                        {categoria.editavel ? (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => confirmarExclusao(categoria)}
+                            title="Excluir"
+                          >
+                            <Trash2 className="h-4 w-4 text-error" />
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => desativarCategoria(categoria.id)}
+                            disabled={!categoria.ativo}
+                            title="Desativar"
+                          >
+                            <X className="h-4 w-4 text-warning" />
+                          </Button>
+                        )}
                       </div>
                     </td>
                   </tr>
