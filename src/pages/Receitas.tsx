@@ -113,6 +113,12 @@ export default function Receitas() {
     return (margem / valorVenda) * 100;
   };
 
+  // Função para calcular lucro (Valor de Venda - Custo Total)
+  const calcularLucro = (receita: Receita) => {
+    const valorVenda = receita.valorVenda || 0;
+    return valorVenda - receita.custoTotal;
+  };
+
   const handleDelete = (id: string) => {
     setDeletingId(id);
     setIsDeleteDialogOpen(true);
@@ -170,6 +176,7 @@ export default function Receitas() {
                 <TableHead className="text-right">Margem R$</TableHead>
                 <TableHead className="text-right">Margem %</TableHead>
                 <TableHead className="text-right">Custos c/ Vendas</TableHead>
+                <TableHead className="text-right">Lucro</TableHead>
                 <TableHead className="text-center">Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -180,6 +187,7 @@ export default function Receitas() {
                 const margemContribuicao = calcularMargemContribuicao(receita);
                 const percentualMargem = calcularPercentualMargem(receita);
                 const despesasVenda = calcularDespesasVenda(receita);
+                const lucro = calcularLucro(receita);
 
                 return (
                   <TableRow key={receita.id}>
@@ -202,6 +210,9 @@ export default function Receitas() {
                     </TableCell>
                     <TableCell className="text-right">
                       R$ {despesasVenda.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right font-semibold">
+                      R$ {lucro.toFixed(2)}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2 justify-center">
