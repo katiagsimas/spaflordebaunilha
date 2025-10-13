@@ -1,4 +1,4 @@
-import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings } from "lucide-react";
 import sugarboxSidebar from "@/assets/sugarbox-sidebar.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
@@ -27,6 +27,7 @@ const menuItems = [
   { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: UserCircle, active: true },
   { title: "Financeiro", url: "/financeiro", icon: DollarSign, active: true },
   { title: "Relatórios", url: "/relatorios", icon: TrendingUp, active: false },
+  { title: "Configurações", url: "/configuracoes", icon: Settings, active: true },
 ];
 
 export function AppSidebar() {

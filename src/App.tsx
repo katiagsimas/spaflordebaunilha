@@ -28,6 +28,7 @@ import Receitas from "./pages/Receitas";
 import ReceitaForm from "./pages/ReceitaForm";
 import ComingSoon from "./pages/ComingSoon";
 import Financeiro from "./pages/Financeiro";
+import Configuracoes from "./pages/Configuracoes";
 import ConfiguracoesFinanceiro from "./pages/financeiro/ConfiguracoesFinanceiro";
 import CategoriasPlanoContas from "./pages/financeiro/CategoriasPlanoContas";
 import CategoriasFinanceiras from "./pages/financeiro/CategoriasFinanceiras";
@@ -105,6 +106,14 @@ const App = () => (
             element={<ProtectedRoute><Layout><ConfiguracoesFinanceiro /></Layout></ProtectedRoute>} 
           />
           <Route 
+            path="/configuracoes" 
+            element={<ProtectedRoute><Layout><Configuracoes /></Layout></ProtectedRoute>} 
+          />
+          <Route 
+            path="/configuracoes/categorias" 
+            element={<ProtectedRoute><Layout><CategoriasFinanceiras /></Layout></ProtectedRoute>} 
+          />
+          <Route 
             path="/financeiro/configuracoes/categorias" 
             element={<ProtectedRoute><Layout><CategoriasPlanoContas /></Layout></ProtectedRoute>} 
           />
@@ -117,12 +126,24 @@ const App = () => (
             element={<ProtectedRoute><Layout><AjudaCategorias /></Layout></ProtectedRoute>} 
           />
           <Route 
+            path="/configuracoes/planos-contas" 
+            element={<ProtectedRoute><Layout><PlanosContas /></Layout></ProtectedRoute>} 
+          />
+          <Route 
             path="/financeiro/configuracoes/planos-contas" 
             element={<ProtectedRoute><Layout><PlanosContas /></Layout></ProtectedRoute>} 
           />
           <Route 
+            path="/configuracoes/tipos-documento" 
+            element={<ProtectedRoute><Layout><TiposDocumento /></Layout></ProtectedRoute>} 
+          />
+          <Route 
             path="/financeiro/configuracoes/tipos-documento" 
             element={<ProtectedRoute><Layout><TiposDocumento /></Layout></ProtectedRoute>} 
+          />
+          <Route 
+            path="/configuracoes/bancos" 
+            element={<ProtectedRoute><Layout><Bancos /></Layout></ProtectedRoute>} 
           />
           <Route 
             path="/financeiro/configuracoes/bancos" 

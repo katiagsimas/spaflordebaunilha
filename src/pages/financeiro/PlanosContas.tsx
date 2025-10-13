@@ -106,7 +106,7 @@ export default function PlanosContas() {
   return (
     <div className="min-h-screen bg-background">
       <div className="mb-6">
-        <BackButton to="/financeiro/configuracoes" />
+        <BackButton to="/configuracoes" />
       </div>
       
       <PageHeader

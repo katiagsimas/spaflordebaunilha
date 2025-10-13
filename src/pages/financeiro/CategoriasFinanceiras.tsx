@@ -41,6 +41,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/PageHeader';
+import { BackButton } from '@/components/BackButton';
 
 // Mapa de ícones disponíveis
 const iconesDisponiveis: { [key: string]: LucideIcon } = {
@@ -627,6 +628,10 @@ export default function CategoriasFinanceiras() {
 
   return (
     <div className="min-h-screen bg-background">
+      <div className="mb-6">
+        <BackButton to="/configuracoes" />
+      </div>
+      
       <PageHeader
         title="Categorias"
         description="Organize suas receitas e despesas de forma simples"
