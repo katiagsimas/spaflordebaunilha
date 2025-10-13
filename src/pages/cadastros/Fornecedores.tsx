@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
+import { BackButton } from "@/components/BackButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { Plus, Pencil, Trash2, Truck, ArrowLeft, ChevronDown } from "lucide-react";
+import { Plus, Pencil, Trash2, Truck, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 
 interface Fornecedor {
@@ -98,13 +99,7 @@ export default function Fornecedores() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => navigate("/cadastros")}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
+        <BackButton to="/cadastros" />
         <div className="flex-1">
           <PageHeader
             title="Fornecedores"

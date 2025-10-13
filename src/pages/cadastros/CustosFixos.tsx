@@ -1,11 +1,11 @@
 import { PageHeader } from "@/components/PageHeader";
+import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { ArrowLeft, Plus, Pencil, Trash2, AlertCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Plus, Pencil, Trash2, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
@@ -20,7 +20,6 @@ interface CustoFixo {
 }
 
 export default function CustosFixos() {
-  const navigate = useNavigate();
   const [custos, setCustos] = useLocalStorage<CustoFixo[]>("custosFixos", []);
   const [diasTrabalho, setDiasTrabalho] = useLocalStorage<number>("diasTrabalhoMes", 22);
   const [horasDiarias, setHorasDiarias] = useLocalStorage<number>("horasDiariaTrabalho", 8);
@@ -84,16 +83,15 @@ export default function CustosFixos() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Custos Fixos"
-        description="Gerencie suas despesas mensais fixas"
-        actions={
-          <Button variant="outline" onClick={() => navigate("/cadastros")}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Voltar
-          </Button>
-        }
-      />
+      <div className="flex items-center gap-4">
+        <BackButton to="/cadastros" />
+        <div className="flex-1">
+          <PageHeader
+            title="Custos Fixos"
+            description="Gerencie suas despesas mensais fixas"
+          />
+        </div>
+      </div>
 
       <Alert>
         <AlertCircle className="h-4 w-4" />

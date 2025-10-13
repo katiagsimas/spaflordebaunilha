@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
+import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Trash2, ChefHat, Upload, X } from "lucide-react";
+import { Plus, Trash2, ChefHat, Upload, X } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -204,9 +205,7 @@ export default function SubReceitaForm() {
   };
   return <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate("/sub-receitas")}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
+        <BackButton to="/sub-receitas" />
         <div className="flex-1">
           <PageHeader title={id ? "Editar Pré-Preparo" : "Novo Pré-Preparo"} description="Preencha dos dados da sua Sub-Receita" />
         </div>

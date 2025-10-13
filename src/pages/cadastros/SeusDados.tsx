@@ -1,12 +1,12 @@
 import { PageHeader } from "@/components/PageHeader";
+import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useViaCEP } from "@/hooks/useViaCEP";
-import { ArrowLeft, Save, Upload, X, Search } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Save, Upload, X, Search } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -28,7 +28,6 @@ interface SeusDadosForm {
 }
 
 export default function SeusDados() {
-  const navigate = useNavigate();
   const [dados, setDados] = useLocalStorage<SeusDadosForm>("seusDados", {
     razaoSocial: "",
     cnpjCpf: "",
@@ -92,16 +91,15 @@ export default function SeusDados() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Dados da Sua Confeitaria"
-        description="Informações da sua empresa"
-        actions={
-          <Button variant="outline" onClick={() => navigate("/cadastros")}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Voltar
-          </Button>
-        }
-      />
+      <div className="flex items-center gap-4">
+        <BackButton to="/cadastros" />
+        <div className="flex-1">
+          <PageHeader
+            title="Dados da Sua Confeitaria"
+            description="Informações da sua empresa"
+          />
+        </div>
+      </div>
 
       <Card>
         <CardContent className="pt-6">
