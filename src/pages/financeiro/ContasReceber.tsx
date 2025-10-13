@@ -350,6 +350,29 @@ export default function ContasReceber() {
     return format(new Date(dateString), 'dd/MM/yyyy');
   }
 
+  function formatDateRelative(dateString: string): string {
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const data = new Date(dateString);
+    data.setHours(0, 0, 0, 0);
+    const diffDays = Math.floor((data.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'Hoje';
+    if (diffDays === 1) return 'Amanhã';
+    if (diffDays === -1) return 'Ontem';
+    if (diffDays > 0) return `Em ${diffDays} dias`;
+    return `${Math.abs(diffDays)} dias atrás`;
+  }
+
+  const contasVencemHoje = contas.filter(c => {
+    if (c.status !== 'pendente') return false;
+    const hoje = new Date();
+    const vencimento = new Date(c.dataVencimento);
+    hoje.setHours(0, 0, 0, 0);
+    vencimento.setHours(0, 0, 0, 0);
+    return vencimento.getTime() === hoje.getTime();
+  });
+
   return (
     <div className="min-h-screen bg-[#FAF7F5] p-4 md:p-6 space-y-6">
       <div className="flex items-center gap-4">
@@ -368,8 +391,54 @@ export default function ContasReceber() {
         </div>
       </div>
 
+      {/* Banners de Alertas */}
+      {resumo.atrasadoQtd > 0 && (
+        <div className="bg-[#FFEBEE] border-l-4 border-[#D88B8B] p-4 rounded-lg animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="text-[#D88B8B] h-5 w-5 shrink-0" />
+            <div className="flex-1">
+              <p className="font-semibold text-[#6B5047]">
+                Você tem {resumo.atrasadoQtd} conta(s) atrasada(s) totalizando {formatCurrency(resumo.atrasado)}
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setStatusFilter('atrasado');
+                setSelectedTab('todas');
+              }}
+              className="text-[#D88B8B] hover:bg-[#FFEBEE]"
+            >
+              Ver contas
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {contasVencemHoje.length > 0 && (
+        <div className="bg-[#FEF3E2] border-l-4 border-[#E5C89F] p-4 rounded-lg animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center gap-3">
+            <Clock className="text-[#E5C89F] h-5 w-5 shrink-0" />
+            <div className="flex-1">
+              <p className="font-semibold text-[#6B5047]">
+                {contasVencemHoje.length} conta(s) vencem hoje
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedTab('vencendo')}
+              className="text-[#B8860B] hover:bg-[#FEF3E2]"
+            >
+              Ver contas
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Cards de Resumo */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <Card className="p-4 border-l-4 border-l-[#7BA8D8] hover:shadow-lg transition-shadow">
           <div className="space-y-2">
             <p className="text-sm text-[#9C8B82]">A Receber</p>
@@ -519,7 +588,8 @@ export default function ContasReceber() {
             <div className="space-y-2">
               {contasFiltradas.map(conta => (
                 <Card key={conta.id} className={`p-4 hover:shadow-md transition-all ${getRowStyle(conta)}`}>
-                  <div className="flex items-start gap-4">
+                  {/* Layout Desktop */}
+                  <div className="hidden md:flex items-start gap-4">
                     <Checkbox
                       checked={selectedContas.includes(conta.id)}
                       onCheckedChange={(checked) => {
@@ -540,7 +610,7 @@ export default function ContasReceber() {
                             <p className="text-xs text-[#9C8B82]">
                               {conta.status === 'recebido' && conta.dataPagamento
                                 ? `Receb: ${format(new Date(conta.dataPagamento), 'dd/MM')}`
-                                : `Venc: ${format(new Date(conta.dataVencimento), 'dd/MM')}`
+                                : `Venc: ${format(new Date(conta.dataVencimento), 'dd/MM')} (${formatDateRelative(conta.dataVencimento)})`
                               }
                             </p>
                           </div>
@@ -621,6 +691,108 @@ export default function ContasReceber() {
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Layout Mobile */}
+                  <div className="md:hidden space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-start gap-2 flex-1">
+                        <Checkbox
+                          checked={selectedContas.includes(conta.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedContas([...selectedContas, conta.id]);
+                            } else {
+                              setSelectedContas(selectedContas.filter(id => id !== conta.id));
+                            }
+                          }}
+                        />
+                        <div className="flex-1">
+                          {getStatusBadge(conta.status)}
+                          <h4 className="font-semibold text-[#6B5047] mt-2">{conta.descricao}</h4>
+                          {conta.clienteNome && (
+                            <p className="text-sm text-[#9C8B82] mt-1">Cliente: {conta.clienteNome}</p>
+                          )}
+                        </div>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="bg-background">
+                          {conta.status === 'pendente' && (
+                            <>
+                              <DropdownMenuItem onClick={() => {
+                                setContaParaReceber(conta);
+                                setIsRecebimentoDialogOpen(true);
+                              }}>
+                                <CheckCircle className="h-4 w-4 mr-2" />
+                                Registrar Recebimento
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                            </>
+                          )}
+                          <DropdownMenuItem onClick={() => {
+                            setEditingConta(conta);
+                            setIsDialogOpen(true);
+                          }}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDuplicar(conta)}>
+                            <Copy className="h-4 w-4 mr-2" />
+                            Duplicar
+                          </DropdownMenuItem>
+                          {conta.status === 'recebido' && (
+                            <DropdownMenuItem onClick={() => handleEstornar(conta)}>
+                              <RotateCcw className="h-4 w-4 mr-2" />
+                              Estornar
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={() => handleExcluir(conta)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Excluir
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-2xl font-bold text-[#6B5047]">{formatCurrency(conta.valor)}</p>
+                        <p className="text-xs text-[#9C8B82] mt-1">
+                          {conta.status === 'recebido' && conta.dataPagamento
+                            ? `Recebido em ${format(new Date(conta.dataPagamento), 'dd/MM/yyyy')}`
+                            : `Vence ${formatDateRelative(conta.dataVencimento)}`
+                          }
+                        </p>
+                      </div>
+                      {conta.status === 'pendente' && (
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setContaParaReceber(conta);
+                            setIsRecebimentoDialogOpen(true);
+                          }}
+                          className="bg-[#8BA888] hover:bg-[#7A9777]"
+                        >
+                          Receber
+                        </Button>
+                      )}
+                    </div>
+
+                    <div className="text-xs text-[#9C8B82]">
+                      Plano de Contas
+                      {conta.formaPagamento && conta.status === 'recebido' && (
+                        <> • {conta.formaPagamento}</>
+                      )}
                     </div>
                   </div>
                 </Card>
