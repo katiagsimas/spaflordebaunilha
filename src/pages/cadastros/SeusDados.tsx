@@ -91,7 +91,7 @@ export default function SeusDados() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Seus Dados"
+        title="Dados da Sua Confeitaria"
         description="Informações da sua empresa"
         actions={
           <Button variant="outline" onClick={() => navigate("/cadastros")}>
@@ -105,6 +105,44 @@ export default function SeusDados() {
         <CardContent className="pt-6">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
+              <Label htmlFor="logomarca">Logomarca da Empresa</Label>
+              <div className="space-y-4">
+                {logomarca ? (
+                  <div className="relative inline-block">
+                    <img 
+                      src={logomarca} 
+                      alt="Logomarca" 
+                      className="max-w-xs max-h-48 rounded-lg border-2 border-border object-contain bg-muted p-4"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute -top-2 -right-2"
+                      onClick={handleRemoveImage}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-4">
+                    <Input
+                      id="logomarca"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="max-w-sm"
+                    />
+                    <Upload className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                )}
+                <p className="text-sm text-muted-foreground">
+                  Formatos aceitos: JPG, PNG, WEBP. Tamanho máximo: 5MB
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="razaoSocial">Razão Social</Label>
               <Input
                 id="razaoSocial"
@@ -113,22 +151,24 @@ export default function SeusDados() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="cnpjCpf">CNPJ ou CPF</Label>
-              <Input
-                id="cnpjCpf"
-                {...register("cnpjCpf")}
-                placeholder="00.000.000/0000-00"
-              />
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="cnpjCpf">CNPJ ou CPF</Label>
+                <Input
+                  id="cnpjCpf"
+                  {...register("cnpjCpf")}
+                  placeholder="00.000.000/0000-00"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="inscricaoEstadual">Inscrição Estadual</Label>
-              <Input
-                id="inscricaoEstadual"
-                {...register("inscricaoEstadual")}
-                placeholder="000.000.000.000"
-              />
+              <div className="space-y-2">
+                <Label htmlFor="inscricaoEstadual">Inscrição Estadual</Label>
+                <Input
+                  id="inscricaoEstadual"
+                  {...register("inscricaoEstadual")}
+                  placeholder="000.000.000.000"
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -222,44 +262,6 @@ export default function SeusDados() {
                   placeholder="UF"
                   maxLength={2}
                 />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="logomarca">Logomarca da Empresa</Label>
-              <div className="space-y-4">
-                {logomarca ? (
-                  <div className="relative inline-block">
-                    <img 
-                      src={logomarca} 
-                      alt="Logomarca" 
-                      className="max-w-xs max-h-48 rounded-lg border-2 border-border object-contain bg-muted p-4"
-                    />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute -top-2 -right-2"
-                      onClick={handleRemoveImage}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-4">
-                    <Input
-                      id="logomarca"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="max-w-sm"
-                    />
-                    <Upload className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                )}
-                <p className="text-sm text-muted-foreground">
-                  Formatos aceitos: JPG, PNG, WEBP. Tamanho máximo: 5MB
-                </p>
               </div>
             </div>
 
