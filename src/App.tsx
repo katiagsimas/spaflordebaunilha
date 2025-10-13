@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Encomendas from "./pages/Encomendas";
 import Producao from "./pages/Producao";
 import Precificacao from "./pages/Precificacao";
+import Planejamento from "./pages/Planejamento";
 import Cadastros from "./pages/Cadastros";
 import ClientesFornecedores from "./pages/ClientesFornecedores";
 import SeusDados from "./pages/cadastros/SeusDados";
@@ -68,6 +69,7 @@ const App = () => (
           <Route path="/encomendas" element={<ProtectedRoute><Layout><Encomendas /></Layout></ProtectedRoute>} />
           <Route path="/producao" element={<ProtectedRoute><Layout><Producao /></Layout></ProtectedRoute>} />
           <Route path="/precificacao" element={<ProtectedRoute><Layout><Precificacao /></Layout></ProtectedRoute>} />
+          <Route path="/planejamento" element={<ProtectedRoute><Layout><Planejamento /></Layout></ProtectedRoute>} />
           <Route path="/cadastros" element={<ProtectedRoute><Layout><Cadastros /></Layout></ProtectedRoute>} />
           <Route path="/clientes-fornecedores" element={<ProtectedRoute><Layout><ClientesFornecedores /></Layout></ProtectedRoute>} />
           <Route path="/cadastros/seus-dados" element={<ProtectedRoute><Layout><SeusDados /></Layout></ProtectedRoute>} />
