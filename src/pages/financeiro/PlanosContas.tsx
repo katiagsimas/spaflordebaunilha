@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FileText, Plus, Pencil, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -104,6 +105,10 @@ export default function PlanosContas() {
 
   return (
     <div className="min-h-screen bg-background">
+      <div className="mb-6">
+        <BackButton to="/financeiro/configuracoes" />
+      </div>
+      
       <PageHeader
         title="Planos de Contas"
         description="Configure e organize seu plano de contas contábil"
