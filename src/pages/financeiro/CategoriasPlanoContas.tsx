@@ -15,6 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { HelpCircle } from "lucide-react";
 
 type FaixaDRE = 'receita_bruta' | 'deducoes' | 'receita_liquida' | 
   'cmv' | 'lucro_bruto' | 
@@ -123,17 +125,39 @@ export default function CategoriasPlanoContas() {
 
   // Gerar próximo código disponível baseado na categoria pai
   const gerarProximoCodigo = (categoriaPaiId: string) => {
+    if (!categoriaPaiId) {
+      // Nível 1: pegar maior número usado + 1
+      const codigosNivel1 = categorias
+        .filter(c => !c.codigo.includes('.'))
+        .map(c => parseInt(c.codigo));
+      
+      const maiorCodigo = Math.max(...codigosNivel1, 0);
+      return (maiorCodigo + 1).toString();
+    }
+    
     const pai = categorias.find(c => c.id === categoriaPaiId);
     if (!pai) return "";
     
-    const filhos = categorias.filter(c => c.categoriaPai === categoriaPaiId);
-    const codigos = filhos.map(c => {
-      const partes = c.codigo.split('.');
+    // Buscar todos os filhos diretos
+    const filhos = categorias.filter(c => {
+      if (!c.codigo.startsWith(pai.codigo + '.')) return false;
+      const partesFilho = c.codigo.split('.');
+      const partesPai = pai.codigo.split('.');
+      return partesFilho.length === partesPai.length + 1;
+    });
+    
+    if (filhos.length === 0) {
+      return pai.codigo + '.1';
+    }
+    
+    // Pegar último número do código dos filhos
+    const ultimosNumeros = filhos.map(f => {
+      const partes = f.codigo.split('.');
       return parseInt(partes[partes.length - 1]);
     });
     
-    const proximoNumero = codigos.length > 0 ? Math.max(...codigos) + 1 : 1;
-    return `${pai.codigo}.${proximoNumero}`;
+    const maiorNumero = Math.max(...ultimosNumeros);
+    return pai.codigo + '.' + (maiorNumero + 1);
   };
 
   // Atualizar código quando categoria pai muda
@@ -164,23 +188,25 @@ export default function CategoriasPlanoContas() {
       { value: 'deducoes' as FaixaDRE, label: 'Deduções da Receita' },
       { value: 'receita_liquida' as FaixaDRE, label: 'Receita Líquida' },
       { value: 'outras_receitas' as FaixaDRE, label: 'Outras Receitas' },
+      { value: 'nao_aplicavel' as FaixaDRE, label: 'Não Aplicável (categorias pai)' },
     ];
 
     const faixasDespesa = [
-      { value: 'cmv' as FaixaDRE, label: 'CMV/CPV' },
+      { value: 'cmv' as FaixaDRE, label: 'CMV (Custo da Mercadoria Vendida)' },
       { value: 'despesas_operacionais' as FaixaDRE, label: 'Despesas Operacionais' },
       { value: 'despesas_administrativas' as FaixaDRE, label: 'Despesas Administrativas' },
       { value: 'despesas_vendas' as FaixaDRE, label: 'Despesas com Vendas' },
       { value: 'despesas_financeiras' as FaixaDRE, label: 'Despesas Financeiras' },
       { value: 'outras_despesas' as FaixaDRE, label: 'Outras Despesas' },
+      { value: 'nao_aplicavel' as FaixaDRE, label: 'Não Aplicável (categorias pai)' },
     ];
 
     const faixasAtivo = [
-      { value: 'nao_aplicavel' as FaixaDRE, label: 'Não Aplicável (Balanço)' },
+      { value: 'nao_aplicavel' as FaixaDRE, label: 'Não Aplicável (Balanço Patrimonial)' },
     ];
 
     const faixasPassivo = [
-      { value: 'nao_aplicavel' as FaixaDRE, label: 'Não Aplicável (Balanço)' },
+      { value: 'nao_aplicavel' as FaixaDRE, label: 'Não Aplicável (Balanço Patrimonial)' },
     ];
 
     if (indicador === 'receita') return faixasReceita;
@@ -189,6 +215,57 @@ export default function CategoriasPlanoContas() {
     if (indicador === 'passivo') return faixasPassivo;
     
     return [{ value: 'nao_aplicavel' as FaixaDRE, label: 'Não Aplicável' }];
+  };
+
+  // Validar categoria antes de salvar
+  const validarCategoria = (): string[] => {
+    const erros: string[] = [];
+    
+    // Código obrigatório
+    if (!formData.codigo || formData.codigo.trim() === '') {
+      erros.push('Código é obrigatório');
+      return erros;
+    }
+    
+    // Validar formato do código (X.Y.Z...)
+    const regexCodigo = /^\d+(\.\d+)*$/;
+    if (!regexCodigo.test(formData.codigo)) {
+      erros.push('Código deve seguir o formato: 1 ou 1.1 ou 1.1.1');
+    }
+    
+    // Verificar código único
+    const codigoExistente = categorias.find(
+      c => c.codigo === formData.codigo && c.id !== editingCategoria?.id
+    );
+    if (codigoExistente) {
+      erros.push('Código já existe no sistema');
+    }
+    
+    // Descrição obrigatória
+    if (!formData.descricao || formData.descricao.trim() === '') {
+      erros.push('Descrição é obrigatória');
+    }
+    
+    // Validar hierarquia
+    if (formData.categoriaPai) {
+      const pai = categorias.find(c => c.id === formData.categoriaPai);
+      if (!pai) {
+        erros.push('Categoria pai não encontrada');
+      } else {
+        // Validar que código é filho do pai
+        if (!formData.codigo.startsWith(pai.codigo + '.')) {
+          erros.push('Código deve começar com o código da categoria pai');
+        }
+        
+        // Validar nível máximo (4)
+        const nivel = formData.codigo.split('.').length;
+        if (nivel > 4) {
+          erros.push('Nível máximo é 4 (ex: 1.2.3.4)');
+        }
+      }
+    }
+    
+    return erros;
   };
 
   const getFaixaDRELabel = (faixa: FaixaDRE) => {
@@ -214,6 +291,16 @@ export default function CategoriasPlanoContas() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validar
+    const erros = validarCategoria();
+    if (erros.length > 0) {
+      toast.error(erros.join('\n'));
+      return;
+    }
+    
+    // Determinar nível
+    const nivel = formData.codigo.split('.').length;
+    
     if (editingCategoria) {
       if (!editingCategoria.editavel) {
         toast.error("Esta categoria não pode ser editada!");
@@ -224,22 +311,38 @@ export default function CategoriasPlanoContas() {
         c.id === editingCategoria.id 
           ? { 
               ...editingCategoria, 
-              ...formData, 
+              ...formData,
+              nivel,
               updatedAt: new Date().toISOString() 
             }
           : c
       ));
-      toast.success("Categoria atualizada com sucesso!");
+      toast.success("✓ Categoria atualizada com sucesso!");
     } else {
       const novaCategoria: CategoriaPlano = {
         id: `cat-${Date.now()}`,
         ...formData,
+        nivel,
         editavel: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
-      setCategorias([...categorias, novaCategoria]);
-      toast.success("Categoria criada com sucesso!");
+      
+      // Adicionar e ordenar por código
+      const novasCategorias = [...categorias, novaCategoria].sort((a, b) => {
+        const partesA = a.codigo.split('.').map(Number);
+        const partesB = b.codigo.split('.').map(Number);
+        
+        for (let i = 0; i < Math.max(partesA.length, partesB.length); i++) {
+          const numA = partesA[i] || 0;
+          const numB = partesB[i] || 0;
+          if (numA !== numB) return numA - numB;
+        }
+        return 0;
+      });
+      
+      setCategorias(novasCategorias);
+      toast.success("✓ Categoria criada com sucesso!");
     }
     
     setDialogOpen(false);
@@ -561,13 +664,28 @@ export default function CategoriasPlanoContas() {
 
                 {/* Status */}
                 <div className="flex items-center justify-between p-4 border rounded-lg bg-[#FAF7F5]">
-                  <div>
-                    <Label htmlFor="ativo" className="text-base font-semibold text-[#6B5047] cursor-pointer">
-                      Status
-                    </Label>
-                    <p className="text-xs text-[#9C8B82] mt-1">
-                      Categorias inativas não aparecem em lançamentos
-                    </p>
+                  <div className="flex items-center gap-2">
+                    <div>
+                      <Label htmlFor="ativo" className="text-base font-semibold text-[#6B5047] cursor-pointer">
+                        Status
+                      </Label>
+                      <p className="text-xs text-[#9C8B82] mt-1">
+                        Categorias inativas não aparecem em lançamentos
+                      </p>
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="h-4 w-4 text-[#9C8B82] cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-card max-w-xs">
+                          <p className="text-sm">
+                            Categorias inativas não podem ser usadas em novos lançamentos financeiros, 
+                            mas os lançamentos antigos continuam vinculados a elas.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch
