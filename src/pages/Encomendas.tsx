@@ -12,6 +12,7 @@ import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarC
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { formatPhone } from "@/lib/utils";
 
 interface Order {
   id: string;
@@ -248,6 +249,9 @@ const Encomendas = () => {
                       value={formData.phone}
                       onChange={(e) =>
                         setFormData({ ...formData, phone: e.target.value })
+                      }
+                      onBlur={(e) =>
+                        setFormData({ ...formData, phone: formatPhone(e.target.value) })
                       }
                     />
                   </div>

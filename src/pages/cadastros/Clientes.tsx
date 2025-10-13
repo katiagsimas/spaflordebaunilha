@@ -18,6 +18,7 @@ import { useViaCEP } from "@/hooks/useViaCEP";
 import { Plus, Pencil, Trash2, Users, Search, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { formatPhone, formatCpfCnpj } from "@/lib/utils";
 
 interface Cliente {
   id: string;
@@ -205,6 +206,7 @@ export default function Clientes() {
                       id="telefone"
                       value={formData.telefone}
                       onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
+                      onBlur={(e) => setFormData({ ...formData, telefone: formatPhone(e.target.value) })}
                       placeholder="(00) 00000-0000"
                       required
                     />
@@ -300,6 +302,7 @@ export default function Clientes() {
                       id="cpf"
                       value={formData.cpf}
                       onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
+                      onBlur={(e) => setFormData({ ...formData, cpf: formatCpfCnpj(e.target.value) })}
                       placeholder="000.000.000-00"
                     />
                   </div>

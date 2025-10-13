@@ -10,6 +10,7 @@ import { Save, Upload, X, Search } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useState } from "react";
+import { formatPhone, formatCpfCnpj } from "@/lib/utils";
 
 interface SeusDadosForm {
   razaoSocial: string;
@@ -158,6 +159,7 @@ export default function SeusDados() {
                   id="cnpjCpf"
                   {...register("cnpjCpf")}
                   placeholder="00.000.000/0000-00"
+                  onBlur={(e) => setValue("cnpjCpf", formatCpfCnpj(e.target.value))}
                 />
               </div>
 
@@ -187,6 +189,7 @@ export default function SeusDados() {
                   id="telefone"
                   {...register("telefone")}
                   placeholder="(00) 00000-0000"
+                  onBlur={(e) => setValue("telefone", formatPhone(e.target.value))}
                 />
               </div>
 

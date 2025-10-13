@@ -16,6 +16,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Plus, Pencil, Trash2, Truck, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
+import { formatPhone, formatCpfCnpj } from "@/lib/utils";
 
 interface Fornecedor {
   id: string;
@@ -154,6 +155,7 @@ export default function Fornecedores() {
                       id="cpfCnpj"
                       value={formData.cpfCnpj}
                       onChange={(e) => setFormData({ ...formData, cpfCnpj: e.target.value })}
+                      onBlur={(e) => setFormData({ ...formData, cpfCnpj: formatCpfCnpj(e.target.value) })}
                       placeholder="00.000.000/0000-00"
                     />
                   </div>
@@ -163,6 +165,7 @@ export default function Fornecedores() {
                       id="telefone"
                       value={formData.telefone}
                       onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
+                      onBlur={(e) => setFormData({ ...formData, telefone: formatPhone(e.target.value) })}
                       placeholder="(00) 00000-0000"
                       required
                     />
