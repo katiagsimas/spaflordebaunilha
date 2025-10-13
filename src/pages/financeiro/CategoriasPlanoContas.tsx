@@ -13,6 +13,8 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 
 type FaixaDRE = 'receita_bruta' | 'deducoes' | 'receita_liquida' | 
   'cmv' | 'lucro_bruto' | 
@@ -117,6 +119,76 @@ export default function CategoriasPlanoContas() {
       ativo: true
     });
     setEditingCategoria(null);
+  };
+
+  // Gerar próximo código disponível baseado na categoria pai
+  const gerarProximoCodigo = (categoriaPaiId: string) => {
+    const pai = categorias.find(c => c.id === categoriaPaiId);
+    if (!pai) return "";
+    
+    const filhos = categorias.filter(c => c.categoriaPai === categoriaPaiId);
+    const codigos = filhos.map(c => {
+      const partes = c.codigo.split('.');
+      return parseInt(partes[partes.length - 1]);
+    });
+    
+    const proximoNumero = codigos.length > 0 ? Math.max(...codigos) + 1 : 1;
+    return `${pai.codigo}.${proximoNumero}`;
+  };
+
+  // Atualizar código quando categoria pai muda
+  const handleCategoriaPaiChange = (paiId: string) => {
+    if (paiId) {
+      const pai = categorias.find(c => c.id === paiId);
+      const codigo = gerarProximoCodigo(paiId);
+      setFormData({ 
+        ...formData, 
+        categoriaPai: paiId,
+        codigo: codigo,
+        nivel: pai ? pai.nivel + 1 : 1
+      });
+    } else {
+      setFormData({ 
+        ...formData, 
+        categoriaPai: "",
+        codigo: "",
+        nivel: 1
+      });
+    }
+  };
+
+  // Obter opções de faixa DRE baseadas no indicador
+  const getFaixasDREPorIndicador = (indicador: string): { value: FaixaDRE; label: string }[] => {
+    const faixasReceita = [
+      { value: 'receita_bruta' as FaixaDRE, label: 'Receita Bruta' },
+      { value: 'deducoes' as FaixaDRE, label: 'Deduções da Receita' },
+      { value: 'receita_liquida' as FaixaDRE, label: 'Receita Líquida' },
+      { value: 'outras_receitas' as FaixaDRE, label: 'Outras Receitas' },
+    ];
+
+    const faixasDespesa = [
+      { value: 'cmv' as FaixaDRE, label: 'CMV/CPV' },
+      { value: 'despesas_operacionais' as FaixaDRE, label: 'Despesas Operacionais' },
+      { value: 'despesas_administrativas' as FaixaDRE, label: 'Despesas Administrativas' },
+      { value: 'despesas_vendas' as FaixaDRE, label: 'Despesas com Vendas' },
+      { value: 'despesas_financeiras' as FaixaDRE, label: 'Despesas Financeiras' },
+      { value: 'outras_despesas' as FaixaDRE, label: 'Outras Despesas' },
+    ];
+
+    const faixasAtivo = [
+      { value: 'nao_aplicavel' as FaixaDRE, label: 'Não Aplicável (Balanço)' },
+    ];
+
+    const faixasPassivo = [
+      { value: 'nao_aplicavel' as FaixaDRE, label: 'Não Aplicável (Balanço)' },
+    ];
+
+    if (indicador === 'receita') return faixasReceita;
+    if (indicador === 'despesa') return faixasDespesa;
+    if (indicador === 'ativo') return faixasAtivo;
+    if (indicador === 'passivo') return faixasPassivo;
+    
+    return [{ value: 'nao_aplicavel' as FaixaDRE, label: 'Não Aplicável' }];
   };
 
   const getFaixaDRELabel = (faixa: FaixaDRE) => {
@@ -341,136 +413,189 @@ export default function CategoriasPlanoContas() {
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>
+                <DialogTitle className="text-2xl font-bold text-[#6B5047]">
                   {editingCategoria ? "Editar Categoria" : "Nova Categoria"}
                 </DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="codigo">Código</Label>
-                    <Input
-                      id="codigo"
-                      value={formData.codigo}
-                      onChange={(e) => setFormData({ ...formData, codigo: e.target.value })}
-                      placeholder="Ex: 1.1.1"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="nivel">Nível Hierárquico</Label>
-                    <Select
-                      value={formData.nivel.toString()}
-                      onValueChange={(value) => 
-                        setFormData({ ...formData, nivel: parseInt(value) })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-card">
-                        <SelectItem value="1">Nível 1 (Principal)</SelectItem>
-                        <SelectItem value="2">Nível 2 (Subgrupo)</SelectItem>
-                        <SelectItem value="3">Nível 3 (Conta)</SelectItem>
-                        <SelectItem value="4">Nível 4 (Subconta)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Categoria Pai */}
                 <div className="space-y-2">
-                  <Label htmlFor="descricao">Descrição da Categoria</Label>
+                  <Label htmlFor="categoriaPai" className="text-base font-semibold text-[#6B5047]">
+                    Categoria Pai <span className="text-xs text-[#9C8B82] font-normal">(opcional)</span>
+                  </Label>
+                  <Select
+                    value={formData.categoriaPai}
+                    onValueChange={handleCategoriaPaiChange}
+                    disabled={!!editingCategoria}
+                  >
+                    <SelectTrigger className="h-11">
+                      <SelectValue placeholder="Selecione uma categoria pai..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card max-h-[300px]">
+                      <SelectItem value="">Nenhuma (Categoria Principal)</SelectItem>
+                      {categoriasPais
+                        .filter(c => c.nivel < 4)
+                        .map(cat => (
+                          <SelectItem key={cat.id} value={cat.id}>
+                            {cat.codigo} - {cat.descricao}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Código */}
+                <div className="space-y-2">
+                  <Label htmlFor="codigo" className="text-base font-semibold text-[#6B5047]">
+                    Código <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="codigo"
+                    value={formData.codigo}
+                    onChange={(e) => setFormData({ ...formData, codigo: e.target.value })}
+                    placeholder="Ex: 1.1.3"
+                    className="h-11"
+                    readOnly={!!formData.categoriaPai}
+                    required
+                  />
+                  <p className="text-xs text-[#9C8B82]">
+                    {formData.categoriaPai 
+                      ? "Código gerado automaticamente com base na categoria pai" 
+                      : "Digite o código manualmente (Ex: 1, 1.1, 1.1.1)"}
+                  </p>
+                </div>
+
+                {/* Descrição */}
+                <div className="space-y-2">
+                  <Label htmlFor="descricao" className="text-base font-semibold text-[#6B5047]">
+                    Descrição <span className="text-red-500">*</span>
+                  </Label>
                   <Input
                     id="descricao"
                     value={formData.descricao}
                     onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                    placeholder="Ex: Vendas de Bolos"
+                    maxLength={100}
+                    className="h-11"
                     required
                   />
+                  <p className="text-xs text-[#9C8B82]">
+                    {formData.descricao.length}/100 caracteres
+                  </p>
+                </div>
+
+                {/* Indicador */}
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold text-[#6B5047]">
+                    Indicador <span className="text-red-500">*</span>
+                  </Label>
+                  <RadioGroup
+                    value={formData.indicador}
+                    onValueChange={(value: "receita" | "despesa" | "ativo" | "passivo") => {
+                      setFormData({ ...formData, indicador: value });
+                      // Resetar faixa DRE ao mudar indicador
+                      const faixas = getFaixasDREPorIndicador(value);
+                      if (faixas.length > 0) {
+                        setFormData(prev => ({ ...prev, indicador: value, faixaDRE: faixas[0].value }));
+                      }
+                    }}
+                    className="grid grid-cols-2 gap-4"
+                  >
+                    <div className="flex items-center space-x-3 border rounded-lg p-4 hover:bg-[#FAF7F5] cursor-pointer">
+                      <RadioGroupItem value="receita" id="receita" />
+                      <Label htmlFor="receita" className="cursor-pointer flex-1">
+                        <div className="font-semibold text-[#388E3C]">Receita</div>
+                        <div className="text-xs text-[#9C8B82]">Entradas financeiras</div>
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-3 border rounded-lg p-4 hover:bg-[#FAF7F5] cursor-pointer">
+                      <RadioGroupItem value="despesa" id="despesa" />
+                      <Label htmlFor="despesa" className="cursor-pointer flex-1">
+                        <div className="font-semibold text-[#C62828]">Despesa</div>
+                        <div className="text-xs text-[#9C8B82]">Saídas financeiras</div>
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-3 border rounded-lg p-4 hover:bg-[#FAF7F5] cursor-pointer">
+                      <RadioGroupItem value="ativo" id="ativo" />
+                      <Label htmlFor="ativo" className="cursor-pointer flex-1">
+                        <div className="font-semibold text-[#1976D2]">Ativo</div>
+                        <div className="text-xs text-[#9C8B82]">Bens e direitos</div>
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-3 border rounded-lg p-4 hover:bg-[#FAF7F5] cursor-pointer">
+                      <RadioGroupItem value="passivo" id="passivo" />
+                      <Label htmlFor="passivo" className="cursor-pointer flex-1">
+                        <div className="font-semibold text-[#E65100]">Passivo</div>
+                        <div className="text-xs text-[#9C8B82]">Obrigações</div>
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                {/* Faixa no DRE */}
+                <div className="space-y-2">
+                  <Label htmlFor="faixaDRE" className="text-base font-semibold text-[#6B5047]">
+                    Faixa no DRE <span className="text-red-500">*</span>
+                  </Label>
+                  <Select
+                    value={formData.faixaDRE}
+                    onValueChange={(value: FaixaDRE) => 
+                      setFormData({ ...formData, faixaDRE: value })
+                    }
+                  >
+                    <SelectTrigger className="h-11">
+                      <SelectValue placeholder="Selecione a faixa no DRE..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card max-h-[300px]">
+                      {getFaixasDREPorIndicador(formData.indicador).map(faixa => (
+                        <SelectItem key={faixa.value} value={faixa.value}>
+                          {faixa.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-[#9C8B82]">
+                    Opções filtradas baseadas no indicador selecionado
+                  </p>
+                </div>
+
+                {/* Status */}
+                <div className="flex items-center justify-between p-4 border rounded-lg bg-[#FAF7F5]">
+                  <div>
+                    <Label htmlFor="ativo" className="text-base font-semibold text-[#6B5047] cursor-pointer">
+                      Status
+                    </Label>
+                    <p className="text-xs text-[#9C8B82] mt-1">
+                      Categorias inativas não aparecem em lançamentos
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      id="ativo"
+                      checked={formData.ativo}
+                      onCheckedChange={(checked) => setFormData({ ...formData, ativo: checked })}
+                    />
+                    <span className="text-sm font-medium text-[#6B5047]">
+                      {formData.ativo ? 'Ativo' : 'Inativo'}
+                    </span>
+                  </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="indicador">Indicador</Label>
-                    <Select
-                      value={formData.indicador}
-                      onValueChange={(value: "receita" | "despesa" | "ativo" | "passivo") => 
-                        setFormData({ ...formData, indicador: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-card">
-                        <SelectItem value="receita">Receita</SelectItem>
-                        <SelectItem value="despesa">Despesa</SelectItem>
-                        <SelectItem value="ativo">Ativo</SelectItem>
-                        <SelectItem value="passivo">Passivo</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="faixaDRE">Faixa no DRE</Label>
-                    <Select
-                      value={formData.faixaDRE}
-                      onValueChange={(value: FaixaDRE) => 
-                        setFormData({ ...formData, faixaDRE: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-card max-h-[300px]">
-                        <SelectItem value="nao_aplicavel">Não Aplicável</SelectItem>
-                        <SelectItem value="receita_bruta">Receita Bruta</SelectItem>
-                        <SelectItem value="deducoes">Deduções</SelectItem>
-                        <SelectItem value="receita_liquida">Receita Líquida</SelectItem>
-                        <SelectItem value="cmv">CMV/CPV</SelectItem>
-                        <SelectItem value="lucro_bruto">Lucro Bruto</SelectItem>
-                        <SelectItem value="despesas_operacionais">Despesas Operacionais</SelectItem>
-                        <SelectItem value="despesas_administrativas">Despesas Administrativas</SelectItem>
-                        <SelectItem value="despesas_vendas">Despesas com Vendas</SelectItem>
-                        <SelectItem value="despesas_financeiras">Despesas Financeiras</SelectItem>
-                        <SelectItem value="outras_receitas">Outras Receitas</SelectItem>
-                        <SelectItem value="outras_despesas">Outras Despesas</SelectItem>
-                        <SelectItem value="lucro_operacional">Lucro Operacional</SelectItem>
-                        <SelectItem value="lucro_liquido">Lucro Líquido</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                {formData.nivel > 1 && (
-                  <div className="space-y-2">
-                    <Label htmlFor="categoriaPai">Categoria Pai</Label>
-                    <Select
-                      value={formData.categoriaPai}
-                      onValueChange={(value) => 
-                        setFormData({ ...formData, categoriaPai: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione uma categoria" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-card">
-                        {categoriasPais
-                          .filter(c => c.nivel < formData.nivel)
-                          .map(cat => (
-                            <SelectItem key={cat.id} value={cat.id}>
-                              {cat.codigo} - {cat.descricao}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-                
-                <div className="flex justify-end gap-2 pt-4">
-                  <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                {/* Botões */}
+                <div className="flex justify-end gap-3 pt-4 border-t">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setDialogOpen(false)}
+                    className="px-6"
+                  >
                     Cancelar
                   </Button>
-                  <Button type="submit" className="bg-[#D89B8C] hover:bg-[#B87C6D] text-white">
-                    Salvar
+                  <Button 
+                    type="submit" 
+                    className="bg-[#D89B8C] hover:bg-[#B87C6D] text-white px-6"
+                  >
+                    {editingCategoria ? 'Atualizar' : 'Salvar'}
                   </Button>
                 </div>
               </form>
