@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { FolderTree, Plus, Pencil, Trash2, Lock } from "lucide-react";
+import { FolderTree, Plus, Pencil, Trash2, Lock, Search, ChevronRight, ChevronDown, Maximize2, Minimize2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
@@ -87,6 +87,10 @@ export default function CategoriasPlanoContas() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editingCategoria, setEditingCategoria] = useState<CategoriaPlano | null>(null);
   const [categoriaToDelete, setCategoriaToDelete] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterIndicador, setFilterIndicador] = useState<string>("todos");
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [expandAll, setExpandAll] = useState(false);
   
   const [formData, setFormData] = useState({
     codigo: "",
@@ -242,26 +246,45 @@ export default function CategoriasPlanoContas() {
           }}>
             <DialogTrigger asChild>
               <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Nova Categoria
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
                   {editingCategoria ? "Editar Categoria" : "Nova Categoria"}
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="codigo">Código</Label>
-                  <Input
-                    id="codigo"
-                    value={formData.codigo}
-                    onChange={(e) => setFormData({ ...formData, codigo: e.target.value })}
-                    required
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="codigo">Código</Label>
+                    <Input
+                      id="codigo"
+                      value={formData.codigo}
+                      onChange={(e) => setFormData({ ...formData, codigo: e.target.value })}
+                      placeholder="Ex: 1.1.1"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="nivel">Nível Hierárquico</Label>
+                    <Select
+                      value={formData.nivel.toString()}
+                      onValueChange={(value) => 
+                        setFormData({ ...formData, nivel: parseInt(value) })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card">
+                        <SelectItem value="1">Nível 1 (Principal)</SelectItem>
+                        <SelectItem value="2">Nível 2 (Subgrupo)</SelectItem>
+                        <SelectItem value="3">Nível 3 (Conta)</SelectItem>
+                        <SelectItem value="4">Nível 4 (Subconta)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
+                
                 <div className="space-y-2">
                   <Label htmlFor="descricao">Descrição da Categoria</Label>
                   <Input
@@ -271,73 +294,59 @@ export default function CategoriasPlanoContas() {
                     required
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="indicador">Indicador</Label>
-                  <Select
-                    value={formData.indicador}
-                    onValueChange={(value: "receita" | "despesa" | "ativo" | "passivo") => 
-                      setFormData({ ...formData, indicador: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="receita">Receita</SelectItem>
-                      <SelectItem value="despesa">Despesa</SelectItem>
-                      <SelectItem value="ativo">Ativo</SelectItem>
-                      <SelectItem value="passivo">Passivo</SelectItem>
-                    </SelectContent>
-                  </Select>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="indicador">Indicador</Label>
+                    <Select
+                      value={formData.indicador}
+                      onValueChange={(value: "receita" | "despesa" | "ativo" | "passivo") => 
+                        setFormData({ ...formData, indicador: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card">
+                        <SelectItem value="receita">Receita</SelectItem>
+                        <SelectItem value="despesa">Despesa</SelectItem>
+                        <SelectItem value="ativo">Ativo</SelectItem>
+                        <SelectItem value="passivo">Passivo</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="faixaDRE">Faixa no DRE</Label>
+                    <Select
+                      value={formData.faixaDRE}
+                      onValueChange={(value: FaixaDRE) => 
+                        setFormData({ ...formData, faixaDRE: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card max-h-[300px]">
+                        <SelectItem value="nao_aplicavel">Não Aplicável</SelectItem>
+                        <SelectItem value="receita_bruta">Receita Bruta</SelectItem>
+                        <SelectItem value="deducoes">Deduções</SelectItem>
+                        <SelectItem value="receita_liquida">Receita Líquida</SelectItem>
+                        <SelectItem value="cmv">CMV/CPV</SelectItem>
+                        <SelectItem value="lucro_bruto">Lucro Bruto</SelectItem>
+                        <SelectItem value="despesas_operacionais">Despesas Operacionais</SelectItem>
+                        <SelectItem value="despesas_administrativas">Despesas Administrativas</SelectItem>
+                        <SelectItem value="despesas_vendas">Despesas com Vendas</SelectItem>
+                        <SelectItem value="despesas_financeiras">Despesas Financeiras</SelectItem>
+                        <SelectItem value="outras_receitas">Outras Receitas</SelectItem>
+                        <SelectItem value="outras_despesas">Outras Despesas</SelectItem>
+                        <SelectItem value="lucro_operacional">Lucro Operacional</SelectItem>
+                        <SelectItem value="lucro_liquido">Lucro Líquido</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="faixaDRE">Faixa no DRE</Label>
-                  <Select
-                    value={formData.faixaDRE}
-                    onValueChange={(value: FaixaDRE) => 
-                      setFormData({ ...formData, faixaDRE: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="nao_aplicavel">Não Aplicável</SelectItem>
-                      <SelectItem value="receita_bruta">Receita Bruta</SelectItem>
-                      <SelectItem value="deducoes">Deduções</SelectItem>
-                      <SelectItem value="receita_liquida">Receita Líquida</SelectItem>
-                      <SelectItem value="cmv">CMV/CPV</SelectItem>
-                      <SelectItem value="lucro_bruto">Lucro Bruto</SelectItem>
-                      <SelectItem value="despesas_operacionais">Despesas Operacionais</SelectItem>
-                      <SelectItem value="despesas_administrativas">Despesas Administrativas</SelectItem>
-                      <SelectItem value="despesas_vendas">Despesas com Vendas</SelectItem>
-                      <SelectItem value="despesas_financeiras">Despesas Financeiras</SelectItem>
-                      <SelectItem value="outras_receitas">Outras Receitas</SelectItem>
-                      <SelectItem value="outras_despesas">Outras Despesas</SelectItem>
-                      <SelectItem value="lucro_operacional">Lucro Operacional</SelectItem>
-                      <SelectItem value="lucro_liquido">Lucro Líquido</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="nivel">Nível Hierárquico</Label>
-                  <Select
-                    value={formData.nivel.toString()}
-                    onValueChange={(value) => 
-                      setFormData({ ...formData, nivel: parseInt(value) })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">Nível 1 (Principal)</SelectItem>
-                      <SelectItem value="2">Nível 2 (Subgrupo)</SelectItem>
-                      <SelectItem value="3">Nível 3 (Conta)</SelectItem>
-                      <SelectItem value="4">Nível 4 (Subconta)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                
                 {formData.nivel > 1 && (
                   <div className="space-y-2">
                     <Label htmlFor="categoriaPai">Categoria Pai</Label>
@@ -350,7 +359,7 @@ export default function CategoriasPlanoContas() {
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione uma categoria" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-card">
                         {categoriasPais
                           .filter(c => c.nivel < formData.nivel)
                           .map(cat => (
@@ -362,90 +371,267 @@ export default function CategoriasPlanoContas() {
                     </Select>
                   </div>
                 )}
-                <div className="flex justify-end gap-2">
+                
+                <div className="flex justify-end gap-2 pt-4">
                   <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                     Cancelar
                   </Button>
-                  <Button type="submit">Salvar</Button>
+                  <Button type="submit" className="bg-[#D89B8C] hover:bg-[#B87C6D] text-white">
+                    Salvar
+                  </Button>
                 </div>
               </form>
             </DialogContent>
           </Dialog>
-        }
-      />
+        </div>
+      </div>
 
-      {categorias.length === 0 ? (
+      {/* Cards de Resumo */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="bg-card rounded-xl border shadow-sm p-6">
+          <div className="text-sm text-[#9C8B82] mb-1">Receitas</div>
+          <div className="text-3xl font-bold text-[#388E3C]">{stats.receitas}</div>
+        </div>
+        <div className="bg-card rounded-xl border shadow-sm p-6">
+          <div className="text-sm text-[#9C8B82] mb-1">Despesas</div>
+          <div className="text-3xl font-bold text-[#C62828]">{stats.despesas}</div>
+        </div>
+        <div className="bg-card rounded-xl border shadow-sm p-6">
+          <div className="text-sm text-[#9C8B82] mb-1">Total</div>
+          <div className="text-3xl font-bold text-[#6B5047]">{stats.total}</div>
+        </div>
+      </div>
+
+      {/* Barra de Ferramentas */}
+      <div className="bg-card rounded-xl border shadow-sm p-4 mb-6">
+        <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#9C8B82]" />
+            <Input
+              placeholder="Buscar por código ou descrição..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Select value={filterIndicador} onValueChange={setFilterIndicador}>
+            <SelectTrigger className="w-full lg:w-[200px]">
+              <SelectValue placeholder="Filtrar por" />
+            </SelectTrigger>
+            <SelectContent className="bg-card">
+              <SelectItem value="todos">Todos</SelectItem>
+              <SelectItem value="receita">Receitas</SelectItem>
+              <SelectItem value="despesa">Despesas</SelectItem>
+              <SelectItem value="ativo">Ativos</SelectItem>
+              <SelectItem value="passivo">Passivos</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            variant="outline"
+            onClick={handleExpandAll}
+            className="w-full lg:w-auto"
+          >
+            {expandAll ? (
+              <>
+                <Minimize2 className="mr-2 h-4 w-4" />
+                Recolher Todas
+              </>
+            ) : (
+              <>
+                <Maximize2 className="mr-2 h-4 w-4" />
+                Expandir Todas
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+
+      {visibleCategorias.length === 0 ? (
         <EmptyState
           icon={FolderTree}
-          title="Nenhuma categoria cadastrada"
-          description="Comece criando sua primeira categoria de plano de contas"
+          title="Nenhuma categoria encontrada"
+          description="Tente ajustar os filtros ou criar uma nova categoria"
           actionLabel="Nova Categoria"
           onAction={() => setDialogOpen(true)}
         />
       ) : (
-        <div className="bg-card rounded-xl border shadow-sm">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Código</TableHead>
-                <TableHead>Descrição</TableHead>
-                <TableHead>Nível</TableHead>
-                <TableHead>Indicador</TableHead>
-                <TableHead>Faixa no DRE</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {categorias.map((categoria) => (
-                <TableRow key={categoria.id} className={!categoria.ativo ? "opacity-50" : ""}>
-                  <TableCell className="font-medium">
-                    <span style={{ paddingLeft: `${(categoria.nivel - 1) * 20}px` }}>
-                      {categoria.codigo}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span style={{ paddingLeft: `${(categoria.nivel - 1) * 20}px` }}>
-                        {categoria.descricao}
-                      </span>
-                      {!categoria.editavel && (
-                        <Lock className="h-3 w-3 text-muted-foreground" />
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">Nível {categoria.nivel}</Badge>
-                  </TableCell>
-                  <TableCell>{getIndicadorLabel(categoria.indicador)}</TableCell>
-                  <TableCell>{getFaixaDRELabel(categoria.faixaDRE)}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEdit(categoria)}
-                        disabled={!categoria.editavel}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          setCategoriaToDelete(categoria.id);
-                          setDeleteDialogOpen(true);
-                        }}
-                        disabled={!categoria.editavel}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+        <>
+          {/* Tabela Desktop */}
+          <div className="hidden md:block bg-card rounded-xl border shadow-sm overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-[#F5E6E0] hover:bg-[#F5E6E0]">
+                  <TableHead className="font-semibold text-sm uppercase text-[#6B5047]">Código</TableHead>
+                  <TableHead className="font-semibold text-sm uppercase text-[#6B5047]">Descrição</TableHead>
+                  <TableHead className="font-semibold text-sm uppercase text-[#6B5047]">Indicador</TableHead>
+                  <TableHead className="font-semibold text-sm uppercase text-[#6B5047]">Faixa no DRE</TableHead>
+                  <TableHead className="text-right font-semibold text-sm uppercase text-[#6B5047]">Ações</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {visibleCategorias.map((categoria) => {
+                  const temFilhos = hasChildren(categoria.id);
+                  const estaExpandido = expandedCategories.has(categoria.id) || expandAll;
+                  const indentacao = (categoria.nivel - 1) * 24;
+                  
+                  return (
+                    <TableRow 
+                      key={categoria.id} 
+                      className={`hover:bg-[#FAF7F5] ${!categoria.ativo ? 'opacity-50' : ''}`}
+                    >
+                      <TableCell className="font-mono text-sm text-[#6B5047]">
+                        <span style={{ paddingLeft: `${indentacao}px` }}>
+                          {categoria.codigo}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div 
+                          className="flex items-center gap-2 cursor-pointer"
+                          onClick={() => temFilhos && toggleExpand(categoria.id)}
+                          style={{ paddingLeft: `${indentacao}px` }}
+                        >
+                          {temFilhos && (
+                            estaExpandido ? 
+                              <ChevronDown className="h-4 w-4 text-[#9C8B82] transition-transform" /> :
+                              <ChevronRight className="h-4 w-4 text-[#9C8B82] transition-transform" />
+                          )}
+                          <span className={`
+                            ${categoria.nivel === 1 ? 'font-bold text-base' : ''}
+                            ${categoria.nivel === 2 ? 'font-semibold text-sm' : ''}
+                            ${categoria.nivel === 3 ? 'font-normal text-sm' : ''}
+                            ${categoria.nivel === 4 ? 'font-normal text-xs' : ''}
+                          `}>
+                            {categoria.descricao}
+                          </span>
+                          {!categoria.editavel && (
+                            <Lock className="h-3 w-3 text-[#9C8B82]" />
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge 
+                          variant="outline" 
+                          className={`${getIndicadorBadge(categoria.indicador)} border`}
+                        >
+                          {getIndicadorLabel(categoria.indicador)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-xs text-[#9C8B82]">
+                        {getFaixaDRELabel(categoria.faixaDRE)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(categoria)}
+                            disabled={!categoria.editavel}
+                            className="h-8 w-8"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              setCategoriaToDelete(categoria.id);
+                              setDeleteDialogOpen(true);
+                            }}
+                            disabled={!categoria.editavel}
+                            className="h-8 w-8"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Cards Mobile */}
+          <div className="md:hidden space-y-4">
+            {visibleCategorias.map((categoria) => {
+              const temFilhos = hasChildren(categoria.id);
+              const estaExpandido = expandedCategories.has(categoria.id) || expandAll;
+              
+              return (
+                <div key={categoria.id} className="bg-card rounded-xl border shadow-sm p-4">
+                  <div 
+                    className="flex items-start justify-between mb-3 cursor-pointer"
+                    onClick={() => temFilhos && toggleExpand(categoria.id)}
+                  >
+                    <div className="flex items-center gap-2">
+                      {temFilhos && (
+                        estaExpandido ? 
+                          <ChevronDown className="h-4 w-4 text-[#9C8B82]" /> :
+                          <ChevronRight className="h-4 w-4 text-[#9C8B82]" />
+                      )}
+                      <div>
+                        <div className="font-mono text-sm text-[#6B5047] mb-1">
+                          {categoria.codigo}
+                        </div>
+                        <div className={`
+                          ${categoria.nivel === 1 ? 'font-bold' : ''}
+                          ${categoria.nivel === 2 ? 'font-semibold' : ''}
+                        `}>
+                          {categoria.descricao}
+                        </div>
+                      </div>
+                    </div>
+                    {!categoria.editavel && (
+                      <Lock className="h-4 w-4 text-[#9C8B82]" />
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2 mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-[#9C8B82]">Indicador:</span>
+                      <Badge 
+                        variant="outline" 
+                        className={`${getIndicadorBadge(categoria.indicador)} border text-xs`}
+                      >
+                        {getIndicadorLabel(categoria.indicador)}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-[#9C8B82]">DRE:</span>
+                      <span className="text-xs">{getFaixaDRELabel(categoria.faixaDRE)}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(categoria)}
+                      disabled={!categoria.editavel}
+                      className="flex-1"
+                    >
+                      <Pencil className="mr-2 h-4 w-4" />
+                      Editar
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setCategoriaToDelete(categoria.id);
+                        setDeleteDialogOpen(true);
+                      }}
+                      disabled={!categoria.editavel}
+                      className="flex-1"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Excluir
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
 
       <ConfirmDialog
