@@ -75,6 +75,7 @@ interface Receita {
   id: string;
   nome: string;
   categoria?: string;
+  tipo?: "produto_avulso" | "produto_combo";
   tempoPreparo: number;
   unidadeTempo: "minutos" | "horas";
   rendimento: number;
@@ -101,6 +102,7 @@ export default function ReceitaForm() {
   const [formData, setFormData] = useState({
     nome: "",
     categoria: "",
+    tipo: "produto_avulso" as "produto_avulso" | "produto_combo",
     tempoPreparo: "",
     unidadeTempo: "minutos" as "minutos" | "horas",
     rendimento: "",
@@ -134,6 +136,7 @@ export default function ReceitaForm() {
         setFormData({
           nome: receita.nome,
           categoria: receita.categoria || "",
+          tipo: receita.tipo || "produto_avulso",
           tempoPreparo: receita.tempoPreparo.toString(),
           unidadeTempo: receita.unidadeTempo,
           rendimento: receita.rendimento.toString(),
@@ -381,6 +384,7 @@ export default function ReceitaForm() {
       id: id || Date.now().toString(),
       nome: formData.nome,
       categoria: formData.categoria,
+      tipo: formData.tipo,
       tempoPreparo: Number(formData.tempoPreparo),
       unidadeTempo: formData.unidadeTempo,
       rendimento: Number(formData.rendimento),
@@ -421,7 +425,7 @@ export default function ReceitaForm() {
       <Card>
         <CardContent className="pt-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2">
+            <div>
               <Label htmlFor="nome">Nome da Receita *</Label>
               <Input
                 id="nome"
@@ -450,7 +454,21 @@ export default function ReceitaForm() {
               </Select>
             </div>
 
-            <div></div>
+            <div>
+              <Label htmlFor="tipo">Tipo</Label>
+              <Select
+                value={formData.tipo}
+                onValueChange={(value: "produto_avulso" | "produto_combo") => setFormData({ ...formData, tipo: value })}
+              >
+                <SelectTrigger id="tipo">
+                  <SelectValue placeholder="Selecione o tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="produto_avulso">Produto Avulso</SelectItem>
+                  <SelectItem value="produto_combo">Produto para Combo</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
             <div>
               <Label htmlFor="tempoPreparo">Tempo de Preparo *</Label>
