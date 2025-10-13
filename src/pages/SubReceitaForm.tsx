@@ -183,7 +183,7 @@ export default function SubReceitaForm() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex-1">
-          <PageHeader title={id ? "Editar Pré-Preparo" : "Novo Pré-Preparo"} description="Preencha os dados do pré-preparo" />
+          <PageHeader title={id ? "Editar Pré-Preparo" : "Novo Pré-Preparo"} description="Preencha dos dados da sua Sub-Receita" />
         </div>
       </div>
 
