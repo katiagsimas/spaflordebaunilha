@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Trash2, ChefHat } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, ChefHat, Upload, X } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,6 +43,7 @@ interface SubReceita {
   ingredientes: IngredienteReceita[];
   modoPreparo?: string;
   custoTotal: number;
+  imagens?: string[];
 }
 export default function SubReceitaForm() {
   const navigate = useNavigate();
@@ -60,6 +61,7 @@ export default function SubReceitaForm() {
   });
   const [ingredientes, setIngredientes] = useState<IngredienteReceita[]>([]);
   const [modoPreparo, setModoPreparo] = useState("");
+  const [imagens, setImagens] = useState<string[]>([]);
   useEffect(() => {
     if (id) {
       const subReceita = subReceitas.find(s => s.id === id);
@@ -73,6 +75,7 @@ export default function SubReceitaForm() {
         });
         setIngredientes(subReceita.ingredientes);
         setModoPreparo(subReceita.modoPreparo || "");
+        setImagens(subReceita.imagens || []);
       }
     }
   }, [id, subReceitas]);
@@ -124,6 +127,27 @@ export default function SubReceitaForm() {
     });
     setIngredientes(novosIngredientes);
   };
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    Array.from(files).forEach(file => {
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (event.target?.result) {
+            setImagens(prev => [...prev, event.target!.result as string]);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setImagens(imagens.filter((_, i) => i !== index));
+  };
+
   const handleRemoveIngrediente = (index: number) => {
     setIngredientes(ingredientes.filter((_, i) => i !== index));
   };
@@ -151,7 +175,8 @@ export default function SubReceitaForm() {
       unidadeRendimento: formData.unidadeRendimento,
       ingredientes,
       modoPreparo,
-      custoTotal
+      custoTotal,
+      imagens
     };
 
     // Criar ou atualizar o ingrediente correspondente à sub-receita
@@ -311,6 +336,46 @@ export default function SubReceitaForm() {
                   Custo Total da Receita: R$ {custoTotal.toFixed(2)}
                 </div>
               </div>}
+          </div>
+
+          <div className="space-y-4">
+            <Label>Imagens do Pré-Preparo</Label>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {imagens.map((imagem, index) => (
+                <div key={index} className="relative group">
+                  <img 
+                    src={imagem} 
+                    alt={`Imagem ${index + 1}`} 
+                    className="w-full h-40 object-cover rounded-lg border-2 border-border"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => handleRemoveImage(index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              
+              <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-accent/50 transition-colors">
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <Upload className="h-8 w-8 mb-2 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground text-center px-2">
+                    Clique para adicionar imagem
+                  </p>
+                </div>
+                <input 
+                  type="file" 
+                  className="hidden" 
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageUpload}
+                />
+              </label>
+            </div>
           </div>
 
           <Accordion type="single" collapsible className="w-full">
