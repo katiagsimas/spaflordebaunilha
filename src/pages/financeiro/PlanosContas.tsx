@@ -116,6 +116,48 @@ const planosContasPreConfigurados: PlanoConta[] = [
     createdAt: '2025-01-01T00:00:00Z',
     updatedAt: '2025-01-01T00:00:00Z'
   },
+  // RECEITAS NÃO OPERACIONAIS
+  {
+    id: 'pc-rec-009',
+    nome: 'Venda de Equipamentos',
+    descricao: 'Venda de equipamentos usados',
+    categoriaId: 'cat-rec-004', // Receitas não Operacionais
+    tipo: 'receita',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-rec-010',
+    nome: 'Receitas Eventuais',
+    descricao: 'Receitas não recorrentes',
+    categoriaId: 'cat-rec-004',
+    tipo: 'receita',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  // OUTRAS RECEITAS
+  {
+    id: 'pc-rec-011',
+    nome: 'Descontos Obtidos',
+    descricao: 'Descontos recebidos de fornecedores',
+    categoriaId: 'cat-rec-009', // Outras Receitas
+    tipo: 'receita',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-rec-012',
+    nome: 'Bonificações',
+    descricao: 'Bonificações e brindes recebidos',
+    categoriaId: 'cat-rec-009',
+    tipo: 'receita',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
   // CUSTOS DE PRODUÇÃO
   {
     id: 'pc-desp-001',
@@ -162,7 +204,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-desp-005',
     nome: 'Água',
     descricao: 'Conta de água',
-    categoriaId: 'cat-desp-001', // Despesas Fixas
+    categoriaId: 'cat-desp-001',
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -172,7 +214,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
     id: 'pc-desp-006',
     nome: 'Luz',
     descricao: 'Conta de energia elétrica',
-    categoriaId: 'cat-desp-001', // Despesas Fixas
+    categoriaId: 'cat-desp-001',
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -181,8 +223,8 @@ const planosContasPreConfigurados: PlanoConta[] = [
   {
     id: 'pc-desp-007',
     nome: 'Internet',
-    descricao: 'Internet e telefone',
-    categoriaId: 'cat-desp-001', // Despesas Fixas
+    descricao: 'Serviço de internet',
+    categoriaId: 'cat-desp-001',
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -190,9 +232,69 @@ const planosContasPreConfigurados: PlanoConta[] = [
   },
   {
     id: 'pc-desp-008',
+    nome: 'Telefone',
+    descricao: 'Conta de telefone fixo/celular',
+    categoriaId: 'cat-desp-001',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-009',
     nome: 'Gás',
-    descricao: 'Gás para produção',
-    categoriaId: 'cat-desp-001', // Despesas Fixas
+    descricao: 'Gás de cozinha',
+    categoriaId: 'cat-desp-001',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-010',
+    nome: 'Contador',
+    descricao: 'Honorários contábeis',
+    categoriaId: 'cat-desp-001',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-011',
+    nome: 'Condomínio',
+    descricao: 'Taxa de condomínio',
+    categoriaId: 'cat-desp-001',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-012',
+    nome: 'IPTU',
+    descricao: 'Imposto predial e territorial urbano',
+    categoriaId: 'cat-desp-001',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-013',
+    nome: 'Seguro',
+    descricao: 'Seguro do estabelecimento',
+    categoriaId: 'cat-desp-001',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-014',
+    nome: 'Alarme/Segurança',
+    descricao: 'Sistema de segurança',
+    categoriaId: 'cat-desp-001',
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
