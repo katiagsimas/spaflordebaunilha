@@ -5,7 +5,7 @@ import { Users, Truck, Ruler, Boxes, Package, UserCircle, DollarSign, Tag } from
 
 const cadastros = [
   {
-    title: "Seus Dados",
+    title: "Dados da sua Confeitaria",
     description: "Dados da sua empresa",
     icon: UserCircle,
     url: "/cadastros/seus-dados",
