@@ -69,7 +69,7 @@ export default function Cadastros() {
     <div className="space-y-6">
       <PageHeader
         title="Cadastros"
-        description="Gerencie todos os seus cadastros"
+        description="Realize todos os cadastros e mantenha-os sempre atualizados para garantir o correto funcionamento do sistema"
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
