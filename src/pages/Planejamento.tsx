@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, Target, DollarSign, LineChart, Settings, Lightbulb } from "lucide-react";
+import { TrendingUp, Target, LineChart, Settings, Lightbulb } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { usePlanejamento, type PrevisaoFaturamento } from "@/hooks/usePlanejamento";
 import { gerarInsights, type Insight, type InsightType } from "@/utils/insightsGenerator";
 import { PrevisaoFaturamentoCard } from "@/components/PrevisaoFaturamentoCard";
+import { CMVGlobalCard } from "@/components/CMVGlobalCard";
 
 const opcoes = [
   {
@@ -16,14 +17,7 @@ const opcoes = [
     icon: Target,
     color: "text-success bg-success/10",
     active: false,
-  },
-  {
-    title: "CMV Global",
-    description: "Custo de Mercadoria Vendida",
-    icon: DollarSign,
-    color: "text-accent bg-accent/10",
-    url: "/cmv-global",
-    active: true,
+    url: undefined,
   },
   {
     title: "Projeção de Vendas",
@@ -31,6 +25,7 @@ const opcoes = [
     icon: LineChart,
     color: "text-warning bg-warning/10",
     active: false,
+    url: undefined,
   },
 ];
 
@@ -175,6 +170,9 @@ export default function Planejamento() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Card de Previsão de Faturamento */}
         {previsaoData && <PrevisaoFaturamentoCard dados={previsaoData} />}
+
+        {/* Card de CMV Global */}
+        <CMVGlobalCard />
 
         {/* Demais cards */}
         {opcoes.map((opcao) => {
