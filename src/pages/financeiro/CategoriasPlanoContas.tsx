@@ -749,7 +749,7 @@ export default function CategoriasPlanoContas() {
                   Nova Categoria
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto md:max-w-xl sm:max-w-full sm:h-full sm:max-h-full sm:rounded-none">
               <DialogHeader>
                 <DialogTitle className="text-2xl font-bold text-[#6B5047]">
                   {editingCategoria ? "Editar Categoria" : "Nova Categoria"}
@@ -1057,7 +1057,7 @@ export default function CategoriasPlanoContas() {
           </div>
 
           {/* Cards Mobile */}
-          <div className="md:hidden space-y-4">
+          <div className="md:hidden space-y-3">
             {categoriasRaiz.map(categoria => {
               const renderMobileCard = (cat: CategoriaPlano): JSX.Element[] => {
                 const temFilhos = hasChildren(cat.id);
@@ -1065,76 +1065,93 @@ export default function CategoriasPlanoContas() {
                 const filhos = filteredCategorias.filter(c => c.categoriaPai === cat.id);
                 const cards: JSX.Element[] = [];
                 
+                // Cor da borda baseada no indicador
+                const getBorderColor = (indicador: string) => {
+                  const colors = {
+                    receita: '#8BA888',
+                    despesa: '#D88B8B',
+                    ativo: '#7BA8D8',
+                    passivo: '#E5C89F'
+                  };
+                  return colors[indicador as keyof typeof colors] || '#E8E3DF';
+                };
+                
                 cards.push(
-                  <div key={cat.id} className="bg-card rounded-xl border shadow-sm p-4" style={{ marginLeft: `${(cat.nivel - 1) * 16}px` }}>
-                    <div 
-                      className="flex items-start justify-between mb-3 cursor-pointer"
-                      onClick={() => temFilhos && toggleExpand(cat.id)}
-                    >
-                      <div className="flex items-center gap-2 flex-1">
-                        {temFilhos && (
-                          estaExpandido ? 
-                            <ChevronDown className="h-4 w-4 text-[#9C8B82]" /> :
-                            <ChevronRight className="h-4 w-4 text-[#9C8B82]" />
-                        )}
-                        <div>
-                          <div className="font-mono text-sm text-[#6B5047] mb-1">
-                            {cat.codigo}
-                          </div>
-                          <div className={`
-                            ${cat.nivel === 1 ? 'font-bold' : ''}
-                            ${cat.nivel === 2 ? 'font-semibold' : ''}
-                          `}>
-                            {cat.descricao}
-                          </div>
-                        </div>
+                  <div 
+                    key={cat.id} 
+                    className="bg-card rounded-lg p-4 border-l-4 shadow-sm"
+                    style={{ 
+                      borderLeftColor: getBorderColor(cat.indicador),
+                      marginLeft: `${(cat.nivel - 1) * 16}px`
+                    }}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex-1">
+                        <span className="font-mono text-sm font-semibold text-[#6B5047]">
+                          {cat.codigo}
+                        </span>
+                        <h4 className={`text-[#6B5047] mt-1 ${cat.nivel === 1 ? 'font-bold' : cat.nivel === 2 ? 'font-semibold' : 'font-normal'}`}>
+                          {cat.descricao}
+                        </h4>
                       </div>
-                      {!cat.editavel && (
-                        <Lock className="h-4 w-4 text-[#9C8B82]" />
-                      )}
+                      <div className="flex items-center gap-2 ml-2">
+                        {!cat.editavel && (
+                          <Lock className="h-4 w-4 text-[#9C8B82]" />
+                        )}
+                        {temFilhos && (
+                          <button 
+                            onClick={() => toggleExpand(cat.id)}
+                            className="text-[#D89B8C] hover:text-[#B87C6D]"
+                          >
+                            {estaExpandido ? 
+                              <ChevronDown className="h-5 w-5" /> : 
+                              <ChevronRight className="h-5 w-5" />
+                            }
+                          </button>
+                        )}
+                      </div>
                     </div>
                     
-                    <div className="space-y-2 mb-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-[#9C8B82]">Indicador:</span>
-                        <Badge 
-                          variant="outline" 
-                          className={`${getIndicadorBadge(cat.indicador)} border text-xs`}
-                        >
-                          {getIndicadorLabel(cat.indicador)}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-[#9C8B82]">DRE:</span>
-                        <span className="text-xs">{getFaixaDRELabel(cat.faixaDRE)}</span>
-                      </div>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <Badge 
+                        variant="outline" 
+                        className={`${getIndicadorBadge(cat.indicador)} border text-xs`}
+                      >
+                        {getIndicadorLabel(cat.indicador)}
+                      </Badge>
+                      <span className="text-xs text-[#9C8B82]">
+                        {getFaixaDRELabel(cat.faixaDRE)}
+                      </span>
                       {!cat.ativo && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-red-600">Status: Inativo</span>
-                        </div>
+                        <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200 text-xs">
+                          Inativo
+                        </Badge>
                       )}
                     </div>
                     
                     {cat.editavel && (
                       <div className="flex gap-2">
                         <Button
-                          variant="outline"
-                          size="sm"
                           onClick={() => handleEdit(cat)}
-                          className="flex-1"
+                          className="flex-1 bg-[#D89B8C] hover:bg-[#B87C6D] text-white"
+                          size="sm"
                         >
                           <Pencil className="mr-2 h-4 w-4" />
                           Editar
                         </Button>
                         <Button
                           variant="outline"
-                          size="sm"
                           onClick={() => confirmarExclusao(cat.id)}
-                          className="flex-1"
+                          className="border-2 border-[#D88B8B] text-[#D88B8B] hover:bg-[#FFEBEE]"
+                          size="sm"
                         >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Excluir
+                          <Trash2 className="h-4 w-4" />
                         </Button>
+                      </div>
+                    )}
+                    {!cat.editavel && (
+                      <div className="text-xs text-[#9C8B82] text-center py-2">
+                        Categoria do sistema
                       </div>
                     )}
                   </div>
