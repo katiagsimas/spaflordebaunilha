@@ -227,7 +227,7 @@ export default function Embalagens() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {embalagens.map((embalagem) => (
+                  {embalagens.sort((a, b) => a.nome.localeCompare(b.nome)).map((embalagem) => (
                     <TableRow key={embalagem.id}>
                       <TableCell className="font-medium">{embalagem.nome}</TableCell>
                       <TableCell>{embalagem.marca}</TableCell>

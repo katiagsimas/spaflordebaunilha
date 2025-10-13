@@ -227,7 +227,7 @@ export default function Ingredientes() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {ingredientes.map((ingrediente) => (
+                  {ingredientes.sort((a, b) => a.nome.localeCompare(b.nome)).map((ingrediente) => (
                     <TableRow key={ingrediente.id}>
                       <TableCell className="font-medium">{ingrediente.nome}</TableCell>
                       <TableCell>{ingrediente.marca}</TableCell>
