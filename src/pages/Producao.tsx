@@ -1,399 +1,507 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
+import { MiniCalendar } from "@/components/MiniCalendar";
+import { ProductionCard } from "@/components/ProductionCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar } from "@/components/ui/calendar";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, AlertCircle } from "lucide-react";
-import { pt } from "date-fns/locale";
-import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { 
+  CalendarClock, 
+  AlertCircle, 
+  CheckSquare, 
+  Trash2, 
+  CheckCircle,
+  CalendarDays,
+  ChevronDown
+} from "lucide-react";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface Order {
   id: string;
   orderNumber: number;
   client: string;
+  phone?: string;
   product: string;
   quantity: number;
   status: string;
   deliveryDate: string;
   deliveryTime: string;
-  produced?: boolean;
-  packed?: boolean;
-  ready?: boolean;
+  totalValue?: number;
+  remainingBalance?: number;
+  observations?: string;
+  producao?: {
+    iniciada: boolean;
+    pronta: boolean;
+    embalada: boolean;
+    prontoEntrega: boolean;
+  };
 }
 
 interface Task {
   id: string;
-  text: string;
-  completed: boolean;
+  descricao: string;
+  concluida: boolean;
+  data: string;
   createdAt: string;
 }
 
-const Producao = () => {
-  const [orders, setOrders] = useLocalStorage<Order[]>("orders", []);
-  const [tasks, setTasks] = useLocalStorage<Task[]>("tasks", []);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+export default function Producao() {
+  const [orders] = useLocalStorage<Order[]>("orders", []);
+  const [tasks, setTasks] = useLocalStorage<Task[]>("producao_tasks", []);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [newTaskText, setNewTaskText] = useState("");
+  const [showCompleted, setShowCompleted] = useState(false);
 
-  const updateOrderCheckbox = (orderId: string, field: "produced" | "packed" | "ready", value: boolean) => {
-    setOrders(orders.map(order => 
-      order.id === orderId ? { ...order, [field]: value } : order
-    ));
-    toast.success("Status atualizado!");
+  // Atualizar checklist de uma encomenda
+  const updateOrderChecklist = (orderId: string, checklist: any) => {
+    // Esta função será implementada quando integrarmos com o sistema de encomendas
+    toast.success("Checklist atualizado!");
   };
 
+  // Marcar como entregue
+  const markAsDelivered = (orderId: string) => {
+    toast.success("Encomenda marcada como entregue!");
+  };
+
+  // Funções de tarefas
   const addTask = () => {
-    if (newTaskText.trim()) {
-      const newTask: Task = {
-        id: Date.now().toString(),
-        text: newTaskText,
-        completed: false,
-        createdAt: new Date().toISOString(),
-      };
-      setTasks([...tasks, newTask]);
-      setNewTaskText("");
-      toast.success("Tarefa adicionada!");
-    }
+    if (!newTaskText.trim()) return;
+    
+    const newTask: Task = {
+      id: Date.now().toString(),
+      descricao: newTaskText,
+      concluida: false,
+      data: new Date().toISOString().split('T')[0],
+      createdAt: new Date().toISOString()
+    };
+    
+    setTasks([...tasks, newTask]);
+    setNewTaskText("");
+    toast.success("✓ Tarefa adicionada");
   };
 
   const toggleTask = (taskId: string) => {
-    setTasks(tasks.map(task =>
-      task.id === taskId ? { ...task, completed: !task.completed } : task
+    setTasks(tasks.map(t => 
+      t.id === taskId ? { ...t, concluida: !t.concluida } : t
     ));
   };
 
   const removeTask = (taskId: string) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
-    toast.success("Tarefa removida!");
+    setTasks(tasks.filter(t => t.id !== taskId));
+    toast.success("Tarefa removida");
   };
 
-  const getOrdersForDate = (date: Date | undefined) => {
-    if (!date) return [];
-    const dateStr = date.toISOString().split("T")[0];
-    return orders
-      .filter((order) => order.deliveryDate === dateStr && order.status !== "Entregue" && order.status !== "Cancelado")
-      .sort((a, b) => (a.deliveryTime || "").localeCompare(b.deliveryTime || ""));
+  const clearCompletedTasks = () => {
+    setTasks(tasks.filter(t => !t.concluida));
+    toast.success("Tarefas concluídas removidas");
+  };
+
+  // Limpar tarefas antigas automaticamente (> 7 dias)
+  useEffect(() => {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const cutoffDate = sevenDaysAgo.toISOString().split('T')[0];
+    
+    const filteredTasks = tasks.filter(t => 
+      !t.concluida || t.data >= cutoffDate
+    );
+    
+    if (filteredTasks.length < tasks.length) {
+      setTasks(filteredTasks);
+    }
+  }, []);
+
+  // Filtrar encomendas por data
+  const getOrdersForDate = (date: Date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    return orders.filter(o => 
+      o.deliveryDate === dateStr && 
+      o.status !== "Entregue" && 
+      o.status !== "Cancelado"
+    ).sort((a, b) => (a.deliveryTime || "").localeCompare(b.deliveryTime || ""));
   };
 
   const selectedDateOrders = getOrdersForDate(selectedDate);
 
+  // Gerar mapa de datas com encomendas
   const getDatesWithOrders = () => {
-    return orders
-      .filter(o => o.status !== "Entregue" && o.status !== "Cancelado")
-      .map((order) => new Date(order.deliveryDate));
+    const datesMap: Record<string, { count: number; status: string }> = {};
+    
+    orders.filter(o => o.status !== "Entregue" && o.status !== "Cancelado")
+      .forEach(order => {
+        if (!datesMap[order.deliveryDate]) {
+          datesMap[order.deliveryDate] = { count: 0, status: 'pronto' };
+        }
+        datesMap[order.deliveryDate].count++;
+        
+        // Determinar status pior
+        if (order.status.toLowerCase() === 'pendente') {
+          datesMap[order.deliveryDate].status = 'pendente';
+        } else if (order.status.toLowerCase() === 'em produção' && datesMap[order.deliveryDate].status !== 'pendente') {
+          datesMap[order.deliveryDate].status = 'producao';
+        }
+      });
+    
+    return datesMap;
   };
 
-  const modifiers = {
-    hasOrders: getDatesWithOrders(),
-  };
+  const datesWithOrders = getDatesWithOrders();
 
-  const modifiersStyles = {
-    hasOrders: {
-      backgroundColor: "hsl(var(--primary) / 0.2)",
-      color: "hsl(var(--primary))",
-      fontWeight: "bold",
-    },
-  };
-
+  // Alertas
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
   const todayOrders = orders.filter(o => {
-    const deliveryDate = new Date(o.deliveryDate);
+    const deliveryDate = new Date(o.deliveryDate + 'T00:00:00');
     deliveryDate.setHours(0, 0, 0, 0);
-    return deliveryDate.getTime() === today.getTime() && o.status !== "Entregue" && o.status !== "Cancelado";
+    return deliveryDate.getTime() === today.getTime() && 
+      o.status !== "Entregue" && 
+      o.status !== "Cancelado";
   });
 
   const tomorrowOrders = orders.filter(o => {
-    const deliveryDate = new Date(o.deliveryDate);
+    const deliveryDate = new Date(o.deliveryDate + 'T00:00:00');
     deliveryDate.setHours(0, 0, 0, 0);
-    return deliveryDate.getTime() === tomorrow.getTime() && o.status !== "Entregue" && o.status !== "Cancelado";
+    return deliveryDate.getTime() === tomorrow.getTime() && 
+      o.status !== "Entregue" && 
+      o.status !== "Cancelado";
   });
 
-  const upcomingAlerts = orders
-    .filter(o => {
-      const deliveryDate = new Date(o.deliveryDate);
-      const daysUntil = Math.floor((deliveryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      return daysUntil >= 0 && daysUntil <= 2 && o.status !== "Entregue" && o.status !== "Cancelado" && !o.ready;
-    })
-    .sort((a, b) => new Date(a.deliveryDate).getTime() - new Date(b.deliveryDate).getTime())
-    .slice(0, 3);
+  const pendingSaldos = todayOrders.reduce((acc, o) => acc + (o.remainingBalance || 0), 0);
 
-  const pendingTasks = tasks.filter(t => !t.completed);
-  const completedTasks = tasks.filter(t => t.completed);
+  const pendingTasks = tasks.filter(t => !t.concluida);
+  const completedTasks = tasks.filter(t => t.concluida);
 
-  const statusColors = {
-    Pendente: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    Confirmado: "bg-blue-100 text-blue-800 border-blue-200",
-    "Em Produção": "bg-purple-100 text-purple-800 border-purple-200",
-    Pronto: "bg-green-100 text-green-800 border-green-200",
+  // Resumo da semana
+  const getWeekRange = () => {
+    const start = new Date(today);
+    start.setDate(today.getDate() - today.getDay());
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    return { start, end };
   };
 
+  const weekRange = getWeekRange();
+  const weekOrders = orders.filter(o => {
+    const deliveryDate = new Date(o.deliveryDate + 'T00:00:00');
+    return deliveryDate >= weekRange.start && 
+      deliveryDate <= weekRange.end && 
+      o.status !== "Cancelado";
+  });
+
+  const uniqueProducts = new Set(weekOrders.map(o => o.product)).size;
+  const weekRevenue = weekOrders.reduce((acc, o) => acc + (o.remainingBalance || 0), 0);
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <PageHeader
-        title="Planejador de Produção"
-        description="Organize seu cronograma de produção com checklists"
+        title="Planejamento de Produção"
+        description="Organize sua produção e entregas"
       />
 
-      {(todayOrders.length > 0 || tomorrowOrders.length > 0 || upcomingAlerts.length > 0) && (
-        <div className="grid gap-4 md:grid-cols-3">
-          {todayOrders.length > 0 && (
-            <Alert className="border-info bg-info/5">
-              <AlertCircle className="h-4 w-4 text-info" />
-              <AlertDescription>
-                <span className="font-semibold">{todayOrders.length}</span> entrega(s) para <span className="font-semibold">hoje</span>
-              </AlertDescription>
-            </Alert>
-          )}
-          {tomorrowOrders.length > 0 && (
-            <Alert className="border-warning bg-warning/5">
-              <AlertCircle className="h-4 w-4 text-warning" />
-              <AlertDescription>
-                <span className="font-semibold">{tomorrowOrders.length}</span> entrega(s) para <span className="font-semibold">amanhã</span>
-              </AlertDescription>
-            </Alert>
-          )}
-          {upcomingAlerts.map(order => {
-            const deliveryDate = new Date(order.deliveryDate);
-            const daysUntil = Math.floor((deliveryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-            return (
-              <Alert key={order.id} className="border-primary bg-primary/5">
-                <AlertCircle className="h-4 w-4 text-primary" />
-                <AlertDescription>
-                  Falta{daysUntil === 0 ? "m menos de 24h" : `m ${daysUntil} dia(s)`} para entrega de <span className="font-semibold">{order.product}</span>
-                </AlertDescription>
-              </Alert>
-            );
-          })}
-        </div>
-      )}
+      {/* Layout responsivo 2 colunas */}
+      <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-6">
+        {/* COLUNA ESQUERDA */}
+        <div className="space-y-6">
+          {/* Mini Calendário */}
+          <MiniCalendar
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+            datesWithOrders={datesWithOrders}
+          />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="shadow-soft">
-          <CardHeader>
-            <CardTitle>Calendário</CardTitle>
-          </CardHeader>
-          <CardContent className="flex justify-center">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              locale={pt}
-              modifiers={modifiers}
-              modifiersStyles={modifiersStyles}
-              className="rounded-md border"
-            />
-          </CardContent>
-        </Card>
-
-        <Card className="lg:col-span-2 shadow-soft">
-          <CardHeader>
-            <CardTitle>
-              Lista de Produção -{" "}
-              {selectedDate?.toLocaleDateString("pt-BR", {
-                day: "2-digit",
-                month: "long",
-                year: "numeric",
-              })}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {selectedDateOrders.length === 0 ? (
-              <p className="text-muted-foreground text-center py-8">
-                Nenhuma entrega agendada para esta data
-              </p>
-            ) : (
-              <div className="space-y-4">
-                {selectedDateOrders.map((order) => (
-                  <div
-                    key={order.id}
-                    className="p-4 border border-border rounded-lg space-y-3"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-semibold">{order.product}</p>
-                          <span className="text-xs text-muted-foreground">#{order.orderNumber}</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {order.client} • {order.quantity} unidade(s)
-                        </p>
-                        {order.deliveryTime && (
-                          <p className="text-sm text-primary font-medium mt-1">
-                            Horário: {order.deliveryTime}
-                          </p>
-                        )}
-                      </div>
-                      <Badge className={statusColors[order.status as keyof typeof statusColors] || "bg-gray-100 text-gray-800 border-gray-200"} variant="outline">
-                        {order.status}
-                      </Badge>
-                    </div>
-
-                    <div className="flex flex-col gap-2 pt-2 border-t">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`produced-${order.id}`}
-                          checked={order.produced || false}
-                          onCheckedChange={(checked) =>
-                            updateOrderCheckbox(order.id, "produced", checked as boolean)
-                          }
-                        />
-                        <label
-                          htmlFor={`produced-${order.id}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                        >
-                          ✓ Produzido
-                        </label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`packed-${order.id}`}
-                          checked={order.packed || false}
-                          onCheckedChange={(checked) =>
-                            updateOrderCheckbox(order.id, "packed", checked as boolean)
-                          }
-                        />
-                        <label
-                          htmlFor={`packed-${order.id}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                        >
-                          ✓ Embalado
-                        </label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`ready-${order.id}`}
-                          checked={order.ready || false}
-                          onCheckedChange={(checked) =>
-                            updateOrderCheckbox(order.id, "ready", checked as boolean)
-                          }
-                        />
-                        <label
-                          htmlFor={`ready-${order.id}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                        >
-                          ✓ Pronto para entrega
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+          {/* Lista de Produção */}
+          <Card className="shadow-lg">
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="text-lg font-semibold text-[#6B5047]">
+                    Produção para {selectedDate.toLocaleDateString('pt-BR', { 
+                      day: '2-digit', 
+                      month: 'short' 
+                    })}
+                  </CardTitle>
+                  <p className="text-sm text-[#9C8B82] mt-1">
+                    ({selectedDateOrders.length} {selectedDateOrders.length === 1 ? 'item' : 'itens'})
+                  </p>
+                </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardHeader>
+            <CardContent>
+              {selectedDateOrders.length === 0 ? (
+                <div className="py-12 text-center">
+                  <CalendarClock className="h-16 w-16 mx-auto mb-4 text-[#D89B8C] opacity-30" />
+                  <h3 className="text-lg font-medium text-[#6B5047] mb-2">
+                    Nenhuma entrega programada
+                  </h3>
+                  <p className="text-[#9C8B82] mb-4">
+                    para este dia
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setSelectedDate(new Date())}
+                  >
+                    Ver todas as datas
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {selectedDateOrders.map(order => (
+                    <ProductionCard
+                      key={order.id}
+                      order={order}
+                      onUpdateChecklist={updateOrderChecklist}
+                      onMarkAsDelivered={markAsDelivered}
+                    />
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* COLUNA DIREITA */}
+        <div className="space-y-6">
+          {/* Alertas Importantes */}
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg font-semibold text-[#6B5047]">
+                <AlertCircle className="h-5 w-5 text-[#E5C89F]" />
+                Alertas
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {todayOrders.length === 0 && tomorrowOrders.length === 0 && pendingSaldos === 0 ? (
+                <div className="py-8 text-center">
+                  <CheckCircle className="h-12 w-12 mx-auto mb-3 text-[#8BA888]" />
+                  <p className="text-[#9C8B82]">
+                    ✓ Tudo tranquilo por aqui!
+                    <br />
+                    <span className="text-sm">Nenhum alerta no momento.</span>
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {todayOrders.length > 0 && (
+                    <Alert className="bg-[#FFEBEE] border-l-4 border-[#D88B8B]">
+                      <AlertDescription className="text-sm">
+                        🔴 <Badge className="bg-[#D88B8B] text-white">{todayOrders.length}</Badge>{' '}
+                        {todayOrders.length === 1 ? 'entrega' : 'entregas'} para <strong>HOJE</strong>!
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
+                  {tomorrowOrders.length > 0 && (
+                    <Alert className="bg-[#FEF3E2] border-l-4 border-[#E5C89F]">
+                      <AlertDescription className="text-sm">
+                        🟡 <Badge className="bg-[#E5C89F] text-[#6B5047]">{tomorrowOrders.length}</Badge>{' '}
+                        {tomorrowOrders.length === 1 ? 'entrega' : 'entregas'} amanhã
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
+                  {pendingSaldos > 0 && (
+                    <Alert className="bg-[#E8F5E9] border-l-4 border-[#8BA888]">
+                      <AlertDescription className="text-sm">
+                        💰 R$ {pendingSaldos.toFixed(2)} em saldos a receber hoje
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Minhas Tarefas */}
+          <Card className="shadow-lg">
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle className="flex items-center gap-2 text-lg font-semibold text-[#6B5047]">
+                  <CheckSquare className="h-5 w-5 text-[#D89B8C]" />
+                  Minhas Tarefas
+                </CardTitle>
+                <span className="text-sm text-[#9C8B82]">
+                  {new Date().toLocaleDateString('pt-BR', { 
+                    weekday: 'long', 
+                    day: '2-digit', 
+                    month: 'short' 
+                  })}
+                </span>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Input para adicionar tarefa */}
+              <div className="relative">
+                <Input
+                  placeholder="+ Adicionar nova tarefa..."
+                  value={newTaskText}
+                  onChange={(e) => setNewTaskText(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && addTask()}
+                  className="border-2 border-dashed border-[#E8E3DF] focus:border-[#D89B8C] focus:border-solid"
+                />
+              </div>
+
+              {/* Lista de tarefas */}
+              {tasks.length === 0 ? (
+                <div className="py-8 text-center">
+                  <p className="text-[#9C8B82]">
+                    📝 Nenhuma tarefa para hoje
+                    <br />
+                    <span className="text-sm">Adicione suas tarefas acima!</span>
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Tarefas Pendentes */}
+                  {pendingTasks.length > 0 && (
+                    <div className="space-y-2">
+                      {pendingTasks.map(task => (
+                        <div
+                          key={task.id}
+                          className="flex items-center justify-between py-3 border-b border-[#E8E3DF] last:border-b-0 hover:bg-[#FAF7F5] transition-colors group"
+                        >
+                          <div className="flex items-center space-x-3 flex-1">
+                            <Checkbox
+                              id={`task-${task.id}`}
+                              checked={task.concluida}
+                              onCheckedChange={() => toggleTask(task.id)}
+                              className="accent-[#D89B8C]"
+                            />
+                            <label
+                              htmlFor={`task-${task.id}`}
+                              className="text-base text-[#6B5047] cursor-pointer flex-1"
+                            >
+                              {task.descricao}
+                            </label>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeTask(task.id)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Trash2 className="h-4 w-4 text-[#D88B8B]" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Tarefas Concluídas */}
+                  {completedTasks.length > 0 && (
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => setShowCompleted(!showCompleted)}
+                        className="flex items-center justify-between w-full text-sm text-[#9C8B82] hover:text-[#D89B8C] transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <ChevronDown className={cn(
+                            "h-4 w-4 transition-transform",
+                            showCompleted && "rotate-180"
+                          )} />
+                          <span>Concluídas ({completedTasks.length})</span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            clearCompletedTasks();
+                          }}
+                          className="text-xs text-[#9C8B82] hover:text-[#D89B8C]"
+                        >
+                          Limpar todas
+                        </Button>
+                      </button>
+                      
+                      {showCompleted && (
+                        <div className="space-y-2">
+                          {completedTasks.map(task => (
+                            <div
+                              key={task.id}
+                              className="flex items-center justify-between py-3"
+                            >
+                              <div className="flex items-center space-x-3 flex-1">
+                                <Checkbox
+                                  id={`task-${task.id}`}
+                                  checked={task.concluida}
+                                  onCheckedChange={() => toggleTask(task.id)}
+                                  disabled
+                                />
+                                <label
+                                  className="text-base text-[#9C8B82] line-through opacity-50 flex-1"
+                                >
+                                  {task.descricao}
+                                </label>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeTask(task.id)}
+                              >
+                                <Trash2 className="h-4 w-4 text-[#D88B8B]" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Resumo da Semana */}
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg font-semibold text-[#6B5047]">
+                <CalendarDays className="h-5 w-5 text-[#D89B8C]" />
+                Resumo da Semana
+              </CardTitle>
+              <p className="text-sm text-[#9C8B82]">
+                {weekRange.start.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} - {' '}
+                {weekRange.end.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="bg-[#F5E6E0] rounded-lg p-4">
+                <div className="text-2xl font-bold text-[#D89B8C]">
+                  🎂 {weekOrders.length}
+                </div>
+                <div className="text-sm text-[#9C8B82]">
+                  entregas programadas
+                </div>
+              </div>
+              
+              <div className="bg-[#F5E6E0] rounded-lg p-4">
+                <div className="text-2xl font-bold text-[#D89B8C]">
+                  🧁 {uniqueProducts}
+                </div>
+                <div className="text-sm text-[#9C8B82]">
+                  produtos diferentes
+                </div>
+              </div>
+              
+              <div className="bg-[#F5E6E0] rounded-lg p-4">
+                <div className="text-2xl font-bold text-[#8BA888]">
+                  💰 R$ {weekRevenue.toFixed(2)}
+                </div>
+                <div className="text-sm text-[#9C8B82]">
+                  a receber
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-
-      <Card className="shadow-soft">
-        <CardHeader>
-          <CardTitle>Checklist de Tarefas do Dia</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Adicionar nova tarefa..."
-              value={newTaskText}
-              onChange={(e) => setNewTaskText(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === "Enter") {
-                  addTask();
-                }
-              }}
-            />
-            <Button onClick={addTask}>
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar
-            </Button>
-          </div>
-
-          {tasks.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">
-              Nenhuma tarefa criada ainda
-            </p>
-          ) : (
-            <div className="space-y-4">
-              {pendingTasks.length > 0 && (
-                <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-muted-foreground uppercase">
-                    Pendentes ({pendingTasks.length})
-                  </h3>
-                  {pendingTasks.map((task) => (
-                    <div
-                      key={task.id}
-                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-                    >
-                      <div className="flex items-center space-x-3 flex-1">
-                        <Checkbox
-                          id={`task-${task.id}`}
-                          checked={task.completed}
-                          onCheckedChange={() => toggleTask(task.id)}
-                        />
-                        <label
-                          htmlFor={`task-${task.id}`}
-                          className="text-sm cursor-pointer flex-1"
-                        >
-                          {task.text}
-                        </label>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeTask(task.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {completedTasks.length > 0 && (
-                <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-muted-foreground uppercase">
-                    Concluídas ({completedTasks.length})
-                  </h3>
-                  {completedTasks.map((task) => (
-                    <div
-                      key={task.id}
-                      className="flex items-center justify-between p-3 bg-success/5 border border-success/20 rounded-lg"
-                    >
-                      <div className="flex items-center space-x-3 flex-1">
-                        <Checkbox
-                          id={`task-${task.id}`}
-                          checked={task.completed}
-                          onCheckedChange={() => toggleTask(task.id)}
-                        />
-                        <label
-                          htmlFor={`task-${task.id}`}
-                          className="text-sm cursor-pointer flex-1 line-through text-muted-foreground"
-                        >
-                          {task.text}
-                        </label>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeTask(task.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
-};
-
-export default Producao;
+}
