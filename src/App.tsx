@@ -28,6 +28,11 @@ import Receitas from "./pages/Receitas";
 import ReceitaForm from "./pages/ReceitaForm";
 import ComingSoon from "./pages/ComingSoon";
 import Financeiro from "./pages/Financeiro";
+import ConfiguracoesFinanceiro from "./pages/financeiro/ConfiguracoesFinanceiro";
+import CategoriasPlanoContas from "./pages/financeiro/CategoriasPlanoContas";
+import PlanosContas from "./pages/financeiro/PlanosContas";
+import TiposDocumento from "./pages/financeiro/TiposDocumento";
+import Bancos from "./pages/financeiro/Bancos";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -94,6 +99,26 @@ const App = () => (
             element={<ProtectedRoute><Layout><Financeiro /></Layout></ProtectedRoute>} 
           />
           <Route 
+            path="/financeiro/configuracoes" 
+            element={<ProtectedRoute><Layout><ConfiguracoesFinanceiro /></Layout></ProtectedRoute>} 
+          />
+          <Route 
+            path="/financeiro/configuracoes/categorias" 
+            element={<ProtectedRoute><Layout><CategoriasPlanoContas /></Layout></ProtectedRoute>} 
+          />
+          <Route 
+            path="/financeiro/configuracoes/planos-contas" 
+            element={<ProtectedRoute><Layout><PlanosContas /></Layout></ProtectedRoute>} 
+          />
+          <Route 
+            path="/financeiro/configuracoes/tipos-documento" 
+            element={<ProtectedRoute><Layout><TiposDocumento /></Layout></ProtectedRoute>} 
+          />
+          <Route 
+            path="/financeiro/configuracoes/bancos" 
+            element={<ProtectedRoute><Layout><Bancos /></Layout></ProtectedRoute>} 
+          />
+          <Route
             path="/relatorios" 
             element={<ProtectedRoute><Layout><ComingSoon title="Relatórios" description="Análises detalhadas do seu negócio" /></Layout></ProtectedRoute>} 
           />

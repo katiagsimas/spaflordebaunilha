@@ -33,8 +33,8 @@ const opcoes = [
     description: "Configure categorias e formas de pagamento",
     icon: Settings,
     color: "text-accent bg-accent/10",
-    active: false,
-    url: undefined,
+    active: true,
+    url: "/financeiro/configuracoes",
   },
 ];
 
