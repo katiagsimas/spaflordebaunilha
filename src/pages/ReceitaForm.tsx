@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Trash2, ChefHat } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, ChefHat, Upload, X } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -85,6 +85,7 @@ interface Receita {
   valorVenda?: number;
   outrosGastosPersonalizados?: Array<{ id: string; nome: string; valor: number }>;
   despesasVenda?: Array<{ id: string; nome: string; percentual: number; valor: number }>;
+  imagens?: string[];
 }
 
 export default function ReceitaForm() {
@@ -108,6 +109,7 @@ export default function ReceitaForm() {
   const [ingredientes, setIngredientes] = useState<IngredienteReceita[]>([]);
   const [embalagens, setEmbalagens] = useState<EmbalagemReceita[]>([]);
   const [modoPreparo, setModoPreparo] = useState("");
+  const [imagens, setImagens] = useState<string[]>([]);
   
   // Estados para precificação
   const [outrosGastosPersonalizados, setOutrosGastosPersonalizados] = useState([
@@ -140,6 +142,7 @@ export default function ReceitaForm() {
         setEmbalagens(receita.embalagens || []);
         setModoPreparo(receita.modoPreparo || "");
         setValorVenda(receita.valorVenda || 0);
+        setImagens(receita.imagens || []);
         if (receita.outrosGastosPersonalizados) {
           setOutrosGastosPersonalizados(receita.outrosGastosPersonalizados);
         }
@@ -263,6 +266,27 @@ export default function ReceitaForm() {
     setEmbalagens(embalagens.filter((_, i) => i !== index));
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    Array.from(files).forEach(file => {
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (event.target?.result) {
+            setImagens(prev => [...prev, event.target!.result as string]);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setImagens(imagens.filter((_, i) => i !== index));
+  };
+
   // Cálculos de custos
   const custoIngredientes = ingredientes.reduce((total, ing) => total + ing.custoReceita, 0);
   const custoEmbalagens = embalagens.reduce((total, emb) => total + emb.custoReceita, 0);
@@ -367,6 +391,7 @@ export default function ReceitaForm() {
       valorVenda,
       outrosGastosPersonalizados,
       despesasVenda,
+      imagens,
     };
 
     if (id) {
@@ -695,6 +720,49 @@ export default function ReceitaForm() {
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
+          )}
+
+          {/* Upload de Imagens */}
+          {(ingredientes.length > 0 || embalagens.length > 0) && (
+            <div className="space-y-4">
+              <Label>Imagens da Receita</Label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {imagens.map((imagem, index) => (
+                  <div key={index} className="relative group">
+                    <img 
+                      src={imagem} 
+                      alt={`Imagem ${index + 1}`} 
+                      className="w-full h-40 object-cover rounded-lg border-2 border-border"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => handleRemoveImage(index)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                
+                <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-accent/50 transition-colors">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <Upload className="h-8 w-8 mb-2 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground text-center px-2">
+                      Clique para adicionar imagem
+                    </p>
+                  </div>
+                  <input 
+                    type="file" 
+                    className="hidden" 
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageUpload}
+                  />
+                </label>
+              </div>
+            </div>
           )}
 
           {/* Quadro de Precificação */}

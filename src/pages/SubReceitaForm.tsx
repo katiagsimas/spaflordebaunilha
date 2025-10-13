@@ -338,6 +338,20 @@ export default function SubReceitaForm() {
               </div>}
           </div>
 
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="modo-preparo">
+              <AccordionTrigger className="text-base font-semibold">
+                <div className="flex items-center gap-2">
+                  <ChefHat className="h-5 w-5" />
+                  Modo de Preparo
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <Textarea value={modoPreparo} onChange={e => setModoPreparo(e.target.value)} placeholder="Descreva o modo de preparo da sub-receita..." className="min-h-[200px]" />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
           <div className="space-y-4">
             <Label>Imagens do Pré-Preparo</Label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -377,20 +391,6 @@ export default function SubReceitaForm() {
               </label>
             </div>
           </div>
-
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="modo-preparo">
-              <AccordionTrigger className="text-base font-semibold">
-                <div className="flex items-center gap-2">
-                  <ChefHat className="h-5 w-5" />
-                  Modo de Preparo
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <Textarea value={modoPreparo} onChange={e => setModoPreparo(e.target.value)} placeholder="Descreva o modo de preparo da sub-receita..." className="min-h-[200px]" />
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
 
           <div className="flex gap-2 justify-end pt-4 border-t">
             <Button variant="outline" onClick={() => navigate("/sub-receitas")}>
