@@ -1,15 +1,29 @@
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Users, ChefHat, CookingPot } from "lucide-react";
+import { Users, ChefHat, CookingPot, DollarSign, Boxes, Package } from "lucide-react";
 
 const opcoes = [
   {
-    title: "Cadastros",
-    description: "Realize todos os cadastros necessários",
-    icon: Users,
-    url: "/cadastros",
-    color: "text-blue-600 bg-blue-50 dark:bg-blue-950",
+    title: "Custos Fixos",
+    description: "Despesas mensais fixas",
+    icon: DollarSign,
+    url: "/cadastros/custos-fixos",
+    color: "text-red-600 bg-red-50 dark:bg-red-950",
+  },
+  {
+    title: "Ingredientes",
+    description: "Cadastro de Insumos",
+    icon: Boxes,
+    url: "/cadastros/ingredientes",
+    color: "text-orange-600 bg-orange-50 dark:bg-orange-950",
+  },
+  {
+    title: "Embalagens",
+    description: "Cadastro de embalagens",
+    icon: Package,
+    url: "/cadastros/embalagens",
+    color: "text-pink-600 bg-pink-50 dark:bg-pink-950",
   },
   {
     title: "Pré-Preparo",
@@ -37,7 +51,7 @@ export default function Precificacao() {
         description="Gerencie cadastros, pré-preparo e fichas técnicas"
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {opcoes.map((opcao) => {
           const Icon = opcao.icon;
           return (

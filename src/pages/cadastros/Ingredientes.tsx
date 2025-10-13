@@ -95,7 +95,7 @@ export default function Ingredientes() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <BackButton to="/cadastros" />
+        <BackButton to="/precificacao" />
         <div className="flex-1">
           <PageHeader
             title="Ingredientes"
