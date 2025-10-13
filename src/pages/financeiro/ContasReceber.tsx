@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Plus, Search, Filter, CheckCircle, Clock, AlertCircle, XCircle, MoreVertical, Eye, Edit, Copy, Trash2, DollarSign, Calendar } from "lucide-react";
+import { Plus, Search, Filter, CheckCircle, Clock, AlertCircle, XCircle, MoreVertical, Eye, Edit, Copy, Trash2, DollarSign, Calendar, Download, ChevronDown, RotateCcw } from "lucide-react";
+import { format } from "date-fns";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { toast } from "sonner";
 import { ContaReceberFormDialog } from "@/components/ContaReceberFormDialog";
 import { RegistrarRecebimentoDialog } from "@/components/RegistrarRecebimentoDialog";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 interface ContaReceber {
   id: string;
@@ -47,7 +49,11 @@ interface ContaReceber {
   parcelado: boolean;
   numeroParcela?: number;
   totalParcelas?: number;
+  grupoParcelasId?: string;
   recorrente: boolean;
+  frequenciaRecorrencia?: string;
+  proximaRecorrencia?: string;
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -204,6 +210,135 @@ export default function ContasReceber() {
     return "";
   }
 
+  function handleExcluir(conta: ContaReceber) {
+    if (conta.parcelado && conta.grupoParcelasId) {
+      const parcelas = contas.filter(c => c.grupoParcelasId === conta.grupoParcelasId);
+      
+      if (confirm(`Esta conta faz parte de um parcelamento (${parcelas.length} parcelas).\n\nDeseja excluir todas as parcelas?\n\nOK = Excluir todas | Cancelar = Excluir apenas esta`)) {
+        const novasContas = contas.filter(c => c.grupoParcelasId !== conta.grupoParcelasId);
+        setContas(novasContas);
+        toast.success(`✓ ${parcelas.length} parcelas excluídas com sucesso!`);
+      } else {
+        const novasContas = contas.filter(c => c.id !== conta.id);
+        setContas(novasContas);
+        toast.success("✓ Conta excluída com sucesso!");
+      }
+    } else {
+      if (confirm(`Tem certeza que deseja excluir "${conta.descricao}"?`)) {
+        const novasContas = contas.filter(c => c.id !== conta.id);
+        setContas(novasContas);
+        toast.success("✓ Conta excluída com sucesso!");
+      }
+    }
+  }
+
+  function handleEstornar(conta: ContaReceber) {
+    if (confirm("Tem certeza que deseja estornar este recebimento?\nA conta voltará para o status pendente.")) {
+      const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
+      const vencimento = new Date(conta.dataVencimento);
+      vencimento.setHours(0, 0, 0, 0);
+
+      const contaEstornada: ContaReceber = {
+        ...conta,
+        dataPagamento: undefined,
+        formaPagamento: undefined,
+        bancoId: undefined,
+        status: vencimento < hoje ? 'atrasado' : 'pendente',
+        updatedAt: new Date().toISOString(),
+      };
+
+      const contasAtualizadas = contas.map(c => c.id === conta.id ? contaEstornada : c);
+      setContas(contasAtualizadas);
+      toast.success("✓ Recebimento estornado com sucesso!");
+    }
+  }
+
+  function handleDuplicar(conta: ContaReceber) {
+    const novaConta: ContaReceber = {
+      ...conta,
+      id: crypto.randomUUID(),
+      descricao: `${conta.descricao} (cópia)`,
+      dataEmissao: new Date().toISOString(),
+      dataVencimento: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      status: 'pendente',
+      dataPagamento: undefined,
+      formaPagamento: undefined,
+      bancoId: undefined,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    const contasAtualizadas = [...contas, novaConta].sort((a, b) => 
+      new Date(a.dataVencimento).getTime() - new Date(b.dataVencimento).getTime()
+    );
+    
+    setContas(contasAtualizadas);
+    toast.success("✓ Conta duplicada com sucesso!");
+  }
+
+  function handleSelecionarTodas() {
+    setSelectedContas(contasFiltradas.map(c => c.id));
+  }
+
+  function handleDesselecionarTodas() {
+    setSelectedContas([]);
+  }
+
+  function handleExcluirSelecionadas() {
+    if (selectedContas.length === 0) {
+      toast.warning("Selecione pelo menos uma conta");
+      return;
+    }
+
+    if (confirm(`Tem certeza que deseja excluir ${selectedContas.length} conta(s) selecionada(s)?`)) {
+      const novasContas = contas.filter(c => !selectedContas.includes(c.id));
+      setContas(novasContas);
+      setSelectedContas([]);
+      toast.success(`✓ ${selectedContas.length} conta(s) excluída(s) com sucesso!`);
+    }
+  }
+
+  function handleExportarCSV() {
+    const headers = [
+      'Data Emissão',
+      'Data Vencimento',
+      'Descrição',
+      'Cliente',
+      'Valor',
+      'Status',
+      'Data Recebimento',
+      'Forma Pagamento'
+    ];
+
+    const rows = contasFiltradas.map(c => [
+      formatDate(c.dataEmissao),
+      formatDate(c.dataVencimento),
+      c.descricao,
+      c.clienteNome || '',
+      c.valor.toFixed(2),
+      c.status,
+      c.dataPagamento ? formatDate(c.dataPagamento) : '',
+      c.formaPagamento || ''
+    ]);
+
+    const csv = [headers, ...rows]
+      .map(row => row.map(cell => `"${cell}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `contas-receber-${format(new Date(), 'dd-MM-yyyy')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.success("✓ Arquivo CSV exportado com sucesso!");
+  }
+
   function formatCurrency(value: number) {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -212,10 +347,7 @@ export default function ContasReceber() {
   }
 
   function formatDate(dateString: string) {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'short'
-    });
+    return format(new Date(dateString), 'dd/MM/yyyy');
   }
 
   return (
@@ -294,7 +426,62 @@ export default function ContasReceber() {
             <SelectItem value="cancelado">Cancelado</SelectItem>
           </SelectContent>
         </Select>
+        
+        {/* Botões de Ação */}
+        <div className="flex gap-2">
+          {selectedContas.length > 0 && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDesselecionarTodas}
+                className="text-xs"
+              >
+                Desselecionar ({selectedContas.length})
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleExcluirSelecionadas}
+                className="text-xs"
+              >
+                <Trash2 className="h-3 w-3 mr-1" />
+                Excluir
+              </Button>
+            </>
+          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Exportar
+                <ChevronDown className="h-4 w-4 ml-2" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-background">
+              <DropdownMenuItem onClick={handleExportarCSV}>
+                <Download className="h-4 w-4 mr-2" />
+                Exportar CSV
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
+
+      {/* Botão Selecionar Todas */}
+      {contasFiltradas.length > 0 && selectedContas.length === 0 && (
+        <div className="flex justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSelecionarTodas}
+            className="text-xs text-[#9C8B82] hover:text-[#6B5047]"
+          >
+            <CheckCircle className="h-3 w-3 mr-1" />
+            Selecionar todas ({contasFiltradas.length})
+          </Button>
+        </div>
+      )}
 
       {/* Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
@@ -349,11 +536,11 @@ export default function ContasReceber() {
                         <div className="flex items-start gap-2">
                           <Calendar className="h-4 w-4 text-[#9C8B82] mt-0.5 shrink-0" />
                           <div>
-                            <p className="text-sm text-[#9C8B82]">{formatDate(conta.dataEmissao)}</p>
+                            <p className="text-sm text-[#9C8B82]">{format(new Date(conta.dataEmissao), 'dd/MM')}</p>
                             <p className="text-xs text-[#9C8B82]">
                               {conta.status === 'recebido' && conta.dataPagamento
-                                ? `Receb: ${formatDate(conta.dataPagamento)}`
-                                : `Venc: ${formatDate(conta.dataVencimento)}`
+                                ? `Receb: ${format(new Date(conta.dataPagamento), 'dd/MM')}`
+                                : `Venc: ${format(new Date(conta.dataVencimento), 'dd/MM')}`
                               }
                             </p>
                           </div>
@@ -403,16 +590,31 @@ export default function ContasReceber() {
                               <Eye className="h-4 w-4 mr-2" />
                               Ver Detalhes
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => {
+                              setEditingConta(conta);
+                              setIsDialogOpen(true);
+                            }}>
                               <Edit className="h-4 w-4 mr-2" />
                               Editar
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDuplicar(conta)}>
                               <Copy className="h-4 w-4 mr-2" />
                               Duplicar
                             </DropdownMenuItem>
+                            {conta.status === 'recebido' && (
+                              <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => handleEstornar(conta)}>
+                                  <RotateCcw className="h-4 w-4 mr-2" />
+                                  Estornar Recebimento
+                                </DropdownMenuItem>
+                              </>
+                            )}
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive">
+                            <DropdownMenuItem 
+                              className="text-destructive"
+                              onClick={() => handleExcluir(conta)}
+                            >
                               <Trash2 className="h-4 w-4 mr-2" />
                               Excluir
                             </DropdownMenuItem>
