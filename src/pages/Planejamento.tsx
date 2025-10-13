@@ -1,19 +1,12 @@
-import { useState } from "react";
-import { PageHeader } from "@/components/PageHeader";
+import { useState, useEffect } from "react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, Target, DollarSign, LineChart, Settings, Lightbulb, CheckCircle, AlertTriangle, XCircle, Info } from "lucide-react";
+import { TrendingUp, Target, DollarSign, LineChart, Settings, Lightbulb } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-
-type InsightType = "success" | "warning" | "critical" | "info";
-
-interface Insight {
-  type: InsightType;
-  text: string;
-  icon: typeof CheckCircle;
-}
+import { usePlanejamento } from "@/hooks/usePlanejamento";
+import { gerarInsights, type Insight, type InsightType } from "@/utils/insightsGenerator";
 
 const opcoes = [
   {
@@ -50,25 +43,36 @@ const opcoes = [
 export default function Planejamento() {
   const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
+  const [insights, setInsights] = useState<Insight[]>([]);
 
-  // Mock insights - em uma implementação real, viriam de cálculos
-  const insights: Insight[] = [
-    {
-      type: "success",
-      text: "Você está 26% acima da meta de faturamento!",
-      icon: CheckCircle,
-    },
-    {
-      type: "warning",
-      text: "CMV está em 42%, considere revisar preços",
-      icon: AlertTriangle,
-    },
-    {
-      type: "info",
-      text: "Vendas cresceram 18% vs mês passado",
-      icon: Info,
-    },
-  ];
+  const {
+    config,
+    calcularPrevisaoFaturamento,
+    calcularCMVGlobal,
+    calcularPontoEquilibrio,
+    calcularFaturamentoMesAnterior,
+    calcularProjecaoVendas,
+  } = usePlanejamento();
+
+  useEffect(() => {
+    const previsao = calcularPrevisaoFaturamento();
+    const cmvData = calcularCMVGlobal();
+    const pontoEquilibrio = calcularPontoEquilibrio();
+    const faturamentoAnterior = calcularFaturamentoMesAnterior();
+    const projecao = calcularProjecaoVendas();
+
+    const insightsGerados = gerarInsights({
+      metaFaturamentoMensal: config.metaFaturamentoMensal,
+      previsaoFaturamento: previsao,
+      cmvPercentual: cmvData.cmv,
+      alertaCMV: config.alertaCMV,
+      pontoEquilibrio: pontoEquilibrio.valor,
+      faturamentoMesAnterior: faturamentoAnterior,
+      projecaoVendas: projecao.projecao,
+    });
+
+    setInsights(insightsGerados);
+  }, [config]);
 
   const getInsightStyle = (type: InsightType) => {
     switch (type) {
