@@ -110,8 +110,8 @@ export default function SubReceitas() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Sub-Receitas"
-        description="Gerencie suas sub-receitas e componentes"
+        title="Pré-Preparo"
+        description="Gerencie suas sub-receitas e pré-preparações"
       />
 
       <div className="flex justify-end">
