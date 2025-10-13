@@ -5,17 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { usePlanejamento } from "@/hooks/usePlanejamento";
+import { usePlanejamento, type PrevisaoFaturamento } from "@/hooks/usePlanejamento";
 import { gerarInsights, type Insight, type InsightType } from "@/utils/insightsGenerator";
+import { PrevisaoFaturamentoCard } from "@/components/PrevisaoFaturamentoCard";
 
 const opcoes = [
-  {
-    title: "Previsão de Faturamento",
-    description: "Em breve",
-    icon: TrendingUp,
-    color: "text-primary bg-secondary",
-    active: false,
-  },
   {
     title: "Ponto de Equilíbrio",
     description: "Em breve",
@@ -44,10 +38,12 @@ export default function Planejamento() {
   const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
   const [insights, setInsights] = useState<Insight[]>([]);
+  const [previsaoData, setPrevisaoData] = useState<PrevisaoFaturamento | null>(null);
 
   const {
     config,
     calcularPrevisaoFaturamento,
+    calcularPrevisaoFaturamentoCompleta,
     calcularCMVGlobal,
     calcularPontoEquilibrio,
     calcularFaturamentoMesAnterior,
@@ -56,10 +52,13 @@ export default function Planejamento() {
 
   useEffect(() => {
     const previsao = calcularPrevisaoFaturamento();
+    const previsaoCompleta = calcularPrevisaoFaturamentoCompleta();
     const cmvData = calcularCMVGlobal();
     const pontoEquilibrio = calcularPontoEquilibrio();
     const faturamentoAnterior = calcularFaturamentoMesAnterior();
     const projecao = calcularProjecaoVendas();
+
+    setPrevisaoData(previsaoCompleta);
 
     const insightsGerados = gerarInsights({
       metaFaturamentoMensal: config.metaFaturamentoMensal,
@@ -174,6 +173,10 @@ export default function Planejamento() {
 
       {/* Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Card de Previsão de Faturamento */}
+        {previsaoData && <PrevisaoFaturamentoCard dados={previsaoData} />}
+
+        {/* Demais cards */}
         {opcoes.map((opcao) => {
           const Icon = opcao.icon;
           return (
