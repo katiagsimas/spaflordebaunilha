@@ -1,9 +1,17 @@
-import { DollarSign, ArrowDownCircle, ArrowUpCircle, FileText } from "lucide-react";
+import { DollarSign, ArrowDownCircle, ArrowUpCircle, FileText, FolderTree } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 
 const opcoes = [
+  {
+    title: "Planos de Contas",
+    description: "Gerencie subcategorias e contas financeiras",
+    icon: FolderTree,
+    color: "text-primary bg-primary/10",
+    active: true,
+    url: "/financeiro/planos-contas",
+  },
   {
     title: "Contas a Receber",
     description: "Gerencie pagamentos de clientes e recebimentos",
