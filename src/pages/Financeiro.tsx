@@ -36,7 +36,7 @@ export default function Financeiro() {
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <DollarSign className="h-6 w-6 text-primary" />
@@ -49,34 +49,46 @@ export default function Financeiro() {
       </div>
 
       {/* Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
         {opcoes.map((opcao, index) => {
           const Icon = opcao.icon;
           return (
             <Card
               key={opcao.title}
-              className={`transition-all duration-200 animate-fade-in-up stagger-${index + 1} ${
+              className={`group transition-all duration-200 animate-fade-in border-l-4 ${
                 opcao.active
-                  ? "cursor-pointer hover:shadow-elevated hover:-translate-y-1"
+                  ? "cursor-pointer hover:shadow-lg hover:scale-[1.02]"
                   : "opacity-60 cursor-not-allowed"
               }`}
+              style={{ 
+                animationDelay: `${index * 0.05}s`,
+                borderLeftColor: opcao.color.includes('success') ? 'hsl(var(--success))' :
+                                opcao.color.includes('error') ? 'hsl(var(--destructive))' :
+                                'hsl(var(--primary))'
+              }}
               onClick={() => opcao.active && opcao.url && navigate(opcao.url)}
             >
-              <CardHeader>
-                <div className="flex items-center justify-between mb-2">
+              <CardHeader className="p-4 space-y-2">
+                <div className="flex items-center gap-3">
                   <div
-                    className={`w-10 h-10 md:w-12 md:h-12 rounded-lg ${opcao.color} flex items-center justify-center`}
+                    className={`w-10 h-10 rounded-lg ${opcao.color} flex items-center justify-center shrink-0 ${opcao.active ? 'group-hover:scale-110' : ''} transition-transform`}
                   >
-                    <Icon className="h-5 w-5 md:h-6 md:w-6" />
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                      {opcao.title}
+                    </CardTitle>
                   </div>
                   {!opcao.active && (
-                    <Badge className="bg-warning text-foreground text-xs px-2 py-0.5 rounded-full font-medium">
+                    <Badge className="bg-warning text-warning-foreground text-xs px-2 py-0.5 rounded-full font-medium shrink-0">
                       Em breve
                     </Badge>
                   )}
                 </div>
-                <CardTitle className="text-lg md:text-2xl">{opcao.title}</CardTitle>
-                <CardDescription>{opcao.description}</CardDescription>
+                <CardDescription className="text-xs line-clamp-2">
+                  {opcao.description}
+                </CardDescription>
               </CardHeader>
             </Card>
           );
@@ -84,7 +96,7 @@ export default function Financeiro() {
       </div>
 
       {/* Footer */}
-      <div className="mt-8 text-center text-sm text-muted-foreground animate-fade-in">
+      <div className="mt-6 text-center text-sm text-muted-foreground animate-fade-in">
         <p>Estas funcionalidades estarão disponíveis em breve</p>
       </div>
     </div>

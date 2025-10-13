@@ -32,7 +32,7 @@ export default function Cadastros() {
   const navigate = useNavigate();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 md:p-6">
       <div className="flex items-center gap-4">
         <BackButton to="/precificacao" />
         <div className="flex-1">
@@ -43,21 +43,35 @@ export default function Cadastros() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {cadastros.map((cadastro) => {
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+        {cadastros.map((cadastro, index) => {
           const Icon = cadastro.icon;
           return (
             <Card
               key={cadastro.url}
-              className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+              className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 animate-fade-in border-l-4"
+              style={{ 
+                animationDelay: `${index * 0.05}s`,
+                borderLeftColor: cadastro.color.includes('red') ? 'hsl(var(--destructive))' :
+                                cadastro.color.includes('orange') ? 'hsl(var(--warning))' :
+                                'hsl(var(--primary))'
+              }}
               onClick={() => navigate(cadastro.url)}
             >
-              <CardHeader>
-                <div className={`w-12 h-12 rounded-lg ${cadastro.color} flex items-center justify-center mb-2`}>
-                  <Icon className="h-6 w-6" />
+              <CardHeader className="p-4 space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-lg ${cadastro.color} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                      {cadastro.title}
+                    </CardTitle>
+                  </div>
                 </div>
-                <CardTitle>{cadastro.title}</CardTitle>
-                <CardDescription>{cadastro.description}</CardDescription>
+                <CardDescription className="text-xs line-clamp-2">
+                  {cadastro.description}
+                </CardDescription>
               </CardHeader>
             </Card>
           );
