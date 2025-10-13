@@ -130,47 +130,57 @@ export default function SubReceitas() {
           onAction={handleCreateNew}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {subReceitas.map((subReceita) => (
-            <Card key={subReceita.id}>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span className="truncate">{subReceita.nome}</span>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEdit(subReceita.id)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(subReceita.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <p className="text-sm text-muted-foreground">
-                  Tempo: {subReceita.tempoPreparo} {subReceita.unidadeTempo}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Rendimento: {subReceita.rendimento} {subReceita.unidadeRendimento}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Ingredientes: {subReceita.ingredientes.length}
-                </p>
-                <p className="text-sm font-semibold text-foreground">
-                  Custo Total: R$ {subReceita.custoTotal.toFixed(2)}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Rendimento</TableHead>
+                    <TableHead>Unidade</TableHead>
+                    <TableHead>Custo Total</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {subReceitas
+                    .sort((a, b) => a.nome.localeCompare(b.nome))
+                    .map((subReceita) => (
+                      <TableRow key={subReceita.id}>
+                        <TableCell className="font-medium">{subReceita.nome}</TableCell>
+                        <TableCell>{subReceita.rendimento}</TableCell>
+                        <TableCell>
+                          {subReceita.unidadeRendimento === "gramas" ? "Gramas" : "Unidades"}
+                        </TableCell>
+                        <TableCell className="font-semibold">
+                          R$ {subReceita.custoTotal.toFixed(2)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEdit(subReceita.id)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDelete(subReceita.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       <ConfirmDialog
