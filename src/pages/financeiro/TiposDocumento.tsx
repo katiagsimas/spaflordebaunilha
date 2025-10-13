@@ -19,14 +19,13 @@ interface TipoDocumento {
 }
 
 const tiposIniciais: TipoDocumento[] = [
-  { id: "1", codigo: "01", descricao: "Caixa Empresa" },
+  { id: "1", codigo: "01", descricao: "Dinheiro" },
   { id: "2", codigo: "02", descricao: "PIX" },
   { id: "3", codigo: "03", descricao: "Cartão de Crédito" },
   { id: "4", codigo: "04", descricao: "Cartão de Débito" },
   { id: "5", codigo: "05", descricao: "Boleto Bancário" },
   { id: "6", codigo: "06", descricao: "Transferência Bancária" },
-  { id: "7", codigo: "07", descricao: "Dinheiro" },
-  { id: "8", codigo: "08", descricao: "Cheque" },
+  { id: "7", codigo: "07", descricao: "Cheque" },
 ];
 
 export default function TiposDocumento() {
