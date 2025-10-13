@@ -211,8 +211,8 @@ export default function SubReceitaForm() {
         </Button>
         <div className="flex-1">
           <PageHeader
-            title={id ? "Editar Sub-Receita" : "Nova Sub-Receita"}
-            description="Preencha os dados da sub-receita"
+            title={id ? "Editar Pré-Preparo" : "Novo Pré-Preparo"}
+            description="Preencha os dados do pré-preparo"
           />
         </div>
       </div>
