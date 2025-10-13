@@ -2,6 +2,7 @@ import { Settings, FolderTree, FileText, CreditCard, Building2 } from "lucide-re
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
+import { BackButton } from "@/components/BackButton";
 
 const opcoes = [
   {
@@ -39,6 +40,10 @@ export default function ConfiguracoesFinanceiro() {
 
   return (
     <div className="min-h-screen bg-background">
+      <div className="mb-6">
+        <BackButton to="/financeiro" />
+      </div>
+      
       <PageHeader
         title="Configurações Financeiras"
         description="Configure categorias, planos de contas e formas de pagamento"
