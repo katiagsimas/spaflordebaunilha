@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Save, X, Tag } from 'lucide-react';
+import {
+  Plus, Edit2, Trash2, Save, X, Tag, Search, Grid3x3, List,
+  ShoppingBag, ShoppingCart, Package, Gift, DollarSign, CreditCard,
+  Wallet, PiggyBank, Home, Briefcase, Users, Laptop, Truck, Wrench,
+  Shield, Award, TrendingUp, Activity, Anchor, AlertCircle,
+  MoreHorizontal, Receipt, Megaphone, FileText, CornerUpLeft,
+  type LucideIcon
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,9 +35,20 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/PageHeader';
+
+// Mapa de ícones disponíveis
+const iconesDisponiveis: { [key: string]: LucideIcon } = {
+  ShoppingBag, ShoppingCart, Package, Gift, DollarSign, CreditCard,
+  Wallet, PiggyBank, Home, Briefcase, Users, Laptop, Truck, Wrench,
+  Shield, Award, TrendingUp, Activity, Anchor, AlertCircle, Plus,
+  MoreHorizontal, Tag, Receipt, Megaphone, FileText, CornerUpLeft
+};
 
 interface CategoriaFinanceira {
   id: string;
@@ -321,6 +339,10 @@ const categoriasIniciais: CategoriaFinanceira[] = [
 
 const STORAGE_KEY = 'sugarbox_categorias_financeiras';
 
+// Paletas de cores sugeridas
+const coresReceitas = ['#8BA888', '#7FA68C', '#6BA888', '#90C49C', '#A8D5BA', '#85C99C', '#9BD4A8', '#A5D9B3', '#B5E0C0'];
+const coresDespesas = ['#D88B8B', '#E09999', '#C67C7C', '#D49595', '#E5A3A3', '#D07878', '#E8A8A8', '#C86C6C', '#DC9090', '#E39E9E', '#D88484', '#EBACAC', '#D77E7E', '#EFB4B4', '#F2BCBC'];
+
 export default function CategoriasFinanceiras() {
   const { toast } = useToast();
   const [categorias, setCategorias] = useState<CategoriaFinanceira[]>([]);
@@ -328,12 +350,18 @@ export default function CategoriasFinanceiras() {
   const [alertDialogAberto, setAlertDialogAberto] = useState(false);
   const [categoriaEditando, setCategoriaEditando] = useState<CategoriaFinanceira | null>(null);
   const [categoriaExcluindo, setCategoriaExcluindo] = useState<CategoriaFinanceira | null>(null);
-  const [filtroTipo, setFiltroTipo] = useState<'todos' | 'receita' | 'despesa'>('todos');
+  const [abaAtiva, setAbaAtiva] = useState<'todos' | 'receita' | 'despesa'>('todos');
+  const [visualizacao, setVisualizacao] = useState<'grade' | 'lista'>('grade');
+  const [busca, setBusca] = useState('');
+  const [ordenacao, setOrdenacao] = useState<'nome' | 'tipo'>('nome');
   
   // Form state
   const [nome, setNome] = useState('');
   const [tipo, setTipo] = useState<'receita' | 'despesa'>('receita');
   const [cor, setCor] = useState('#D89B8C');
+  const [icone, setIcone] = useState('Tag');
+  const [ativo, setAtivo] = useState(true);
+  const [erros, setErros] = useState<string[]>([]);
 
   // Carregar categorias do localStorage
   useEffect(() => {
@@ -359,8 +387,49 @@ export default function CategoriasFinanceiras() {
   const resetarFormulario = () => {
     setNome('');
     setTipo('receita');
-    setCor('#D89B8C');
+    setCor('#8BA888');
+    setIcone('Tag');
+    setAtivo(true);
+    setErros([]);
     setCategoriaEditando(null);
+  };
+
+  const validarCategoria = (): boolean => {
+    const novosErros: string[] = [];
+    
+    if (!nome || nome.trim() === '') {
+      novosErros.push('Nome é obrigatório');
+    }
+    
+    if (nome.length > 50) {
+      novosErros.push('Nome deve ter no máximo 50 caracteres');
+    }
+    
+    const nomeExiste = categorias.find(
+      c => c.nome.toLowerCase() === nome.toLowerCase() && c.id !== categoriaEditando?.id
+    );
+    if (nomeExiste) {
+      novosErros.push('Já existe uma categoria com este nome');
+    }
+    
+    if (!tipo) {
+      novosErros.push('Selecione o tipo (Receita ou Despesa)');
+    }
+    
+    if (!cor) {
+      novosErros.push('Selecione uma cor');
+    }
+    
+    if (cor && !/^#[0-9A-F]{6}$/i.test(cor)) {
+      novosErros.push('Cor inválida (use formato #RRGGBB)');
+    }
+    
+    if (!icone) {
+      novosErros.push('Selecione um ícone');
+    }
+    
+    setErros(novosErros);
+    return novosErros.length === 0;
   };
 
   const abrirDialog = (categoria?: CategoriaFinanceira) => {
@@ -369,9 +438,12 @@ export default function CategoriasFinanceiras() {
       setNome(categoria.nome);
       setTipo(categoria.tipo);
       setCor(categoria.cor);
+      setIcone(categoria.icone);
+      setAtivo(categoria.ativo);
     } else {
       resetarFormulario();
     }
+    setErros([]);
     setDialogAberto(true);
   };
 
@@ -383,10 +455,10 @@ export default function CategoriasFinanceiras() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!nome.trim()) {
+    if (!validarCategoria()) {
       toast({
-        title: 'Erro',
-        description: 'Nome da categoria é obrigatório',
+        title: 'Erro de Validação',
+        description: erros[0],
         variant: 'destructive',
       });
       return;
@@ -401,6 +473,8 @@ export default function CategoriasFinanceiras() {
               nome: nome.trim(),
               tipo,
               cor,
+              icone,
+              ativo,
               updatedAt: new Date().toISOString(),
             }
           : cat
@@ -417,8 +491,8 @@ export default function CategoriasFinanceiras() {
         nome: nome.trim(),
         tipo,
         cor,
-        icone: 'Tag',
-        ativo: true,
+        icone,
+        ativo,
         editavel: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -459,16 +533,38 @@ export default function CategoriasFinanceiras() {
     setCategoriaExcluindo(null);
   };
 
-  // Filtrar categorias
-  const categoriasFiltradas =
-    filtroTipo === 'todos'
-      ? categorias
-      : categorias.filter((cat) => cat.tipo === filtroTipo);
+  // Filtrar e ordenar categorias
+  let categoriasFiltradas = abaAtiva === 'todos'
+    ? categorias
+    : categorias.filter((cat) => cat.tipo === abaAtiva);
+
+  // Aplicar busca
+  if (busca) {
+    const termo = busca.toLowerCase();
+    categoriasFiltradas = categoriasFiltradas.filter(
+      (cat) => cat.nome.toLowerCase().includes(termo)
+    );
+  }
+
+  // Aplicar ordenação
+  categoriasFiltradas = [...categoriasFiltradas].sort((a, b) => {
+    if (ordenacao === 'nome') {
+      return a.nome.localeCompare(b.nome);
+    } else {
+      return a.tipo.localeCompare(b.tipo);
+    }
+  });
 
   const stats = {
     total: categorias.length,
     receitas: categorias.filter((c) => c.tipo === 'receita').length,
     despesas: categorias.filter((c) => c.tipo === 'despesa').length,
+  };
+
+  // Renderizar ícone da categoria
+  const renderIcone = (nomeIcone: string, className = 'h-10 w-10') => {
+    const IconComponent = iconesDisponiveis[nomeIcone] || Tag;
+    return <IconComponent className={className} />;
   };
 
   return (
@@ -494,63 +590,72 @@ export default function CategoriasFinanceiras() {
         </div>
       </div>
 
-      {/* Barra de Ferramentas */}
-      <div className="bg-card rounded-lg p-4 mb-4 shadow-soft">
-        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-          <div className="flex gap-2">
-            <Button
-              variant={filtroTipo === 'todos' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setFiltroTipo('todos')}
-            >
-              Todos ({stats.total})
-            </Button>
-            <Button
-              variant={filtroTipo === 'receita' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setFiltroTipo('receita')}
-              className={filtroTipo === 'receita' ? '' : 'border-success text-success hover:bg-success/10'}
-            >
-              Receitas ({stats.receitas})
-            </Button>
-            <Button
-              variant={filtroTipo === 'despesa' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setFiltroTipo('despesa')}
-              className={filtroTipo === 'despesa' ? '' : 'border-error text-error hover:bg-error/10'}
-            >
-              Despesas ({stats.despesas})
-            </Button>
-          </div>
-          <Button onClick={() => abrirDialog()} className="w-full sm:w-auto">
-            <Plus className="mr-2 h-4 w-4" />
-            Nova Categoria
-          </Button>
-        </div>
-      </div>
+      {/* Abas */}
+      <Tabs value={abaAtiva} onValueChange={(v) => setAbaAtiva(v as any)} className="mb-6">
+        <TabsList className="grid w-full grid-cols-3 max-w-md">
+          <TabsTrigger value="todos">Todas ({stats.total})</TabsTrigger>
+          <TabsTrigger value="receita">Receitas ({stats.receitas})</TabsTrigger>
+          <TabsTrigger value="despesa">Despesas ({stats.despesas})</TabsTrigger>
+        </TabsList>
 
-      {/* Tabela Desktop */}
-      <div className="hidden md:block bg-card rounded-lg shadow-soft overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-secondary">
-            <tr>
-              <th className="text-left py-4 px-6 text-sm font-semibold text-foreground">Nome</th>
-              <th className="text-left py-4 px-6 text-sm font-semibold text-foreground">Tipo</th>
-              <th className="text-left py-4 px-6 text-sm font-semibold text-foreground">Cor</th>
-              <th className="text-left py-4 px-6 text-sm font-semibold text-foreground">Status</th>
-              <th className="text-center py-4 px-6 text-sm font-semibold text-foreground">Ações</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
+        {/* Barra de Ferramentas */}
+        <div className="bg-card rounded-lg p-4 mt-4 shadow-soft">
+          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+            <div className="flex gap-2 items-center flex-1 w-full sm:w-auto">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Buscar categoria..."
+                  value={busca}
+                  onChange={(e) => setBusca(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <Select value={ordenacao} onValueChange={(v: 'nome' | 'tipo') => setOrdenacao(v)}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="nome">Ordenar: Nome</SelectItem>
+                  <SelectItem value="tipo">Ordenar: Tipo</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant={visualizacao === 'grade' ? 'default' : 'outline'}
+                size="icon"
+                onClick={() => setVisualizacao('grade')}
+              >
+                <Grid3x3 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={visualizacao === 'lista' ? 'default' : 'outline'}
+                size="icon"
+                onClick={() => setVisualizacao('lista')}
+              >
+                <List className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Visualização em Grade */}
+        {visualizacao === 'grade' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
             {categoriasFiltradas.map((categoria) => (
-              <tr key={categoria.id} className="hover:bg-muted/30 transition">
-                <td className="py-4 px-6">
-                  <div className="flex items-center gap-2">
-                    <Tag className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium text-foreground">{categoria.nome}</span>
+              <div
+                key={categoria.id}
+                className="bg-card rounded-xl p-6 shadow-soft hover:shadow-elevated hover:-translate-y-1 transition-all duration-300"
+                style={{ borderTop: `4px solid ${categoria.cor}` }}
+              >
+                <div className="flex flex-col items-center text-center mb-4">
+                  <div className="mb-3" style={{ color: categoria.cor }}>
+                    {renderIcone(categoria.icone, 'h-10 w-10')}
                   </div>
-                </td>
-                <td className="py-4 px-6">
+                  <h3 className="font-semibold text-lg text-foreground mb-2">
+                    {categoria.nome}
+                  </h3>
                   <Badge
                     variant="outline"
                     className={
@@ -561,129 +666,115 @@ export default function CategoriasFinanceiras() {
                   >
                     {categoria.tipo === 'receita' ? 'Receita' : 'Despesa'}
                   </Badge>
-                </td>
-                <td className="py-4 px-6">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-6 h-6 rounded border border-border"
-                      style={{ backgroundColor: categoria.cor }}
-                    />
-                    <span className="text-xs text-muted-foreground">{categoria.cor}</span>
-                  </div>
-                </td>
-                <td className="py-4 px-6">
-                  {categoria.editavel ? (
-                    <Badge variant="outline">Personalizada</Badge>
-                  ) : (
-                    <Badge variant="secondary">Sistema</Badge>
-                  )}
-                </td>
-                <td className="py-4 px-6">
-                  <div className="flex gap-2 justify-center">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => abrirDialog(categoria)}
-                      disabled={!categoria.editavel}
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => confirmarExclusao(categoria)}
-                      disabled={!categoria.editavel}
-                    >
-                      <Trash2 className="h-4 w-4 text-error" />
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {categoriasFiltradas.length === 0 && (
-          <div className="py-12 text-center text-muted-foreground">
-            Nenhuma categoria encontrada
-          </div>
-        )}
-      </div>
-
-      {/* Cards Mobile */}
-      <div className="md:hidden space-y-3">
-        {categoriasFiltradas.map((categoria) => (
-          <div key={categoria.id} className="bg-card rounded-lg p-4 shadow-soft">
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-2 flex-1">
-                <Tag className="h-4 w-4 text-muted-foreground" />
-                <h3 className="font-semibold text-foreground">{categoria.nome}</h3>
-              </div>
-              <div className="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => abrirDialog(categoria)}
-                  disabled={!categoria.editavel}
-                >
-                  <Edit2 className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => confirmarExclusao(categoria)}
-                  disabled={!categoria.editavel}
-                >
-                  <Trash2 className="h-4 w-4 text-error" />
-                </Button>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Tipo:</span>
-                <Badge
-                  variant="outline"
-                  className={
-                    categoria.tipo === 'receita'
-                      ? 'border-success text-success bg-success/10'
-                      : 'border-error text-error bg-error/10'
-                  }
-                >
-                  {categoria.tipo === 'receita' ? 'Receita' : 'Despesa'}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Cor:</span>
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-6 h-6 rounded border border-border"
-                    style={{ backgroundColor: categoria.cor }}
-                  />
-                  <span className="text-xs text-muted-foreground">{categoria.cor}</span>
+                </div>
+                <div className="flex gap-2 justify-center pt-4 border-t border-border">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => abrirDialog(categoria)}
+                    disabled={!categoria.editavel}
+                  >
+                    <Edit2 className="h-4 w-4 mr-1" />
+                    Editar
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => confirmarExclusao(categoria)}
+                    disabled={!categoria.editavel}
+                    className="text-error hover:text-error"
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Excluir
+                  </Button>
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Status:</span>
-                {categoria.editavel ? (
-                  <Badge variant="outline">Personalizada</Badge>
-                ) : (
-                  <Badge variant="secondary">Sistema</Badge>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {categoriasFiltradas.length === 0 && (
-          <div className="bg-card rounded-lg p-8 text-center text-muted-foreground">
-            Nenhuma categoria encontrada
+            ))}
           </div>
         )}
-      </div>
+
+        {/* Visualização em Lista */}
+        {visualizacao === 'lista' && (
+          <div className="bg-card rounded-lg shadow-soft overflow-hidden mt-6">
+            <table className="w-full">
+              <thead className="bg-secondary">
+                <tr>
+                  <th className="text-left py-4 px-6 text-sm font-semibold text-foreground">Ícone</th>
+                  <th className="text-left py-4 px-6 text-sm font-semibold text-foreground">Nome</th>
+                  <th className="text-left py-4 px-6 text-sm font-semibold text-foreground">Tipo</th>
+                  <th className="text-left py-4 px-6 text-sm font-semibold text-foreground">Cor</th>
+                  <th className="text-center py-4 px-6 text-sm font-semibold text-foreground">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {categoriasFiltradas.map((categoria) => (
+                  <tr key={categoria.id} className="hover:bg-muted/30 transition">
+                    <td className="py-4 px-6">
+                      <div style={{ color: categoria.cor }}>
+                        {renderIcone(categoria.icone, 'h-6 w-6')}
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className="font-medium text-foreground">{categoria.nome}</span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <Badge
+                        variant="outline"
+                        className={
+                          categoria.tipo === 'receita'
+                            ? 'border-success text-success bg-success/10'
+                            : 'border-error text-error bg-error/10'
+                        }
+                      >
+                        {categoria.tipo === 'receita' ? 'Receita' : 'Despesa'}
+                      </Badge>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-6 h-6 rounded border border-border"
+                          style={{ backgroundColor: categoria.cor }}
+                        />
+                        <span className="text-xs text-muted-foreground">{categoria.cor}</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex gap-2 justify-center">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => abrirDialog(categoria)}
+                          disabled={!categoria.editavel}
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => confirmarExclusao(categoria)}
+                          disabled={!categoria.editavel}
+                        >
+                          <Trash2 className="h-4 w-4 text-error" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {categoriasFiltradas.length === 0 && (
+              <div className="py-12 text-center text-muted-foreground">
+                Nenhuma categoria encontrada
+              </div>
+            )}
+          </div>
+        )}
+      </Tabs>
 
       {/* Dialog de Criar/Editar */}
       <Dialog open={dialogAberto} onOpenChange={setDialogAberto}>
-        <DialogContent>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {categoriaEditando ? 'Editar Categoria' : 'Nova Categoria'}
@@ -695,47 +786,137 @@ export default function CategoriasFinanceiras() {
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
-            <div className="space-y-4 py-4">
+            <div className="space-y-5 py-4">
+              {/* Erros de validação */}
+              {erros.length > 0 && (
+                <div className="bg-error/10 border border-error rounded-lg p-3">
+                  <ul className="text-sm text-error space-y-1">
+                    {erros.map((erro, i) => (
+                      <li key={i}>• {erro}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Nome */}
               <div className="space-y-2">
                 <Label htmlFor="nome">Nome da Categoria *</Label>
                 <Input
                   id="nome"
-                  placeholder="Ex: Vendas Online, Aluguel, etc"
+                  placeholder="Ex: Despesas com Alimentação"
                   value={nome}
                   onChange={(e) => setNome(e.target.value)}
+                  maxLength={50}
                   required
                 />
+                <p className="text-xs text-muted-foreground">
+                  {nome.length}/50 caracteres
+                </p>
               </div>
+
+              {/* Tipo */}
+              <div className="space-y-3">
+                <Label>Tipo *</Label>
+                <RadioGroup value={tipo} onValueChange={(v: 'receita' | 'despesa') => setTipo(v)}>
+                  <div className="flex gap-4">
+                    <div className="flex items-center space-x-2 flex-1 border-2 border-success/30 rounded-lg p-3 hover:border-success transition">
+                      <RadioGroupItem value="receita" id="receita" />
+                      <Label htmlFor="receita" className="flex items-center gap-2 cursor-pointer flex-1">
+                        <TrendingUp className="h-4 w-4 text-success" />
+                        <span className="text-success font-medium">Receita</span>
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2 flex-1 border-2 border-error/30 rounded-lg p-3 hover:border-error transition">
+                      <RadioGroupItem value="despesa" id="despesa" />
+                      <Label htmlFor="despesa" className="flex items-center gap-2 cursor-pointer flex-1">
+                        <Activity className="h-4 w-4 text-error" />
+                        <span className="text-error font-medium">Despesa</span>
+                      </Label>
+                    </div>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* Ícone */}
               <div className="space-y-2">
-                <Label htmlFor="tipo">Tipo *</Label>
-                <Select value={tipo} onValueChange={(value: 'receita' | 'despesa') => setTipo(value)}>
-                  <SelectTrigger id="tipo">
-                    <SelectValue />
+                <Label htmlFor="icone">Ícone</Label>
+                <Select value={icone} onValueChange={setIcone}>
+                  <SelectTrigger id="icone">
+                    <SelectValue>
+                      <div className="flex items-center gap-2">
+                        {renderIcone(icone, 'h-4 w-4')}
+                        <span>{icone}</span>
+                      </div>
+                    </SelectValue>
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="receita">Receita</SelectItem>
-                    <SelectItem value="despesa">Despesa</SelectItem>
+                  <SelectContent className="max-h-[300px] bg-popover z-50">
+                    {Object.keys(iconesDisponiveis).map((nomeIcone) => (
+                      <SelectItem key={nomeIcone} value={nomeIcone}>
+                        <div className="flex items-center gap-2">
+                          {renderIcone(nomeIcone, 'h-4 w-4')}
+                          <span>{nomeIcone}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Cor */}
               <div className="space-y-2">
                 <Label htmlFor="cor">Cor de Identificação</Label>
-                <div className="flex gap-2 items-center">
-                  <Input
-                    id="cor"
-                    type="color"
-                    value={cor}
-                    onChange={(e) => setCor(e.target.value)}
-                    className="w-20 h-10 cursor-pointer"
-                  />
-                  <Input
-                    type="text"
-                    value={cor}
-                    onChange={(e) => setCor(e.target.value)}
-                    placeholder="#D89B8C"
-                  />
+                <div className="space-y-3">
+                  <div className="flex gap-2 items-center">
+                    <Input
+                      id="cor"
+                      type="color"
+                      value={cor}
+                      onChange={(e) => setCor(e.target.value)}
+                      className="w-20 h-10 cursor-pointer"
+                    />
+                    <Input
+                      type="text"
+                      value={cor}
+                      onChange={(e) => setCor(e.target.value)}
+                      placeholder="#D89B8C"
+                      className="flex-1"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground">Cores sugeridas:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {(tipo === 'receita' ? coresReceitas : coresDespesas).map((corSugerida) => (
+                        <button
+                          key={corSugerida}
+                          type="button"
+                          onClick={() => setCor(corSugerida)}
+                          className="w-8 h-8 rounded border-2 border-border hover:border-primary transition"
+                          style={{ backgroundColor: corSugerida }}
+                          title={corSugerida}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
+
+              {/* Status */}
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="ativo"
+                  checked={ativo}
+                  onCheckedChange={(checked) => setAtivo(checked as boolean)}
+                />
+                <Label
+                  htmlFor="ativo"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                >
+                  Categoria ativa
+                </Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Categorias inativas não aparecem em novos lançamentos
+              </p>
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={fecharDialog}>
