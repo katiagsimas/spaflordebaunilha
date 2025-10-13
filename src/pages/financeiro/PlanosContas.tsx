@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import { Plus, Pencil, FolderTree, ChevronDown, ChevronRight, Search, Trash2, AlertTriangle, Package, Search as SearchIcon } from "lucide-react";
+import { Plus, Pencil, FolderTree, ChevronDown, ChevronRight, Search, Trash2, AlertTriangle, Package, Search as SearchIcon, Copy, History, TrendingUp, FileDown, Upload } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { ExportImport } from "@/components/ExportImport";
+import { PlanoContaHistory } from "@/components/PlanoContaHistory";
+import { PlanoContaStats } from "@/components/PlanoContaStats";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,13 +18,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 import {
   Select,
   SelectContent,
@@ -32,6 +31,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Card } from "@/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,6 +44,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { toast as sonnerToast } from "sonner";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 
 interface CategoriaFinanceira {
   id: string;
@@ -50,6 +68,13 @@ interface CategoriaFinanceira {
   cor: string;
   icone: string;
   ativo: boolean;
+}
+
+interface HistoricoAlteracao {
+  data: string;
+  acao: string;
+  detalhes: string;
+  usuario?: string;
 }
 
 interface PlanoConta {
@@ -61,6 +86,11 @@ interface PlanoConta {
   ativo: boolean;
   createdAt: string;
   updatedAt: string;
+  iconeCustomizado?: string;
+  corCustomizada?: string;
+  ordem?: number;
+  usoCount?: number;
+  historico?: HistoricoAlteracao[];
 }
 
 // Planos de contas pré-configurados
@@ -887,6 +917,11 @@ export default function PlanosContas() {
   const [filterCategoria, setFilterCategoria] = useState('todas');
   const [filterTipo, setFilterTipo] = useState<'todos' | 'receita' | 'despesa'>('todos');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showHistoryDialog, setShowHistoryDialog] = useState(false);
+  const [selectedPlanoHistory, setSelectedPlanoHistory] = useState<PlanoConta | null>(null);
+  const [showStatsDialog, setShowStatsDialog] = useState(false);
+  const [exportCategoriaId, setExportCategoriaId] = useState<string>('');
+  const [showExportDialog, setShowExportDialog] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeactivateDialogOpen, setIsDeactivateDialogOpen] = useState(false);
   const [editingPlanoConta, setEditingPlanoConta] = useState<PlanoConta | null>(null);
@@ -898,6 +933,8 @@ export default function PlanosContas() {
     categoriaId: '',
     tipo: 'despesa' as 'receita' | 'despesa',
     ativo: true,
+    iconeCustomizado: '',
+    corCustomizada: '',
   });
   const { toast } = useToast();
 
@@ -935,6 +972,8 @@ export default function PlanosContas() {
         categoriaId: planoConta.categoriaId,
         tipo: planoConta.tipo,
         ativo: planoConta.ativo,
+        iconeCustomizado: planoConta.iconeCustomizado || '',
+        corCustomizada: planoConta.corCustomizada || '',
       });
     } else {
       setEditingPlanoConta(null);
@@ -944,6 +983,8 @@ export default function PlanosContas() {
         categoriaId: categoriaId || selectedCategoriaForNew || '',
         tipo: 'despesa',
         ativo: true,
+        iconeCustomizado: '',
+        corCustomizada: '',
       });
     }
     setIsDialogOpen(true);
@@ -958,6 +999,8 @@ export default function PlanosContas() {
       categoriaId: '',
       tipo: 'despesa',
       ativo: true,
+      iconeCustomizado: '',
+      corCustomizada: '',
     });
   };
 
@@ -1039,6 +1082,15 @@ export default function PlanosContas() {
     // Atualizar tipo com base na categoria
     formData.tipo = categoria.tipo;
 
+    // Adicionar ao histórico
+    const novaAlteracao: HistoricoAlteracao = {
+      data: new Date().toISOString(),
+      acao: editingPlanoConta ? 'Edição' : 'Criação',
+      detalhes: editingPlanoConta 
+        ? `Plano atualizado: ${formData.nome}` 
+        : `Plano criado: ${formData.nome}`,
+    };
+
     if (editingPlanoConta) {
       const updated = planosContas.map(pc =>
         pc.id === editingPlanoConta.id
@@ -1049,7 +1101,10 @@ export default function PlanosContas() {
               categoriaId: formData.categoriaId,
               tipo: formData.tipo,
               ativo: formData.ativo,
-              updatedAt: new Date().toISOString() 
+              iconeCustomizado: formData.iconeCustomizado || undefined,
+              corCustomizada: formData.corCustomizada || undefined,
+              updatedAt: new Date().toISOString(),
+              historico: [...(pc.historico || []), novaAlteracao]
             }
           : pc
       );
@@ -1075,8 +1130,12 @@ export default function PlanosContas() {
         categoriaId: formData.categoriaId,
         tipo: formData.tipo,
         ativo: formData.ativo,
+        iconeCustomizado: formData.iconeCustomizado || undefined,
+        corCustomizada: formData.corCustomizada || undefined,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        usoCount: 0,
+        historico: [novaAlteracao],
       };
       
       const updated = [...planosContas, newPlanoConta];
@@ -1097,6 +1156,37 @@ export default function PlanosContas() {
     }
 
     handleCloseDialog();
+  };
+
+
+  const handleDuplicate = (planoConta: PlanoConta) => {
+    const duplicado: PlanoConta = {
+      ...planoConta,
+      id: `pc-${Date.now()}`,
+      nome: `${planoConta.nome} (Cópia)`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      usoCount: 0,
+      historico: [{
+        data: new Date().toISOString(),
+        acao: 'Duplicação',
+        detalhes: `Duplicado de: ${planoConta.nome}`,
+      }],
+    };
+
+    const updated = [...planosContas, duplicado];
+    updated.sort((a, b) => {
+      if (a.categoriaId !== b.categoriaId) {
+        return a.categoriaId.localeCompare(b.categoriaId);
+      }
+      return a.nome.localeCompare(b.nome);
+    });
+
+    setPlanosContas(updated);
+    toast({
+      title: "Sucesso",
+      description: "✓ Plano de conta duplicado com sucesso!",
+    });
   };
 
   const handleDelete = (planoConta: PlanoConta) => {
@@ -1126,7 +1216,16 @@ export default function PlanosContas() {
     if (deletingPlanoConta) {
       const updated = planosContas.map(pc =>
         pc.id === deletingPlanoConta.id
-          ? { ...pc, ativo: false, updatedAt: new Date().toISOString() }
+          ? { 
+              ...pc, 
+              ativo: false, 
+              updatedAt: new Date().toISOString(),
+              historico: [...(pc.historico || []), {
+                data: new Date().toISOString(),
+                acao: 'Desativação',
+                detalhes: 'Plano de contas desativado',
+              }]
+            }
           : pc
       );
       setPlanosContas(updated);
@@ -1138,6 +1237,112 @@ export default function PlanosContas() {
       setDeletingPlanoConta(null);
     }
   };
+
+  const handleDragEnd = (event: DragEndEvent, categoriaId: string) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const contasCategoria = filteredPlanos.filter(pc => pc.categoriaId === categoriaId);
+      const oldIndex = contasCategoria.findIndex(pc => pc.id === active.id);
+      const newIndex = contasCategoria.findIndex(pc => pc.id === over.id);
+
+      const reordered = arrayMove(contasCategoria, oldIndex, newIndex).map((pc, index) => ({
+        ...pc,
+        ordem: index,
+      }));
+
+      const updated = planosContas.map(pc => {
+        const reorderedItem = reordered.find(r => r.id === pc.id);
+        return reorderedItem || pc;
+      });
+
+      setPlanosContas(updated);
+      sonnerToast.success("Ordem atualizada com sucesso!");
+    }
+  };
+
+  const exportarPorCategoria = () => {
+    if (!exportCategoriaId) {
+      toast({
+        title: "Erro",
+        description: "Selecione uma categoria para exportar",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const planosCategoria = planosContas.filter(pc => pc.categoriaId === exportCategoriaId);
+    const categoria = categorias.find(c => c.id === exportCategoriaId);
+    
+    if (planosCategoria.length === 0) {
+      toast({
+        title: "Aviso",
+        description: "Nenhum plano encontrado nesta categoria",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const json = JSON.stringify(planosCategoria, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `planos-${categoria?.nome || 'categoria'}-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Sucesso",
+      description: `✓ ${planosCategoria.length} planos exportados!`,
+    });
+    setShowExportDialog(false);
+  };
+
+  const importarIncremental = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const importados: PlanoConta[] = JSON.parse(content);
+
+        // Adicionar sem substituir
+        const novosPlanos = importados.filter(
+          imp => !planosContas.some(pc => pc.id === imp.id)
+        );
+
+        if (novosPlanos.length === 0) {
+          toast({
+            title: "Aviso",
+            description: "Nenhum plano novo para importar",
+          });
+          return;
+        }
+
+        const updated = [...planosContas, ...novosPlanos];
+        setPlanosContas(updated);
+
+        toast({
+          title: "Sucesso",
+          description: `✓ ${novosPlanos.length} novos planos importados!`,
+        });
+      } catch (error) {
+        toast({
+          title: "Erro",
+          description: "Arquivo inválido ou corrompido",
+          variant: "destructive",
+        });
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  };
+
 
   const getCategoriaNome = (categoriaId: string): string => {
     const categorias = JSON.parse(localStorage.getItem('sugarbox_categorias_financeiras') || '[]');
@@ -1170,10 +1375,16 @@ export default function PlanosContas() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <BackButton to="/configuracoes" label="Voltar para Configurações" />
-        <ExportImport 
-          storageKey="sugarbox_planos_contas"
-          dataLabel="Planos de Contas"
-        />
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => setShowStatsDialog(true)}>
+            <TrendingUp className="h-4 w-4 mr-2" />
+            Estatísticas
+          </Button>
+          <ExportImport 
+            storageKey="sugarbox_planos_contas"
+            dataLabel="Planos de Contas"
+          />
+        </div>
       </div>
       
       <PageHeader
@@ -1541,7 +1752,20 @@ export default function PlanosContas() {
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-destructive" />
               <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
-            </div>
+      
+      {/* Diálogos */}
+      <PlanoContaHistory 
+        plano={selectedPlanoHistory}
+        isOpen={showHistoryDialog}
+        onClose={() => setShowHistoryDialog(false)}
+      />
+      
+      <PlanoContaStats 
+        planos={planosContas}
+        isOpen={showStatsDialog}
+        onClose={() => setShowStatsDialog(false)}
+      />
+    </div>
             <AlertDialogDescription>
               Tem certeza que deseja excluir o plano de contas "{deletingPlanoConta?.nome}"?
               <br /><br />
