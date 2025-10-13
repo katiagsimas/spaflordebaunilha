@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Pencil, FolderTree } from "lucide-react";
+import { Plus, Pencil, FolderTree, ChevronDown, ChevronRight, Search } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,16 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { SelectCategoria } from "@/components/SelectCategoria";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Card } from "@/components/ui/card";
+
+interface CategoriaFinanceira {
+  id: string;
+  nome: string;
+  tipo: 'receita' | 'despesa';
+  cor: string;
+  icone: string;
+}
 
 interface PlanoConta {
   id: string;
@@ -659,10 +669,185 @@ const planosContasPreConfigurados: PlanoConta[] = [
     updatedAt: '2025-01-01T00:00:00Z'
   },
   {
-    id: 'pc-desp-050',
-    nome: 'IRPJ',
-    descricao: 'Imposto de renda pessoa jurídica',
+    id: 'pc-desp-048',
+    nome: 'ISS',
+    descricao: 'Imposto sobre serviços',
     categoriaId: 'cat-desp-009',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  // DESPESAS COM TRANSPORTE
+  {
+    id: 'pc-desp-049',
+    nome: 'Combustível',
+    descricao: 'Gasolina para entregas',
+    categoriaId: 'cat-desp-010', // Despesas com Transporte
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-050',
+    nome: 'Manutenção de Veículo',
+    descricao: 'Revisão, troca de óleo, pneus',
+    categoriaId: 'cat-desp-010',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-051',
+    nome: 'IPVA',
+    descricao: 'Imposto sobre veículo',
+    categoriaId: 'cat-desp-010',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-052',
+    nome: 'Seguro de Veículo',
+    descricao: 'Seguro do carro/moto',
+    categoriaId: 'cat-desp-010',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-053',
+    nome: 'Estacionamento',
+    descricao: 'Taxas de estacionamento',
+    categoriaId: 'cat-desp-010',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  // DESPESAS COM MANUTENÇÃO
+  {
+    id: 'pc-desp-054',
+    nome: 'Manutenção de Equipamentos',
+    descricao: 'Conserto de fornos, batedeiras, etc',
+    categoriaId: 'cat-desp-011', // Despesas com Manutenção
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-055',
+    nome: 'Manutenção Predial',
+    descricao: 'Reparos no imóvel',
+    categoriaId: 'cat-desp-011',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-056',
+    nome: 'Pintura',
+    descricao: 'Pintura e reformas',
+    categoriaId: 'cat-desp-011',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  // DESPESAS COM TECNOLOGIA
+  {
+    id: 'pc-desp-057',
+    nome: 'Software/Sistemas',
+    descricao: 'Assinaturas de sistemas e aplicativos',
+    categoriaId: 'cat-desp-012', // Despesas com Tecnologia
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-058',
+    nome: 'Hospedagem de Site',
+    descricao: 'Servidor e domínio',
+    categoriaId: 'cat-desp-012',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-059',
+    nome: 'Equipamentos de TI',
+    descricao: 'Computadores, tablets, impressoras',
+    categoriaId: 'cat-desp-012',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-060',
+    nome: 'Suporte Técnico',
+    descricao: 'Manutenção de equipamentos de informática',
+    categoriaId: 'cat-desp-012',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  // DESPESAS COM SEGUROS
+  {
+    id: 'pc-desp-061',
+    nome: 'Seguro Empresarial',
+    descricao: 'Seguro do estabelecimento',
+    categoriaId: 'cat-desp-013', // Despesas com Seguros
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-062',
+    nome: 'Seguro de Equipamentos',
+    descricao: 'Seguro de fornos e equipamentos',
+    categoriaId: 'cat-desp-013',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  // OUTRAS DESPESAS
+  {
+    id: 'pc-desp-063',
+    nome: 'Perdas e Quebras',
+    descricao: 'Produtos perdidos ou quebrados',
+    categoriaId: 'cat-desp-015', // Outras Despesas
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-064',
+    nome: 'Doações',
+    descricao: 'Doações e contribuições',
+    categoriaId: 'cat-desp-015',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-065',
+    nome: 'Despesas Eventuais',
+    descricao: 'Despesas não recorrentes',
+    categoriaId: 'cat-desp-015',
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -674,8 +859,14 @@ const STORAGE_KEY = 'sugarbox_planos_contas';
 
 export default function PlanosContas() {
   const [planosContas, setPlanosContas] = useLocalStorage<PlanoConta[]>(STORAGE_KEY, []);
+  const [categorias, setCategorias] = useState<CategoriaFinanceira[]>([]);
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategoria, setFilterCategoria] = useState('todas');
+  const [filterTipo, setFilterTipo] = useState<'todos' | 'receita' | 'despesa'>('todos');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPlanoConta, setEditingPlanoConta] = useState<PlanoConta | null>(null);
+  const [selectedCategoriaForNew, setSelectedCategoriaForNew] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     nome: '',
     descricao: '',
@@ -690,9 +881,22 @@ export default function PlanosContas() {
     if (planosContas.length === 0) {
       setPlanosContas(planosContasPreConfigurados);
     }
+    
+    // Carregar categorias financeiras
+    const categoriasStr = localStorage.getItem('sugarbox_categorias_financeiras');
+    if (categoriasStr) {
+      setCategorias(JSON.parse(categoriasStr));
+    }
   }, []);
 
-  const handleOpenDialog = (planoConta?: PlanoConta) => {
+  const toggleCategory = (categoriaId: string) => {
+    setExpandedCategories(prev => ({
+      ...prev,
+      [categoriaId]: !prev[categoriaId]
+    }));
+  };
+
+  const handleOpenDialog = (planoConta?: PlanoConta, categoriaId?: string) => {
     if (planoConta) {
       setEditingPlanoConta(planoConta);
       setFormData({
@@ -707,7 +911,7 @@ export default function PlanosContas() {
       setFormData({
         nome: '',
         descricao: '',
-        categoriaId: '',
+        categoriaId: categoriaId || selectedCategoriaForNew || '',
         tipo: 'despesa',
         ativo: true,
       });
@@ -793,9 +997,26 @@ export default function PlanosContas() {
     return categoria ? categoria.nome : 'Categoria não encontrada';
   };
 
-  // Agrupar por tipo
-  const planosReceitas = planosContas.filter(pc => pc.tipo === 'receita');
-  const planosDespesas = planosContas.filter(pc => pc.tipo === 'despesa');
+  // Filtrar planos de contas
+  const filteredPlanos = planosContas.filter(pc => {
+    const matchSearch = pc.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                       (pc.descricao?.toLowerCase().includes(searchTerm.toLowerCase()) || false);
+    const matchTipo = filterTipo === 'todos' || pc.tipo === filterTipo;
+    const matchCategoria = filterCategoria === 'todas' || pc.categoriaId === filterCategoria;
+    
+    return matchSearch && matchTipo && matchCategoria;
+  });
+
+  // Agrupar planos por categoria
+  const groupedByCategoria = categorias.map(categoria => ({
+    categoria,
+    contas: filteredPlanos.filter(pc => pc.categoriaId === categoria.id)
+  })).filter(group => group.contas.length > 0);
+
+  // Estatísticas
+  const totalReceitas = planosContas.filter(pc => pc.tipo === 'receita').length;
+  const totalDespesas = planosContas.filter(pc => pc.tipo === 'despesa').length;
+  const total = planosContas.length;
 
   return (
     <div className="space-y-6">
@@ -803,132 +1024,160 @@ export default function PlanosContas() {
       
       <PageHeader
         title="Planos de Contas"
-        description="Gerencie as subcategorias das suas contas financeiras"
+        description="Detalhamento das categorias financeiras"
         actions={
           <Button onClick={() => handleOpenDialog()} className="gap-2">
             <Plus className="h-4 w-4" />
-            Nova Conta
+            Novo Plano de Conta
           </Button>
         }
       />
 
-      <div className="space-y-8">
-        {/* Receitas */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <FolderTree className="h-5 w-5 text-success" />
-            <h2 className="text-xl font-semibold text-foreground">Receitas</h2>
-            <Badge variant="secondary" className="bg-success/10 text-success">
-              {planosReceitas.length}
-            </Badge>
+      {/* Cards de Resumo */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="p-6">
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">Receitas</p>
+            <p className="text-3xl font-bold text-success">{totalReceitas} contas</p>
           </div>
+        </Card>
+        <Card className="p-6">
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">Despesas</p>
+            <p className="text-3xl font-bold text-destructive">{totalDespesas} contas</p>
+          </div>
+        </Card>
+        <Card className="p-6">
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">Total</p>
+            <p className="text-3xl font-bold text-foreground">{total} contas</p>
+          </div>
+        </Card>
+      </div>
 
-          {planosReceitas.length > 0 ? (
-            <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Descrição</TableHead>
-                    <TableHead>Categoria</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="w-[100px] text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {planosReceitas.map((planoConta) => (
-                    <TableRow key={planoConta.id}>
-                      <TableCell className="font-medium">{planoConta.nome}</TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {planoConta.descricao || '-'}
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {getCategoriaNome(planoConta.categoriaId)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={planoConta.ativo ? "default" : "secondary"}>
-                          {planoConta.ativo ? 'Ativo' : 'Inativo'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleOpenDialog(planoConta)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              Nenhuma conta de receita cadastrada
-            </div>
-          )}
+      {/* Barra de Ferramentas */}
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar plano de contas..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
         </div>
-
-        {/* Despesas */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <FolderTree className="h-5 w-5 text-destructive" />
-            <h2 className="text-xl font-semibold text-foreground">Despesas</h2>
-            <Badge variant="secondary" className="bg-destructive/10 text-destructive">
-              {planosDespesas.length}
-            </Badge>
-          </div>
-
-          {planosDespesas.length > 0 ? (
-            <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Descrição</TableHead>
-                    <TableHead>Categoria</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="w-[100px] text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {planosDespesas.map((planoConta) => (
-                    <TableRow key={planoConta.id}>
-                      <TableCell className="font-medium">{planoConta.nome}</TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {planoConta.descricao || '-'}
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {getCategoriaNome(planoConta.categoriaId)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={planoConta.ativo ? "default" : "secondary"}>
-                          {planoConta.ativo ? 'Ativo' : 'Inativo'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleOpenDialog(planoConta)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              Nenhuma conta de despesa cadastrada
-            </div>
-          )}
+        <div className="flex gap-2">
+          <select
+            value={filterTipo}
+            onChange={(e) => setFilterTipo(e.target.value as any)}
+            className="px-4 py-2 rounded-md border border-border bg-background text-sm"
+          >
+            <option value="todos">Tipo: Todos</option>
+            <option value="receita">Receitas</option>
+            <option value="despesa">Despesas</option>
+          </select>
         </div>
       </div>
+
+      {/* Lista Agrupada por Categoria */}
+      <div className="space-y-3">
+        {groupedByCategoria.map(({ categoria, contas }) => {
+          const isExpanded = expandedCategories[categoria.id] ?? true;
+          const bgColor = categoria.cor;
+          
+          return (
+            <Collapsible
+              key={categoria.id}
+              open={isExpanded}
+              onOpenChange={() => toggleCategory(categoria.id)}
+            >
+              <Card className="overflow-hidden">
+                {/* Header do Grupo */}
+                <CollapsibleTrigger className="w-full">
+                  <div
+                    className="p-4 flex items-center justify-between cursor-pointer hover:shadow-md transition-all duration-200"
+                    style={{
+                      background: `linear-gradient(to right, ${bgColor}15 10%, white)`,
+                      borderLeft: `4px solid ${bgColor}`
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      {isExpanded ? (
+                        <ChevronDown className="h-4 w-4" style={{ color: bgColor }} />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" style={{ color: bgColor }} />
+                      )}
+                      <div className="flex items-center gap-2">
+                        <span className="text-base font-semibold text-foreground">
+                          {categoria.nome}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          ({contas.length} {contas.length === 1 ? 'conta' : 'contas'})
+                        </span>
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenDialog(undefined, categoria.id);
+                      }}
+                      style={{ borderColor: bgColor, color: bgColor }}
+                      className="hover:bg-opacity-10"
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      Adicionar
+                    </Button>
+                  </div>
+                </CollapsibleTrigger>
+
+                {/* Lista de Contas */}
+                <CollapsibleContent>
+                  <div className="px-4 pb-4 space-y-2 bg-white">
+                    {contas.map((conta) => (
+                      <div
+                        key={conta.id}
+                        className="p-3 ml-6 mr-2 border border-border rounded-lg hover:shadow-sm transition-all duration-200"
+                        style={{
+                          borderColor: isExpanded ? bgColor + '20' : undefined
+                        }}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-base text-foreground">
+                              {conta.nome}
+                            </h4>
+                            <p className="text-sm text-muted-foreground italic">
+                              {conta.descricao || 'Sem descrição'}
+                            </p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleOpenDialog(conta)}
+                              className="hover:bg-[#F5E6E0]"
+                            >
+                              <Pencil className="h-4 w-4" style={{ color: '#D89B8C' }} />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
+          );
+        })}
+      </div>
+
+      {groupedByCategoria.length === 0 && (
+        <div className="text-center py-12 text-muted-foreground">
+          <p>Nenhuma conta encontrada com os filtros aplicados</p>
+        </div>
+      )}
 
       {/* Dialog de Criar/Editar */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
