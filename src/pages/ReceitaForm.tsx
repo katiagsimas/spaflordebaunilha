@@ -94,7 +94,7 @@ export default function ReceitaForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [receitas, setReceitas] = useLocalStorage<Receita[]>("receitas", []);
-  const [ingredientesCadastrados] = useLocalStorage<Ingrediente[]>("ingredientes", []);
+  const [ingredientesCadastrados, setIngredientesCadastrados] = useLocalStorage<Ingrediente[]>("ingredientes", []);
   const [embalagensCadastradas] = useLocalStorage<Embalagem[]>("embalagens", []);
   const [custosFixos] = useLocalStorage<CustoFixo[]>("custosFixos", []);
   const [categorias] = useLocalStorage<Categoria[]>("categorias", []);
@@ -405,6 +405,37 @@ export default function ReceitaForm() {
     } else {
       setReceitas([...receitas, receita]);
       toast.success("Receita criada com sucesso!");
+    }
+
+    // Se for "Produto para Combo", adicionar automaticamente aos ingredientes
+    if (formData.tipo === "produto_combo") {
+      const ingredienteExistente = ingredientesCadastrados.find(
+        ing => ing.nome === formData.nome && ing.marca === "Receita"
+      );
+
+      const novoIngrediente: Ingrediente = {
+        id: ingredienteExistente?.id || Date.now().toString(),
+        nome: formData.nome,
+        marca: "Receita",
+        quantidade: Number(formData.rendimento),
+        unidadeMedida: formData.unidadeRendimento,
+        preco: custoTotal,
+        dataAtualizacao: new Date().toISOString().split('T')[0],
+      };
+
+      if (ingredienteExistente) {
+        // Atualizar ingrediente existente
+        setIngredientesCadastrados(
+          ingredientesCadastrados.map(ing => 
+            ing.id === ingredienteExistente.id ? novoIngrediente : ing
+          )
+        );
+      } else {
+        // Adicionar novo ingrediente
+        setIngredientesCadastrados([...ingredientesCadastrados, novoIngrediente]);
+      }
+      
+      toast.success("Produto também adicionado aos ingredientes!");
     }
 
     navigate("/receitas");
