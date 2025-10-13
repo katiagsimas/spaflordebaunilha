@@ -428,22 +428,24 @@ const Encomendas = () => {
         }
       />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => {
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <Card key={stat.title} className="shadow-soft">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {stat.title}
-                </CardTitle>
-                <div className={`${stat.bgColor} p-2 rounded-lg`}>
-                  <Icon className={`h-4 w-4 ${stat.color}`} />
+            <Card 
+              key={stat.title} 
+              className="p-4 border-l-4 border-l-[#D89B8C] hover:shadow-lg transition-shadow"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-[#9C8B82]">{stat.title}</p>
+                  <div className={`${stat.bgColor} p-2 rounded-lg`}>
+                    <Icon className={`h-4 w-4 ${stat.color}`} />
+                  </div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-              </CardContent>
+                <p className="text-2xl font-bold text-[#6B5047]">{stat.value}</p>
+              </div>
             </Card>
           );
         })}
