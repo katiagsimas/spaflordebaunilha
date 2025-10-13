@@ -12,7 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-
 interface Ingrediente {
   id: string;
   nome: string;
@@ -22,7 +21,6 @@ interface Ingrediente {
   preco: number;
   dataAtualizacao: string;
 }
-
 interface IngredienteReceita {
   id: string;
   ingredienteId: string;
@@ -35,7 +33,6 @@ interface IngredienteReceita {
   custoUnitario: number;
   custoReceita: number;
 }
-
 interface SubReceita {
   id: string;
   nome: string;
@@ -47,24 +44,22 @@ interface SubReceita {
   modoPreparo?: string;
   custoTotal: number;
 }
-
 export default function SubReceitaForm() {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const {
+    id
+  } = useParams();
   const [subReceitas, setSubReceitas] = useLocalStorage<SubReceita[]>("subReceitas", []);
   const [ingredientesCadastrados, setIngredientesCadastrados] = useLocalStorage<Ingrediente[]>("ingredientes", []);
-
   const [formData, setFormData] = useState({
     nome: "",
     tempoPreparo: "",
     unidadeTempo: "minutos" as "minutos" | "horas",
     rendimento: "",
-    unidadeRendimento: "gramas" as "gramas" | "unidades",
+    unidadeRendimento: "gramas" as "gramas" | "unidades"
   });
-
   const [ingredientes, setIngredientes] = useState<IngredienteReceita[]>([]);
   const [modoPreparo, setModoPreparo] = useState("");
-
   useEffect(() => {
     if (id) {
       const subReceita = subReceitas.find(s => s.id === id);
@@ -74,24 +69,22 @@ export default function SubReceitaForm() {
           tempoPreparo: subReceita.tempoPreparo.toString(),
           unidadeTempo: subReceita.unidadeTempo,
           rendimento: subReceita.rendimento.toString(),
-          unidadeRendimento: subReceita.unidadeRendimento,
+          unidadeRendimento: subReceita.unidadeRendimento
         });
         setIngredientes(subReceita.ingredientes);
         setModoPreparo(subReceita.modoPreparo || "");
       }
     }
   }, [id, subReceitas]);
-
   const calcularCustos = (ingrediente: IngredienteReceita): IngredienteReceita => {
     const custoUnitario = ingrediente.precoEmbalagem / ingrediente.qtdeEmbalagem;
     const custoReceita = custoUnitario * ingrediente.quantidadeUtilizada;
     return {
       ...ingrediente,
       custoUnitario,
-      custoReceita,
+      custoReceita
     };
   };
-
   const handleAddIngrediente = () => {
     const novoIngrediente: IngredienteReceita = {
       id: Date.now().toString(),
@@ -103,11 +96,10 @@ export default function SubReceitaForm() {
       precoEmbalagem: 0,
       quantidadeUtilizada: 0,
       custoUnitario: 0,
-      custoReceita: 0,
+      custoReceita: 0
     };
     setIngredientes([...ingredientes, novoIngrediente]);
   };
-
   const handleSelectIngrediente = (index: number, ingredienteId: string) => {
     const ingredienteSelecionado = ingredientesCadastrados.find(i => i.id === ingredienteId);
     if (ingredienteSelecionado) {
@@ -119,43 +111,36 @@ export default function SubReceitaForm() {
         marca: ingredienteSelecionado.marca,
         qtdeEmbalagem: ingredienteSelecionado.quantidade,
         unidadeMedida: ingredienteSelecionado.unidadeMedida,
-        precoEmbalagem: ingredienteSelecionado.preco,
+        precoEmbalagem: ingredienteSelecionado.preco
       });
       setIngredientes(novosIngredientes);
     }
   };
-
   const handleQuantidadeChange = (index: number, quantidade: number) => {
     const novosIngredientes = [...ingredientes];
     novosIngredientes[index] = calcularCustos({
       ...novosIngredientes[index],
-      quantidadeUtilizada: quantidade,
+      quantidadeUtilizada: quantidade
     });
     setIngredientes(novosIngredientes);
   };
-
   const handleRemoveIngrediente = (index: number) => {
     setIngredientes(ingredientes.filter((_, i) => i !== index));
   };
-
   const custoTotal = ingredientes.reduce((total, ing) => total + ing.custoReceita, 0);
-
   const handleSave = () => {
     if (!formData.nome.trim()) {
       toast.error("Por favor, informe o nome da sub-receita");
       return;
     }
-
     if (!formData.tempoPreparo || Number(formData.tempoPreparo) <= 0) {
       toast.error("Por favor, informe um tempo de preparo válido");
       return;
     }
-
     if (!formData.rendimento || Number(formData.rendimento) <= 0) {
       toast.error("Por favor, informe um rendimento válido");
       return;
     }
-
     const subReceitaId = id || Date.now().toString();
     const subReceita: SubReceita = {
       id: subReceitaId,
@@ -166,7 +151,7 @@ export default function SubReceitaForm() {
       unidadeRendimento: formData.unidadeRendimento,
       ingredientes,
       modoPreparo,
-      custoTotal,
+      custoTotal
     };
 
     // Criar ou atualizar o ingrediente correspondente à sub-receita
@@ -177,17 +162,12 @@ export default function SubReceitaForm() {
       quantidade: Number(formData.rendimento),
       unidadeMedida: formData.unidadeRendimento === "gramas" ? "g" : "un",
       preco: custoTotal,
-      dataAtualizacao: new Date().toISOString().split('T')[0],
+      dataAtualizacao: new Date().toISOString().split('T')[0]
     };
-
     if (id) {
       setSubReceitas(subReceitas.map(s => s.id === id ? subReceita : s));
       // Atualizar o ingrediente existente
-      setIngredientesCadastrados(
-        ingredientesCadastrados.map(ing => 
-          ing.id === `sub-receita-${id}` ? ingredienteSubReceita : ing
-        )
-      );
+      setIngredientesCadastrados(ingredientesCadastrados.map(ing => ing.id === `sub-receita-${id}` ? ingredienteSubReceita : ing));
       toast.success("Sub-receita atualizada com sucesso!");
     } else {
       setSubReceitas([...subReceitas, subReceita]);
@@ -195,25 +175,15 @@ export default function SubReceitaForm() {
       setIngredientesCadastrados([...ingredientesCadastrados, ingredienteSubReceita]);
       toast.success("Sub-receita criada com sucesso!");
     }
-
     navigate("/sub-receitas");
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => navigate("/sub-receitas")}
-        >
+        <Button variant="outline" size="icon" onClick={() => navigate("/sub-receitas")}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex-1">
-          <PageHeader
-            title={id ? "Editar Pré-Preparo" : "Novo Pré-Preparo"}
-            description="Preencha os dados do pré-preparo"
-          />
+          <PageHeader title={id ? "Editar Pré-Preparo" : "Novo Pré-Preparo"} description="Preencha os dados do pré-preparo" />
         </div>
       </div>
 
@@ -222,30 +192,23 @@ export default function SubReceitaForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
               <Label htmlFor="nome">Nome da Sub-Receita *</Label>
-              <Input
-                id="nome"
-                value={formData.nome}
-                onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                placeholder="Ex: Recheio de Brigadeiro"
-              />
+              <Input id="nome" value={formData.nome} onChange={e => setFormData({
+              ...formData,
+              nome: e.target.value
+            })} placeholder="Ex: Recheio de Brigadeiro" />
             </div>
 
             <div>
               <Label htmlFor="tempoPreparo">Tempo de Preparo *</Label>
               <div className="flex gap-2">
-                <Input
-                  id="tempoPreparo"
-                  type="number"
-                  min="1"
-                  value={formData.tempoPreparo}
-                  onChange={(e) => setFormData({ ...formData, tempoPreparo: e.target.value })}
-                  placeholder="Ex: 30"
-                  className="flex-1"
-                />
-                <Select
-                  value={formData.unidadeTempo}
-                  onValueChange={(value: "minutos" | "horas") => setFormData({ ...formData, unidadeTempo: value })}
-                >
+                <Input id="tempoPreparo" type="number" min="1" value={formData.tempoPreparo} onChange={e => setFormData({
+                ...formData,
+                tempoPreparo: e.target.value
+              })} placeholder="Ex: 30" className="flex-1" />
+                <Select value={formData.unidadeTempo} onValueChange={(value: "minutos" | "horas") => setFormData({
+                ...formData,
+                unidadeTempo: value
+              })}>
                   <SelectTrigger className="w-32">
                     <SelectValue />
                   </SelectTrigger>
@@ -260,19 +223,14 @@ export default function SubReceitaForm() {
             <div>
               <Label htmlFor="rendimento">Rendimento *</Label>
               <div className="flex gap-2">
-                <Input
-                  id="rendimento"
-                  type="number"
-                  min="1"
-                  value={formData.rendimento}
-                  onChange={(e) => setFormData({ ...formData, rendimento: e.target.value })}
-                  placeholder="Ex: 500"
-                  className="flex-1"
-                />
-                <Select
-                  value={formData.unidadeRendimento}
-                  onValueChange={(value: "gramas" | "unidades") => setFormData({ ...formData, unidadeRendimento: value })}
-                >
+                <Input id="rendimento" type="number" min="1" value={formData.rendimento} onChange={e => setFormData({
+                ...formData,
+                rendimento: e.target.value
+              })} placeholder="Ex: 500" className="flex-1" />
+                <Select value={formData.unidadeRendimento} onValueChange={(value: "gramas" | "unidades") => setFormData({
+                ...formData,
+                unidadeRendimento: value
+              })}>
                   <SelectTrigger className="w-32">
                     <SelectValue />
                   </SelectTrigger>
@@ -294,8 +252,7 @@ export default function SubReceitaForm() {
               </Button>
             </div>
 
-            {ingredientes.length > 0 && (
-              <div className="overflow-x-auto">
+            {ingredientes.length > 0 && <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -311,22 +268,16 @@ export default function SubReceitaForm() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {ingredientes.map((ingrediente, index) => (
-                      <TableRow key={ingrediente.id}>
+                    {ingredientes.map((ingrediente, index) => <TableRow key={ingrediente.id}>
                         <TableCell>
-                          <Select
-                            value={ingrediente.ingredienteId}
-                            onValueChange={(value) => handleSelectIngrediente(index, value)}
-                          >
+                          <Select value={ingrediente.ingredienteId} onValueChange={value => handleSelectIngrediente(index, value)}>
                             <SelectTrigger className="w-40">
                               <SelectValue placeholder="Selecione" />
                             </SelectTrigger>
                             <SelectContent>
-                              {ingredientesCadastrados.map((ing) => (
-                                <SelectItem key={ing.id} value={ing.id}>
+                              {ingredientesCadastrados.map(ing => <SelectItem key={ing.id} value={ing.id}>
                                   {ing.nome}
-                                </SelectItem>
-                              ))}
+                                </SelectItem>)}
                             </SelectContent>
                           </Select>
                         </TableCell>
@@ -337,15 +288,7 @@ export default function SubReceitaForm() {
                           {ingrediente.precoEmbalagem ? `R$ ${ingrediente.precoEmbalagem.toFixed(2)}` : "-"}
                         </TableCell>
                         <TableCell>
-                          <Input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={ingrediente.quantidadeUtilizada || ""}
-                            onChange={(e) => handleQuantidadeChange(index, parseFloat(e.target.value) || 0)}
-                            className="w-24"
-                            placeholder="0"
-                          />
+                          <Input type="number" min="0" step="0.01" value={ingrediente.quantidadeUtilizada || ""} onChange={e => handleQuantidadeChange(index, parseFloat(e.target.value) || 0)} className="w-24" placeholder="0" />
                         </TableCell>
                         <TableCell className="text-sm">
                           R$ {ingrediente.custoUnitario.toFixed(4)}
@@ -354,29 +297,20 @@ export default function SubReceitaForm() {
                           R$ {ingrediente.custoReceita.toFixed(2)}
                         </TableCell>
                         <TableCell>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleRemoveIngrediente(index)}
-                          >
+                          <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveIngrediente(index)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </TableCell>
-                      </TableRow>
-                    ))}
+                      </TableRow>)}
                   </TableBody>
                 </Table>
-              </div>
-            )}
+              </div>}
 
-            {ingredientes.length > 0 && (
-              <div className="flex justify-end">
+            {ingredientes.length > 0 && <div className="flex justify-end">
                 <div className="text-lg font-bold">
                   Custo Total da Receita: R$ {custoTotal.toFixed(2)}
                 </div>
-              </div>
-            )}
+              </div>}
           </div>
 
           <Accordion type="single" collapsible className="w-full">
@@ -388,12 +322,7 @@ export default function SubReceitaForm() {
                 </div>
               </AccordionTrigger>
               <AccordionContent>
-                <Textarea
-                  value={modoPreparo}
-                  onChange={(e) => setModoPreparo(e.target.value)}
-                  placeholder="Descreva o modo de preparo da sub-receita..."
-                  className="min-h-[200px]"
-                />
+                <Textarea value={modoPreparo} onChange={e => setModoPreparo(e.target.value)} placeholder="Descreva o modo de preparo da sub-receita..." className="min-h-[200px]" />
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -408,6 +337,5 @@ export default function SubReceitaForm() {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 }
