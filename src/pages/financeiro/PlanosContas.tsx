@@ -440,7 +440,7 @@ export default function PlanosContas() {
 
   return (
     <div className="space-y-6">
-      <BackButton to="/financeiro" label="Voltar para Financeiro" />
+      <BackButton to="/configuracoes" label="Voltar para Configurações" />
       
       <PageHeader
         title="Planos de Contas"
