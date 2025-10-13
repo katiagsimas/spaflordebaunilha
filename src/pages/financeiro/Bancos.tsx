@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Building2, Plus, Pencil, Trash2 } from "lucide-react";
+import { Building2, Plus, Pencil } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { toast } from "sonner";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 
 interface Banco {
@@ -34,9 +33,7 @@ const bancosIniciais: Banco[] = [
 export default function Bancos() {
   const [bancos, setBancos] = useLocalStorage<Banco[]>("sugarbox_bancos", bancosIniciais);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editingBanco, setEditingBanco] = useState<Banco | null>(null);
-  const [bancoToDelete, setBancoToDelete] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     codigo: "",
@@ -78,15 +75,6 @@ export default function Bancos() {
       descricao: banco.descricao,
     });
     setDialogOpen(true);
-  };
-
-  const handleDelete = () => {
-    if (bancoToDelete) {
-      setBancos(bancos.filter(b => b.id !== bancoToDelete));
-      toast.success("Banco excluído com sucesso!");
-      setDeleteDialogOpen(false);
-      setBancoToDelete(null);
-    }
   };
 
   return (
@@ -172,25 +160,14 @@ export default function Bancos() {
                   <TableCell className="font-medium">{banco.codigo}</TableCell>
                   <TableCell>{banco.descricao}</TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEdit(banco)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          setBancoToDelete(banco.id);
-                          setDeleteDialogOpen(true);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEdit(banco)}
+                      title="Editar banco"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -198,14 +175,6 @@ export default function Bancos() {
           </Table>
         </div>
       )}
-
-      <ConfirmDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        onConfirm={handleDelete}
-        title="Excluir Banco"
-        description="Tem certeza que deseja excluir este banco? Esta ação não pode ser desfeita."
-      />
     </div>
   );
 }
