@@ -28,6 +28,7 @@ import Receitas from "./pages/Receitas";
 import ReceitaForm from "./pages/ReceitaForm";
 import ComingSoon from "./pages/ComingSoon";
 import Financeiro from "./pages/Financeiro";
+import ContasReceber from "./pages/financeiro/ContasReceber";
 import Configuracoes from "./pages/Configuracoes";
 import ConfiguracoesFinanceiro from "./pages/financeiro/ConfiguracoesFinanceiro";
 import CategoriasPlanoContas from "./pages/financeiro/CategoriasPlanoContas";
@@ -103,6 +104,10 @@ const App = () => (
           <Route 
             path="/financeiro" 
             element={<ProtectedRoute><Layout><Financeiro /></Layout></ProtectedRoute>} 
+          />
+          <Route 
+            path="/financeiro/contas-receber" 
+            element={<ProtectedRoute><Layout><ContasReceber /></Layout></ProtectedRoute>} 
           />
           <Route 
             path="/financeiro/configuracoes" 

@@ -9,8 +9,8 @@ const opcoes = [
     description: "Gerencie pagamentos de clientes e recebimentos",
     icon: ArrowDownCircle,
     color: "text-success bg-success/10",
-    active: false,
-    url: undefined,
+    active: true,
+    url: "/financeiro/contas-receber",
   },
   {
     title: "Contas a Pagar",
