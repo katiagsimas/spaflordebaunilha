@@ -396,6 +396,7 @@ export default function CategoriasFinanceiras() {
     
     if (!categoriasStr) {
       // Primeira vez: criar categorias pré-configuradas
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(categoriasIniciais));
       setCategorias(categoriasIniciais);
       toast({
         title: '✓ Sistema Inicializado',
