@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from 'xlsx';
@@ -1198,19 +1198,17 @@ export default function CategoriasPlanoContas() {
                         Categorias inativas não aparecem em lançamentos
                       </p>
                     </div>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <HelpCircle className="h-4 w-4 text-[#9C8B82] cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent className="bg-card max-w-xs">
-                          <p className="text-sm">
-                            Categorias inativas não podem ser usadas em novos lançamentos financeiros, 
-                            mas os lançamentos antigos continuam vinculados a elas.
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="h-4 w-4 text-[#9C8B82] cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-card max-w-xs">
+                        <p className="text-sm">
+                          Categorias inativas não podem ser usadas em novos lançamentos financeiros, 
+                          mas os lançamentos antigos continuam vinculados a elas.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch

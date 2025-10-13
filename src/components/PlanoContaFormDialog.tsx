@@ -12,7 +12,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Select,
   SelectContent,
@@ -250,31 +249,30 @@ export function PlanoContaFormDialog({
 
           {/* Status */}
           <div className="space-y-2">
-            <TooltipProvider>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="ativo"
-                  checked={formData.ativo}
-                  onCheckedChange={(checked) => 
-                    setFormData(prev => ({ ...prev, ativo: checked as boolean }))
-                  }
-                />
-                <Label 
-                  htmlFor="ativo" 
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                >
-                  Plano ativo
-                </Label>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="text-muted-foreground cursor-help">ⓘ</span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="text-sm">Planos inativos não aparecem em novos lançamentos</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-            </TooltipProvider>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="ativo"
+                checked={formData.ativo}
+                onCheckedChange={(checked) => 
+                  setFormData(prev => ({ ...prev, ativo: checked as boolean }))
+                }
+              />
+              <Label 
+                htmlFor="ativo" 
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              >
+                Plano ativo
+              </Label>
+              <span 
+                className="text-muted-foreground cursor-help text-sm" 
+                title="Planos inativos não aparecem em novos lançamentos"
+              >
+                ⓘ
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Planos inativos não aparecem em novos lançamentos
+            </p>
           </div>
 
           <DialogFooter className="gap-2">

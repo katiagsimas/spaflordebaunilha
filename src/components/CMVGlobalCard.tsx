@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { DollarSign, Info, TrendingUp, Package, Wrench, Briefcase, Home } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -191,18 +191,16 @@ export function CMVGlobalCard() {
                 <p className="text-xs text-muted-foreground mt-0.5">Custo da Mercadoria Vendida</p>
               </div>
             </div>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger onClick={(e) => e.stopPropagation()}>
-                  <Info className="h-4 w-4 text-muted-foreground" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs text-sm">
-                    Percentual dos custos em relação ao faturamento. Clique para ver detalhes.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger onClick={(e) => e.stopPropagation()}>
+                <Info className="h-4 w-4 text-muted-foreground" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs text-sm">
+                  Percentual dos custos em relação ao faturamento. Clique para ver detalhes.
+                </p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </CardHeader>
 

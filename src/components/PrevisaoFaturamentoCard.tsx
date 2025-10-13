@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { DollarSign, Info, TrendingUp, TrendingDown, CheckCircle, Clock, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { type PrevisaoFaturamento } from "@/hooks/usePlanejamento";
 import { cn } from "@/lib/utils";
@@ -132,18 +132,16 @@ export function PrevisaoFaturamentoCard({ dados }: PrevisaoFaturamentoCardProps)
                 <p className="text-xs text-muted-foreground mt-0.5">{dados.mesAtual}</p>
               </div>
             </div>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger onClick={(e) => e.stopPropagation()}>
-                  <Info className="h-4 w-4 text-muted-foreground" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs text-sm">
-                    Previsão calculada com base nas encomendas confirmadas do mês atual. Clique para ver detalhes.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger onClick={(e) => e.stopPropagation()}>
+                <Info className="h-4 w-4 text-muted-foreground" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs text-sm">
+                  Previsão calculada com base nas encomendas confirmadas do mês atual. Clique para ver detalhes.
+                </p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </CardHeader>
 
