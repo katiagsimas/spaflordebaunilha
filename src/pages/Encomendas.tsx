@@ -12,6 +12,8 @@ import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarC
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { ExportImport } from "@/components/ExportImport";
+import { HelpTooltip } from "@/components/HelpTooltip";
 
 interface Order {
   id: string;
@@ -207,10 +209,16 @@ const Encomendas = () => {
 
   return (
     <div className="space-y-8">
-      <PageHeader
-        title="Gestor de Encomendas"
-        description="Controle completo de pedidos do cliente até a entrega"
-        actions={
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <h1 className="text-3xl font-bold">Gestor de Encomendas</h1>
+            <HelpTooltip content="Gerencie todas as suas encomendas do pedido até a entrega. Acompanhe status, pagamentos e organize entregas." />
+          </div>
+          <p className="text-muted-foreground">Controle completo de pedidos do cliente até a entrega</p>
+        </div>
+        <div className="flex gap-2">
+          <ExportImport storageKey="orders" dataLabel="Encomendas" />
           <Dialog open={dialogOpen} onOpenChange={(open) => {
             setDialogOpen(open);
             if (!open) resetForm();
@@ -421,8 +429,8 @@ const Encomendas = () => {
               </form>
             </DialogContent>
           </Dialog>
-        }
-      />
+        </div>
+      </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => {

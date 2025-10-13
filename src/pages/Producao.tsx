@@ -11,6 +11,8 @@ import { Plus, Trash2, AlertCircle } from "lucide-react";
 import { pt } from "date-fns/locale";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ExportImport } from "@/components/ExportImport";
+import { HelpTooltip } from "@/components/HelpTooltip";
 
 interface Order {
   id: string;
@@ -137,10 +139,16 @@ const Producao = () => {
 
   return (
     <div className="space-y-8">
-      <PageHeader
-        title="Planejador de Produção"
-        description="Organize seu cronograma de produção com checklists"
-      />
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <h1 className="text-3xl font-bold">Planejador de Produção</h1>
+            <HelpTooltip content="Organize seu cronograma de produção com checklists por data. Marque cada etapa e acompanhe o progresso." />
+          </div>
+          <p className="text-muted-foreground">Organize seu cronograma de produção com checklists</p>
+        </div>
+        <ExportImport storageKey="tasks" dataLabel="Tarefas" />
+      </div>
 
       {(todayOrders.length > 0 || tomorrowOrders.length > 0 || upcomingAlerts.length > 0) && (
         <div className="grid gap-4 md:grid-cols-3">
