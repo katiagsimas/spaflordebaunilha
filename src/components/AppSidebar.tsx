@@ -22,7 +22,7 @@ const menuItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard, active: true },
   { title: "Encomendas", url: "/encomendas", icon: ShoppingBag, active: true },
   { title: "Produção", url: "/producao", icon: CalendarClock, active: true },
-  { title: "Receitas", url: "/receitas", icon: CookingPot, active: true },
+  { title: "FT - Fichas Técnicas", url: "/receitas", icon: CookingPot, active: true },
   { title: "Pré-Preparo", url: "/sub-receitas", icon: ChefHat, active: true },
   { title: "Cadastros", url: "/cadastros", icon: Users, active: true },
   { title: "Financeiro", url: "/financeiro", icon: DollarSign, active: false },

@@ -412,8 +412,8 @@ export default function ReceitaForm() {
         <BackButton to="/receitas" />
         <div className="flex-1">
           <PageHeader
-            title={id ? "Editar Receita" : "Nova Receita"}
-            description="Preencha os dados da receita"
+            title={id ? "Editar Ficha Técnica" : "Nova Ficha Técnica"}
+            description="Calcule Custos e Preços de Venda"
           />
         </div>
       </div>

@@ -138,8 +138,8 @@ export default function Receitas() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Receitas"
-        description="Gerencie suas receitas completas"
+        title="FT - Fichas Técnicas"
+        description="Calcule Custos e Preços de Venda"
       />
 
       <div className="flex justify-end">
