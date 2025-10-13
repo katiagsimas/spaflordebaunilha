@@ -44,120 +44,279 @@ interface CategoriaFinanceira {
   updatedAt: string;
 }
 
-// Categorias pré-configuradas para confeitaria
+// Categorias pré-configuradas
 const categoriasIniciais: CategoriaFinanceira[] = [
-  // RECEITAS
+  // ========================================
+  // RECEITAS (9 categorias)
+  // ========================================
   {
-    id: '1',
-    nome: 'Vendas de Produtos',
+    id: 'cat-rec-001',
+    nome: 'Receitas com Vendas',
     tipo: 'receita',
     cor: '#8BA888',
-    icone: 'ShoppingCart',
+    icone: 'ShoppingBag',
     ativo: true,
     editavel: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
   },
   {
-    id: '2',
-    nome: 'Prestação de Serviços',
+    id: 'cat-rec-002',
+    nome: 'Receitas com Serviços',
     tipo: 'receita',
-    cor: '#8BA888',
+    cor: '#7FA68C',
     icone: 'Briefcase',
     ativo: true,
     editavel: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
   },
   {
-    id: '3',
+    id: 'cat-rec-003',
+    nome: 'Receitas Financeiras',
+    tipo: 'receita',
+    cor: '#6BA888',
+    icone: 'TrendingUp',
+    ativo: true,
+    editavel: false,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cat-rec-004',
+    nome: 'Receitas não Operacionais',
+    tipo: 'receita',
+    cor: '#90C49C',
+    icone: 'PiggyBank',
+    ativo: true,
+    editavel: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cat-rec-005',
+    nome: 'Devoluções e Reembolsos',
+    tipo: 'receita',
+    cor: '#A8D5BA',
+    icone: 'CornerUpLeft',
+    ativo: true,
+    editavel: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cat-rec-006',
+    nome: 'Comissões Recebidas',
+    tipo: 'receita',
+    cor: '#85C99C',
+    icone: 'Award',
+    ativo: true,
+    editavel: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cat-rec-007',
+    nome: 'Aluguéis Recebidos',
+    tipo: 'receita',
+    cor: '#9BD4A8',
+    icone: 'Home',
+    ativo: true,
+    editavel: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cat-rec-008',
+    nome: 'Descontos Obtidos',
+    tipo: 'receita',
+    cor: '#A5D9B3',
+    icone: 'Tag',
+    ativo: true,
+    editavel: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cat-rec-009',
     nome: 'Outras Receitas',
     tipo: 'receita',
-    cor: '#8BA888',
-    icone: 'PlusCircle',
+    cor: '#B5E0C0',
+    icone: 'Plus',
     ativo: true,
-    editavel: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    editavel: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
   },
-  // DESPESAS
+
+  // ========================================
+  // DESPESAS (15 categorias)
+  // ========================================
   {
-    id: '4',
-    nome: 'Matéria-Prima',
-    tipo: 'despesa',
-    cor: '#D88B8B',
-    icone: 'Package',
-    ativo: true,
-    editavel: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '5',
-    nome: 'Embalagens',
-    tipo: 'despesa',
-    cor: '#D88B8B',
-    icone: 'Box',
-    ativo: true,
-    editavel: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '6',
+    id: 'cat-desp-001',
     nome: 'Despesas Fixas',
     tipo: 'despesa',
     cor: '#D88B8B',
-    icone: 'Home',
+    icone: 'Anchor',
     ativo: true,
     editavel: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
   },
   {
-    id: '7',
-    nome: 'Marketing e Publicidade',
+    id: 'cat-desp-002',
+    nome: 'Despesas Variáveis',
     tipo: 'despesa',
-    cor: '#D88B8B',
-    icone: 'Megaphone',
+    cor: '#E09999',
+    icone: 'Activity',
     ativo: true,
     editavel: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
   },
   {
-    id: '8',
-    nome: 'Salários e Encargos',
+    id: 'cat-desp-003',
+    nome: 'Despesas com Pessoal',
     tipo: 'despesa',
-    cor: '#D88B8B',
+    cor: '#C67C7C',
     icone: 'Users',
     ativo: true,
     editavel: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
   },
   {
-    id: '9',
-    nome: 'Impostos e Taxas',
+    id: 'cat-desp-004',
+    nome: 'Despesas Administrativas',
     tipo: 'despesa',
-    cor: '#D88B8B',
+    cor: '#D49595',
     icone: 'FileText',
     ativo: true,
     editavel: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
   },
   {
-    id: '10',
+    id: 'cat-desp-005',
+    nome: 'Despesas com Marketing',
+    tipo: 'despesa',
+    cor: '#E5A3A3',
+    icone: 'Megaphone',
+    ativo: true,
+    editavel: false,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cat-desp-006',
+    nome: 'Despesas com Vendas',
+    tipo: 'despesa',
+    cor: '#D07878',
+    icone: 'ShoppingCart',
+    ativo: true,
+    editavel: false,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cat-desp-007',
     nome: 'Despesas Financeiras',
     tipo: 'despesa',
-    cor: '#D88B8B',
+    cor: '#E8A8A8',
     icone: 'CreditCard',
     ativo: true,
     editavel: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
   },
+  {
+    id: 'cat-desp-008',
+    nome: 'Custos de Produção',
+    tipo: 'despesa',
+    cor: '#C86C6C',
+    icone: 'Package',
+    ativo: true,
+    editavel: false,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cat-desp-009',
+    nome: 'Despesas com Impostos',
+    tipo: 'despesa',
+    cor: '#DC9090',
+    icone: 'Receipt',
+    ativo: true,
+    editavel: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cat-desp-010',
+    nome: 'Despesas com Transporte',
+    tipo: 'despesa',
+    cor: '#E39E9E',
+    icone: 'Truck',
+    ativo: true,
+    editavel: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cat-desp-011',
+    nome: 'Despesas com Manutenção',
+    tipo: 'despesa',
+    cor: '#D88484',
+    icone: 'Wrench',
+    ativo: true,
+    editavel: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cat-desp-012',
+    nome: 'Despesas com Tecnologia',
+    tipo: 'despesa',
+    cor: '#EBACAC',
+    icone: 'Laptop',
+    ativo: true,
+    editavel: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cat-desp-013',
+    nome: 'Despesas com Seguros',
+    tipo: 'despesa',
+    cor: '#D77E7E',
+    icone: 'Shield',
+    ativo: true,
+    editavel: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cat-desp-014',
+    nome: 'Despesas não Operacionais',
+    tipo: 'despesa',
+    cor: '#EFB4B4',
+    icone: 'AlertCircle',
+    ativo: true,
+    editavel: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cat-desp-015',
+    nome: 'Outras Despesas',
+    tipo: 'despesa',
+    cor: '#F2BCBC',
+    icone: 'MoreHorizontal',
+    ativo: true,
+    editavel: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  }
 ];
 
 const STORAGE_KEY = 'sugarbox_categorias_financeiras';
