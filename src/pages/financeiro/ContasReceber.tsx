@@ -25,6 +25,7 @@ import {
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { toast } from "sonner";
 import { ContaReceberFormDialog } from "@/components/ContaReceberFormDialog";
+import { RegistrarRecebimentoDialog } from "@/components/RegistrarRecebimentoDialog";
 
 interface ContaReceber {
   id: string;
@@ -60,6 +61,8 @@ export default function ContasReceber() {
   const [selectedContas, setSelectedContas] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingConta, setEditingConta] = useState<ContaReceber | null>(null);
+  const [isRecebimentoDialogOpen, setIsRecebimentoDialogOpen] = useState(false);
+  const [contaParaReceber, setContaParaReceber] = useState<ContaReceber | null>(null);
 
   // Calcular status automaticamente
   useEffect(() => {
@@ -386,7 +389,10 @@ export default function ContasReceber() {
                           <DropdownMenuContent align="end" className="bg-background">
                             {conta.status === 'pendente' && (
                               <>
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => {
+                                  setContaParaReceber(conta);
+                                  setIsRecebimentoDialogOpen(true);
+                                }}>
                                   <CheckCircle className="h-4 w-4 mr-2" />
                                   Registrar Recebimento
                                 </DropdownMenuItem>
@@ -429,6 +435,16 @@ export default function ContasReceber() {
         conta={editingConta}
         onSave={() => {
           setEditingConta(null);
+        }}
+      />
+
+      {/* Registrar Recebimento */}
+      <RegistrarRecebimentoDialog
+        open={isRecebimentoDialogOpen}
+        onOpenChange={setIsRecebimentoDialogOpen}
+        conta={contaParaReceber}
+        onSave={() => {
+          setContaParaReceber(null);
         }}
       />
     </div>
