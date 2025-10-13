@@ -230,22 +230,115 @@ export default function CategoriasPlanoContas() {
     return labels[indicador as keyof typeof labels] || indicador;
   };
 
+  // Estatísticas
+  const stats = useMemo(() => {
+    const receitas = categorias.filter(c => c.indicador === 'receita').length;
+    const despesas = categorias.filter(c => c.indicador === 'despesa').length;
+    return {
+      receitas,
+      despesas,
+      total: categorias.length
+    };
+  }, [categorias]);
+
+  // Filtros e busca
+  const filteredCategorias = useMemo(() => {
+    return categorias.filter(cat => {
+      const matchSearch = searchTerm === "" || 
+        cat.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cat.descricao.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchFilter = filterIndicador === "todos" || 
+        (filterIndicador === "ativo" && cat.ativo) ||
+        (filterIndicador === "inativo" && !cat.ativo) ||
+        cat.indicador === filterIndicador;
+      
+      return matchSearch && matchFilter;
+    });
+  }, [categorias, searchTerm, filterIndicador]);
+
+  // Função para verificar se categoria tem filhos
+  const hasChildren = (categoriaId: string) => {
+    return categorias.some(c => c.categoriaPai === categoriaId);
+  };
+
+  // Função para toggle de expansão
+  const toggleExpand = (categoriaId: string) => {
+    const newExpanded = new Set(expandedCategories);
+    if (newExpanded.has(categoriaId)) {
+      newExpanded.delete(categoriaId);
+    } else {
+      newExpanded.add(categoriaId);
+    }
+    setExpandedCategories(newExpanded);
+  };
+
+  // Expandir/recolher todas
+  const handleExpandAll = () => {
+    if (expandAll) {
+      setExpandedCategories(new Set());
+    } else {
+      const allIds = new Set(categorias.filter(c => hasChildren(c.id)).map(c => c.id));
+      setExpandedCategories(allIds);
+    }
+    setExpandAll(!expandAll);
+  };
+
+  // Filtrar categorias visíveis na hierarquia
+  const visibleCategorias = useMemo(() => {
+    const visible: CategoriaPlano[] = [];
+    
+    const addCategoryAndChildren = (cat: CategoriaPlano) => {
+      visible.push(cat);
+      
+      if (expandedCategories.has(cat.id) || expandAll) {
+        const children = filteredCategorias.filter(c => c.categoriaPai === cat.id);
+        children.forEach(child => addCategoryAndChildren(child));
+      }
+    };
+    
+    // Adiciona categorias de nível 1 primeiro
+    filteredCategorias
+      .filter(c => c.nivel === 1)
+      .forEach(cat => addCategoryAndChildren(cat));
+    
+    return visible;
+  }, [filteredCategorias, expandedCategories, expandAll]);
+
+  // Badge de indicador com cores específicas
+  const getIndicadorBadge = (indicador: string) => {
+    const styles = {
+      receita: "bg-[#E8F5E9] text-[#388E3C] border-[#8BA888]",
+      despesa: "bg-[#FFEBEE] text-[#C62828] border-[#D88B8B]",
+      ativo: "bg-[#E3F2FD] text-[#1976D2] border-[#7BA8D8]",
+      passivo: "bg-[#FFF3E0] text-[#E65100] border-[#E5C89F]"
+    };
+    return styles[indicador as keyof typeof styles] || "";
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mb-6">
         <BackButton to="/financeiro/configuracoes" />
       </div>
       
-      <PageHeader
-        title="Categorias Planos de Contas"
-        description="Gerencie as categorias para organizar seu plano de contas"
-        actions={
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-[#6B5047] mb-2">Categorias de Planos de Contas</h1>
+            <p className="text-base text-[#9C8B82]">Estrutura contábil para organização financeira</p>
+          </div>
           <Dialog open={dialogOpen} onOpenChange={(open) => {
             setDialogOpen(open);
             if (!open) resetForm();
           }}>
             <DialogTrigger asChild>
-              <Button>
+              <Button className="bg-[#D89B8C] hover:bg-[#B87C6D] text-white">
+                <Plus className="mr-2 h-4 w-4" />
+                Nova Categoria
+              </Button>
+            </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
