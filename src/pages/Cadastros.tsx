@@ -1,7 +1,7 @@
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Users, Truck, Ruler, Boxes, Package, UserCircle, DollarSign, Tag } from "lucide-react";
+import { Ruler, Boxes, Package, UserCircle, DollarSign, Tag } from "lucide-react";
 
 const cadastros = [
   {
@@ -24,20 +24,6 @@ const cadastros = [
     icon: Tag,
     url: "/cadastros/categorias",
     color: "text-cyan-600 bg-cyan-50 dark:bg-cyan-950",
-  },
-  {
-    title: "Clientes",
-    description: "Cadastro de clientes",
-    icon: Users,
-    url: "/cadastros/clientes",
-    color: "text-blue-600 bg-blue-50 dark:bg-blue-950",
-  },
-  {
-    title: "Fornecedores",
-    description: "Cadastro de fornecedores",
-    icon: Truck,
-    url: "/cadastros/fornecedores",
-    color: "text-green-600 bg-green-50 dark:bg-green-950",
   },
   {
     title: "Unidades de Medidas",

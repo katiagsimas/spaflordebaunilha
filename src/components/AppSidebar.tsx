@@ -1,4 +1,4 @@
-import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle } from "lucide-react";
 import sugarboxSidebar from "@/assets/sugarbox-sidebar.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
@@ -24,6 +24,7 @@ const menuItems = [
   { title: "Produção", url: "/producao", icon: CalendarClock, active: true },
   { title: "FT - Fichas Técnicas", url: "/receitas", icon: CookingPot, active: true },
   { title: "Pré-Preparo", url: "/sub-receitas", icon: ChefHat, active: true },
+  { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: UserCircle, active: true },
   { title: "Cadastros", url: "/cadastros", icon: Users, active: true },
   { title: "Financeiro", url: "/financeiro", icon: DollarSign, active: false },
   { title: "Relatórios", url: "/relatorios", icon: TrendingUp, active: false },
