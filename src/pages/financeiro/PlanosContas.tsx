@@ -300,74 +300,12 @@ const planosContasPreConfigurados: PlanoConta[] = [
     createdAt: '2025-01-01T00:00:00Z',
     updatedAt: '2025-01-01T00:00:00Z'
   },
-  // DESPESAS COM VENDAS
-  {
-    id: 'pc-desp-009',
-    nome: 'Comissões de Vendas',
-    descricao: 'Comissões de vendedores',
-    categoriaId: 'cat-desp-006', // Despesas com Vendas
-    tipo: 'despesa',
-    ativo: true,
-    createdAt: '2025-01-01T00:00:00Z',
-    updatedAt: '2025-01-01T00:00:00Z'
-  },
-  {
-    id: 'pc-desp-010',
-    nome: 'Marketing e Publicidade',
-    descricao: 'Anúncios, redes sociais, etc',
-    categoriaId: 'cat-desp-005', // Despesas com Marketing
-    tipo: 'despesa',
-    ativo: true,
-    createdAt: '2025-01-01T00:00:00Z',
-    updatedAt: '2025-01-01T00:00:00Z'
-  },
-  {
-    id: 'pc-desp-011',
-    nome: 'Taxas de Delivery',
-    descricao: 'Taxas de iFood, Rappi, Uber Eats, etc',
-    categoriaId: 'cat-desp-006', // Despesas com Vendas
-    tipo: 'despesa',
-    ativo: true,
-    createdAt: '2025-01-01T00:00:00Z',
-    updatedAt: '2025-01-01T00:00:00Z'
-  },
-  // DESPESAS ADMINISTRATIVAS
-  {
-    id: 'pc-desp-012',
-    nome: 'Salários Administrativos',
-    descricao: 'Salários de pessoal administrativo',
-    categoriaId: 'cat-desp-004', // Despesas Administrativas
-    tipo: 'despesa',
-    ativo: true,
-    createdAt: '2025-01-01T00:00:00Z',
-    updatedAt: '2025-01-01T00:00:00Z'
-  },
-  {
-    id: 'pc-desp-013',
-    nome: 'Material de Escritório',
-    descricao: 'Papelaria, impressões, etc',
-    categoriaId: 'cat-desp-004', // Despesas Administrativas
-    tipo: 'despesa',
-    ativo: true,
-    createdAt: '2025-01-01T00:00:00Z',
-    updatedAt: '2025-01-01T00:00:00Z'
-  },
-  {
-    id: 'pc-desp-014',
-    nome: 'Contador',
-    descricao: 'Honorários contábeis',
-    categoriaId: 'cat-desp-004', // Despesas Administrativas
-    tipo: 'despesa',
-    ativo: true,
-    createdAt: '2025-01-01T00:00:00Z',
-    updatedAt: '2025-01-01T00:00:00Z'
-  },
-  // DESPESAS FINANCEIRAS
+  // DESPESAS VARIÁVEIS
   {
     id: 'pc-desp-015',
-    nome: 'Juros Pagos',
-    descricao: 'Juros de empréstimos e financiamentos',
-    categoriaId: 'cat-desp-007', // Despesas Financeiras
+    nome: 'Embalagens',
+    descricao: 'Caixas, sacolas, fitas, tags',
+    categoriaId: 'cat-desp-002', // Despesas Variáveis
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -375,9 +313,9 @@ const planosContasPreConfigurados: PlanoConta[] = [
   },
   {
     id: 'pc-desp-016',
-    nome: 'Tarifas Bancárias',
-    descricao: 'Taxas de manutenção de conta, TED, DOC, etc',
-    categoriaId: 'cat-desp-007', // Despesas Financeiras
+    nome: 'Material de Limpeza',
+    descricao: 'Produtos de limpeza e higiene',
+    categoriaId: 'cat-desp-002',
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
@@ -385,9 +323,346 @@ const planosContasPreConfigurados: PlanoConta[] = [
   },
   {
     id: 'pc-desp-017',
-    nome: 'Taxas de Cartão',
-    descricao: 'Taxas de máquina de cartão',
+    nome: 'Material de Escritório',
+    descricao: 'Papelaria em geral',
+    categoriaId: 'cat-desp-002',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-018',
+    nome: 'Descartáveis',
+    descricao: 'Copos, pratos, talheres descartáveis',
+    categoriaId: 'cat-desp-002',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  // DESPESAS COM PESSOAL
+  {
+    id: 'pc-desp-019',
+    nome: 'Salários',
+    descricao: 'Folha de pagamento',
+    categoriaId: 'cat-desp-003', // Despesas com Pessoal
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-020',
+    nome: 'Pró-labore',
+    descricao: 'Retirada dos sócios',
+    categoriaId: 'cat-desp-003',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-021',
+    nome: 'Encargos Sociais',
+    descricao: 'INSS, FGTS, férias, 13º',
+    categoriaId: 'cat-desp-003',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-022',
+    nome: 'Vale Transporte',
+    descricao: 'Auxílio transporte funcionários',
+    categoriaId: 'cat-desp-003',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-023',
+    nome: 'Vale Alimentação',
+    descricao: 'Auxílio alimentação funcionários',
+    categoriaId: 'cat-desp-003',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-024',
+    nome: 'Uniformes',
+    descricao: 'Uniformes para equipe',
+    categoriaId: 'cat-desp-003',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  // DESPESAS ADMINISTRATIVAS
+  {
+    id: 'pc-desp-025',
+    nome: 'Assessoria Jurídica',
+    descricao: 'Honorários advocatícios',
+    categoriaId: 'cat-desp-004', // Despesas Administrativas
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-026',
+    nome: 'Serviços de Terceiros',
+    descricao: 'Prestadores de serviço diversos',
+    categoriaId: 'cat-desp-004',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-027',
+    nome: 'Cartório',
+    descricao: 'Taxas e serviços cartoriais',
+    categoriaId: 'cat-desp-004',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  // DESPESAS COM MARKETING
+  {
+    id: 'pc-desp-028',
+    nome: 'Anúncios Facebook/Instagram',
+    descricao: 'Investimento em ads nas redes sociais',
+    categoriaId: 'cat-desp-005', // Despesas com Marketing
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-029',
+    nome: 'Google Ads',
+    descricao: 'Anúncios no Google',
+    categoriaId: 'cat-desp-005',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-030',
+    nome: 'Material Gráfico',
+    descricao: 'Cartões de visita, flyers, banners',
+    categoriaId: 'cat-desp-005',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-031',
+    nome: 'Fotografia',
+    descricao: 'Fotos profissionais de produtos',
+    categoriaId: 'cat-desp-005',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-032',
+    nome: 'Mídias Sociais',
+    descricao: 'Gestão de redes sociais',
+    categoriaId: 'cat-desp-005',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-033',
+    nome: 'Eventos e Feiras',
+    descricao: 'Participação em eventos',
+    categoriaId: 'cat-desp-005',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  // DESPESAS COM VENDAS
+  {
+    id: 'pc-desp-034',
+    nome: 'Taxa iFood',
+    descricao: 'Comissão plataforma iFood',
+    categoriaId: 'cat-desp-006', // Despesas com Vendas
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-035',
+    nome: 'Taxa Rappi',
+    descricao: 'Comissão plataforma Rappi',
+    categoriaId: 'cat-desp-006',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-036',
+    nome: 'Frete e Entregas',
+    descricao: 'Custos com entregas',
+    categoriaId: 'cat-desp-006',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-037',
+    nome: 'Comissões',
+    descricao: 'Comissões de vendedores/representantes',
+    categoriaId: 'cat-desp-006',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-038',
+    nome: 'Amostras Grátis',
+    descricao: 'Degustações e amostras promocionais',
+    categoriaId: 'cat-desp-006',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  // DESPESAS FINANCEIRAS
+  {
+    id: 'pc-desp-039',
+    nome: 'Juros de Empréstimos',
+    descricao: 'Juros de financiamentos',
     categoriaId: 'cat-desp-007', // Despesas Financeiras
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-040',
+    nome: 'Tarifas Bancárias',
+    descricao: 'Taxas de manutenção de conta',
+    categoriaId: 'cat-desp-007',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-041',
+    nome: 'Taxa Maquininha',
+    descricao: 'Taxas de cartão de crédito/débito',
+    categoriaId: 'cat-desp-007',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-042',
+    nome: 'IOF',
+    descricao: 'Imposto sobre operações financeiras',
+    categoriaId: 'cat-desp-007',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-043',
+    nome: 'Multas e Juros',
+    descricao: 'Multas por atraso de pagamentos',
+    categoriaId: 'cat-desp-007',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  // CUSTOS DE PRODUÇÃO
+  {
+    id: 'pc-desp-044',
+    nome: 'Ingredientes',
+    descricao: 'Matérias-primas (farinha, açúcar, ovos, etc)',
+    categoriaId: 'cat-desp-008', // Custos de Produção
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-045',
+    nome: 'Recheios e Coberturas',
+    descricao: 'Chocolates, doces de leite, geleias',
+    categoriaId: 'cat-desp-008',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-046',
+    nome: 'Confeitos e Decorações',
+    descricao: 'Sprinkles, pérolas, corantes, essências',
+    categoriaId: 'cat-desp-008',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-047',
+    nome: 'Utensílios de Produção',
+    descricao: 'Formas, saco de confeitar, espátulas',
+    categoriaId: 'cat-desp-008',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  // DESPESAS COM IMPOSTOS
+  {
+    id: 'pc-desp-048',
+    nome: 'MEI',
+    descricao: 'DAS Microempreendedor Individual',
+    categoriaId: 'cat-desp-009', // Despesas com Impostos
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-049',
+    nome: 'Simples Nacional',
+    descricao: 'DAS Simples Nacional',
+    categoriaId: 'cat-desp-009',
+    tipo: 'despesa',
+    ativo: true,
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'pc-desp-050',
+    nome: 'IRPJ',
+    descricao: 'Imposto de renda pessoa jurídica',
+    categoriaId: 'cat-desp-009',
     tipo: 'despesa',
     ativo: true,
     createdAt: '2025-01-01T00:00:00Z',
