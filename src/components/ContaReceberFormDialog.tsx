@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Calendar, DollarSign, FileText, User, CreditCard, Repeat, Package } from "lucide-react";
+import { Calendar, DollarSign, FileText, User, CreditCard, Repeat, Package, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
+import { Link } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -318,17 +319,38 @@ export function ContaReceberFormDialog({
 
             {/* Categoria e Plano de Contas */}
             <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
-              <h3 className="font-semibold text-[#6B5047] flex items-center gap-2 pb-2 border-b border-[#E8E3DF]">
-                <Package className="h-5 w-5 text-[#D89B8C]" />
-                Categoria e Plano de Contas
-              </h3>
+              <div className="flex items-center justify-between pb-2 border-b border-[#E8E3DF]">
+                <h3 className="font-semibold text-[#6B5047] flex items-center gap-2">
+                  <Package className="h-5 w-5 text-[#D89B8C]" />
+                  Categoria e Plano de Contas
+                </h3>
+                <Link 
+                  to="/financeiro/categorias-financeiras"
+                  className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1 transition-colors"
+                  target="_blank"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Gerenciar Categorias
+                </Link>
+              </div>
               
               <FormField
                 control={form.control}
                 name="categoriaId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[#6B5047] font-medium">Categoria *</FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel className="text-[#6B5047] font-medium">Categoria *</FormLabel>
+                      {categoriasReceita.length === 0 && (
+                        <Link 
+                          to="/financeiro/categorias-financeiras"
+                          className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1"
+                          target="_blank"
+                        >
+                          + Criar categoria
+                        </Link>
+                      )}
+                    </div>
                     <Select
                       value={field.value}
                       onValueChange={(value) => {
