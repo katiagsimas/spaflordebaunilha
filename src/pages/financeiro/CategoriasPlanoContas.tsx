@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { FolderTree, Plus, Pencil, Trash2, Lock, Search, ChevronRight, ChevronDown, Maximize2, Minimize2 } from "lucide-react";
+import { FolderTree, Plus, Pencil, Trash2, Lock, Search, ChevronRight, ChevronDown, Maximize2, Minimize2, AlertTriangle } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
@@ -89,10 +90,12 @@ export default function CategoriasPlanoContas() {
   const [categorias, setCategorias] = useLocalStorage<CategoriaPlano[]>("sugarbox_categorias_plano", categoriasIniciais);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [desactivateDialogOpen, setDesactivateDialogOpen] = useState(false);
   const [editingCategoria, setEditingCategoria] = useState<CategoriaPlano | null>(null);
   const [categoriaToDelete, setCategoriaToDelete] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterIndicador, setFilterIndicador] = useState<string>("todos");
+  const [filterStatus, setFilterStatus] = useState<string>("ativo");
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [expandAll, setExpandAll] = useState(false);
   
@@ -369,29 +372,80 @@ export default function CategoriasPlanoContas() {
   };
 
   const handleDelete = () => {
-    if (categoriaToDelete) {
-      const categoria = categorias.find(c => c.id === categoriaToDelete);
-      
-      if (categoria && !categoria.editavel) {
-        toast.error("Esta categoria não pode ser excluída!");
-        setDeleteDialogOpen(false);
-        setCategoriaToDelete(null);
-        return;
-      }
-      
-      // Verificar se há categorias filhas
-      const temFilhos = categorias.some(c => c.categoriaPai === categoriaToDelete);
-      if (temFilhos) {
-        toast.error("Não é possível excluir uma categoria que possui subcategorias!");
-        setDeleteDialogOpen(false);
-        setCategoriaToDelete(null);
-        return;
-      }
-      
-      setCategorias(categorias.filter(c => c.id !== categoriaToDelete));
-      toast.success("Categoria excluída com sucesso!");
+    if (!categoriaToDelete) return;
+    
+    const categoria = categorias.find(c => c.id === categoriaToDelete);
+    
+    if (!categoria) {
+      toast.error("Categoria não encontrada!");
       setDeleteDialogOpen(false);
       setCategoriaToDelete(null);
+      return;
+    }
+    
+    if (!categoria.editavel) {
+      toast.error("Esta categoria não pode ser excluída!");
+      setDeleteDialogOpen(false);
+      setCategoriaToDelete(null);
+      return;
+    }
+    
+    // Verificar se há categorias filhas
+    const temFilhos = categorias.some(c => c.categoriaPai === categoriaToDelete);
+    if (temFilhos) {
+      toast.error("Não é possível excluir uma categoria que possui subcategorias. Exclua as subcategorias primeiro.");
+      setDeleteDialogOpen(false);
+      setCategoriaToDelete(null);
+      return;
+    }
+    
+    // Aqui você pode verificar se há lançamentos vinculados
+    // const temLancamentos = verificarLancamentos(categoriaToDelete);
+    // Por enquanto, permite exclusão direta
+    
+    setCategorias(categorias.filter(c => c.id !== categoriaToDelete));
+    toast.success("✓ Categoria excluída com sucesso!");
+    setDeleteDialogOpen(false);
+    setCategoriaToDelete(null);
+  };
+
+  const handleDesactivate = () => {
+    if (!categoriaToDelete) return;
+    
+    setCategorias(categorias.map(c => 
+      c.id === categoriaToDelete 
+        ? { ...c, ativo: false, updatedAt: new Date().toISOString() }
+        : c
+    ));
+    
+    toast.success("✓ Categoria desativada com sucesso!");
+    setDesactivateDialogOpen(false);
+    setCategoriaToDelete(null);
+  };
+
+  const confirmarExclusao = (categoriaId: string) => {
+    const categoria = categorias.find(c => c.id === categoriaId);
+    
+    if (!categoria) return;
+    
+    // Verificar se tem filhos
+    const temFilhos = categorias.some(c => c.categoriaPai === categoriaId);
+    
+    if (temFilhos) {
+      toast.error("Não é possível excluir uma categoria que possui subcategorias. Exclua as subcategorias primeiro.");
+      return;
+    }
+    
+    // Verificar se tem lançamentos (simulado - você pode implementar a verificação real)
+    // const temLancamentos = verificarLancamentos(categoriaId);
+    const temLancamentos = false; // Por enquanto false
+    
+    if (temLancamentos) {
+      setCategoriaToDelete(categoriaId);
+      setDesactivateDialogOpen(true);
+    } else {
+      setCategoriaToDelete(categoriaId);
+      setDeleteDialogOpen(true);
     }
   };
 
@@ -419,18 +473,22 @@ export default function CategoriasPlanoContas() {
   // Filtros e busca
   const filteredCategorias = useMemo(() => {
     return categorias.filter(cat => {
+      // Filtro de busca
       const matchSearch = searchTerm === "" || 
         cat.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
         cat.descricao.toLowerCase().includes(searchTerm.toLowerCase());
       
-      const matchFilter = filterIndicador === "todos" || 
-        (filterIndicador === "ativo" && cat.ativo) ||
-        (filterIndicador === "inativo" && !cat.ativo) ||
-        cat.indicador === filterIndicador;
+      // Filtro por indicador
+      const matchIndicador = filterIndicador === "todos" || cat.indicador === filterIndicador;
       
-      return matchSearch && matchFilter;
+      // Filtro por status
+      const matchStatus = filterStatus === "todos" ||
+        (filterStatus === "ativo" && cat.ativo) ||
+        (filterStatus === "inativo" && !cat.ativo);
+      
+      return matchSearch && matchIndicador && matchStatus;
     });
-  }, [categorias, searchTerm, filterIndicador]);
+  }, [categorias, searchTerm, filterIndicador, filterStatus]);
 
   // Função para verificar se categoria tem filhos
   const hasChildren = (categoriaId: string) => {
@@ -459,26 +517,105 @@ export default function CategoriasPlanoContas() {
     setExpandAll(!expandAll);
   };
 
-  // Filtrar categorias visíveis na hierarquia
-  const visibleCategorias = useMemo(() => {
-    const visible: CategoriaPlano[] = [];
+  // Renderizar categorias hierarquicamente (recursivo)
+  const renderCategoriaRow = (categoria: CategoriaPlano): JSX.Element[] => {
+    const temFilhos = hasChildren(categoria.id);
+    const estaExpandido = expandedCategories.has(categoria.id) || expandAll;
+    const indentacao = (categoria.nivel - 1) * 24;
+    const filhos = filteredCategorias.filter(c => c.categoriaPai === categoria.id);
     
-    const addCategoryAndChildren = (cat: CategoriaPlano) => {
-      visible.push(cat);
-      
-      if (expandedCategories.has(cat.id) || expandAll) {
-        const children = filteredCategorias.filter(c => c.categoriaPai === cat.id);
-        children.forEach(child => addCategoryAndChildren(child));
-      }
-    };
+    const rows: JSX.Element[] = [];
     
-    // Adiciona categorias de nível 1 primeiro
-    filteredCategorias
-      .filter(c => c.nivel === 1)
-      .forEach(cat => addCategoryAndChildren(cat));
+    // Linha principal
+    rows.push(
+      <TableRow 
+        key={categoria.id} 
+        className={`hover:bg-[#FAF7F5] transition ${!categoria.ativo ? 'opacity-50' : ''}`}
+      >
+        <TableCell className="font-mono text-sm text-[#6B5047]">
+          <div className="flex items-center" style={{ paddingLeft: `${indentacao}px` }}>
+            {temFilhos && (
+              <button 
+                onClick={() => toggleExpand(categoria.id)}
+                className="mr-2 text-[#D89B8C] hover:text-[#B87C6D] transition-transform"
+              >
+                {estaExpandido ? 
+                  <ChevronDown className="h-4 w-4" /> :
+                  <ChevronRight className="h-4 w-4" />
+                }
+              </button>
+            )}
+            {!temFilhos && <span className="w-6 inline-block" />}
+            {categoria.codigo}
+          </div>
+        </TableCell>
+        <TableCell>
+          <div className="flex items-center gap-2">
+            <span className={`
+              ${categoria.nivel === 1 ? 'font-bold text-base' : ''}
+              ${categoria.nivel === 2 ? 'font-semibold text-sm' : ''}
+              ${categoria.nivel === 3 ? 'font-normal text-sm' : ''}
+              ${categoria.nivel === 4 ? 'font-normal text-xs' : ''}
+            `}>
+              {categoria.descricao}
+            </span>
+            {!categoria.editavel && (
+              <Lock className="h-3 w-3 text-[#9C8B82]" />
+            )}
+          </div>
+        </TableCell>
+        <TableCell>
+          <Badge 
+            variant="outline" 
+            className={`${getIndicadorBadge(categoria.indicador)} border`}
+          >
+            {getIndicadorLabel(categoria.indicador)}
+          </Badge>
+        </TableCell>
+        <TableCell className="text-xs text-[#9C8B82]">
+          {getFaixaDRELabel(categoria.faixaDRE)}
+        </TableCell>
+        <TableCell className="text-right">
+          {categoria.editavel ? (
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleEdit(categoria)}
+                className="h-8 w-8 hover:bg-[#F5E6E0]"
+              >
+                <Pencil className="h-4 w-4 text-[#D89B8C]" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => confirmarExclusao(categoria.id)}
+                className="h-8 w-8 hover:bg-[#FFEBEE]"
+              >
+                <Trash2 className="h-4 w-4 text-[#D88B8B]" />
+              </Button>
+            </div>
+          ) : (
+            <span className="text-xs text-[#9C8B82]">Sistema</span>
+          )}
+        </TableCell>
+      </TableRow>
+    );
     
-    return visible;
-  }, [filteredCategorias, expandedCategories, expandAll]);
+    // Filhos (recursivamente)
+    if (estaExpandido && temFilhos) {
+      filhos.forEach(filho => {
+        rows.push(...renderCategoriaRow(filho));
+      });
+    }
+    
+    return rows;
+  };
+
+  // Categorias raiz (nível 1) para iniciar a renderização
+  const categoriasRaiz = useMemo(() => {
+    return filteredCategorias.filter(c => c.nivel === 1);
+  }, [filteredCategorias]);
 
   // Badge de indicador com cores específicas
   const getIndicadorBadge = (indicador: string) => {
@@ -762,6 +899,16 @@ export default function CategoriasPlanoContas() {
               <SelectItem value="passivo">Passivos</SelectItem>
             </SelectContent>
           </Select>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="w-full lg:w-[200px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent className="bg-card">
+              <SelectItem value="todos">Todos</SelectItem>
+              <SelectItem value="ativo">Apenas Ativos</SelectItem>
+              <SelectItem value="inativo">Apenas Inativos</SelectItem>
+            </SelectContent>
+          </Select>
           <Button
             variant="outline"
             onClick={handleExpandAll}
@@ -782,7 +929,7 @@ export default function CategoriasPlanoContas() {
         </div>
       </div>
 
-      {visibleCategorias.length === 0 ? (
+      {categoriasRaiz.length === 0 ? (
         <EmptyState
           icon={FolderTree}
           title="Nenhuma categoria encontrada"
@@ -805,171 +952,112 @@ export default function CategoriasPlanoContas() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {visibleCategorias.map((categoria) => {
-                  const temFilhos = hasChildren(categoria.id);
-                  const estaExpandido = expandedCategories.has(categoria.id) || expandAll;
-                  const indentacao = (categoria.nivel - 1) * 24;
-                  
-                  return (
-                    <TableRow 
-                      key={categoria.id} 
-                      className={`hover:bg-[#FAF7F5] ${!categoria.ativo ? 'opacity-50' : ''}`}
-                    >
-                      <TableCell className="font-mono text-sm text-[#6B5047]">
-                        <span style={{ paddingLeft: `${indentacao}px` }}>
-                          {categoria.codigo}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <div 
-                          className="flex items-center gap-2 cursor-pointer"
-                          onClick={() => temFilhos && toggleExpand(categoria.id)}
-                          style={{ paddingLeft: `${indentacao}px` }}
-                        >
-                          {temFilhos && (
-                            estaExpandido ? 
-                              <ChevronDown className="h-4 w-4 text-[#9C8B82] transition-transform" /> :
-                              <ChevronRight className="h-4 w-4 text-[#9C8B82] transition-transform" />
-                          )}
-                          <span className={`
-                            ${categoria.nivel === 1 ? 'font-bold text-base' : ''}
-                            ${categoria.nivel === 2 ? 'font-semibold text-sm' : ''}
-                            ${categoria.nivel === 3 ? 'font-normal text-sm' : ''}
-                            ${categoria.nivel === 4 ? 'font-normal text-xs' : ''}
-                          `}>
-                            {categoria.descricao}
-                          </span>
-                          {!categoria.editavel && (
-                            <Lock className="h-3 w-3 text-[#9C8B82]" />
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant="outline" 
-                          className={`${getIndicadorBadge(categoria.indicador)} border`}
-                        >
-                          {getIndicadorLabel(categoria.indicador)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-xs text-[#9C8B82]">
-                        {getFaixaDRELabel(categoria.faixaDRE)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEdit(categoria)}
-                            disabled={!categoria.editavel}
-                            className="h-8 w-8"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              setCategoriaToDelete(categoria.id);
-                              setDeleteDialogOpen(true);
-                            }}
-                            disabled={!categoria.editavel}
-                            className="h-8 w-8"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                {categoriasRaiz.map(categoria => renderCategoriaRow(categoria))}
               </TableBody>
             </Table>
           </div>
 
           {/* Cards Mobile */}
           <div className="md:hidden space-y-4">
-            {visibleCategorias.map((categoria) => {
-              const temFilhos = hasChildren(categoria.id);
-              const estaExpandido = expandedCategories.has(categoria.id) || expandAll;
-              
-              return (
-                <div key={categoria.id} className="bg-card rounded-xl border shadow-sm p-4">
-                  <div 
-                    className="flex items-start justify-between mb-3 cursor-pointer"
-                    onClick={() => temFilhos && toggleExpand(categoria.id)}
-                  >
-                    <div className="flex items-center gap-2">
-                      {temFilhos && (
-                        estaExpandido ? 
-                          <ChevronDown className="h-4 w-4 text-[#9C8B82]" /> :
-                          <ChevronRight className="h-4 w-4 text-[#9C8B82]" />
-                      )}
-                      <div>
-                        <div className="font-mono text-sm text-[#6B5047] mb-1">
-                          {categoria.codigo}
-                        </div>
-                        <div className={`
-                          ${categoria.nivel === 1 ? 'font-bold' : ''}
-                          ${categoria.nivel === 2 ? 'font-semibold' : ''}
-                        `}>
-                          {categoria.descricao}
+            {categoriasRaiz.map(categoria => {
+              const renderMobileCard = (cat: CategoriaPlano): JSX.Element[] => {
+                const temFilhos = hasChildren(cat.id);
+                const estaExpandido = expandedCategories.has(cat.id) || expandAll;
+                const filhos = filteredCategorias.filter(c => c.categoriaPai === cat.id);
+                const cards: JSX.Element[] = [];
+                
+                cards.push(
+                  <div key={cat.id} className="bg-card rounded-xl border shadow-sm p-4" style={{ marginLeft: `${(cat.nivel - 1) * 16}px` }}>
+                    <div 
+                      className="flex items-start justify-between mb-3 cursor-pointer"
+                      onClick={() => temFilhos && toggleExpand(cat.id)}
+                    >
+                      <div className="flex items-center gap-2 flex-1">
+                        {temFilhos && (
+                          estaExpandido ? 
+                            <ChevronDown className="h-4 w-4 text-[#9C8B82]" /> :
+                            <ChevronRight className="h-4 w-4 text-[#9C8B82]" />
+                        )}
+                        <div>
+                          <div className="font-mono text-sm text-[#6B5047] mb-1">
+                            {cat.codigo}
+                          </div>
+                          <div className={`
+                            ${cat.nivel === 1 ? 'font-bold' : ''}
+                            ${cat.nivel === 2 ? 'font-semibold' : ''}
+                          `}>
+                            {cat.descricao}
+                          </div>
                         </div>
                       </div>
+                      {!cat.editavel && (
+                        <Lock className="h-4 w-4 text-[#9C8B82]" />
+                      )}
                     </div>
-                    {!categoria.editavel && (
-                      <Lock className="h-4 w-4 text-[#9C8B82]" />
+                    
+                    <div className="space-y-2 mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-[#9C8B82]">Indicador:</span>
+                        <Badge 
+                          variant="outline" 
+                          className={`${getIndicadorBadge(cat.indicador)} border text-xs`}
+                        >
+                          {getIndicadorLabel(cat.indicador)}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-[#9C8B82]">DRE:</span>
+                        <span className="text-xs">{getFaixaDRELabel(cat.faixaDRE)}</span>
+                      </div>
+                      {!cat.ativo && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-red-600">Status: Inativo</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {cat.editavel && (
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(cat)}
+                          className="flex-1"
+                        >
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Editar
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => confirmarExclusao(cat.id)}
+                          className="flex-1"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Excluir
+                        </Button>
+                      </div>
                     )}
                   </div>
-                  
-                  <div className="space-y-2 mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-[#9C8B82]">Indicador:</span>
-                      <Badge 
-                        variant="outline" 
-                        className={`${getIndicadorBadge(categoria.indicador)} border text-xs`}
-                      >
-                        {getIndicadorLabel(categoria.indicador)}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-[#9C8B82]">DRE:</span>
-                      <span className="text-xs">{getFaixaDRELabel(categoria.faixaDRE)}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(categoria)}
-                      disabled={!categoria.editavel}
-                      className="flex-1"
-                    >
-                      <Pencil className="mr-2 h-4 w-4" />
-                      Editar
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setCategoriaToDelete(categoria.id);
-                        setDeleteDialogOpen(true);
-                      }}
-                      disabled={!categoria.editavel}
-                      className="flex-1"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Excluir
-                    </Button>
-                  </div>
-                </div>
-              );
+                );
+                
+                // Renderizar filhos recursivamente
+                if (estaExpandido && temFilhos) {
+                  filhos.forEach(filho => {
+                    cards.push(...renderMobileCard(filho));
+                  });
+                }
+                
+                return cards;
+              };
+              
+              return renderMobileCard(categoria);
             })}
           </div>
         </>
       )}
 
+      {/* Dialog de Confirmação de Exclusão */}
       <ConfirmDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
@@ -977,6 +1065,44 @@ export default function CategoriasPlanoContas() {
         title="Excluir Categoria"
         description="Tem certeza que deseja excluir esta categoria? Esta ação não pode ser desfeita."
       />
+
+      {/* Dialog de Confirmação de Desativação */}
+      <AlertDialog open={desactivateDialogOpen} onOpenChange={setDesactivateDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              Categoria em Uso
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-3 pt-2">
+              <p>Esta categoria possui lançamentos financeiros vinculados.</p>
+              <p className="font-semibold">Você pode:</p>
+              <ol className="list-decimal list-inside space-y-1 ml-2">
+                <li>Desativar a categoria (recomendado)</li>
+                <li>Reclassificar os lançamentos para outra categoria e depois excluir</li>
+              </ol>
+              <p className="text-sm text-muted-foreground mt-4">
+                Deseja desativar esta categoria? Ela não aparecerá em novos lançamentos, 
+                mas os lançamentos antigos permanecerão vinculados.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setDesactivateDialogOpen(false);
+              setCategoriaToDelete(null);
+            }}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDesactivate}
+              className="bg-amber-500 hover:bg-amber-600"
+            >
+              Desativar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
