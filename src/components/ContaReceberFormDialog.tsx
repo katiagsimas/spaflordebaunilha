@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Calendar, DollarSign } from "lucide-react";
+import { Calendar, DollarSign, FileText, User, CreditCard, Repeat, Package } from "lucide-react";
 import { format } from "date-fns";
 import {
   Dialog,
@@ -278,45 +278,57 @@ export function ContaReceberFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{conta ? "Editar Conta a Receber" : "Nova Conta a Receber"}</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-background to-[#FAF7F5]">
+        <DialogHeader className="border-b border-[#E8E3DF] pb-4">
+          <DialogTitle className="text-2xl font-bold text-[#6B5047] flex items-center gap-2">
+            <FileText className="h-6 w-6 text-[#D89B8C]" />
+            {conta ? "Editar Conta a Receber" : "Nova Conta a Receber"}
+          </DialogTitle>
+          <DialogDescription className="text-[#9C8B82]">
             Preencha os dados da conta a receber
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-4">\
             {/* Descrição */}
-            <FormField
-              control={form.control}
-              name="descricao"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descrição *</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Ex: Venda de bolo para Maria Silva, Encomenda Casamento"
-                      {...field}
-                      maxLength={200}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="bg-white rounded-lg p-4 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow">
+              <FormField
+                control={form.control}
+                name="descricao"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[#6B5047] font-semibold flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-[#D89B8C]" />
+                      Descrição *
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Ex: Venda de bolo para Maria Silva, Encomenda Casamento"
+                        {...field}
+                        maxLength={200}
+                        className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {/* Categoria e Plano de Contas */}
-            <div className="border border-[#E8E3DF] rounded-lg p-4 space-y-4">
-              <h3 className="font-semibold text-[#6B5047]">Categoria e Plano de Contas</h3>
+            <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
+              <h3 className="font-semibold text-[#6B5047] flex items-center gap-2 pb-2 border-b border-[#E8E3DF]">
+                <Package className="h-5 w-5 text-[#D89B8C]" />
+                Categoria e Plano de Contas
+              </h3>
               
               <FormField
                 control={form.control}
                 name="categoriaId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Categoria *</FormLabel>
+                    <FormLabel className="text-[#6B5047] font-medium">Categoria *</FormLabel>
                     <Select
                       value={field.value}
                       onValueChange={(value) => {
@@ -326,7 +338,7 @@ export function ContaReceberFormDialog({
                       }}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]">
                           <SelectValue placeholder="Selecione a categoria..." />
                         </SelectTrigger>
                       </FormControl>
@@ -349,14 +361,14 @@ export function ContaReceberFormDialog({
                 name="planoContaId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Plano de Contas *</FormLabel>
+                    <FormLabel className="text-[#6B5047] font-medium">Plano de Contas *</FormLabel>
                     <Select
                       value={field.value}
                       onValueChange={field.onChange}
                       disabled={!selectedCategoriaId}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]">
                           <SelectValue placeholder={selectedCategoriaId ? "Selecione o plano..." : "Primeiro selecione uma categoria"} />
                         </SelectTrigger>
                       </FormControl>
@@ -375,13 +387,16 @@ export function ContaReceberFormDialog({
             </div>
 
             {/* Valor */}
-            <div className="border border-[#E8E3DF] rounded-lg p-4">
+            <div className="bg-gradient-to-r from-[#8BA888]/10 to-transparent rounded-lg p-5 border border-[#8BA888]/20 shadow-sm">
               <FormField
                 control={form.control}
                 name="valor"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Valor *</FormLabel>
+                    <FormLabel className="text-[#6B5047] font-semibold flex items-center gap-2">
+                      <DollarSign className="h-4 w-4 text-[#8BA888]" />
+                      Valor *
+                    </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9C8B82]" />
@@ -390,7 +405,7 @@ export function ContaReceberFormDialog({
                           placeholder="0,00"
                           value={valorInput}
                           onChange={(e) => handleValorChange(e.target.value)}
-                          className="pl-10"
+                          className="pl-10 text-lg font-semibold border-[#E8E3DF] focus:border-[#8BA888] focus:ring-[#8BA888]"
                         />
                       </div>
                     </FormControl>
@@ -401,25 +416,28 @@ export function ContaReceberFormDialog({
             </div>
 
             {/* Datas */}
-            <div className="border border-[#E8E3DF] rounded-lg p-4">
-              <h3 className="font-semibold text-[#6B5047] mb-4">Datas</h3>
+            <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow">
+              <h3 className="font-semibold text-[#6B5047] flex items-center gap-2 mb-4 pb-2 border-b border-[#E8E3DF]">
+                <Calendar className="h-5 w-5 text-[#D89B8C]" />
+                Datas
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="dataEmissao"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Data de Emissão *</FormLabel>
+                      <FormLabel className="text-[#6B5047] font-medium">Data de Emissão *</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
-                              variant={"outline"}
-                              className={cn(
-                                "pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
+                            variant={"outline"}
+                            className={cn(
+                              "pl-3 text-left font-normal border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
                               {field.value ? (
                                 format(field.value, "dd/MM/yyyy")
                               ) : (
@@ -450,17 +468,17 @@ export function ContaReceberFormDialog({
                   name="dataVencimento"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Data de Vencimento *</FormLabel>
+                      <FormLabel className="text-[#6B5047] font-medium">Data de Vencimento *</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
-                              variant={"outline"}
-                              className={cn(
-                                "pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
+                            variant={"outline"}
+                            className={cn(
+                              "pl-3 text-left font-normal border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
                               {field.value ? (
                                 format(field.value, "dd/MM/yyyy")
                               ) : (
@@ -488,17 +506,20 @@ export function ContaReceberFormDialog({
             </div>
 
             {/* Cliente */}
-            <div className="border border-[#E8E3DF] rounded-lg p-4 space-y-4">
-              <h3 className="font-semibold text-[#6B5047]">Cliente (opcional)</h3>
+            <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
+              <h3 className="font-semibold text-[#6B5047] flex items-center gap-2 pb-2 border-b border-[#E8E3DF]">
+                <User className="h-5 w-5 text-[#D89B8C]" />
+                Cliente (opcional)
+              </h3>
               
               <FormField
                 control={form.control}
                 name="clienteNome"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome do Cliente</FormLabel>
+                    <FormLabel className="text-[#6B5047] font-medium">Nome do Cliente</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nome completo" {...field} maxLength={100} />
+                      <Input placeholder="Nome completo" {...field} maxLength={100} className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -510,12 +531,13 @@ export function ContaReceberFormDialog({
                 name="clienteDocumento"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>CPF/CNPJ</FormLabel>
+                    <FormLabel className="text-[#6B5047] font-medium">CPF/CNPJ</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="000.000.000-00 ou 00.000.000/0000-00"
                         value={field.value ? formatCpfCnpj(field.value) : ''}
                         onChange={(e) => field.onChange(e.target.value)}
+                        className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]"
                       />
                     </FormControl>
                     <FormMessage />
@@ -525,18 +547,21 @@ export function ContaReceberFormDialog({
             </div>
 
             {/* Documento */}
-            <div className="border border-[#E8E3DF] rounded-lg p-4 space-y-4">
-              <h3 className="font-semibold text-[#6B5047]">Documento (opcional)</h3>
+            <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
+              <h3 className="font-semibold text-[#6B5047] flex items-center gap-2 pb-2 border-b border-[#E8E3DF]">
+                <CreditCard className="h-5 w-5 text-[#D89B8C]" />
+                Documento (opcional)
+              </h3>
               
               <FormField
                 control={form.control}
                 name="tipoDocumentoId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tipo de Documento</FormLabel>
+                    <FormLabel className="text-[#6B5047] font-medium">Tipo de Documento</FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]">
                           <SelectValue placeholder="Selecione..." />
                         </SelectTrigger>
                       </FormControl>
@@ -558,9 +583,9 @@ export function ContaReceberFormDialog({
                 name="numeroDocumento"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Número do Documento</FormLabel>
+                    <FormLabel className="text-[#6B5047] font-medium">Número do Documento</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: NF-001234" {...field} maxLength={50} />
+                      <Input placeholder="Ex: NF-001234" {...field} maxLength={50} className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -569,27 +594,34 @@ export function ContaReceberFormDialog({
             </div>
 
             {/* Observações */}
-            <FormField
-              control={form.control}
-              name="observacoes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Observações</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Informações adicionais..."
-                      rows={3}
-                      maxLength={500}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="bg-white rounded-lg p-4 border border-[#E8E3DF] shadow-sm">
+              <FormField
+                control={form.control}
+                name="observacoes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[#6B5047] font-medium">Observações</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Informações adicionais..."
+                        rows={3}
+                        maxLength={500}
+                        {...field}
+                        className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C] resize-none"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-            {/* Opções */}
-            <div className="space-y-3">
+            {/* Opções Avançadas */}
+            <div className="bg-gradient-to-r from-[#7BA8D8]/10 to-transparent rounded-lg p-4 border border-[#7BA8D8]/20 space-y-3">
+              <h3 className="font-semibold text-[#6B5047] flex items-center gap-2 text-sm">
+                <Repeat className="h-4 w-4 text-[#7BA8D8]" />
+                Opções Avançadas
+              </h3>
               <FormField
                 control={form.control}
                 name="parcelado"
@@ -627,11 +659,19 @@ export function ContaReceberFormDialog({
               />
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <DialogFooter className="bg-gradient-to-r from-[#FAF7F5] to-transparent pt-6 border-t border-[#E8E3DF]">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => onOpenChange(false)}
+                className="border-[#E8E3DF] hover:bg-[#FAF7F5]"
+              >
                 Cancelar
               </Button>
-              <Button type="submit" className="bg-[#D89B8C] hover:bg-[#B87C6D]">
+              <Button 
+                type="submit" 
+                className="bg-[#D89B8C] hover:bg-[#B87C6D] shadow-md hover:shadow-lg transition-all"
+              >
                 Salvar
               </Button>
             </DialogFooter>
