@@ -5,23 +5,35 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { Plus, Pencil, Trash2, Users, ArrowLeft } from "lucide-react";
+import { useViaCEP } from "@/hooks/useViaCEP";
+import { Plus, Pencil, Trash2, Users, ArrowLeft, Search, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
 interface Cliente {
   id: string;
   nome: string;
-  telefone: string;
-  endereco: string;
-  cpf: string;
+  tipo: "PF" | "PJ";
   aniversario: string;
+  telefone: string;
+  cep: string;
+  endereco: string;
+  numero: string;
+  complemento: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+  cpf: string;
   instagram: string;
+  observacoes: string;
 }
 
 export default function Clientes() {
@@ -30,14 +42,24 @@ export default function Clientes() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [observacoesOpen, setObservacoesOpen] = useState(false);
+  const { buscarCEP, loading } = useViaCEP();
 
   const [formData, setFormData] = useState({
     nome: "",
-    telefone: "",
-    endereco: "",
-    cpf: "",
+    tipo: "PF" as "PF" | "PJ",
     aniversario: "",
+    telefone: "",
+    cep: "",
+    endereco: "",
+    numero: "",
+    complemento: "",
+    bairro: "",
+    cidade: "",
+    estado: "",
+    cpf: "",
     instagram: "",
+    observacoes: "",
   });
 
   useEffect(() => {
@@ -49,6 +71,11 @@ export default function Clientes() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.nome || !formData.telefone) {
+      toast.error("Nome e telefone são obrigatórios!");
+      return;
+    }
 
     if (editingCliente) {
       setClientes(clientes.map(c => c.id === editingCliente.id ? { ...formData, id: c.id } : c));
@@ -68,14 +95,36 @@ export default function Clientes() {
   const resetForm = () => {
     setFormData({
       nome: "",
-      telefone: "",
-      endereco: "",
-      cpf: "",
+      tipo: "PF",
       aniversario: "",
+      telefone: "",
+      cep: "",
+      endereco: "",
+      numero: "",
+      complemento: "",
+      bairro: "",
+      cidade: "",
+      estado: "",
+      cpf: "",
       instagram: "",
+      observacoes: "",
     });
     setEditingCliente(null);
     setIsDialogOpen(false);
+    setObservacoesOpen(false);
+  };
+
+  const handleBuscarCEP = async () => {
+    const endereco = await buscarCEP(formData.cep);
+    if (endereco) {
+      setFormData({
+        ...formData,
+        endereco: endereco.endereco,
+        bairro: endereco.bairro,
+        cidade: endereco.cidade,
+        estado: endereco.estado,
+      });
+    }
   };
 
   const handleDelete = (id: string) => {
@@ -132,29 +181,19 @@ export default function Clientes() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="telefone">Telefone/WhatsApp *</Label>
-                    <Input
-                      id="telefone"
-                      value={formData.telefone}
-                      onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="endereco">Endereço Completo</Label>
-                    <Input
-                      id="endereco"
-                      value={formData.endereco}
-                      onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cpf">CPF</Label>
-                    <Input
-                      id="cpf"
-                      value={formData.cpf}
-                      onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
-                    />
+                    <Label htmlFor="tipo">PF ou PJ</Label>
+                    <Select
+                      value={formData.tipo}
+                      onValueChange={(value: "PF" | "PJ") => setFormData({ ...formData, tipo: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PF">Pessoa Física</SelectItem>
+                        <SelectItem value="PJ">Pessoa Jurídica</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="aniversario">Data de Aniversário</Label>
@@ -163,6 +202,110 @@ export default function Clientes() {
                       type="date"
                       value={formData.aniversario}
                       onChange={(e) => setFormData({ ...formData, aniversario: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="telefone">Telefone/WhatsApp *</Label>
+                    <Input
+                      id="telefone"
+                      value={formData.telefone}
+                      onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
+                      placeholder="(00) 00000-0000"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cep">CEP</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="cep"
+                        value={formData.cep}
+                        onChange={(e) => setFormData({ ...formData, cep: e.target.value })}
+                        placeholder="00000-000"
+                        maxLength={9}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleBuscarCEP}
+                        disabled={loading || !formData.cep}
+                      >
+                        <Search className="h-4 w-4 mr-2" />
+                        {loading ? "Buscando..." : "Buscar"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="endereco">Endereço</Label>
+                    <Input
+                      id="endereco"
+                      value={formData.endereco}
+                      onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
+                      placeholder="Rua, Avenida"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="numero">Número</Label>
+                    <Input
+                      id="numero"
+                      value={formData.numero}
+                      onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
+                      placeholder="Nº"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="complemento">Complemento</Label>
+                    <Input
+                      id="complemento"
+                      value={formData.complemento}
+                      onChange={(e) => setFormData({ ...formData, complemento: e.target.value })}
+                      placeholder="Apto, Bloco, etc"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bairro">Bairro</Label>
+                    <Input
+                      id="bairro"
+                      value={formData.bairro}
+                      onChange={(e) => setFormData({ ...formData, bairro: e.target.value })}
+                      placeholder="Bairro"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cidade">Cidade</Label>
+                    <Input
+                      id="cidade"
+                      value={formData.cidade}
+                      onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
+                      placeholder="Cidade"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="estado">Estado</Label>
+                    <Input
+                      id="estado"
+                      value={formData.estado}
+                      onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
+                      placeholder="UF"
+                      maxLength={2}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cpf">CPF</Label>
+                    <Input
+                      id="cpf"
+                      value={formData.cpf}
+                      onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
+                      placeholder="000.000.000-00"
                     />
                   </div>
                   <div className="space-y-2">
@@ -175,6 +318,24 @@ export default function Clientes() {
                     />
                   </div>
                 </div>
+
+                <Collapsible open={observacoesOpen} onOpenChange={setObservacoesOpen}>
+                  <CollapsibleTrigger asChild>
+                    <Button type="button" variant="outline" className="w-full">
+                      <ChevronDown className="h-4 w-4 mr-2" />
+                      Observações
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-2">
+                    <Textarea
+                      id="observacoes"
+                      value={formData.observacoes}
+                      onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+                      placeholder="Digite aqui observações sobre o cliente..."
+                      rows={4}
+                    />
+                  </CollapsibleContent>
+                </Collapsible>
                 <div className="flex gap-2 justify-end">
                   <Button type="button" variant="outline" onClick={resetForm}>
                     Cancelar
@@ -200,10 +361,9 @@ export default function Clientes() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nome</TableHead>
+                    <TableHead>Tipo</TableHead>
                     <TableHead>Telefone</TableHead>
-                    <TableHead>Endereço</TableHead>
                     <TableHead>CPF</TableHead>
-                    <TableHead>Aniversário</TableHead>
                     <TableHead>Instagram</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
@@ -212,13 +372,10 @@ export default function Clientes() {
                   {clientes.map((cliente) => (
                     <TableRow key={cliente.id}>
                       <TableCell className="font-medium">{cliente.nome}</TableCell>
+                      <TableCell>{cliente.tipo}</TableCell>
                       <TableCell>{cliente.telefone}</TableCell>
-                      <TableCell>{cliente.endereco}</TableCell>
-                      <TableCell>{cliente.cpf}</TableCell>
-                      <TableCell>
-                        {cliente.aniversario ? format(new Date(cliente.aniversario + 'T00:00:00'), 'dd/MM/yyyy') : '-'}
-                      </TableCell>
-                      <TableCell>{cliente.instagram}</TableCell>
+                      <TableCell>{cliente.cpf || "-"}</TableCell>
+                      <TableCell>{cliente.instagram || "-"}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex gap-2 justify-end">
                           <Button

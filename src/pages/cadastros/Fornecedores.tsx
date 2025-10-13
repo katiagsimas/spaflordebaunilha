@@ -5,20 +5,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { Plus, Pencil, Trash2, Truck, ArrowLeft } from "lucide-react";
+import { Plus, Pencil, Trash2, Truck, ArrowLeft, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 
 interface Fornecedor {
   id: string;
   nome: string;
-  telefone: string;
+  tipo: "PF" | "PJ";
   cpfCnpj: string;
-  endereco: string;
+  telefone: string;
+  email: string;
+  contato: string;
+  observacoes: string;
 }
 
 export default function Fornecedores() {
@@ -27,12 +33,16 @@ export default function Fornecedores() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingFornecedor, setEditingFornecedor] = useState<Fornecedor | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [observacoesOpen, setObservacoesOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     nome: "",
-    telefone: "",
+    tipo: "PF" as "PF" | "PJ",
     cpfCnpj: "",
-    endereco: "",
+    telefone: "",
+    email: "",
+    contato: "",
+    observacoes: "",
   });
 
   useEffect(() => {
@@ -63,12 +73,16 @@ export default function Fornecedores() {
   const resetForm = () => {
     setFormData({
       nome: "",
-      telefone: "",
+      tipo: "PF",
       cpfCnpj: "",
-      endereco: "",
+      telefone: "",
+      email: "",
+      contato: "",
+      observacoes: "",
     });
     setEditingFornecedor(null);
     setIsDialogOpen(false);
+    setObservacoesOpen(false);
   };
 
   const handleDelete = (id: string) => {
@@ -109,7 +123,7 @@ export default function Fornecedores() {
                 Novo Fornecedor
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingFornecedor ? "Editar Fornecedor" : "Novo Fornecedor"}</DialogTitle>
               </DialogHeader>
@@ -125,31 +139,77 @@ export default function Fornecedores() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="telefone">Telefone *</Label>
-                    <Input
-                      id="telefone"
-                      value={formData.telefone}
-                      onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
-                      required
-                    />
+                    <Label htmlFor="tipo">PF ou PJ</Label>
+                    <Select
+                      value={formData.tipo}
+                      onValueChange={(value: "PF" | "PJ") => setFormData({ ...formData, tipo: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PF">Pessoa Física</SelectItem>
+                        <SelectItem value="PJ">Pessoa Jurídica</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="cpfCnpj">CPF/CNPJ</Label>
+                    <Label htmlFor="cpfCnpj">CNPJ/CPF</Label>
                     <Input
                       id="cpfCnpj"
                       value={formData.cpfCnpj}
                       onChange={(e) => setFormData({ ...formData, cpfCnpj: e.target.value })}
+                      placeholder="00.000.000/0000-00"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="endereco">Endereço Completo</Label>
+                    <Label htmlFor="telefone">Telefone/WhatsApp *</Label>
                     <Input
-                      id="endereco"
-                      value={formData.endereco}
-                      onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
+                      id="telefone"
+                      value={formData.telefone}
+                      onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
+                      placeholder="(00) 00000-0000"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">E-mail</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="email@exemplo.com"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="contato">Contato</Label>
+                    <Input
+                      id="contato"
+                      value={formData.contato}
+                      onChange={(e) => setFormData({ ...formData, contato: e.target.value })}
+                      placeholder="Nome do contato"
                     />
                   </div>
                 </div>
+
+                <Collapsible open={observacoesOpen} onOpenChange={setObservacoesOpen}>
+                  <CollapsibleTrigger asChild>
+                    <Button type="button" variant="outline" className="w-full">
+                      <ChevronDown className="h-4 w-4 mr-2" />
+                      Observações
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-2">
+                    <Textarea
+                      id="observacoes"
+                      value={formData.observacoes}
+                      onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+                      placeholder="Digite aqui observações sobre o fornecedor..."
+                      rows={4}
+                    />
+                  </CollapsibleContent>
+                </Collapsible>
                 <div className="flex gap-2 justify-end">
                   <Button type="button" variant="outline" onClick={resetForm}>
                     Cancelar
@@ -175,9 +235,10 @@ export default function Fornecedores() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nome</TableHead>
+                    <TableHead>Tipo</TableHead>
+                    <TableHead>CNPJ/CPF</TableHead>
                     <TableHead>Telefone</TableHead>
-                    <TableHead>CPF/CNPJ</TableHead>
-                    <TableHead>Endereço</TableHead>
+                    <TableHead>E-mail</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -185,9 +246,10 @@ export default function Fornecedores() {
                   {fornecedores.map((fornecedor) => (
                     <TableRow key={fornecedor.id}>
                       <TableCell className="font-medium">{fornecedor.nome}</TableCell>
+                      <TableCell>{fornecedor.tipo}</TableCell>
+                      <TableCell>{fornecedor.cpfCnpj || "-"}</TableCell>
                       <TableCell>{fornecedor.telefone}</TableCell>
-                      <TableCell>{fornecedor.cpfCnpj}</TableCell>
-                      <TableCell>{fornecedor.endereco}</TableCell>
+                      <TableCell>{fornecedor.email || "-"}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex gap-2 justify-end">
                           <Button
