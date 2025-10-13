@@ -4,12 +4,12 @@ import { Target, Settings, Lightbulb } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { usePlanejamento, type PrevisaoFaturamento } from "@/hooks/usePlanejamento";
 import { gerarInsights, type Insight, type InsightType } from "@/utils/insightsGenerator";
 import { PrevisaoFaturamentoCard } from "@/components/PrevisaoFaturamentoCard";
 import { CMVGlobalCard } from "@/components/CMVGlobalCard";
 import { ProjecaoVendasCard } from "@/components/ProjecaoVendasCard";
+import { ConfigurarMetasModal } from "@/components/ConfigurarMetasModal";
 
 const opcoes = [
   {
@@ -101,33 +101,20 @@ export default function Planejamento() {
             <h1 className="text-3xl font-bold text-foreground">Planejamento</h1>
           </div>
           <p className="text-base text-muted-foreground">
-            Métricas e metas do seu negócio
-          </p>
-        </div>
-
-        <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-primary text-primary-foreground hover:bg-accent shadow-[0_4px_6px_rgba(216,155,140,0.3)] transition-all duration-200 hover:-translate-y-0.5">
-              <Settings className="h-5 w-5 mr-2" />
-              Configurar Metas
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5 text-primary" />
-                Configurar Metas
-              </DialogTitle>
-              <DialogDescription>
-                Em breve você poderá configurar suas metas financeiras mensais e anuais
-              </DialogDescription>
-            </DialogHeader>
-            <div className="py-4 text-center text-muted-foreground">
-              <p>Funcionalidade em desenvolvimento</p>
-            </div>
-          </DialogContent>
-        </Dialog>
+          Métricas e metas do seu negócio
+        </p>
       </div>
+
+      <Button 
+        className="bg-primary text-primary-foreground hover:bg-accent shadow-[0_4px_6px_rgba(216,155,140,0.3)] transition-all duration-200 hover:-translate-y-0.5"
+        onClick={() => setModalOpen(true)}
+      >
+        <Settings className="h-5 w-5 mr-2" />
+        Configurar Metas
+      </Button>
+    </div>
+
+    <ConfigurarMetasModal open={modalOpen} onOpenChange={setModalOpen} />
 
       {/* Insights Section */}
       {insights.length > 0 && (
