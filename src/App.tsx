@@ -30,6 +30,7 @@ import ComingSoon from "./pages/ComingSoon";
 import Financeiro from "./pages/Financeiro";
 import ConfiguracoesFinanceiro from "./pages/financeiro/ConfiguracoesFinanceiro";
 import CategoriasPlanoContas from "./pages/financeiro/CategoriasPlanoContas";
+import AjudaCategorias from "./pages/financeiro/AjudaCategorias";
 import PlanosContas from "./pages/financeiro/PlanosContas";
 import TiposDocumento from "./pages/financeiro/TiposDocumento";
 import Bancos from "./pages/financeiro/Bancos";
@@ -105,6 +106,10 @@ const App = () => (
           <Route 
             path="/financeiro/configuracoes/categorias" 
             element={<ProtectedRoute><Layout><CategoriasPlanoContas /></Layout></ProtectedRoute>} 
+          />
+          <Route 
+            path="/financeiro/ajuda-categorias" 
+            element={<ProtectedRoute><Layout><AjudaCategorias /></Layout></ProtectedRoute>} 
           />
           <Route 
             path="/financeiro/configuracoes/planos-contas" 

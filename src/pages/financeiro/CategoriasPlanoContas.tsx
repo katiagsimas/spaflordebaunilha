@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { FolderTree, Plus, Pencil, Trash2, Lock, Search, ChevronRight, ChevronDown, Maximize2, Minimize2, AlertTriangle, Download, Upload, Copy, History, FileSpreadsheet, Palette, Sparkles } from "lucide-react";
+import { FolderTree, Plus, Pencil, Trash2, Lock, Search, ChevronRight, ChevronDown, Maximize2, Minimize2, AlertTriangle, Download, Upload, Copy, History, FileSpreadsheet, Palette, Sparkles, HelpCircle, BookOpen } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { HelpCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import * as XLSX from 'xlsx';
 
 type FaixaDRE = 'receita_bruta' | 'deducoes' | 'receita_liquida' | 
@@ -100,6 +100,7 @@ const categoriasIniciais: CategoriaPlano[] = [
 ];
 
 export default function CategoriasPlanoContas() {
+  const navigate = useNavigate();
   const [categorias, setCategorias] = useLocalStorage<CategoriaPlano[]>("sugarbox_categorias_plano", categoriasIniciais);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -935,6 +936,16 @@ export default function CategoriasPlanoContas() {
             <p className="text-base text-[#9C8B82]">Estrutura contábil para organização financeira</p>
           </div>
           <div className="flex flex-wrap gap-2">
+            {/* Botão de Ajuda */}
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/financeiro/ajuda-categorias')}
+              className="border-blue-500 text-blue-600 hover:bg-blue-50"
+            >
+              <BookOpen className="mr-2 h-4 w-4" />
+              Como usar?
+            </Button>
+
             {/* Menu de Importação/Exportação */}
             <Popover>
               <PopoverTrigger asChild>
