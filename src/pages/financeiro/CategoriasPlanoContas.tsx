@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { FolderTree, Plus, Pencil, Trash2, Lock, Search, ChevronRight, ChevronDown, Maximize2, Minimize2, AlertTriangle, Download, Upload } from "lucide-react";
+import { FolderTree, Plus, Pencil, Trash2, Lock, Search, ChevronRight, ChevronDown, Maximize2, Minimize2, AlertTriangle, Download, Upload, Copy, History, FileSpreadsheet, Palette, Sparkles } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,9 @@ import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { HelpCircle } from "lucide-react";
+import * as XLSX from 'xlsx';
 
 type FaixaDRE = 'receita_bruta' | 'deducoes' | 'receita_liquida' | 
   'cmv' | 'lucro_bruto' | 
@@ -39,6 +41,17 @@ interface CategoriaPlano {
   editavel: boolean;
   createdAt: string;
   updatedAt: string;
+  cor?: string; // Nova: cor customizada
+  icone?: string; // Nova: ícone Lucide
+}
+
+interface HistoricoAlteracao {
+  id: string;
+  categoriaId: string;
+  acao: 'criado' | 'editado' | 'excluído' | 'desativado' | 'duplicado';
+  usuario: string;
+  dataHora: string;
+  detalhes: string;
 }
 
 const categoriasIniciais: CategoriaPlano[] = [
@@ -91,6 +104,8 @@ export default function CategoriasPlanoContas() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [desactivateDialogOpen, setDesactivateDialogOpen] = useState(false);
+  const [historicoDialogOpen, setHistoricoDialogOpen] = useState(false);
+  const [templatesDialogOpen, setTemplatesDialogOpen] = useState(false);
   const [editingCategoria, setEditingCategoria] = useState<CategoriaPlano | null>(null);
   const [categoriaToDelete, setCategoriaToDelete] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -99,6 +114,8 @@ export default function CategoriasPlanoContas() {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [expandAll, setExpandAll] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const excelInputRef = useRef<HTMLInputElement>(null);
+  const [historico, setHistorico] = useLocalStorage<HistoricoAlteracao[]>("sugarbox_historico_categorias", []);
   
   // Inicialização automática das categorias
   useEffect(() => {
@@ -117,8 +134,27 @@ export default function CategoriasPlanoContas() {
     faixaDRE: "nao_aplicavel" as FaixaDRE,
     nivel: 1,
     categoriaPai: "",
-    ativo: true
+    ativo: true,
+    cor: "",
+    icone: ""
   });
+
+  // Adicionar ao histórico
+  const adicionarHistorico = (
+    categoriaId: string, 
+    acao: HistoricoAlteracao['acao'], 
+    detalhes: string
+  ) => {
+    const novaEntrada: HistoricoAlteracao = {
+      id: `hist-${Date.now()}`,
+      categoriaId,
+      acao,
+      usuario: "Usuário", // Pode ser integrado com sistema de auth
+      dataHora: new Date().toISOString(),
+      detalhes
+    };
+    setHistorico([novaEntrada, ...historico].slice(0, 100)); // Manter últimas 100 entradas
+  };
 
   const categoriasPais = useMemo(() => {
     return categorias.filter(c => c.ativo);
@@ -132,7 +168,9 @@ export default function CategoriasPlanoContas() {
       faixaDRE: "nao_aplicavel",
       nivel: 1,
       categoriaPai: "",
-      ativo: true
+      ativo: true,
+      cor: "",
+      icone: ""
     });
     setEditingCategoria(null);
   };
@@ -331,6 +369,13 @@ export default function CategoriasPlanoContas() {
             }
           : c
       ));
+      
+      adicionarHistorico(
+        editingCategoria.id, 
+        'editado', 
+        `Categoria "${formData.codigo} - ${formData.descricao}" atualizada`
+      );
+      
       toast.success("✓ Categoria atualizada com sucesso!");
     } else {
       const novaCategoria: CategoriaPlano = {
@@ -356,6 +401,13 @@ export default function CategoriasPlanoContas() {
       });
       
       setCategorias(novasCategorias);
+      
+      adicionarHistorico(
+        novaCategoria.id, 
+        'criado', 
+        `Nova categoria "${formData.codigo} - ${formData.descricao}" criada`
+      );
+      
       toast.success("✓ Categoria criada com sucesso!");
     }
     
@@ -377,7 +429,9 @@ export default function CategoriasPlanoContas() {
       faixaDRE: categoria.faixaDRE,
       nivel: categoria.nivel,
       categoriaPai: categoria.categoriaPai || "",
-      ativo: categoria.ativo
+      ativo: categoria.ativo,
+      cor: categoria.cor || "",
+      icone: categoria.icone || ""
     });
     setDialogOpen(true);
   };
@@ -413,11 +467,18 @@ export default function CategoriasPlanoContas() {
     // Aqui você pode verificar se há lançamentos vinculados
     // const temLancamentos = verificarLancamentos(categoriaToDelete);
     // Por enquanto, permite exclusão direta
-    
-    setCategorias(categorias.filter(c => c.id !== categoriaToDelete));
-    toast.success("✓ Categoria excluída com sucesso!");
-    setDeleteDialogOpen(false);
-    setCategoriaToDelete(null);
+      
+      setCategorias(categorias.filter(c => c.id !== categoriaToDelete));
+      
+      adicionarHistorico(
+        categoriaToDelete, 
+        'excluído', 
+        `Categoria "${categoria.codigo} - ${categoria.descricao}" excluída`
+      );
+      
+      toast.success("✓ Categoria excluída com sucesso!");
+      setDeleteDialogOpen(false);
+      setCategoriaToDelete(null);
   };
 
   const handleDesactivate = () => {
@@ -428,6 +489,15 @@ export default function CategoriasPlanoContas() {
         ? { ...c, ativo: false, updatedAt: new Date().toISOString() }
         : c
     ));
+    
+    const categoria = categorias.find(c => c.id === categoriaToDelete);
+    if (categoria) {
+      adicionarHistorico(
+        categoriaToDelete, 
+        'desativado', 
+        `Categoria "${categoria.codigo} - ${categoria.descricao}" desativada`
+      );
+    }
     
     toast.success("✓ Categoria desativada com sucesso!");
     setDesactivateDialogOpen(false);
@@ -592,6 +662,15 @@ export default function CategoriasPlanoContas() {
               <Button
                 variant="ghost"
                 size="icon"
+                onClick={() => duplicarCategoria(categoria.id)}
+                className="h-8 w-8"
+                title="Duplicar categoria"
+              >
+                <Copy className="h-4 w-4 text-[#7BA8D8]" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => handleEdit(categoria)}
                 className="h-8 w-8 hover:bg-[#F5E6E0]"
               >
@@ -702,6 +781,146 @@ export default function CategoriasPlanoContas() {
     }
   };
 
+  // Duplicar categoria
+  const duplicarCategoria = (categoriaId: string) => {
+    const categoria = categorias.find(c => c.id === categoriaId);
+    if (!categoria) return;
+
+    const novaCopia: CategoriaPlano = {
+      ...categoria,
+      id: `cat-${Date.now()}`,
+      codigo: categoria.codigo + '-copia',
+      descricao: categoria.descricao + ' (Cópia)',
+      editavel: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    setCategorias([...categorias, novaCopia]);
+    adicionarHistorico(novaCopia.id, 'duplicado', `Duplicada de ${categoria.codigo}`);
+    toast.success(`✓ Categoria "${categoria.descricao}" duplicada com sucesso!`);
+  };
+
+  // Importar de Excel
+  const importarExcel = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      try {
+        const data = e.target?.result;
+        const workbook = XLSX.read(data, { type: 'binary' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+        // Validar e converter dados
+        const categoriasImportadas: CategoriaPlano[] = jsonData.map((row: any, index) => {
+          if (!row.codigo || !row.descricao || !row.indicador) {
+            throw new Error(`Linha ${index + 2} está incompleta`);
+          }
+
+          return {
+            id: `cat-${Date.now()}-${index}`,
+            codigo: row.codigo.toString(),
+            descricao: row.descricao,
+            indicador: row.indicador.toLowerCase(),
+            faixaDRE: row.faixaDRE || 'nao_aplicavel',
+            nivel: row.codigo.split('.').length,
+            ativo: row.ativo !== false,
+            editavel: true,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+        });
+
+        if (window.confirm(
+          `Foram encontradas ${categoriasImportadas.length} categorias no Excel.\n\n` +
+          `Isso vai ADICIONAR estas categorias às existentes.\n\n` +
+          `Deseja continuar?`
+        )) {
+          setCategorias([...categorias, ...categoriasImportadas]);
+          toast.success(`✓ ${categoriasImportadas.length} categorias importadas do Excel!`);
+        }
+
+      } catch (error: any) {
+        toast.error('Erro ao importar Excel: ' + error.message);
+      }
+    };
+    
+    reader.readAsBinaryString(file);
+    
+    if (excelInputRef.current) {
+      excelInputRef.current.value = '';
+    }
+  };
+
+  // Exportar template Excel
+  const exportarTemplateExcel = () => {
+    const templateData = [
+      {
+        codigo: '1',
+        descricao: 'RECEITAS',
+        indicador: 'receita',
+        faixaDRE: 'nao_aplicavel',
+        ativo: true
+      },
+      {
+        codigo: '1.1',
+        descricao: 'Receita Bruta de Vendas',
+        indicador: 'receita',
+        faixaDRE: 'receita_bruta',
+        ativo: true
+      }
+    ];
+
+    const worksheet = XLSX.utils.json_to_sheet(templateData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Categorias');
+    
+    XLSX.writeFile(workbook, 'template-categorias.xlsx');
+    toast.success('✓ Template Excel baixado com sucesso!');
+  };
+
+  // Salvar como template
+  const salvarTemplate = () => {
+    const nomeTemplate = prompt('Digite um nome para este template:');
+    if (!nomeTemplate) return;
+
+    const templates = JSON.parse(localStorage.getItem('sugarbox_templates_categorias') || '{}');
+    templates[nomeTemplate] = categorias;
+    localStorage.setItem('sugarbox_templates_categorias', JSON.stringify(templates));
+    
+    toast.success(`✓ Template "${nomeTemplate}" salvo com sucesso!`);
+  };
+
+  // Carregar template
+  const carregarTemplate = (nomeTemplate: string) => {
+    const templates = JSON.parse(localStorage.getItem('sugarbox_templates_categorias') || '{}');
+    const template = templates[nomeTemplate];
+    
+    if (!template) {
+      toast.error('Template não encontrado!');
+      return;
+    }
+
+    if (window.confirm(
+      `Isso vai SUBSTITUIR todas as categorias atuais pelo template "${nomeTemplate}".\n\nDeseja continuar?`
+    )) {
+      setCategorias(template);
+      toast.success(`✓ Template "${nomeTemplate}" carregado!`);
+      setTemplatesDialogOpen(false);
+    }
+  };
+
+  // Obter lista de templates
+  const getTemplates = () => {
+    const templates = JSON.parse(localStorage.getItem('sugarbox_templates_categorias') || '{}');
+    return Object.keys(templates);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mb-6">
@@ -716,27 +935,87 @@ export default function CategoriasPlanoContas() {
             <p className="text-base text-[#9C8B82]">Estrutura contábil para organização financeira</p>
           </div>
           <div className="flex flex-wrap gap-2">
+            {/* Menu de Importação/Exportação */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="border-[#D89B8C] text-[#D89B8C] hover:bg-[#F5E6E0]"
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Importar/Exportar
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 bg-card">
+                <div className="space-y-2">
+                  <Button 
+                    variant="ghost" 
+                    onClick={exportarCategorias}
+                    className="w-full justify-start"
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Exportar JSON
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full justify-start"
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Importar JSON
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    onClick={exportarTemplateExcel}
+                    className="w-full justify-start"
+                  >
+                    <FileSpreadsheet className="mr-2 h-4 w-4" />
+                    Baixar Template Excel
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => excelInputRef.current?.click()}
+                    className="w-full justify-start"
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Importar Excel
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            {/* Histórico */}
             <Button 
               variant="outline" 
-              onClick={exportarCategorias}
+              onClick={() => setHistoricoDialogOpen(true)}
               className="border-[#D89B8C] text-[#D89B8C] hover:bg-[#F5E6E0]"
             >
-              <Download className="mr-2 h-4 w-4" />
-              Exportar
+              <History className="mr-2 h-4 w-4" />
+              Histórico
             </Button>
+
+            {/* Templates */}
             <Button 
               variant="outline" 
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => setTemplatesDialogOpen(true)}
               className="border-[#D89B8C] text-[#D89B8C] hover:bg-[#F5E6E0]"
             >
-              <Upload className="mr-2 h-4 w-4" />
-              Importar
+              <Sparkles className="mr-2 h-4 w-4" />
+              Templates
             </Button>
+
             <input
               ref={fileInputRef}
               type="file"
               accept=".json"
               onChange={importarCategorias}
+              className="hidden"
+            />
+            <input
+              ref={excelInputRef}
+              type="file"
+              accept=".xlsx,.xls"
+              onChange={importarExcel}
               className="hidden"
             />
             <Dialog open={dialogOpen} onOpenChange={(open) => {
@@ -1219,6 +1498,95 @@ export default function CategoriasPlanoContas() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Dialog de Histórico */}
+      <Dialog open={historicoDialogOpen} onOpenChange={setHistoricoDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <History className="h-5 w-5" />
+              Histórico de Alterações
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            {historico.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">
+                Nenhuma alteração registrada ainda.
+              </p>
+            ) : (
+              historico.map(item => (
+                <div key={item.id} className="border rounded-lg p-3 hover:bg-muted/50">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge variant={
+                          item.acao === 'criado' ? 'default' :
+                          item.acao === 'editado' ? 'secondary' :
+                          item.acao === 'excluído' ? 'destructive' :
+                          item.acao === 'duplicado' ? 'outline' : 'secondary'
+                        }>
+                          {item.acao}
+                        </Badge>
+                        <span className="text-sm text-muted-foreground">
+                          por {item.usuario}
+                        </span>
+                      </div>
+                      <p className="text-sm">{item.detalhes}</p>
+                    </div>
+                    <span className="text-xs text-muted-foreground whitespace-nowrap ml-4">
+                      {new Date(item.dataHora).toLocaleString('pt-BR')}
+                    </span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de Templates */}
+      <Dialog open={templatesDialogOpen} onOpenChange={setTemplatesDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5" />
+              Gerenciar Templates
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Button onClick={salvarTemplate} className="w-full bg-[#D89B8C] hover:bg-[#B87C6D]">
+                <Plus className="mr-2 h-4 w-4" />
+                Salvar Categorias Atuais como Template
+              </Button>
+            </div>
+
+            <div className="border-t pt-4">
+              <h3 className="font-semibold mb-3">Templates Salvos</h3>
+              {getTemplates().length === 0 ? (
+                <p className="text-center text-muted-foreground py-4">
+                  Nenhum template salvo ainda.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {getTemplates().map(template => (
+                    <div key={template} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50">
+                      <span className="font-medium">{template}</span>
+                      <Button 
+                        size="sm"
+                        onClick={() => carregarTemplate(template)}
+                        variant="outline"
+                      >
+                        Carregar
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
