@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
+import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, ArrowLeft, ChefHat } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
@@ -109,10 +110,15 @@ export default function SubReceitas() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Pré-Preparo"
-        description="Gerencie suas sub-receitas e pré-preparações"
-      />
+      <div className="flex items-center gap-4">
+        <BackButton to="/precificacao" />
+        <div className="flex-1">
+          <PageHeader
+            title="Pré-Preparo"
+            description="Gerencie suas sub-receitas e pré-preparações"
+          />
+        </div>
+      </div>
 
       <div className="flex justify-end">
         <Button onClick={handleCreateNew}>

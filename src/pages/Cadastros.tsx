@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { BackButton } from "@/components/BackButton";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { Ruler, Boxes, Package, UserCircle, DollarSign, Tag } from "lucide-react";
 
@@ -53,10 +54,15 @@ export default function Cadastros() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Cadastros"
-        description="Realize todos os cadastros e mantenha-os sempre atualizados para garantir o correto funcionamento do sistema"
-      />
+      <div className="flex items-center gap-4">
+        <BackButton to="/precificacao" />
+        <div className="flex-1">
+          <PageHeader
+            title="Cadastros"
+            description="Realize todos os cadastros e mantenha-os sempre atualizados para garantir o correto funcionamento do sistema"
+          />
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {cadastros.map((cadastro) => {
