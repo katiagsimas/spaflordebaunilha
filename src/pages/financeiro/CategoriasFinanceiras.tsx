@@ -373,7 +373,7 @@ export default function CategoriasFinanceiras() {
   const [categoriaEditando, setCategoriaEditando] = useState<CategoriaFinanceira | null>(null);
   const [categoriaExcluindo, setCategoriaExcluindo] = useState<CategoriaFinanceira | null>(null);
   const [abaAtiva, setAbaAtiva] = useState<'todos' | 'receita' | 'despesa'>('todos');
-  const [visualizacao, setVisualizacao] = useState<'grade' | 'lista'>('grade');
+  const [visualizacao, setVisualizacao] = useState<'grade' | 'lista'>('lista');
   const [busca, setBusca] = useState('');
   const [ordenacao, setOrdenacao] = useState<'nome' | 'tipo'>('nome');
   

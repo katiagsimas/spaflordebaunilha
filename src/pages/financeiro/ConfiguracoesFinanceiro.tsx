@@ -6,18 +6,11 @@ import { BackButton } from "@/components/BackButton";
 
 const opcoes = [
   {
-    title: "Categorias Financeiras",
-    description: "Gerencie categorias simples de receitas e despesas (1 nível)",
+    title: "Categorias",
+    description: "Gerencie categorias de receitas e despesas",
     icon: Tag,
     color: "text-primary bg-primary/10",
     url: "/financeiro/categorias",
-  },
-  {
-    title: "Categorias Planos de Contas",
-    description: "Gerencie categorias hierárquicas para plano de contas contábil (4 níveis)",
-    icon: FolderTree,
-    color: "text-accent bg-accent/10",
-    url: "/financeiro/configuracoes/categorias",
   },
   {
     title: "Planos de Contas",
