@@ -1,4 +1,4 @@
-import { Settings, FolderTree, FileText, CreditCard, Building2 } from "lucide-react";
+import { Settings, FolderTree, FileText, CreditCard, Building2, Tag } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
@@ -6,17 +6,24 @@ import { BackButton } from "@/components/BackButton";
 
 const opcoes = [
   {
-    title: "Categorias Planos de Contas",
-    description: "Gerencie as categorias para organizar seu plano de contas",
-    icon: FolderTree,
+    title: "Categorias Financeiras",
+    description: "Gerencie categorias simples de receitas e despesas (1 nível)",
+    icon: Tag,
     color: "text-primary bg-primary/10",
+    url: "/financeiro/categorias",
+  },
+  {
+    title: "Categorias Planos de Contas",
+    description: "Gerencie categorias hierárquicas para plano de contas contábil (4 níveis)",
+    icon: FolderTree,
+    color: "text-accent bg-accent/10",
     url: "/financeiro/configuracoes/categorias",
   },
   {
     title: "Planos de Contas",
     description: "Configure e organize seu plano de contas contábil",
     icon: FileText,
-    color: "text-accent bg-accent/10",
+    color: "text-secondary bg-secondary/10",
     url: "/financeiro/configuracoes/planos-contas",
   },
   {
@@ -30,7 +37,7 @@ const opcoes = [
     title: "Bancos",
     description: "Gerencie as instituições bancárias utilizadas",
     icon: Building2,
-    color: "text-secondary bg-secondary/10",
+    color: "text-warning bg-warning/10",
     url: "/financeiro/configuracoes/bancos",
   },
 ];
