@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Target, Settings, Lightbulb } from "lucide-react";
+import { Target, Settings, Lightbulb, DollarSign, TrendingUp, BarChart3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,8 @@ import { PrevisaoFaturamentoCard } from "@/components/PrevisaoFaturamentoCard";
 import { CMVGlobalCard } from "@/components/CMVGlobalCard";
 import { ProjecaoVendasCard } from "@/components/ProjecaoVendasCard";
 import { ConfigurarMetasModal } from "@/components/ConfigurarMetasModal";
+import { BannerBoasVindas, EstadoVazioCard } from "@/components/EstadoVazio";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 const opcoes = [
   {
@@ -27,6 +29,9 @@ export default function Planejamento() {
   const [modalOpen, setModalOpen] = useState(false);
   const [insights, setInsights] = useState<Insight[]>([]);
   const [previsaoData, setPrevisaoData] = useState<PrevisaoFaturamento | null>(null);
+
+  const [hasConfig] = useLocalStorage("configuracaoPlanejamento", null);
+  const temConfiguracao = hasConfig !== null && (hasConfig as any).metaFaturamentoMensal > 0;
 
   const {
     config,
@@ -92,9 +97,14 @@ export default function Planejamento() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="min-h-screen bg-background p-4 md:p-6">
+      {/* Banner de Boas-Vindas */}
+      {!temConfiguracao && (
+        <BannerBoasVindas onConfigurar={() => setModalOpen(true)} />
+      )}
+
       {/* Header */}
-      <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Target className="h-6 w-6 text-primary" />
@@ -114,11 +124,11 @@ export default function Planejamento() {
       </Button>
     </div>
 
-    <ConfigurarMetasModal open={modalOpen} onOpenChange={setModalOpen} />
+      <ConfigurarMetasModal open={modalOpen} onOpenChange={setModalOpen} />
 
       {/* Insights Section */}
-      {insights.length > 0 && (
-        <Card className="mb-6 border-l-4 border-l-primary bg-card shadow-soft">
+      {temConfiguracao && insights.length > 0 && (
+        <Card className="mb-6 border-l-4 border-l-primary bg-card shadow-soft animate-fade-in">
           <CardHeader>
             <div className="flex items-center gap-2 mb-4">
               <Lightbulb className="h-5 w-5 text-primary" />
@@ -132,7 +142,7 @@ export default function Planejamento() {
                 return (
                   <div
                     key={index}
-                    className={`p-3 rounded-lg border-l-[3px] ${getInsightStyle(insight.type)}`}
+                    className={`p-3 rounded-lg border-l-[3px] ${getInsightStyle(insight.type)} animate-slide-in-left stagger-${Math.min(index + 1, 4)}`}
                   >
                     <div className="flex items-start gap-3">
                       <Icon className={`h-5 w-5 mt-0.5 flex-shrink-0 ${getInsightIconColor(insight.type)}`} />
@@ -147,54 +157,92 @@ export default function Planejamento() {
       )}
 
       {/* Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Card de Previsão de Faturamento */}
-        {previsaoData && <PrevisaoFaturamentoCard dados={previsaoData} />}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        {temConfiguracao ? (
+          <>
+            {/* Cards com dados */}
+            {previsaoData && (
+              <div className="animate-fade-in-up">
+                <PrevisaoFaturamentoCard dados={previsaoData} />
+              </div>
+            )}
 
-        {/* Card de CMV Global */}
-        <CMVGlobalCard />
+            <div className="animate-fade-in-up stagger-1">
+              <CMVGlobalCard />
+            </div>
 
-        {/* Card de Projeção de Vendas */}
-        <ProjecaoVendasCard />
+            <div className="animate-fade-in-up stagger-2">
+              <ProjecaoVendasCard />
+            </div>
 
-        {/* Demais cards */}
-        {opcoes.map((opcao) => {
-          const Icon = opcao.icon;
-          return (
-            <Card
-              key={opcao.title}
-              className={`transition-all duration-200 ${
-                opcao.active
-                  ? "cursor-pointer hover:shadow-elevated hover:-translate-y-1"
-                  : "opacity-60 cursor-not-allowed"
-              }`}
-              onClick={() => opcao.active && opcao.url && navigate(opcao.url)}
-            >
-              <CardHeader>
-                <div className="flex items-center justify-between mb-2">
-                  <div
-                    className={`w-12 h-12 rounded-lg ${opcao.color} flex items-center justify-center`}
-                  >
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  {!opcao.active && (
-                    <Badge className="bg-warning text-foreground text-xs px-2 py-0.5 rounded-full font-medium">
-                      Em breve
-                    </Badge>
-                  )}
-                </div>
-                <CardTitle>{opcao.title}</CardTitle>
-                <CardDescription>{opcao.description}</CardDescription>
-              </CardHeader>
-            </Card>
-          );
-        })}
+            {opcoes.map((opcao, index) => {
+              const Icon = opcao.icon;
+              return (
+                <Card
+                  key={opcao.title}
+                  className={`transition-all duration-200 animate-fade-in-up stagger-${index + 3} ${
+                    opcao.active
+                      ? "cursor-pointer hover:shadow-elevated hover:-translate-y-1"
+                      : "opacity-60 cursor-not-allowed"
+                  }`}
+                  onClick={() => opcao.active && opcao.url && navigate(opcao.url)}
+                >
+                  <CardHeader>
+                    <div className="flex items-center justify-between mb-2">
+                      <div
+                        className={`w-10 h-10 md:w-12 md:h-12 rounded-lg ${opcao.color} flex items-center justify-center`}
+                      >
+                        <Icon className="h-5 w-5 md:h-6 md:w-6" />
+                      </div>
+                      {!opcao.active && (
+                        <Badge className="bg-warning text-foreground text-xs px-2 py-0.5 rounded-full font-medium">
+                          Em breve
+                        </Badge>
+                      )}
+                    </div>
+                    <CardTitle className="text-lg md:text-2xl">{opcao.title}</CardTitle>
+                    <CardDescription>{opcao.description}</CardDescription>
+                  </CardHeader>
+                </Card>
+              );
+            })}
+          </>
+        ) : (
+          <>
+            {/* Estado vazio - Cards com CTA para configurar */}
+            <EstadoVazioCard
+              titulo="💰 PREVISÃO DE FATURAMENTO"
+              icone={<DollarSign className="h-6 w-6 text-primary" />}
+              onConfigurar={() => setModalOpen(true)}
+            />
+
+            <EstadoVazioCard
+              titulo="🧮 CMV GLOBAL"
+              icone={<BarChart3 className="h-6 w-6 text-accent" />}
+              onConfigurar={() => setModalOpen(true)}
+            />
+
+            <EstadoVazioCard
+              titulo="📈 PROJEÇÃO DE VENDAS"
+              icone={<TrendingUp className="h-6 w-6 text-warning" />}
+              onConfigurar={() => setModalOpen(true)}
+            />
+
+            <EstadoVazioCard
+              titulo="⚖️ PONTO DE EQUILÍBRIO"
+              icone={<Target className="h-6 w-6 text-success" />}
+              onConfigurar={() => setModalOpen(true)}
+            />
+          </>
+        )}
       </div>
 
       {/* Footer com legenda */}
-      <div className="mt-8 text-center text-sm text-muted-foreground">
-        <p>Clique nos cards ativos para acessar as ferramentas de análise</p>
-      </div>
+      {temConfiguracao && (
+        <div className="mt-8 text-center text-sm text-muted-foreground animate-fade-in">
+          <p>Clique nos cards ativos para acessar as ferramentas de análise</p>
+        </div>
+      )}
     </div>
   );
 }
