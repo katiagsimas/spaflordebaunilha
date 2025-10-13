@@ -22,16 +22,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { toast } from "sonner";
+import { ContaReceberFormDialog } from "@/components/ContaReceberFormDialog";
 
 interface ContaReceber {
   id: string;
@@ -429,28 +422,15 @@ export default function ContasReceber() {
         </TabsContent>
       </Tabs>
 
-      {/* Modal - Será criado em componente separado */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Nova Conta a Receber</DialogTitle>
-            <DialogDescription>
-              Preencha os dados da conta a receber
-            </DialogDescription>
-          </DialogHeader>
-          <div className="text-center py-8 text-[#9C8B82]">
-            Formulário em desenvolvimento...
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-              Cancelar
-            </Button>
-            <Button className="bg-[#D89B8C] hover:bg-[#B87C6D]">
-              Salvar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Formulário */}
+      <ContaReceberFormDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        conta={editingConta}
+        onSave={() => {
+          setEditingConta(null);
+        }}
+      />
     </div>
   );
 }
