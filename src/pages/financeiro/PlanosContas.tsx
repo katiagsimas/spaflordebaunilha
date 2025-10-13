@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Pencil, FolderTree, ChevronDown, ChevronRight, Search } from "lucide-react";
+import { Plus, Pencil, FolderTree, ChevronDown, ChevronRight, Search, Trash2, AlertTriangle } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface CategoriaFinanceira {
   id: string;
@@ -876,7 +886,10 @@ export default function PlanosContas() {
   const [filterCategoria, setFilterCategoria] = useState('todas');
   const [filterTipo, setFilterTipo] = useState<'todos' | 'receita' | 'despesa'>('todos');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeactivateDialogOpen, setIsDeactivateDialogOpen] = useState(false);
   const [editingPlanoConta, setEditingPlanoConta] = useState<PlanoConta | null>(null);
+  const [deletingPlanoConta, setDeletingPlanoConta] = useState<PlanoConta | null>(null);
   const [selectedCategoriaForNew, setSelectedCategoriaForNew] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     nome: '',
@@ -891,6 +904,11 @@ export default function PlanosContas() {
   useEffect(() => {
     if (planosContas.length === 0) {
       setPlanosContas(planosContasPreConfigurados);
+      toast({
+        title: "Sistema Inicializado",
+        description: "✓ Sistema inicializado com 65 planos de contas padrão!",
+        duration: 5000,
+      });
     }
     
     // Carregar categorias financeiras
@@ -954,6 +972,15 @@ export default function PlanosContas() {
       return;
     }
 
+    if (formData.nome.length > 100) {
+      toast({
+        title: "Erro",
+        description: "Nome deve ter no máximo 100 caracteres",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!formData.categoriaId) {
       toast({
         title: "Erro",
@@ -963,43 +990,152 @@ export default function PlanosContas() {
       return;
     }
 
-    // Buscar categoria das categorias financeiras
-    const categorias = JSON.parse(localStorage.getItem('sugarbox_categorias_financeiras') || '[]');
-    const categoria = categorias.find((c: any) => c.id === formData.categoriaId);
-    if (categoria) {
-      formData.tipo = categoria.tipo as 'receita' | 'despesa';
+    // Verificar se categoria existe e está ativa
+    const categoria = categorias.find(c => c.id === formData.categoriaId);
+    if (!categoria) {
+      toast({
+        title: "Erro",
+        description: "Categoria não encontrada",
+        variant: "destructive",
+      });
+      return;
     }
+
+    if (!categoria.ativo) {
+      toast({
+        title: "Erro",
+        description: "Não é possível vincular a uma categoria inativa",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Verificar nome duplicado na mesma categoria
+    const nomeExiste = planosContas.find(
+      pc => pc.nome.toLowerCase() === formData.nome.trim().toLowerCase() 
+        && pc.categoriaId === formData.categoriaId
+        && pc.id !== editingPlanoConta?.id
+    );
+
+    if (nomeExiste) {
+      toast({
+        title: "Erro",
+        description: "Já existe um plano com este nome nesta categoria",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (formData.descricao && formData.descricao.length > 200) {
+      toast({
+        title: "Erro",
+        description: "Descrição deve ter no máximo 200 caracteres",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Atualizar tipo com base na categoria
+    formData.tipo = categoria.tipo;
 
     if (editingPlanoConta) {
       const updated = planosContas.map(pc =>
         pc.id === editingPlanoConta.id
           ? { 
               ...pc, 
-              ...formData,
+              nome: formData.nome.trim(),
+              descricao: formData.descricao?.trim() || '',
+              categoriaId: formData.categoriaId,
+              tipo: formData.tipo,
+              ativo: formData.ativo,
               updatedAt: new Date().toISOString() 
             }
+          : pc
+      );
+      
+      // Ordenar por categoria e nome
+      updated.sort((a, b) => {
+        if (a.categoriaId !== b.categoriaId) {
+          return a.categoriaId.localeCompare(b.categoriaId);
+        }
+        return a.nome.localeCompare(b.nome);
+      });
+      
+      setPlanosContas(updated);
+      toast({
+        title: "Sucesso",
+        description: "✓ Plano de conta atualizado com sucesso!",
+      });
+    } else {
+      const newPlanoConta: PlanoConta = {
+        id: `pc-${Date.now()}`,
+        nome: formData.nome.trim(),
+        descricao: formData.descricao?.trim() || '',
+        categoriaId: formData.categoriaId,
+        tipo: formData.tipo,
+        ativo: formData.ativo,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      
+      const updated = [...planosContas, newPlanoConta];
+      
+      // Ordenar por categoria e nome
+      updated.sort((a, b) => {
+        if (a.categoriaId !== b.categoriaId) {
+          return a.categoriaId.localeCompare(b.categoriaId);
+        }
+        return a.nome.localeCompare(b.nome);
+      });
+      
+      setPlanosContas(updated);
+      toast({
+        title: "Sucesso",
+        description: "✓ Plano de conta criado com sucesso!",
+      });
+    }
+
+    handleCloseDialog();
+  };
+
+  const handleDelete = (planoConta: PlanoConta) => {
+    // TODO: Verificar se tem lançamentos vinculados quando módulo financeiro existir
+    // const lancamentos = getLancamentos();
+    // const temLancamentos = lancamentos.some(l => l.planoContaId === planoConta.id);
+    
+    // Por enquanto, permite excluir diretamente
+    setDeletingPlanoConta(planoConta);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (deletingPlanoConta) {
+      const updated = planosContas.filter(pc => pc.id !== deletingPlanoConta.id);
+      setPlanosContas(updated);
+      toast({
+        title: "Sucesso",
+        description: "✓ Plano de contas excluído com sucesso!",
+      });
+      setIsDeleteDialogOpen(false);
+      setDeletingPlanoConta(null);
+    }
+  };
+
+  const handleDeactivate = () => {
+    if (deletingPlanoConta) {
+      const updated = planosContas.map(pc =>
+        pc.id === deletingPlanoConta.id
+          ? { ...pc, ativo: false, updatedAt: new Date().toISOString() }
           : pc
       );
       setPlanosContas(updated);
       toast({
         title: "Sucesso",
-        description: "Plano de conta atualizado com sucesso",
+        description: "✓ Plano de contas desativado com sucesso!",
       });
-    } else {
-      const newPlanoConta: PlanoConta = {
-        id: `pc-${Date.now()}`,
-        ...formData,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      setPlanosContas([...planosContas, newPlanoConta]);
-      toast({
-        title: "Sucesso",
-        description: "Plano de conta criado com sucesso",
-      });
+      setIsDeactivateDialogOpen(false);
+      setDeletingPlanoConta(null);
     }
-
-    handleCloseDialog();
   };
 
   const getCategoriaNome = (categoriaId: string): string => {
@@ -1169,8 +1305,18 @@ export default function PlanosContas() {
                               size="icon"
                               onClick={() => handleOpenDialog(conta)}
                               className="hover:bg-[#F5E6E0]"
+                              title="Editar plano de contas"
                             >
                               <Pencil className="h-4 w-4" style={{ color: '#D89B8C' }} />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDelete(conta)}
+                              className="hover:bg-red-50"
+                              title="Excluir plano de contas"
+                            >
+                              <Trash2 className="h-4 w-4" style={{ color: '#D88B8B' }} />
                             </Button>
                           </div>
                         </div>
@@ -1343,6 +1489,62 @@ export default function PlanosContas() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog de Confirmação de Exclusão */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+            </div>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o plano de contas "{deletingPlanoConta?.nome}"?
+              <br /><br />
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Dialog de Desativação (para quando houver lançamentos) */}
+      <AlertDialog open={isDeactivateDialogOpen} onOpenChange={setIsDeactivateDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-warning" />
+              <AlertDialogTitle>Plano de Contas em Uso</AlertDialogTitle>
+            </div>
+            <AlertDialogDescription className="space-y-3">
+              <p>
+                Este plano possui lançamentos financeiros vinculados. Você pode:
+              </p>
+              <ol className="list-decimal list-inside space-y-1 ml-2">
+                <li>Desativar o plano (recomendado)</li>
+                <li>Reclassificar os lançamentos para outro plano e depois excluir</li>
+              </ol>
+              <p className="font-medium">
+                Deseja desativar este plano de contas?
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeactivate}>
+              Desativar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
