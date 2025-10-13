@@ -628,7 +628,7 @@ export default function CategoriasFinanceiras() {
   return (
     <div className="min-h-screen bg-background">
       <PageHeader
-        title="Categorias Financeiras"
+        title="Categorias"
         description="Organize suas receitas e despesas de forma simples"
       />
 
@@ -735,27 +735,15 @@ export default function CategoriasFinanceiras() {
                     <Edit2 className="h-4 w-4 mr-1" />
                     Editar
                   </Button>
-                  {categoria.editavel ? (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => confirmarExclusao(categoria)}
-                      className="text-error hover:text-error"
-                    >
-                      <Trash2 className="h-4 w-4 mr-1" />
-                      Excluir
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => desativarCategoria(categoria.id)}
-                      disabled={!categoria.ativo}
-                    >
-                      <X className="h-4 w-4 mr-1" />
-                      Desativar
-                    </Button>
-                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => desativarCategoria(categoria.id)}
+                    disabled={!categoria.ativo}
+                  >
+                    <X className="h-4 w-4 mr-1" />
+                    Desativar
+                  </Button>
                 </div>
               </div>
             ))}
@@ -818,26 +806,15 @@ export default function CategoriasFinanceiras() {
                         >
                           <Edit2 className="h-4 w-4" />
                         </Button>
-                        {categoria.editavel ? (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => confirmarExclusao(categoria)}
-                            title="Excluir"
-                          >
-                            <Trash2 className="h-4 w-4 text-error" />
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => desativarCategoria(categoria.id)}
-                            disabled={!categoria.ativo}
-                            title="Desativar"
-                          >
-                            <X className="h-4 w-4 text-warning" />
-                          </Button>
-                        )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => desativarCategoria(categoria.id)}
+                          disabled={!categoria.ativo}
+                          title="Desativar"
+                        >
+                          <X className="h-4 w-4 text-warning" />
+                        </Button>
                       </div>
                     </td>
                   </tr>
