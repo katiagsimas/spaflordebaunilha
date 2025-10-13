@@ -43,6 +43,7 @@ const bancosConhecidos = [
 ];
 
 const bancosIniciais: Banco[] = [
+  { id: "0", codigo: "000", descricao: "Caixa Empresa" },
   { id: "1", codigo: "001", descricao: "Banco do Brasil" },
   { id: "2", codigo: "033", descricao: "Santander" },
   { id: "3", codigo: "104", descricao: "Caixa Econômica Federal" },
