@@ -117,7 +117,7 @@ export default function SubReceitas() {
       <div className="flex justify-end">
         <Button onClick={handleCreateNew}>
           <Plus className="h-4 w-4 mr-2" />
-          Criar nova sub-receita
+          Criar novo Pré-Preparo
         </Button>
       </div>
 
