@@ -48,7 +48,7 @@ export default function Precificacao() {
     <div className="space-y-6">
       <PageHeader
         title="Precificação"
-        description="Gerencie cadastros, pré-preparo e fichas técnicas"
+        description="Gerencie a Precificação dos seus Produtos iniciando pelo Cadastro de Ingredientes e Embalagens; na sequência crie suas sub-receitas e Fichas Técnicas dos Produtos Finalizados"
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
