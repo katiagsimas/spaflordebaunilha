@@ -148,6 +148,7 @@ export type Database = {
           numero: string | null
           observacoes: string | null
           telefone: string | null
+          tipo: string | null
           updated_at: string
           usuario_id: string
         }
@@ -164,6 +165,7 @@ export type Database = {
           numero?: string | null
           observacoes?: string | null
           telefone?: string | null
+          tipo?: string | null
           updated_at?: string
           usuario_id: string
         }
@@ -180,6 +182,7 @@ export type Database = {
           numero?: string | null
           observacoes?: string | null
           telefone?: string | null
+          tipo?: string | null
           updated_at?: string
           usuario_id?: string
         }
