@@ -232,6 +232,45 @@ const Encomendas = () => {
                       }
                     />
                   </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="endereco">Endereço</Label>
+                    <Input
+                      id="endereco"
+                      type="text"
+                      value={formData.endereco}
+                      onChange={(e) =>
+                        setFormData({ ...formData, endereco: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="numero">Número</Label>
+                    <Input
+                      id="numero"
+                      type="text"
+                      value={formData.numero}
+                      onChange={(e) =>
+                        setFormData({ ...formData, numero: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cep">CEP</Label>
+                    <Input
+                      id="cep"
+                      type="text"
+                      value={formData.cep}
+                      onChange={(e) =>
+                        setFormData({ ...formData, cep: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="data_pedido">Data do Pedido *</Label>
                     <Input
@@ -288,42 +327,6 @@ const Encomendas = () => {
                       value={formData.hora_entrega}
                       onChange={(e) =>
                         setFormData({ ...formData, hora_entrega: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="endereco">Endereço</Label>
-                    <Input
-                      id="endereco"
-                      type="text"
-                      value={formData.endereco}
-                      onChange={(e) =>
-                        setFormData({ ...formData, endereco: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="numero">Número</Label>
-                    <Input
-                      id="numero"
-                      type="text"
-                      value={formData.numero}
-                      onChange={(e) =>
-                        setFormData({ ...formData, numero: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cep">CEP</Label>
-                    <Input
-                      id="cep"
-                      type="text"
-                      value={formData.cep}
-                      onChange={(e) =>
-                        setFormData({ ...formData, cep: e.target.value })
                       }
                     />
                   </div>
