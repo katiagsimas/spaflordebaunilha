@@ -130,7 +130,7 @@ export default function SeusDados() {
   // Mutation para atualizar perfil
   const updateProfileMutation = useMutation({
     mutationFn: async (data: SeusDadosForm) => {
-      if (!user) return;
+      if (!user) throw new Error("Usuário não autenticado");
       
       const { error } = await supabase
         .from('profiles')
@@ -148,11 +148,14 @@ export default function SeusDados() {
         })
         .eq('id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro do Supabase:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
-      toast.success("Dados salvos com sucesso!");
+      toast.success("✅ Dados salvos com sucesso!");
       
       // Se for primeiro acesso, redirecionar para dashboard
       if (profile?.primeiro_acesso) {
@@ -161,9 +164,19 @@ export default function SeusDados() {
         }, 1500);
       }
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Erro ao salvar dados:', error);
-      toast.error("Erro ao salvar dados. Tente novamente.");
+      
+      // Mensagens de erro mais específicas
+      let errorMessage = "Erro ao salvar dados. Tente novamente.";
+      
+      if (error?.message?.includes("value too long")) {
+        errorMessage = "Um dos campos excedeu o tamanho máximo permitido. Verifique os dados e tente novamente.";
+      } else if (error?.message) {
+        errorMessage = `Erro: ${error.message}`;
+      }
+      
+      toast.error(errorMessage);
     },
   });
 
