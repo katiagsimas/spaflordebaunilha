@@ -50,6 +50,7 @@ interface Receita {
   id: string;
   nome: string;
   categoria?: string;
+  cardapio?: "ativo" | "fora";
   tempoPreparo: number;
   unidadeTempo: "minutos" | "horas";
   rendimento: number;
@@ -203,8 +204,9 @@ export default function Receitas() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-center">Nome da Receita</TableHead>
+                <TableHead className="text-center w-[250px]">Nome da Receita</TableHead>
                 <TableHead className="text-center">Categoria</TableHead>
+                <TableHead className="text-center">Venda</TableHead>
                 <TableHead className="text-center">Valor de Venda</TableHead>
                 <TableHead className="text-center">Custos de Produção</TableHead>
                 <TableHead className="text-center">% CMV</TableHead>
@@ -227,7 +229,10 @@ export default function Receitas() {
                 return (
                   <TableRow key={receita.id}>
                     <TableCell className="font-medium">{receita.nome}</TableCell>
-                    <TableCell>{receita.categoria || "-"}</TableCell>
+                    <TableCell className="text-center">{receita.categoria || "-"}</TableCell>
+                    <TableCell className="text-center">
+                      {receita.cardapio === "ativo" ? "Ativo" : "Fora"}
+                    </TableCell>
                     <TableCell className="text-right">
                       R$ {(receita.valorVenda || 0).toFixed(2)}
                     </TableCell>
