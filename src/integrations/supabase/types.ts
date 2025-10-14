@@ -359,37 +359,52 @@ export type Database = {
       }
       encomendas: {
         Row: {
+          bairro: string | null
           cliente: string
           created_at: string
           data_entrega: string
           data_pedido: string
+          endereco: string | null
+          hora_entrega: string | null
           id: string
+          numero: string | null
           observacoes: string | null
           status: string
+          telefone: string | null
           updated_at: string
           usuario_id: string
           valor: number
         }
         Insert: {
+          bairro?: string | null
           cliente: string
           created_at?: string
           data_entrega: string
           data_pedido: string
+          endereco?: string | null
+          hora_entrega?: string | null
           id?: string
+          numero?: string | null
           observacoes?: string | null
           status?: string
+          telefone?: string | null
           updated_at?: string
           usuario_id: string
           valor: number
         }
         Update: {
+          bairro?: string | null
           cliente?: string
           created_at?: string
           data_entrega?: string
           data_pedido?: string
+          endereco?: string | null
+          hora_entrega?: string | null
           id?: string
+          numero?: string | null
           observacoes?: string | null
           status?: string
+          telefone?: string | null
           updated_at?: string
           usuario_id?: string
           valor?: number

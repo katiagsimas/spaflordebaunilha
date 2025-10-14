@@ -9,9 +9,14 @@ interface Encomenda {
   cliente: string;
   data_pedido: string;
   data_entrega: string;
+  hora_entrega?: string;
   status: string;
   valor: number;
   observacoes?: string;
+  telefone?: string;
+  endereco?: string;
+  numero?: string;
+  bairro?: string;
   created_at?: string;
   updated_at?: string;
 }

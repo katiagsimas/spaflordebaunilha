@@ -13,6 +13,7 @@ import { useEncomendas } from "@/hooks/useEncomendas";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { ClienteAutocomplete } from "@/components/ClienteAutocomplete";
+import { useClientes } from "@/hooks/useClientes";
 
 const statusColors = {
   pendente: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -34,6 +35,7 @@ const statusLabels = {
 
 const Encomendas = () => {
   const { encomendas, loading, createEncomenda, updateEncomenda, deleteEncomenda } = useEncomendas();
+  const { clientes } = useClientes();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<any | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,9 +45,14 @@ const Encomendas = () => {
     cliente: "",
     data_pedido: new Date().toISOString().split("T")[0],
     data_entrega: "",
+    hora_entrega: "",
     status: "pendente",
     valor: 0,
     observacoes: "",
+    telefone: "",
+    endereco: "",
+    numero: "",
+    bairro: "",
   });
 
   const resetForm = () => {
@@ -53,9 +60,14 @@ const Encomendas = () => {
       cliente: "",
       data_pedido: new Date().toISOString().split("T")[0],
       data_entrega: "",
+      hora_entrega: "",
       status: "pendente",
       valor: 0,
       observacoes: "",
+      telefone: "",
+      endereco: "",
+      numero: "",
+      bairro: "",
     });
     setEditingOrder(null);
   };
@@ -82,11 +94,32 @@ const Encomendas = () => {
       cliente: encomenda.cliente,
       data_pedido: encomenda.data_pedido,
       data_entrega: encomenda.data_entrega,
+      hora_entrega: encomenda.hora_entrega || "",
       status: encomenda.status,
       valor: encomenda.valor,
       observacoes: encomenda.observacoes || "",
+      telefone: encomenda.telefone || "",
+      endereco: encomenda.endereco || "",
+      numero: encomenda.numero || "",
+      bairro: encomenda.bairro || "",
     });
     setDialogOpen(true);
+  };
+
+  const handleClienteSelect = (clienteNome: string) => {
+    const cliente = clientes.find(c => c.nome === clienteNome);
+    if (cliente) {
+      setFormData({
+        ...formData,
+        cliente: clienteNome,
+        telefone: cliente.telefone || "",
+        endereco: cliente.endereco || "",
+        numero: cliente.numero || "",
+        bairro: "", // bairro não existe na tabela clientes
+      });
+    } else {
+      setFormData({ ...formData, cliente: clienteNome });
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -184,10 +217,19 @@ const Encomendas = () => {
                     <Label htmlFor="cliente">Nome do Cliente *</Label>
                     <ClienteAutocomplete
                       value={formData.cliente}
-                      onSelect={(clienteNome) =>
-                        setFormData({ ...formData, cliente: clienteNome })
-                      }
+                      onSelect={handleClienteSelect}
                       placeholder="Selecione ou busque um cliente..."
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="telefone">Telefone/WhatsApp</Label>
+                    <Input
+                      id="telefone"
+                      type="text"
+                      value={formData.telefone}
+                      onChange={(e) =>
+                        setFormData({ ...formData, telefone: e.target.value })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
@@ -211,6 +253,53 @@ const Encomendas = () => {
                       value={formData.data_entrega}
                       onChange={(e) =>
                         setFormData({ ...formData, data_entrega: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="hora_entrega">Hora da Entrega</Label>
+                    <Input
+                      id="hora_entrega"
+                      type="time"
+                      value={formData.hora_entrega}
+                      onChange={(e) =>
+                        setFormData({ ...formData, hora_entrega: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="endereco">Endereço</Label>
+                    <Input
+                      id="endereco"
+                      type="text"
+                      value={formData.endereco}
+                      onChange={(e) =>
+                        setFormData({ ...formData, endereco: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="numero">Número</Label>
+                    <Input
+                      id="numero"
+                      type="text"
+                      value={formData.numero}
+                      onChange={(e) =>
+                        setFormData({ ...formData, numero: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bairro">Bairro</Label>
+                    <Input
+                      id="bairro"
+                      type="text"
+                      value={formData.bairro}
+                      onChange={(e) =>
+                        setFormData({ ...formData, bairro: e.target.value })
                       }
                     />
                   </div>
