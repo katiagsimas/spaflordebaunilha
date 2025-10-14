@@ -16,6 +16,7 @@ interface Cliente {
   estado?: string;
   cep?: string;
   cpf_cnpj?: string;
+  data_aniversario?: string;
   observacoes?: string;
   created_at?: string;
   updated_at?: string;

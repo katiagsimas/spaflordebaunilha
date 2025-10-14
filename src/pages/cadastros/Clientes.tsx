@@ -34,6 +34,7 @@ export default function Clientes() {
     telefone: "",
     email: "",
     cpf_cnpj: "",
+    data_aniversario: "",
     cep: "",
     endereco: "",
     numero: "",
@@ -76,6 +77,7 @@ export default function Clientes() {
       telefone: "",
       email: "",
       cpf_cnpj: "",
+      data_aniversario: "",
       cep: "",
       endereco: "",
       numero: "",
@@ -197,6 +199,15 @@ export default function Clientes() {
                     />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="data_aniversario">Data de Aniversário</Label>
+                    <Input
+                      id="data_aniversario"
+                      type="date"
+                      value={formData.data_aniversario}
+                      onChange={(e) => setFormData({ ...formData, data_aniversario: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="cep">CEP</Label>
                     <div className="flex gap-2">
                       <Input
@@ -307,7 +318,7 @@ export default function Clientes() {
                     <TableHead>Tipo</TableHead>
                     <TableHead>Telefone</TableHead>
                     <TableHead>E-mail</TableHead>
-                    <TableHead>CPF/CNPJ</TableHead>
+                    <TableHead>Aniversário</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -318,7 +329,11 @@ export default function Clientes() {
                       <TableCell>{cliente.tipo || "PF"}</TableCell>
                       <TableCell>{cliente.telefone}</TableCell>
                       <TableCell>{cliente.email || "-"}</TableCell>
-                      <TableCell>{cliente.cpf_cnpj || "-"}</TableCell>
+                      <TableCell>
+                        {cliente.data_aniversario 
+                          ? new Date(cliente.data_aniversario + 'T00:00:00').toLocaleDateString('pt-BR')
+                          : "-"}
+                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex gap-2 justify-end">
                           <Button

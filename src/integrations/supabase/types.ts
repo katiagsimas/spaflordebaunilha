@@ -140,6 +140,7 @@ export type Database = {
           cidade: string | null
           cpf_cnpj: string | null
           created_at: string
+          data_aniversario: string | null
           email: string | null
           endereco: string | null
           estado: string | null
@@ -157,6 +158,7 @@ export type Database = {
           cidade?: string | null
           cpf_cnpj?: string | null
           created_at?: string
+          data_aniversario?: string | null
           email?: string | null
           endereco?: string | null
           estado?: string | null
@@ -174,6 +176,7 @@ export type Database = {
           cidade?: string | null
           cpf_cnpj?: string | null
           created_at?: string
+          data_aniversario?: string | null
           email?: string | null
           endereco?: string | null
           estado?: string | null
