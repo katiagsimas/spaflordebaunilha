@@ -122,7 +122,7 @@ export default function Clientes() {
         <div className="flex-1">
           <PageHeader
             title="Clientes"
-            description="Gerencie seus clientes"
+            description={`Gerencie seus clientes - ${clientes.length} ${clientes.length === 1 ? 'cliente cadastrado' : 'clientes cadastrados'}`}
           />
         </div>
       </div>
