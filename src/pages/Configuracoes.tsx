@@ -41,7 +41,7 @@ const opcoes = [
     color: "text-primary bg-primary/10",
     url: "/configuracoes/categorias",
     statusKey: null,
-    requiresAdmin: true,
+    requiresAdmin: false,
   },
   {
     title: "Planos de Contas",
@@ -50,7 +50,7 @@ const opcoes = [
     color: "text-secondary bg-secondary/10",
     url: "/configuracoes/planos-contas",
     statusKey: null,
-    requiresAdmin: true,
+    requiresAdmin: false,
   },
   {
     title: "Tipos de Documento",
