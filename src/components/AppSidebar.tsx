@@ -1,4 +1,4 @@
-import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake } from "lucide-react";
 import sugarboxSidebar from "@/assets/sugarbox-sidebar.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -55,6 +55,28 @@ export function AppSidebar() {
     enabled: !!user,
   });
 
+  // Buscar aniversariantes do mês de fornecedores
+  const { data: aniversariantesDoMes = [] } = useQuery({
+    queryKey: ['fornecedores-aniversariantes', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const mesAtual = new Date().getMonth();
+      const { data } = await supabase
+        .from('fornecedores')
+        .select('*')
+        .eq('usuario_id', user.id);
+      
+      if (!data) return [];
+      
+      return data.filter(fornecedor => {
+        if (!fornecedor.data_aniversario_contato || !fornecedor.contato) return false;
+        const dataAniversario = new Date(fornecedor.data_aniversario_contato + 'T00:00:00');
+        return dataAniversario.getMonth() === mesAtual;
+      });
+    },
+    enabled: !!user,
+  });
+
   const handleLogout = async () => {
     await signOut();
     navigate("/auth/login");
@@ -98,6 +120,9 @@ export function AppSidebar() {
                             {open && (
                               <>
                                 <span className="flex-1">{item.title}</span>
+                                {item.title === "Fornecedores" && aniversariantesDoMes.length > 0 && (
+                                  <Cake className="h-4 w-4 text-purple-500 animate-bounce" />
+                                )}
                                 {!item.active && (
                                   <Badge className="bg-warning text-foreground text-xs px-2 py-0.5 rounded-full font-medium">
                                     Em breve

@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
-import { BackButton } from "@/components/BackButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useFornecedores } from "@/hooks/useFornecedores";
-import { Plus, Pencil, Trash2, Truck, ChevronDown } from "lucide-react";
+import { Plus, Pencil, Trash2, Truck, ChevronDown, Cake } from "lucide-react";
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
@@ -115,6 +114,20 @@ export default function Fornecedores() {
     setEditingId(id);
   };
 
+  // Filtrar aniversariantes do mês
+  const aniversariantesDoMes = useMemo(() => {
+    const mesAtual = new Date().getMonth();
+    return fornecedores.filter(fornecedor => {
+      if (!fornecedor.data_aniversario_contato || !fornecedor.contato) return false;
+      const dataAniversario = new Date(fornecedor.data_aniversario_contato + 'T00:00:00');
+      return dataAniversario.getMonth() === mesAtual;
+    }).sort((a, b) => {
+      const dataA = new Date(a.data_aniversario_contato! + 'T00:00:00').getDate();
+      const dataB = new Date(b.data_aniversario_contato! + 'T00:00:00').getDate();
+      return dataA - dataB;
+    });
+  }, [fornecedores]);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -125,6 +138,40 @@ export default function Fornecedores() {
           />
         </div>
       </div>
+
+      {aniversariantesDoMes.length > 0 && (
+        <Card className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border-purple-200 dark:border-purple-800">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
+              <Cake className="h-5 w-5 animate-bounce" />
+              🎉 Aniversariantes do Mês
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {aniversariantesDoMes.map((fornecedor) => (
+                <div 
+                  key={fornecedor.id}
+                  className="flex items-center justify-between p-3 bg-white dark:bg-gray-900 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div className="flex-1">
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">
+                      {fornecedor.contato}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {new Date(fornecedor.data_aniversario_contato! + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500">
+                      {fornecedor.nome}
+                    </p>
+                  </div>
+                  <Cake className="h-8 w-8 text-purple-400" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
