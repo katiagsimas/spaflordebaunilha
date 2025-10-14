@@ -1286,7 +1286,18 @@ const Encomendas = () => {
                       </TableCell>
                       <TableCell>{new Date(encomenda.data_pedido).toLocaleDateString("pt-BR")}</TableCell>
                       <TableCell>{new Date(encomenda.data_entrega).toLocaleDateString("pt-BR")}</TableCell>
-                      <TableCell>R$ {encomenda.valor.toFixed(2)}</TableCell>
+                      <TableCell>
+                        R$ {(() => {
+                          // Calcular valor final: valor base - desconto + taxas extras
+                          const descontoPerc = (encomenda.valor * (encomenda.desconto_percentual || 0)) / 100;
+                          const descontoTotal = descontoPerc + (encomenda.desconto_valor || 0);
+                          const valorFinal = encomenda.valor - descontoTotal + 
+                            (encomenda.taxa_entrega || 0) + 
+                            (encomenda.topo_bolo || 0) + 
+                            (encomenda.outros || 0);
+                          return valorFinal.toFixed(2);
+                        })()}
+                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex gap-1 justify-end">
                           <Button
