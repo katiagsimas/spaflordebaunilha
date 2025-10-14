@@ -203,15 +203,15 @@ export default function Receitas() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nome da Receita</TableHead>
-                <TableHead>Categoria</TableHead>
-                <TableHead className="text-right">Valor de Venda</TableHead>
-                <TableHead className="text-right">Custos de Produção</TableHead>
-                <TableHead className="text-right">% CMV</TableHead>
-                <TableHead className="text-right">Margem R$</TableHead>
-                <TableHead className="text-right">Margem %</TableHead>
-                <TableHead className="text-right">Custos c/ Vendas</TableHead>
-                <TableHead className="text-right">Lucro</TableHead>
+                <TableHead className="text-center">Nome da Receita</TableHead>
+                <TableHead className="text-center">Categoria</TableHead>
+                <TableHead className="text-center">Valor de Venda</TableHead>
+                <TableHead className="text-center">Custos de Produção</TableHead>
+                <TableHead className="text-center">% CMV</TableHead>
+                <TableHead className="text-center">Margem R$</TableHead>
+                <TableHead className="text-center">Margem %</TableHead>
+                <TableHead className="text-center">Custos c/ Vendas</TableHead>
+                <TableHead className="text-center">Lucro</TableHead>
                 <TableHead className="text-center">Ações</TableHead>
               </TableRow>
             </TableHeader>

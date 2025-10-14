@@ -163,11 +163,11 @@ export default function SubReceitas() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Rendimento</TableHead>
-                    <TableHead>Unidade</TableHead>
-                    <TableHead>Custos de Produção</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
+                    <TableHead className="text-center">Nome</TableHead>
+                    <TableHead className="text-center">Rendimento</TableHead>
+                    <TableHead className="text-center">Unidade</TableHead>
+                    <TableHead className="text-center">Custos de Produção</TableHead>
+                    <TableHead className="text-center">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
