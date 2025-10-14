@@ -52,7 +52,7 @@ const Encomendas = () => {
     telefone: "",
     endereco: "",
     numero: "",
-    bairro: "",
+    cep: "",
   });
 
   const resetForm = () => {
@@ -67,7 +67,7 @@ const Encomendas = () => {
       telefone: "",
       endereco: "",
       numero: "",
-      bairro: "",
+      cep: "",
     });
     setEditingOrder(null);
   };
@@ -101,7 +101,7 @@ const Encomendas = () => {
       telefone: encomenda.telefone || "",
       endereco: encomenda.endereco || "",
       numero: encomenda.numero || "",
-      bairro: encomenda.bairro || "",
+      cep: encomenda.cep || "",
     });
     setDialogOpen(true);
   };
@@ -115,7 +115,7 @@ const Encomendas = () => {
         telefone: cliente.telefone || "",
         endereco: cliente.endereco || "",
         numero: cliente.numero || "",
-        bairro: "", // bairro não existe na tabela clientes
+        cep: cliente.cep || "",
       });
     } else {
       setFormData({ ...formData, cliente: clienteNome });
@@ -293,13 +293,13 @@ const Encomendas = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="bairro">Bairro</Label>
+                    <Label htmlFor="cep">CEP</Label>
                     <Input
-                      id="bairro"
+                      id="cep"
                       type="text"
-                      value={formData.bairro}
+                      value={formData.cep}
                       onChange={(e) =>
-                        setFormData({ ...formData, bairro: e.target.value })
+                        setFormData({ ...formData, cep: e.target.value })
                       }
                     />
                   </div>

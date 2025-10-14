@@ -16,7 +16,7 @@ interface Encomenda {
   telefone?: string;
   endereco?: string;
   numero?: string;
-  bairro?: string;
+  cep?: string;
   created_at?: string;
   updated_at?: string;
 }
