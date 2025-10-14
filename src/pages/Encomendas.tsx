@@ -623,7 +623,7 @@ const Encomendas = () => {
                           </TableRow>
                           <TableRow className="bg-yellow-50 dark:bg-yellow-950/20">
                             <TableCell colSpan={4} className="text-right font-semibold text-yellow-800 dark:text-yellow-200">
-                              Desconto:
+                              Desconto Concedido:
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex gap-2 items-center justify-end">
