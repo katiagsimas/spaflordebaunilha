@@ -22,7 +22,7 @@ export const useTiposInsumos = () => {
       const { data, error } = await supabase
         .from("tipos_insumos")
         .select("*")
-        .order("codigo", { ascending: true });
+        .order("descricao", { ascending: true });
 
       if (error) throw error;
       return data as TipoInsumo[];
