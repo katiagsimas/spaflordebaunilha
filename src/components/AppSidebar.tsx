@@ -1,6 +1,9 @@
 import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package } from "lucide-react";
 import sugarboxSidebar from "@/assets/sugarbox-sidebar.png";
 import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Sidebar,
   SidebarContent,
@@ -33,12 +36,27 @@ const menuItems = [
 
 export function AppSidebar() {
   const { open } = useSidebar();
-  const [nomeNegocio, setNomeNegocio] = useLocalStorage<string>("nomeNegocio", "");
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    setNomeNegocio("");
-    navigate("/login");
+  // Buscar perfil do usuário
+  const { data: profile } = useQuery({
+    queryKey: ['profile', user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/auth/login");
   };
 
   return (
@@ -98,12 +116,17 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {open && nomeNegocio && (
+      {open && profile && (
         <SidebarFooter className="border-t border-border p-6">
           <div className="space-y-2">
-            <p className="text-sm font-semibold text-foreground truncate">
-              {nomeNegocio}
-            </p>
+            <div>
+              <p className="text-sm font-semibold text-foreground truncate">
+                {profile.nome_confeitaria || profile.nome_completo}
+              </p>
+              <p className="text-xs text-muted-foreground truncate">
+                {user?.email}
+              </p>
+            </div>
             <Button 
               onClick={handleLogout}
               variant="outline" 
