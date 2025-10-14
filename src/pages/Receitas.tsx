@@ -250,7 +250,7 @@ export default function Receitas() {
                       R$ {lucro.toFixed(2)}
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-2 justify-center">
+                      <div className="flex gap-1 justify-center">
                         <Button
                           variant="ghost"
                           size="icon"
