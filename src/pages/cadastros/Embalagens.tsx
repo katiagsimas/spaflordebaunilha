@@ -51,6 +51,7 @@ export default function Embalagens() {
   useEffect(() => {
     if (editingEmbalagem) {
       setFormData(editingEmbalagem);
+      setSelectedTipoId("");
       setIsDialogOpen(true);
     }
   }, [editingEmbalagem]);
@@ -141,7 +142,6 @@ export default function Embalagens() {
                     <TipoEmbalagemAutocomplete
                       onSelect={handleTipoSelect}
                       value={selectedTipoId}
-                      onAfterCreate={() => setIsDialogOpen(true)}
                     />
                     <p className="text-xs text-muted-foreground">
                       Selecione um tipo para preencher automaticamente nome, quantidade e unidade
