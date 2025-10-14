@@ -3,8 +3,7 @@
  * Permite acesso rápido ao sistema sem precisar digitar credenciais
  */
 
-export const DEV_MODE = import.meta.env.MODE === 'development' || 
-                        window.location.hostname.includes('lovable.app');
+export const DEV_MODE = import.meta.env.MODE === 'development';
 
 const ADMIN_EMAIL = 'katiagsimas@gmail.com';
 const DEV_CREDENTIALS_KEY = 'dev_admin_credentials';
