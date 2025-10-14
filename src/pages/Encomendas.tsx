@@ -512,7 +512,8 @@ const Encomendas = () => {
                                 id="unidade-medida"
                                 type="text"
                                 disabled
-                                value={produtoForm.unidade_medida}
+                                value={produtoForm.unidade_medida || "Selecione um produto"}
+                                className="bg-muted"
                               />
                             </div>
                           </div>
