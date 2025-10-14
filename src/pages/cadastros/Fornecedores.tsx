@@ -122,7 +122,7 @@ export default function Fornecedores() {
         <div className="flex-1">
           <PageHeader
             title="Fornecedores"
-            description={`Gerencie seus fornecedores - ${fornecedores.length} ${fornecedores.length === 1 ? 'fornecedor cadastrado' : 'fornecedores cadastrados'}`}
+            description="Gerencie seus fornecedores"
           />
         </div>
       </div>
