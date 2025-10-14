@@ -357,6 +357,48 @@ export type Database = {
         }
         Relationships: []
       }
+      encomenda_itens: {
+        Row: {
+          created_at: string
+          encomenda_id: string
+          id: string
+          produto: string
+          quantidade: number
+          receita_id: string
+          subtotal: number
+          unidade_medida: string
+          updated_at: string
+          usuario_id: string
+          valor_unitario: number
+        }
+        Insert: {
+          created_at?: string
+          encomenda_id: string
+          id?: string
+          produto: string
+          quantidade: number
+          receita_id: string
+          subtotal: number
+          unidade_medida: string
+          updated_at?: string
+          usuario_id: string
+          valor_unitario: number
+        }
+        Update: {
+          created_at?: string
+          encomenda_id?: string
+          id?: string
+          produto?: string
+          quantidade?: number
+          receita_id?: string
+          subtotal?: number
+          unidade_medida?: string
+          updated_at?: string
+          usuario_id?: string
+          valor_unitario?: number
+        }
+        Relationships: []
+      }
       encomendas: {
         Row: {
           cep: string | null

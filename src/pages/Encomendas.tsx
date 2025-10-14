@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,12 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck, Package } from "lucide-react";
 import { useEncomendas } from "@/hooks/useEncomendas";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { ClienteAutocomplete } from "@/components/ClienteAutocomplete";
 import { useClientes } from "@/hooks/useClientes";
+import { useReceitas } from "@/hooks/useReceitas";
+import { useEncomendaItens } from "@/hooks/useEncomendaItens";
 
 const statusColors = {
   pendente: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -36,7 +38,9 @@ const statusLabels = {
 const Encomendas = () => {
   const { encomendas, loading, createEncomenda, updateEncomenda, deleteEncomenda } = useEncomendas();
   const { clientes } = useClientes();
+  const { receitas } = useReceitas();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [produtoDialogOpen, setProdutoDialogOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<any | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("Todos");
@@ -54,6 +58,20 @@ const Encomendas = () => {
     numero: "",
     cep: "",
   });
+
+  const [produtoForm, setProdutoForm] = useState({
+    receita_id: "",
+    produto: "",
+    quantidade: "",
+    unidade_medida: "",
+    valor_unitario: 0,
+  });
+
+  const { itens: produtosEncomenda, createItem, deleteItem } = useEncomendaItens(editingOrder?.id || null);
+
+  const valorTotalProdutos = useMemo(() => {
+    return produtosEncomenda.reduce((total, item) => total + item.subtotal, 0);
+  }, [produtosEncomenda]);
 
   const resetForm = () => {
     setFormData({
@@ -119,6 +137,67 @@ const Encomendas = () => {
       });
     } else {
       setFormData({ ...formData, cliente: clienteNome });
+    }
+  };
+
+  const handleProdutoSelect = (receitaId: string) => {
+    const receita = receitas.find(r => r.id === receitaId);
+    if (receita) {
+      setProdutoForm({
+        receita_id: receitaId,
+        produto: receita.nome,
+        quantidade: "",
+        unidade_medida: receita.unidadeRendimento,
+        valor_unitario: receita.valorVenda || 0,
+      });
+    }
+  };
+
+  const handleAddProduto = async () => {
+    if (!editingOrder) {
+      toast.error("Salve a encomenda antes de adicionar produtos");
+      return;
+    }
+
+    if (!produtoForm.receita_id || !produtoForm.quantidade) {
+      toast.error("Preencha todos os campos obrigatórios");
+      return;
+    }
+
+    const quantidade = parseFloat(produtoForm.quantidade);
+    const subtotal = quantidade * produtoForm.valor_unitario;
+
+    try {
+      await createItem({
+        encomenda_id: editingOrder.id,
+        receita_id: produtoForm.receita_id,
+        produto: produtoForm.produto,
+        quantidade,
+        unidade_medida: produtoForm.unidade_medida,
+        valor_unitario: produtoForm.valor_unitario,
+        subtotal,
+      });
+
+      setProdutoForm({
+        receita_id: "",
+        produto: "",
+        quantidade: "",
+        unidade_medida: "",
+        valor_unitario: 0,
+      });
+      setProdutoDialogOpen(false);
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao adicionar produto");
+    }
+  };
+
+  const handleRemoveProduto = async (itemId: string) => {
+    if (confirm("Tem certeza que deseja remover este produto?")) {
+      try {
+        await deleteItem(itemId);
+      } catch (error: any) {
+        toast.error(error.message || "Erro ao remover produto");
+      }
     }
   };
 
@@ -330,6 +409,149 @@ const Encomendas = () => {
                       }
                     />
                   </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label>Produtos da Encomenda</Label>
+                    <Dialog open={produtoDialogOpen} onOpenChange={setProdutoDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button type="button" variant="outline" size="sm" disabled={!editingOrder}>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Adicionar Produtos
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>Adicionar Produto</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="produto-select">Produto *</Label>
+                            <Select
+                              value={produtoForm.receita_id}
+                              onValueChange={handleProdutoSelect}
+                            >
+                              <SelectTrigger className="bg-popover">
+                                <SelectValue placeholder="Selecione um produto..." />
+                              </SelectTrigger>
+                              <SelectContent className="bg-popover z-50">
+                                {receitas.map((receita) => (
+                                  <SelectItem key={receita.id} value={receita.id}>
+                                    {receita.nome}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-2">
+                              <Label htmlFor="quantidade">Quantidade *</Label>
+                              <Input
+                                id="quantidade"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={produtoForm.quantidade}
+                                onChange={(e) =>
+                                  setProdutoForm({ ...produtoForm, quantidade: e.target.value })
+                                }
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="unidade-medida">Unidade de Medida</Label>
+                              <Input
+                                id="unidade-medida"
+                                type="text"
+                                disabled
+                                value={produtoForm.unidade_medida}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-2">
+                              <Label htmlFor="valor-unitario">Valor Unitário (R$)</Label>
+                              <Input
+                                id="valor-unitario"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={produtoForm.valor_unitario}
+                                onChange={(e) =>
+                                  setProdutoForm({ ...produtoForm, valor_unitario: Number(e.target.value) })
+                                }
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Subtotal</Label>
+                              <Input
+                                type="text"
+                                disabled
+                                value={`R$ ${(parseFloat(produtoForm.quantidade || "0") * produtoForm.valor_unitario).toFixed(2)}`}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="flex gap-2 justify-end">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => setProdutoDialogOpen(false)}
+                            >
+                              Cancelar
+                            </Button>
+                            <Button type="button" onClick={handleAddProduto}>
+                              Adicionar
+                            </Button>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+
+                  {produtosEncomenda.length > 0 && (
+                    <div className="border rounded-lg">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Produto</TableHead>
+                            <TableHead className="text-right">Qtd</TableHead>
+                            <TableHead className="text-center">Un.</TableHead>
+                            <TableHead className="text-right">Valor Unit.</TableHead>
+                            <TableHead className="text-right">Subtotal</TableHead>
+                            <TableHead className="text-center">Ações</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {produtosEncomenda.map((item) => (
+                            <TableRow key={item.id}>
+                              <TableCell>{item.produto}</TableCell>
+                              <TableCell className="text-right">{item.quantidade}</TableCell>
+                              <TableCell className="text-center">{item.unidade_medida}</TableCell>
+                              <TableCell className="text-right">R$ {item.valor_unitario.toFixed(2)}</TableCell>
+                              <TableCell className="text-right">R$ {item.subtotal.toFixed(2)}</TableCell>
+                              <TableCell className="text-center">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleRemoveProduto(item.id)}
+                                >
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                          <TableRow>
+                            <TableCell colSpan={4} className="text-right font-bold">Total:</TableCell>
+                            <TableCell className="text-right font-bold">R$ {valorTotalProdutos.toFixed(2)}</TableCell>
+                            <TableCell></TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-2">
