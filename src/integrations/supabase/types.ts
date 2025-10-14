@@ -145,6 +145,7 @@ export type Database = {
           estado: string | null
           id: string
           nome: string
+          numero: string | null
           observacoes: string | null
           telefone: string | null
           updated_at: string
@@ -160,6 +161,7 @@ export type Database = {
           estado?: string | null
           id?: string
           nome: string
+          numero?: string | null
           observacoes?: string | null
           telefone?: string | null
           updated_at?: string
@@ -175,6 +177,7 @@ export type Database = {
           estado?: string | null
           id?: string
           nome?: string
+          numero?: string | null
           observacoes?: string | null
           telefone?: string | null
           updated_at?: string
