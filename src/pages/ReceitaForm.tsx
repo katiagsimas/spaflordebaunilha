@@ -335,7 +335,17 @@ export default function ReceitaForm() {
   // Custo total sem taxas
   const custoTotal = custoIngredientes + custoEmbalagens + custoFixoReceita + outrosGastosValor;
   
-  // Calcular despesas de venda
+  // Calcular despesas de venda automaticamente quando o valor de venda mudar
+  useEffect(() => {
+    if (valorVenda > 0) {
+      const novasDespesas = despesasVenda.map(despesa => ({
+        ...despesa,
+        valor: valorVenda * (despesa.percentual / 100)
+      }));
+      setDespesasVenda(novasDespesas);
+    }
+  }, [valorVenda]);
+
   const handleDespesaChange = (index: number, field: 'percentual' | 'valor', value: number) => {
     const novasDespesas = [...despesasVenda];
     if (field === 'percentual') {
@@ -350,7 +360,7 @@ export default function ReceitaForm() {
 
   const totalDespesasVenda = despesasVenda.reduce((acc, despesa) => acc + despesa.valor, 0);
   
-  // CMV (Custo da Mercadoria Vendida)
+  // CMV (Custo da Mercadoria Vendida) = Custo Total + Despesas de Venda
   const cmv = custoTotal + totalDespesasVenda;
   const percentualCMV = valorVenda > 0 ? (cmv / valorVenda) * 100 : 0;
   
