@@ -997,14 +997,6 @@ const Encomendas = () => {
                         </Card>
                       </div>
 
-                      {/* Valor Final */}
-                      <div className="mt-4 p-6 bg-primary/10 dark:bg-primary/20 rounded-lg border-2 border-primary">
-                        <div className="flex justify-between items-center">
-                          <span className="text-lg font-bold text-foreground">VALOR FINAL</span>
-                          <span className="text-3xl font-bold text-primary">
-                            R$ {valorFinal.toFixed(2)}
-                          </span>
-                      </div>
 
                       {/* Sistema de Pagamentos */}
                       <div className="mt-6 space-y-4">
@@ -1169,28 +1161,9 @@ const Encomendas = () => {
                         </Card>
                       </div>
                     </div>
-
-                      <Table className="hidden">
-                        <TableBody>
-                        </TableBody>
-                      </Table>
-                    </div>
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="valor">Valor Final (R$) *</Label>
-                  <Input
-                    id="valor"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    required
-                    disabled
-                    value={valorFinal.toFixed(2)}
-                    className="bg-muted font-bold text-lg"
-                  />
-                </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="observacoes">Observações</Label>
