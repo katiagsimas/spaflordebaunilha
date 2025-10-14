@@ -7,6 +7,7 @@ interface ConfigStatus {
   categorias: boolean;
   unidadesMedida: boolean;
   bancos: boolean;
+  tiposDocumento: boolean;
 }
 
 /**
@@ -24,6 +25,7 @@ export function useConfigStatus() {
           categorias: false,
           unidadesMedida: false,
           bancos: false,
+          tiposDocumento: false,
         };
       }
 
@@ -59,11 +61,16 @@ export function useConfigStatus() {
         .select('*', { count: 'exact', head: true })
         .eq('usuario_id', user.id);
 
+      // Verificar tipos de documento no localStorage
+      const tiposDocumento = localStorage.getItem('sugarbox_tipos_documento');
+      const hasTiposDocumento = tiposDocumento ? JSON.parse(tiposDocumento).length > 0 : false;
+
       return {
         seusDados,
         categorias: (categoriasCount || 0) > 0,
         unidadesMedida: (unidadesCount || 0) > 0,
         bancos: (bancosCount || 0) > 0,
+        tiposDocumento: hasTiposDocumento,
       };
     },
     enabled: !!user,

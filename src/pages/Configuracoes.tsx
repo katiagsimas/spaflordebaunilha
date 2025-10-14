@@ -58,7 +58,7 @@ const opcoes = [
     icon: CreditCard,
     color: "text-success bg-success/10",
     url: "/configuracoes/tipos-documento",
-    statusKey: null,
+    statusKey: "tiposDocumento" as const,
     requiresAdmin: false,
   },
   {
