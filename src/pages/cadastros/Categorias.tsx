@@ -10,43 +10,46 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useCategorias } from "@/hooks/useCategorias";
 import { Plus, Pencil, Trash2, Tag } from "lucide-react";
 import { toast } from "sonner";
 
-interface Categoria {
-  id: string;
-  nome: string;
-}
-
-const categoriasIniciais: Categoria[] = [
-  { id: "1", nome: "Bolo Caseiro" },
-  { id: "2", nome: "Bolo Decorado" },
-  { id: "3", nome: "Doces" },
-  { id: "4", nome: "Salgados" },
-  { id: "5", nome: "Fatias" },
+const categoriasIniciais = [
+  "Bolo Caseiro",
+  "Bolo Decorado",
+  "Doces",
+  "Salgados",
+  "Fatias",
 ];
 
 export default function Categorias() {
   const navigate = useNavigate();
   
-  // Forçar reset se necessário - mudando a chave para garantir carregamento das categorias iniciais
-  const [categorias, setCategorias] = useLocalStorage<Categoria[]>("sugarbox_categorias_receitas", categoriasIniciais);
+  const { categorias, loading, createCategoria, updateCategoria, deleteCategoria } = useCategorias();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingCategoria, setEditingCategoria] = useState<Categoria | null>(null);
+  const [editingCategoria, setEditingCategoria] = useState<any | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     nome: "",
   });
 
-
   // Garantir que as categorias iniciais sejam carregadas se estiver vazio
   useEffect(() => {
-    if (categorias.length === 0) {
-      setCategorias(categoriasIniciais);
-    }
-  }, []);
+    const initializeCategorias = async () => {
+      if (!loading && categorias.length === 0) {
+        for (const nome of categoriasIniciais) {
+          try {
+            await createCategoria({ nome });
+          } catch (error) {
+            console.error('Erro ao criar categoria inicial:', error);
+          }
+        }
+      }
+    };
+    
+    initializeCategorias();
+  }, [loading, categorias.length]);
 
   useEffect(() => {
     if (editingCategoria) {
@@ -55,7 +58,7 @@ export default function Categorias() {
     }
   }, [editingCategoria]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.nome.trim()) {
@@ -63,25 +66,16 @@ export default function Categorias() {
       return;
     }
 
-    if (editingCategoria) {
-      const updatedCategorias = categorias.map(c => 
-        c.id === editingCategoria.id ? { ...formData, id: c.id } : c
-      );
-      // Ordenar alfabeticamente
-      setCategorias(updatedCategorias.sort((a, b) => a.nome.localeCompare(b.nome)));
-      toast.success("Categoria atualizada com sucesso!");
-    } else {
-      const newCategoria: Categoria = {
-        ...formData,
-        id: Date.now().toString(),
-      };
-      // Adicionar e ordenar alfabeticamente
-      const updatedCategorias = [...categorias, newCategoria];
-      setCategorias(updatedCategorias.sort((a, b) => a.nome.localeCompare(b.nome)));
-      toast.success("Categoria cadastrada com sucesso!");
+    try {
+      if (editingCategoria) {
+        await updateCategoria(editingCategoria.id, { nome: formData.nome });
+      } else {
+        await createCategoria({ nome: formData.nome });
+      }
+      resetForm();
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao salvar categoria");
     }
-
-    resetForm();
   };
 
   const resetForm = () => {
@@ -92,13 +86,16 @@ export default function Categorias() {
     setIsDialogOpen(false);
   };
 
-  const handleDelete = (id: string) => {
-    setCategorias(categorias.filter(c => c.id !== id));
-    setDeleteId(null);
-    toast.success("Categoria excluída com sucesso!");
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteCategoria(id);
+      setDeleteId(null);
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao excluir categoria");
+    }
   };
 
-  const handleEdit = (categoria: Categoria) => {
+  const handleEdit = (categoria: any) => {
     setEditingCategoria(categoria);
   };
 
