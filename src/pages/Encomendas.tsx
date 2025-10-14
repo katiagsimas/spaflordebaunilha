@@ -18,6 +18,13 @@ import { useReceitas } from "@/hooks/useReceitas";
 import { useEncomendaItens } from "@/hooks/useEncomendaItens";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { supabase } from "@/integrations/supabase/client";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+
+interface TipoDocumento {
+  id: string;
+  codigo: string;
+  descricao: string;
+}
 
 const statusColors = {
   pendente: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -42,6 +49,7 @@ const Encomendas = () => {
   const { clientes } = useClientes();
   const { receitas } = useReceitas();
   const { unidades } = useUnidadesMedida();
+  const [tiposDocumento] = useLocalStorage<TipoDocumento[]>("sugarbox_tipos_documento", []);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [produtoDialogOpen, setProdutoDialogOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<any | null>(null);
@@ -79,11 +87,15 @@ const Encomendas = () => {
     topo_idade: "",
     topo_obs: "",
     topo_imagens: [] as string[],
-    pagamentos: [] as Array<{ valor: number; data: string }>,
+    pagamentos: [] as Array<{ valor: number; data: string; tipo_pagamento: string }>,
   });
 
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [novoPagamento, setNovoPagamento] = useState({ valor: 0, data: new Date().toISOString().split("T")[0] });
+  const [novoPagamento, setNovoPagamento] = useState({ 
+    valor: 0, 
+    data: new Date().toISOString().split("T")[0],
+    tipo_pagamento: ""
+  });
 
   const [produtoForm, setProdutoForm] = useState({
     receita_id: "",
@@ -146,7 +158,7 @@ const Encomendas = () => {
     });
     setEditingOrder(null);
     setTempProdutos([]);
-    setNovoPagamento({ valor: 0, data: new Date().toISOString().split("T")[0] });
+    setNovoPagamento({ valor: 0, data: new Date().toISOString().split("T")[0], tipo_pagamento: "" });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -389,11 +401,16 @@ const Encomendas = () => {
       return;
     }
     
+    if (!novoPagamento.tipo_pagamento) {
+      toast.error('Selecione o tipo de pagamento');
+      return;
+    }
+    
     setFormData({
       ...formData,
       pagamentos: [...formData.pagamentos, novoPagamento]
     });
-    setNovoPagamento({ valor: 0, data: new Date().toISOString().split("T")[0] });
+    setNovoPagamento({ valor: 0, data: new Date().toISOString().split("T")[0], tipo_pagamento: "" });
     toast.success('Pagamento adicionado!');
   };
 
@@ -986,41 +1003,50 @@ const Encomendas = () => {
 
                         {/* Lista de Pagamentos */}
                         <div className="space-y-3">
-                          {formData.pagamentos.map((pagamento, index) => (
-                            <Card key={index} className="border-l-4 border-l-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20">
-                              <CardContent className="p-4">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-4">
-                                      <div>
-                                        <Label className="text-xs text-emerald-700 dark:text-emerald-300">
-                                          {index === 0 ? 'Sinal' : `Pagamento ${index}`}
-                                        </Label>
-                                        <p className="text-lg font-bold text-emerald-800 dark:text-emerald-200">
-                                          R$ {pagamento.valor.toFixed(2)}
-                                        </p>
-                                      </div>
-                                      <div>
-                                        <Label className="text-xs text-emerald-700 dark:text-emerald-300">Data</Label>
-                                        <p className="text-sm text-emerald-800 dark:text-emerald-200">
-                                          {new Date(pagamento.data).toLocaleDateString('pt-BR')}
-                                        </p>
+                          {formData.pagamentos.map((pagamento, index) => {
+                            const tipoPagamento = tiposDocumento.find(t => t.id === pagamento.tipo_pagamento);
+                            return (
+                              <Card key={index} className="border-l-4 border-l-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20">
+                                <CardContent className="p-4">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-4">
+                                        <div>
+                                          <Label className="text-xs text-emerald-700 dark:text-emerald-300">
+                                            {index === 0 ? 'Sinal' : `Pagamento ${index}`}
+                                          </Label>
+                                          <p className="text-lg font-bold text-emerald-800 dark:text-emerald-200">
+                                            R$ {pagamento.valor.toFixed(2)}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-xs text-emerald-700 dark:text-emerald-300">Tipo</Label>
+                                          <p className="text-sm text-emerald-800 dark:text-emerald-200">
+                                            {tipoPagamento?.descricao || 'N/A'}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-xs text-emerald-700 dark:text-emerald-300">Data</Label>
+                                          <p className="text-sm text-emerald-800 dark:text-emerald-200">
+                                            {new Date(pagamento.data).toLocaleDateString('pt-BR')}
+                                          </p>
+                                        </div>
                                       </div>
                                     </div>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => handleRemovePagamento(index)}
+                                      className="text-destructive hover:text-destructive"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
                                   </div>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => handleRemovePagamento(index)}
-                                    className="text-destructive hover:text-destructive"
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
 
                           {/* Adicionar Novo Pagamento */}
                           <Card className="border-l-4 border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20">
@@ -1028,27 +1054,47 @@ const Encomendas = () => {
                               <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-3">
                                 {formData.pagamentos.length === 0 ? 'Sinal' : '+ Pagamentos'}
                               </h4>
-                              <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                  <Label className="text-xs text-blue-700 dark:text-blue-300">Valor (R$)</Label>
-                                  <Input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    value={novoPagamento.valor || ""}
-                                    onChange={(e) => setNovoPagamento({ ...novoPagamento, valor: Number(e.target.value) })}
-                                    className="h-9 text-sm mt-1"
-                                    placeholder="0.00"
-                                  />
+                              <div className="space-y-3">
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div>
+                                    <Label className="text-xs text-blue-700 dark:text-blue-300">Valor (R$)</Label>
+                                    <Input
+                                      type="number"
+                                      step="0.01"
+                                      min="0"
+                                      value={novoPagamento.valor || ""}
+                                      onChange={(e) => setNovoPagamento({ ...novoPagamento, valor: Number(e.target.value) })}
+                                      className="h-9 text-sm mt-1"
+                                      placeholder="0.00"
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs text-blue-700 dark:text-blue-300">Data</Label>
+                                    <Input
+                                      type="date"
+                                      value={novoPagamento.data}
+                                      onChange={(e) => setNovoPagamento({ ...novoPagamento, data: e.target.value })}
+                                      className="h-9 text-sm mt-1"
+                                    />
+                                  </div>
                                 </div>
                                 <div>
-                                  <Label className="text-xs text-blue-700 dark:text-blue-300">Data</Label>
-                                  <Input
-                                    type="date"
-                                    value={novoPagamento.data}
-                                    onChange={(e) => setNovoPagamento({ ...novoPagamento, data: e.target.value })}
-                                    className="h-9 text-sm mt-1"
-                                  />
+                                  <Label className="text-xs text-blue-700 dark:text-blue-300">Tipo de Pagamento *</Label>
+                                  <Select
+                                    value={novoPagamento.tipo_pagamento}
+                                    onValueChange={(value) => setNovoPagamento({ ...novoPagamento, tipo_pagamento: value })}
+                                  >
+                                    <SelectTrigger className="h-9 text-sm mt-1 bg-background">
+                                      <SelectValue placeholder="Selecione o tipo..." />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-popover z-[100]">
+                                      {tiposDocumento.map((tipo) => (
+                                        <SelectItem key={tipo.id} value={tipo.id}>
+                                          {tipo.descricao}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
                                 </div>
                               </div>
                               <Button
