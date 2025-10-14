@@ -617,7 +617,7 @@ const Encomendas = () => {
                             </TableRow>
                           ))}
                           <TableRow>
-                            <TableCell colSpan={4} className="text-right font-bold">Total:</TableCell>
+                            <TableCell colSpan={4} className="text-right font-bold">Sub Total:</TableCell>
                             <TableCell className="text-right font-bold">R$ {valorTotalProdutos.toFixed(2)}</TableCell>
                             <TableCell></TableCell>
                           </TableRow>
