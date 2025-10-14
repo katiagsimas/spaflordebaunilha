@@ -22,7 +22,7 @@ const menuItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard, active: true },
   { title: "Encomendas", url: "/encomendas", icon: ShoppingBag, active: true },
   { title: "Produção", url: "/producao", icon: CalendarClock, active: true },
-  { title: "Estoque", url: "/estoque", icon: Package, active: false },
+  { title: "Estoque", url: "/estoque", icon: Package, active: true },
   { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: UserCircle, active: true },
   { title: "Precificação", url: "/precificacao", icon: Calculator, active: true },
   { title: "Financeiro", url: "/financeiro", icon: DollarSign, active: true },
