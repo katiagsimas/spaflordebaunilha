@@ -3,6 +3,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/ca
 import { useNavigate } from "react-router-dom";
 import { Users, ChefHat, CookingPot, DollarSign, Boxes, Package, Pencil } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 
@@ -90,6 +91,7 @@ const opcoes = [
 export default function Precificacao() {
   const navigate = useNavigate();
   const [receitas] = useLocalStorage<Receita[]>("receitas", []);
+  const { unidades } = useUnidadesMedida();
 
   // Filtrar apenas receitas ativas
   const receitasAtivas = receitas.filter(receita => receita.cardapio === "ativo");
@@ -109,6 +111,11 @@ export default function Precificacao() {
   // Calcular despesas com vendas
   const calcularDespesasVenda = (receita: Receita) => {
     return (receita.despesasVenda || []).reduce((acc, despesa) => acc + despesa.valor, 0);
+  };
+
+  const getUnidadeMedidaNome = (unidadeId: string) => {
+    const unidade = unidades.find(u => u.id === unidadeId);
+    return unidade ? unidade.sigla : unidadeId;
   };
 
   const handleEdit = (id: string) => {
@@ -178,7 +185,7 @@ export default function Precificacao() {
                     <TableRow key={receita.id}>
                       <TableCell className="font-medium">{receita.nome}</TableCell>
                       <TableCell className="text-center">{receita.categoria || "-"}</TableCell>
-                      <TableCell className="text-center">{receita.unidadeRendimento}</TableCell>
+                      <TableCell className="text-center">{getUnidadeMedidaNome(receita.unidadeRendimento)}</TableCell>
                       <TableCell className="text-right">
                         R$ {custosProducao.toFixed(2)}
                       </TableCell>
