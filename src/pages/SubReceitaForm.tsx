@@ -276,12 +276,12 @@ export default function SubReceitaForm() {
           </div>
 
           <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <Label>Ingredientes</Label>
-              <Button type="button" variant="outline" size="sm" onClick={handleAddIngrediente}>
+            <div className="flex justify-start items-center gap-4">
+              <Button type="button" variant="default" size="sm" onClick={handleAddIngrediente} className="animate-pulse hover:animate-none">
                 <Plus className="h-4 w-4 mr-2" />
                 Adicionar Ingrediente
               </Button>
+              <Label>Ingredientes</Label>
             </div>
 
             {ingredientes.length > 0 && <div className="overflow-x-auto">
