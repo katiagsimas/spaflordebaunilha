@@ -26,7 +26,7 @@ interface Encomenda {
   topo_aniversariante?: string;
   topo_idade?: string;
   topo_obs?: string;
-  topo_imagem_url?: string;
+  topo_imagens?: string[];
   created_at?: string;
   updated_at?: string;
 }
@@ -48,7 +48,16 @@ export function useEncomendas() {
         .order('data_entrega', { ascending: false });
 
       if (error) throw error;
-      setEncomendas(data || []);
+      
+      // Converter topo_imagens de JSON para array de strings
+      const encomendasFormatadas = (data || []).map(encomenda => ({
+        ...encomenda,
+        topo_imagens: Array.isArray(encomenda.topo_imagens) 
+          ? encomenda.topo_imagens 
+          : []
+      }));
+      
+      setEncomendas(encomendasFormatadas as Encomenda[]);
     } catch (err: any) {
       console.error('Erro ao buscar encomendas:', err);
       toast.error('Erro ao carregar encomendas: ' + err.message);
@@ -67,7 +76,13 @@ export function useEncomendas() {
       .single();
 
     if (error) throw error;
-    setEncomendas([data, ...encomendas]);
+    
+    const encomendaFormatada = {
+      ...data,
+      topo_imagens: Array.isArray(data.topo_imagens) ? data.topo_imagens : []
+    };
+    
+    setEncomendas([encomendaFormatada as Encomenda, ...encomendas]);
     toast.success('Encomenda criada!');
     return data;
   };
@@ -84,7 +99,13 @@ export function useEncomendas() {
       .single();
 
     if (error) throw error;
-    setEncomendas(encomendas.map(e => e.id === id ? data : e));
+    
+    const encomendaFormatada = {
+      ...data,
+      topo_imagens: Array.isArray(data.topo_imagens) ? data.topo_imagens : []
+    };
+    
+    setEncomendas(encomendas.map(e => e.id === id ? encomendaFormatada as Encomenda : e));
     toast.success('Encomenda atualizada!');
     return data;
   };

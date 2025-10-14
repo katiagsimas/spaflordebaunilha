@@ -420,7 +420,7 @@ export type Database = {
           topo_aniversariante: string | null
           topo_bolo: number | null
           topo_idade: string | null
-          topo_imagem_url: string | null
+          topo_imagens: Json | null
           topo_obs: string | null
           topo_tema: string | null
           updated_at: string
@@ -447,7 +447,7 @@ export type Database = {
           topo_aniversariante?: string | null
           topo_bolo?: number | null
           topo_idade?: string | null
-          topo_imagem_url?: string | null
+          topo_imagens?: Json | null
           topo_obs?: string | null
           topo_tema?: string | null
           updated_at?: string
@@ -474,7 +474,7 @@ export type Database = {
           topo_aniversariante?: string | null
           topo_bolo?: number | null
           topo_idade?: string | null
-          topo_imagem_url?: string | null
+          topo_imagens?: Json | null
           topo_obs?: string | null
           topo_tema?: string | null
           updated_at?: string

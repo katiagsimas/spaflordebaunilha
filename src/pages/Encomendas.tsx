@@ -78,7 +78,7 @@ const Encomendas = () => {
     topo_aniversariante: "",
     topo_idade: "",
     topo_obs: "",
-    topo_imagem_url: "",
+    topo_imagens: [] as string[],
   });
 
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -131,7 +131,7 @@ const Encomendas = () => {
       topo_aniversariante: "",
       topo_idade: "",
       topo_obs: "",
-      topo_imagem_url: "",
+      topo_imagens: [],
     });
     setEditingOrder(null);
     setTempProdutos([]);
@@ -191,7 +191,7 @@ const Encomendas = () => {
       topo_aniversariante: encomenda.topo_aniversariante || "",
       topo_idade: encomenda.topo_idade || "",
       topo_obs: encomenda.topo_obs || "",
-      topo_imagem_url: encomenda.topo_imagem_url || "",
+      topo_imagens: Array.isArray(encomenda.topo_imagens) ? encomenda.topo_imagens : [],
     });
     setDialogOpen(true);
   };
@@ -304,6 +304,12 @@ const Encomendas = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Verificar se já tem 3 imagens
+    if (formData.topo_imagens.length >= 3) {
+      toast.error('Você pode enviar no máximo 3 imagens');
+      return;
+    }
+
     // Validar tipo de arquivo
     if (!file.type.startsWith('image/')) {
       toast.error('Por favor, selecione apenas imagens');
@@ -332,28 +338,31 @@ const Encomendas = () => {
         .from('topo-bolo')
         .getPublicUrl(filePath);
 
-      setFormData({ ...formData, topo_imagem_url: publicUrl });
+      setFormData({ ...formData, topo_imagens: [...formData.topo_imagens, publicUrl] });
       toast.success('Imagem enviada com sucesso!');
     } catch (error: any) {
       console.error('Erro ao fazer upload:', error);
       toast.error('Erro ao enviar imagem: ' + error.message);
     } finally {
       setUploadingImage(false);
+      // Resetar o input para permitir upload do mesmo arquivo novamente
+      event.target.value = '';
     }
   };
 
-  const handleRemoveImage = async () => {
-    if (!formData.topo_imagem_url) return;
-
+  const handleRemoveImage = async (imageUrl: string) => {
     try {
       // Extrair o nome do arquivo da URL
-      const fileName = formData.topo_imagem_url.split('/').pop();
+      const fileName = imageUrl.split('/').pop();
       if (fileName) {
         await supabase.storage
           .from('topo-bolo')
           .remove([fileName]);
       }
-      setFormData({ ...formData, topo_imagem_url: "" });
+      setFormData({ 
+        ...formData, 
+        topo_imagens: formData.topo_imagens.filter(img => img !== imageUrl) 
+      });
       toast.success('Imagem removida');
     } catch (error: any) {
       console.error('Erro ao remover imagem:', error);
@@ -814,112 +823,116 @@ const Encomendas = () => {
                         </Card>
                       </div>
 
-                      {/* Cards adicionais quando Topo de Bolo tem valor */}
-                      {formData.topo_bolo > 0 && (
-                        <div className="grid grid-cols-2 gap-3 mt-4">
-                          {/* Card de Informações do Topo */}
-                          <Card className="border-l-4 border-l-pink-500 bg-pink-50/50 dark:bg-pink-950/20">
-                            <CardContent className="p-4">
-                              <h4 className="text-sm font-semibold text-pink-800 dark:text-pink-200 mb-3">
-                                Informações do Topo de Bolo
-                              </h4>
-                              <div className="space-y-3">
-                                <div>
-                                  <Label className="text-xs text-pink-700 dark:text-pink-300">Tema</Label>
-                                  <Input
-                                    type="text"
-                                    value={formData.topo_tema}
-                                    onChange={(e) => setFormData({ ...formData, topo_tema: e.target.value })}
-                                    className="h-9 text-sm mt-1"
-                                    placeholder="Ex: Unicórnio, Futebol..."
-                                  />
-                                </div>
-                                <div>
-                                  <Label className="text-xs text-pink-700 dark:text-pink-300">Nome do(a) Aniversariante</Label>
-                                  <Input
-                                    type="text"
-                                    value={formData.topo_aniversariante}
-                                    onChange={(e) => setFormData({ ...formData, topo_aniversariante: e.target.value })}
-                                    className="h-9 text-sm mt-1"
-                                    placeholder="Nome"
-                                  />
-                                </div>
-                                <div>
-                                  <Label className="text-xs text-pink-700 dark:text-pink-300">Idade</Label>
-                                  <Input
-                                    type="text"
-                                    value={formData.topo_idade}
-                                    onChange={(e) => setFormData({ ...formData, topo_idade: e.target.value })}
-                                    className="h-9 text-sm mt-1"
-                                    placeholder="Ex: 5 anos"
-                                  />
-                                </div>
-                                <div>
-                                  <Label className="text-xs text-pink-700 dark:text-pink-300">Observações</Label>
-                                  <Textarea
-                                    value={formData.topo_obs}
-                                    onChange={(e) => setFormData({ ...formData, topo_obs: e.target.value })}
-                                    className="text-sm mt-1 min-h-[60px]"
-                                    placeholder="Detalhes adicionais..."
-                                  />
-                                </div>
+                      {/* Cards sempre visíveis - Informações do Topo e Upload de Imagens */}
+                      <div className="grid grid-cols-2 gap-3 mt-4">
+                        {/* Card de Informações do Topo */}
+                        <Card className="border-l-4 border-l-pink-500 bg-pink-50/50 dark:bg-pink-950/20">
+                          <CardContent className="p-4">
+                            <h4 className="text-sm font-semibold text-pink-800 dark:text-pink-200 mb-3">
+                              Informações do Topo de Bolo
+                            </h4>
+                            <div className="space-y-3">
+                              <div>
+                                <Label className="text-xs text-pink-700 dark:text-pink-300">Tema</Label>
+                                <Input
+                                  type="text"
+                                  value={formData.topo_tema}
+                                  onChange={(e) => setFormData({ ...formData, topo_tema: e.target.value })}
+                                  className="h-9 text-sm mt-1"
+                                  placeholder="Ex: Unicórnio, Futebol..."
+                                />
                               </div>
-                            </CardContent>
-                          </Card>
+                              <div>
+                                <Label className="text-xs text-pink-700 dark:text-pink-300">Nome do(a) Aniversariante</Label>
+                                <Input
+                                  type="text"
+                                  value={formData.topo_aniversariante}
+                                  onChange={(e) => setFormData({ ...formData, topo_aniversariante: e.target.value })}
+                                  className="h-9 text-sm mt-1"
+                                  placeholder="Nome"
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-pink-700 dark:text-pink-300">Idade</Label>
+                                <Input
+                                  type="text"
+                                  value={formData.topo_idade}
+                                  onChange={(e) => setFormData({ ...formData, topo_idade: e.target.value })}
+                                  className="h-9 text-sm mt-1"
+                                  placeholder="Ex: 5 anos"
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-pink-700 dark:text-pink-300">Observações</Label>
+                                <Textarea
+                                  value={formData.topo_obs}
+                                  onChange={(e) => setFormData({ ...formData, topo_obs: e.target.value })}
+                                  className="text-sm mt-1 min-h-[60px]"
+                                  placeholder="Detalhes adicionais..."
+                                />
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
 
-                          {/* Card de Upload de Imagem */}
-                          <Card className="border-l-4 border-l-pink-500 bg-pink-50/50 dark:bg-pink-950/20">
-                            <CardContent className="p-4">
-                              <h4 className="text-sm font-semibold text-pink-800 dark:text-pink-200 mb-3">
-                                Imagem de Referência
-                              </h4>
-                              <div className="space-y-3">
-                                {!formData.topo_imagem_url ? (
-                                  <div className="border-2 border-dashed border-pink-300 dark:border-pink-700 rounded-lg p-4 text-center">
-                                    <input
-                                      type="file"
-                                      accept="image/*"
-                                      onChange={handleImageUpload}
-                                      className="hidden"
-                                      id="topo-image-upload"
-                                      disabled={uploadingImage}
-                                    />
-                                    <label
-                                      htmlFor="topo-image-upload"
-                                      className="cursor-pointer flex flex-col items-center gap-2"
-                                    >
-                                      <Upload className="h-8 w-8 text-pink-500" />
-                                      <span className="text-sm text-pink-700 dark:text-pink-300">
-                                        {uploadingImage ? "Enviando..." : "Clique para enviar imagem"}
-                                      </span>
-                                      <span className="text-xs text-muted-foreground">
-                                        Máximo 5MB
-                                      </span>
-                                    </label>
-                                  </div>
-                                ) : (
-                                  <div className="relative">
+                        {/* Card de Upload de Imagens - Até 3 imagens */}
+                        <Card className="border-l-4 border-l-pink-500 bg-pink-50/50 dark:bg-pink-950/20">
+                          <CardContent className="p-4">
+                            <h4 className="text-sm font-semibold text-pink-800 dark:text-pink-200 mb-3">
+                              Imagens de Referência ({formData.topo_imagens.length}/3)
+                            </h4>
+                            <div className="space-y-3">
+                              {/* Grid de imagens existentes */}
+                              <div className="grid grid-cols-3 gap-2">
+                                {formData.topo_imagens.map((imageUrl, index) => (
+                                  <div key={index} className="relative group">
                                     <img
-                                      src={formData.topo_imagem_url}
-                                      alt="Referência do topo"
-                                      className="w-full h-48 object-cover rounded-lg"
+                                      src={imageUrl}
+                                      alt={`Referência ${index + 1}`}
+                                      className="w-full h-24 object-cover rounded-lg border-2 border-pink-200 dark:border-pink-700"
                                     />
                                     <Button
                                       type="button"
                                       variant="destructive"
                                       size="icon"
-                                      className="absolute top-2 right-2"
-                                      onClick={handleRemoveImage}
+                                      className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                                      onClick={() => handleRemoveImage(imageUrl)}
                                     >
-                                      <X className="h-4 w-4" />
+                                      <X className="h-3 w-3" />
                                     </Button>
                                   </div>
-                                )}
+                                ))}
                               </div>
-                            </CardContent>
-                          </Card>
-                        </div>
-                      )}
+
+                              {/* Botão de upload */}
+                              {formData.topo_imagens.length < 3 && (
+                                <div className="border-2 border-dashed border-pink-300 dark:border-pink-700 rounded-lg p-4 text-center">
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    className="hidden"
+                                    id="topo-image-upload"
+                                    disabled={uploadingImage}
+                                  />
+                                  <label
+                                    htmlFor="topo-image-upload"
+                                    className="cursor-pointer flex flex-col items-center gap-2"
+                                  >
+                                    <Upload className="h-8 w-8 text-pink-500" />
+                                    <span className="text-sm text-pink-700 dark:text-pink-300">
+                                      {uploadingImage ? "Enviando..." : "Clique para enviar imagem"}
+                                    </span>
+                                    <span className="text-xs text-muted-foreground">
+                                      Máximo 5MB por imagem
+                                    </span>
+                                  </label>
+                                </div>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
 
                       {/* Valor Final */}
                       <div className="mt-4 p-6 bg-primary/10 dark:bg-primary/20 rounded-lg border-2 border-primary">
