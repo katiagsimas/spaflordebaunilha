@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      bancos: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+          saldo_inicial: number
+          tipo: string
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+          saldo_inicial?: number
+          tipo: string
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+          saldo_inicial?: number
+          tipo?: string
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
+      categorias: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       categorias_estoque: {
         Row: {
           ativo: boolean
@@ -44,6 +98,292 @@ export type Database = {
           nome?: string
           updated_at?: string
           usuario_id?: string
+        }
+        Relationships: []
+      }
+      categorias_financeiras: {
+        Row: {
+          cor: string | null
+          created_at: string
+          icone: string | null
+          id: string
+          nome: string
+          tipo: string
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          cor?: string | null
+          created_at?: string
+          icone?: string | null
+          id?: string
+          nome: string
+          tipo: string
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          cor?: string | null
+          created_at?: string
+          icone?: string | null
+          id?: string
+          nome?: string
+          tipo?: string
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
+      clientes: {
+        Row: {
+          cep: string | null
+          cidade: string | null
+          cpf_cnpj: string | null
+          created_at: string
+          email: string | null
+          endereco: string | null
+          estado: string | null
+          id: string
+          nome: string
+          observacoes: string | null
+          telefone: string | null
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          cep?: string | null
+          cidade?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string
+          email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          id?: string
+          nome: string
+          observacoes?: string | null
+          telefone?: string | null
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          cep?: string | null
+          cidade?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string
+          email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          id?: string
+          nome?: string
+          observacoes?: string | null
+          telefone?: string | null
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
+      contas_pagar: {
+        Row: {
+          categoria_id: string | null
+          created_at: string
+          data_pagamento: string | null
+          data_vencimento: string
+          descricao: string
+          id: string
+          observacoes: string | null
+          status: string
+          updated_at: string
+          usuario_id: string
+          valor: number
+        }
+        Insert: {
+          categoria_id?: string | null
+          created_at?: string
+          data_pagamento?: string | null
+          data_vencimento: string
+          descricao: string
+          id?: string
+          observacoes?: string | null
+          status?: string
+          updated_at?: string
+          usuario_id: string
+          valor: number
+        }
+        Update: {
+          categoria_id?: string | null
+          created_at?: string
+          data_pagamento?: string | null
+          data_vencimento?: string
+          descricao?: string
+          id?: string
+          observacoes?: string | null
+          status?: string
+          updated_at?: string
+          usuario_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contas_pagar_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias_financeiras"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contas_receber: {
+        Row: {
+          categoria_id: string | null
+          created_at: string
+          data_recebimento: string | null
+          data_vencimento: string
+          descricao: string
+          id: string
+          observacoes: string | null
+          status: string
+          updated_at: string
+          usuario_id: string
+          valor: number
+        }
+        Insert: {
+          categoria_id?: string | null
+          created_at?: string
+          data_recebimento?: string | null
+          data_vencimento: string
+          descricao: string
+          id?: string
+          observacoes?: string | null
+          status?: string
+          updated_at?: string
+          usuario_id: string
+          valor: number
+        }
+        Update: {
+          categoria_id?: string | null
+          created_at?: string
+          data_recebimento?: string | null
+          data_vencimento?: string
+          descricao?: string
+          id?: string
+          observacoes?: string | null
+          status?: string
+          updated_at?: string
+          usuario_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contas_receber_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias_financeiras"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custos_fixos: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+          updated_at: string
+          usuario_id: string
+          valor: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+          updated_at?: string
+          usuario_id: string
+          valor: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+          updated_at?: string
+          usuario_id?: string
+          valor?: number
+        }
+        Relationships: []
+      }
+      embalagens: {
+        Row: {
+          created_at: string
+          data_atualizacao: string
+          id: string
+          marca: string | null
+          nome: string
+          preco: number
+          quantidade: number
+          unidade_medida: string
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string
+          data_atualizacao?: string
+          id?: string
+          marca?: string | null
+          nome: string
+          preco: number
+          quantidade: number
+          unidade_medida: string
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string
+          data_atualizacao?: string
+          id?: string
+          marca?: string | null
+          nome?: string
+          preco?: number
+          quantidade?: number
+          unidade_medida?: string
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
+      encomendas: {
+        Row: {
+          cliente: string
+          created_at: string
+          data_entrega: string
+          data_pedido: string
+          id: string
+          observacoes: string | null
+          status: string
+          updated_at: string
+          usuario_id: string
+          valor: number
+        }
+        Insert: {
+          cliente: string
+          created_at?: string
+          data_entrega: string
+          data_pedido: string
+          id?: string
+          observacoes?: string | null
+          status?: string
+          updated_at?: string
+          usuario_id: string
+          valor: number
+        }
+        Update: {
+          cliente?: string
+          created_at?: string
+          data_entrega?: string
+          data_pedido?: string
+          id?: string
+          observacoes?: string | null
+          status?: string
+          updated_at?: string
+          usuario_id?: string
+          valor?: number
         }
         Relationships: []
       }
@@ -130,6 +470,87 @@ export type Database = {
           ultima_atualizacao?: string
           usuario_id?: string
           valor_total?: number
+        }
+        Relationships: []
+      }
+      fornecedores: {
+        Row: {
+          contato: string | null
+          cpf_cnpj: string | null
+          created_at: string
+          email: string | null
+          id: string
+          nome: string
+          observacoes: string | null
+          telefone: string | null
+          tipo: string | null
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          contato?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome: string
+          observacoes?: string | null
+          telefone?: string | null
+          tipo?: string | null
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          contato?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome?: string
+          observacoes?: string | null
+          telefone?: string | null
+          tipo?: string | null
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
+      ingredientes: {
+        Row: {
+          created_at: string
+          data_atualizacao: string
+          id: string
+          marca: string | null
+          nome: string
+          preco: number
+          quantidade: number
+          unidade_medida: string
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string
+          data_atualizacao?: string
+          id?: string
+          marca?: string | null
+          nome: string
+          preco: number
+          quantidade: number
+          unidade_medida: string
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string
+          data_atualizacao?: string
+          id?: string
+          marca?: string | null
+          nome?: string
+          preco?: number
+          quantidade?: number
+          unidade_medida?: string
+          updated_at?: string
+          usuario_id?: string
         }
         Relationships: []
       }
@@ -247,6 +668,33 @@ export type Database = {
           telefone?: string | null
           updated_at?: string | null
           whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      unidades_medida: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+          sigla: string
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+          sigla: string
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+          sigla?: string
+          updated_at?: string
+          usuario_id?: string
         }
         Relationships: []
       }

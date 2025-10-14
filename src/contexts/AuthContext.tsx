@@ -3,6 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { migrateAllLocalStorageData } from '@/services/migrateAllData';
 
 interface AuthContextType {
   user: User | null;
@@ -33,18 +34,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Marcar para verificar primeiro acesso quando usuário logar
       if (session?.user && _event === 'SIGNED_IN') {
         setShouldCheckFirstAccess(true);
+        
+        // Migração automática após login
+        setTimeout(async () => {
+          try {
+            console.log('🔄 Iniciando migração automática de dados...');
+            const result = await migrateAllLocalStorageData(session.user.id);
+            
+            if (result.success && result.totalRecords > 0) {
+              toast({
+                title: '✅ Migração Concluída!',
+                description: `${result.totalRecords} registros foram transferidos para a nuvem.`,
+              });
+              console.table(result.results);
+            }
+          } catch (error) {
+            console.error('❌ Erro na migração:', error);
+          }
+        }, 1000);
       }
     });
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      // Migração automática se já estiver logado
+      if (session?.user) {
+        setTimeout(async () => {
+          try {
+            console.log('🔄 Verificando migração de dados...');
+            const result = await migrateAllLocalStorageData(session.user.id);
+            
+            if (result.success && result.totalRecords > 0) {
+              toast({
+                title: '✅ Migração Concluída!',
+                description: `${result.totalRecords} registros foram transferidos para a nuvem.`,
+              });
+            }
+          } catch (error) {
+            console.error('❌ Erro na migração:', error);
+          }
+        }, 1000);
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [toast]);
 
   const signIn = async (email: string, password: string) => {
     try {
