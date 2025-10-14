@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Mail, ArrowLeft, Cake } from 'lucide-react';
+import { Loader2, Mail, ArrowLeft } from 'lucide-react';
+import sugarboxAuthLogo from '@/assets/sugarbox-auth-logo.png';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -31,8 +32,8 @@ export default function ForgotPassword() {
 
   if (sent) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 via-white to-purple-50 p-4">
-        <Card className="w-full max-w-md shadow-xl text-center">
+      <div className="min-h-screen flex items-center justify-center gradient-subtle p-4">
+        <Card className="w-full max-w-md shadow-elevated border-border text-center">
           <CardHeader className="space-y-3">
             <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-2">
               <Mail className="w-8 h-8 text-green-600" />
@@ -64,11 +65,15 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 via-white to-purple-50 p-4">
-      <Card className="w-full max-w-md shadow-xl">
+    <div className="min-h-screen flex items-center justify-center gradient-subtle p-4">
+      <Card className="w-full max-w-md shadow-elevated border-border">
         <CardHeader className="space-y-3 text-center">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center mb-2">
-            <Cake className="w-10 h-10 text-white" />
+          <div className="flex justify-center mb-2">
+            <img 
+              src={sugarboxAuthLogo} 
+              alt="Sugar Box - O Sistema Completo da Confeiteira" 
+              className="h-32 w-auto object-contain"
+            />
           </div>
           <CardTitle className="text-2xl">Esqueceu sua senha?</CardTitle>
           <CardDescription>
@@ -99,7 +104,7 @@ export default function ForgotPassword() {
           <CardFooter className="flex flex-col space-y-4">
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
+              className="w-full gradient-primary"
               size="lg"
               disabled={loading}
             >

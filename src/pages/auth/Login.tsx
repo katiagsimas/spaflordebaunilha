@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Mail, Lock, Cake } from 'lucide-react';
+import { Loader2, Mail, Lock } from 'lucide-react';
+import sugarboxAuthLogo from '@/assets/sugarbox-auth-logo.png';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -33,18 +34,16 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 via-white to-purple-50 p-4">
-      <Card className="w-full max-w-md shadow-xl">
+    <div className="min-h-screen flex items-center justify-center gradient-subtle p-4">
+      <Card className="w-full max-w-md shadow-elevated border-border">
         <CardHeader className="space-y-3 text-center">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center mb-2">
-            <Cake className="w-10 h-10 text-white" />
+          <div className="flex justify-center mb-2">
+            <img 
+              src={sugarboxAuthLogo} 
+              alt="Sugar Box - O Sistema Completo da Confeiteira" 
+              className="h-40 w-auto object-contain"
+            />
           </div>
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-            Sugar Box
-          </CardTitle>
-          <CardDescription className="text-base">
-            Gestão Profissional para sua Confeitaria
-          </CardDescription>
         </CardHeader>
 
         <form onSubmit={handleSubmit}>
@@ -86,7 +85,7 @@ export default function Login() {
             <div className="flex justify-end">
               <Link
                 to="/auth/forgot-password"
-                className="text-sm text-purple-600 hover:text-purple-700 hover:underline"
+                className="text-sm text-primary hover:text-accent hover:underline"
               >
                 Esqueci minha senha
               </Link>
@@ -96,7 +95,7 @@ export default function Login() {
           <CardFooter className="flex flex-col space-y-4">
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
+              className="w-full gradient-primary"
               size="lg"
               disabled={loading}
             >
@@ -114,7 +113,7 @@ export default function Login() {
               Não tem uma conta?{' '}
               <Link
                 to="/auth/signup"
-                className="font-semibold text-purple-600 hover:text-purple-700 hover:underline"
+                className="font-semibold text-primary hover:text-accent hover:underline"
               >
                 Criar conta grátis
               </Link>
