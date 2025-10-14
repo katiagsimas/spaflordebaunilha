@@ -84,7 +84,7 @@ export default function Categorias() {
         <BackButton to="/configuracoes" />
         <div className="flex-1">
           <PageHeader
-            title="Categorias"
+            title="Categorias de Receitas"
             description="Gerencie as categorias de receitas"
           />
         </div>
