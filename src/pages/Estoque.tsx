@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Package, Plus, RefreshCw } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Package, Plus, RefreshCw, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,6 +14,7 @@ import { NovaSaidaDialog } from "@/components/estoque/NovaSaidaDialog";
 import { useEstoque } from "@/hooks/useEstoque";
 
 export default function Estoque() {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState("todos");
   const [statusFiltro, setStatusFiltro] = useState("todos");
@@ -82,6 +84,10 @@ export default function Estoque() {
           description="Gerencie entradas e saídas do seu estoque"
         />
         <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => navigate("/estoque/relatorios")}>
+            <FileText className="mr-2 h-4 w-4" />
+            Relatórios
+          </Button>
           <Button variant="outline" size="sm" onClick={() => refetch()}>
             <RefreshCw className="mr-2 h-4 w-4" />
             Atualizar
