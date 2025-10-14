@@ -45,18 +45,17 @@ export function useConfigStatus() {
 
       // Verificar categorias no localStorage
       const categoriasStorage = localStorage.getItem('sugarbox_categorias_receitas');
-      let hasCategorias = false;
+      let hasCategorias = true; // Sempre true pois o sistema tem categorias pré-cadastradas
       
+      // Só verifica se realmente está vazio (usuária deletou todas)
       if (categoriasStorage) {
         try {
           const categorias = JSON.parse(categoriasStorage);
+          // Se existe no storage, verifica se tem pelo menos 1
           hasCategorias = Array.isArray(categorias) && categorias.length > 0;
         } catch (e) {
-          hasCategorias = false;
+          hasCategorias = true; // Em caso de erro, assume que tem as padrão
         }
-      } else {
-        // Se não existe no localStorage, considera os valores padrão como já configurados
-        hasCategorias = true; // Sistema vem com 5 categorias pré-cadastradas
       }
 
       // Verificar unidades de medida no Supabase
