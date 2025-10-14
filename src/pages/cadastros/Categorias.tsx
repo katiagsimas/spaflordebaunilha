@@ -29,7 +29,9 @@ const categoriasIniciais: Categoria[] = [
 
 export default function Categorias() {
   const navigate = useNavigate();
-  const [categorias, setCategorias] = useLocalStorage<Categoria[]>("categorias", categoriasIniciais);
+  
+  // Forçar reset se necessário - mudando a chave para garantir carregamento das categorias iniciais
+  const [categorias, setCategorias] = useLocalStorage<Categoria[]>("sugarbox_categorias_receitas", categoriasIniciais);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategoria, setEditingCategoria] = useState<Categoria | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
