@@ -77,7 +77,7 @@ export function EmbalagemAutocomplete({
           className="w-full justify-between"
         >
           {selectedEmbalagem
-            ? `${selectedEmbalagem.nome} - ${selectedEmbalagem.marca}`
+            ? selectedEmbalagem.nome
             : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -115,10 +115,10 @@ export function EmbalagemAutocomplete({
                 />
                 <div className="flex flex-col">
                   <span className="font-medium">
-                    {embalagem.nome} - {embalagem.marca}
+                    {embalagem.nome}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {embalagem.quantidade} {embalagem.unidadeMedida} - R${" "}
+                    {embalagem.marca} • {embalagem.quantidade} {embalagem.unidadeMedida} • R${" "}
                     {embalagem.preco.toFixed(2)}
                   </span>
                 </div>

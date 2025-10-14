@@ -77,7 +77,7 @@ export function IngredienteAutocomplete({
           className="w-full justify-between"
         >
           {selectedIngrediente
-            ? `${selectedIngrediente.nome} - ${selectedIngrediente.marca}`
+            ? selectedIngrediente.nome
             : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -115,10 +115,10 @@ export function IngredienteAutocomplete({
                 />
                 <div className="flex flex-col">
                   <span className="font-medium">
-                    {ingrediente.nome} - {ingrediente.marca}
+                    {ingrediente.nome}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {ingrediente.quantidade} {ingrediente.unidadeMedida} - R${" "}
+                    {ingrediente.marca} • {ingrediente.quantidade} {ingrediente.unidadeMedida} • R${" "}
                     {ingrediente.preco.toFixed(2)}
                   </span>
                 </div>
