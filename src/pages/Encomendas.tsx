@@ -49,7 +49,18 @@ const Encomendas = () => {
   const { clientes } = useClientes();
   const { receitas } = useReceitas();
   const { unidades } = useUnidadesMedida();
-  const [tiposDocumento] = useLocalStorage<TipoDocumento[]>("sugarbox_tipos_documento", []);
+  
+  // Carregar tipos de documento do localStorage com valores padrão
+  const [tiposDocumento] = useLocalStorage<TipoDocumento[]>("sugarbox_tipos_documento", [
+    { id: "1", codigo: "01", descricao: "Dinheiro" },
+    { id: "2", codigo: "02", descricao: "PIX" },
+    { id: "3", codigo: "03", descricao: "Cartão de Crédito" },
+    { id: "4", codigo: "04", descricao: "Cartão de Débito" },
+    { id: "5", codigo: "05", descricao: "Boleto Bancário" },
+    { id: "6", codigo: "06", descricao: "Transferência Bancária" },
+    { id: "7", codigo: "07", descricao: "Cheque" },
+  ]);
+  
   const [dialogOpen, setDialogOpen] = useState(false);
   const [produtoDialogOpen, setProdutoDialogOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<any | null>(null);
