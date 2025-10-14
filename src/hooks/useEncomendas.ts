@@ -27,6 +27,8 @@ interface Encomenda {
   topo_idade?: string;
   topo_obs?: string;
   topo_imagens?: string[];
+  pagamentos?: Array<{ valor: number; data: string }>;
+  saldo_restante?: number;
   created_at?: string;
   updated_at?: string;
 }
@@ -49,11 +51,14 @@ export function useEncomendas() {
 
       if (error) throw error;
       
-      // Converter topo_imagens de JSON para array de strings
+      // Converter topo_imagens e pagamentos de JSON para arrays
       const encomendasFormatadas = (data || []).map(encomenda => ({
         ...encomenda,
         topo_imagens: Array.isArray(encomenda.topo_imagens) 
           ? encomenda.topo_imagens 
+          : [],
+        pagamentos: Array.isArray(encomenda.pagamentos)
+          ? encomenda.pagamentos
           : []
       }));
       
@@ -79,7 +84,8 @@ export function useEncomendas() {
     
     const encomendaFormatada = {
       ...data,
-      topo_imagens: Array.isArray(data.topo_imagens) ? data.topo_imagens : []
+      topo_imagens: Array.isArray(data.topo_imagens) ? data.topo_imagens : [],
+      pagamentos: Array.isArray(data.pagamentos) ? data.pagamentos : []
     };
     
     setEncomendas([encomendaFormatada as Encomenda, ...encomendas]);
@@ -102,7 +108,8 @@ export function useEncomendas() {
     
     const encomendaFormatada = {
       ...data,
-      topo_imagens: Array.isArray(data.topo_imagens) ? data.topo_imagens : []
+      topo_imagens: Array.isArray(data.topo_imagens) ? data.topo_imagens : [],
+      pagamentos: Array.isArray(data.pagamentos) ? data.pagamentos : []
     };
     
     setEncomendas(encomendas.map(e => e.id === id ? encomendaFormatada as Encomenda : e));

@@ -79,9 +79,11 @@ const Encomendas = () => {
     topo_idade: "",
     topo_obs: "",
     topo_imagens: [] as string[],
+    pagamentos: [] as Array<{ valor: number; data: string }>,
   });
 
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [novoPagamento, setNovoPagamento] = useState({ valor: 0, data: new Date().toISOString().split("T")[0] });
 
   const [produtoForm, setProdutoForm] = useState({
     receita_id: "",
@@ -109,6 +111,14 @@ const Encomendas = () => {
     return valorTotalProdutos - valorDesconto + formData.taxa_entrega + formData.topo_bolo + formData.outros;
   }, [valorTotalProdutos, valorDesconto, formData.taxa_entrega, formData.topo_bolo, formData.outros]);
 
+  const totalPago = useMemo(() => {
+    return formData.pagamentos.reduce((total, pag) => total + pag.valor, 0);
+  }, [formData.pagamentos]);
+
+  const saldoRestante = useMemo(() => {
+    return valorFinal - totalPago;
+  }, [valorFinal, totalPago]);
+
   const resetForm = () => {
     setFormData({
       cliente: "",
@@ -132,9 +142,11 @@ const Encomendas = () => {
       topo_idade: "",
       topo_obs: "",
       topo_imagens: [],
+      pagamentos: [],
     });
     setEditingOrder(null);
     setTempProdutos([]);
+    setNovoPagamento({ valor: 0, data: new Date().toISOString().split("T")[0] });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -192,6 +204,7 @@ const Encomendas = () => {
       topo_idade: encomenda.topo_idade || "",
       topo_obs: encomenda.topo_obs || "",
       topo_imagens: Array.isArray(encomenda.topo_imagens) ? encomenda.topo_imagens : [],
+      pagamentos: Array.isArray(encomenda.pagamentos) ? encomenda.pagamentos : [],
     });
     setDialogOpen(true);
   };
@@ -368,6 +381,28 @@ const Encomendas = () => {
       console.error('Erro ao remover imagem:', error);
       toast.error('Erro ao remover imagem');
     }
+  };
+
+  const handleAddPagamento = () => {
+    if (novoPagamento.valor <= 0) {
+      toast.error('Informe um valor válido para o pagamento');
+      return;
+    }
+    
+    setFormData({
+      ...formData,
+      pagamentos: [...formData.pagamentos, novoPagamento]
+    });
+    setNovoPagamento({ valor: 0, data: new Date().toISOString().split("T")[0] });
+    toast.success('Pagamento adicionado!');
+  };
+
+  const handleRemovePagamento = (index: number) => {
+    setFormData({
+      ...formData,
+      pagamentos: formData.pagamentos.filter((_, i) => i !== index)
+    });
+    toast.success('Pagamento removido!');
   };
 
   const handleDelete = async (id: string) => {
@@ -941,8 +976,142 @@ const Encomendas = () => {
                           <span className="text-3xl font-bold text-primary">
                             R$ {valorFinal.toFixed(2)}
                           </span>
-                        </div>
                       </div>
+
+                      {/* Sistema de Pagamentos */}
+                      <div className="mt-6 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-semibold">Controle de Pagamentos</h3>
+                        </div>
+
+                        {/* Lista de Pagamentos */}
+                        <div className="space-y-3">
+                          {formData.pagamentos.map((pagamento, index) => (
+                            <Card key={index} className="border-l-4 border-l-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20">
+                              <CardContent className="p-4">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-4">
+                                      <div>
+                                        <Label className="text-xs text-emerald-700 dark:text-emerald-300">
+                                          {index === 0 ? 'Sinal' : `Pagamento ${index}`}
+                                        </Label>
+                                        <p className="text-lg font-bold text-emerald-800 dark:text-emerald-200">
+                                          R$ {pagamento.valor.toFixed(2)}
+                                        </p>
+                                      </div>
+                                      <div>
+                                        <Label className="text-xs text-emerald-700 dark:text-emerald-300">Data</Label>
+                                        <p className="text-sm text-emerald-800 dark:text-emerald-200">
+                                          {new Date(pagamento.data).toLocaleDateString('pt-BR')}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleRemovePagamento(index)}
+                                    className="text-destructive hover:text-destructive"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+
+                          {/* Adicionar Novo Pagamento */}
+                          <Card className="border-l-4 border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20">
+                            <CardContent className="p-4">
+                              <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-3">
+                                {formData.pagamentos.length === 0 ? 'Sinal' : '+ Pagamentos'}
+                              </h4>
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <Label className="text-xs text-blue-700 dark:text-blue-300">Valor (R$)</Label>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    value={novoPagamento.valor || ""}
+                                    onChange={(e) => setNovoPagamento({ ...novoPagamento, valor: Number(e.target.value) })}
+                                    className="h-9 text-sm mt-1"
+                                    placeholder="0.00"
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-xs text-blue-700 dark:text-blue-300">Data</Label>
+                                  <Input
+                                    type="date"
+                                    value={novoPagamento.data}
+                                    onChange={(e) => setNovoPagamento({ ...novoPagamento, data: e.target.value })}
+                                    className="h-9 text-sm mt-1"
+                                  />
+                                </div>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={handleAddPagamento}
+                                className="mt-3 w-full"
+                              >
+                                <Plus className="h-4 w-4 mr-2" />
+                                Adicionar Pagamento
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        </div>
+
+                        {/* Card de Saldo Restante */}
+                        <Card className={`border-l-4 ${
+                          saldoRestante === 0 
+                            ? 'border-l-green-500 bg-green-50/50 dark:bg-green-950/20' 
+                            : 'border-l-orange-500 bg-orange-50/50 dark:bg-orange-950/20'
+                        }`}>
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <Label className={`text-sm font-semibold ${
+                                  saldoRestante === 0 
+                                    ? 'text-green-800 dark:text-green-200' 
+                                    : 'text-orange-800 dark:text-orange-200'
+                                }`}>
+                                  {saldoRestante === 0 ? '✓ PAGO INTEGRALMENTE' : 'SALDO RESTANTE'}
+                                </Label>
+                                <div className="grid grid-cols-3 gap-4 mt-2">
+                                  <div>
+                                    <p className="text-xs text-muted-foreground">Valor Total</p>
+                                    <p className="text-sm font-medium">R$ {valorFinal.toFixed(2)}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-muted-foreground">Total Pago</p>
+                                    <p className="text-sm font-medium text-emerald-600">R$ {totalPago.toFixed(2)}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-muted-foreground">Restante</p>
+                                    <p className={`text-sm font-medium ${
+                                      saldoRestante === 0 ? 'text-green-600' : 'text-orange-600'
+                                    }`}>
+                                      R$ {saldoRestante.toFixed(2)}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className={`text-4xl font-bold ${
+                                saldoRestante === 0 
+                                  ? 'text-green-600' 
+                                  : 'text-orange-600'
+                              }`}>
+                                R$ {saldoRestante.toFixed(2)}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </div>
 
                       <Table className="hidden">
                         <TableBody>

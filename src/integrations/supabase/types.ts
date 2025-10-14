@@ -414,6 +414,8 @@ export type Database = {
           numero: string | null
           observacoes: string | null
           outros: number | null
+          pagamentos: Json | null
+          saldo_restante: number | null
           status: string
           taxa_entrega: number | null
           telefone: string | null
@@ -441,6 +443,8 @@ export type Database = {
           numero?: string | null
           observacoes?: string | null
           outros?: number | null
+          pagamentos?: Json | null
+          saldo_restante?: number | null
           status?: string
           taxa_entrega?: number | null
           telefone?: string | null
@@ -468,6 +472,8 @@ export type Database = {
           numero?: string | null
           observacoes?: string | null
           outros?: number | null
+          pagamentos?: Json | null
+          saldo_restante?: number | null
           status?: string
           taxa_entrega?: number | null
           telefone?: string | null
