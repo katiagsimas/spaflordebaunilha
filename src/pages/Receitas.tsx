@@ -195,36 +195,37 @@ export default function Receitas() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex flex-wrap gap-2">
-          <Button 
-            onClick={() => setFiltroAtivo("todos")}
-            variant={filtroAtivo === "todos" ? "default" : "outline"}
-          >
-            Todos
-          </Button>
-          <Button 
-            onClick={() => setFiltroAtivo("ativos")}
-            variant={filtroAtivo === "ativos" ? "default" : "outline"}
-          >
-            Ativos no Cardápio
-          </Button>
-          <Button 
-            onClick={() => setFiltroAtivo("combos")}
-            variant={filtroAtivo === "combos" ? "default" : "outline"}
-          >
-            Produtos para Combos
-          </Button>
-          <Button 
-            onClick={() => setFiltroAtivo("fora")}
-            variant={filtroAtivo === "fora" ? "default" : "outline"}
-          >
-            Produtos Fora do Cardápio
-          </Button>
-        </div>
+      <div className="flex justify-center">
         <Button onClick={handleCreateNew}>
           <Plus className="h-4 w-4 mr-2" />
           Criar nova receita
+        </Button>
+      </div>
+
+      <div className="flex flex-wrap justify-center gap-2">
+        <Button 
+          onClick={() => setFiltroAtivo("todos")}
+          variant={filtroAtivo === "todos" ? "default" : "outline"}
+        >
+          Todos
+        </Button>
+        <Button 
+          onClick={() => setFiltroAtivo("ativos")}
+          variant={filtroAtivo === "ativos" ? "default" : "outline"}
+        >
+          Ativos no Cardápio
+        </Button>
+        <Button 
+          onClick={() => setFiltroAtivo("combos")}
+          variant={filtroAtivo === "combos" ? "default" : "outline"}
+        >
+          Produtos para Combos
+        </Button>
+        <Button 
+          onClick={() => setFiltroAtivo("fora")}
+          variant={filtroAtivo === "fora" ? "default" : "outline"}
+        >
+          Produtos Fora do Cardápio
         </Button>
       </div>
 
