@@ -67,19 +67,32 @@ interface TipoDocumento {
 }
 
 const formSchema = z.object({
-  descricao: z.string().min(3, "Descrição deve ter no mínimo 3 caracteres").max(200),
+  descricao: z.string()
+    .min(3, "Descrição deve ter no mínimo 3 caracteres")
+    .max(200, "Descrição deve ter no máximo 200 caracteres")
+    .transform(val => val.trim()),
   categoriaId: z.string().min(1, "Selecione uma categoria"),
   planoContaId: z.string().min(1, "Selecione um plano de contas"),
-  valor: z.string().min(1, "Informe o valor"),
+  valor: z.string()
+    .min(1, "Informe o valor")
+    .refine((val) => {
+      const num = parseFloat(val.replace(/[^\d,]/g, '').replace(',', '.'));
+      return num > 0 && num <= 999999.99;
+    }, "Valor deve ser entre R$ 0,01 e R$ 999.999,99"),
   dataEmissao: z.date(),
   dataVencimento: z.date(),
-  fornecedorNome: z.string().optional(),
+  fornecedorNome: z.string().max(100, "Nome deve ter no máximo 100 caracteres").optional(),
   fornecedorDocumento: z.string().optional(),
   tipoDocumentoId: z.string().optional(),
-  numeroDocumento: z.string().optional(),
-  observacoes: z.string().optional(),
+  numeroDocumento: z.string().max(50, "Número deve ter no máximo 50 caracteres").optional(),
+  observacoes: z.string().max(500, "Observações devem ter no máximo 500 caracteres").optional(),
   parcelado: z.boolean(),
+  numeroParcela: z.number().optional(),
+  totalParcelas: z.number().min(2, "Mínimo 2 parcelas").max(60, "Máximo 60 parcelas").optional(),
+  frequenciaParcelas: z.enum(['mensal', 'quinzenal', 'semanal', 'personalizado']).optional(),
   recorrente: z.boolean(),
+  frequenciaRecorrencia: z.enum(['mensal', 'bimestral', 'trimestral', 'semestral', 'anual']).optional(),
+  proximaRecorrencia: z.date().optional(),
 }).refine((data) => {
   if (data.fornecedorDocumento && data.fornecedorDocumento.length > 0) {
     const numbers = data.fornecedorDocumento.replace(/\D/g, '');
@@ -89,9 +102,34 @@ const formSchema = z.object({
 }, {
   message: "CPF deve ter 11 dígitos ou CNPJ deve ter 14 dígitos",
   path: ["fornecedorDocumento"],
+}).refine((data) => {
+  const emissao = new Date(data.dataEmissao);
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  emissao.setHours(0, 0, 0, 0);
+  return emissao <= hoje;
+}, {
+  message: "Data de emissão não pode ser futura",
+  path: ["dataEmissao"],
 }).refine((data) => data.dataVencimento >= data.dataEmissao, {
-  message: "Data de vencimento deve ser posterior à data de emissão",
+  message: "Data de vencimento deve ser igual ou posterior à data de emissão",
   path: ["dataVencimento"],
+}).refine((data) => {
+  if (data.parcelado && (!data.totalParcelas || data.totalParcelas < 2)) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Para despesas parceladas, informe o número de parcelas (mínimo 2)",
+  path: ["totalParcelas"],
+}).refine((data) => {
+  if (data.recorrente && !data.frequenciaRecorrencia) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Para despesas recorrentes, selecione a frequência",
+  path: ["frequenciaRecorrencia"],
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -118,18 +156,25 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
       planoContaId: "",
       valor: "",
       dataEmissao: new Date(),
-      dataVencimento: new Date(),
+      dataVencimento: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // +7 dias
       fornecedorNome: "",
       fornecedorDocumento: "",
       tipoDocumentoId: "",
       numeroDocumento: "",
       observacoes: "",
       parcelado: false,
+      numeroParcela: undefined,
+      totalParcelas: undefined,
+      frequenciaParcelas: undefined,
       recorrente: false,
+      frequenciaRecorrencia: undefined,
+      proximaRecorrencia: undefined,
     },
   });
 
   const selectedCategoriaId = form.watch("categoriaId");
+  const parcelado = form.watch("parcelado");
+  const recorrente = form.watch("recorrente");
   const planosDisponiveis = planos.filter(p => p.categoriaId === selectedCategoriaId);
 
   useEffect(() => {
@@ -147,7 +192,11 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
         numeroDocumento: conta.numeroDocumento || "",
         observacoes: conta.observacoes || "",
         parcelado: conta.parcelado || false,
+        numeroParcela: conta.numeroParcela,
+        totalParcelas: conta.totalParcelas,
         recorrente: conta.recorrente || false,
+        frequenciaRecorrencia: conta.frequenciaRecorrencia,
+        proximaRecorrencia: conta.proximaRecorrencia ? new Date(conta.proximaRecorrencia) : undefined,
       });
     } else {
       form.reset({
@@ -156,14 +205,19 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
         planoContaId: "",
         valor: "",
         dataEmissao: new Date(),
-        dataVencimento: new Date(),
+        dataVencimento: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         fornecedorNome: "",
         fornecedorDocumento: "",
         tipoDocumentoId: "",
         numeroDocumento: "",
         observacoes: "",
         parcelado: false,
+        numeroParcela: undefined,
+        totalParcelas: undefined,
+        frequenciaParcelas: undefined,
         recorrente: false,
+        frequenciaRecorrencia: undefined,
+        proximaRecorrencia: undefined,
       });
     }
   }, [conta, form]);
@@ -172,7 +226,9 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
     const valor = parseFloat(data.valor.replace(/[^\d,]/g, '').replace(',', '.'));
     
     const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
     const dataVenc = new Date(data.dataVencimento);
+    dataVenc.setHours(0, 0, 0, 0);
     let status: 'pendente' | 'atrasado' = 'pendente';
     
     if (dataVenc < hoje) {
@@ -194,7 +250,11 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
       numeroDocumento: data.numeroDocumento || undefined,
       observacoes: data.observacoes || undefined,
       parcelado: data.parcelado,
+      numeroParcela: data.numeroParcela,
+      totalParcelas: data.totalParcelas,
       recorrente: data.recorrente,
+      frequenciaRecorrencia: data.frequenciaRecorrencia,
+      proximaRecorrencia: data.proximaRecorrencia?.toISOString(),
       createdAt: conta?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -231,13 +291,18 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
               name="descricao"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[#6B5047]">Descrição *</FormLabel>
+                  <FormLabel className="text-[#6B5047]">
+                    Descrição *
+                    <span className="text-xs text-[#9C8B82] ml-2">({field.value.length}/200 caracteres)</span>
+                  </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Ex: Conta de Luz - Outubro, Fornecedor ABC"
+                      placeholder="Ex: Conta de Luz - Outubro, Fornecedor ABC - Ingredientes"
                       {...field}
+                      maxLength={200}
                     />
                   </FormControl>
+                  <p className="text-xs text-[#9C8B82]">Descreva a despesa de forma clara e objetiva</p>
                   <FormMessage />
                 </FormItem>
               )}
@@ -360,7 +425,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                     <FormLabel className="text-[#6B5047]">Valor *</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9C8B82]">R$</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9C8B82] font-semibold">R$</span>
                         <Input
                           {...field}
                           onChange={handleValorChange}
@@ -369,6 +434,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                         />
                       </div>
                     </FormControl>
+                    <p className="text-xs text-[#9C8B82]">Valor total da despesa</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -413,11 +479,13 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
+                            disabled={(date) => date > new Date()}
                             initialFocus
                             className="pointer-events-auto"
                           />
                         </PopoverContent>
                       </Popover>
+                      <p className="text-xs text-[#9C8B82]">Data em que a despesa foi gerada</p>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -458,6 +526,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                           />
                         </PopoverContent>
                       </Popover>
+                      <p className="text-xs text-[#9C8B82]">Data limite para pagamento</p>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -489,7 +558,11 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                   <FormItem>
                     <FormLabel className="text-[#6B5047]">Nome do Fornecedor</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nome do fornecedor" {...field} />
+                      <Input 
+                        placeholder="Ex: CPFL, Fornecedor ABC Ingredientes" 
+                        maxLength={100}
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -582,12 +655,16 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
               name="observacoes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[#6B5047]">Observações</FormLabel>
+                  <FormLabel className="text-[#6B5047]">
+                    Observações
+                    <span className="text-xs text-[#9C8B82] ml-2">({field.value?.length || 0}/500 caracteres)</span>
+                  </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Informações adicionais..."
+                      placeholder="Informações adicionais sobre esta despesa..."
                       className="resize-none"
                       rows={3}
+                      maxLength={500}
                       {...field}
                     />
                   </FormControl>
@@ -597,7 +674,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
             />
 
             {/* Opções Avançadas */}
-            <div className="space-y-3 p-4 bg-[#FAF7F5] rounded-lg border border-[#E8E3DF]">
+            <div className="space-y-4 p-4 bg-[#FAF7F5] rounded-lg border border-[#E8E3DF]">
               <FormField
                 control={form.control}
                 name="parcelado"
@@ -610,13 +687,63 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel className="text-[#6B5047]">
+                      <FormLabel className="text-[#6B5047] font-semibold">
                         Esta é uma despesa parcelada
                       </FormLabel>
                     </div>
                   </FormItem>
                 )}
               />
+
+              {/* Expandir opções de parcelamento */}
+              {parcelado && (
+                <div className="ml-6 space-y-4 p-4 bg-white rounded-lg border border-[#E8E3DF]">
+                  <FormField
+                    control={form.control}
+                    name="totalParcelas"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[#6B5047]">Número de Parcelas *</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min="2"
+                            max="60"
+                            placeholder="Ex: 12"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                            value={field.value || ''}
+                          />
+                        </FormControl>
+                        <p className="text-xs text-[#9C8B82]">Mínimo 2 parcelas, máximo 60</p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="numeroParcela"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[#6B5047]">Esta é a parcela número</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min="1"
+                            placeholder="Ex: 1"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                            value={field.value || ''}
+                          />
+                        </FormControl>
+                        <p className="text-xs text-[#9C8B82]">Deixe vazio para gerar todas as parcelas automaticamente</p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
 
               <FormField
                 control={form.control}
@@ -630,13 +757,85 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel className="text-[#6B5047]">
+                      <FormLabel className="text-[#6B5047] font-semibold">
                         Esta é uma despesa recorrente
                       </FormLabel>
+                      <p className="text-xs text-[#9C8B82]">Despesas que se repetem periodicamente</p>
                     </div>
                   </FormItem>
                 )}
               />
+
+              {/* Expandir opções de recorrência */}
+              {recorrente && (
+                <div className="ml-6 space-y-4 p-4 bg-white rounded-lg border border-[#E8E3DF]">
+                  <FormField
+                    control={form.control}
+                    name="frequenciaRecorrencia"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[#6B5047]">Frequência *</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione a frequência..." />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="mensal">Mensal (Ex: Aluguel, Luz, Água)</SelectItem>
+                            <SelectItem value="bimestral">Bimestral</SelectItem>
+                            <SelectItem value="trimestral">Trimestral</SelectItem>
+                            <SelectItem value="semestral">Semestral</SelectItem>
+                            <SelectItem value="anual">Anual (Ex: Impostos, Seguros)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="proximaRecorrencia"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel className="text-[#6B5047]">Próxima Recorrência</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                className={cn(
+                                  "pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "dd/MM/yyyy")
+                                ) : (
+                                  <span>Selecione a data</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <CalendarComponent
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              initialFocus
+                              className="pointer-events-auto"
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <p className="text-xs text-[#9C8B82]">💡 Dica: Despesas recorrentes são criadas automaticamente na data programada</p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Ações */}
