@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import * as XLSX from 'xlsx';
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { format, isToday, isAfter, isBefore, differenceInDays, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -11,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Search, Settings, MoreVertical, Clock, CheckCircle, AlertCircle, XCircle, Edit, Copy, Trash2, Eye, RotateCcw, DollarSign, TrendingDown, AlertTriangle, Calendar } from "lucide-react";
+import { Plus, Search, Settings, MoreVertical, Clock, CheckCircle, AlertCircle, XCircle, Edit, Copy, Trash2, Eye, RotateCcw, DollarSign, TrendingDown, AlertTriangle, Calendar, Download, FileSpreadsheet, FileText, X } from "lucide-react";
 import { toast } from "sonner";
 import { ContaPagarFormDialog } from "@/components/ContaPagarFormDialog";
 import { RegistrarPagamentoDialog } from "@/components/RegistrarPagamentoDialog";
@@ -84,13 +85,14 @@ export default function ContasPagar() {
   const [categoriaFilter, setCategoriaFilter] = useState("todos");
   const [selectedContas, setSelectedContas] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState("todas");
+  const [mostrarAlertas, setMostrarAlertas] = useState(true);
 
   // Atualizar status de contas atrasadas
   useEffect(() => {
     const hoje = startOfDay(new Date());
     let atualizou = false;
     
-    const contasAtualizadas = contas.map(conta => {
+    const contasComStatusAtualizado = contas.map(conta => {
       if (conta.status === 'pendente') {
         const vencimento = new Date(conta.dataVencimento);
         if (isBefore(vencimento, hoje)) {
@@ -102,7 +104,7 @@ export default function ContasPagar() {
     });
     
     if (atualizou) {
-      setContas(contasAtualizadas);
+      setContas(contasComStatusAtualizado);
     }
     
     // Atualizar a cada hora
@@ -139,6 +141,24 @@ export default function ContasPagar() {
       return conta;
     });
   }, [contas]);
+
+  // Contas que vencem hoje e nos próximos 3 dias
+  const contasVencemHoje = useMemo(() => {
+    const hoje = startOfDay(new Date());
+    return contasAtualizadas.filter(c => 
+      c.status === 'pendente' && isToday(new Date(c.dataVencimento))
+    );
+  }, [contasAtualizadas]);
+
+  const contasVencem3Dias = useMemo(() => {
+    const hoje = startOfDay(new Date());
+    return contasAtualizadas.filter(c => {
+      if (c.status !== 'pendente') return false;
+      const vencimento = new Date(c.dataVencimento);
+      const dias = differenceInDays(vencimento, hoje);
+      return dias > 0 && dias <= 3;
+    });
+  }, [contasAtualizadas]);
 
   // Filtros
   const contasFiltradas = useMemo(() => {
@@ -433,6 +453,101 @@ export default function ContasPagar() {
     return "";
   };
 
+  const exportarExcel = () => {
+    const dados = contasFiltradas.map(conta => {
+      const categoria = getCategoriaById(conta.categoriaId);
+      const plano = getPlanoById(conta.planoContaId);
+      const banco = conta.bancoId ? getBancoById(conta.bancoId) : null;
+
+      return {
+        'Data Emissão': format(new Date(conta.dataEmissao), "dd/MM/yyyy"),
+        'Data Vencimento': format(new Date(conta.dataVencimento), "dd/MM/yyyy"),
+        'Descrição': conta.descricao,
+        'Fornecedor': conta.fornecedorNome || '',
+        'Categoria': categoria?.nome || '',
+        'Plano de Contas': plano?.nome || '',
+        'Valor': conta.valor,
+        'Status': conta.status,
+        'Data Pagamento': conta.dataPagamento ? format(new Date(conta.dataPagamento), "dd/MM/yyyy") : '',
+        'Forma Pagamento': conta.formaPagamento ? formasPagamentoLabels[conta.formaPagamento] : '',
+        'Banco': banco?.nome || '',
+        'Observações': conta.observacoes || ''
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(dados);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Contas a Pagar");
+    
+    // Ajustar largura das colunas
+    const colWidths = [
+      { wch: 12 }, // Data Emissão
+      { wch: 12 }, // Data Vencimento
+      { wch: 40 }, // Descrição
+      { wch: 25 }, // Fornecedor
+      { wch: 20 }, // Categoria
+      { wch: 20 }, // Plano de Contas
+      { wch: 12 }, // Valor
+      { wch: 10 }, // Status
+      { wch: 12 }, // Data Pagamento
+      { wch: 18 }, // Forma Pagamento
+      { wch: 20 }, // Banco
+      { wch: 30 }, // Observações
+    ];
+    ws['!cols'] = colWidths;
+
+    XLSX.writeFile(wb, `contas-pagar-${format(new Date(), "yyyy-MM-dd")}.xlsx`);
+    toast.success("Arquivo Excel exportado com sucesso!");
+  };
+
+  const exportarCSV = () => {
+    const headers = [
+      'Data Emissão',
+      'Data Vencimento',
+      'Descrição',
+      'Fornecedor',
+      'Categoria',
+      'Plano de Contas',
+      'Valor',
+      'Status',
+      'Data Pagamento',
+      'Forma Pagamento',
+      'Banco'
+    ];
+
+    const rows = contasFiltradas.map(conta => {
+      const categoria = getCategoriaById(conta.categoriaId);
+      const plano = getPlanoById(conta.planoContaId);
+      const banco = conta.bancoId ? getBancoById(conta.bancoId) : null;
+
+      return [
+        format(new Date(conta.dataEmissao), "dd/MM/yyyy"),
+        format(new Date(conta.dataVencimento), "dd/MM/yyyy"),
+        conta.descricao,
+        conta.fornecedorNome || '',
+        categoria?.nome || '',
+        plano?.nome || '',
+        conta.valor.toFixed(2),
+        conta.status,
+        conta.dataPagamento ? format(new Date(conta.dataPagamento), "dd/MM/yyyy") : '',
+        conta.formaPagamento ? formasPagamentoLabels[conta.formaPagamento] : '',
+        banco?.nome || ''
+      ];
+    });
+
+    const csv = [headers, ...rows]
+      .map(row => row.map(cell => `"${cell}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `contas-pagar-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    link.click();
+    
+    toast.success("Arquivo CSV exportado com sucesso!");
+  };
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
   };
@@ -461,6 +576,100 @@ export default function ContasPagar() {
       </div>
 
       <div className="container mx-auto px-4 py-8 space-y-6">
+        {/* Banner de Alertas */}
+        {mostrarAlertas && (stats.atrasadas.count > 0 || contasVencemHoje.length > 0 || contasVencem3Dias.length > 0) && (
+          <div className="space-y-3">
+            {/* Contas Atrasadas - Prioridade Alta */}
+            {stats.atrasadas.count > 0 && (
+              <div className="bg-[#FFEBEE] border-l-4 border-[#D88B8B] p-4 rounded-lg relative animate-pulse">
+                <button
+                  onClick={() => setMostrarAlertas(false)}
+                  className="absolute top-2 right-2 text-[#9C8B82] hover:text-[#6B5047] transition"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+                <div className="flex items-center gap-3">
+                  <AlertCircle className="text-[#D88B8B] h-6 w-6 shrink-0" />
+                  <div className="flex-1">
+                    <p className="font-bold text-[#6B5047]">
+                      ⚠️ ATENÇÃO: {stats.atrasadas.count} conta(s) atrasada(s)
+                    </p>
+                    <p className="text-sm text-[#9C8B82]">
+                      Total: {formatCurrency(stats.atrasadas.valor)}
+                    </p>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      setStatusFilter('atrasado');
+                      setActiveTab('todas');
+                    }}
+                    variant="destructive"
+                    size="sm"
+                  >
+                    Ver contas
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Vence Hoje */}
+            {contasVencemHoje.length > 0 && (
+              <div className="bg-[#FEF3E2] border-l-4 border-[#E5C89F] p-4 rounded-lg relative">
+                <button
+                  onClick={() => setMostrarAlertas(false)}
+                  className="absolute top-2 right-2 text-[#9C8B82] hover:text-[#6B5047] transition"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+                <div className="flex items-center gap-3">
+                  <Clock className="text-[#E5C89F] h-5 w-5 shrink-0" />
+                  <div className="flex-1">
+                    <p className="font-semibold text-[#6B5047]">
+                      {contasVencemHoje.length} conta(s) vence(m) hoje
+                    </p>
+                    <p className="text-sm text-[#9C8B82]">
+                      Total: {formatCurrency(contasVencemHoje.reduce((sum, c) => sum + c.valor, 0))}
+                    </p>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      setPeriodoFilter('hoje');
+                      setActiveTab('vencendoHoje');
+                    }}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Ver contas
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Vence em 3 dias */}
+            {contasVencem3Dias.length > 0 && (
+              <div className="bg-[#E3F2FD] border-l-4 border-[#7BA8D8] p-4 rounded-lg relative">
+                <button
+                  onClick={() => setMostrarAlertas(false)}
+                  className="absolute top-2 right-2 text-[#9C8B82] hover:text-[#6B5047] transition"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+                <div className="flex items-center gap-3">
+                  <AlertTriangle className="text-[#7BA8D8] h-5 w-5 shrink-0" />
+                  <div className="flex-1">
+                    <p className="font-medium text-[#6B5047]">
+                      💡 {contasVencem3Dias.length} conta(s) vence(m) nos próximos 3 dias
+                    </p>
+                    <p className="text-sm text-[#9C8B82]">
+                      Total: {formatCurrency(contasVencem3Dias.reduce((sum, c) => sum + c.valor, 0))}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Cards de Resumo */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card className="border-l-4 border-[#E5A868] hover:shadow-lg transition-shadow">
@@ -577,6 +786,25 @@ export default function ContasPagar() {
                 <Plus className="h-4 w-4 mr-2" />
                 Nova Conta a Pagar
               </Button>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="w-full lg:w-auto">
+                    <Download className="h-4 w-4 mr-2" />
+                    Exportar
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={exportarExcel}>
+                    <FileSpreadsheet className="h-4 w-4 mr-2" />
+                    Exportar para Excel
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={exportarCSV}>
+                    <FileText className="h-4 w-4 mr-2" />
+                    Exportar para CSV
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </CardContent>
         </Card>
