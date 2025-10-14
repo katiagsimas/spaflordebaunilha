@@ -1,4 +1,4 @@
-import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package } from "lucide-react";
 import sugarboxSidebar from "@/assets/sugarbox-sidebar.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
@@ -22,10 +22,11 @@ const menuItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard, active: true },
   { title: "Encomendas", url: "/encomendas", icon: ShoppingBag, active: true },
   { title: "Produção", url: "/producao", icon: CalendarClock, active: true },
-  { title: "Precificação", url: "/precificacao", icon: Calculator, active: true },
-  { title: "Planejamento Financeiro e Metas", url: "/planejamento", icon: Clipboard, active: true },
+  { title: "Estoque", url: "/estoque", icon: Package, active: false },
   { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: UserCircle, active: true },
+  { title: "Precificação", url: "/precificacao", icon: Calculator, active: true },
   { title: "Financeiro", url: "/financeiro", icon: DollarSign, active: true },
+  { title: "Metas", url: "/planejamento", icon: Clipboard, active: true },
   { title: "Relatórios", url: "/relatorios", icon: TrendingUp, active: true },
   { title: "Configurações", url: "/configuracoes", icon: Settings, active: true },
 ];
