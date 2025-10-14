@@ -614,6 +614,62 @@ export type Database = {
         }
         Relationships: []
       }
+      planos_contas: {
+        Row: {
+          aceita_lancamento: boolean | null
+          ativo: boolean | null
+          categoria: string | null
+          codigo: string
+          conta_pai_id: string | null
+          created_at: string | null
+          id: string
+          natureza: string | null
+          nivel: number
+          nome: string
+          tipo: string
+          updated_at: string | null
+          usuario_id: string
+        }
+        Insert: {
+          aceita_lancamento?: boolean | null
+          ativo?: boolean | null
+          categoria?: string | null
+          codigo: string
+          conta_pai_id?: string | null
+          created_at?: string | null
+          id?: string
+          natureza?: string | null
+          nivel?: number
+          nome: string
+          tipo: string
+          updated_at?: string | null
+          usuario_id: string
+        }
+        Update: {
+          aceita_lancamento?: boolean | null
+          ativo?: boolean | null
+          categoria?: string | null
+          codigo?: string
+          conta_pai_id?: string | null
+          created_at?: string | null
+          id?: string
+          natureza?: string | null
+          nivel?: number
+          nome?: string
+          tipo?: string
+          updated_at?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planos_contas_conta_pai_id_fkey"
+            columns: ["conta_pai_id"]
+            isOneToOne: false
+            referencedRelation: "planos_contas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

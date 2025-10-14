@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Plus, Pencil, FolderTree, ChevronDown, ChevronRight, Search, Trash2, AlertTriangle, Package, Search as SearchIcon, Copy, History, TrendingUp, FileDown, Upload } from "lucide-react";
+import { Plus, Pencil, FolderTree, ChevronDown, ChevronRight, Search, Trash2, AlertTriangle, Package, Search as SearchIcon, Copy, History, TrendingUp, FileDown, Upload, Loader2 } from "lucide-react";
+import { usePlanoContas } from "@/hooks/usePlanoContas";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { ExportImport } from "@/components/ExportImport";
@@ -21,7 +22,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+
 import {
   Select,
   SelectContent,
@@ -908,11 +909,18 @@ const planosContasPreConfigurados: PlanoConta[] = [
   },
 ];
 
-const STORAGE_KEY = 'sugarbox_planos_contas';
-
 export default function PlanosContas() {
   const { isAdmin } = useIsAdmin();
-  const [planosContas, setPlanosContas] = useLocalStorage<PlanoConta[]>(STORAGE_KEY, []);
+  const { 
+    planoContas: planosContasSupabase, 
+    loading: loadingPlanos,
+    createConta,
+    updateConta,
+    deleteConta 
+  } = usePlanoContas();
+  
+  // Estado local para compatibilidade com código existente
+  const [planosContas, setPlanosContas] = useState<PlanoConta[]>([]);
   const [categorias, setCategorias] = useState<CategoriaFinanceira[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
   const [searchTerm, setSearchTerm] = useState('');
@@ -940,23 +948,41 @@ export default function PlanosContas() {
   });
   const { toast } = useToast();
 
-  // Inicializar com planos pré-configurados se estiver vazio
+  // Sincronizar planos do Supabase com estado local (para manter compatibilidade)
   useEffect(() => {
-    if (planosContas.length === 0) {
-      setPlanosContas(planosContasPreConfigurados);
-      toast({
-        title: "Sistema Inicializado",
-        description: "✓ Sistema inicializado com 65 planos de contas padrão!",
-        duration: 5000,
-      });
+    if (!loadingPlanos && planosContasSupabase.length > 0) {
+      // Converter formato Supabase para formato local
+      const planosFormatados = planosContasSupabase.map(p => ({
+        id: p.id,
+        nome: p.nome,
+        descricao: p.categoria,
+        categoriaId: p.tipo,
+        tipo: p.tipo.toLowerCase() === 'receita' ? 'receita' as const : 'despesa' as const,
+        ativo: p.ativo,
+        createdAt: p.created_at || '',
+        updatedAt: p.updated_at || '',
+        iconeCustomizado: '',
+        corCustomizada: '',
+      }));
+      setPlanosContas(planosFormatados);
     }
-    
+  }, [planosContasSupabase, loadingPlanos]);
+
+  useEffect(() => {
     // Carregar categorias financeiras
     const categoriasStr = localStorage.getItem('sugarbox_categorias_financeiras');
     if (categoriasStr) {
       setCategorias(JSON.parse(categoriasStr));
     }
   }, []);
+
+  if (loadingPlanos) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   const toggleCategory = (categoriaId: string) => {
     setExpandedCategories(prev => ({
@@ -1347,7 +1373,6 @@ export default function PlanosContas() {
 
 
   const getCategoriaNome = (categoriaId: string): string => {
-    const categorias = JSON.parse(localStorage.getItem('sugarbox_categorias_financeiras') || '[]');
     const categoria = categorias.find((c: any) => c.id === categoriaId);
     return categoria ? categoria.nome : 'Categoria não encontrada';
   };
