@@ -423,13 +423,20 @@ const Encomendas = () => {
 
   const handleAddPagamento = () => {
     const isSinal = formData.pagamentos.length === 0;
+    const valorMinimo = valorFinal * 0.5;
     
-    // Para o sinal, usar automaticamente 50% do valor final
-    const valorPagamento = isSinal ? valorFinal * 0.5 : novoPagamento.valor;
-    
-    if (!isSinal && valorPagamento <= 0) {
-      toast.error('Informe um valor válido para o pagamento');
-      return;
+    // Para o sinal, validar se está acima do mínimo de 50%
+    if (isSinal) {
+      if (novoPagamento.valor < valorMinimo) {
+        toast.error(`O valor do sinal deve ser no mínimo R$ ${valorMinimo.toFixed(2)} (50% do valor final)`);
+        return;
+      }
+    } else {
+      // Para pagamentos normais, validar se é maior que zero
+      if (novoPagamento.valor <= 0) {
+        toast.error('Informe um valor válido para o pagamento');
+        return;
+      }
     }
     
     if (!novoPagamento.tipo_pagamento) {
@@ -439,7 +446,6 @@ const Encomendas = () => {
     
     const pagamentoParaAdicionar = {
       ...novoPagamento,
-      valor: valorPagamento,
       pago: isSinal ? novoPagamento.pago : undefined // Só incluir "pago" para o sinal
     };
     
@@ -1094,15 +1100,24 @@ const Encomendas = () => {
                                   /* Formulário do Sinal - Valor automático de 50% */
                                   <>
                                     <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded border border-blue-300">
-                                      <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                                        Valor do Sinal: R$ {(valorFinal * 0.5).toFixed(2)}
-                                      </p>
-                                      <p className="text-xs text-blue-600 dark:text-blue-300">
-                                        (50% do Valor Final)
+                                      <p className="text-xs text-blue-600 dark:text-blue-300 mb-1">
+                                        Valor mínimo: R$ {(valorFinal * 0.5).toFixed(2)} (50% do Valor Final)
                                       </p>
                                     </div>
                                     
                                     <div className="grid grid-cols-2 gap-3">
+                                      <div>
+                                        <Label className="text-xs text-blue-700 dark:text-blue-300">Valor do Sinal (R$) *</Label>
+                                        <Input
+                                          type="number"
+                                          step="0.01"
+                                          min={valorFinal * 0.5}
+                                          value={novoPagamento.valor || (valorFinal * 0.5)}
+                                          onChange={(e) => setNovoPagamento({ ...novoPagamento, valor: Number(e.target.value) })}
+                                          className="h-9 text-sm mt-1"
+                                          placeholder={(valorFinal * 0.5).toFixed(2)}
+                                        />
+                                      </div>
                                       <div>
                                         <Label className="text-xs text-blue-700 dark:text-blue-300">Data</Label>
                                         <Input
@@ -1112,18 +1127,19 @@ const Encomendas = () => {
                                           className="h-9 text-sm mt-1"
                                         />
                                       </div>
-                                      <div className="flex items-center gap-2 mt-5">
-                                        <input
-                                          type="checkbox"
-                                          id="sinal-pago"
-                                          checked={novoPagamento.pago}
-                                          onChange={(e) => setNovoPagamento({ ...novoPagamento, pago: e.target.checked })}
-                                          className="h-5 w-5"
-                                        />
-                                        <Label htmlFor="sinal-pago" className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                                          Pago
-                                        </Label>
-                                      </div>
+                                    </div>
+                                    
+                                    <div className="flex items-center gap-2">
+                                      <input
+                                        type="checkbox"
+                                        id="sinal-pago"
+                                        checked={novoPagamento.pago}
+                                        onChange={(e) => setNovoPagamento({ ...novoPagamento, pago: e.target.checked })}
+                                        className="h-5 w-5"
+                                      />
+                                      <Label htmlFor="sinal-pago" className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                                        Pago
+                                      </Label>
                                     </div>
                                     
                                     <div>
