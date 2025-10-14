@@ -9,7 +9,7 @@ import { Loader2, Mail, Lock, Eye, EyeOff, Zap } from 'lucide-react';
 import sugarboxAuthLogo from '@/assets/sugarbox-auth-logo.png';
 import authBackground from '@/assets/auth-background.jpg';
 import { z } from 'zod';
-import { DEV_MODE, DEV_CREDENTIALS } from '@/utils/devAuth';
+import { DEV_MODE, saveDevCredentials, getDevCredentials, clearDevCredentials, hasDevCredentials } from '@/utils/devAuth';
 import { toast } from 'sonner';
 
 const loginSchema = z.object({
@@ -25,20 +25,26 @@ export default function Login() {
   const { signIn } = useAuth();
   const navigate = useNavigate();
 
+  // Auto-login em desenvolvimento se credenciais estiverem salvas
   const handleDevQuickAccess = async () => {
-    if (!DEV_MODE) {
-      toast.error("Acesso rápido disponível apenas em desenvolvimento");
+    if (!DEV_MODE) return;
+
+    const savedCreds = getDevCredentials();
+    if (!savedCreds) {
+      toast.error("Configure o auto-login fazendo login normalmente primeiro");
       return;
     }
 
     setLoading(true);
     try {
-      await signIn(DEV_CREDENTIALS.email, DEV_CREDENTIALS.password);
-      toast.success("✨ Acesso rápido concedido!");
+      await signIn(savedCreds.email, savedCreds.password);
+      toast.success("✨ Auto-login realizado com sucesso!");
       navigate('/');
     } catch (error: any) {
-      console.error("Erro no acesso rápido:", error);
-      toast.error("Erro ao fazer login. Verifique suas credenciais em src/utils/devAuth.ts");
+      console.error("Erro no auto-login:", error);
+      // Se falhar, limpar credenciais salvas
+      clearDevCredentials();
+      toast.error("Auto-login falhou. Faça login novamente para reconfigurar.");
     } finally {
       setLoading(false);
     }
@@ -55,6 +61,13 @@ export default function Login() {
       });
       
       await signIn(validated.email, validated.password);
+      
+      // Salvar credenciais para auto-login se for admin em dev mode
+      if (DEV_MODE && validated.email === 'katiagsimas@gmail.com') {
+        saveDevCredentials(validated.email, validated.password);
+        toast.success("✅ Auto-login configurado! Próximas vezes será automático.");
+      }
+      
       navigate('/');
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -161,7 +174,7 @@ export default function Login() {
               )}
             </Button>
 
-            {DEV_MODE && (
+            {DEV_MODE && hasDevCredentials() && (
               <Button 
                 type="button"
                 variant="outline" 
@@ -171,7 +184,7 @@ export default function Login() {
                 disabled={loading}
               >
                 <Zap className="mr-2 h-5 w-5 text-amber-500" />
-                ⚡ Acesso Rápido de Desenvolvimento
+                ⚡ Entrar Automaticamente (Admin)
               </Button>
             )}
 
@@ -187,8 +200,10 @@ export default function Login() {
 
             {DEV_MODE && (
               <div className="text-xs text-center text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 p-3 rounded-lg border border-amber-200 dark:border-amber-800">
-                🔧 <strong>Modo Desenvolvedor Ativo</strong><br />
-                Acesso rápido habilitado para facilitar testes
+                🔧 <strong>Modo Desenvolvedor</strong><br />
+                {hasDevCredentials() 
+                  ? "Auto-login configurado ✅ Use o botão acima para entrar automaticamente"
+                  : "Faça login normalmente para ativar o auto-login"}
               </div>
             )}
           </CardFooter>
