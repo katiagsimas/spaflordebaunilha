@@ -163,6 +163,7 @@ export default function Precificacao() {
                 <TableRow>
                   <TableHead>Nome da Receita</TableHead>
                   <TableHead className="text-center">Categoria</TableHead>
+                  <TableHead className="text-center">Medida</TableHead>
                   <TableHead className="text-right">Custos de Produção</TableHead>
                   <TableHead className="text-right">Despesas com Vendas</TableHead>
                   <TableHead className="text-center">Ações</TableHead>
@@ -177,6 +178,7 @@ export default function Precificacao() {
                     <TableRow key={receita.id}>
                       <TableCell className="font-medium">{receita.nome}</TableCell>
                       <TableCell className="text-center">{receita.categoria || "-"}</TableCell>
+                      <TableCell className="text-center">{receita.unidadeRendimento}</TableCell>
                       <TableCell className="text-right">
                         R$ {custosProducao.toFixed(2)}
                       </TableCell>
