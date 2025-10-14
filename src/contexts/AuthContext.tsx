@@ -25,38 +25,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-      
-      // Marcar para verificar primeiro acesso quando usuário logar
-      if (session?.user && _event === 'SIGNED_IN') {
-        setShouldCheckFirstAccess(true);
-        
-        // Migração automática após login
-        setTimeout(async () => {
-          try {
-            console.log('🔄 Iniciando migração automática de dados...');
-            const result = await migrateAllLocalStorageData(session.user.id);
-            
-            if (result.success && result.totalRecords > 0) {
-              toast({
-                title: '✅ Migração Concluída!',
-                description: `${result.totalRecords} registros foram transferidos para a nuvem.`,
-              });
-              console.table(result.results);
-            }
-          } catch (error) {
-            console.error('❌ Erro na migração:', error);
-          }
-        }, 1000);
-      }
-    });
+    let subscription: any;
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    // Set up auth state listener
+    const setupAuth = async () => {
+      const { data } = await supabase.auth.onAuthStateChange((_event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+        
+        // Marcar para verificar primeiro acesso quando usuário logar
+        if (session?.user && _event === 'SIGNED_IN') {
+          setShouldCheckFirstAccess(true);
+          
+          // Migração automática após login
+          setTimeout(async () => {
+            try {
+              console.log('🔄 Iniciando migração automática de dados...');
+              const result = await migrateAllLocalStorageData(session.user.id);
+              
+              if (result.success && result.totalRecords > 0) {
+                toast({
+                  title: '✅ Migração Concluída!',
+                  description: `${result.totalRecords} registros foram transferidos para a nuvem.`,
+                });
+                console.table(result.results);
+              }
+            } catch (error) {
+              console.error('❌ Erro na migração:', error);
+            }
+          }, 1000);
+        }
+      });
+
+      subscription = data.subscription;
+
+      // THEN check for existing session
+      const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -79,9 +84,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }, 1000);
       }
-    });
+    };
 
-    return () => subscription.unsubscribe();
+    setupAuth();
+
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe();
+      }
+    };
   }, [toast]);
 
   const signIn = async (email: string, password: string) => {
