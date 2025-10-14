@@ -75,7 +75,7 @@ export function IngredienteAutocomplete({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[400px] p-0 bg-popover" align="start">
-        <Command>
+        <Command shouldFilter={false}>
           <CommandInput
             placeholder="Digite para buscar..."
             value={searchValue}
@@ -93,7 +93,11 @@ export function IngredienteAutocomplete({
             </div>
           </CommandEmpty>
           <CommandGroup className="max-h-[300px] overflow-auto">
-            {ingredientes.map((ingrediente) => (
+            {ingredientes
+              .filter((ingrediente) =>
+                ingrediente.nome.toLowerCase().includes(searchValue.toLowerCase())
+              )
+              .map((ingrediente) => (
               <CommandItem
                 key={ingrediente.id}
                 value={ingrediente.id}

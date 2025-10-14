@@ -75,7 +75,7 @@ export function EmbalagemAutocomplete({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[400px] p-0 bg-popover" align="start">
-        <Command>
+        <Command shouldFilter={false}>
           <CommandInput
             placeholder="Digite para buscar..."
             value={searchValue}
@@ -93,7 +93,11 @@ export function EmbalagemAutocomplete({
             </div>
           </CommandEmpty>
           <CommandGroup className="max-h-[300px] overflow-auto">
-            {embalagens.map((embalagem) => (
+            {embalagens
+              .filter((embalagem) =>
+                embalagem.nome.toLowerCase().includes(searchValue.toLowerCase())
+              )
+              .map((embalagem) => (
               <CommandItem
                 key={embalagem.id}
                 value={embalagem.id}
