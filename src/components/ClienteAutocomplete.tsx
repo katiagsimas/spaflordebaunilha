@@ -14,15 +14,8 @@ import {
 } from "@/components/ui/popover";
 import { Check, ChevronsUpDown, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useClientes } from "@/hooks/useClientes";
 import { useNavigate } from "react-router-dom";
-
-interface Cliente {
-  id: string;
-  nome: string;
-  tipo?: string;
-  telefone?: string;
-}
 
 interface ClienteAutocompleteProps {
   value: string;
@@ -37,7 +30,7 @@ export function ClienteAutocomplete({
 }: ClienteAutocompleteProps) {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [clientes] = useLocalStorage<Cliente[]>("clientes", []);
+  const { clientes } = useClientes();
   const navigate = useNavigate();
 
   const filteredClientes = clientes.filter((cliente) =>

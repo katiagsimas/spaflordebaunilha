@@ -9,177 +9,126 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck } from "lucide-react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useEncomendas } from "@/hooks/useEncomendas";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { formatPhone } from "@/lib/utils";
 import { ClienteAutocomplete } from "@/components/ClienteAutocomplete";
 
-interface Order {
-  id: string;
-  orderNumber: number;
-  client: string;
-  phone: string;
-  product: string;
-  quantity: number;
-  total: number;
-  downPayment: number;
-  balance: number;
-  status: "Pendente" | "Confirmado" | "Em Produção" | "Pronto" | "Entregue" | "Cancelado";
-  orderDate: string;
-  deliveryDate: string;
-  deliveryTime: string;
-  address: string;
-  notes: string;
-  createdAt: string;
-}
-
 const statusColors = {
-  Pendente: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  Confirmado: "bg-blue-100 text-blue-800 border-blue-200",
-  "Em Produção": "bg-purple-100 text-purple-800 border-purple-200",
-  Pronto: "bg-green-100 text-green-800 border-green-200",
-  Entregue: "bg-gray-100 text-gray-800 border-gray-200",
-  Cancelado: "bg-red-100 text-red-800 border-red-200",
+  pendente: "bg-yellow-100 text-yellow-800 border-yellow-200",
+  confirmado: "bg-blue-100 text-blue-800 border-blue-200",
+  em_producao: "bg-purple-100 text-purple-800 border-purple-200",
+  pronto: "bg-green-100 text-green-800 border-green-200",
+  entregue: "bg-gray-100 text-gray-800 border-gray-200",
+  cancelado: "bg-red-100 text-red-800 border-red-200",
+};
+
+const statusLabels = {
+  pendente: "Pendente",
+  confirmado: "Confirmado",
+  em_producao: "Em Produção",
+  pronto: "Pronto",
+  entregue: "Entregue",
+  cancelado: "Cancelado",
 };
 
 const Encomendas = () => {
-  const [orders, setOrders] = useLocalStorage<Order[]>("orders", []);
+  const { encomendas, loading, createEncomenda, updateEncomenda, deleteEncomenda } = useEncomendas();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [editingOrder, setEditingOrder] = useState<any | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("Todos");
   
   const [formData, setFormData] = useState({
-    client: "",
-    phone: "",
-    product: "",
-    quantity: 1,
-    total: 0,
-    downPayment: 0,
-    status: "Pendente" as Order["status"],
-    orderDate: new Date().toISOString().split("T")[0],
-    deliveryDate: "",
-    deliveryTime: "",
-    address: "",
-    notes: "",
+    cliente: "",
+    data_pedido: new Date().toISOString().split("T")[0],
+    data_entrega: "",
+    status: "pendente",
+    valor: 0,
+    observacoes: "",
   });
-
-  const getNextOrderNumber = () => {
-    if (orders.length === 0) return 1;
-    return Math.max(...orders.map(o => o.orderNumber)) + 1;
-  };
 
   const resetForm = () => {
     setFormData({
-      client: "",
-      phone: "",
-      product: "",
-      quantity: 1,
-      total: 0,
-      downPayment: 0,
-      status: "Pendente",
-      orderDate: new Date().toISOString().split("T")[0],
-      deliveryDate: "",
-      deliveryTime: "",
-      address: "",
-      notes: "",
+      cliente: "",
+      data_pedido: new Date().toISOString().split("T")[0],
+      data_entrega: "",
+      status: "pendente",
+      valor: 0,
+      observacoes: "",
     });
     setEditingOrder(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const balance = formData.total - formData.downPayment;
-    
-    if (editingOrder) {
-      setOrders(
-        orders.map((order) =>
-          order.id === editingOrder.id
-            ? { 
-                ...order,
-                ...formData,
-                balance,
-              }
-            : order
-        )
-      );
-      toast.success("Encomenda atualizada!");
-    } else {
-      const newOrder: Order = {
-        id: Date.now().toString(),
-        orderNumber: getNextOrderNumber(),
-        ...formData,
-        balance,
-        createdAt: new Date().toISOString(),
-      };
-      setOrders([...orders, newOrder]);
-      toast.success("Encomenda criada com sucesso!");
+    try {
+      if (editingOrder) {
+        await updateEncomenda(editingOrder.id, formData);
+      } else {
+        await createEncomenda(formData);
+      }
+      setDialogOpen(false);
+      resetForm();
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao salvar encomenda");
     }
-    
-    setDialogOpen(false);
-    resetForm();
   };
 
-  const handleEdit = (order: Order) => {
-    setEditingOrder(order);
+  const handleEdit = (encomenda: any) => {
+    setEditingOrder(encomenda);
     setFormData({
-      client: order.client,
-      phone: order.phone,
-      product: order.product,
-      quantity: order.quantity,
-      total: order.total,
-      downPayment: order.downPayment,
-      status: order.status,
-      orderDate: order.orderDate,
-      deliveryDate: order.deliveryDate,
-      deliveryTime: order.deliveryTime,
-      address: order.address,
-      notes: order.notes,
+      cliente: encomenda.cliente,
+      data_pedido: encomenda.data_pedido,
+      data_entrega: encomenda.data_entrega,
+      status: encomenda.status,
+      valor: encomenda.valor,
+      observacoes: encomenda.observacoes || "",
     });
     setDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm("Tem certeza que deseja excluir esta encomenda?")) {
-      setOrders(orders.filter((order) => order.id !== id));
-      toast.success("Encomenda excluída!");
+      try {
+        await deleteEncomenda(id);
+      } catch (error: any) {
+        toast.error(error.message || "Erro ao excluir encomenda");
+      }
     }
   };
 
-  const filteredOrders = orders
-    .filter(o => {
-      const matchesSearch = o.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          o.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          o.orderNumber.toString().includes(searchTerm);
-      const matchesStatus = statusFilter === "Todos" || o.status === statusFilter;
+  const filteredOrders = encomendas
+    .filter(e => {
+      const matchesSearch = e.cliente.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === "Todos" || e.status === statusFilter.toLowerCase().replace(" ", "_");
       return matchesSearch && matchesStatus;
     })
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    .sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime());
 
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const weekFromNow = new Date(today);
   weekFromNow.setDate(weekFromNow.getDate() + 7);
 
-  const todayOrders = orders.filter(o => {
-    const deliveryDate = new Date(o.deliveryDate);
-    return deliveryDate.getTime() === today.getTime() && o.status !== "Entregue" && o.status !== "Cancelado";
+  const todayOrders = encomendas.filter(e => {
+    const deliveryDate = new Date(e.data_entrega);
+    return deliveryDate.getTime() === today.getTime() && e.status !== "entregue" && e.status !== "cancelado";
   }).length;
 
-  const weekOrders = orders.filter(o => {
-    const deliveryDate = new Date(o.deliveryDate);
-    return deliveryDate >= today && deliveryDate <= weekFromNow && o.status !== "Entregue" && o.status !== "Cancelado";
+  const weekOrders = encomendas.filter(e => {
+    const deliveryDate = new Date(e.data_entrega);
+    return deliveryDate >= today && deliveryDate <= weekFromNow && e.status !== "entregue" && e.status !== "cancelado";
   }).length;
 
-  const totalReceivable = orders.filter(o => o.status !== "Entregue" && o.status !== "Cancelado")
-    .reduce((sum, o) => sum + o.balance, 0);
+  const totalReceivable = encomendas.filter(e => e.status !== "entregue" && e.status !== "cancelado")
+    .reduce((sum, e) => sum + e.valor, 0);
 
   const stats = [
     {
       title: "Total de Encomendas",
-      value: orders.length,
+      value: encomendas.length,
       icon: ShoppingBag,
       color: "text-primary",
       bgColor: "bg-primary/10",
@@ -226,74 +175,59 @@ const Encomendas = () => {
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
-                  {editingOrder ? `Editar Encomenda #${editingOrder.orderNumber}` : "Nova Encomenda"}
+                  {editingOrder ? "Editar Encomenda" : "Nova Encomenda"}
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="client">Nome do Cliente *</Label>
+                    <Label htmlFor="cliente">Nome do Cliente *</Label>
                     <ClienteAutocomplete
-                      value={formData.client}
+                      value={formData.cliente}
                       onSelect={(clienteNome) =>
-                        setFormData({ ...formData, client: clienteNome })
+                        setFormData({ ...formData, cliente: clienteNome })
                       }
                       placeholder="Selecione ou busque um cliente..."
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Telefone/WhatsApp</Label>
+                    <Label htmlFor="data_pedido">Data do Pedido *</Label>
                     <Input
-                      id="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value })
-                      }
-                      onBlur={(e) =>
-                        setFormData({ ...formData, phone: formatPhone(e.target.value) })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="product">Produto Encomendado *</Label>
-                    <Input
-                      id="product"
-                      required
-                      value={formData.product}
-                      onChange={(e) =>
-                        setFormData({ ...formData, product: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="quantity">Quantidade *</Label>
-                    <Input
-                      id="quantity"
-                      type="number"
-                      min="1"
-                      required
-                      value={formData.quantity}
-                      onChange={(e) =>
-                        setFormData({ ...formData, quantity: Number(e.target.value) })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="orderDate">Data do Pedido *</Label>
-                    <Input
-                      id="orderDate"
+                      id="data_pedido"
                       type="date"
                       required
-                      value={formData.orderDate}
+                      value={formData.data_pedido}
                       onChange={(e) =>
-                        setFormData({ ...formData, orderDate: e.target.value })
+                        setFormData({ ...formData, data_pedido: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="data_entrega">Data de Entrega *</Label>
+                    <Input
+                      id="data_entrega"
+                      type="date"
+                      required
+                      value={formData.data_entrega}
+                      onChange={(e) =>
+                        setFormData({ ...formData, data_entrega: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="valor">Valor Total (R$) *</Label>
+                    <Input
+                      id="valor"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      required
+                      value={formData.valor || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, valor: Number(e.target.value) })
                       }
                     />
                   </div>
@@ -302,107 +236,32 @@ const Encomendas = () => {
                     <Select
                       value={formData.status}
                       onValueChange={(value) =>
-                        setFormData({ ...formData, status: value as Order["status"] })
+                        setFormData({ ...formData, status: value })
                       }
                     >
                       <SelectTrigger className="bg-popover">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-popover z-50">
-                        <SelectItem value="Pendente">Pendente</SelectItem>
-                        <SelectItem value="Confirmado">Confirmado</SelectItem>
-                        <SelectItem value="Em Produção">Em Produção</SelectItem>
-                        <SelectItem value="Pronto">Pronto</SelectItem>
-                        <SelectItem value="Entregue">Entregue</SelectItem>
-                        <SelectItem value="Cancelado">Cancelado</SelectItem>
+                        <SelectItem value="pendente">Pendente</SelectItem>
+                        <SelectItem value="confirmado">Confirmado</SelectItem>
+                        <SelectItem value="em_producao">Em Produção</SelectItem>
+                        <SelectItem value="pronto">Pronto</SelectItem>
+                        <SelectItem value="entregue">Entregue</SelectItem>
+                        <SelectItem value="cancelado">Cancelado</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="deliveryDate">Data de Entrega *</Label>
-                    <Input
-                      id="deliveryDate"
-                      type="date"
-                      required
-                      value={formData.deliveryDate}
-                      onChange={(e) =>
-                        setFormData({ ...formData, deliveryDate: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="deliveryTime">Hora de Entrega</Label>
-                    <Input
-                      id="deliveryTime"
-                      type="time"
-                      value={formData.deliveryTime}
-                      onChange={(e) =>
-                        setFormData({ ...formData, deliveryTime: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="total">Valor Total (R$) *</Label>
-                    <Input
-                      id="total"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      required
-                      value={formData.total || ""}
-                      onChange={(e) =>
-                        setFormData({ ...formData, total: Number(e.target.value) })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="downPayment">Valor de Entrada (R$)</Label>
-                    <Input
-                      id="downPayment"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={formData.downPayment || ""}
-                      onChange={(e) =>
-                        setFormData({ ...formData, downPayment: Number(e.target.value) })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Saldo Restante</Label>
-                    <div className="h-10 px-3 py-2 rounded-md border bg-muted flex items-center">
-                      <span className="font-semibold text-primary">
-                        R$ {(formData.total - formData.downPayment).toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="address">Endereço de Entrega</Label>
-                  <Input
-                    id="address"
-                    value={formData.address}
-                    onChange={(e) =>
-                      setFormData({ ...formData, address: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="notes">Observações</Label>
+                  <Label htmlFor="observacoes">Observações</Label>
                   <Textarea
-                    id="notes"
+                    id="observacoes"
                     rows={3}
-                    value={formData.notes}
+                    value={formData.observacoes}
                     onChange={(e) =>
-                      setFormData({ ...formData, notes: e.target.value })
+                      setFormData({ ...formData, observacoes: e.target.value })
                     }
                   />
                 </div>
@@ -459,7 +318,7 @@ const Encomendas = () => {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar por cliente ou produto..."
+                  placeholder="Buscar por cliente..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-9 w-full sm:w-64"
@@ -485,78 +344,51 @@ const Encomendas = () => {
         <CardContent>
           {filteredOrders.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground mb-4">Nenhuma encomenda encontrada</p>
-              <Button onClick={() => setDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Criar Primeira Encomenda
-              </Button>
+              <ShoppingBag className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">
+                {searchTerm || statusFilter !== "Todos" 
+                  ? "Nenhuma encomenda encontrada com os filtros aplicados"
+                  : "Nenhuma encomenda cadastrada"}
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-16">Nº</TableHead>
                     <TableHead>Cliente</TableHead>
-                    <TableHead>Produto</TableHead>
-                    <TableHead>Data Entrega</TableHead>
-                    <TableHead className="text-right">Valor</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Data Pedido</TableHead>
+                    <TableHead>Data Entrega</TableHead>
+                    <TableHead>Valor</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredOrders.map((order) => (
-                    <TableRow key={order.id}>
-                      <TableCell className="font-medium">#{order.orderNumber}</TableCell>
+                  {filteredOrders.map((encomenda) => (
+                    <TableRow key={encomenda.id}>
+                      <TableCell className="font-medium">{encomenda.cliente}</TableCell>
                       <TableCell>
-                        <div>
-                          <p className="font-medium">{order.client}</p>
-                          {order.phone && (
-                            <p className="text-xs text-muted-foreground">{order.phone}</p>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <p>{order.product}</p>
-                          <p className="text-xs text-muted-foreground">Qtd: {order.quantity}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <p>{new Date(order.deliveryDate).toLocaleDateString("pt-BR")}</p>
-                          {order.deliveryTime && (
-                            <p className="text-xs text-muted-foreground">{order.deliveryTime}</p>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div>
-                          <p className="font-semibold">R$ {order.total.toFixed(2)}</p>
-                          {order.balance > 0 && (
-                            <p className="text-xs text-warning">Falta: R$ {order.balance.toFixed(2)}</p>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={statusColors[order.status]} variant="outline">
-                          {order.status}
+                        <Badge className={statusColors[encomenda.status as keyof typeof statusColors]} variant="outline">
+                          {statusLabels[encomenda.status as keyof typeof statusLabels]}
                         </Badge>
                       </TableCell>
+                      <TableCell>{new Date(encomenda.data_pedido).toLocaleDateString("pt-BR")}</TableCell>
+                      <TableCell>{new Date(encomenda.data_entrega).toLocaleDateString("pt-BR")}</TableCell>
+                      <TableCell>R$ {encomenda.valor.toFixed(2)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex gap-1 justify-end">
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleEdit(order)}
+                            onClick={() => handleEdit(encomenda)}
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleDelete(order.id)}
+                            onClick={() => handleDelete(encomenda.id)}
                           >
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>

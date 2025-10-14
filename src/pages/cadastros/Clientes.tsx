@@ -13,54 +13,31 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useClientes } from "@/hooks/useClientes";
 import { useViaCEP } from "@/hooks/useViaCEP";
 import { Plus, Pencil, Trash2, Users, Search, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
-import { format } from "date-fns";
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
-
-interface Cliente {
-  id: string;
-  nome: string;
-  tipo: "PF" | "PJ";
-  aniversario: string;
-  telefone: string;
-  cep: string;
-  endereco: string;
-  numero: string;
-  complemento: string;
-  bairro: string;
-  cidade: string;
-  estado: string;
-  cpf: string;
-  instagram: string;
-  observacoes: string;
-}
 
 export default function Clientes() {
   const navigate = useNavigate();
-  const [clientes, setClientes] = useLocalStorage<Cliente[]>("clientes", []);
+  const { clientes, loading: loadingClientes, createCliente, updateCliente, deleteCliente } = useClientes();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
+  const [editingCliente, setEditingCliente] = useState<any | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [observacoesOpen, setObservacoesOpen] = useState(false);
-  const { buscarCEP, loading } = useViaCEP();
+  const { buscarCEP, loading: loadingCEP } = useViaCEP();
 
   const [formData, setFormData] = useState({
     nome: "",
-    tipo: "PF" as "PF" | "PJ",
-    aniversario: "",
+    tipo: "PF",
     telefone: "",
+    email: "",
+    cpf_cnpj: "",
     cep: "",
     endereco: "",
-    numero: "",
-    complemento: "",
-    bairro: "",
     cidade: "",
     estado: "",
-    cpf: "",
-    instagram: "",
     observacoes: "",
   });
 
@@ -71,7 +48,7 @@ export default function Clientes() {
     }
   }, [editingCliente]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.nome || !formData.telefone) {
@@ -79,36 +56,29 @@ export default function Clientes() {
       return;
     }
 
-    if (editingCliente) {
-      setClientes(clientes.map(c => c.id === editingCliente.id ? { ...formData, id: c.id } : c));
-      toast.success("Cliente atualizado com sucesso!");
-    } else {
-      const newCliente: Cliente = {
-        ...formData,
-        id: Date.now().toString(),
-      };
-      setClientes([...clientes, newCliente]);
-      toast.success("Cliente cadastrado com sucesso!");
+    try {
+      if (editingCliente) {
+        await updateCliente(editingCliente.id, formData);
+      } else {
+        await createCliente(formData);
+      }
+      resetForm();
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao salvar cliente");
     }
-
-    resetForm();
   };
 
   const resetForm = () => {
     setFormData({
       nome: "",
       tipo: "PF",
-      aniversario: "",
       telefone: "",
+      email: "",
+      cpf_cnpj: "",
       cep: "",
       endereco: "",
-      numero: "",
-      complemento: "",
-      bairro: "",
       cidade: "",
       estado: "",
-      cpf: "",
-      instagram: "",
       observacoes: "",
     });
     setEditingCliente(null);
@@ -122,20 +92,22 @@ export default function Clientes() {
       setFormData({
         ...formData,
         endereco: endereco.endereco,
-        bairro: endereco.bairro,
         cidade: endereco.cidade,
         estado: endereco.estado,
       });
     }
   };
 
-  const handleDelete = (id: string) => {
-    setClientes(clientes.filter(c => c.id !== id));
-    setDeleteId(null);
-    toast.success("Cliente excluído com sucesso!");
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteCliente(id);
+      setDeleteId(null);
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao excluir cliente");
+    }
   };
 
-  const handleEdit = (cliente: Cliente) => {
+  const handleEdit = (cliente: any) => {
     setEditingCliente(cliente);
   };
 
@@ -177,28 +149,19 @@ export default function Clientes() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="tipo">PF ou PJ</Label>
+                    <Label htmlFor="tipo">Tipo</Label>
                     <Select
                       value={formData.tipo}
-                      onValueChange={(value: "PF" | "PJ") => setFormData({ ...formData, tipo: value })}
+                      onValueChange={(value) => setFormData({ ...formData, tipo: value })}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-background">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-background z-50">
                         <SelectItem value="PF">Pessoa Física</SelectItem>
                         <SelectItem value="PJ">Pessoa Jurídica</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="aniversario">Data de Aniversário</Label>
-                    <Input
-                      id="aniversario"
-                      type="date"
-                      value={formData.aniversario}
-                      onChange={(e) => setFormData({ ...formData, aniversario: e.target.value })}
-                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="telefone">Telefone/WhatsApp *</Label>
@@ -209,6 +172,26 @@ export default function Clientes() {
                       onBlur={(e) => setFormData({ ...formData, telefone: formatPhone(e.target.value) })}
                       placeholder="(00) 00000-0000"
                       required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">E-mail</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="email@exemplo.com"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cpf_cnpj">CPF/CNPJ</Label>
+                    <Input
+                      id="cpf_cnpj"
+                      value={formData.cpf_cnpj}
+                      onChange={(e) => setFormData({ ...formData, cpf_cnpj: e.target.value })}
+                      onBlur={(e) => setFormData({ ...formData, cpf_cnpj: formatCpfCnpj(e.target.value) })}
+                      placeholder="000.000.000-00"
                     />
                   </div>
                   <div className="space-y-2">
@@ -225,10 +208,10 @@ export default function Clientes() {
                         type="button"
                         variant="outline"
                         onClick={handleBuscarCEP}
-                        disabled={loading || !formData.cep}
+                        disabled={loadingCEP || !formData.cep}
                       >
                         <Search className="h-4 w-4 mr-2" />
-                        {loading ? "Buscando..." : "Buscar"}
+                        {loadingCEP ? "Buscando..." : "Buscar"}
                       </Button>
                     </div>
                   </div>
@@ -242,36 +225,6 @@ export default function Clientes() {
                       value={formData.endereco}
                       onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
                       placeholder="Rua, Avenida"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="numero">Número</Label>
-                    <Input
-                      id="numero"
-                      value={formData.numero}
-                      onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
-                      placeholder="Nº"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="complemento">Complemento</Label>
-                    <Input
-                      id="complemento"
-                      value={formData.complemento}
-                      onChange={(e) => setFormData({ ...formData, complemento: e.target.value })}
-                      placeholder="Apto, Bloco, etc"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="bairro">Bairro</Label>
-                    <Input
-                      id="bairro"
-                      value={formData.bairro}
-                      onChange={(e) => setFormData({ ...formData, bairro: e.target.value })}
-                      placeholder="Bairro"
                     />
                   </div>
                   <div className="space-y-2">
@@ -294,25 +247,6 @@ export default function Clientes() {
                       onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
                       placeholder="UF"
                       maxLength={2}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cpf">CPF</Label>
-                    <Input
-                      id="cpf"
-                      value={formData.cpf}
-                      onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
-                      onBlur={(e) => setFormData({ ...formData, cpf: formatCpfCnpj(e.target.value) })}
-                      placeholder="000.000.000-00"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="instagram">Instagram (@)</Label>
-                    <Input
-                      id="instagram"
-                      value={formData.instagram}
-                      onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
-                      placeholder="@usuario"
                     />
                   </div>
                 </div>
@@ -361,8 +295,8 @@ export default function Clientes() {
                     <TableHead>Nome</TableHead>
                     <TableHead>Tipo</TableHead>
                     <TableHead>Telefone</TableHead>
-                    <TableHead>CPF</TableHead>
-                    <TableHead>Instagram</TableHead>
+                    <TableHead>E-mail</TableHead>
+                    <TableHead>CPF/CNPJ</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -370,10 +304,10 @@ export default function Clientes() {
                   {clientes.map((cliente) => (
                     <TableRow key={cliente.id}>
                       <TableCell className="font-medium">{cliente.nome}</TableCell>
-                      <TableCell>{cliente.tipo}</TableCell>
+                      <TableCell>{cliente.tipo || "PF"}</TableCell>
                       <TableCell>{cliente.telefone}</TableCell>
-                      <TableCell>{cliente.cpf || "-"}</TableCell>
-                      <TableCell>{cliente.instagram || "-"}</TableCell>
+                      <TableCell>{cliente.email || "-"}</TableCell>
+                      <TableCell>{cliente.cpf_cnpj || "-"}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex gap-2 justify-end">
                           <Button
