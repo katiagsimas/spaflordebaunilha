@@ -19,9 +19,17 @@ interface Categoria {
   nome: string;
 }
 
+const categoriasIniciais: Categoria[] = [
+  { id: "1", nome: "Bolo Caseiro" },
+  { id: "2", nome: "Bolo Decorado" },
+  { id: "3", nome: "Doces" },
+  { id: "4", nome: "Salgados" },
+  { id: "5", nome: "Fatias" },
+];
+
 export default function Categorias() {
   const navigate = useNavigate();
-  const [categorias, setCategorias] = useLocalStorage<Categoria[]>("categorias", []);
+  const [categorias, setCategorias] = useLocalStorage<Categoria[]>("categorias", categoriasIniciais);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategoria, setEditingCategoria] = useState<Categoria | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -46,14 +54,20 @@ export default function Categorias() {
     }
 
     if (editingCategoria) {
-      setCategorias(categorias.map(c => c.id === editingCategoria.id ? { ...formData, id: c.id } : c));
+      const updatedCategorias = categorias.map(c => 
+        c.id === editingCategoria.id ? { ...formData, id: c.id } : c
+      );
+      // Ordenar alfabeticamente
+      setCategorias(updatedCategorias.sort((a, b) => a.nome.localeCompare(b.nome)));
       toast.success("Categoria atualizada com sucesso!");
     } else {
       const newCategoria: Categoria = {
         ...formData,
         id: Date.now().toString(),
       };
-      setCategorias([...categorias, newCategoria]);
+      // Adicionar e ordenar alfabeticamente
+      const updatedCategorias = [...categorias, newCategoria];
+      setCategorias(updatedCategorias.sort((a, b) => a.nome.localeCompare(b.nome)));
       toast.success("Categoria cadastrada com sucesso!");
     }
 
