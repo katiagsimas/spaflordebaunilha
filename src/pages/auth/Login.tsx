@@ -5,10 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Mail, Lock, Eye, EyeOff, Zap } from 'lucide-react';
 import sugarboxAuthLogo from '@/assets/sugarbox-auth-logo.png';
 import authBackground from '@/assets/auth-background.jpg';
 import { z } from 'zod';
+import { DEV_MODE, DEV_CREDENTIALS } from '@/utils/devAuth';
+import { toast } from 'sonner';
 
 const loginSchema = z.object({
   email: z.string().trim().email({ message: "Email inválido" }).max(255, { message: "Email muito longo" }),
@@ -22,6 +24,25 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
+
+  const handleDevQuickAccess = async () => {
+    if (!DEV_MODE) {
+      toast.error("Acesso rápido disponível apenas em desenvolvimento");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await signIn(DEV_CREDENTIALS.email, DEV_CREDENTIALS.password);
+      toast.success("✨ Acesso rápido concedido!");
+      navigate('/');
+    } catch (error: any) {
+      console.error("Erro no acesso rápido:", error);
+      toast.error("Erro ao fazer login. Verifique suas credenciais em src/utils/devAuth.ts");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,6 +161,20 @@ export default function Login() {
               )}
             </Button>
 
+            {DEV_MODE && (
+              <Button 
+                type="button"
+                variant="outline" 
+                className="w-full border-2 border-amber-500/50 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950 dark:hover:bg-amber-900 text-amber-900 dark:text-amber-100"
+                size="lg"
+                onClick={handleDevQuickAccess}
+                disabled={loading}
+              >
+                <Zap className="mr-2 h-5 w-5 text-amber-500" />
+                ⚡ Acesso Rápido de Desenvolvimento
+              </Button>
+            )}
+
             <div className="text-center text-sm text-muted-foreground">
               Não tem uma conta?{' '}
               <Link
@@ -149,6 +184,13 @@ export default function Login() {
                 Criar conta grátis
               </Link>
             </div>
+
+            {DEV_MODE && (
+              <div className="text-xs text-center text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 p-3 rounded-lg border border-amber-200 dark:border-amber-800">
+                🔧 <strong>Modo Desenvolvedor Ativo</strong><br />
+                Acesso rápido habilitado para facilitar testes
+              </div>
+            )}
           </CardFooter>
         </form>
       </Card>
