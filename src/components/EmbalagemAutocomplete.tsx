@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ export function EmbalagemAutocomplete({
   onSelect,
   placeholder = "Selecione a embalagem...",
 }: EmbalagemAutocompleteProps) {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
@@ -82,14 +84,21 @@ export function EmbalagemAutocomplete({
             onValueChange={setSearchValue}
           />
           <CommandEmpty>
-            <div className="p-4 text-sm text-center">
+            <div className="p-4 text-sm text-center space-y-3">
               <p className="text-destructive font-medium mb-2">
                 Embalagem não encontrada
               </p>
               <p className="text-muted-foreground">
-                Por favor, cadastre a embalagem na tela de{" "}
-                <strong>Embalagens</strong> antes de continuar.
+                Por favor, cadastre a embalagem antes de continuar.
               </p>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => navigate("/cadastros/embalagens")}
+                className="w-full"
+              >
+                Ir para Cadastro de Embalagens
+              </Button>
             </div>
           </CommandEmpty>
           <CommandGroup className="max-h-[300px] overflow-auto">

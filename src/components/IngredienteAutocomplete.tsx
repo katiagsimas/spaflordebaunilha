@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ export function IngredienteAutocomplete({
   onSelect,
   placeholder = "Selecione o ingrediente...",
 }: IngredienteAutocompleteProps) {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
@@ -82,14 +84,21 @@ export function IngredienteAutocomplete({
             onValueChange={setSearchValue}
           />
           <CommandEmpty>
-            <div className="p-4 text-sm text-center">
+            <div className="p-4 text-sm text-center space-y-3">
               <p className="text-destructive font-medium mb-2">
                 Ingrediente não encontrado
               </p>
               <p className="text-muted-foreground">
-                Por favor, cadastre o ingrediente na tela de{" "}
-                <strong>Ingredientes</strong> antes de continuar.
+                Por favor, cadastre o ingrediente antes de continuar.
               </p>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => navigate("/cadastros/ingredientes")}
+                className="w-full"
+              >
+                Ir para Cadastro de Ingredientes
+              </Button>
             </div>
           </CommandEmpty>
           <CommandGroup className="max-h-[300px] overflow-auto">
