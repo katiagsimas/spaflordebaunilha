@@ -57,6 +57,10 @@ export function NovaSaidaDialog({ open, onOpenChange, itemSelecionado, onSuccess
         setLoading(false);
         return;
       }
+      // Obter usuário atual
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuário não autenticado');
+
       // Buscar entradas FIFO (mais antigas primeiro)
       const { data: entradas, error: errorEntradas } = await supabase
         .from('entradas_detalhadas')
@@ -104,6 +108,7 @@ export function NovaSaidaDialog({ open, onOpenChange, itemSelecionado, onSuccess
           custo_total: custoTotal,
           motivo: validated.motivo,
           observacoes: validated.observacoes || null,
+          usuario_id: user.id
         });
 
       if (errorMov) throw errorMov;

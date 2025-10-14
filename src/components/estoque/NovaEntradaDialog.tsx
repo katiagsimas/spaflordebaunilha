@@ -52,6 +52,10 @@ export function NovaEntradaDialog({ open, onOpenChange, itemSelecionado, onSucce
       const custo = validated.custoTotal;
       const custoUnitario = custo / qtd;
 
+      // Obter usuário atual
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuário não autenticado');
+
       // Criar movimentação
       const { data: movimentacao, error: errorMov } = await supabase
         .from('movimentacoes_estoque')
@@ -67,6 +71,7 @@ export function NovaEntradaDialog({ open, onOpenChange, itemSelecionado, onSucce
           motivo: 'Compra',
           local_compra: validated.localCompra || null,
           observacoes: validated.observacoes || null,
+          usuario_id: user.id
         })
         .select()
         .single();
@@ -85,6 +90,7 @@ export function NovaEntradaDialog({ open, onOpenChange, itemSelecionado, onSucce
           quantidade_restante: qtd,
           custo_unitario: custoUnitario,
           status: 'ATIVO',
+          usuario_id: user.id
         });
 
       if (errorEntrada) throw errorEntrada;
@@ -95,7 +101,7 @@ export function NovaEntradaDialog({ open, onOpenChange, itemSelecionado, onSucce
         .select('*')
         .eq('item_id', itemSelecionado?.id)
         .eq('tipo_item', itemSelecionado?.tipo_item || 'INSUMO')
-        .single();
+        .maybeSingle();
 
       if (estoqueAtual) {
         // Atualizar
@@ -123,6 +129,7 @@ export function NovaEntradaDialog({ open, onOpenChange, itemSelecionado, onSucce
             quantidade_atual: qtd,
             custo_medio: custoUnitario,
             valor_total: custo,
+            usuario_id: user.id
           });
       }
 
