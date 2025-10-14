@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trash2, ChefHat, Upload, X } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
+import { useCategorias } from "@/hooks/useCategorias";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
@@ -100,7 +101,7 @@ export default function ReceitaForm() {
   const [ingredientesCadastrados, setIngredientesCadastrados] = useLocalStorage<Ingrediente[]>("ingredientes", []);
   const [embalagensCadastradas] = useLocalStorage<Embalagem[]>("embalagens", []);
   const [custosFixos] = useLocalStorage<CustoFixo[]>("custosFixos", []);
-  const [categorias] = useLocalStorage<Categoria[]>("categorias", []);
+  const { categorias } = useCategorias();
   const { unidades } = useUnidadesMedida();
 
   const [formData, setFormData] = useState({
@@ -482,6 +483,18 @@ export default function ReceitaForm() {
                   <SelectValue placeholder="Selecione uma categoria" />
                 </SelectTrigger>
                 <SelectContent>
+                  {categorias.length === 0 && (
+                    <div className="p-2 text-sm text-muted-foreground text-center">
+                      Nenhuma categoria cadastrada.{" "}
+                      <Button
+                        variant="link"
+                        className="p-0 h-auto"
+                        onClick={() => navigate("/cadastros/categorias")}
+                      >
+                        Cadastrar agora
+                      </Button>
+                    </div>
+                  )}
                   {categorias.map((categoria) => (
                     <SelectItem key={categoria.id} value={categoria.nome}>
                       {categoria.nome}
