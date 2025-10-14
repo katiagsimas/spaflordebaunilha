@@ -245,6 +245,30 @@ const Encomendas = () => {
                     />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="status">Status</Label>
+                    <Select
+                      value={formData.status}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, status: value })
+                      }
+                    >
+                      <SelectTrigger className="bg-popover">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover z-50">
+                        <SelectItem value="pendente">Pendente</SelectItem>
+                        <SelectItem value="confirmado">Confirmado</SelectItem>
+                        <SelectItem value="em_producao">Em Produção</SelectItem>
+                        <SelectItem value="pronto">Pronto</SelectItem>
+                        <SelectItem value="entregue">Entregue</SelectItem>
+                        <SelectItem value="cancelado">Cancelado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
                     <Label htmlFor="data_entrega">Data de Entrega *</Label>
                     <Input
                       id="data_entrega"
@@ -305,42 +329,19 @@ const Encomendas = () => {
                   </div>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="valor">Valor Total (R$) *</Label>
-                    <Input
-                      id="valor"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      required
-                      value={formData.valor || ""}
-                      onChange={(e) =>
-                        setFormData({ ...formData, valor: Number(e.target.value) })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="status">Status</Label>
-                    <Select
-                      value={formData.status}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, status: value })
-                      }
-                    >
-                      <SelectTrigger className="bg-popover">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover z-50">
-                        <SelectItem value="pendente">Pendente</SelectItem>
-                        <SelectItem value="confirmado">Confirmado</SelectItem>
-                        <SelectItem value="em_producao">Em Produção</SelectItem>
-                        <SelectItem value="pronto">Pronto</SelectItem>
-                        <SelectItem value="entregue">Entregue</SelectItem>
-                        <SelectItem value="cancelado">Cancelado</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="valor">Valor Total (R$) *</Label>
+                  <Input
+                    id="valor"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    required
+                    value={formData.valor || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, valor: Number(e.target.value) })
+                    }
+                  />
                 </div>
 
                 <div className="space-y-2">
