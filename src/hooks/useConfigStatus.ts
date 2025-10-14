@@ -43,13 +43,23 @@ export function useConfigStatus() {
         profile?.endereco
       );
 
-      // Verificar se tem categorias
-      const { count: categoriasCount } = await supabase
-        .from('categorias')
-        .select('*', { count: 'exact', head: true })
-        .eq('usuario_id', user.id);
+      // Verificar categorias no localStorage
+      const categoriasStorage = localStorage.getItem('sugarbox_categorias_receitas');
+      let hasCategorias = false;
+      
+      if (categoriasStorage) {
+        try {
+          const categorias = JSON.parse(categoriasStorage);
+          hasCategorias = Array.isArray(categorias) && categorias.length > 0;
+        } catch (e) {
+          hasCategorias = false;
+        }
+      } else {
+        // Se não existe no localStorage, considera os valores padrão como já configurados
+        hasCategorias = true; // Sistema vem com 5 categorias pré-cadastradas
+      }
 
-      // Verificar se tem unidades de medida
+      // Verificar unidades de medida no Supabase
       const { count: unidadesCount } = await supabase
         .from('unidades_medida')
         .select('*', { count: 'exact', head: true })
@@ -89,7 +99,7 @@ export function useConfigStatus() {
 
       return {
         seusDados,
-        categorias: (categoriasCount || 0) > 0,
+        categorias: hasCategorias,
         unidadesMedida: (unidadesCount || 0) > 0,
         bancos: hasBancos,
         tiposDocumento: hasTiposDocumento,
