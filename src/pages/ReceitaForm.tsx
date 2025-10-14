@@ -80,6 +80,7 @@ interface Receita {
   nome: string;
   categoria?: string;
   tipo?: "produto_avulso" | "produto_combo";
+  cardapio?: "ativo" | "fora";
   tempoPreparo: number;
   unidadeTempo: "minutos" | "horas";
   rendimento: number;
@@ -108,6 +109,7 @@ export default function ReceitaForm() {
     nome: "",
     categoria: "",
     tipo: "produto_avulso" as "produto_avulso" | "produto_combo",
+    cardapio: "ativo" as "ativo" | "fora",
     tempoPreparo: "",
     unidadeTempo: "minutos" as "minutos" | "horas",
     rendimento: "",
@@ -142,6 +144,7 @@ export default function ReceitaForm() {
           nome: receita.nome,
           categoria: receita.categoria || "",
           tipo: receita.tipo || "produto_avulso",
+          cardapio: receita.cardapio || "ativo",
           tempoPreparo: receita.tempoPreparo.toString(),
           unidadeTempo: receita.unidadeTempo,
           rendimento: receita.rendimento.toString(),
@@ -402,6 +405,7 @@ export default function ReceitaForm() {
       nome: formData.nome,
       categoria: formData.categoria,
       tipo: formData.tipo,
+      cardapio: formData.cardapio,
       tempoPreparo: Number(formData.tempoPreparo),
       unidadeTempo: formData.unidadeTempo,
       rendimento: Number(formData.rendimento),
@@ -510,6 +514,22 @@ export default function ReceitaForm() {
                       {categoria.nome}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="cardapio">Cardápio</Label>
+              <Select
+                value={formData.cardapio}
+                onValueChange={(value: "ativo" | "fora") => setFormData({ ...formData, cardapio: value })}
+              >
+                <SelectTrigger id="cardapio">
+                  <SelectValue placeholder="Status do cardápio" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ativo">Ativo</SelectItem>
+                  <SelectItem value="fora">Fora</SelectItem>
                 </SelectContent>
               </Select>
             </div>
