@@ -22,6 +22,11 @@ interface Encomenda {
   taxa_entrega?: number;
   topo_bolo?: number;
   outros?: number;
+  topo_tema?: string;
+  topo_aniversariante?: string;
+  topo_idade?: string;
+  topo_obs?: string;
+  topo_imagem_url?: string;
   created_at?: string;
   updated_at?: string;
 }

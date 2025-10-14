@@ -417,7 +417,12 @@ export type Database = {
           status: string
           taxa_entrega: number | null
           telefone: string | null
+          topo_aniversariante: string | null
           topo_bolo: number | null
+          topo_idade: string | null
+          topo_imagem_url: string | null
+          topo_obs: string | null
+          topo_tema: string | null
           updated_at: string
           usuario_id: string
           valor: number
@@ -439,7 +444,12 @@ export type Database = {
           status?: string
           taxa_entrega?: number | null
           telefone?: string | null
+          topo_aniversariante?: string | null
           topo_bolo?: number | null
+          topo_idade?: string | null
+          topo_imagem_url?: string | null
+          topo_obs?: string | null
+          topo_tema?: string | null
           updated_at?: string
           usuario_id: string
           valor: number
@@ -461,7 +471,12 @@ export type Database = {
           status?: string
           taxa_entrega?: number | null
           telefone?: string | null
+          topo_aniversariante?: string | null
           topo_bolo?: number | null
+          topo_idade?: string | null
+          topo_imagem_url?: string | null
+          topo_obs?: string | null
+          topo_tema?: string | null
           updated_at?: string
           usuario_id?: string
           valor?: number
