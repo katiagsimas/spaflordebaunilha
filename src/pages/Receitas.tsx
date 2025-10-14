@@ -50,6 +50,7 @@ interface Receita {
   id: string;
   nome: string;
   categoria?: string;
+  tipo?: "produto_avulso" | "produto_combo";
   cardapio?: "ativo" | "fora";
   tempoPreparo: number;
   unidadeTempo: "minutos" | "horas";
@@ -67,9 +68,19 @@ export default function Receitas() {
   const [receitas, setReceitas] = useLocalStorage<Receita[]>("receitas", []);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [filtroAtivo, setFiltroAtivo] = useState<"todos" | "ativos" | "combos" | "fora">("todos");
+
+  // Filtrar receitas de acordo com o filtro ativo
+  const receitasFiltradas = receitas.filter((receita) => {
+    if (filtroAtivo === "todos") return true;
+    if (filtroAtivo === "ativos") return receita.cardapio === "ativo";
+    if (filtroAtivo === "combos") return receita.tipo === "produto_combo";
+    if (filtroAtivo === "fora") return receita.cardapio === "fora";
+    return true;
+  });
 
   // Ordenar receitas alfabeticamente
-  const receitasOrdenadas = [...receitas].sort((a, b) => 
+  const receitasOrdenadas = [...receitasFiltradas].sort((a, b) => 
     a.nome.localeCompare(b.nome, 'pt-BR')
   );
 
@@ -184,7 +195,33 @@ export default function Receitas() {
         </div>
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap gap-2">
+          <Button 
+            onClick={() => setFiltroAtivo("todos")}
+            variant={filtroAtivo === "todos" ? "default" : "outline"}
+          >
+            Todos
+          </Button>
+          <Button 
+            onClick={() => setFiltroAtivo("ativos")}
+            variant={filtroAtivo === "ativos" ? "default" : "outline"}
+          >
+            Ativos no Cardápio
+          </Button>
+          <Button 
+            onClick={() => setFiltroAtivo("combos")}
+            variant={filtroAtivo === "combos" ? "default" : "outline"}
+          >
+            Produtos para Combos
+          </Button>
+          <Button 
+            onClick={() => setFiltroAtivo("fora")}
+            variant={filtroAtivo === "fora" ? "default" : "outline"}
+          >
+            Produtos Fora do Cardápio
+          </Button>
+        </div>
         <Button onClick={handleCreateNew}>
           <Plus className="h-4 w-4 mr-2" />
           Criar nova receita
