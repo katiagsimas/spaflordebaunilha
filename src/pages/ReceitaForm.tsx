@@ -577,9 +577,9 @@ export default function ReceitaForm() {
               </div>
             </div>
 
-            <div>
-              <Label htmlFor="rendimento">Rendimento *</Label>
-              <div className="flex gap-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label htmlFor="rendimento">Rendimento *</Label>
                 <Input
                   id="rendimento"
                   type="number"
@@ -587,13 +587,15 @@ export default function ReceitaForm() {
                   value={formData.rendimento}
                   onChange={(e) => setFormData({ ...formData, rendimento: e.target.value })}
                   placeholder="Ex: 500"
-                  className="flex-1"
                 />
+              </div>
+              <div>
+                <Label htmlFor="unidadeRendimento">Unid. de Medida *</Label>
                 <Select
                   value={formData.unidadeRendimentoId}
                   onValueChange={(value) => setFormData({ ...formData, unidadeRendimentoId: value })}
                 >
-                  <SelectTrigger className="w-40">
+                  <SelectTrigger id="unidadeRendimento">
                     <SelectValue placeholder="Selecione..." />
                   </SelectTrigger>
                   <SelectContent>
