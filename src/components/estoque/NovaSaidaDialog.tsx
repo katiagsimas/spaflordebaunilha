@@ -7,6 +7,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
+
+const saidaSchema = z.object({
+  quantidade: z.number().positive({ message: "Quantidade deve ser positiva" }).max(999999, { message: "Quantidade muito grande" }),
+  observacoes: z.string().max(1000, { message: "Observações muito longas (máx 1000 caracteres)" }).optional(),
+  dataSaida: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Data inválida" }),
+  motivo: z.string().max(100, { message: "Motivo muito longo" })
+});
 
 interface NovaSaidaDialogProps {
   open: boolean;
@@ -26,30 +34,29 @@ export function NovaSaidaDialog({ open, onOpenChange, itemSelecionado, onSuccess
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!quantidade) {
-      toast({
-        title: "Campo obrigatório",
-        description: "Preencha a quantidade",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const qtd = parseFloat(quantidade);
-
-    // Validar quantidade disponível
-    if (qtd > itemSelecionado?.quantidade_atual) {
-      toast({
-        title: "Quantidade indisponível",
-        description: `Você tem apenas ${itemSelecionado?.quantidade_atual} ${itemSelecionado?.unidade} disponíveis`,
-        variant: "destructive",
-      });
-      return;
-    }
-
     setLoading(true);
 
     try {
+      // Validar com zod
+      const validated = saidaSchema.parse({
+        quantidade: parseFloat(quantidade),
+        observacoes: observacoes || undefined,
+        dataSaida,
+        motivo
+      });
+
+      const qtd = validated.quantidade;
+
+      // Validar quantidade disponível
+      if (qtd > itemSelecionado?.quantidade_atual) {
+        toast({
+          title: "Quantidade indisponível",
+          description: `Você tem apenas ${itemSelecionado?.quantidade_atual} ${itemSelecionado?.unidade} disponíveis`,
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
       // Buscar entradas FIFO (mais antigas primeiro)
       const { data: entradas, error: errorEntradas } = await supabase
         .from('entradas_detalhadas')
@@ -95,8 +102,8 @@ export function NovaSaidaDialog({ open, onOpenChange, itemSelecionado, onSuccess
           unidade: itemSelecionado?.unidade || 'un',
           custo_unitario: custoUnitario,
           custo_total: custoTotal,
-          motivo: motivo,
-          observacoes: observacoes || null,
+          motivo: validated.motivo,
+          observacoes: validated.observacoes || null,
         });
 
       if (errorMov) throw errorMov;
@@ -139,11 +146,20 @@ export function NovaSaidaDialog({ open, onOpenChange, itemSelecionado, onSuccess
       setObservacoes("");
     } catch (error: any) {
       console.error('Erro ao registrar saída:', error);
-      toast({
-        title: "Erro ao registrar saída",
-        description: error.message,
-        variant: "destructive",
-      });
+      
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Dados inválidos",
+          description: error.issues[0].message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erro ao registrar saída",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }

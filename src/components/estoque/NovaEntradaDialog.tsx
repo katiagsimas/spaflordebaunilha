@@ -7,6 +7,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
+
+const entradaSchema = z.object({
+  quantidade: z.number().positive({ message: "Quantidade deve ser positiva" }).max(999999, { message: "Quantidade muito grande" }),
+  custoTotal: z.number().positive({ message: "Custo deve ser positivo" }).max(9999999, { message: "Custo muito grande" }),
+  localCompra: z.string().max(200, { message: "Local muito longo (máx 200 caracteres)" }).optional(),
+  observacoes: z.string().max(1000, { message: "Observações muito longas (máx 1000 caracteres)" }).optional(),
+  dataCompra: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Data inválida" })
+});
 
 interface NovaEntradaDialogProps {
   open: boolean;
@@ -27,20 +36,20 @@ export function NovaEntradaDialog({ open, onOpenChange, itemSelecionado, onSucce
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!quantidade || !custoTotal) {
-      toast({
-        title: "Campos obrigatórios",
-        description: "Preencha quantidade e custo total",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setLoading(true);
 
     try {
-      const qtd = parseFloat(quantidade);
-      const custo = parseFloat(custoTotal);
+      // Validar com zod
+      const validated = entradaSchema.parse({
+        quantidade: parseFloat(quantidade),
+        custoTotal: parseFloat(custoTotal),
+        localCompra: localCompra || undefined,
+        observacoes: observacoes || undefined,
+        dataCompra
+      });
+
+      const qtd = validated.quantidade;
+      const custo = validated.custoTotal;
       const custoUnitario = custo / qtd;
 
       // Criar movimentação
@@ -56,8 +65,8 @@ export function NovaEntradaDialog({ open, onOpenChange, itemSelecionado, onSucce
           custo_unitario: custoUnitario,
           custo_total: custo,
           motivo: 'Compra',
-          local_compra: localCompra || null,
-          observacoes: observacoes || null,
+          local_compra: validated.localCompra || null,
+          observacoes: validated.observacoes || null,
         })
         .select()
         .single();
@@ -132,11 +141,20 @@ export function NovaEntradaDialog({ open, onOpenChange, itemSelecionado, onSucce
       setObservacoes("");
     } catch (error: any) {
       console.error('Erro ao registrar entrada:', error);
-      toast({
-        title: "Erro ao registrar entrada",
-        description: error.message,
-        variant: "destructive",
-      });
+      
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Dados inválidos",
+          description: error.issues[0].message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erro ao registrar entrada",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }

@@ -8,6 +8,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Loader2, Mail, Lock } from 'lucide-react';
 import sugarboxAuthLogo from '@/assets/sugarbox-auth-logo.png';
 import authBackground from '@/assets/auth-background.jpg';
+import { z } from 'zod';
+
+const loginSchema = z.object({
+  email: z.string().trim().email({ message: "Email inválido" }).max(255, { message: "Email muito longo" }),
+  password: z.string().min(6, { message: "Senha deve ter pelo menos 6 caracteres" }).max(100, { message: "Senha muito longa" })
+});
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -19,16 +25,20 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
-      return;
-    }
-
     setLoading(true);
     try {
-      await signIn(email, password);
+      const validated = loginSchema.parse({
+        email: email.trim(),
+        password
+      });
+      
+      await signIn(validated.email, validated.password);
       navigate('/');
     } catch (error) {
-      // Erro já tratado no contexto
+      if (error instanceof z.ZodError) {
+        // Validação falhou - o erro já é visível para o usuário via form validation
+      }
+      // Outros erros já tratados no contexto
     } finally {
       setLoading(false);
     }

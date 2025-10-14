@@ -23,7 +23,7 @@ export type Database = {
           id: string
           nome: string
           updated_at: string
-          usuario_id: string | null
+          usuario_id: string
         }
         Insert: {
           ativo?: boolean
@@ -33,7 +33,7 @@ export type Database = {
           id?: string
           nome: string
           updated_at?: string
-          usuario_id?: string | null
+          usuario_id: string
         }
         Update: {
           ativo?: boolean
@@ -43,7 +43,7 @@ export type Database = {
           id?: string
           nome?: string
           updated_at?: string
-          usuario_id?: string | null
+          usuario_id?: string
         }
         Relationships: []
       }
@@ -59,7 +59,7 @@ export type Database = {
           quantidade_restante: number
           status: Database["public"]["Enums"]["status_entrada"]
           tipo_item: Database["public"]["Enums"]["tipo_item_estoque"]
-          usuario_id: string | null
+          usuario_id: string
           validade: string | null
         }
         Insert: {
@@ -73,7 +73,7 @@ export type Database = {
           quantidade_restante: number
           status?: Database["public"]["Enums"]["status_entrada"]
           tipo_item: Database["public"]["Enums"]["tipo_item_estoque"]
-          usuario_id?: string | null
+          usuario_id: string
           validade?: string | null
         }
         Update: {
@@ -87,7 +87,7 @@ export type Database = {
           quantidade_restante?: number
           status?: Database["public"]["Enums"]["status_entrada"]
           tipo_item?: Database["public"]["Enums"]["tipo_item_estoque"]
-          usuario_id?: string | null
+          usuario_id?: string
           validade?: string | null
         }
         Relationships: [
@@ -108,7 +108,7 @@ export type Database = {
           quantidade_atual: number
           tipo_item: Database["public"]["Enums"]["tipo_item_estoque"]
           ultima_atualizacao: string
-          usuario_id: string | null
+          usuario_id: string
           valor_total: number
         }
         Insert: {
@@ -118,7 +118,7 @@ export type Database = {
           quantidade_atual?: number
           tipo_item: Database["public"]["Enums"]["tipo_item_estoque"]
           ultima_atualizacao?: string
-          usuario_id?: string | null
+          usuario_id: string
           valor_total?: number
         }
         Update: {
@@ -128,7 +128,7 @@ export type Database = {
           quantidade_atual?: number
           tipo_item?: Database["public"]["Enums"]["tipo_item_estoque"]
           ultima_atualizacao?: string
-          usuario_id?: string | null
+          usuario_id?: string
           valor_total?: number
         }
         Relationships: []
@@ -149,7 +149,7 @@ export type Database = {
           tipo_item: Database["public"]["Enums"]["tipo_item_estoque"]
           unidade: string
           updated_at: string
-          usuario_id: string | null
+          usuario_id: string
           validade: string | null
           vinculo_pedido_id: string | null
         }
@@ -168,7 +168,7 @@ export type Database = {
           tipo_item: Database["public"]["Enums"]["tipo_item_estoque"]
           unidade: string
           updated_at?: string
-          usuario_id?: string | null
+          usuario_id: string
           validade?: string | null
           vinculo_pedido_id?: string | null
         }
@@ -187,7 +187,7 @@ export type Database = {
           tipo_item?: Database["public"]["Enums"]["tipo_item_estoque"]
           unidade?: string
           updated_at?: string
-          usuario_id?: string | null
+          usuario_id?: string
           validade?: string | null
           vinculo_pedido_id?: string | null
         }

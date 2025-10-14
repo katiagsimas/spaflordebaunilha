@@ -8,6 +8,18 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Loader2, Mail, Lock, User, Store } from 'lucide-react';
 import sugarboxAuthLogo from '@/assets/sugarbox-auth-logo.png';
 import authBackground from '@/assets/auth-background.jpg';
+import { z } from 'zod';
+
+const signUpSchema = z.object({
+  email: z.string().trim().email({ message: "Email inválido" }).max(255, { message: "Email muito longo" }),
+  password: z.string().min(6, { message: "Senha deve ter pelo menos 6 caracteres" }).max(100, { message: "Senha muito longa" }),
+  confirmPassword: z.string(),
+  nomeCompleto: z.string().trim().min(1, { message: "Nome não pode estar vazio" }).max(100, { message: "Nome muito longo" }),
+  nomeConfeitaria: z.string().trim().min(1, { message: "Nome da confeitaria não pode estar vazio" }).max(100, { message: "Nome muito longo" })
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "As senhas não coincidem",
+  path: ["confirmPassword"]
+});
 
 export default function SignUp() {
   const [email, setEmail] = useState('');
@@ -24,28 +36,23 @@ export default function SignUp() {
     e.preventDefault();
     setError('');
 
-    // Validações
-    if (!email || !password || !nomeCompleto || !nomeConfeitaria) {
-      setError('Por favor, preencha todos os campos.');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('A senha deve ter pelo menos 6 caracteres.');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError('As senhas não coincidem.');
-      return;
-    }
-
     setLoading(true);
     try {
-      await signUp(email, password, nomeCompleto, nomeConfeitaria);
+      const validated = signUpSchema.parse({
+        email: email.trim(),
+        password,
+        confirmPassword,
+        nomeCompleto: nomeCompleto.trim(),
+        nomeConfeitaria: nomeConfeitaria.trim()
+      });
+
+      await signUp(validated.email, validated.password, validated.nomeCompleto, validated.nomeConfeitaria);
       navigate('/');
     } catch (error) {
-      // Erro já tratado no contexto
+      if (error instanceof z.ZodError) {
+        setError(error.issues[0].message);
+      }
+      // Outros erros já tratados no contexto
     } finally {
       setLoading(false);
     }
