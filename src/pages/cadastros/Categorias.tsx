@@ -38,6 +38,14 @@ export default function Categorias() {
     nome: "",
   });
 
+
+  // Garantir que as categorias iniciais sejam carregadas se estiver vazio
+  useEffect(() => {
+    if (categorias.length === 0) {
+      setCategorias(categoriasIniciais);
+    }
+  }, []);
+
   useEffect(() => {
     if (editingCategoria) {
       setFormData(editingCategoria);
