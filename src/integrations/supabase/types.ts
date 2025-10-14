@@ -406,13 +406,18 @@ export type Database = {
           created_at: string
           data_entrega: string
           data_pedido: string
+          desconto_percentual: number | null
+          desconto_valor: number | null
           endereco: string | null
           hora_entrega: string | null
           id: string
           numero: string | null
           observacoes: string | null
+          outros: number | null
           status: string
+          taxa_entrega: number | null
           telefone: string | null
+          topo_bolo: number | null
           updated_at: string
           usuario_id: string
           valor: number
@@ -423,13 +428,18 @@ export type Database = {
           created_at?: string
           data_entrega: string
           data_pedido: string
+          desconto_percentual?: number | null
+          desconto_valor?: number | null
           endereco?: string | null
           hora_entrega?: string | null
           id?: string
           numero?: string | null
           observacoes?: string | null
+          outros?: number | null
           status?: string
+          taxa_entrega?: number | null
           telefone?: string | null
+          topo_bolo?: number | null
           updated_at?: string
           usuario_id: string
           valor: number
@@ -440,13 +450,18 @@ export type Database = {
           created_at?: string
           data_entrega?: string
           data_pedido?: string
+          desconto_percentual?: number | null
+          desconto_valor?: number | null
           endereco?: string | null
           hora_entrega?: string | null
           id?: string
           numero?: string | null
           observacoes?: string | null
+          outros?: number | null
           status?: string
+          taxa_entrega?: number | null
           telefone?: string | null
+          topo_bolo?: number | null
           updated_at?: string
           usuario_id?: string
           valor?: number
