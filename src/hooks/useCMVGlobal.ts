@@ -224,7 +224,7 @@ export const useCMVGlobal = (mesAno: DadosMes) => {
       alertas.push({
         tipo: 'CRITICO',
         titulo: 'CMV acima de 50%',
-        mensagem: 'Ações recomendadas:\n• Revisar precificação urgentemente\n• Negociar com fornecedores\n• Analisar desperdícios\n• Verificar fichas técnicas',
+        mensagem: 'Ações recomendadas:\n• Revisar precificação urgentemente\n• Negociar com fornecedores\n• Analisar desperdícios\n• Verificar ficha técnica',
         icone: '🔴'
       });
     }

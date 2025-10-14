@@ -33,7 +33,7 @@ const opcoes = [
     color: "text-purple-600 bg-purple-50 dark:bg-purple-950",
   },
   {
-    title: "FT - Fichas Técnicas",
+    title: "Ficha Técnica",
     description: "Calcule Custos e Preços de Venda",
     icon: CookingPot,
     url: "/receitas",
@@ -48,7 +48,7 @@ export default function Precificacao() {
     <div className="space-y-6">
       <PageHeader
         title="Precificação"
-        description="Gerencie a Precificação dos seus Produtos iniciando pelo Cadastro de Ingredientes e Embalagens; na sequência crie suas sub-receitas e Fichas Técnicas dos Produtos Finalizados"
+        description="Gerencie a Precificação dos seus Produtos iniciando pelo Cadastro de Ingredientes e Embalagens; na sequência crie suas sub-receitas e Ficha Técnica dos Produtos Finalizados"
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">

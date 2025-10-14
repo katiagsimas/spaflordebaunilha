@@ -189,7 +189,7 @@ export default function Receitas() {
         <BackButton to="/precificacao" />
         <div className="flex-1">
           <PageHeader
-            title="FT - Fichas Técnicas"
+            title="Ficha Técnica"
             description="Calcule Custos e Preços de Venda"
           />
         </div>
