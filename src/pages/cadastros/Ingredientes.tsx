@@ -9,6 +9,16 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
@@ -36,6 +46,8 @@ export default function Ingredientes() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingIngrediente, setEditingIngrediente] = useState<Ingrediente | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [showZeroPriceConfirm, setShowZeroPriceConfirm] = useState(false);
+  const [pendingFormData, setPendingFormData] = useState<any>(null);
 
   const [selectedTipoId, setSelectedTipoId] = useState<string>("");
 
@@ -60,17 +72,28 @@ export default function Ingredientes() {
     e.preventDefault();
 
     // Validação: não permitir submissão com campos vazios
-    if (!formData.nome || !formData.unidadeMedida || formData.quantidade <= 0 || formData.preco <= 0) {
+    if (!formData.nome || !formData.unidadeMedida || formData.quantidade <= 0) {
       toast.error("Preencha todos os campos obrigatórios!");
       return;
     }
 
+    // Se o preço for zero, mostrar confirmação
+    if (formData.preco === 0 || formData.preco < 0) {
+      setPendingFormData(formData);
+      setShowZeroPriceConfirm(true);
+      return;
+    }
+
+    saveIngrediente(formData);
+  };
+
+  const saveIngrediente = (data: typeof formData) => {
     if (editingIngrediente) {
-      setIngredientes(ingredientes.map(i => i.id === editingIngrediente.id ? { ...formData, id: i.id } : i));
+      setIngredientes(ingredientes.map(i => i.id === editingIngrediente.id ? { ...data, id: i.id } : i));
       toast.success("Ingrediente atualizado com sucesso!");
     } else {
       const newIngrediente: Ingrediente = {
-        ...formData,
+        ...data,
         id: Date.now().toString(),
       };
       setIngredientes([...ingredientes, newIngrediente]);
@@ -78,6 +101,14 @@ export default function Ingredientes() {
     }
 
     resetForm();
+  };
+
+  const handleConfirmZeroPrice = () => {
+    if (pendingFormData) {
+      saveIngrediente(pendingFormData);
+      setPendingFormData(null);
+    }
+    setShowZeroPriceConfirm(false);
   };
 
   const handleTipoSelect = (tipo: TipoInsumo) => {
@@ -206,8 +237,9 @@ export default function Ingredientes() {
                       id="preco"
                       type="number"
                       step="0.01"
+                      min="0"
                       value={formData.preco}
-                      onChange={(e) => setFormData({ ...formData, preco: parseFloat(e.target.value) })}
+                      onChange={(e) => setFormData({ ...formData, preco: parseFloat(e.target.value) || 0 })}
                       required
                     />
                   </div>
@@ -299,6 +331,28 @@ export default function Ingredientes() {
         title="Excluir Ingrediente"
         description="Tem certeza que deseja excluir este ingrediente? Esta ação não pode ser desfeita."
       />
+
+      <AlertDialog open={showZeroPriceConfirm} onOpenChange={setShowZeroPriceConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Preço Zerado</AlertDialogTitle>
+            <AlertDialogDescription>
+              O preço informado é R$ 0,00. Tem certeza que deseja cadastrar o ingrediente com este valor?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setShowZeroPriceConfirm(false);
+              setPendingFormData(null);
+            }}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmZeroPrice}>
+              Confirmar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
