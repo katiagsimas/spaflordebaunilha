@@ -16,7 +16,7 @@ import { toast } from "sonner";
 
 export default function UnidadesMedida() {
   const navigate = useNavigate();
-  const [unidades, setUnidades] = useUnidadesMedida();
+  const { unidades, loading, createUnidade, updateUnidade, deleteUnidade } = useUnidadesMedida();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUnidade, setEditingUnidade] = useState<UnidadeMedida | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -28,27 +28,27 @@ export default function UnidadesMedida() {
 
   useEffect(() => {
     if (editingUnidade) {
-      setFormData(editingUnidade);
+      setFormData({
+        nome: editingUnidade.nome,
+        sigla: editingUnidade.sigla,
+      });
       setIsDialogOpen(true);
     }
   }, [editingUnidade]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (editingUnidade) {
-      setUnidades(unidades.map(u => u.id === editingUnidade.id ? { ...formData, id: u.id } : u));
-      toast.success("Unidade atualizada com sucesso!");
-    } else {
-      const newUnidade: UnidadeMedida = {
-        ...formData,
-        id: Date.now().toString(),
-      };
-      setUnidades([...unidades, newUnidade]);
-      toast.success("Unidade cadastrada com sucesso!");
+    try {
+      if (editingUnidade) {
+        await updateUnidade(editingUnidade.id, formData);
+      } else {
+        await createUnidade(formData);
+      }
+      resetForm();
+    } catch (error) {
+      console.error('Erro ao salvar unidade:', error);
     }
-
-    resetForm();
   };
 
   const resetForm = () => {
@@ -60,10 +60,13 @@ export default function UnidadesMedida() {
     setIsDialogOpen(false);
   };
 
-  const handleDelete = (id: string) => {
-    setUnidades(unidades.filter(u => u.id !== id));
-    setDeleteId(null);
-    toast.success("Unidade excluída com sucesso!");
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteUnidade(id);
+      setDeleteId(null);
+    } catch (error) {
+      console.error('Erro ao deletar unidade:', error);
+    }
   };
 
   const handleEdit = (unidade: UnidadeMedida) => {

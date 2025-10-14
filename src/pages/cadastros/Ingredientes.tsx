@@ -30,7 +30,7 @@ interface Ingrediente {
 export default function Ingredientes() {
   const navigate = useNavigate();
   const [ingredientes, setIngredientes] = useLocalStorage<Ingrediente[]>("ingredientes", []);
-  const [unidades] = useUnidadesMedida();
+  const { unidades } = useUnidadesMedida();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingIngrediente, setEditingIngrediente] = useState<Ingrediente | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);

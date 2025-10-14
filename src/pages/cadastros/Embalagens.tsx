@@ -30,7 +30,7 @@ interface Embalagem {
 export default function Embalagens() {
   const navigate = useNavigate();
   const [embalagens, setEmbalagens] = useLocalStorage<Embalagem[]>("embalagens", []);
-  const [unidades] = useUnidadesMedida();
+  const { unidades } = useUnidadesMedida();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingEmbalagem, setEditingEmbalagem] = useState<Embalagem | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);

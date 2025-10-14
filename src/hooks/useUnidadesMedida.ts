@@ -1,21 +1,137 @@
-import { useLocalStorage } from "./useLocalStorage";
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 export interface UnidadeMedida {
   id: string;
+  usuario_id: string;
   nome: string;
   sigla: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
-const UNIDADES_PADRAO: UnidadeMedida[] = [
-  { id: "1", nome: "Unidades", sigla: "un" },
-  { id: "2", nome: "Gramas", sigla: "g" },
-  { id: "3", nome: "Quilogramas", sigla: "kg" },
-  { id: "4", nome: "Mililitros", sigla: "ml" },
-  { id: "5", nome: "Litros", sigla: "l" },
-  { id: "6", nome: "Centímetros", sigla: "cm" },
-  { id: "7", nome: "Metros", sigla: "m" },
+const UNIDADES_PADRAO = [
+  { nome: "Unidades", sigla: "un" },
+  { nome: "Gramas", sigla: "g" },
+  { nome: "Quilogramas", sigla: "kg" },
+  { nome: "Mililitros", sigla: "ml" },
+  { nome: "Litros", sigla: "l" },
+  { nome: "Centímetros", sigla: "cm" },
+  { nome: "Metros", sigla: "m" },
 ];
 
 export function useUnidadesMedida() {
-  return useLocalStorage<UnidadeMedida[]>("unidadesMedida", UNIDADES_PADRAO);
+  const { user } = useAuth();
+  const [unidades, setUnidades] = useState<UnidadeMedida[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchUnidades = async () => {
+    if (!user) return;
+    
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('unidades_medida')
+        .select('*')
+        .eq('usuario_id', user.id)
+        .order('nome');
+
+      if (error) throw error;
+      
+      // Se não houver unidades, criar as padrão
+      if (!data || data.length === 0) {
+        await createUnidadesPadrao();
+        return;
+      }
+      
+      setUnidades(data);
+    } catch (err: any) {
+      console.error('Erro ao buscar unidades:', err);
+      toast.error('Erro ao carregar unidades: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createUnidadesPadrao = async () => {
+    if (!user) return;
+    
+    try {
+      const unidadesComUsuario = UNIDADES_PADRAO.map(u => ({
+        ...u,
+        usuario_id: user.id
+      }));
+
+      const { data, error } = await supabase
+        .from('unidades_medida')
+        .insert(unidadesComUsuario)
+        .select();
+
+      if (error) throw error;
+      setUnidades(data || []);
+    } catch (err: any) {
+      console.error('Erro ao criar unidades padrão:', err);
+    }
+  };
+
+  const createUnidade = async (unidade: Omit<UnidadeMedida, 'id' | 'usuario_id' | 'created_at' | 'updated_at'>) => {
+    if (!user) throw new Error('Usuário não autenticado');
+
+    const { data, error } = await supabase
+      .from('unidades_medida')
+      .insert({ ...unidade, usuario_id: user.id })
+      .select()
+      .single();
+
+    if (error) throw error;
+    setUnidades([...unidades, data]);
+    toast.success('Unidade criada com sucesso!');
+    return data;
+  };
+
+  const updateUnidade = async (id: string, updates: Partial<UnidadeMedida>) => {
+    if (!user) throw new Error('Usuário não autenticado');
+
+    const { data, error } = await supabase
+      .from('unidades_medida')
+      .update(updates)
+      .eq('id', id)
+      .eq('usuario_id', user.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    setUnidades(unidades.map(u => u.id === id ? data : u));
+    toast.success('Unidade atualizada!');
+    return data;
+  };
+
+  const deleteUnidade = async (id: string) => {
+    if (!user) throw new Error('Usuário não autenticado');
+
+    const { error } = await supabase
+      .from('unidades_medida')
+      .delete()
+      .eq('id', id)
+      .eq('usuario_id', user.id);
+
+    if (error) throw error;
+    setUnidades(unidades.filter(u => u.id !== id));
+    toast.success('Unidade deletada!');
+  };
+
+  useEffect(() => {
+    if (user) fetchUnidades();
+  }, [user]);
+
+  return {
+    unidades,
+    loading,
+    createUnidade,
+    updateUnidade,
+    deleteUnidade,
+    refetch: fetchUnidades,
+  };
 }
