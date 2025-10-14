@@ -183,11 +183,12 @@ export default function SubReceitas() {
                         <TableCell className="font-semibold">
                           R$ {subReceita.custoTotal.toFixed(2)}
                         </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-1">
+                         <TableCell className="text-right">
+                          <div className="flex justify-end gap-0">
                             <Button
                               variant="ghost"
-                              size="icon"
+                              size="sm"
+                              className="h-8 w-8 p-0"
                               onClick={() => handleEdit(subReceita.id)}
                               title="Editar"
                             >
@@ -195,7 +196,8 @@ export default function SubReceitas() {
                             </Button>
                             <Button
                               variant="ghost"
-                              size="icon"
+                              size="sm"
+                              className="h-8 w-8 p-0"
                               onClick={() => handleDuplicate(subReceita.id)}
                               title="Duplicar"
                             >
@@ -203,14 +205,15 @@ export default function SubReceitas() {
                             </Button>
                             <Button
                               variant="ghost"
-                              size="icon"
+                              size="sm"
+                              className="h-8 w-8 p-0"
                               onClick={() => handleDelete(subReceita.id)}
                               title="Excluir"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
-                        </TableCell>
+                         </TableCell>
                       </TableRow>
                     ))}
                 </TableBody>

@@ -249,34 +249,37 @@ export default function Receitas() {
                     <TableCell className="text-right font-semibold">
                       R$ {lucro.toFixed(2)}
                     </TableCell>
-                    <TableCell>
-                      <div className="flex gap-1 justify-center">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(receita.id)}
-                          title="Editar"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDuplicate(receita.id)}
-                          title="Duplicar"
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(receita.id)}
-                          title="Excluir"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+                     <TableCell>
+                       <div className="flex gap-0 justify-center">
+                         <Button
+                           variant="ghost"
+                           size="sm"
+                           className="h-8 w-8 p-0"
+                           onClick={() => handleEdit(receita.id)}
+                           title="Editar"
+                         >
+                           <Pencil className="h-4 w-4" />
+                         </Button>
+                         <Button
+                           variant="ghost"
+                           size="sm"
+                           className="h-8 w-8 p-0"
+                           onClick={() => handleDuplicate(receita.id)}
+                           title="Duplicar"
+                         >
+                           <Copy className="h-4 w-4" />
+                         </Button>
+                         <Button
+                           variant="ghost"
+                           size="sm"
+                           className="h-8 w-8 p-0"
+                           onClick={() => handleDelete(receita.id)}
+                           title="Excluir"
+                         >
+                           <Trash2 className="h-4 w-4" />
+                         </Button>
+                       </div>
+                     </TableCell>
                   </TableRow>
                 );
               })}
