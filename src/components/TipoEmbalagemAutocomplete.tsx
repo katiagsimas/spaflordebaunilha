@@ -37,9 +37,10 @@ import { cn } from "@/lib/utils";
 interface TipoEmbalagemAutocompleteProps {
   onSelect: (tipo: TipoEmbalagem) => void;
   value?: string;
+  onAfterCreate?: () => void;
 }
 
-export function TipoEmbalagemAutocomplete({ onSelect, value }: TipoEmbalagemAutocompleteProps) {
+export function TipoEmbalagemAutocomplete({ onSelect, value, onAfterCreate }: TipoEmbalagemAutocompleteProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -85,6 +86,7 @@ export function TipoEmbalagemAutocomplete({ onSelect, value }: TipoEmbalagemAuto
           unidade_medida_id: "",
         });
         setOpen(false);
+        onAfterCreate?.();
       },
     });
   };

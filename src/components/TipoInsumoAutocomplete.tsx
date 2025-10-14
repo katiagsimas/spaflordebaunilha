@@ -37,9 +37,10 @@ import { cn } from "@/lib/utils";
 interface TipoInsumoAutocompleteProps {
   onSelect: (tipo: TipoInsumo) => void;
   value?: string;
+  onAfterCreate?: () => void;
 }
 
-export function TipoInsumoAutocomplete({ onSelect, value }: TipoInsumoAutocompleteProps) {
+export function TipoInsumoAutocomplete({ onSelect, value, onAfterCreate }: TipoInsumoAutocompleteProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -85,6 +86,7 @@ export function TipoInsumoAutocomplete({ onSelect, value }: TipoInsumoAutocomple
           unidade_medida_id: "",
         });
         setOpen(false);
+        onAfterCreate?.();
       },
     });
   };

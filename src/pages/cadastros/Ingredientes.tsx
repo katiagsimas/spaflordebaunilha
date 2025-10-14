@@ -141,6 +141,7 @@ export default function Ingredientes() {
                     <TipoInsumoAutocomplete
                       onSelect={handleTipoSelect}
                       value={selectedTipoId}
+                      onAfterCreate={() => setIsDialogOpen(true)}
                     />
                     <p className="text-xs text-muted-foreground">
                       Selecione um tipo para preencher automaticamente nome, quantidade e unidade
