@@ -276,12 +276,11 @@ export default function SubReceitaForm() {
           </div>
 
           <div className="space-y-4">
-            <div className="flex justify-start items-center gap-4">
+            <div className="flex justify-start items-center">
               <Button type="button" variant="default" size="sm" onClick={handleAddIngrediente}>
                 <Plus className="h-4 w-4 mr-2" />
                 Adicionar Ingrediente
               </Button>
-              <Label>Ingredientes</Label>
             </div>
 
             {ingredientes.length > 0 && <div className="overflow-x-auto">
