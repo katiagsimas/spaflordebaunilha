@@ -14,6 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { IngredienteAutocomplete } from "@/components/IngredienteAutocomplete";
+import { EmbalagemAutocomplete } from "@/components/EmbalagemAutocomplete";
 
 interface CustoFixo {
   id: string;
@@ -591,22 +593,13 @@ export default function ReceitaForm() {
                   <TableBody>
                     {ingredientes.map((ingrediente, index) => (
                       <TableRow key={ingrediente.id}>
-                        <TableCell>
-                          <Select
+                        <TableCell className="min-w-[300px]">
+                          <IngredienteAutocomplete
+                            ingredientes={ingredientesCadastrados}
                             value={ingrediente.ingredienteId}
-                            onValueChange={(value) => handleSelectIngrediente(index, value)}
-                          >
-                            <SelectTrigger className="w-40">
-                              <SelectValue placeholder="Selecione" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {ingredientesCadastrados.map((ing) => (
-                                <SelectItem key={ing.id} value={ing.id}>
-                                  {ing.nome}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            onSelect={(value) => handleSelectIngrediente(index, value)}
+                            placeholder="Digite para buscar..."
+                          />
                         </TableCell>
                         <TableCell className="text-sm">{ingrediente.marca}</TableCell>
                         <TableCell className="text-sm">{ingrediente.qtdeEmbalagem || "-"}</TableCell>
@@ -685,22 +678,13 @@ export default function ReceitaForm() {
                   <TableBody>
                     {embalagens.map((embalagem, index) => (
                       <TableRow key={embalagem.id}>
-                        <TableCell>
-                          <Select
+                        <TableCell className="min-w-[300px]">
+                          <EmbalagemAutocomplete
+                            embalagens={embalagensCadastradas}
                             value={embalagem.embalagemId}
-                            onValueChange={(value) => handleSelectEmbalagem(index, value)}
-                          >
-                            <SelectTrigger className="w-40">
-                              <SelectValue placeholder="Selecione" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {embalagensCadastradas.map((emb) => (
-                                <SelectItem key={emb.id} value={emb.id}>
-                                  {emb.nome}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            onSelect={(value) => handleSelectEmbalagem(index, value)}
+                            placeholder="Digite para buscar..."
+                          />
                         </TableCell>
                         <TableCell className="text-sm">{embalagem.marca}</TableCell>
                         <TableCell className="text-sm">{embalagem.qtdeEmbalagem || "-"}</TableCell>
