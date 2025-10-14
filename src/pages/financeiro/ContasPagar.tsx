@@ -453,6 +453,28 @@ export default function ContasPagar() {
     return "";
   };
 
+  const getPrioridadeConta = (conta: ContaPagar): 'alta' | 'media' | 'baixa' => {
+    if (conta.status === 'atrasado') return 'alta';
+    
+    const hoje = new Date();
+    const vencimento = new Date(conta.dataVencimento);
+    const diffDays = Math.floor((vencimento.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays <= 0) return 'alta';
+    if (diffDays <= 3) return 'media';
+    return 'baixa';
+  };
+
+  const PrioridadeIndicador = ({ prioridade }: { prioridade: 'alta' | 'media' | 'baixa' }) => {
+    if (prioridade === 'alta') {
+      return <span className="text-[#D88B8B] text-lg" title="Prioridade Alta">🔴</span>;
+    }
+    if (prioridade === 'media') {
+      return <span className="text-[#E5C89F] text-lg" title="Prioridade Média">🟡</span>;
+    }
+    return null;
+  };
+
   const exportarExcel = () => {
     const dados = contasFiltradas.map(conta => {
       const categoria = getCategoriaById(conta.categoriaId);
@@ -835,6 +857,7 @@ export default function ContasPagar() {
                             <TableHead className="w-[50px]">
                               <Checkbox />
                             </TableHead>
+                            <TableHead className="w-[50px]"></TableHead>
                             <TableHead>Data</TableHead>
                             <TableHead>Descrição</TableHead>
                             <TableHead>Fornecedor</TableHead>
@@ -853,6 +876,9 @@ export default function ContasPagar() {
                               <TableRow key={conta.id} className={getRowClassName(conta)}>
                                 <TableCell>
                                   <Checkbox />
+                                </TableCell>
+                                <TableCell>
+                                  <PrioridadeIndicador prioridade={getPrioridadeConta(conta)} />
                                 </TableCell>
                                 <TableCell>
                                   <div className="flex flex-col text-sm">
