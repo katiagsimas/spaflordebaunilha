@@ -14,7 +14,7 @@ const opcoes = [
   },
   {
     title: "Contas a Pagar",
-    description: "Controle suas despesas e fornecedores",
+    description: "Gerencie despesas e contas a pagar",
     icon: ArrowUpCircle,
     color: "text-error bg-error/10",
     active: true,
