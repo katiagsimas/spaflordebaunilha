@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 
 /**
  * Hook para verificar se o usuário atual é administrador
- * Administrador: katiagsimas@gmail.com
+ * Verifica a role 'admin' na tabela user_roles
  */
 export function useIsAdmin() {
   const { user } = useAuth();
