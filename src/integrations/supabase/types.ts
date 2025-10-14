@@ -671,6 +671,88 @@ export type Database = {
         }
         Relationships: []
       }
+      tipos_embalagens: {
+        Row: {
+          codigo: number
+          created_at: string
+          descricao: string
+          id: string
+          quantidade_embalagem: number
+          unidade_medida_id: string | null
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          codigo?: number
+          created_at?: string
+          descricao: string
+          id?: string
+          quantidade_embalagem: number
+          unidade_medida_id?: string | null
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          codigo?: number
+          created_at?: string
+          descricao?: string
+          id?: string
+          quantidade_embalagem?: number
+          unidade_medida_id?: string | null
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tipos_embalagens_unidade_medida_id_fkey"
+            columns: ["unidade_medida_id"]
+            isOneToOne: false
+            referencedRelation: "unidades_medida"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tipos_insumos: {
+        Row: {
+          codigo: number
+          created_at: string
+          descricao: string
+          id: string
+          quantidade_embalagem: number
+          unidade_medida_id: string | null
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          codigo?: number
+          created_at?: string
+          descricao: string
+          id?: string
+          quantidade_embalagem: number
+          unidade_medida_id?: string | null
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          codigo?: number
+          created_at?: string
+          descricao?: string
+          id?: string
+          quantidade_embalagem?: number
+          unidade_medida_id?: string | null
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tipos_insumos_unidade_medida_id_fkey"
+            columns: ["unidade_medida_id"]
+            isOneToOne: false
+            referencedRelation: "unidades_medida"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       unidades_medida: {
         Row: {
           created_at: string

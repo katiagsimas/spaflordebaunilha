@@ -1,4 +1,4 @@
-import { Settings, Tag, FileText, CreditCard, Building2, UserCircle, Ruler, Lock } from "lucide-react";
+import { Settings, Tag, FileText, CreditCard, Building2, UserCircle, Ruler, Lock, Package } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
@@ -32,6 +32,15 @@ const opcoes = [
     url: "/configuracoes/unidades",
     color: "text-purple-600 bg-purple-50 dark:bg-purple-950",
     statusKey: "unidadesMedida" as const,
+    requiresAdmin: false,
+  },
+  {
+    title: "Tipos de Insumos e Embalagens",
+    description: "Configure tipos padrão de insumos e embalagens",
+    icon: Package,
+    url: "/configuracoes/tipos-insumos-embalagens",
+    color: "text-teal-600 bg-teal-50 dark:bg-teal-950",
+    statusKey: "tiposInsumosEmbalagens" as const,
     requiresAdmin: false,
   },
   {

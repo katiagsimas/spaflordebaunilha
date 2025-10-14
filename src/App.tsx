@@ -29,6 +29,7 @@ import UnidadesMedida from "./pages/cadastros/UnidadesMedida";
 import Ingredientes from "./pages/cadastros/Ingredientes";
 import Embalagens from "./pages/cadastros/Embalagens";
 import Categorias from "./pages/cadastros/Categorias";
+import TiposInsumosEmbalagens from "./pages/cadastros/TiposInsumosEmbalagens";
 import SubReceitas from "./pages/SubReceitas";
 import SubReceitaForm from "./pages/SubReceitaForm";
 import Receitas from "./pages/Receitas";
@@ -128,6 +129,7 @@ const App = () => (
           <Route path="/cadastros/unidades" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
           <Route path="/cadastros/ingredientes" element={<ProtectedRoute><Layout><Ingredientes /></Layout></ProtectedRoute>} />
           <Route path="/cadastros/embalagens" element={<ProtectedRoute><Layout><Embalagens /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/tipos-insumos-embalagens" element={<ProtectedRoute><Layout><TiposInsumosEmbalagens /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/categorias-receitas" element={<ProtectedRoute><Layout><Categorias /></Layout></ProtectedRoute>} />
           <Route path="/cadastros/categorias" element={<ProtectedRoute><Layout><Categorias /></Layout></ProtectedRoute>} />
           <Route path="/receitas" element={<ProtectedRoute><Layout><Receitas /></Layout></ProtectedRoute>} />
