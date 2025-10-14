@@ -77,12 +77,14 @@ export default function Ingredientes() {
   const handleTipoSelect = (tipo: TipoInsumo) => {
     const unidade = unidades.find((u) => u.id === tipo.unidade_medida_id);
     setSelectedTipoId(tipo.id);
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       nome: tipo.descricao,
       quantidade: tipo.quantidade_embalagem,
       unidadeMedida: unidade?.sigla || "",
-    });
+    }));
+    // Garante que o dialog permaneça aberto após selecionar/criar o tipo
+    setIsDialogOpen(true);
   };
 
   const resetForm = () => {
