@@ -286,6 +286,7 @@ export default function Fornecedores() {
                     <TableHead>Tipo</TableHead>
                     <TableHead>CNPJ/CPF</TableHead>
                     <TableHead>Telefone</TableHead>
+                    <TableHead>Contato</TableHead>
                     <TableHead>Aniversário</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
@@ -298,6 +299,7 @@ export default function Fornecedores() {
                       <TableCell>{fornecedor.tipo || "-"}</TableCell>
                       <TableCell>{fornecedor.cpf_cnpj || "-"}</TableCell>
                       <TableCell>{fornecedor.telefone || "-"}</TableCell>
+                      <TableCell>{fornecedor.contato || "-"}</TableCell>
                       <TableCell>
                         {fornecedor.data_aniversario_contato 
                           ? new Date(fornecedor.data_aniversario_contato + 'T00:00:00').toLocaleDateString('pt-BR')
