@@ -166,7 +166,7 @@ export default function SubReceitas() {
                     <TableHead>Nome</TableHead>
                     <TableHead>Rendimento</TableHead>
                     <TableHead>Unidade</TableHead>
-                    <TableHead>Custo Total</TableHead>
+                    <TableHead>Custos de Produção</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>

@@ -206,7 +206,7 @@ export default function Receitas() {
                 <TableHead>Nome da Receita</TableHead>
                 <TableHead>Categoria</TableHead>
                 <TableHead className="text-right">Valor de Venda</TableHead>
-                <TableHead className="text-right">Custo Insumos + Embalagens</TableHead>
+                <TableHead className="text-right">Custos de Produção</TableHead>
                 <TableHead className="text-right">% CMV</TableHead>
                 <TableHead className="text-right">Margem R$</TableHead>
                 <TableHead className="text-right">Margem %</TableHead>
