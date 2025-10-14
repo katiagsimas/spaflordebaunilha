@@ -1111,9 +1111,12 @@ const Encomendas = () => {
                                         <Input
                                           type="number"
                                           step="0.01"
-                                          min={valorFinal * 0.5}
-                                          value={novoPagamento.valor || (valorFinal * 0.5)}
-                                          onChange={(e) => setNovoPagamento({ ...novoPagamento, valor: Number(e.target.value) })}
+                                          min={(valorFinal * 0.5).toFixed(2)}
+                                          value={novoPagamento.valor || (valorFinal * 0.5).toFixed(2)}
+                                          onChange={(e) => {
+                                            const valor = parseFloat(e.target.value);
+                                            setNovoPagamento({ ...novoPagamento, valor: parseFloat(valor.toFixed(2)) });
+                                          }}
                                           className="h-9 text-sm mt-1"
                                           placeholder={(valorFinal * 0.5).toFixed(2)}
                                         />
