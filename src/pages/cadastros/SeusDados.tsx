@@ -9,8 +9,12 @@ import { useViaCEP } from "@/hooks/useViaCEP";
 import { Save, Upload, X, Search } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 interface SeusDadosForm {
   razaoSocial: string;
@@ -29,6 +33,9 @@ interface SeusDadosForm {
 }
 
 export default function SeusDados() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [dados, setDados] = useLocalStorage<SeusDadosForm>("seusDados", {
     razaoSocial: "",
     cnpjCpf: "",
@@ -45,12 +52,47 @@ export default function SeusDados() {
     logomarca: "",
   });
 
+  // Buscar perfil do usuário
+  const { data: profile, isLoading } = useQuery({
+    queryKey: ['profile', user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      return data;
+    },
+    enabled: !!user,
+  });
+
   const [logomarca, setLogomarca] = useState<string>(dados.logomarca || "");
   const { buscarCEP, loading } = useViaCEP();
 
-  const { register, handleSubmit, setValue, watch } = useForm<SeusDadosForm>({
+  const { register, handleSubmit, setValue, watch, reset } = useForm<SeusDadosForm>({
     defaultValues: dados,
   });
+
+  // Pré-preencher com dados do perfil quando disponível
+  useEffect(() => {
+    if (profile && !dados.razaoSocial) {
+      const initialData = {
+        ...dados,
+        razaoSocial: profile.nome_confeitaria || "",
+        nomeResponsavel: profile.nome_completo || "",
+        email: profile.email || "",
+        telefone: profile.whatsapp || profile.telefone || "",
+        cpfCpf: profile.cpf || "",
+        endereco: profile.endereco || "",
+        cidade: profile.cidade || "",
+        estado: profile.estado || "",
+        cep: profile.cep || "",
+      };
+      setDados(initialData);
+      reset(initialData);
+    }
+  }, [profile]);
 
   const cepValue = watch("cep");
 
@@ -85,19 +127,67 @@ export default function SeusDados() {
     }
   };
 
+  // Mutation para atualizar perfil
+  const updateProfileMutation = useMutation({
+    mutationFn: async (data: SeusDadosForm) => {
+      if (!user) return;
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          nome_confeitaria: data.razaoSocial,
+          nome_completo: data.nomeResponsavel,
+          telefone: data.telefone,
+          cpf: data.cnpjCpf,
+          endereco: data.endereco,
+          cidade: data.cidade,
+          estado: data.estado,
+          cep: data.cep,
+          whatsapp: data.telefone,
+          primeiro_acesso: false,
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+      toast.success("Dados salvos com sucesso!");
+      
+      // Se for primeiro acesso, redirecionar para dashboard
+      if (profile?.primeiro_acesso) {
+        setTimeout(() => {
+          navigate('/');
+        }, 1500);
+      }
+    },
+    onError: (error) => {
+      console.error('Erro ao salvar dados:', error);
+      toast.error("Erro ao salvar dados. Tente novamente.");
+    },
+  });
+
   const onSubmit = (data: SeusDadosForm) => {
     setDados({ ...data, logomarca });
-    toast.success("Dados salvos com sucesso!");
+    updateProfileMutation.mutate(data);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-muted-foreground">Carregando...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <BackButton to="/configuracoes" />
+        {!profile?.primeiro_acesso && <BackButton to="/configuracoes" />}
         <div className="flex-1">
           <PageHeader
-            title="Dados da Sua Confeitaria"
-            description="Informações da sua empresa"
+            title={profile?.primeiro_acesso ? "Bem-vinda! Complete seus dados" : "Dados da Sua Confeitaria"}
+            description={profile?.primeiro_acesso ? "Por favor, complete as informações da sua confeitaria para começar" : "Informações da sua empresa"}
           />
         </div>
       </div>
@@ -279,9 +369,13 @@ export default function SeusDados() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full">
+            <Button 
+              type="submit" 
+              className="w-full"
+              disabled={updateProfileMutation.isPending}
+            >
               <Save className="h-4 w-4 mr-2" />
-              Salvar Dados
+              {updateProfileMutation.isPending ? "Salvando..." : profile?.primeiro_acesso ? "Salvar e Continuar" : "Salvar Dados"}
             </Button>
           </form>
         </CardContent>

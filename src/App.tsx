@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { FirstAccessRedirect } from "@/components/FirstAccessRedirect";
 import { Loader2 } from "lucide-react";
 import Dashboard from "./pages/Dashboard";
 import Encomendas from "./pages/Encomendas";
@@ -83,7 +84,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => (
             <SidebarTrigger />
           </div>
         </header>
-        <main className="flex-1 p-6 md:p-8">{children}</main>
+        <main className="flex-1 p-6 md:p-8">
+          <FirstAccessRedirect />
+          {children}
+        </main>
       </div>
     </div>
   </SidebarProvider>

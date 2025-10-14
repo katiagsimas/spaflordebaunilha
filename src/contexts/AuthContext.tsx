@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   user: User | null;
@@ -19,6 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [shouldCheckFirstAccess, setShouldCheckFirstAccess] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -27,6 +29,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      // Marcar para verificar primeiro acesso quando usuário logar
+      if (session?.user && _event === 'SIGNED_IN') {
+        setShouldCheckFirstAccess(true);
+      }
     });
 
     // THEN check for existing session
