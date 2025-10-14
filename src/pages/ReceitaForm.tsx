@@ -14,10 +14,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { TipoInsumoAutocomplete } from "@/components/TipoInsumoAutocomplete";
-import { TipoEmbalagemAutocomplete } from "@/components/TipoEmbalagemAutocomplete";
-import { useTiposInsumos } from "@/hooks/useTiposInsumos";
-import { useTiposEmbalagens } from "@/hooks/useTiposEmbalagens";
 
 interface CustoFixo {
   id: string;
@@ -100,12 +96,10 @@ export default function ReceitaForm() {
   const { id } = useParams();
   const [receitas, setReceitas] = useLocalStorage<Receita[]>("receitas", []);
   const [ingredientesCadastrados, setIngredientesCadastrados] = useLocalStorage<Ingrediente[]>("ingredientes", []);
-  const [embalagensCadastradas, setEmbalagensCadastradas] = useLocalStorage<Embalagem[]>("embalagens", []);
+  const [embalagensCadastradas] = useLocalStorage<Embalagem[]>("embalagens", []);
   const [custosFixos] = useLocalStorage<CustoFixo[]>("custosFixos", []);
   const [categorias] = useLocalStorage<Categoria[]>("categorias", []);
   const { unidades } = useUnidadesMedida();
-  const { tiposInsumos } = useTiposInsumos();
-  const { tiposEmbalagens } = useTiposEmbalagens();
 
   const [formData, setFormData] = useState({
     nome: "",
@@ -191,42 +185,6 @@ export default function ReceitaForm() {
     setIngredientes([...ingredientes, novoIngrediente]);
   };
 
-  const handleSelectTipoInsumo = (index: number, tipo: any) => {
-    if (!tipo) return;
-
-    const unidade = unidades.find(u => u.id === tipo.unidade_medida_id);
-    
-    const ingredienteExistente = ingredientesCadastrados.find(
-      ing => ing.nome === tipo.descricao
-    );
-
-    if (ingredienteExistente) {
-      const novosIngredientes = [...ingredientes];
-      novosIngredientes[index] = calcularCustos({
-        ...novosIngredientes[index],
-        ingredienteId: ingredienteExistente.id,
-        ingrediente: ingredienteExistente.nome,
-        marca: ingredienteExistente.marca,
-        qtdeEmbalagem: ingredienteExistente.quantidade,
-        unidadeMedida: ingredienteExistente.unidadeMedida,
-        precoEmbalagem: ingredienteExistente.preco,
-      });
-      setIngredientes(novosIngredientes);
-    } else {
-      const novosIngredientes = [...ingredientes];
-      novosIngredientes[index] = {
-        ...novosIngredientes[index],
-        ingredienteId: "",
-        ingrediente: tipo.descricao,
-        marca: "",
-        qtdeEmbalagem: tipo.quantidade_embalagem,
-        unidadeMedida: unidade?.sigla || "",
-        precoEmbalagem: 0,
-      };
-      setIngredientes(novosIngredientes);
-    }
-  };
-
   const handleSelectIngrediente = (index: number, ingredienteId: string) => {
     const ingredienteSelecionado = ingredientesCadastrados.find(i => i.id === ingredienteId);
     if (ingredienteSelecionado) {
@@ -239,41 +197,6 @@ export default function ReceitaForm() {
         qtdeEmbalagem: ingredienteSelecionado.quantidade,
         unidadeMedida: ingredienteSelecionado.unidadeMedida,
         precoEmbalagem: ingredienteSelecionado.preco,
-      });
-      setIngredientes(novosIngredientes);
-    }
-  };
-
-  const handlePrecoMarcaIngredienteChange = (index: number, preco: number, marca: string) => {
-    const ingrediente = ingredientes[index];
-    if (!ingrediente.ingredienteId && ingrediente.ingrediente) {
-      const novoIngrediente: Ingrediente = {
-        id: Date.now().toString(),
-        nome: ingrediente.ingrediente,
-        marca: marca,
-        quantidade: ingrediente.qtdeEmbalagem,
-        unidadeMedida: ingrediente.unidadeMedida,
-        preco: preco,
-        dataAtualizacao: new Date().toISOString().split('T')[0],
-      };
-      setIngredientesCadastrados([...ingredientesCadastrados, novoIngrediente]);
-      
-      const novosIngredientes = [...ingredientes];
-      novosIngredientes[index] = calcularCustos({
-        ...novosIngredientes[index],
-        ingredienteId: novoIngrediente.id,
-        marca: marca,
-        precoEmbalagem: preco,
-      });
-      setIngredientes(novosIngredientes);
-      
-      toast.success("Ingrediente cadastrado com sucesso!");
-    } else {
-      const novosIngredientes = [...ingredientes];
-      novosIngredientes[index] = calcularCustos({
-        ...novosIngredientes[index],
-        marca: marca,
-        precoEmbalagem: preco,
       });
       setIngredientes(novosIngredientes);
     }
@@ -319,42 +242,6 @@ export default function ReceitaForm() {
     setEmbalagens([...embalagens, novaEmbalagem]);
   };
 
-  const handleSelectTipoEmbalagem = (index: number, tipo: any) => {
-    if (!tipo) return;
-
-    const unidade = unidades.find(u => u.id === tipo.unidade_medida_id);
-    
-    const embalagemExistente = embalagensCadastradas.find(
-      emb => emb.nome === tipo.descricao
-    );
-
-    if (embalagemExistente) {
-      const novasEmbalagens = [...embalagens];
-      novasEmbalagens[index] = calcularCustosEmbalagem({
-        ...novasEmbalagens[index],
-        embalagemId: embalagemExistente.id,
-        embalagem: embalagemExistente.nome,
-        marca: embalagemExistente.marca,
-        qtdeEmbalagem: embalagemExistente.quantidade,
-        unidadeMedida: embalagemExistente.unidadeMedida,
-        precoEmbalagem: embalagemExistente.preco,
-      });
-      setEmbalagens(novasEmbalagens);
-    } else {
-      const novasEmbalagens = [...embalagens];
-      novasEmbalagens[index] = {
-        ...novasEmbalagens[index],
-        embalagemId: "",
-        embalagem: tipo.descricao,
-        marca: "",
-        qtdeEmbalagem: tipo.quantidade_embalagem,
-        unidadeMedida: unidade?.sigla || "",
-        precoEmbalagem: 0,
-      };
-      setEmbalagens(novasEmbalagens);
-    }
-  };
-
   const handleSelectEmbalagem = (index: number, embalagemId: string) => {
     const embalagemSelecionada = embalagensCadastradas.find(e => e.id === embalagemId);
     if (embalagemSelecionada) {
@@ -367,41 +254,6 @@ export default function ReceitaForm() {
         qtdeEmbalagem: embalagemSelecionada.quantidade,
         unidadeMedida: embalagemSelecionada.unidadeMedida,
         precoEmbalagem: embalagemSelecionada.preco,
-      });
-      setEmbalagens(novasEmbalagens);
-    }
-  };
-
-  const handlePrecoMarcaEmbalagemChange = (index: number, preco: number, marca: string) => {
-    const embalagem = embalagens[index];
-    if (!embalagem.embalagemId && embalagem.embalagem) {
-      const novaEmbalagem: Embalagem = {
-        id: Date.now().toString(),
-        nome: embalagem.embalagem,
-        marca: marca,
-        quantidade: embalagem.qtdeEmbalagem,
-        unidadeMedida: embalagem.unidadeMedida,
-        preco: preco,
-        dataAtualizacao: new Date().toISOString().split('T')[0],
-      };
-      setEmbalagensCadastradas([...embalagensCadastradas, novaEmbalagem]);
-      
-      const novasEmbalagens = [...embalagens];
-      novasEmbalagens[index] = calcularCustosEmbalagem({
-        ...novasEmbalagens[index],
-        embalagemId: novaEmbalagem.id,
-        marca: marca,
-        precoEmbalagem: preco,
-      });
-      setEmbalagens(novasEmbalagens);
-      
-      toast.success("Embalagem cadastrada com sucesso!");
-    } else {
-      const novasEmbalagens = [...embalagens];
-      novasEmbalagens[index] = calcularCustosEmbalagem({
-        ...novasEmbalagens[index],
-        marca: marca,
-        precoEmbalagem: preco,
       });
       setEmbalagens(novasEmbalagens);
     }
@@ -740,34 +592,27 @@ export default function ReceitaForm() {
                     {ingredientes.map((ingrediente, index) => (
                       <TableRow key={ingrediente.id}>
                         <TableCell>
-                          <TipoInsumoAutocomplete
+                          <Select
                             value={ingrediente.ingredienteId}
-                            onSelect={(tipoId) => handleSelectTipoInsumo(index, tipoId)}
-                          />
+                            onValueChange={(value) => handleSelectIngrediente(index, value)}
+                          >
+                            <SelectTrigger className="w-40">
+                              <SelectValue placeholder="Selecione" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {ingredientesCadastrados.map((ing) => (
+                                <SelectItem key={ing.id} value={ing.id}>
+                                  {ing.nome}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </TableCell>
-                        <TableCell>
-                          <Input
-                            type="text"
-                            value={ingrediente.marca}
-                            onChange={(e) => handlePrecoMarcaIngredienteChange(index, ingrediente.precoEmbalagem, e.target.value)}
-                            className="w-32"
-                            placeholder="Marca"
-                            disabled={!!ingrediente.ingredienteId}
-                          />
-                        </TableCell>
+                        <TableCell className="text-sm">{ingrediente.marca}</TableCell>
                         <TableCell className="text-sm">{ingrediente.qtdeEmbalagem || "-"}</TableCell>
                         <TableCell className="text-sm">{ingrediente.unidadeMedida}</TableCell>
-                        <TableCell>
-                          <Input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={ingrediente.precoEmbalagem || ""}
-                            onChange={(e) => handlePrecoMarcaIngredienteChange(index, parseFloat(e.target.value) || 0, ingrediente.marca)}
-                            className="w-24"
-                            placeholder="0.00"
-                            disabled={!!ingrediente.ingredienteId}
-                          />
+                        <TableCell className="text-sm">
+                          {ingrediente.precoEmbalagem ? `R$ ${ingrediente.precoEmbalagem.toFixed(2)}` : "-"}
                         </TableCell>
                         <TableCell>
                           <Input
@@ -841,34 +686,27 @@ export default function ReceitaForm() {
                     {embalagens.map((embalagem, index) => (
                       <TableRow key={embalagem.id}>
                         <TableCell>
-                          <TipoEmbalagemAutocomplete
+                          <Select
                             value={embalagem.embalagemId}
-                            onSelect={(tipoId) => handleSelectTipoEmbalagem(index, tipoId)}
-                          />
+                            onValueChange={(value) => handleSelectEmbalagem(index, value)}
+                          >
+                            <SelectTrigger className="w-40">
+                              <SelectValue placeholder="Selecione" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {embalagensCadastradas.map((emb) => (
+                                <SelectItem key={emb.id} value={emb.id}>
+                                  {emb.nome}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </TableCell>
-                        <TableCell>
-                          <Input
-                            type="text"
-                            value={embalagem.marca}
-                            onChange={(e) => handlePrecoMarcaEmbalagemChange(index, embalagem.precoEmbalagem, e.target.value)}
-                            className="w-32"
-                            placeholder="Marca"
-                            disabled={!!embalagem.embalagemId}
-                          />
-                        </TableCell>
+                        <TableCell className="text-sm">{embalagem.marca}</TableCell>
                         <TableCell className="text-sm">{embalagem.qtdeEmbalagem || "-"}</TableCell>
                         <TableCell className="text-sm">{embalagem.unidadeMedida}</TableCell>
-                        <TableCell>
-                          <Input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={embalagem.precoEmbalagem || ""}
-                            onChange={(e) => handlePrecoMarcaEmbalagemChange(index, parseFloat(e.target.value) || 0, embalagem.marca)}
-                            className="w-24"
-                            placeholder="0.00"
-                            disabled={!!embalagem.embalagemId}
-                          />
+                        <TableCell className="text-sm">
+                          {embalagem.precoEmbalagem ? `R$ ${embalagem.precoEmbalagem.toFixed(2)}` : "-"}
                         </TableCell>
                         <TableCell>
                           <Input

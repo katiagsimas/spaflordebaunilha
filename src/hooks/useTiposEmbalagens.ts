@@ -22,7 +22,7 @@ export const useTiposEmbalagens = () => {
       const { data, error } = await supabase
         .from("tipos_embalagens")
         .select("*")
-        .order("descricao", { ascending: true });
+        .order("codigo", { ascending: true });
 
       if (error) throw error;
       return data as TipoEmbalagem[];

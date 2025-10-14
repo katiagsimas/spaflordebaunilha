@@ -14,8 +14,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { TipoInsumoAutocomplete } from "@/components/TipoInsumoAutocomplete";
-import { useTiposInsumos } from "@/hooks/useTiposInsumos";
 interface Ingrediente {
   id: string;
   nome: string;
@@ -57,7 +55,6 @@ export default function SubReceitaForm() {
   const [subReceitas, setSubReceitas] = useLocalStorage<SubReceita[]>("subReceitas", []);
   const [ingredientesCadastrados, setIngredientesCadastrados] = useLocalStorage<Ingrediente[]>("ingredientes", []);
   const { unidades } = useUnidadesMedida();
-  const { tiposInsumos } = useTiposInsumos();
   const [formData, setFormData] = useState({
     nome: "",
     tempoPreparo: "",
@@ -109,46 +106,6 @@ export default function SubReceitaForm() {
     };
     setIngredientes([...ingredientes, novoIngrediente]);
   };
-
-  const handleSelectTipoInsumo = (index: number, tipo: any) => {
-    if (!tipo) return;
-
-    const unidade = unidades.find(u => u.id === tipo.unidade_medida_id);
-    
-    // Verifica se já existe um ingrediente com esse tipo
-    const ingredienteExistente = ingredientesCadastrados.find(
-      ing => ing.nome === tipo.descricao
-    );
-
-    if (ingredienteExistente) {
-      // Se já existe, usa os dados do ingrediente existente
-      const novosIngredientes = [...ingredientes];
-      novosIngredientes[index] = calcularCustos({
-        ...novosIngredientes[index],
-        ingredienteId: ingredienteExistente.id,
-        ingrediente: ingredienteExistente.nome,
-        marca: ingredienteExistente.marca,
-        qtdeEmbalagem: ingredienteExistente.quantidade,
-        unidadeMedida: ingredienteExistente.unidadeMedida,
-        precoEmbalagem: ingredienteExistente.preco
-      });
-      setIngredientes(novosIngredientes);
-    } else {
-      // Se não existe, preenche com dados do tipo para criar novo ingrediente
-      const novosIngredientes = [...ingredientes];
-      novosIngredientes[index] = {
-        ...novosIngredientes[index],
-        ingredienteId: "",
-        ingrediente: tipo.descricao,
-        marca: "",
-        qtdeEmbalagem: tipo.quantidade_embalagem,
-        unidadeMedida: unidade?.sigla || "",
-        precoEmbalagem: 0
-      };
-      setIngredientes(novosIngredientes);
-    }
-  };
-
   const handleSelectIngrediente = (index: number, ingredienteId: string) => {
     const ingredienteSelecionado = ingredientesCadastrados.find(i => i.id === ingredienteId);
     if (ingredienteSelecionado) {
@@ -161,44 +118,6 @@ export default function SubReceitaForm() {
         qtdeEmbalagem: ingredienteSelecionado.quantidade,
         unidadeMedida: ingredienteSelecionado.unidadeMedida,
         precoEmbalagem: ingredienteSelecionado.preco
-      });
-      setIngredientes(novosIngredientes);
-    }
-  };
-
-  const handlePrecoMarcaChange = (index: number, preco: number, marca: string) => {
-    const ingrediente = ingredientes[index];
-    if (!ingrediente.ingredienteId && ingrediente.ingrediente) {
-      // Cria novo ingrediente se ainda não existe
-      const novoIngrediente: Ingrediente = {
-        id: Date.now().toString(),
-        nome: ingrediente.ingrediente,
-        marca: marca,
-        quantidade: ingrediente.qtdeEmbalagem,
-        unidadeMedida: ingrediente.unidadeMedida,
-        preco: preco,
-        dataAtualizacao: new Date().toISOString().split('T')[0]
-      };
-      setIngredientesCadastrados([...ingredientesCadastrados, novoIngrediente]);
-      
-      // Atualiza o ingrediente na receita
-      const novosIngredientes = [...ingredientes];
-      novosIngredientes[index] = calcularCustos({
-        ...novosIngredientes[index],
-        ingredienteId: novoIngrediente.id,
-        marca: marca,
-        precoEmbalagem: preco
-      });
-      setIngredientes(novosIngredientes);
-      
-      toast.success("Ingrediente cadastrado com sucesso!");
-    } else {
-      // Apenas atualiza o preço e marca
-      const novosIngredientes = [...ingredientes];
-      novosIngredientes[index] = calcularCustos({
-        ...novosIngredientes[index],
-        marca: marca,
-        precoEmbalagem: preco
       });
       setIngredientes(novosIngredientes);
     }
@@ -382,34 +301,22 @@ export default function SubReceitaForm() {
                   <TableBody>
                     {ingredientes.map((ingrediente, index) => <TableRow key={ingrediente.id}>
                         <TableCell>
-                          <TipoInsumoAutocomplete
-                            value={ingrediente.ingredienteId}
-                            onSelect={(tipoId) => handleSelectTipoInsumo(index, tipoId)}
-                          />
+                          <Select value={ingrediente.ingredienteId} onValueChange={value => handleSelectIngrediente(index, value)}>
+                            <SelectTrigger className="w-40">
+                              <SelectValue placeholder="Selecione" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {ingredientesCadastrados.map(ing => <SelectItem key={ing.id} value={ing.id}>
+                                  {ing.nome}
+                                </SelectItem>)}
+                            </SelectContent>
+                          </Select>
                         </TableCell>
-                        <TableCell>
-                          <Input
-                            type="text"
-                            value={ingrediente.marca}
-                            onChange={(e) => handlePrecoMarcaChange(index, ingrediente.precoEmbalagem, e.target.value)}
-                            className="w-32"
-                            placeholder="Marca"
-                            disabled={!!ingrediente.ingredienteId}
-                          />
-                        </TableCell>
+                        <TableCell className="text-sm">{ingrediente.marca}</TableCell>
                         <TableCell className="text-sm">{ingrediente.qtdeEmbalagem || "-"}</TableCell>
                         <TableCell className="text-sm">{ingrediente.unidadeMedida}</TableCell>
-                        <TableCell>
-                          <Input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={ingrediente.precoEmbalagem || ""}
-                            onChange={(e) => handlePrecoMarcaChange(index, parseFloat(e.target.value) || 0, ingrediente.marca)}
-                            className="w-24"
-                            placeholder="0.00"
-                            disabled={!!ingrediente.ingredienteId}
-                          />
+                        <TableCell className="text-sm">
+                          {ingrediente.precoEmbalagem ? `R$ ${ingrediente.precoEmbalagem.toFixed(2)}` : "-"}
                         </TableCell>
                         <TableCell>
                           <Input type="number" min="0" step="0.01" value={ingrediente.quantidadeUtilizada || ""} onChange={e => handleQuantidadeChange(index, parseFloat(e.target.value) || 0)} className="w-24" placeholder="0" />
