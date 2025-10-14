@@ -68,6 +68,8 @@ const Encomendas = () => {
     endereco: "",
     numero: "",
     cep: "",
+    desconto_percentual: 0,
+    desconto_valor: 0,
   });
 
   const [produtoForm, setProdutoForm] = useState({
@@ -87,6 +89,15 @@ const Encomendas = () => {
     return produtosExibidos.reduce((total, item) => total + item.subtotal, 0);
   }, [produtosExibidos]);
 
+  const valorDesconto = useMemo(() => {
+    const descontoPerc = (valorTotalProdutos * formData.desconto_percentual) / 100;
+    return descontoPerc + formData.desconto_valor;
+  }, [valorTotalProdutos, formData.desconto_percentual, formData.desconto_valor]);
+
+  const valorFinal = useMemo(() => {
+    return valorTotalProdutos - valorDesconto;
+  }, [valorTotalProdutos, valorDesconto]);
+
   const resetForm = () => {
     setFormData({
       cliente: "",
@@ -100,6 +111,8 @@ const Encomendas = () => {
       endereco: "",
       numero: "",
       cep: "",
+      desconto_percentual: 0,
+      desconto_valor: 0,
     });
     setEditingOrder(null);
     setTempProdutos([]);
@@ -150,6 +163,8 @@ const Encomendas = () => {
       endereco: encomenda.endereco || "",
       numero: encomenda.numero || "",
       cep: encomenda.cep || "",
+      desconto_percentual: encomenda.desconto_percentual || 0,
+      desconto_valor: encomenda.desconto_valor || 0,
     });
     setDialogOpen(true);
   };
@@ -606,6 +621,46 @@ const Encomendas = () => {
                             <TableCell className="text-right font-bold">R$ {valorTotalProdutos.toFixed(2)}</TableCell>
                             <TableCell></TableCell>
                           </TableRow>
+                          <TableRow className="bg-yellow-50 dark:bg-yellow-950/20">
+                            <TableCell colSpan={4} className="text-right font-semibold text-yellow-800 dark:text-yellow-200">
+                              Desconto:
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex gap-2 items-center justify-end">
+                                <div className="flex items-center gap-1">
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    max="100"
+                                    value={formData.desconto_percentual || ""}
+                                    onChange={(e) => setFormData({ ...formData, desconto_percentual: Number(e.target.value) })}
+                                    className="w-20 h-8 text-sm"
+                                    placeholder="0"
+                                  />
+                                  <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">%</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">R$</span>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    value={formData.desconto_valor || ""}
+                                    onChange={(e) => setFormData({ ...formData, desconto_valor: Number(e.target.value) })}
+                                    className="w-24 h-8 text-sm"
+                                    placeholder="0.00"
+                                  />
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell></TableCell>
+                          </TableRow>
+                          <TableRow className="bg-primary/5">
+                            <TableCell colSpan={4} className="text-right font-bold text-lg">Valor Final:</TableCell>
+                            <TableCell className="text-right font-bold text-lg text-primary">R$ {valorFinal.toFixed(2)}</TableCell>
+                            <TableCell></TableCell>
+                          </TableRow>
                         </TableBody>
                       </Table>
                     </div>
@@ -613,7 +668,7 @@ const Encomendas = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="valor">Valor Total (R$) *</Label>
+                  <Label htmlFor="valor">Valor Final (R$) *</Label>
                   <Input
                     id="valor"
                     type="number"
@@ -621,8 +676,8 @@ const Encomendas = () => {
                     min="0"
                     required
                     disabled
-                    value={valorTotalProdutos.toFixed(2)}
-                    className="bg-muted"
+                    value={valorFinal.toFixed(2)}
+                    className="bg-muted font-bold text-lg"
                   />
                 </div>
 
