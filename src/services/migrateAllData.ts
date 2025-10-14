@@ -1,63 +1,23 @@
 import { supabase } from '@/integrations/supabase/client';
 
-interface MigrationResult {
+export interface MigrationResult {
   success: boolean;
   tableName: string;
   recordsCount: number;
-  error?: any;
+  error?: string;
 }
 
-export interface CompleteMigrationResult {
+export interface MigrationResponse {
   success: boolean;
   results: MigrationResult[];
   totalRecords: number;
 }
 
 /**
- * Mapeamento de chaves localStorage para tabelas Supabase
+ * Migra TODOS os dados do localStorage para o Supabase
+ * Executado automaticamente no primeiro login
  */
-const TABLE_MAPPING: Record<string, string> = {
-  'clientes': 'clientes',
-  'fornecedores': 'fornecedores',
-  'categorias': 'categorias',
-  'unidadesMedida': 'unidades_medida',
-  'custosFixos': 'custos_fixos',
-  'embalagens': 'embalagens',
-  'ingredientes': 'ingredientes',
-  'orders': 'encomendas',
-  'categorias_financeiras': 'categorias_financeiras',
-  'sugarbox_categorias_financeiras': 'categorias_financeiras',
-  'sugarbox_contas_receber': 'contas_receber',
-  'sugarbox_contas_pagar': 'contas_pagar',
-  'bancos': 'bancos',
-  'sugarbox_bancos': 'bancos',
-};
-
-/**
- * Chaves que devem ser ignoradas na migração
- */
-const IGNORED_KEYS = [
-  'migration_completed_',
-  'migration_date_',
-  'migration_results_',
-  'supabase.',
-  'theme',
-  'ui-',
-  'userName',
-  'isLoggedIn',
-  'nomeNegocio',
-  'diasTrabalho',
-  'horasDiarias',
-  'planejamento_banner_dismissed',
-  'configuracaoPlanejamento',
-  'cmv_global',
-  'cmvData',
-];
-
-/**
- * Migra automaticamente todos os dados do localStorage para Supabase
- */
-export async function migrateAllLocalStorageData(userId: string): Promise<CompleteMigrationResult> {
+export async function migrateAllLocalStorageData(userId: string): Promise<MigrationResponse> {
   console.log('🚀 Iniciando migração completa de dados...');
   
   // 1. Verificar se já foi migrado
@@ -74,68 +34,69 @@ export async function migrateAllLocalStorageData(userId: string): Promise<Comple
   const results: MigrationResult[] = [];
   let totalRecords = 0;
   
-  // 2. Listar TODAS as chaves do localStorage
-  const allKeys = Object.keys(localStorage);
-  console.log('📦 Chaves encontradas no localStorage:', allKeys);
+  // 2. Mapa de chaves localStorage -> nome da tabela Supabase
+  const tableMapping: Record<string, string> = {
+    'clientes': 'clientes',
+    'fornecedores': 'fornecedores',
+    'categorias': 'categorias',
+    'unidadesMedida': 'unidades_medida',
+    'custosFixos': 'custos_fixos',
+    'embalagens': 'embalagens',
+    'ingredientes': 'ingredientes',
+    'orders': 'encomendas',
+    'sugarbox_categorias_financeiras': 'categorias_financeiras',
+    'categorias_financeiras': 'categorias_financeiras',
+    'sugarbox_contas_receber': 'contas_receber',
+    'sugarbox_contas_pagar': 'contas_pagar',
+    'sugarbox_bancos': 'bancos',
+    'bancos': 'bancos',
+  };
   
-  // 3. Filtrar apenas chaves de dados
-  const dataKeys = allKeys.filter(key => {
-    return !IGNORED_KEYS.some(ignored => key.startsWith(ignored) || key === ignored);
-  });
-  
-  console.log('📋 Chaves de dados para migrar:', dataKeys);
-  
-  // 4. Para cada chave, tentar migrar
-  for (const key of dataKeys) {
+  // 3. Para cada chave mapeada, tentar migrar
+  for (const [localKey, tableName] of Object.entries(tableMapping)) {
     try {
-      const rawData = localStorage.getItem(key);
-      if (!rawData) continue;
+      const rawData = localStorage.getItem(localKey);
+      if (!rawData) {
+        console.log(`ℹ️ Chave não encontrada: ${localKey}`);
+        continue;
+      }
       
-      // Tentar fazer parse
       let data;
       try {
         data = JSON.parse(rawData);
       } catch (e) {
-        console.warn(`⚠️ Não é JSON válido: ${key}`);
+        console.warn(`⚠️ Não é JSON válido: ${localKey}`);
         continue;
       }
       
-      // Verificar se é array de dados
       if (!Array.isArray(data)) {
-        console.warn(`⚠️ Não é array: ${key}`);
+        console.warn(`⚠️ Não é array: ${localKey}`);
         continue;
       }
       
       if (data.length === 0) {
-        console.log(`ℹ️ Array vazio: ${key}`);
+        console.log(`ℹ️ Array vazio: ${localKey}`);
         continue;
       }
       
-      // Descobrir nome da tabela
-      const tableName = TABLE_MAPPING[key] || key;
+      console.log(`🔄 Migrando ${tableName}: ${data.length} registros...`);
       
-      console.log(`🔄 Migrando ${key} -> ${tableName}: ${data.length} registros...`);
-      
-      // Adicionar user_id em cada registro
+      // Adicionar usuario_id em cada registro
       const dataWithUserId = data.map(record => {
-        const cleanRecord: any = {};
-        
-        // Copiar apenas campos que não são técnicos
-        Object.keys(record).forEach(field => {
-          if (field !== 'id' && field !== 'created_at' && field !== 'updated_at') {
-            cleanRecord[field] = record[field];
-          }
-        });
+        // Remover campos temporários ou desnecessários
+        const { id: _id, ...rest } = record;
         
         return {
-          ...cleanRecord,
+          ...rest,
           usuario_id: userId,
+          created_at: record.created_at || new Date().toISOString(),
+          updated_at: record.updated_at || new Date().toISOString()
         };
       });
       
-      // Tentar inserir no Supabase
-      const { error } = await (supabase as any)
-        .from(tableName)
+      // Inserir no Supabase
+      const { error } = await supabase
+        .from(tableName as any)
         .insert(dataWithUserId);
       
       if (error) {
@@ -144,7 +105,7 @@ export async function migrateAllLocalStorageData(userId: string): Promise<Comple
           success: false,
           tableName,
           recordsCount: data.length,
-          error
+          error: error.message
         });
       } else {
         console.log(`✅ ${tableName} migrado: ${data.length} registros`);
@@ -156,18 +117,18 @@ export async function migrateAllLocalStorageData(userId: string): Promise<Comple
         totalRecords += data.length;
       }
       
-    } catch (error) {
-      console.error(`❌ Erro ao processar ${key}:`, error);
+    } catch (error: any) {
+      console.error(`❌ Erro ao processar ${localKey}:`, error);
       results.push({
         success: false,
-        tableName: key,
+        tableName: localKey,
         recordsCount: 0,
-        error
+        error: error.message
       });
     }
   }
   
-  // 5. Marcar migração como completa
+  // 4. Marcar migração como completa se houve algum sucesso
   if (results.some(r => r.success)) {
     localStorage.setItem(migrationKey, 'true');
     localStorage.setItem(`migration_date_${userId}`, new Date().toISOString());
@@ -189,7 +150,8 @@ export async function migrateAllLocalStorageData(userId: string): Promise<Comple
 }
 
 /**
- * Limpa localStorage após migração bem-sucedida
+ * Limpa o localStorage após migração bem-sucedida
+ * ATENÇÃO: Só executar após confirmar que dados estão no Supabase!
  */
 export function cleanLocalStorageAfterMigration(userId: string) {
   const keepKeys = [
@@ -199,21 +161,25 @@ export function cleanLocalStorageAfterMigration(userId: string) {
     `migration_completed_${userId}`,
     `migration_date_${userId}`,
     `migration_results_${userId}`,
-    'nomeNegocio',
-    'diasTrabalho',
-    'horasDiarias',
-    'planejamento_banner_dismissed',
-    'configuracaoPlanejamento',
-    'cmv_global',
-    'cmvData',
   ];
   
-  Object.keys(localStorage).forEach(key => {
-    if (!keepKeys.includes(key) && !key.startsWith('supabase.')) {
-      console.log('🗑️ Removendo do localStorage:', key);
-      localStorage.removeItem(key);
+  const allKeys = Object.keys(localStorage);
+  const keysToRemove: string[] = [];
+  
+  for (const key of allKeys) {
+    const shouldKeep = keepKeys.some(keepKey => key.includes(keepKey)) || 
+                       key.startsWith('supabase.');
+    
+    if (!shouldKeep) {
+      keysToRemove.push(key);
     }
-  });
+  }
+  
+  console.log('🗑️ Removendo do localStorage:', keysToRemove);
+  
+  for (const key of keysToRemove) {
+    localStorage.removeItem(key);
+  }
   
   console.log('✅ localStorage limpo!');
 }

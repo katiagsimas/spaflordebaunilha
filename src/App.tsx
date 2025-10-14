@@ -52,6 +52,7 @@ import DRE from "./pages/relatorios/DRE";
 import AuthLogin from "./pages/auth/Login";
 import SignUp from "./pages/auth/SignUp";
 import ForgotPassword from "./pages/auth/ForgotPassword";
+import MigrationStatus from "./pages/MigrationStatus";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -154,6 +155,10 @@ const App = () => (
           <Route 
             path="/configuracoes" 
             element={<ProtectedRoute><Layout><Configuracoes /></Layout></ProtectedRoute>} 
+          />
+          <Route 
+            path="/migration-status" 
+            element={<ProtectedRoute><Layout><MigrationStatus /></Layout></ProtectedRoute>} 
           />
           <Route 
             path="/configuracoes/categorias" 

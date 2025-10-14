@@ -2,7 +2,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 /**
  * Hook para obter o ID do usuário autenticado
- * Lança erro se usuário não estiver autenticado
+ * Lança erro se o usuário não estiver autenticado
  */
 export function useUserId() {
   const { user } = useAuth();
