@@ -55,11 +55,21 @@ export function useConfigStatus() {
         .select('*', { count: 'exact', head: true })
         .eq('usuario_id', user.id);
 
-      // Verificar se tem bancos
-      const { count: bancosCount } = await supabase
-        .from('bancos')
-        .select('*', { count: 'exact', head: true })
-        .eq('usuario_id', user.id);
+      // Verificar bancos no localStorage (igual aos tipos de documento)
+      const bancosStorage = localStorage.getItem('sugarbox_bancos');
+      let hasBancos = false;
+      
+      if (bancosStorage) {
+        try {
+          const bancos = JSON.parse(bancosStorage);
+          hasBancos = Array.isArray(bancos) && bancos.length > 0;
+        } catch (e) {
+          hasBancos = false;
+        }
+      } else {
+        // Se não existe no localStorage, considera os valores padrão como já configurados
+        hasBancos = true; // Sistema vem com 11 bancos pré-cadastrados
+      }
 
       // Verificar tipos de documento no localStorage
       const tiposDocumentoStorage = localStorage.getItem('sugarbox_tipos_documento');
@@ -81,7 +91,7 @@ export function useConfigStatus() {
         seusDados,
         categorias: (categoriasCount || 0) > 0,
         unidadesMedida: (unidadesCount || 0) > 0,
-        bancos: (bancosCount || 0) > 0,
+        bancos: hasBancos,
         tiposDocumento: hasTiposDocumento,
       };
     },
