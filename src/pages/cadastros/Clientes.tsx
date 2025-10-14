@@ -36,6 +36,7 @@ export default function Clientes() {
     cpf_cnpj: "",
     cep: "",
     endereco: "",
+    numero: "",
     cidade: "",
     estado: "",
     observacoes: "",
@@ -77,6 +78,7 @@ export default function Clientes() {
       cpf_cnpj: "",
       cep: "",
       endereco: "",
+      numero: "",
       cidade: "",
       estado: "",
       observacoes: "",
@@ -228,6 +230,18 @@ export default function Clientes() {
                     />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="numero">Número</Label>
+                    <Input
+                      id="numero"
+                      value={formData.numero}
+                      onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
+                      placeholder="Nº"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
                     <Label htmlFor="cidade">Cidade</Label>
                     <Input
                       id="cidade"
@@ -236,9 +250,6 @@ export default function Clientes() {
                       placeholder="Cidade"
                     />
                   </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="estado">Estado</Label>
                     <Input
