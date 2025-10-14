@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, ArrowLeft, ChefHat } from "lucide-react";
+import { Plus, Pencil, Trash2, ArrowLeft, ChefHat, Copy } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { EmptyState } from "@/components/EmptyState";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
@@ -108,6 +108,27 @@ export default function SubReceitas() {
     navigate(`/sub-receitas/editar/${id}`);
   };
 
+  const handleDuplicate = (id: string) => {
+    const subReceitaOriginal = subReceitas.find(sr => sr.id === id);
+    if (!subReceitaOriginal) return;
+
+    const novaSubReceita: SubReceita = {
+      ...subReceitaOriginal,
+      id: `${Date.now()}`,
+      nome: `Cópia de ${subReceitaOriginal.nome}`,
+      ingredientes: subReceitaOriginal.ingredientes.map(ing => ({
+        ...ing,
+        id: `${Date.now()}-${Math.random()}`
+      }))
+    };
+
+    setSubReceitas([...subReceitas, novaSubReceita]);
+    toast.success("Sub-receita duplicada com sucesso!");
+    
+    // Navega para edição da cópia
+    navigate(`/sub-receitas/editar/${novaSubReceita.id}`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -168,13 +189,23 @@ export default function SubReceitas() {
                               variant="ghost"
                               size="icon"
                               onClick={() => handleEdit(subReceita.id)}
+                              title="Editar"
                             >
                               <Pencil className="h-4 w-4" />
                             </Button>
                             <Button
                               variant="ghost"
                               size="icon"
+                              onClick={() => handleDuplicate(subReceita.id)}
+                              title="Duplicar"
+                            >
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               onClick={() => handleDelete(subReceita.id)}
+                              title="Excluir"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

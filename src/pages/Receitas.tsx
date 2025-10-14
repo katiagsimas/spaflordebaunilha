@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, CookingPot } from "lucide-react";
+import { Plus, Pencil, Trash2, CookingPot, Copy } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { EmptyState } from "@/components/EmptyState";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
@@ -142,6 +142,35 @@ export default function Receitas() {
     navigate(`/receitas/editar/${id}`);
   };
 
+  const handleDuplicate = (id: string) => {
+    const receitaOriginal = receitas.find(r => r.id === id);
+    if (!receitaOriginal) return;
+
+    const novaReceita: Receita = {
+      ...receitaOriginal,
+      id: `${Date.now()}`,
+      nome: `Cópia de ${receitaOriginal.nome}`,
+      ingredientes: receitaOriginal.ingredientes.map(ing => ({
+        ...ing,
+        id: `${Date.now()}-${Math.random()}`
+      })),
+      embalagens: (receitaOriginal.embalagens || []).map(emb => ({
+        ...emb,
+        id: `${Date.now()}-${Math.random()}`
+      })),
+      despesasVenda: (receitaOriginal.despesasVenda || []).map(desp => ({
+        ...desp,
+        id: `${Date.now()}-${Math.random()}`
+      }))
+    };
+
+    setReceitas([...receitas, novaReceita]);
+    toast.success("Receita duplicada com sucesso!");
+    
+    // Navega para edição da cópia
+    navigate(`/receitas/editar/${novaReceita.id}`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -226,13 +255,23 @@ export default function Receitas() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleEdit(receita.id)}
+                          title="Editar"
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
+                          onClick={() => handleDuplicate(receita.id)}
+                          title="Duplicar"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => handleDelete(receita.id)}
+                          title="Excluir"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
