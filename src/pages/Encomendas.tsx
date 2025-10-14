@@ -44,6 +44,15 @@ const Encomendas = () => {
   const [editingOrder, setEditingOrder] = useState<any | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("Todos");
+  const [tempProdutos, setTempProdutos] = useState<Array<{
+    id: string;
+    receita_id: string;
+    produto: string;
+    quantidade: number;
+    unidade_medida: string;
+    valor_unitario: number;
+    subtotal: number;
+  }>>([]);
   
   const [formData, setFormData] = useState({
     cliente: "",
@@ -69,9 +78,12 @@ const Encomendas = () => {
 
   const { itens: produtosEncomenda, createItem, deleteItem } = useEncomendaItens(editingOrder?.id || null);
 
+  // Usar produtos temporários quando criando nova encomenda, ou produtos salvos quando editando
+  const produtosExibidos = editingOrder ? produtosEncomenda : tempProdutos;
+
   const valorTotalProdutos = useMemo(() => {
-    return produtosEncomenda.reduce((total, item) => total + item.subtotal, 0);
-  }, [produtosEncomenda]);
+    return produtosExibidos.reduce((total, item) => total + item.subtotal, 0);
+  }, [produtosExibidos]);
 
   const resetForm = () => {
     setFormData({
@@ -88,6 +100,7 @@ const Encomendas = () => {
       cep: "",
     });
     setEditingOrder(null);
+    setTempProdutos([]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -97,7 +110,22 @@ const Encomendas = () => {
       if (editingOrder) {
         await updateEncomenda(editingOrder.id, formData);
       } else {
-        await createEncomenda(formData);
+        const novaEncomenda = await createEncomenda(formData);
+        
+        // Salvar produtos temporários na encomenda criada
+        if (tempProdutos.length > 0 && novaEncomenda) {
+          for (const produto of tempProdutos) {
+            await createItem({
+              encomenda_id: novaEncomenda.id,
+              receita_id: produto.receita_id,
+              produto: produto.produto,
+              quantidade: produto.quantidade,
+              unidade_medida: produto.unidade_medida,
+              valor_unitario: produto.valor_unitario,
+              subtotal: produto.subtotal,
+            });
+          }
+        }
       }
       setDialogOpen(false);
       resetForm();
@@ -154,11 +182,6 @@ const Encomendas = () => {
   };
 
   const handleAddProduto = async () => {
-    if (!editingOrder) {
-      toast.error("Salve a encomenda antes de adicionar produtos");
-      return;
-    }
-
     if (!produtoForm.receita_id || !produtoForm.quantidade) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
@@ -167,36 +190,60 @@ const Encomendas = () => {
     const quantidade = parseFloat(produtoForm.quantidade);
     const subtotal = quantidade * produtoForm.valor_unitario;
 
-    try {
-      await createItem({
-        encomenda_id: editingOrder.id,
+    if (editingOrder) {
+      // Se está editando, salvar direto no banco
+      try {
+        await createItem({
+          encomenda_id: editingOrder.id,
+          receita_id: produtoForm.receita_id,
+          produto: produtoForm.produto,
+          quantidade,
+          unidade_medida: produtoForm.unidade_medida,
+          valor_unitario: produtoForm.valor_unitario,
+          subtotal,
+        });
+      } catch (error: any) {
+        toast.error(error.message || "Erro ao adicionar produto");
+        return;
+      }
+    } else {
+      // Se está criando nova encomenda, adicionar em memória
+      const novoProduto = {
+        id: Math.random().toString(36).substr(2, 9),
         receita_id: produtoForm.receita_id,
         produto: produtoForm.produto,
         quantidade,
         unidade_medida: produtoForm.unidade_medida,
         valor_unitario: produtoForm.valor_unitario,
         subtotal,
-      });
-
-      setProdutoForm({
-        receita_id: "",
-        produto: "",
-        quantidade: "",
-        unidade_medida: "",
-        valor_unitario: 0,
-      });
-      setProdutoDialogOpen(false);
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao adicionar produto");
+      };
+      setTempProdutos([...tempProdutos, novoProduto]);
+      toast.success("Produto adicionado!");
     }
+
+    setProdutoForm({
+      receita_id: "",
+      produto: "",
+      quantidade: "",
+      unidade_medida: "",
+      valor_unitario: 0,
+    });
+    setProdutoDialogOpen(false);
   };
 
   const handleRemoveProduto = async (itemId: string) => {
     if (confirm("Tem certeza que deseja remover este produto?")) {
-      try {
-        await deleteItem(itemId);
-      } catch (error: any) {
-        toast.error(error.message || "Erro ao remover produto");
+      if (editingOrder) {
+        // Se está editando, deletar do banco
+        try {
+          await deleteItem(itemId);
+        } catch (error: any) {
+          toast.error(error.message || "Erro ao remover produto");
+        }
+      } else {
+        // Se está criando, remover da lista temporária
+        setTempProdutos(tempProdutos.filter(p => p.id !== itemId));
+        toast.success("Produto removido!");
       }
     }
   };
@@ -416,7 +463,7 @@ const Encomendas = () => {
                     <Label>Produtos da Encomenda</Label>
                     <Dialog open={produtoDialogOpen} onOpenChange={setProdutoDialogOpen}>
                       <DialogTrigger asChild>
-                        <Button type="button" variant="outline" size="sm" disabled={!editingOrder}>
+                        <Button type="button" variant="outline" size="sm">
                           <Plus className="h-4 w-4 mr-2" />
                           Adicionar Produtos
                         </Button>
@@ -511,7 +558,7 @@ const Encomendas = () => {
                     </Dialog>
                   </div>
 
-                  {produtosEncomenda.length > 0 && (
+                  {produtosExibidos.length > 0 && (
                     <div className="border rounded-lg">
                       <Table>
                         <TableHeader>
@@ -525,7 +572,7 @@ const Encomendas = () => {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {produtosEncomenda.map((item) => (
+                          {produtosExibidos.map((item) => (
                             <TableRow key={item.id}>
                               <TableCell>{item.produto}</TableCell>
                               <TableCell className="text-right">{item.quantidade}</TableCell>
