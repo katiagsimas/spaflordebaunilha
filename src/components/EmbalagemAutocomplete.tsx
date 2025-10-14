@@ -53,14 +53,6 @@ export function EmbalagemAutocomplete({
   };
 
   const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen && searchValue && !selectedEmbalagem) {
-      toast.error(
-        "Embalagem não encontrada. Por favor, cadastre-a primeiro na tela de Embalagens.",
-        {
-          duration: 5000,
-        }
-      );
-    }
     setOpen(isOpen);
     if (!isOpen) {
       setSearchValue("");

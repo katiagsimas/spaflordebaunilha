@@ -53,14 +53,6 @@ export function IngredienteAutocomplete({
   };
 
   const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen && searchValue && !selectedIngrediente) {
-      toast.error(
-        "Ingrediente não encontrado. Por favor, cadastre-o primeiro na tela de Ingredientes.",
-        {
-          duration: 5000,
-        }
-      );
-    }
     setOpen(isOpen);
     if (!isOpen) {
       setSearchValue("");
