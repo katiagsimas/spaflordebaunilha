@@ -13,6 +13,7 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { formatPhone } from "@/lib/utils";
+import { ClienteAutocomplete } from "@/components/ClienteAutocomplete";
 
 interface Order {
   id: string;
@@ -232,13 +233,12 @@ const Encomendas = () => {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="client">Nome do Cliente *</Label>
-                    <Input
-                      id="client"
-                      required
+                    <ClienteAutocomplete
                       value={formData.client}
-                      onChange={(e) =>
-                        setFormData({ ...formData, client: e.target.value })
+                      onSelect={(clienteNome) =>
+                        setFormData({ ...formData, client: clienteNome })
                       }
+                      placeholder="Selecione ou busque um cliente..."
                     />
                   </div>
                   <div className="space-y-2">
