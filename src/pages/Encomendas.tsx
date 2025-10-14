@@ -16,6 +16,7 @@ import { ClienteAutocomplete } from "@/components/ClienteAutocomplete";
 import { useClientes } from "@/hooks/useClientes";
 import { useReceitas } from "@/hooks/useReceitas";
 import { useEncomendaItens } from "@/hooks/useEncomendaItens";
+import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 
 const statusColors = {
   pendente: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -39,6 +40,7 @@ const Encomendas = () => {
   const { encomendas, loading, createEncomenda, updateEncomenda, deleteEncomenda } = useEncomendas();
   const { clientes } = useClientes();
   const { receitas } = useReceitas();
+  const { unidades } = useUnidadesMedida();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [produtoDialogOpen, setProdutoDialogOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<any | null>(null);
@@ -171,11 +173,12 @@ const Encomendas = () => {
   const handleProdutoSelect = (receitaId: string) => {
     const receita = receitas.find(r => r.id === receitaId);
     if (receita) {
+      const unidade = unidades.find(u => u.id === receita.unidadeRendimento);
       setProdutoForm({
         receita_id: receitaId,
         produto: receita.nome,
         quantidade: "",
-        unidade_medida: receita.unidadeRendimento,
+        unidade_medida: unidade?.sigla || receita.unidadeRendimento,
         valor_unitario: receita.valorVenda || 0,
       });
     }

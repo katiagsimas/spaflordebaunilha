@@ -35,7 +35,7 @@ export interface Receita {
   tempoPreparo: number;
   unidadeTempo: "minutos" | "horas";
   rendimento: number;
-  unidadeRendimento: "gramas" | "unidades";
+  unidadeRendimento: string;
   ingredientes: IngredienteReceita[];
   embalagens?: EmbalagemReceita[];
   custoTotal: number;
