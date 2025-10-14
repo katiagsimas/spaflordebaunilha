@@ -13,6 +13,7 @@ import Estoque from "./pages/Estoque";
 import RelatoriosEstoque from "./pages/estoque/RelatoriosEstoque";
 import RelatorioMovimentacoes from "./pages/estoque/RelatorioMovimentacoes";
 import RelatorioConsumoMedio from "./pages/estoque/RelatorioConsumoMedio";
+import RelatorioCMVGlobal from "./pages/estoque/RelatorioCMVGlobal";
 import Precificacao from "./pages/Precificacao";
 import Planejamento from "./pages/Planejamento";
 import CMVGlobal from "./pages/CMVGlobal";
@@ -92,6 +93,7 @@ const App = () => (
           <Route path="/estoque/relatorios" element={<ProtectedRoute><Layout><RelatoriosEstoque /></Layout></ProtectedRoute>} />
           <Route path="/estoque/relatorios/movimentacoes" element={<ProtectedRoute><Layout><RelatorioMovimentacoes /></Layout></ProtectedRoute>} />
           <Route path="/estoque/relatorios/consumo-medio" element={<ProtectedRoute><Layout><RelatorioConsumoMedio /></Layout></ProtectedRoute>} />
+          <Route path="/estoque/relatorios/cmv-global" element={<ProtectedRoute><Layout><RelatorioCMVGlobal /></Layout></ProtectedRoute>} />
           <Route path="/precificacao" element={<ProtectedRoute><Layout><Precificacao /></Layout></ProtectedRoute>} />
           <Route path="/planejamento" element={<ProtectedRoute><Layout><Planejamento /></Layout></ProtectedRoute>} />
           <Route path="/cmv-global" element={<ProtectedRoute><Layout><CMVGlobal /></Layout></ProtectedRoute>} />

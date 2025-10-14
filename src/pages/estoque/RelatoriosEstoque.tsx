@@ -27,10 +27,10 @@ export default function RelatoriosEstoque() {
     {
       id: "cmv-global",
       titulo: "CMV Global",
-      descricao: "Custo de Mercadoria (Fase 4)",
+      descricao: "Custo de Mercadoria Vendida",
       icone: DollarSign,
-      rota: "#",
-      disponivel: false,
+      rota: "/estoque/relatorios/cmv-global",
+      disponivel: true,
     },
   ];
 
