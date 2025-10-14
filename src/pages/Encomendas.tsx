@@ -173,20 +173,13 @@ const Encomendas = () => {
   const handleProdutoSelect = (receitaId: string) => {
     const receita = receitas.find(r => r.id === receitaId);
     if (receita) {
-      console.log("Receita selecionada:", receita);
-      console.log("unidadeRendimento da receita:", receita.unidadeRendimento);
-      console.log("Unidades disponíveis:", unidades);
-      
       // Buscar a unidade de medida pelo ID
       const unidade = unidades.find(u => u.id === receita.unidadeRendimento);
-      console.log("Unidade encontrada por ID:", unidade);
       
       // Se não encontrar pelo ID, tentar buscar pela sigla (para compatibilidade com dados antigos)
       const unidadePorSigla = !unidade ? unidades.find(u => u.sigla === receita.unidadeRendimento) : null;
-      console.log("Unidade encontrada por sigla:", unidadePorSigla);
       
       const unidadeTexto = unidade?.sigla || unidadePorSigla?.sigla || receita.unidadeRendimento;
-      console.log("Unidade de medida final:", unidadeTexto);
       
       setProdutoForm({
         receita_id: receitaId,
