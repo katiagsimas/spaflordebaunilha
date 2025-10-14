@@ -620,10 +620,9 @@ const Encomendas = () => {
                     step="0.01"
                     min="0"
                     required
-                    value={formData.valor || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, valor: Number(e.target.value) })
-                    }
+                    disabled
+                    value={valorTotalProdutos.toFixed(2)}
+                    className="bg-muted"
                   />
                 </div>
 
