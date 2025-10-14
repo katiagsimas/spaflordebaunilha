@@ -4,7 +4,7 @@ import {
   ShoppingBag, ShoppingCart, Package, Gift, DollarSign, CreditCard,
   Wallet, PiggyBank, Home, Briefcase, Users, Laptop, Truck, Wrench,
   Shield, Award, TrendingUp, Activity, Anchor, AlertCircle,
-  MoreHorizontal, Receipt, Megaphone, FileText, CornerUpLeft,
+  MoreHorizontal, Receipt, Megaphone, FileText, CornerUpLeft, Loader2,
   type LucideIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -43,6 +43,7 @@ import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/PageHeader';
 import { BackButton } from '@/components/BackButton';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
+import { useCategoriasFinanceiras } from '@/hooks/useCategoriasFinanceiras';
 
 // Mapa de ícones disponíveis
 const iconesDisponiveis: { [key: string]: LucideIcon } = {
@@ -339,28 +340,13 @@ const categoriasIniciais: CategoriaFinanceira[] = [
   }
 ];
 
-const STORAGE_KEY = 'sugarbox_categorias_financeiras';
-
-// Funções auxiliares de localStorage
-export function getCategorias(): CategoriaFinanceira[] {
-  const str = localStorage.getItem(STORAGE_KEY);
-  return str ? JSON.parse(str) : [];
+// Funções auxiliares mantidas para compatibilidade (agora usando Supabase)
+export function getCategoriasAtivas(categorias: CategoriaFinanceira[]): CategoriaFinanceira[] {
+  return categorias.filter(c => c.ativo);
 }
 
-export function setCategorias(categorias: CategoriaFinanceira[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(categorias));
-}
-
-export function getCategoriaPorId(id: string): CategoriaFinanceira | undefined {
-  return getCategorias().find(c => c.id === id);
-}
-
-export function getCategoriasAtivas(): CategoriaFinanceira[] {
-  return getCategorias().filter(c => c.ativo);
-}
-
-export function getCategoriasPorTipo(tipo: 'receita' | 'despesa'): CategoriaFinanceira[] {
-  return getCategorias().filter(c => c.tipo === tipo && c.ativo);
+export function getCategoriasPorTipo(categorias: CategoriaFinanceira[], tipo: 'receita' | 'despesa'): CategoriaFinanceira[] {
+  return categorias.filter(c => c.tipo === tipo && c.ativo);
 }
 
 // Paletas de cores sugeridas
@@ -370,11 +356,18 @@ const coresDespesas = ['#D88B8B', '#E09999', '#C67C7C', '#D49595', '#E5A3A3', '#
 export default function CategoriasFinanceiras() {
   const { toast } = useToast();
   const { isAdmin } = useIsAdmin();
-  const [categorias, setCategorias] = useState<CategoriaFinanceira[]>([]);
+  const { 
+    categorias, 
+    loading, 
+    createCategoria,
+    updateCategoria,
+    deleteCategoria 
+  } = useCategoriasFinanceiras();
+  
   const [dialogAberto, setDialogAberto] = useState(false);
   const [alertDialogAberto, setAlertDialogAberto] = useState(false);
-  const [categoriaEditando, setCategoriaEditando] = useState<CategoriaFinanceira | null>(null);
-  const [categoriaExcluindo, setCategoriaExcluindo] = useState<CategoriaFinanceira | null>(null);
+  const [categoriaEditando, setCategoriaEditando] = useState<any | null>(null);
+  const [categoriaExcluindo, setCategoriaExcluindo] = useState<any | null>(null);
   const [abaAtiva, setAbaAtiva] = useState<'todos' | 'receita' | 'despesa'>('todos');
   const [visualizacao, setVisualizacao] = useState<'grade' | 'lista'>('lista');
   const [busca, setBusca] = useState('');
@@ -385,53 +378,13 @@ export default function CategoriasFinanceiras() {
   const [tipo, setTipo] = useState<'receita' | 'despesa'>('receita');
   const [cor, setCor] = useState('#D89B8C');
   const [icone, setIcone] = useState('Tag');
-  const [ativo, setAtivo] = useState(true);
   const [erros, setErros] = useState<string[]>([]);
-
-  // Carregar categorias do localStorage
-  useEffect(() => {
-    inicializarCategorias();
-    carregarCategorias();
-  }, []);
-
-  function inicializarCategorias() {
-    const categoriasStr = localStorage.getItem(STORAGE_KEY);
-    
-    if (!categoriasStr) {
-      // Primeira vez: criar categorias pré-configuradas
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(categoriasIniciais));
-      setCategorias(categoriasIniciais);
-      toast({
-        title: '✓ Sistema Inicializado',
-        description: `${categoriasIniciais.length} categorias padrão carregadas`,
-      });
-    }
-  }
-
-  function carregarCategorias() {
-    const cats = getCategorias();
-    setCategorias(cats);
-  }
-
-  const salvarCategorias = (novasCategorias: CategoriaFinanceira[]) => {
-    // Ordenar por tipo e nome
-    novasCategorias.sort((a, b) => {
-      if (a.tipo !== b.tipo) {
-        return a.tipo === 'receita' ? -1 : 1;
-      }
-      return a.nome.localeCompare(b.nome);
-    });
-    
-    setCategorias(novasCategorias);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(novasCategorias));
-  };
 
   const resetarFormulario = () => {
     setNome('');
     setTipo('receita');
     setCor('#8BA888');
     setIcone('Tag');
-    setAtivo(true);
     setErros([]);
     setCategoriaEditando(null);
   };
@@ -474,14 +427,13 @@ export default function CategoriasFinanceiras() {
     return novosErros.length === 0;
   };
 
-  const abrirDialog = (categoria?: CategoriaFinanceira) => {
+  const abrirDialog = (categoria?: any) => {
     if (categoria) {
       setCategoriaEditando(categoria);
       setNome(categoria.nome);
-      setTipo(categoria.tipo);
-      setCor(categoria.cor);
-      setIcone(categoria.icone);
-      setAtivo(categoria.ativo);
+      setTipo(categoria.tipo as 'receita' | 'despesa');
+      setCor(categoria.cor || '#8BA888');
+      setIcone(categoria.icone || 'Tag');
     } else {
       resetarFormulario();
     }
@@ -494,7 +446,7 @@ export default function CategoriasFinanceiras() {
     resetarFormulario();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validarCategoria()) {
@@ -506,59 +458,31 @@ export default function CategoriasFinanceiras() {
       return;
     }
 
-    if (categoriaEditando) {
-      // Editar categoria existente
-      const novasCategorias = categorias.map((cat) =>
-        cat.id === categoriaEditando.id
-          ? {
-              ...cat,
-              nome: nome.trim(),
-              tipo,
-              cor,
-              icone,
-              ativo,
-              updatedAt: new Date().toISOString(),
-            }
-          : cat
-      );
-      salvarCategorias(novasCategorias);
-      toast({
-        title: '✓ Categoria Atualizada',
-        description: `"${nome}" foi atualizada com sucesso`,
-      });
-    } else {
-      // Criar nova categoria
-      const novaCategoria: CategoriaFinanceira = {
-        id: Date.now().toString(),
-        nome: nome.trim(),
-        tipo,
-        cor,
-        icone,
-        ativo,
-        editavel: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      salvarCategorias([...categorias, novaCategoria]);
-      toast({
-        title: '✓ Categoria Criada',
-        description: `"${nome}" foi criada com sucesso`,
-      });
+    try {
+      if (categoriaEditando) {
+        // Editar categoria existente
+        await updateCategoria(categoriaEditando.id, {
+          nome: nome.trim(),
+          tipo,
+          cor,
+          icone,
+        });
+      } else {
+        // Criar nova categoria
+        await createCategoria({
+          nome: nome.trim(),
+          tipo,
+          cor,
+          icone,
+        });
+      }
+      fecharDialog();
+    } catch (error) {
+      console.error('Erro ao salvar categoria:', error);
     }
-
-    fecharDialog();
   };
 
-  const confirmarExclusao = (categoria: CategoriaFinanceira) => {
-    if (!categoria.editavel) {
-      toast({
-        title: 'Ação não permitida',
-        description: 'Categorias do sistema não podem ser excluídas',
-        variant: 'destructive',
-      });
-      return;
-    }
-
+  const confirmarExclusao = (categoria: any) => {
     // Verificar se tem planos de contas vinculados
     // Por enquanto, apenas confirmar exclusão
     // TODO: verificar vínculos quando Planos de Contas estiver implementado
@@ -566,32 +490,28 @@ export default function CategoriasFinanceiras() {
     setAlertDialogAberto(true);
   };
 
-  const excluirCategoria = () => {
+  const excluirCategoria = async () => {
     if (!categoriaExcluindo) return;
 
-    const novasCategorias = categorias.filter((cat) => cat.id !== categoriaExcluindo.id);
-    salvarCategorias(novasCategorias);
-    toast({
-      title: '✓ Categoria Excluída',
-      description: `"${categoriaExcluindo.nome}" foi excluída`,
-    });
-    setAlertDialogAberto(false);
-    setCategoriaExcluindo(null);
-    carregarCategorias();
+    try {
+      await deleteCategoria(categoriaExcluindo.id);
+      setAlertDialogAberto(false);
+      setCategoriaExcluindo(null);
+    } catch (error) {
+      console.error('Erro ao excluir categoria:', error);
+    }
   };
 
-  const desativarCategoria = (categoriaId: string) => {
-    const novasCategorias = categorias.map((cat) =>
-      cat.id === categoriaId
-        ? { ...cat, ativo: false, updatedAt: new Date().toISOString() }
-        : cat
-    );
-    salvarCategorias(novasCategorias);
-    toast({
-      title: '✓ Categoria Desativada',
-      description: 'A categoria não aparecerá em novos lançamentos',
-    });
-    carregarCategorias();
+  const desativarCategoria = async (categoriaId: string) => {
+    try {
+      await deleteCategoria(categoriaId);
+      toast({
+        title: '✓ Categoria Removida',
+        description: 'A categoria foi removida com sucesso',
+      });
+    } catch (error) {
+      console.error('Erro ao remover categoria:', error);
+    }
   };
 
   // Filtrar e ordenar categorias
@@ -627,6 +547,14 @@ export default function CategoriasFinanceiras() {
     const IconComponent = iconesDisponiveis[nomeIcone] || Tag;
     return <IconComponent className={className} />;
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -741,11 +669,11 @@ export default function CategoriasFinanceiras() {
                   </Badge>
                 </div>
                 <div className="flex gap-2 justify-center pt-4 border-t border-border">
-                  <Button
+                <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => abrirDialog(categoria)}
-                    disabled={!isAdmin || !categoria.editavel}
+                    disabled={!isAdmin}
                   >
                     <Edit2 className="h-4 w-4 mr-1" />
                     Editar
@@ -754,10 +682,10 @@ export default function CategoriasFinanceiras() {
                     variant="ghost"
                     size="sm"
                     onClick={() => desativarCategoria(categoria.id)}
-                    disabled={!isAdmin || !categoria.ativo}
+                    disabled={!isAdmin}
                   >
                     <X className="h-4 w-4 mr-1" />
-                    Desativar
+                    Remover
                   </Button>
                 </div>
               </div>
@@ -816,7 +744,7 @@ export default function CategoriasFinanceiras() {
                           variant="ghost"
                           size="icon"
                           onClick={() => abrirDialog(categoria)}
-                          disabled={!isAdmin || !categoria.editavel}
+                          disabled={!isAdmin}
                           title="Editar"
                         >
                           <Edit2 className="h-4 w-4" />
@@ -825,8 +753,8 @@ export default function CategoriasFinanceiras() {
                           variant="ghost"
                           size="icon"
                           onClick={() => desativarCategoria(categoria.id)}
-                          disabled={!isAdmin || !categoria.ativo}
-                          title="Desativar"
+                          disabled={!isAdmin}
+                          title="Remover"
                         >
                           <X className="h-4 w-4 text-warning" />
                         </Button>
@@ -974,23 +902,6 @@ export default function CategoriasFinanceiras() {
                 </div>
               </div>
 
-              {/* Status */}
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="ativo"
-                  checked={ativo}
-                  onCheckedChange={(checked) => setAtivo(checked as boolean)}
-                />
-                <Label
-                  htmlFor="ativo"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                >
-                  Categoria ativa
-                </Label>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Categorias inativas não aparecem em novos lançamentos
-              </p>
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={fecharDialog}>

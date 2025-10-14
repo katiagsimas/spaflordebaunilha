@@ -1,5 +1,7 @@
 import { useState, useMemo } from "react";
-import { Calendar, Download, FileSpreadsheet, ArrowLeft, ArrowUpCircle, ArrowDownCircle, TrendingUp } from "lucide-react";
+import { Calendar, Download, FileSpreadsheet, ArrowLeft, ArrowUpCircle, ArrowDownCircle, TrendingUp, Loader2 } from "lucide-react";
+import { useContasReceber } from "@/hooks/useContasReceber";
+import { useContasPagar } from "@/hooks/useContasPagar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -58,16 +60,9 @@ export default function FluxoCaixaDiario() {
   const [diaDetalhado, setDiaDetalhado] = useState<MovimentacaoDiaria | null>(null);
   const [mostrarApenasComMovimento, setMostrarApenasComMovimento] = useState(true);
 
-  // Buscar dados do localStorage
-  const contasReceber: ContaReceber[] = useMemo(() => {
-    const str = localStorage.getItem('sugarbox_contas_receber');
-    return str ? JSON.parse(str) : [];
-  }, []);
-
-  const contasPagar: ContaPagar[] = useMemo(() => {
-    const str = localStorage.getItem('sugarbox_contas_pagar');
-    return str ? JSON.parse(str) : [];
-  }, []);
+  // Buscar dados do Supabase
+  const { items: contasReceber, loading: loadingReceber } = useContasReceber();
+  const { items: contasPagar, loading: loadingPagar } = useContasPagar();
 
   // Calcular movimentações diárias
   const movimentacoesDiarias = useMemo(() => {
@@ -83,12 +78,12 @@ export default function FluxoCaixaDiario() {
       
       // Buscar entradas do dia
       const entradasDia = contasReceber.filter(c => 
-        c.status === 'recebido' && c.dataRecebimento === dataStr
+        c.status === 'recebido' && c.data_recebimento === dataStr
       );
       
       // Buscar saídas do dia
       const saidasDia = contasPagar.filter(c => 
-        c.status === 'pago' && c.dataPagamento === dataStr
+        c.status === 'pago' && c.data_pagamento === dataStr
       );
 
       const totalEntradas = entradasDia.reduce((acc, c) => acc + c.valor, 0);
@@ -99,14 +94,14 @@ export default function FluxoCaixaDiario() {
       const movimentacoes = [
         ...entradasDia.map(c => ({
           descricao: c.descricao,
-          categoria: c.categoriaId,
+          categoria: c.categoria_id || '',
           valor: c.valor,
           tipo: 'entrada' as const,
           status: c.status
         })),
         ...saidasDia.map(c => ({
           descricao: c.descricao,
-          categoria: c.categoriaId,
+          categoria: c.categoria_id || '',
           valor: c.valor,
           tipo: 'saida' as const,
           status: c.status
@@ -181,6 +176,14 @@ export default function FluxoCaixaDiario() {
     XLSX.writeFile(wb, `fluxo-caixa-diario-${format(new Date(), 'dd-MM-yyyy')}.xlsx`);
     toast.success('Arquivo Excel exportado com sucesso!');
   };
+
+  if (loadingReceber || loadingPagar) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">

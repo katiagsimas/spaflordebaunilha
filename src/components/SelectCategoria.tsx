@@ -1,7 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { getCategoriasParaLancamento, formatarCategoriaCompleta } from "@/utils/categoriasPlanoContas";
-import { getCategoriasPorTipo } from "@/pages/financeiro/CategoriasFinanceiras";
+import { useCategoriasFinanceiras } from "@/hooks/useCategoriasFinanceiras";
 
 /**
  * Componente de seleção de categoria financeira (versão simplificada)
@@ -24,7 +24,8 @@ export function SelectCategoriaSimples({
   required?: boolean;
   disabled?: boolean;
 }) {
-  const categorias = getCategoriasPorTipo(tipo);
+  const { categorias } = useCategoriasFinanceiras();
+  const categoriasFiltradas = categorias.filter(c => c.tipo === tipo);
 
   return (
     <div className="space-y-2">
@@ -34,17 +35,17 @@ export function SelectCategoriaSimples({
           {required && <span className="text-error ml-1">*</span>}
         </Label>
       )}
-      <Select value={value} onValueChange={onChange} disabled={disabled || categorias.length === 0}>
+      <Select value={value} onValueChange={onChange} disabled={disabled || categoriasFiltradas.length === 0}>
         <SelectTrigger>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent className="bg-popover z-50">
-          {categorias.length === 0 ? (
+          {categoriasFiltradas.length === 0 ? (
             <div className="p-4 text-sm text-muted-foreground text-center">
               Nenhuma categoria {tipo === 'receita' ? 'de receita' : 'de despesa'} disponível
             </div>
           ) : (
-            categorias.map((cat) => (
+            categoriasFiltradas.map((cat) => (
               <SelectItem key={cat.id} value={cat.id}>
                 {cat.nome}
               </SelectItem>

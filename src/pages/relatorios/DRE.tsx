@@ -1,8 +1,10 @@
 import { useState, useMemo } from "react";
 import { 
   TrendingUp, Download, FileSpreadsheet, ArrowLeft, ChevronDown, ChevronRight,
-  AlertCircle, TrendingDown, DollarSign, Percent
+  AlertCircle, TrendingDown, DollarSign, Percent, Loader2
 } from "lucide-react";
+import { useContasReceber } from "@/hooks/useContasReceber";
+import { useContasPagar } from "@/hooks/useContasPagar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -83,16 +85,9 @@ export default function DRE() {
     'despesas-vendas',
   ]));
 
-  // Buscar dados do localStorage
-  const contasReceber: ContaReceber[] = useMemo(() => {
-    const str = localStorage.getItem('sugarbox_contas_receber');
-    return str ? JSON.parse(str) : [];
-  }, []);
-
-  const contasPagar: ContaPagar[] = useMemo(() => {
-    const str = localStorage.getItem('sugarbox_contas_pagar');
-    return str ? JSON.parse(str) : [];
-  }, []);
+  // Buscar dados do Supabase
+  const { items: contasReceber, loading: loadingReceber } = useContasReceber();
+  const { items: contasPagar, loading: loadingPagar } = useContasPagar();
 
   // Filtrar dados do período
   const dadosPeriodo = useMemo(() => {
@@ -104,16 +99,16 @@ export default function DRE() {
 
     const receitasPeriodo = contasReceber.filter(c => 
       c.status === 'recebido' && 
-      c.dataRecebimento &&
-      c.dataRecebimento >= inicioStr && 
-      c.dataRecebimento <= fimStr
+      c.data_recebimento &&
+      c.data_recebimento >= inicioStr && 
+      c.data_recebimento <= fimStr
     );
 
     const despesasPeriodo = contasPagar.filter(c => 
       c.status === 'pago' && 
-      c.dataPagamento &&
-      c.dataPagamento >= inicioStr && 
-      c.dataPagamento <= fimStr
+      c.data_pagamento &&
+      c.data_pagamento >= inicioStr && 
+      c.data_pagamento <= fimStr
     );
 
     return { receitas: receitasPeriodo, despesas: despesasPeriodo };
@@ -130,7 +125,7 @@ export default function DRE() {
 
     // CUSTOS
     const custos = despesas
-      .filter(d => d.categoriaId.includes('custo') || d.categoriaId.includes('cmv'))
+      .filter(d => d.categoria_id && (d.categoria_id.includes('custo') || d.categoria_id.includes('cmv')))
       .reduce((acc, c) => acc + c.valor, 0);
     
     const lucroBruto = receitaLiquida - custos;
@@ -138,19 +133,19 @@ export default function DRE() {
 
     // DESPESAS OPERACIONAIS
     const despesasAdm = despesas
-      .filter(d => d.categoriaId.includes('adm') || d.categoriaId.includes('administrativa'))
+      .filter(d => d.categoria_id && (d.categoria_id.includes('adm') || d.categoria_id.includes('administrativa')))
       .reduce((acc, c) => acc + c.valor, 0);
 
     const despesasVendas = despesas
-      .filter(d => d.categoriaId.includes('vendas') || d.categoriaId.includes('comercial'))
+      .filter(d => d.categoria_id && (d.categoria_id.includes('vendas') || d.categoria_id.includes('comercial')))
       .reduce((acc, c) => acc + c.valor, 0);
 
     const despesasFinanceiras = despesas
-      .filter(d => d.categoriaId.includes('financeira') && !d.categoriaId.includes('rec'))
+      .filter(d => d.categoria_id && d.categoria_id.includes('financeira') && !d.categoria_id.includes('rec'))
       .reduce((acc, c) => acc + c.valor, 0);
 
     const receitasFinanceiras = receitas
-      .filter(r => r.categoriaId.includes('financeira'))
+      .filter(r => r.categoria_id && r.categoria_id.includes('financeira'))
       .reduce((acc, c) => acc + c.valor, 0);
 
     const despesasOperacionais = despesasAdm + despesasVendas + despesasFinanceiras - receitasFinanceiras;
@@ -331,6 +326,14 @@ export default function DRE() {
       </div>
     );
   };
+
+  if (loadingReceber || loadingPagar) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">

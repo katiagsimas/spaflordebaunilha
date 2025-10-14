@@ -1,5 +1,7 @@
 import { useState, useMemo } from "react";
-import { BarChart3, Download, FileSpreadsheet, ArrowLeft, ArrowUpCircle, ArrowDownCircle, TrendingUp } from "lucide-react";
+import { BarChart3, Download, FileSpreadsheet, ArrowLeft, ArrowUpCircle, ArrowDownCircle, TrendingUp, Loader2 } from "lucide-react";
+import { useContasReceber } from "@/hooks/useContasReceber";
+import { useContasPagar } from "@/hooks/useContasPagar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -54,16 +56,9 @@ export default function FluxoCaixaMensal() {
   const navigate = useNavigate();
   const [anoSelecionado, setAnoSelecionado] = useState(new Date().getFullYear());
 
-  // Buscar dados do localStorage
-  const contasReceber: ContaReceber[] = useMemo(() => {
-    const str = localStorage.getItem('sugarbox_contas_receber');
-    return str ? JSON.parse(str) : [];
-  }, []);
-
-  const contasPagar: ContaPagar[] = useMemo(() => {
-    const str = localStorage.getItem('sugarbox_contas_pagar');
-    return str ? JSON.parse(str) : [];
-  }, []);
+  // Buscar dados do Supabase
+  const { items: contasReceber, loading: loadingReceber } = useContasReceber();
+  const { items: contasPagar, loading: loadingPagar } = useContasPagar();
 
   // Calcular movimentações mensais
   const movimentacoesMensais = useMemo(() => {
@@ -80,15 +75,15 @@ export default function FluxoCaixaMensal() {
       
       // Buscar entradas do mês
       const entradasMes = contasReceber.filter(c => {
-        if (c.status !== 'recebido' || !c.dataRecebimento) return false;
-        const data = parseISO(c.dataRecebimento);
+        if (c.status !== 'recebido' || !c.data_recebimento) return false;
+        const data = parseISO(c.data_recebimento);
         return data.getMonth() === mesNum && data.getFullYear() === anoMes;
       });
       
       // Buscar saídas do mês
       const saidasMes = contasPagar.filter(c => {
-        if (c.status !== 'pago' || !c.dataPagamento) return false;
-        const data = parseISO(c.dataPagamento);
+        if (c.status !== 'pago' || !c.data_pagamento) return false;
+        const data = parseISO(c.data_pagamento);
         return data.getMonth() === mesNum && data.getFullYear() === anoMes;
       });
 
@@ -181,6 +176,14 @@ export default function FluxoCaixaMensal() {
     XLSX.writeFile(wb, `fluxo-caixa-mensal-${anoSelecionado}.xlsx`);
     toast.success('Arquivo Excel exportado com sucesso!');
   };
+
+  if (loadingReceber || loadingPagar) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
