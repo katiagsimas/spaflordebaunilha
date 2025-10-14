@@ -17,8 +17,8 @@ const opcoes = [
     description: "Controle suas despesas e fornecedores",
     icon: ArrowUpCircle,
     color: "text-error bg-error/10",
-    active: false,
-    url: undefined,
+    active: true,
+    url: "/financeiro/contas-pagar",
   },
   {
     title: "Demonstrativo de Resultado",
@@ -97,7 +97,7 @@ export default function Financeiro() {
 
       {/* Footer */}
       <div className="mt-6 text-center text-sm text-muted-foreground animate-fade-in">
-        <p>Estas funcionalidades estarão disponíveis em breve</p>
+        <p>Mais funcionalidades em breve</p>
       </div>
     </div>
   );

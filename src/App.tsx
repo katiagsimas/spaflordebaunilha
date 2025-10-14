@@ -29,6 +29,7 @@ import ReceitaForm from "./pages/ReceitaForm";
 import ComingSoon from "./pages/ComingSoon";
 import Financeiro from "./pages/Financeiro";
 import ContasReceber from "./pages/financeiro/ContasReceber";
+import ContasPagar from "./pages/financeiro/ContasPagar";
 import Configuracoes from "./pages/Configuracoes";
 import ConfiguracoesFinanceiro from "./pages/financeiro/ConfiguracoesFinanceiro";
 import CategoriasPlanoContas from "./pages/financeiro/CategoriasPlanoContas";
@@ -110,6 +111,10 @@ const App = () => (
             element={<ProtectedRoute><Layout><ContasReceber /></Layout></ProtectedRoute>} 
           />
           <Route 
+            path="/financeiro/contas-pagar" 
+            element={<ProtectedRoute><Layout><ContasPagar /></Layout></ProtectedRoute>} 
+          />
+          <Route 
             path="/financeiro/configuracoes" 
             element={<ProtectedRoute><Layout><ConfiguracoesFinanceiro /></Layout></ProtectedRoute>} 
           />
@@ -130,6 +135,10 @@ const App = () => (
             element={<ProtectedRoute><Layout><CategoriasFinanceiras /></Layout></ProtectedRoute>} 
           />
           <Route 
+            path="/financeiro/categorias-financeiras" 
+            element={<ProtectedRoute><Layout><CategoriasFinanceiras /></Layout></ProtectedRoute>} 
+          />
+          <Route 
             path="/financeiro/ajuda-categorias" 
             element={<ProtectedRoute><Layout><AjudaCategorias /></Layout></ProtectedRoute>} 
           />
@@ -147,6 +156,10 @@ const App = () => (
           />
           <Route 
             path="/financeiro/configuracoes/tipos-documento" 
+            element={<ProtectedRoute><Layout><TiposDocumento /></Layout></ProtectedRoute>} 
+          />
+          <Route 
+            path="/financeiro/tipos-documento" 
             element={<ProtectedRoute><Layout><TiposDocumento /></Layout></ProtectedRoute>} 
           />
           <Route 
