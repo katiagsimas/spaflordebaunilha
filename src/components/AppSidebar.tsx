@@ -26,7 +26,7 @@ const menuItems = [
   { title: "Planejamento Financeiro e Metas", url: "/planejamento", icon: Clipboard, active: true },
   { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: UserCircle, active: true },
   { title: "Financeiro", url: "/financeiro", icon: DollarSign, active: true },
-  { title: "Relatórios", url: "/relatorios", icon: TrendingUp, active: false },
+  { title: "Relatórios", url: "/relatorios", icon: TrendingUp, active: true },
   { title: "Configurações", url: "/configuracoes", icon: Settings, active: true },
 ];
 

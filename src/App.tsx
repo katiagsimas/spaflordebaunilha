@@ -38,6 +38,9 @@ import AjudaCategorias from "./pages/financeiro/AjudaCategorias";
 import PlanosContas from "./pages/financeiro/PlanosContas";
 import TiposDocumento from "./pages/financeiro/TiposDocumento";
 import Bancos from "./pages/financeiro/Bancos";
+import Relatorios from "./pages/relatorios/Relatorios";
+import FluxoCaixaDiario from "./pages/relatorios/FluxoCaixaDiario";
+import FluxoCaixaMensal from "./pages/relatorios/FluxoCaixaMensal";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -172,7 +175,15 @@ const App = () => (
           />
           <Route
             path="/relatorios" 
-            element={<ProtectedRoute><Layout><ComingSoon title="Relatórios" description="Análises detalhadas do seu negócio" /></Layout></ProtectedRoute>} 
+            element={<ProtectedRoute><Layout><Relatorios /></Layout></ProtectedRoute>} 
+          />
+          <Route
+            path="/relatorios/fluxo-caixa-diario" 
+            element={<ProtectedRoute><Layout><FluxoCaixaDiario /></Layout></ProtectedRoute>} 
+          />
+          <Route
+            path="/relatorios/fluxo-caixa-mensal" 
+            element={<ProtectedRoute><Layout><FluxoCaixaMensal /></Layout></ProtectedRoute>} 
           />
           <Route path="*" element={<NotFound />} />
         </Routes>
