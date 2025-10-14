@@ -70,6 +70,7 @@ const Encomendas = () => {
     cep: "",
     desconto_percentual: 0,
     desconto_valor: 0,
+    taxa_entrega: 0,
   });
 
   const [produtoForm, setProdutoForm] = useState({
@@ -95,8 +96,8 @@ const Encomendas = () => {
   }, [valorTotalProdutos, formData.desconto_percentual, formData.desconto_valor]);
 
   const valorFinal = useMemo(() => {
-    return valorTotalProdutos - valorDesconto;
-  }, [valorTotalProdutos, valorDesconto]);
+    return valorTotalProdutos - valorDesconto + formData.taxa_entrega;
+  }, [valorTotalProdutos, valorDesconto, formData.taxa_entrega]);
 
   const resetForm = () => {
     setFormData({
@@ -113,6 +114,7 @@ const Encomendas = () => {
       cep: "",
       desconto_percentual: 0,
       desconto_valor: 0,
+      taxa_entrega: 0,
     });
     setEditingOrder(null);
     setTempProdutos([]);
@@ -165,6 +167,7 @@ const Encomendas = () => {
       cep: encomenda.cep || "",
       desconto_percentual: encomenda.desconto_percentual || 0,
       desconto_valor: encomenda.desconto_valor || 0,
+      taxa_entrega: encomenda.taxa_entrega || 0,
     });
     setDialogOpen(true);
   };
@@ -652,6 +655,26 @@ const Encomendas = () => {
                                     placeholder="0.00"
                                   />
                                 </div>
+                              </div>
+                            </TableCell>
+                            <TableCell></TableCell>
+                          </TableRow>
+                          <TableRow className="bg-green-50 dark:bg-green-950/20">
+                            <TableCell colSpan={4} className="text-right font-semibold text-green-800 dark:text-green-200">
+                              Taxa de Entrega:
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex items-center gap-1 justify-end">
+                                <span className="text-sm font-medium text-green-800 dark:text-green-200">R$</span>
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  min="0"
+                                  value={formData.taxa_entrega || ""}
+                                  onChange={(e) => setFormData({ ...formData, taxa_entrega: Number(e.target.value) })}
+                                  className="w-24 h-8 text-sm"
+                                  placeholder="0.00"
+                                />
                               </div>
                             </TableCell>
                             <TableCell></TableCell>
