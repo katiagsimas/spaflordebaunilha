@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Card } from "@/components/ui/card";
 import {
@@ -910,6 +911,7 @@ const planosContasPreConfigurados: PlanoConta[] = [
 const STORAGE_KEY = 'sugarbox_planos_contas';
 
 export default function PlanosContas() {
+  const { isAdmin } = useIsAdmin();
   const [planosContas, setPlanosContas] = useLocalStorage<PlanoConta[]>(STORAGE_KEY, []);
   const [categorias, setCategorias] = useState<CategoriaFinanceira[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
@@ -1389,14 +1391,24 @@ export default function PlanosContas() {
       
       <PageHeader
         title="Planos de Contas"
-        description="Detalhamento das categorias financeiras"
+        description={isAdmin ? "Detalhamento das categorias financeiras" : "Visualize os planos de contas"}
         actions={
-          <Button onClick={() => handleOpenDialog()} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Novo Plano de Conta
-          </Button>
+          isAdmin ? (
+            <Button onClick={() => handleOpenDialog()} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Novo Plano de Conta
+            </Button>
+          ) : undefined
         }
       />
+
+      {!isAdmin && (
+        <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+          <p className="text-sm text-amber-800 dark:text-amber-200">
+            👁️ Você está no modo somente visualização. Apenas administradores podem editar planos de contas.
+          </p>
+        </div>
+      )}
 
       {/* Cards de Resumo */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1561,6 +1573,7 @@ export default function PlanosContas() {
                               onClick={() => handleOpenDialog(conta)}
                               className="hover:bg-[#F5E6E0]"
                               title="Editar plano de contas"
+                              disabled={!isAdmin}
                             >
                               <Pencil className="h-4 w-4" style={{ color: '#D89B8C' }} />
                             </Button>
@@ -1570,6 +1583,7 @@ export default function PlanosContas() {
                               onClick={() => handleDelete(conta)}
                               className="hover:bg-red-50"
                               title="Excluir plano de contas"
+                              disabled={!isAdmin}
                             >
                               <Trash2 className="h-4 w-4" style={{ color: '#D88B8B' }} />
                             </Button>

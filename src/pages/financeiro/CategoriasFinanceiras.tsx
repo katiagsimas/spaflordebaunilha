@@ -42,6 +42,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/PageHeader';
 import { BackButton } from '@/components/BackButton';
+import { useIsAdmin } from '@/hooks/useIsAdmin';
 
 // Mapa de ícones disponíveis
 const iconesDisponiveis: { [key: string]: LucideIcon } = {
@@ -368,6 +369,7 @@ const coresDespesas = ['#D88B8B', '#E09999', '#C67C7C', '#D49595', '#E5A3A3', '#
 
 export default function CategoriasFinanceiras() {
   const { toast } = useToast();
+  const { isAdmin } = useIsAdmin();
   const [categorias, setCategorias] = useState<CategoriaFinanceira[]>([]);
   const [dialogAberto, setDialogAberto] = useState(false);
   const [alertDialogAberto, setAlertDialogAberto] = useState(false);
@@ -634,8 +636,16 @@ export default function CategoriasFinanceiras() {
       
       <PageHeader
         title="Categorias"
-        description="Organize suas receitas e despesas de forma simples"
+        description={isAdmin ? "Organize suas receitas e despesas de forma simples" : "Visualize as categorias de receitas e despesas"}
       />
+      
+      {!isAdmin && (
+        <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6">
+          <p className="text-sm text-amber-800 dark:text-amber-200">
+            👁️ Você está no modo somente visualização. Apenas administradores podem editar categorias.
+          </p>
+        </div>
+      )}
 
       {/* Cards de Resumo */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -735,7 +745,7 @@ export default function CategoriasFinanceiras() {
                     variant="ghost"
                     size="sm"
                     onClick={() => abrirDialog(categoria)}
-                    disabled={!categoria.editavel}
+                    disabled={!isAdmin || !categoria.editavel}
                   >
                     <Edit2 className="h-4 w-4 mr-1" />
                     Editar
@@ -744,7 +754,7 @@ export default function CategoriasFinanceiras() {
                     variant="ghost"
                     size="sm"
                     onClick={() => desativarCategoria(categoria.id)}
-                    disabled={!categoria.ativo}
+                    disabled={!isAdmin || !categoria.ativo}
                   >
                     <X className="h-4 w-4 mr-1" />
                     Desativar
@@ -806,7 +816,7 @@ export default function CategoriasFinanceiras() {
                           variant="ghost"
                           size="icon"
                           onClick={() => abrirDialog(categoria)}
-                          disabled={!categoria.editavel}
+                          disabled={!isAdmin || !categoria.editavel}
                           title="Editar"
                         >
                           <Edit2 className="h-4 w-4" />
@@ -815,7 +825,7 @@ export default function CategoriasFinanceiras() {
                           variant="ghost"
                           size="icon"
                           onClick={() => desativarCategoria(categoria.id)}
-                          disabled={!categoria.ativo}
+                          disabled={!isAdmin || !categoria.ativo}
                           title="Desativar"
                         >
                           <X className="h-4 w-4 text-warning" />

@@ -14,13 +14,14 @@ export function useIsAdmin() {
     queryFn: async () => {
       if (!user) return false;
       
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('id', user.id)
+      const { data: roles } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
         .single();
       
-      return profile?.email === 'katiagsimas@gmail.com';
+      return !!roles;
     },
     enabled: !!user,
     staleTime: 1000 * 60 * 5, // Cache por 5 minutos
