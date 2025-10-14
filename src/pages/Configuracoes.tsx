@@ -42,6 +42,7 @@ const opcoes = [
     url: "/configuracoes/categorias",
     statusKey: null,
     requiresAdmin: false,
+    readOnlyForNonAdmin: true,
   },
   {
     title: "Planos de Contas",
@@ -51,6 +52,7 @@ const opcoes = [
     url: "/configuracoes/planos-contas",
     statusKey: null,
     requiresAdmin: false,
+    readOnlyForNonAdmin: true,
   },
   {
     title: "Tipos de Documento",
@@ -124,6 +126,7 @@ export default function Configuracoes() {
         {opcoes.map((opcao, index) => {
           const Icon = opcao.icon;
           const isRestricted = opcao.requiresAdmin && !isAdmin;
+          const isReadOnly = opcao.readOnlyForNonAdmin && !isAdmin;
           
           return (
             <Card
@@ -159,10 +162,20 @@ export default function Configuracoes() {
                   </div>
                 </div>
                 <CardDescription className="text-xs line-clamp-2">
-                  {isRestricted ? '👁️ Somente visualização' : opcao.description}
+                  {opcao.description}
                 </CardDescription>
                 <div className="pt-1">
-                  {getStatusBadge(opcao)}
+                  {isRestricted ? (
+                    <Badge variant="secondary" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                      👁️ Somente Visualização
+                    </Badge>
+                  ) : isReadOnly ? (
+                    <Badge variant="secondary" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                      👁️ Somente Visualização
+                    </Badge>
+                  ) : (
+                    getStatusBadge(opcao)
+                  )}
                 </div>
               </CardHeader>
             </Card>
