@@ -14,7 +14,179 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      categorias_estoque: {
+        Row: {
+          ativo: boolean
+          cor: string | null
+          created_at: string
+          icone: string | null
+          id: string
+          nome: string
+          updated_at: string
+          usuario_id: string | null
+        }
+        Insert: {
+          ativo?: boolean
+          cor?: string | null
+          created_at?: string
+          icone?: string | null
+          id?: string
+          nome: string
+          updated_at?: string
+          usuario_id?: string | null
+        }
+        Update: {
+          ativo?: boolean
+          cor?: string | null
+          created_at?: string
+          icone?: string | null
+          id?: string
+          nome?: string
+          updated_at?: string
+          usuario_id?: string | null
+        }
+        Relationships: []
+      }
+      entradas_detalhadas: {
+        Row: {
+          created_at: string
+          custo_unitario: number
+          data_entrada: string
+          id: string
+          item_id: string
+          movimentacao_entrada_id: string | null
+          quantidade_inicial: number
+          quantidade_restante: number
+          status: Database["public"]["Enums"]["status_entrada"]
+          tipo_item: Database["public"]["Enums"]["tipo_item_estoque"]
+          validade: string | null
+        }
+        Insert: {
+          created_at?: string
+          custo_unitario: number
+          data_entrada: string
+          id?: string
+          item_id: string
+          movimentacao_entrada_id?: string | null
+          quantidade_inicial: number
+          quantidade_restante: number
+          status?: Database["public"]["Enums"]["status_entrada"]
+          tipo_item: Database["public"]["Enums"]["tipo_item_estoque"]
+          validade?: string | null
+        }
+        Update: {
+          created_at?: string
+          custo_unitario?: number
+          data_entrada?: string
+          id?: string
+          item_id?: string
+          movimentacao_entrada_id?: string | null
+          quantidade_inicial?: number
+          quantidade_restante?: number
+          status?: Database["public"]["Enums"]["status_entrada"]
+          tipo_item?: Database["public"]["Enums"]["tipo_item_estoque"]
+          validade?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entradas_detalhadas_movimentacao_entrada_id_fkey"
+            columns: ["movimentacao_entrada_id"]
+            isOneToOne: false
+            referencedRelation: "movimentacoes_estoque"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      estoque_atual: {
+        Row: {
+          custo_medio: number
+          id: string
+          item_id: string
+          quantidade_atual: number
+          tipo_item: Database["public"]["Enums"]["tipo_item_estoque"]
+          ultima_atualizacao: string
+          valor_total: number
+        }
+        Insert: {
+          custo_medio?: number
+          id?: string
+          item_id: string
+          quantidade_atual?: number
+          tipo_item: Database["public"]["Enums"]["tipo_item_estoque"]
+          ultima_atualizacao?: string
+          valor_total?: number
+        }
+        Update: {
+          custo_medio?: number
+          id?: string
+          item_id?: string
+          quantidade_atual?: number
+          tipo_item?: Database["public"]["Enums"]["tipo_item_estoque"]
+          ultima_atualizacao?: string
+          valor_total?: number
+        }
+        Relationships: []
+      }
+      movimentacoes_estoque: {
+        Row: {
+          created_at: string
+          custo_total: number
+          custo_unitario: number
+          data: string
+          id: string
+          item_id: string
+          local_compra: string | null
+          motivo: string | null
+          observacoes: string | null
+          quantidade: number
+          tipo: Database["public"]["Enums"]["tipo_movimentacao"]
+          tipo_item: Database["public"]["Enums"]["tipo_item_estoque"]
+          unidade: string
+          updated_at: string
+          usuario_id: string | null
+          validade: string | null
+          vinculo_pedido_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          custo_total: number
+          custo_unitario: number
+          data: string
+          id?: string
+          item_id: string
+          local_compra?: string | null
+          motivo?: string | null
+          observacoes?: string | null
+          quantidade: number
+          tipo: Database["public"]["Enums"]["tipo_movimentacao"]
+          tipo_item: Database["public"]["Enums"]["tipo_item_estoque"]
+          unidade: string
+          updated_at?: string
+          usuario_id?: string | null
+          validade?: string | null
+          vinculo_pedido_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          custo_total?: number
+          custo_unitario?: number
+          data?: string
+          id?: string
+          item_id?: string
+          local_compra?: string | null
+          motivo?: string | null
+          observacoes?: string | null
+          quantidade?: number
+          tipo?: Database["public"]["Enums"]["tipo_movimentacao"]
+          tipo_item?: Database["public"]["Enums"]["tipo_item_estoque"]
+          unidade?: string
+          updated_at?: string
+          usuario_id?: string | null
+          validade?: string | null
+          vinculo_pedido_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +195,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      status_entrada: "ATIVO" | "CONSUMIDO"
+      tipo_item_estoque: "INSUMO" | "EMBALAGEM"
+      tipo_movimentacao: "ENTRADA" | "SAIDA"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +324,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      status_entrada: ["ATIVO", "CONSUMIDO"],
+      tipo_item_estoque: ["INSUMO", "EMBALAGEM"],
+      tipo_movimentacao: ["ENTRADA", "SAIDA"],
+    },
   },
 } as const
