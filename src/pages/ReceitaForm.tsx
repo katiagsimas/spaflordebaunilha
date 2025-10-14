@@ -5,6 +5,7 @@ import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, ChefHat, Upload, X } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
@@ -79,7 +80,7 @@ interface Receita {
   tempoPreparo: number;
   unidadeTempo: "minutos" | "horas";
   rendimento: number;
-  unidadeRendimento: "gramas" | "unidades";
+  unidadeRendimento: string;
   ingredientes: IngredienteReceita[];
   embalagens: EmbalagemReceita[];
   modoPreparo?: string;
@@ -98,6 +99,7 @@ export default function ReceitaForm() {
   const [embalagensCadastradas] = useLocalStorage<Embalagem[]>("embalagens", []);
   const [custosFixos] = useLocalStorage<CustoFixo[]>("custosFixos", []);
   const [categorias] = useLocalStorage<Categoria[]>("categorias", []);
+  const { unidades } = useUnidadesMedida();
 
   const [formData, setFormData] = useState({
     nome: "",
@@ -106,7 +108,7 @@ export default function ReceitaForm() {
     tempoPreparo: "",
     unidadeTempo: "minutos" as "minutos" | "horas",
     rendimento: "",
-    unidadeRendimento: "gramas" as "gramas" | "unidades",
+    unidadeRendimentoId: "",
   });
 
   const [ingredientes, setIngredientes] = useState<IngredienteReceita[]>([]);
@@ -140,7 +142,7 @@ export default function ReceitaForm() {
           tempoPreparo: receita.tempoPreparo.toString(),
           unidadeTempo: receita.unidadeTempo,
           rendimento: receita.rendimento.toString(),
-          unidadeRendimento: receita.unidadeRendimento,
+          unidadeRendimentoId: receita.unidadeRendimento,
         });
         setIngredientes(receita.ingredientes);
         setEmbalagens(receita.embalagens || []);
@@ -380,6 +382,8 @@ export default function ReceitaForm() {
       return;
     }
 
+    const unidadeSelecionada = unidades.find(u => u.id === formData.unidadeRendimentoId);
+
     const receita: Receita = {
       id: id || Date.now().toString(),
       nome: formData.nome,
@@ -388,7 +392,7 @@ export default function ReceitaForm() {
       tempoPreparo: Number(formData.tempoPreparo),
       unidadeTempo: formData.unidadeTempo,
       rendimento: Number(formData.rendimento),
-      unidadeRendimento: formData.unidadeRendimento,
+      unidadeRendimento: formData.unidadeRendimentoId,
       ingredientes,
       embalagens,
       modoPreparo,
@@ -418,7 +422,7 @@ export default function ReceitaForm() {
         nome: formData.nome,
         marca: "Receita",
         quantidade: Number(formData.rendimento),
-        unidadeMedida: formData.unidadeRendimento,
+        unidadeMedida: unidadeSelecionada?.sigla || "un",
         preco: custoTotal,
         dataAtualizacao: new Date().toISOString().split('T')[0],
       };
@@ -541,15 +545,18 @@ export default function ReceitaForm() {
                   className="flex-1"
                 />
                 <Select
-                  value={formData.unidadeRendimento}
-                  onValueChange={(value: "gramas" | "unidades") => setFormData({ ...formData, unidadeRendimento: value })}
+                  value={formData.unidadeRendimentoId}
+                  onValueChange={(value) => setFormData({ ...formData, unidadeRendimentoId: value })}
                 >
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Selecione..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="gramas">Gramas</SelectItem>
-                    <SelectItem value="unidades">Unidades</SelectItem>
+                    {unidades.map((unidade) => (
+                      <SelectItem key={unidade.id} value={unidade.id}>
+                        {unidade.nome} ({unidade.sigla})
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
