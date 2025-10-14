@@ -277,7 +277,7 @@ export default function SubReceitaForm() {
 
           <div className="space-y-4">
             <div className="flex justify-start items-center gap-4">
-              <Button type="button" variant="default" size="sm" onClick={handleAddIngrediente} className="animate-pulse-slow hover:animate-none">
+              <Button type="button" variant="default" size="sm" onClick={handleAddIngrediente}>
                 <Plus className="h-4 w-4 mr-2" />
                 Adicionar Ingrediente
               </Button>
