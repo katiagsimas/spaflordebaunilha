@@ -62,8 +62,20 @@ export function useConfigStatus() {
         .eq('usuario_id', user.id);
 
       // Verificar tipos de documento no localStorage
-      const tiposDocumento = localStorage.getItem('sugarbox_tipos_documento');
-      const hasTiposDocumento = tiposDocumento ? JSON.parse(tiposDocumento).length > 0 : false;
+      const tiposDocumentoStorage = localStorage.getItem('sugarbox_tipos_documento');
+      let hasTiposDocumento = false;
+      
+      if (tiposDocumentoStorage) {
+        try {
+          const tipos = JSON.parse(tiposDocumentoStorage);
+          hasTiposDocumento = Array.isArray(tipos) && tipos.length > 0;
+        } catch (e) {
+          hasTiposDocumento = false;
+        }
+      } else {
+        // Se não existe no localStorage, considera os valores padrão como já configurados
+        hasTiposDocumento = true; // Sistema vem com 7 tipos pré-cadastrados
+      }
 
       return {
         seusDados,
