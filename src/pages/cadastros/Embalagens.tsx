@@ -13,6 +13,8 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
+import { TipoEmbalagemAutocomplete } from "@/components/TipoEmbalagemAutocomplete";
+import { TipoEmbalagem } from "@/hooks/useTiposEmbalagens";
 import { Plus, Pencil, Trash2, Package } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -34,6 +36,8 @@ export default function Embalagens() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingEmbalagem, setEditingEmbalagem] = useState<Embalagem | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const [selectedTipoId, setSelectedTipoId] = useState<string>("");
 
   const [formData, setFormData] = useState({
     nome: "",
@@ -69,6 +73,17 @@ export default function Embalagens() {
     resetForm();
   };
 
+  const handleTipoSelect = (tipo: TipoEmbalagem) => {
+    const unidade = unidades.find((u) => u.id === tipo.unidade_medida_id);
+    setSelectedTipoId(tipo.id);
+    setFormData({
+      ...formData,
+      nome: tipo.descricao,
+      quantidade: tipo.quantidade_embalagem,
+      unidadeMedida: unidade?.sigla || "",
+    });
+  };
+
   const resetForm = () => {
     setFormData({
       nome: "",
@@ -78,6 +93,7 @@ export default function Embalagens() {
       preco: 0,
       dataAtualizacao: new Date().toISOString().split('T')[0],
     });
+    setSelectedTipoId("");
     setEditingEmbalagem(null);
     setIsDialogOpen(false);
   };
@@ -120,6 +136,16 @@ export default function Embalagens() {
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Buscar Tipo de Embalagem</Label>
+                    <TipoEmbalagemAutocomplete
+                      onSelect={handleTipoSelect}
+                      value={selectedTipoId}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Selecione um tipo para preencher automaticamente nome, quantidade e unidade
+                    </p>
+                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="nome">Embalagem *</Label>
                     <Input
