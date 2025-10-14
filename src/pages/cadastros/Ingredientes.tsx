@@ -59,6 +59,12 @@ export default function Ingredientes() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validação: não permitir submissão com campos vazios
+    if (!formData.nome || !formData.unidadeMedida || formData.quantidade <= 0 || formData.preco <= 0) {
+      toast.error("Preencha todos os campos obrigatórios!");
+      return;
+    }
+
     if (editingIngrediente) {
       setIngredientes(ingredientes.map(i => i.id === editingIngrediente.id ? { ...formData, id: i.id } : i));
       toast.success("Ingrediente atualizado com sucesso!");
@@ -83,8 +89,6 @@ export default function Ingredientes() {
       quantidade: tipo.quantidade_embalagem,
       unidadeMedida: unidade?.sigla || "",
     }));
-    // Garante que o dialog permaneça aberto após selecionar/criar o tipo
-    setIsDialogOpen(true);
   };
 
   const resetForm = () => {
