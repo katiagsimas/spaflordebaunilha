@@ -14,6 +14,9 @@ import { Badge } from "@/components/ui/badge";
 import { format, isToday, isTomorrow, parseISO, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import {
   LineChart,
   Line,
@@ -58,9 +61,28 @@ interface ContaPagar {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [orders] = useLocalStorage<Order[]>("orders", []);
   const [contasReceber] = useLocalStorage<ContaReceber[]>("sugarbox_contas_receber", []);
   const [contasPagar] = useLocalStorage<ContaPagar[]>("sugarbox_contas_pagar", []);
+
+  // Buscar perfil do usuário
+  const { data: profile } = useQuery({
+    queryKey: ['profile', user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  // Extrair primeiro nome
+  const primeiroNome = profile?.nome_completo?.split(' ')[0] || '';
 
   const now = new Date();
   const currentMonth = now.getMonth();
@@ -352,7 +374,7 @@ const Dashboard = () => {
       {/* Header */}
       <div className="space-y-2">
         <h1 className="text-4xl font-bold text-foreground">
-          {greeting()}! 👋
+          {greeting()}{primeiroNome && `, ${primeiroNome}`}! 👋
         </h1>
         <p className="text-muted-foreground text-lg">
           {format(now, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
