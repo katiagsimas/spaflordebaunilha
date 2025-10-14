@@ -205,25 +205,25 @@ export default function Receitas() {
       <div className="flex flex-wrap justify-center gap-2">
         <Button 
           onClick={() => setFiltroAtivo("todos")}
-          variant={filtroAtivo === "todos" ? "default" : "outline"}
+          variant={filtroAtivo === "todos" ? "secondary" : "outline"}
         >
           Todos
         </Button>
         <Button 
           onClick={() => setFiltroAtivo("ativos")}
-          variant={filtroAtivo === "ativos" ? "default" : "outline"}
+          variant={filtroAtivo === "ativos" ? "secondary" : "outline"}
         >
           Ativos no Cardápio
         </Button>
         <Button 
           onClick={() => setFiltroAtivo("combos")}
-          variant={filtroAtivo === "combos" ? "default" : "outline"}
+          variant={filtroAtivo === "combos" ? "secondary" : "outline"}
         >
           Produtos para Combos
         </Button>
         <Button 
           onClick={() => setFiltroAtivo("fora")}
-          variant={filtroAtivo === "fora" ? "default" : "outline"}
+          variant={filtroAtivo === "fora" ? "secondary" : "outline"}
         >
           Produtos Fora do Cardápio
         </Button>
