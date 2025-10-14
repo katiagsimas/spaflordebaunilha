@@ -14,6 +14,18 @@ import { Badge } from "@/components/ui/badge";
 import { format, isToday, isTomorrow, parseISO, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend
+} from "recharts";
 
 interface Order {
   id: string;
@@ -248,18 +260,78 @@ const Dashboard = () => {
         return deliveryDate === diaStr && o.status !== "Cancelado";
       }).length;
 
+      const producoes = orders.filter(o => {
+        const deliveryDate = format(parseISO(o.deliveryDate), 'yyyy-MM-dd');
+        return deliveryDate === diaStr && (o.status === "Em Produção" || o.status === "Produzindo");
+      }).length;
+
+      // Definir nível de carga
+      let nivelCarga: 'leve' | 'medio' | 'pesado' = 'leve';
+      if (entregas >= 9) nivelCarga = 'pesado';
+      else if (entregas >= 5) nivelCarga = 'medio';
+
       return {
         dia,
         diaStr,
         nome: format(dia, 'EEE', { locale: ptBR }),
+        nomeLongo: format(dia, 'EEEE', { locale: ptBR }),
         numero: format(dia, 'd'),
+        mesAno: format(dia, 'dd/MM'),
         entregas,
+        producoes,
+        nivelCarga,
         isHoje: isSameDay(dia, now)
       };
     });
 
     return dias;
   }, [orders, now]);
+
+  // SEÇÃO 6: GRÁFICOS
+  const faturamentoUltimos30Dias = useMemo(() => {
+    const dias = Array.from({ length: 30 }, (_, i) => {
+      const dia = new Date(now);
+      dia.setDate(dia.getDate() - (29 - i));
+      const diaStr = format(dia, 'yyyy-MM-dd');
+      
+      const faturamento = contasReceber
+        .filter(c => c.status === 'recebido' && c.dataRecebimento === diaStr)
+        .reduce((acc, c) => acc + c.valor, 0);
+
+      return {
+        data: format(dia, 'dd/MM'),
+        valor: faturamento
+      };
+    });
+
+    return dias;
+  }, [contasReceber, now]);
+
+  const top5Produtos = useMemo(() => {
+    const productCount: Record<string, { count: number; valor: number }> = {};
+    
+    const pedidosMes = orders.filter(o => {
+      const orderDate = new Date(o.createdAt);
+      return orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear;
+    });
+
+    pedidosMes.forEach(order => {
+      if (!productCount[order.product]) {
+        productCount[order.product] = { count: 0, valor: 0 };
+      }
+      productCount[order.product].count += 1;
+      productCount[order.product].valor += order.total;
+    });
+    
+    return Object.entries(productCount)
+      .map(([nome, dados]) => ({
+        nome,
+        quantidade: dados.count,
+        valor: dados.valor
+      }))
+      .sort((a, b) => b.quantidade - a.quantidade)
+      .slice(0, 5);
+  }, [orders, currentMonth, currentYear]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -630,44 +702,182 @@ const Dashboard = () => {
       {/* SEÇÃO 5: AGENDA SEMANAL */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
-            Agenda da Semana
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              Agenda da Semana
+            </CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/encomendas')}>
+              Ver planejamento completo
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-7 gap-2">
-            {agendaSemanal.map((dia) => (
-              <div
-                key={dia.diaStr}
-                className={cn(
-                  "p-3 rounded-lg border text-center transition-all",
-                  dia.isHoje && "bg-primary text-primary-foreground border-primary",
-                  !dia.isHoje && "hover:bg-muted"
-                )}
-              >
-                <p className={cn(
-                  "text-xs font-medium uppercase mb-1",
-                  dia.isHoje ? "text-primary-foreground" : "text-muted-foreground"
-                )}>
-                  {dia.nome}
-                </p>
-                <p className={cn(
-                  "text-2xl font-bold mb-2",
-                  dia.isHoje ? "text-primary-foreground" : "text-foreground"
-                )}>
-                  {dia.numero}
-                </p>
-                {dia.entregas > 0 && (
-                  <Badge variant={dia.isHoje ? "secondary" : "outline"} className="text-xs">
-                    {dia.entregas} {dia.entregas === 1 ? 'entrega' : 'entregas'}
-                  </Badge>
-                )}
-              </div>
-            ))}
+          <div className="space-y-3">
+            {agendaSemanal.map((dia) => {
+              const cargaTotal = dia.entregas + dia.producoes;
+              const maxCarga = Math.max(...agendaSemanal.map(d => d.entregas + d.producoes), 15);
+              const porcentagemBarra = (cargaTotal / maxCarga) * 100;
+
+              return (
+                <div
+                  key={dia.diaStr}
+                  className={cn(
+                    "p-4 rounded-lg border transition-all cursor-pointer hover:shadow-md",
+                    dia.isHoje && "bg-primary/5 border-primary ring-2 ring-primary/20"
+                  )}
+                  onClick={() => navigate('/encomendas')}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="text-center min-w-[60px]">
+                        <p className={cn(
+                          "text-xs font-medium uppercase",
+                          dia.isHoje ? "text-primary" : "text-muted-foreground"
+                        )}>
+                          {dia.nome}
+                        </p>
+                        <p className={cn(
+                          "text-xl font-bold",
+                          dia.isHoje ? "text-primary" : "text-foreground"
+                        )}>
+                          {dia.numero}
+                        </p>
+                      </div>
+
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-sm font-semibold capitalize">{dia.nomeLongo}</p>
+                          {dia.nivelCarga === 'pesado' && (
+                            <Badge variant="destructive" className="text-xs">
+                              ⚠️ SOBRECARREGADO
+                            </Badge>
+                          )}
+                        </div>
+                        
+                        {/* Barra de carga */}
+                        <div className="h-6 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className={cn(
+                              "h-full transition-all duration-300 flex items-center px-2",
+                              dia.nivelCarga === 'leve' && "bg-success",
+                              dia.nivelCarga === 'medio' && "bg-warning",
+                              dia.nivelCarga === 'pesado' && "bg-destructive"
+                            )}
+                            style={{ width: `${Math.max(porcentagemBarra, 5)}%` }}
+                          >
+                            <span className="text-xs font-medium text-white whitespace-nowrap">
+                              {dia.entregas > 0 && `${dia.entregas} entregas`}
+                              {dia.entregas > 0 && dia.producoes > 0 && ' | '}
+                              {dia.producoes > 0 && `${dia.producoes} produções`}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-right ml-4">
+                      <p className="text-2xl font-bold text-foreground">{cargaTotal}</p>
+                      <p className="text-xs text-muted-foreground">tarefas</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
+
+      {/* SEÇÃO 6: GRÁFICOS ANALÍTICOS */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Gráfico 1: Faturamento dos Últimos 30 Dias */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              📊 Faturamento dos Últimos 30 Dias
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={faturamentoUltimos30Dias}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis 
+                  dataKey="data" 
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fontSize: 11 }}
+                  interval="preserveStartEnd"
+                />
+                <YAxis 
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fontSize: 11 }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "0.5rem",
+                  }}
+                  formatter={(value: number) => formatCurrency(value)}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="valor"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={3}
+                  dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 3 }}
+                  activeDot={{ r: 5 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Gráfico 2: Top 5 Produtos do Mês */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              🥧 Top 5 Produtos do Mês
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {top5Produtos.length === 0 ? (
+              <div className="flex items-center justify-center h-[250px] text-muted-foreground">
+                Nenhum produto vendido este mês
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={top5Produtos} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis type="number" stroke="hsl(var(--muted-foreground))" />
+                  <YAxis 
+                    dataKey="nome" 
+                    type="category" 
+                    stroke="hsl(var(--muted-foreground))"
+                    width={100}
+                    tick={{ fontSize: 11 }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "0.5rem",
+                    }}
+                    formatter={(value: number, name: string) => {
+                      if (name === 'quantidade') return [value, 'Vendidos'];
+                      if (name === 'valor') return [formatCurrency(value), 'Faturamento'];
+                      return value;
+                    }}
+                  />
+                  <Legend />
+                  <Bar dataKey="quantidade" fill="hsl(var(--primary))" name="Quantidade" />
+                  <Bar dataKey="valor" fill="hsl(var(--success))" name="Faturamento (R$)" />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
