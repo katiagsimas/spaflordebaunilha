@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Mail, Lock } from 'lucide-react';
 import sugarboxAuthLogo from '@/assets/sugarbox-auth-logo.png';
+import authBackground from '@/assets/auth-background.jpg';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -34,8 +35,15 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center gradient-subtle p-4">
-      <Card className="w-full max-w-md shadow-elevated border-border">
+    <div className="min-h-screen flex items-center justify-center gradient-subtle p-4 relative overflow-hidden">
+      {/* Background Image with Opacity */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-15"
+        style={{ backgroundImage: `url(${authBackground})` }}
+      />
+      
+      {/* Content */}
+      <Card className="w-full max-w-md shadow-elevated border-border relative z-10">
         <CardHeader className="space-y-3 text-center">
           <div className="flex justify-center mb-2">
             <img 

@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Mail, ArrowLeft } from 'lucide-react';
 import sugarboxAuthLogo from '@/assets/sugarbox-auth-logo.png';
+import authBackground from '@/assets/auth-background.jpg';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -32,8 +33,15 @@ export default function ForgotPassword() {
 
   if (sent) {
     return (
-      <div className="min-h-screen flex items-center justify-center gradient-subtle p-4">
-        <Card className="w-full max-w-md shadow-elevated border-border text-center">
+      <div className="min-h-screen flex items-center justify-center gradient-subtle p-4 relative overflow-hidden">
+        {/* Background Image with Opacity */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-15"
+          style={{ backgroundImage: `url(${authBackground})` }}
+        />
+        
+        {/* Content */}
+        <Card className="w-full max-w-md shadow-elevated border-border text-center relative z-10">
           <CardHeader className="space-y-3">
             <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-2">
               <Mail className="w-8 h-8 text-green-600" />
@@ -65,8 +73,15 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center gradient-subtle p-4">
-      <Card className="w-full max-w-md shadow-elevated border-border">
+    <div className="min-h-screen flex items-center justify-center gradient-subtle p-4 relative overflow-hidden">
+      {/* Background Image with Opacity */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-15"
+        style={{ backgroundImage: `url(${authBackground})` }}
+      />
+      
+      {/* Content */}
+      <Card className="w-full max-w-md shadow-elevated border-border relative z-10">
         <CardHeader className="space-y-3 text-center">
           <div className="flex justify-center mb-2">
             <img 
