@@ -21,7 +21,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 interface FormDataFornecedor {
   nome: string;
   tipo: "PF" | "PJ";
-  tipo_fornecedor: "Insumos" | "Embalagens" | "Outros";
+  tipo_fornecedor: "Insumos" | "Embalagens" | "Diversos" | "Papelaria Personalizada" | "Outros";
   cpf_cnpj: string;
   telefone: string;
   email: string;
@@ -57,7 +57,7 @@ export default function Fornecedores() {
         setFormData({
           nome: fornecedor.nome,
           tipo: (fornecedor.tipo as "PF" | "PJ") || "PF",
-          tipo_fornecedor: (fornecedor.tipo_fornecedor as "Insumos" | "Embalagens" | "Outros") || "Insumos",
+          tipo_fornecedor: (fornecedor.tipo_fornecedor as "Insumos" | "Embalagens" | "Diversos" | "Papelaria Personalizada" | "Outros") || "Insumos",
           cpf_cnpj: fornecedor.cpf_cnpj || "",
           telefone: fornecedor.telefone || "",
           email: fornecedor.email || "",
@@ -180,18 +180,24 @@ export default function Fornecedores() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Tipo de Fornecedor *</Label>
+                  <Label>O que Fornece *</Label>
                   <ToggleGroup 
                     type="single" 
                     value={formData.tipo_fornecedor}
-                    onValueChange={(value) => value && setFormData({ ...formData, tipo_fornecedor: value as "Insumos" | "Embalagens" | "Outros" })}
-                    className="justify-start"
+                    onValueChange={(value) => value && setFormData({ ...formData, tipo_fornecedor: value as "Insumos" | "Embalagens" | "Diversos" | "Papelaria Personalizada" | "Outros" })}
+                    className="justify-start flex-wrap"
                   >
                     <ToggleGroupItem value="Insumos" aria-label="Insumos">
                       Insumos
                     </ToggleGroupItem>
                     <ToggleGroupItem value="Embalagens" aria-label="Embalagens">
                       Embalagens
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="Diversos" aria-label="Diversos">
+                      Diversos
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="Papelaria Personalizada" aria-label="Papelaria Personalizada">
+                      Papelaria Personalizada
                     </ToggleGroupItem>
                     <ToggleGroupItem value="Outros" aria-label="Outros">
                       Outros
@@ -282,7 +288,7 @@ export default function Fornecedores() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nome</TableHead>
-                    <TableHead>Tipo Fornecedor</TableHead>
+                    <TableHead>O que Fornece</TableHead>
                     <TableHead>Tipo</TableHead>
                     <TableHead>CNPJ/CPF</TableHead>
                     <TableHead>Telefone</TableHead>
