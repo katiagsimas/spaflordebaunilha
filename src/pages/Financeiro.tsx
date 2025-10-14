@@ -20,14 +20,6 @@ const opcoes = [
     active: true,
     url: "/financeiro/contas-pagar",
   },
-  {
-    title: "Demonstrativo de Resultado",
-    description: "DRE - Análise de receitas, custos e lucro",
-    icon: FileText,
-    color: "text-primary bg-primary/10",
-    active: false,
-    url: undefined,
-  },
 ];
 
 export default function Financeiro() {
