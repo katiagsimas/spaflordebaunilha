@@ -41,6 +41,7 @@ import Bancos from "./pages/financeiro/Bancos";
 import Relatorios from "./pages/relatorios/Relatorios";
 import FluxoCaixaDiario from "./pages/relatorios/FluxoCaixaDiario";
 import FluxoCaixaMensal from "./pages/relatorios/FluxoCaixaMensal";
+import DRE from "./pages/relatorios/DRE";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -184,6 +185,10 @@ const App = () => (
           <Route
             path="/relatorios/fluxo-caixa-mensal" 
             element={<ProtectedRoute><Layout><FluxoCaixaMensal /></Layout></ProtectedRoute>} 
+          />
+          <Route
+            path="/relatorios/dre" 
+            element={<ProtectedRoute><Layout><DRE /></Layout></ProtectedRoute>} 
           />
           <Route path="*" element={<NotFound />} />
         </Routes>

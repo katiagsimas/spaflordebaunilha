@@ -1,4 +1,4 @@
-import { FileText, Calendar, BarChart3 } from "lucide-react";
+import { FileText, Calendar, BarChart3, TrendingUp } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 
@@ -18,6 +18,14 @@ const opcoes = [
     color: "text-primary bg-primary/10",
     active: true,
     url: "/relatorios/fluxo-caixa-mensal",
+  },
+  {
+    title: "DRE (Demonstrativo de Resultado)",
+    description: "Análise de receitas, custos e lucro",
+    icon: TrendingUp,
+    color: "text-primary bg-primary/10",
+    active: true,
+    url: "/relatorios/dre",
   },
 ];
 
