@@ -487,6 +487,7 @@ export type Database = {
           contato: string | null
           cpf_cnpj: string | null
           created_at: string
+          data_aniversario_contato: string | null
           email: string | null
           id: string
           nome: string
@@ -500,6 +501,7 @@ export type Database = {
           contato?: string | null
           cpf_cnpj?: string | null
           created_at?: string
+          data_aniversario_contato?: string | null
           email?: string | null
           id?: string
           nome: string
@@ -513,6 +515,7 @@ export type Database = {
           contato?: string | null
           cpf_cnpj?: string | null
           created_at?: string
+          data_aniversario_contato?: string | null
           email?: string | null
           id?: string
           nome?: string

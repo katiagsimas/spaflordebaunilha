@@ -13,88 +13,106 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useFornecedores } from "@/hooks/useFornecedores";
 import { Plus, Pencil, Trash2, Truck, ChevronDown } from "lucide-react";
-import { toast } from "sonner";
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
-interface Fornecedor {
-  id: string;
+interface FormDataFornecedor {
   nome: string;
   tipo: "PF" | "PJ";
-  cpfCnpj: string;
+  tipo_fornecedor: "Insumos" | "Embalagens" | "Outros";
+  cpf_cnpj: string;
   telefone: string;
   email: string;
   contato: string;
+  data_aniversario_contato: string;
   observacoes: string;
 }
 
 export default function Fornecedores() {
   const navigate = useNavigate();
-  const [fornecedores, setFornecedores] = useLocalStorage<Fornecedor[]>("fornecedores", []);
+  const { fornecedores, loading, createFornecedor, updateFornecedor, deleteFornecedor } = useFornecedores();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingFornecedor, setEditingFornecedor] = useState<Fornecedor | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [observacoesOpen, setObservacoesOpen] = useState(false);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormDataFornecedor>({
     nome: "",
-    tipo: "PF" as "PF" | "PJ",
-    cpfCnpj: "",
+    tipo: "PF",
+    tipo_fornecedor: "Insumos",
+    cpf_cnpj: "",
     telefone: "",
     email: "",
     contato: "",
+    data_aniversario_contato: "",
     observacoes: "",
   });
 
   useEffect(() => {
-    if (editingFornecedor) {
-      setFormData(editingFornecedor);
-      setIsDialogOpen(true);
+    if (editingId) {
+      const fornecedor = fornecedores.find(f => f.id === editingId);
+      if (fornecedor) {
+        setFormData({
+          nome: fornecedor.nome,
+          tipo: (fornecedor.tipo as "PF" | "PJ") || "PF",
+          tipo_fornecedor: (fornecedor.tipo_fornecedor as "Insumos" | "Embalagens" | "Outros") || "Insumos",
+          cpf_cnpj: fornecedor.cpf_cnpj || "",
+          telefone: fornecedor.telefone || "",
+          email: fornecedor.email || "",
+          contato: fornecedor.contato || "",
+          data_aniversario_contato: fornecedor.data_aniversario_contato || "",
+          observacoes: fornecedor.observacoes || "",
+        });
+        setIsDialogOpen(true);
+      }
     }
-  }, [editingFornecedor]);
+  }, [editingId, fornecedores]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (editingFornecedor) {
-      setFornecedores(fornecedores.map(f => f.id === editingFornecedor.id ? { ...formData, id: f.id } : f));
-      toast.success("Fornecedor atualizado com sucesso!");
-    } else {
-      const newFornecedor: Fornecedor = {
-        ...formData,
-        id: Date.now().toString(),
-      };
-      setFornecedores([...fornecedores, newFornecedor]);
-      toast.success("Fornecedor cadastrado com sucesso!");
+    try {
+      if (editingId) {
+        await updateFornecedor(editingId, formData);
+      } else {
+        await createFornecedor(formData);
+      }
+      resetForm();
+    } catch (error: any) {
+      console.error('Erro ao salvar fornecedor:', error);
     }
-
-    resetForm();
   };
 
   const resetForm = () => {
     setFormData({
       nome: "",
       tipo: "PF",
-      cpfCnpj: "",
+      tipo_fornecedor: "Insumos",
+      cpf_cnpj: "",
       telefone: "",
       email: "",
       contato: "",
+      data_aniversario_contato: "",
       observacoes: "",
     });
-    setEditingFornecedor(null);
+    setEditingId(null);
     setIsDialogOpen(false);
     setObservacoesOpen(false);
   };
 
-  const handleDelete = (id: string) => {
-    setFornecedores(fornecedores.filter(f => f.id !== id));
-    setDeleteId(null);
-    toast.success("Fornecedor excluído com sucesso!");
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteFornecedor(id);
+      setDeleteId(null);
+    } catch (error: any) {
+      console.error('Erro ao deletar fornecedor:', error);
+    }
   };
 
-  const handleEdit = (fornecedor: Fornecedor) => {
-    setEditingFornecedor(fornecedor);
+  const handleEdit = (id: string) => {
+    setEditingId(id);
   };
 
   return (
@@ -104,7 +122,7 @@ export default function Fornecedores() {
         <div className="flex-1">
           <PageHeader
             title="Fornecedores"
-            description="Gerencie seus fornecedores"
+            description={`Gerencie seus fornecedores - ${fornecedores.length} ${fornecedores.length === 1 ? 'fornecedor cadastrado' : 'fornecedores cadastrados'}`}
           />
         </div>
       </div>
@@ -114,14 +132,14 @@ export default function Fornecedores() {
           <CardTitle>Lista de Fornecedores</CardTitle>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={() => setEditingFornecedor(null)}>
+              <Button onClick={() => setEditingId(null)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Novo Fornecedor
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>{editingFornecedor ? "Editar Fornecedor" : "Novo Fornecedor"}</DialogTitle>
+                <DialogTitle>{editingId ? "Editar Fornecedor" : "Novo Fornecedor"}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -150,15 +168,38 @@ export default function Fornecedores() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="cpfCnpj">CNPJ/CPF</Label>
+                    <Label htmlFor="cpf_cnpj">CNPJ/CPF</Label>
                     <Input
-                      id="cpfCnpj"
-                      value={formData.cpfCnpj}
-                      onChange={(e) => setFormData({ ...formData, cpfCnpj: e.target.value })}
-                      onBlur={(e) => setFormData({ ...formData, cpfCnpj: formatCpfCnpj(e.target.value) })}
+                      id="cpf_cnpj"
+                      value={formData.cpf_cnpj}
+                      onChange={(e) => setFormData({ ...formData, cpf_cnpj: e.target.value })}
+                      onBlur={(e) => setFormData({ ...formData, cpf_cnpj: formatCpfCnpj(e.target.value) })}
                       placeholder="00.000.000/0000-00"
                     />
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Tipo de Fornecedor *</Label>
+                  <ToggleGroup 
+                    type="single" 
+                    value={formData.tipo_fornecedor}
+                    onValueChange={(value) => value && setFormData({ ...formData, tipo_fornecedor: value as "Insumos" | "Embalagens" | "Outros" })}
+                    className="justify-start"
+                  >
+                    <ToggleGroupItem value="Insumos" aria-label="Insumos">
+                      Insumos
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="Embalagens" aria-label="Embalagens">
+                      Embalagens
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="Outros" aria-label="Outros">
+                      Outros
+                    </ToggleGroupItem>
+                  </ToggleGroup>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="telefone">Telefone/WhatsApp *</Label>
                     <Input
@@ -189,6 +230,15 @@ export default function Fornecedores() {
                       placeholder="Nome do contato"
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="data_aniversario_contato">Aniversário do Contato</Label>
+                    <Input
+                      id="data_aniversario_contato"
+                      type="date"
+                      value={formData.data_aniversario_contato}
+                      onChange={(e) => setFormData({ ...formData, data_aniversario_contato: e.target.value })}
+                    />
+                  </div>
                 </div>
 
                 <Collapsible open={observacoesOpen} onOpenChange={setObservacoesOpen}>
@@ -212,8 +262,8 @@ export default function Fornecedores() {
                   <Button type="button" variant="outline" onClick={resetForm}>
                     Cancelar
                   </Button>
-                  <Button type="submit">
-                    {editingFornecedor ? "Atualizar" : "Cadastrar"}
+                  <Button type="submit" disabled={loading}>
+                    {editingId ? "Atualizar" : "Cadastrar"}
                   </Button>
                 </div>
               </form>
@@ -233,10 +283,11 @@ export default function Fornecedores() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nome</TableHead>
+                    <TableHead>Tipo Fornecedor</TableHead>
                     <TableHead>Tipo</TableHead>
                     <TableHead>CNPJ/CPF</TableHead>
                     <TableHead>Telefone</TableHead>
-                    <TableHead>E-mail</TableHead>
+                    <TableHead>Aniversário</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -244,16 +295,21 @@ export default function Fornecedores() {
                   {fornecedores.map((fornecedor) => (
                     <TableRow key={fornecedor.id}>
                       <TableCell className="font-medium">{fornecedor.nome}</TableCell>
-                      <TableCell>{fornecedor.tipo}</TableCell>
-                      <TableCell>{fornecedor.cpfCnpj || "-"}</TableCell>
-                      <TableCell>{fornecedor.telefone}</TableCell>
-                      <TableCell>{fornecedor.email || "-"}</TableCell>
+                      <TableCell>{fornecedor.tipo_fornecedor || "-"}</TableCell>
+                      <TableCell>{fornecedor.tipo || "-"}</TableCell>
+                      <TableCell>{fornecedor.cpf_cnpj || "-"}</TableCell>
+                      <TableCell>{fornecedor.telefone || "-"}</TableCell>
+                      <TableCell>
+                        {fornecedor.data_aniversario_contato 
+                          ? new Date(fornecedor.data_aniversario_contato + 'T00:00:00').toLocaleDateString('pt-BR')
+                          : "-"}
+                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex gap-2 justify-end">
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleEdit(fornecedor)}
+                            onClick={() => handleEdit(fornecedor.id)}
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
