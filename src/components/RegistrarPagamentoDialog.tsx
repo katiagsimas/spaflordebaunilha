@@ -108,6 +108,7 @@ export function RegistrarPagamentoDialog({ open, onOpenChange, conta, onSave, ti
     };
 
     onSave(contaAtualizada);
+    form.reset();
   };
 
   const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {

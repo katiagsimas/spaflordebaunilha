@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { format, isToday, isAfter, isBefore, differenceInDays, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -23,6 +23,7 @@ interface ContaPagar {
   categoriaId: string;
   planoContaId: string;
   valor: number;
+  valorPago?: number;
   dataEmissao: string;
   dataVencimento: string;
   dataPagamento?: string;
@@ -34,6 +35,7 @@ interface ContaPagar {
   fornecedorNome?: string;
   fornecedorDocumento?: string;
   observacoes?: string;
+  observacoesPagamento?: string;
   parcelado: boolean;
   numeroParcela?: number;
   totalParcelas?: number;
@@ -84,6 +86,50 @@ export default function ContasPagar() {
   const [activeTab, setActiveTab] = useState("todas");
 
   // Atualizar status de contas atrasadas
+  useEffect(() => {
+    const hoje = startOfDay(new Date());
+    let atualizou = false;
+    
+    const contasAtualizadas = contas.map(conta => {
+      if (conta.status === 'pendente') {
+        const vencimento = new Date(conta.dataVencimento);
+        if (isBefore(vencimento, hoje)) {
+          atualizou = true;
+          return { ...conta, status: 'atrasado' as const };
+        }
+      }
+      return conta;
+    });
+    
+    if (atualizou) {
+      setContas(contasAtualizadas);
+    }
+    
+    // Atualizar a cada hora
+    const interval = setInterval(() => {
+      const hoje = startOfDay(new Date());
+      let precisaAtualizar = false;
+      
+      const novasContas = contas.map(conta => {
+        if (conta.status === 'pendente') {
+          const vencimento = new Date(conta.dataVencimento);
+          if (isBefore(vencimento, hoje)) {
+            precisaAtualizar = true;
+            return { ...conta, status: 'atrasado' as const };
+          }
+        }
+        return conta;
+      });
+      
+      if (precisaAtualizar) {
+        setContas(novasContas);
+      }
+    }, 60 * 60 * 1000); // 1 hora
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Atualizar status de contas quando mudar a lista
   const contasAtualizadas = useMemo(() => {
     const hoje = startOfDay(new Date());
     return contas.map(conta => {
@@ -192,12 +238,28 @@ export default function ContasPagar() {
   };
 
   const handleDelete = () => {
-    if (contaToDelete) {
+    if (!contaToDelete) return;
+    
+    // Verificar se é parcelado
+    if (contaToDelete.parcelado && contaToDelete.grupoParcelasId) {
+      const parcelas = contas.filter(c => c.grupoParcelasId === contaToDelete.grupoParcelasId);
+      
+      if (parcelas.length > 1) {
+        // Mostrar opções de exclusão
+        toast.info(`Esta conta faz parte de ${parcelas.length} parcelas. Use o menu de ações para excluir todas.`);
+        setContas(contas.filter(c => c.id !== contaToDelete.id));
+        toast.success("Parcela excluída com sucesso!");
+      } else {
+        setContas(contas.filter(c => c.id !== contaToDelete.id));
+        toast.success("Conta excluída com sucesso!");
+      }
+    } else {
       setContas(contas.filter(c => c.id !== contaToDelete.id));
       toast.success("Conta excluída com sucesso!");
-      setIsDeleteOpen(false);
-      setContaToDelete(undefined);
     }
+    
+    setIsDeleteOpen(false);
+    setContaToDelete(undefined);
   };
 
   const handleRegistrarPagamento = (conta: ContaPagar) => {
@@ -206,19 +268,128 @@ export default function ContasPagar() {
   };
 
   const handlePagamentoRegistrado = (contaAtualizada: ContaPagar) => {
-    setContas(contas.map(c => c.id === contaAtualizada.id ? contaAtualizada : c));
+    // Construir observação automática
+    let obsAdicional = '';
+    
+    // Verificar diferença de valor
+    const diferenca = (contaAtualizada.valorPago || contaAtualizada.valor) - contaAtualizada.valor;
+    if (diferenca !== 0) {
+      if (diferenca > 0) {
+        obsAdicional = `Acréscimo de ${formatCurrency(diferenca)} (juros/multa)`;
+      } else {
+        obsAdicional = `Desconto de ${formatCurrency(Math.abs(diferenca))}`;
+      }
+    }
+    
+    // Verificar atraso
+    const vencimento = new Date(contaAtualizada.dataVencimento);
+    const pagamento = contaAtualizada.dataPagamento ? new Date(contaAtualizada.dataPagamento) : new Date();
+    vencimento.setHours(0, 0, 0, 0);
+    pagamento.setHours(0, 0, 0, 0);
+    
+    if (pagamento > vencimento) {
+      const diasAtraso = Math.floor((pagamento.getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
+      const atrasoObs = `Pago com ${diasAtraso} dia(s) de atraso`;
+      obsAdicional = obsAdicional ? `${obsAdicional}. ${atrasoObs}` : atrasoObs;
+    }
+    
+    // Adicionar observações
+    let observacoes = contaAtualizada.observacoes || '';
+    if (obsAdicional) {
+      observacoes = observacoes ? `${observacoes}\n${obsAdicional}` : obsAdicional;
+    }
+    if (contaAtualizada.observacoesPagamento) {
+      observacoes = observacoes ? `${observacoes}\n${contaAtualizada.observacoesPagamento}` : contaAtualizada.observacoesPagamento;
+    }
+    
+    const contaFinal = {
+      ...contaAtualizada,
+      observacoes: observacoes || undefined,
+    };
+    
+    setContas(contas.map(c => c.id === contaFinal.id ? contaFinal : c));
     toast.success("Pagamento registrado com sucesso!");
     setIsPagamentoOpen(false);
     setSelectedConta(undefined);
+    
+    // Se for recorrente, criar próxima ocorrência
+    if (contaFinal.recorrente && contaFinal.proximaRecorrencia) {
+      criarProximaRecorrencia(contaFinal);
+    }
   };
 
-  const handleEstornarPagamento = (conta: ContaPagar) => {
-    const contaEstornada: ContaPagar = {
-      ...conta,
+  const criarProximaRecorrencia = (contaOriginal: ContaPagar) => {
+    if (!contaOriginal.recorrente || !contaOriginal.proximaRecorrencia) return;
+    
+    const proximaData = new Date(contaOriginal.proximaRecorrencia);
+    const hoje = new Date();
+    
+    if (proximaData <= hoje) return;
+    
+    const novaConta: ContaPagar = {
+      ...contaOriginal,
+      id: crypto.randomUUID(),
+      dataEmissao: new Date().toISOString(),
+      dataVencimento: contaOriginal.proximaRecorrencia,
       status: 'pendente',
       dataPagamento: undefined,
       formaPagamento: undefined,
       bancoId: undefined,
+      valorPago: undefined,
+      observacoesPagamento: undefined,
+      proximaRecorrencia: calcularProximaRecorrencia(
+        contaOriginal.proximaRecorrencia,
+        contaOriginal.frequenciaRecorrencia!
+      ),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    setContas(prev => [...prev, novaConta]);
+    toast.info("Próxima recorrência criada automaticamente!");
+  };
+
+  const calcularProximaRecorrencia = (dataAtual: string, frequencia: string): string => {
+    const data = new Date(dataAtual);
+    
+    switch (frequencia) {
+      case 'mensal':
+        data.setMonth(data.getMonth() + 1);
+        break;
+      case 'bimestral':
+        data.setMonth(data.getMonth() + 2);
+        break;
+      case 'trimestral':
+        data.setMonth(data.getMonth() + 3);
+        break;
+      case 'semestral':
+        data.setMonth(data.getMonth() + 6);
+        break;
+      case 'anual':
+        data.setFullYear(data.getFullYear() + 1);
+        break;
+    }
+    
+    return data.toISOString();
+  };
+
+  const handleEstornarPagamento = (conta: ContaPagar) => {
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const vencimento = new Date(conta.dataVencimento);
+    vencimento.setHours(0, 0, 0, 0);
+    
+    const contaEstornada: ContaPagar = {
+      ...conta,
+      status: vencimento < hoje ? 'atrasado' : 'pendente',
+      dataPagamento: undefined,
+      valorPago: undefined,
+      formaPagamento: undefined,
+      bancoId: undefined,
+      observacoesPagamento: undefined,
+      observacoes: conta.observacoes 
+        ? `${conta.observacoes}\nPagamento estornado em ${format(new Date(), "dd/MM/yyyy", { locale: ptBR })}`
+        : `Pagamento estornado em ${format(new Date(), "dd/MM/yyyy", { locale: ptBR })}`,
       updatedAt: new Date().toISOString()
     };
     setContas(contas.map(c => c.id === conta.id ? contaEstornada : c));
