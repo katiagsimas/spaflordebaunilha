@@ -17,6 +17,11 @@ interface Encomenda {
   endereco?: string;
   numero?: string;
   cep?: string;
+  desconto_percentual?: number;
+  desconto_valor?: number;
+  taxa_entrega?: number;
+  topo_bolo?: number;
+  outros?: number;
   created_at?: string;
   updated_at?: string;
 }

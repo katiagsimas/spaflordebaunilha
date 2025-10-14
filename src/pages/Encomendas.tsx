@@ -71,6 +71,8 @@ const Encomendas = () => {
     desconto_percentual: 0,
     desconto_valor: 0,
     taxa_entrega: 0,
+    topo_bolo: 0,
+    outros: 0,
   });
 
   const [produtoForm, setProdutoForm] = useState({
@@ -96,8 +98,8 @@ const Encomendas = () => {
   }, [valorTotalProdutos, formData.desconto_percentual, formData.desconto_valor]);
 
   const valorFinal = useMemo(() => {
-    return valorTotalProdutos - valorDesconto + formData.taxa_entrega;
-  }, [valorTotalProdutos, valorDesconto, formData.taxa_entrega]);
+    return valorTotalProdutos - valorDesconto + formData.taxa_entrega + formData.topo_bolo + formData.outros;
+  }, [valorTotalProdutos, valorDesconto, formData.taxa_entrega, formData.topo_bolo, formData.outros]);
 
   const resetForm = () => {
     setFormData({
@@ -115,6 +117,8 @@ const Encomendas = () => {
       desconto_percentual: 0,
       desconto_valor: 0,
       taxa_entrega: 0,
+      topo_bolo: 0,
+      outros: 0,
     });
     setEditingOrder(null);
     setTempProdutos([]);
@@ -168,6 +172,8 @@ const Encomendas = () => {
       desconto_percentual: encomenda.desconto_percentual || 0,
       desconto_valor: encomenda.desconto_valor || 0,
       taxa_entrega: encomenda.taxa_entrega || 0,
+      topo_bolo: encomenda.topo_bolo || 0,
+      outros: encomenda.outros || 0,
     });
     setDialogOpen(true);
   };
@@ -624,66 +630,123 @@ const Encomendas = () => {
                             <TableCell className="text-right font-bold">R$ {valorTotalProdutos.toFixed(2)}</TableCell>
                             <TableCell></TableCell>
                           </TableRow>
-                          <TableRow className="bg-yellow-50 dark:bg-yellow-950/20">
-                            <TableCell colSpan={4} className="text-right font-semibold text-yellow-800 dark:text-yellow-200">
-                              Desconto Concedido:
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex gap-2 items-center justify-end">
-                                <div className="flex items-center gap-1">
-                                  <Input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    max="100"
-                                    value={formData.desconto_percentual || ""}
-                                    onChange={(e) => setFormData({ ...formData, desconto_percentual: Number(e.target.value) })}
-                                    className="w-20 h-8 text-sm"
-                                    placeholder="0"
-                                  />
-                                  <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">%</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">R$</span>
-                                  <Input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    value={formData.desconto_valor || ""}
-                                    onChange={(e) => setFormData({ ...formData, desconto_valor: Number(e.target.value) })}
-                                    className="w-24 h-8 text-sm"
-                                    placeholder="0.00"
-                                  />
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell></TableCell>
-                          </TableRow>
-                          <TableRow className="bg-green-50 dark:bg-green-950/20">
-                            <TableCell colSpan={4} className="text-right font-semibold text-green-800 dark:text-green-200">
-                              Taxa de Entrega:
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex items-center gap-1 justify-end">
-                                <span className="text-sm font-medium text-green-800 dark:text-green-200">R$</span>
+                        </TableBody>
+                      </Table>
+
+                      {/* Cards de Ajustes */}
+                      <div className="grid grid-cols-2 gap-3 mt-4">
+                        {/* Desconto Concedido */}
+                        <Card className="border-l-4 border-l-yellow-500 bg-yellow-50/50 dark:bg-yellow-950/20">
+                          <CardContent className="p-4">
+                            <h4 className="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-3">
+                              Desconto Concedido
+                            </h4>
+                            <div className="flex gap-2">
+                              <div className="flex items-center gap-1 flex-1">
                                 <Input
                                   type="number"
                                   step="0.01"
                                   min="0"
-                                  value={formData.taxa_entrega || ""}
-                                  onChange={(e) => setFormData({ ...formData, taxa_entrega: Number(e.target.value) })}
-                                  className="w-24 h-8 text-sm"
+                                  max="100"
+                                  value={formData.desconto_percentual || ""}
+                                  onChange={(e) => setFormData({ ...formData, desconto_percentual: Number(e.target.value) })}
+                                  className="h-9 text-sm"
+                                  placeholder="0"
+                                />
+                                <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">%</span>
+                              </div>
+                              <div className="flex items-center gap-1 flex-1">
+                                <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">R$</span>
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  min="0"
+                                  value={formData.desconto_valor || ""}
+                                  onChange={(e) => setFormData({ ...formData, desconto_valor: Number(e.target.value) })}
+                                  className="h-9 text-sm"
                                   placeholder="0.00"
                                 />
                               </div>
-                            </TableCell>
-                            <TableCell></TableCell>
-                          </TableRow>
-                          <TableRow className="bg-primary/5">
-                            <TableCell colSpan={4} className="text-right font-bold text-lg">Valor Final:</TableCell>
-                            <TableCell className="text-right font-bold text-lg text-primary">R$ {valorFinal.toFixed(2)}</TableCell>
-                            <TableCell></TableCell>
-                          </TableRow>
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        {/* Taxa de Entrega */}
+                        <Card className="border-l-4 border-l-green-500 bg-green-50/50 dark:bg-green-950/20">
+                          <CardContent className="p-4">
+                            <h4 className="text-sm font-semibold text-green-800 dark:text-green-200 mb-3">
+                              Taxa de Entrega
+                            </h4>
+                            <div className="flex items-center gap-1">
+                              <span className="text-sm font-medium text-green-800 dark:text-green-200">R$</span>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={formData.taxa_entrega || ""}
+                                onChange={(e) => setFormData({ ...formData, taxa_entrega: Number(e.target.value) })}
+                                className="h-9 text-sm"
+                                placeholder="0.00"
+                              />
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        {/* Topo de Bolo */}
+                        <Card className="border-l-4 border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20">
+                          <CardContent className="p-4">
+                            <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-3">
+                              Topo de Bolo
+                            </h4>
+                            <div className="flex items-center gap-1">
+                              <span className="text-sm font-medium text-blue-800 dark:text-blue-200">R$</span>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={formData.topo_bolo || ""}
+                                onChange={(e) => setFormData({ ...formData, topo_bolo: Number(e.target.value) })}
+                                className="h-9 text-sm"
+                                placeholder="0.00"
+                              />
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        {/* Outros */}
+                        <Card className="border-l-4 border-l-purple-500 bg-purple-50/50 dark:bg-purple-950/20">
+                          <CardContent className="p-4">
+                            <h4 className="text-sm font-semibold text-purple-800 dark:text-purple-200 mb-3">
+                              Outros
+                            </h4>
+                            <div className="flex items-center gap-1">
+                              <span className="text-sm font-medium text-purple-800 dark:text-purple-200">R$</span>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={formData.outros || ""}
+                                onChange={(e) => setFormData({ ...formData, outros: Number(e.target.value) })}
+                                className="h-9 text-sm"
+                                placeholder="0.00"
+                              />
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+
+                      {/* Valor Final */}
+                      <div className="mt-4 p-6 bg-primary/10 dark:bg-primary/20 rounded-lg border-2 border-primary">
+                        <div className="flex justify-between items-center">
+                          <span className="text-lg font-bold text-foreground">VALOR FINAL</span>
+                          <span className="text-3xl font-bold text-primary">
+                            R$ {valorFinal.toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <Table className="hidden">
+                        <TableBody>
                         </TableBody>
                       </Table>
                     </div>
