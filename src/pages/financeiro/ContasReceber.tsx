@@ -391,29 +391,6 @@ export default function ContasReceber() {
       </div>
 
       {/* Banners de Alertas */}
-      {resumo.vencidoQtd > 0 && (
-        <div className="bg-[#FFEBEE] border-l-4 border-[#D88B8B] p-4 rounded-lg animate-in fade-in slide-in-from-top-2">
-          <div className="flex items-center gap-3">
-            <AlertCircle className="text-[#D88B8B] h-5 w-5 shrink-0" />
-            <div className="flex-1">
-              <p className="font-semibold text-[#6B5047]">
-                Você tem {resumo.vencidoQtd} conta(s) vencida(s) totalizando {formatCurrency(resumo.vencido)}
-              </p>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setStatusFilter('atrasado');
-                setSelectedTab('todas');
-              }}
-              className="text-[#D88B8B] hover:bg-[#FFEBEE]"
-            >
-              Ver contas
-            </Button>
-          </div>
-        </div>
-      )}
 
       {contasVencemHoje.length > 0 && (
         <div className="bg-[#FEF3E2] border-l-4 border-[#E5C89F] p-4 rounded-lg animate-in fade-in slide-in-from-top-2">
