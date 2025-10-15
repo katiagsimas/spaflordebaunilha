@@ -13,6 +13,10 @@ interface ContaReceber {
   data_recebimento?: string;
   status: string;
   categoria_id?: string;
+  plano_conta_id?: string;
+  banco_id?: string;
+  tipo_documento_id?: string;
+  numero_documento?: string;
   observacoes?: string;
   cliente_nome?: string;
   cliente_documento?: string;

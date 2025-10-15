@@ -243,6 +243,7 @@ export type Database = {
       }
       contas_receber: {
         Row: {
+          banco_id: string | null
           categoria_id: string | null
           cliente_documento: string | null
           cliente_id: string | null
@@ -253,13 +254,17 @@ export type Database = {
           data_vencimento: string
           descricao: string
           id: string
+          numero_documento: string | null
           observacoes: string | null
+          plano_conta_id: string | null
           status: string
+          tipo_documento_id: string | null
           updated_at: string
           usuario_id: string
           valor: number
         }
         Insert: {
+          banco_id?: string | null
           categoria_id?: string | null
           cliente_documento?: string | null
           cliente_id?: string | null
@@ -270,13 +275,17 @@ export type Database = {
           data_vencimento: string
           descricao: string
           id?: string
+          numero_documento?: string | null
           observacoes?: string | null
+          plano_conta_id?: string | null
           status?: string
+          tipo_documento_id?: string | null
           updated_at?: string
           usuario_id: string
           valor: number
         }
         Update: {
+          banco_id?: string | null
           categoria_id?: string | null
           cliente_documento?: string | null
           cliente_id?: string | null
@@ -287,8 +296,11 @@ export type Database = {
           data_vencimento?: string
           descricao?: string
           id?: string
+          numero_documento?: string | null
           observacoes?: string | null
+          plano_conta_id?: string | null
           status?: string
+          tipo_documento_id?: string | null
           updated_at?: string
           usuario_id?: string
           valor?: number
