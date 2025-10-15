@@ -120,7 +120,7 @@ const formSchema = z.object({
   planoContaId: z.string().min(1, "Selecione um plano de contas"),
   valor: z.number()
     .min(0.01, "Valor deve ser maior que zero"),
-  dataEmissao: z.date({ message: "Data de emissão é obrigatória" }),
+  dataEmissao: z.date({ message: "Selecione a data de emissão" }).optional(),
   clienteNome: z.string().min(1, "Nome do cliente é obrigatório").max(100),
   clienteDocumento: z.string().optional().or(z.literal("")),
   bancoId: z.string().min(1, "Selecione um banco"),
@@ -248,7 +248,7 @@ export function ContaReceberFormDialog({
       categoriaId: "",
       planoContaId: "",
       valor: 0,
-      dataEmissao: new Date(),
+      dataEmissao: undefined,
       clienteNome: "",
       clienteDocumento: "",
       bancoId: "",
@@ -326,7 +326,7 @@ export function ContaReceberFormDialog({
         categoriaId: "",
         planoContaId: "",
         valor: 0,
-        dataEmissao: new Date(),
+        dataEmissao: undefined,
         clienteNome: "",
         clienteDocumento: "",
         bancoId: "",
@@ -581,12 +581,11 @@ export function ContaReceberFormDialog({
                     <FormLabel className="text-[#6B5047] font-medium">Data de Emissão *</FormLabel>
                     <FormControl>
                       <DatePickerField
-                        value={field.value || new Date()}
-                        onChange={(date) => field.onChange(date || new Date())}
+                        value={field.value}
+                        onChange={field.onChange}
                         placeholder="Selecione a data..."
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
