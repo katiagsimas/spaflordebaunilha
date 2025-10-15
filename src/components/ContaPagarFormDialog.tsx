@@ -18,6 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { formatCpfCnpj } from "@/lib/utils";
 import { DatePickerField } from "@/components/DatePickerField";
+import { FornecedorAutocomplete } from "@/components/FornecedorAutocomplete";
 
 interface ContaPagar {
   id: string;
@@ -552,10 +553,15 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                   <FormItem>
                     <FormLabel className="text-[#6B5047]">Nome do Fornecedor</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Ex: CPFL, Fornecedor ABC Ingredientes" 
-                        maxLength={100}
-                        {...field} 
+                      <FornecedorAutocomplete
+                        value={field.value || ""}
+                        onSelect={(nome, documento) => {
+                          field.onChange(nome);
+                          if (documento) {
+                            form.setValue('fornecedorDocumento', documento);
+                          }
+                        }}
+                        placeholder="Selecione um fornecedor..."
                       />
                     </FormControl>
                     <FormMessage />
