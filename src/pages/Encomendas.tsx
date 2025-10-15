@@ -1274,7 +1274,6 @@ const Encomendas = () => {
                   )}
                 </div>
 
-  const [uploadingImage, setUploadingImage] = useState(false);
                 <div className="space-y-2">
                   <Label htmlFor="observacoes">Observações</Label>
                   <Textarea
