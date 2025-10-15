@@ -586,7 +586,6 @@ export function ContaReceberFormDialog({
                         placeholder="Selecione a data..."
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
