@@ -126,17 +126,28 @@ export function RegistrarRecebimentoDialog({
     try {
       const valorOriginal = conta.valor;
       const valorPago = values.valorRecebido;
+      const dataPagamento = values.dataRecebimento;
+      const dataVencimento = new Date(conta.data_vencimento);
+      
+      // Determinar o status baseado na data de pagamento e valor
+      let novoStatus = 'recebido';
+      
+      // Normalizar as datas para comparação (sem hora)
+      const dataPgto = new Date(dataPagamento);
+      dataPgto.setHours(0, 0, 0, 0);
+      dataVencimento.setHours(0, 0, 0, 0);
       
       // Se o valor pago for menor que o valor original, criar uma nova conta com o saldo restante
       if (valorPago < valorOriginal) {
         const valorRestante = valorOriginal - valorPago;
+        novoStatus = 'pagto_parcial';
         
-        // Atualizar a conta atual como paga (parcialmente)
+        // Atualizar a conta atual como paga parcialmente
         const { error: updateError } = await supabase
           .from('contas_receber')
           .update({
             data_recebimento: format(values.dataRecebimento, 'yyyy-MM-dd'),
-            status: 'recebido',
+            status: novoStatus,
             valor: valorPago,
             observacoes: conta.observacoes 
               ? `${conta.observacoes}\n\nPagamento parcial: ${formatCurrency(valorPago)} de ${formatCurrency(valorOriginal)}`
@@ -168,12 +179,20 @@ export function RegistrarRecebimentoDialog({
         
         toast.success(`✓ Recebimento parcial registrado! Nova conta criada com saldo de ${formatCurrency(valorRestante)}`);
       } else {
-        // Pagamento completo ou com juros/desconto
+        // Pagamento completo - verificar se foi adiantado ou atrasado
+        if (dataPgto < dataVencimento) {
+          novoStatus = 'pagto_adiantado';
+        } else if (dataPgto > dataVencimento) {
+          novoStatus = 'pagto_atrasado';
+        } else {
+          novoStatus = 'recebido'; // Pagamento na data
+        }
+        
         const { error } = await supabase
           .from('contas_receber')
           .update({
             data_recebimento: format(values.dataRecebimento, 'yyyy-MM-dd'),
-            status: 'recebido',
+            status: novoStatus,
             valor: valorPago,
             observacoes: conta.observacoes 
               ? `${conta.observacoes}\n\n${values.observacoes || ''}`

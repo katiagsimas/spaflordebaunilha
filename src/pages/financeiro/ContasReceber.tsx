@@ -65,8 +65,8 @@ export default function ContasReceber() {
   const resumo = {
     aberto: contas.filter(c => c.status === 'pendente').reduce((sum, c) => sum + c.valor, 0),
     abertoQtd: contas.filter(c => c.status === 'pendente').length,
-    pago: contas.filter(c => c.status === 'recebido').reduce((sum, c) => sum + c.valor, 0),
-    pagoQtd: contas.filter(c => c.status === 'recebido').length,
+    pago: contas.filter(c => ['recebido', 'pagto_adiantado', 'pagto_atrasado', 'pagto_parcial'].includes(c.status)).reduce((sum, c) => sum + c.valor, 0),
+    pagoQtd: contas.filter(c => ['recebido', 'pagto_adiantado', 'pagto_atrasado', 'pagto_parcial'].includes(c.status)).length,
     vencido: contas.filter(c => c.status === 'atrasado').reduce((sum, c) => sum + c.valor, 0),
     vencidoQtd: contas.filter(c => c.status === 'atrasado').length,
     esteMes: contas.filter(c => {
@@ -99,7 +99,7 @@ export default function ContasReceber() {
     // Filtro de tab
     if (selectedTab === "abertos" && conta.status !== "pendente") return false;
     if (selectedTab === "vencendo" && !isVencendoHoje(conta)) return false;
-    if (selectedTab === "pagos" && conta.status !== "recebido") return false;
+    if (selectedTab === "pagos" && !['recebido', 'pagto_adiantado', 'pagto_atrasado', 'pagto_parcial'].includes(conta.status)) return false;
 
     return true;
   });
@@ -124,6 +124,21 @@ export default function ContasReceber() {
         icon: CheckCircle,
         label: "Pago",
         className: "bg-[#E8F5E9] text-[#388E3C] border border-[#8BA888]"
+      },
+      pagto_adiantado: {
+        icon: CheckCircle,
+        label: "Pagto Adiantado",
+        className: "bg-[#E8F5E9] text-[#2E7D32] border border-[#81C784]"
+      },
+      pagto_atrasado: {
+        icon: AlertCircle,
+        label: "Pagto Atrasado",
+        className: "bg-[#FFF3E0] text-[#E65100] border border-[#FFB74D]"
+      },
+      pagto_parcial: {
+        icon: DollarSign,
+        label: "Pagto Parcial",
+        className: "bg-[#FFF9C4] text-[#F57F17] border border-[#FDD835]"
       },
       atrasado: {
         icon: AlertCircle,
@@ -158,6 +173,14 @@ export default function ContasReceber() {
       return "bg-[#FFEBEE]/30 border-l-4 border-l-[#D88B8B]";
     }
 
+    if (conta.status === 'pagto_atrasado') {
+      return "bg-[#FFF3E0]/20 border-l-4 border-l-[#FFB74D]";
+    }
+
+    if (conta.status === 'pagto_parcial') {
+      return "bg-[#FFF9C4]/20 border-l-4 border-l-[#FDD835]";
+    }
+
     if (conta.status === 'pendente') {
       if (vencimento.getTime() === hoje.getTime()) {
         return "bg-[#FEF3E2]/30 border-l-4 border-l-[#E5C89F]";
@@ -168,7 +191,7 @@ export default function ContasReceber() {
       }
     }
 
-    if (conta.status === 'recebido') {
+    if (['recebido', 'pagto_adiantado'].includes(conta.status)) {
       return "opacity-70";
     }
 
@@ -506,7 +529,7 @@ export default function ContasReceber() {
             Vencendo Hoje ({contas.filter(isVencendoHoje).length})
           </TabsTrigger>
           <TabsTrigger value="pagos">
-            Pagos ({contas.filter(c => c.status === 'recebido').length})
+            Pagos ({contas.filter(c => ['recebido', 'pagto_adiantado', 'pagto_atrasado', 'pagto_parcial'].includes(c.status)).length})
           </TabsTrigger>
         </TabsList>
 
@@ -592,7 +615,7 @@ export default function ContasReceber() {
                         </div>
                       </TableCell>
                       <TableCell className="text-sm text-right font-semibold text-[#6B5047]">
-                        {conta.status === 'recebido' ? formatCurrency(0) : formatCurrency(conta.valor)}
+                        {['recebido', 'pagto_adiantado', 'pagto_atrasado'].includes(conta.status) ? formatCurrency(0) : formatCurrency(conta.valor)}
                       </TableCell>
                       <TableCell className="text-sm text-[#6B5047]">
                         {conta.data_recebimento ? formatDate(conta.data_recebimento) : "-"}
