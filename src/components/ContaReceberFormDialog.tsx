@@ -192,6 +192,42 @@ export function ContaReceberFormDialog({
     valorTotal: number;
   }>>([]);
 
+  // Funções para edição inline das parcelas
+  const handleEditParcelaValor = (index: number, novoValor: string) => {
+    const valor = parseFloat(novoValor.replace(',', '.'));
+    if (!isNaN(valor) && valor > 0) {
+      const novasParcelas = [...parcelas];
+      novasParcelas[index].valor = valor;
+      setParcelas(novasParcelas);
+    }
+  };
+
+  const handleEditParcelaData = (index: number, novaData: string) => {
+    if (novaData) {
+      const novasParcelas = [...parcelas];
+      novasParcelas[index].dataVencimento = novaData;
+      setParcelas(novasParcelas);
+    }
+  };
+
+  // Funções para edição inline das recorrências
+  const handleEditRecorrenciaValor = (index: number, novoValor: string) => {
+    const valor = parseFloat(novoValor.replace(',', '.'));
+    if (!isNaN(valor) && valor > 0) {
+      const novasRecorrencias = [...recorrencias];
+      novasRecorrencias[index].valor = valor;
+      setRecorrencias(novasRecorrencias);
+    }
+  };
+
+  const handleEditRecorrenciaData = (index: number, novaData: string) => {
+    if (novaData) {
+      const novasRecorrencias = [...recorrencias];
+      novasRecorrencias[index].dataVencimento = novaData;
+      setRecorrencias(novasRecorrencias);
+    }
+  };
+
   // Filtrar apenas categorias de receita
   const categoriasReceita = categoriasFinanceiras.filter(c => c.tipo === 'receita');
   
@@ -416,8 +452,9 @@ export function ContaReceberFormDialog({
         toast.success("✓ Conta a receber criada com sucesso!");
       }
       
-      onOpenChange(false);
-      onSave();
+      // NÃO fechar o diálogo - manter aberto com os dados
+      // onOpenChange(false);
+      onSave(); // Apenas atualizar a lista
     } catch (error: any) {
       console.error('Erro completo ao salvar conta:', error);
       toast.error('Erro ao salvar conta: ' + (error.message || 'Erro desconhecido'));
@@ -917,7 +954,7 @@ export function ContaReceberFormDialog({
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {parcelas.map((parcela) => (
+                      {parcelas.map((parcela, index) => (
                         <TableRow key={parcela.numero} className="hover:bg-[#FAF7F5]/50">
                           <TableCell className="text-[#9C8B82]">
                             {format(new Date(parcela.dataEmissao), "dd/MM/yyyy")}
@@ -928,11 +965,21 @@ export function ContaReceberFormDialog({
                           <TableCell className="font-medium text-[#6B5047]">
                             {parcela.numero} de {parcela.total}
                           </TableCell>
-                          <TableCell className="text-[#9C8B82]">
-                            {format(new Date(parcela.dataVencimento), "dd/MM/yyyy")}
+                          <TableCell>
+                            <Input
+                              type="date"
+                              value={parcela.dataVencimento}
+                              onChange={(e) => handleEditParcelaData(index, e.target.value)}
+                              className="border-[#E8E3DF] focus:border-[#8BA888] focus:ring-[#8BA888] h-8 text-sm"
+                            />
                           </TableCell>
-                          <TableCell className="text-right font-semibold text-[#8BA888]">
-                            R$ {parcela.valor.toFixed(2).replace('.', ',')}
+                          <TableCell className="text-right">
+                            <Input
+                              type="text"
+                              value={parcela.valor.toFixed(2).replace('.', ',')}
+                              onChange={(e) => handleEditParcelaValor(index, e.target.value)}
+                              className="border-[#E8E3DF] focus:border-[#8BA888] focus:ring-[#8BA888] h-8 text-sm text-right font-semibold"
+                            />
                           </TableCell>
                         </TableRow>
                       ))}
@@ -977,7 +1024,7 @@ export function ContaReceberFormDialog({
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {recorrencias.map((recorrencia) => (
+                      {recorrencias.map((recorrencia, index) => (
                         <TableRow key={recorrencia.numero} className="hover:bg-[#FAF7F5]/50">
                           <TableCell className="text-[#9C8B82]">
                             {format(new Date(recorrencia.dataEmissao), "dd/MM/yyyy")}
@@ -988,11 +1035,21 @@ export function ContaReceberFormDialog({
                           <TableCell className="font-medium text-[#6B5047]">
                             {recorrencia.numero} de {recorrencia.total}
                           </TableCell>
-                          <TableCell className="text-[#9C8B82]">
-                            {format(new Date(recorrencia.dataVencimento), "dd/MM/yyyy")}
+                          <TableCell>
+                            <Input
+                              type="date"
+                              value={recorrencia.dataVencimento}
+                              onChange={(e) => handleEditRecorrenciaData(index, e.target.value)}
+                              className="border-[#E8E3DF] focus:border-[#7BA8D8] focus:ring-[#7BA8D8] h-8 text-sm"
+                            />
                           </TableCell>
-                          <TableCell className="text-right font-semibold text-[#7BA8D8]">
-                            R$ {recorrencia.valor.toFixed(2).replace('.', ',')}
+                          <TableCell className="text-right">
+                            <Input
+                              type="text"
+                              value={recorrencia.valor.toFixed(2).replace('.', ',')}
+                              onChange={(e) => handleEditRecorrenciaValor(index, e.target.value)}
+                              className="border-[#E8E3DF] focus:border-[#7BA8D8] focus:ring-[#7BA8D8] h-8 text-sm text-right font-semibold"
+                            />
                           </TableCell>
                         </TableRow>
                       ))}
