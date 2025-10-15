@@ -425,15 +425,22 @@ const Encomendas = () => {
     const isSinal = formData.pagamentos.length === 0;
     const valorMinimo = valorFinal * 0.5;
     
-    // Para o sinal, validar se está acima do mínimo de 50%
+    // Determinar o valor do pagamento
+    let valorPagamento: number;
+    
     if (isSinal) {
-      if (novoPagamento.valor < valorMinimo) {
+      // Para o sinal, usar o valor digitado ou 50% se for 0
+      valorPagamento = novoPagamento.valor === 0 ? valorMinimo : novoPagamento.valor;
+      
+      // Validar se está acima do mínimo de 50%
+      if (valorPagamento < valorMinimo) {
         toast.error(`O valor do sinal deve ser no mínimo R$ ${valorMinimo.toFixed(2)} (50% do valor final)`);
         return;
       }
     } else {
       // Para pagamentos normais, validar se é maior que zero
-      if (novoPagamento.valor <= 0) {
+      valorPagamento = novoPagamento.valor;
+      if (valorPagamento <= 0) {
         toast.error('Informe um valor válido para o pagamento');
         return;
       }
@@ -445,7 +452,9 @@ const Encomendas = () => {
     }
     
     const pagamentoParaAdicionar = {
-      ...novoPagamento,
+      valor: valorPagamento,
+      data: novoPagamento.data,
+      tipo_pagamento: novoPagamento.tipo_pagamento,
       pago: isSinal ? novoPagamento.pago : undefined // Só incluir "pago" para o sinal
     };
     
@@ -1119,10 +1128,12 @@ const Encomendas = () => {
                                           type="number"
                                           step="0.01"
                                           min={(valorFinal * 0.5).toFixed(2)}
-                                          value={novoPagamento.valor || (valorFinal * 0.5).toFixed(2)}
+                                          value={novoPagamento.valor === 0 ? (valorFinal * 0.5).toFixed(2) : novoPagamento.valor}
                                           onChange={(e) => {
                                             const valor = parseFloat(e.target.value);
-                                            setNovoPagamento({ ...novoPagamento, valor: parseFloat(valor.toFixed(2)) });
+                                            if (!isNaN(valor)) {
+                                              setNovoPagamento({ ...novoPagamento, valor: valor });
+                                            }
                                           }}
                                           className="h-9 text-sm mt-1"
                                           placeholder={(valorFinal * 0.5).toFixed(2)}
