@@ -83,9 +83,9 @@ const formSchema = z.object({
       return num > 0 && num <= 999999.99;
     }, "Valor deve ser entre R$ 0,01 e R$ 999.999,99"),
   dataEmissao: z.date(),
-  fornecedorNome: z.string().max(100, "Nome deve ter no máximo 100 caracteres").optional(),
+  fornecedorNome: z.string().min(1, "Nome do fornecedor é obrigatório").max(100, "Nome deve ter no máximo 100 caracteres"),
   fornecedorDocumento: z.string().optional(),
-  tipoDocumentoId: z.string().optional(),
+  tipoDocumentoId: z.string().min(1, "Tipo de documento é obrigatório"),
   numeroDocumento: z.string().max(50, "Número deve ter no máximo 50 caracteres").optional(),
   observacoes: z.string().max(500, "Observações devem ter no máximo 500 caracteres").optional(),
   parcelado: z.boolean(),
@@ -311,7 +311,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
               <div className="flex items-center justify-between pb-2 border-b border-[#E8E3DF]">
                 <h3 className="font-semibold text-[#6B5047] flex items-center gap-2">
                   <User className="h-5 w-5 text-[#D89B8C]" />
-                  Fornecedor (opcional)
+                  Fornecedor
                 </h3>
                 <Link 
                   to="/cadastros/fornecedores"
@@ -328,7 +328,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                 name="fornecedorNome"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[#6B5047]">Nome do Fornecedor</FormLabel>
+                    <FormLabel className="text-[#6B5047]">Nome do Fornecedor *</FormLabel>
                     <FormControl>
                       <FornecedorAutocomplete
                         value={field.value || ""}
@@ -374,7 +374,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
               <div className="flex items-center justify-between pb-2 border-b border-[#E8E3DF]">
                 <h3 className="font-semibold text-[#6B5047] flex items-center gap-2">
                   <Building2 className="h-5 w-5 text-[#D89B8C]" />
-                  Documento (opcional)
+                  Documento
                 </h3>
                 <Link 
                   to="/financeiro/tipos-documento"
@@ -391,7 +391,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                 name="tipoDocumentoId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[#6B5047]">Tipo de Documento</FormLabel>
+                    <FormLabel className="text-[#6B5047]">Tipo de Documento *</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
