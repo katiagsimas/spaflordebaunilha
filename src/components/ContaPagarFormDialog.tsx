@@ -7,6 +7,7 @@ import { CalendarIcon, DollarSign, FileText, Building2, Calendar, User, External
 import { Link } from "react-router-dom";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useCategoriasFinanceiras } from "@/hooks/useCategoriasFinanceiras";
+import { usePlanoContas } from "@/hooks/usePlanoContas";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -143,7 +144,7 @@ interface ContaPagarFormDialogProps {
 
 export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: ContaPagarFormDialogProps) {
   const { categorias, loading: loadingCategorias } = useCategoriasFinanceiras();
-  const [planos] = useLocalStorage<PlanoContas[]>("planos_contas", []);
+  const { planoContas, loading: loadingPlanos } = usePlanoContas();
   const [tiposDocumento] = useLocalStorage<TipoDocumento[]>("tipos_documento", []);
 
   const categoriasDespesa = categorias.filter(c => c.tipo === 'despesa');
@@ -175,7 +176,13 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
   const selectedCategoriaId = form.watch("categoriaId");
   const parcelado = form.watch("parcelado");
   const recorrente = form.watch("recorrente");
-  const planosDisponiveis = planos.filter(p => p.categoriaId === selectedCategoriaId);
+  
+  // Filtra apenas os planos de DESPESA que aceitam lançamento e estão ativos
+  const planosDisponiveis = planoContas.filter(p => 
+    p.tipo === 'DESPESA' && 
+    p.aceita_lancamento === true && 
+    p.ativo === true
+  );
 
   useEffect(() => {
     if (conta) {
@@ -377,7 +384,17 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                 name="planoContaId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[#6B5047]">Plano de Contas *</FormLabel>
+                    <FormLabel className="text-[#6B5047]">
+                      Plano de Contas *
+                      <Link 
+                        to="/financeiro/planos-contas"
+                        className="text-xs text-[#D89B8C] hover:text-[#B87C6D] ml-2 inline-flex items-center gap-1"
+                        target="_blank"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        Gerenciar Planos
+                      </Link>
+                    </FormLabel>
                     <Select 
                       onValueChange={field.onChange} 
                       value={field.value}
@@ -392,18 +409,31 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                         {planosDisponiveis.length === 0 ? (
                           <div className="p-2 text-sm text-[#9C8B82]">
                             {selectedCategoriaId 
-                              ? "Nenhum plano cadastrado para esta categoria" 
+                              ? "Nenhum plano de contas de despesa cadastrado" 
                               : "Selecione uma categoria primeiro"}
                           </div>
                         ) : (
                           planosDisponiveis.map((plano) => (
                             <SelectItem key={plano.id} value={plano.id}>
-                              {plano.nome}
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-[#9C8B82]">{plano.codigo}</span>
+                                <span>{plano.nome}</span>
+                              </div>
                             </SelectItem>
                           ))
                         )}
                       </SelectContent>
                     </Select>
+                    {planosDisponiveis.length === 0 && selectedCategoriaId && (
+                      <Link 
+                        to="/financeiro/planos-contas"
+                        className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1 mt-2"
+                        target="_blank"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        + Criar plano de contas
+                      </Link>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
