@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Plus, Search, Filter, CheckCircle, Clock, AlertCircle, XCircle, MoreVertical, Eye, Edit, Copy, Trash2, DollarSign, Calendar, Download, ChevronDown, RotateCcw } from "lucide-react";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,6 +60,14 @@ export default function ContasReceber() {
   const [contaParaReceber, setContaParaReceber] = useState<any | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [contaToDelete, setContaToDelete] = useState<any | null>(null);
+  
+  // Novos estados para filtro avançado
+  const [tipoBusca, setTipoBusca] = useState<string>("descricao");
+  const [dataEmissaoFiltro, setDataEmissaoFiltro] = useState<Date | undefined>();
+  const [dataVencimentoFiltro, setDataVencimentoFiltro] = useState<Date | undefined>();
+  const [dataPagamentoFiltro, setDataPagamentoFiltro] = useState<Date | undefined>();
+  const [planoContaFiltro, setPlanoContaFiltro] = useState<string>("todos");
+  const [pessoaFiltro, setPessoaFiltro] = useState<string>("");
 
   const getPlanoContaNome = (planoContaId?: string) => {
     if (!planoContaId) return "-";
@@ -99,12 +114,58 @@ export default function ContasReceber() {
 
   // Filtrar contas (excluindo as já recebidas)
   const contasFiltradas = contasAReceber.filter(conta => {
-    // Filtro de busca
+    // Filtro de busca por tipo
     if (searchTerm) {
       const termo = searchTerm.toLowerCase();
-      if (!conta.descricao.toLowerCase().includes(termo)) {
-        return false;
+      
+      switch (tipoBusca) {
+        case "descricao":
+          if (!conta.descricao.toLowerCase().includes(termo)) return false;
+          break;
+        case "pessoa":
+          if (!conta.cliente_nome?.toLowerCase().includes(termo)) return false;
+          break;
+        default:
+          break;
       }
+    }
+
+    // Filtro por data de emissão
+    if (dataEmissaoFiltro && conta.data_emissao) {
+      const dataEmissao = new Date(conta.data_emissao);
+      dataEmissao.setHours(0, 0, 0, 0);
+      const filtroData = new Date(dataEmissaoFiltro);
+      filtroData.setHours(0, 0, 0, 0);
+      if (dataEmissao.getTime() !== filtroData.getTime()) return false;
+    }
+
+    // Filtro por data de vencimento
+    if (dataVencimentoFiltro) {
+      const dataVenc = new Date(conta.data_vencimento);
+      dataVenc.setHours(0, 0, 0, 0);
+      const filtroData = new Date(dataVencimentoFiltro);
+      filtroData.setHours(0, 0, 0, 0);
+      if (dataVenc.getTime() !== filtroData.getTime()) return false;
+    }
+
+    // Filtro por data de pagamento
+    if (dataPagamentoFiltro && conta.data_recebimento) {
+      const dataPag = new Date(conta.data_recebimento);
+      dataPag.setHours(0, 0, 0, 0);
+      const filtroData = new Date(dataPagamentoFiltro);
+      filtroData.setHours(0, 0, 0, 0);
+      if (dataPag.getTime() !== filtroData.getTime()) return false;
+    }
+
+    // Filtro por plano de contas
+    if (planoContaFiltro !== "todos") {
+      if (conta.plano_conta_id !== planoContaFiltro) return false;
+    }
+
+    // Filtro por pessoa
+    if (pessoaFiltro && tipoBusca === "pessoa") {
+      const termo = pessoaFiltro.toLowerCase();
+      if (!conta.cliente_nome?.toLowerCase().includes(termo)) return false;
     }
 
     // Filtro de status
@@ -473,31 +534,193 @@ export default function ContasReceber() {
       </div>
 
       {/* Barra de Ferramentas */}
-      <div className="flex flex-col md:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9C8B82]" />
-          <Input
-            placeholder="Buscar por descrição, cliente ou documento..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+      <div className="flex flex-col gap-3">
+        {/* Linha 1: Tipo de Busca e Campo de Pesquisa */}
+        <div className="flex flex-col md:flex-row gap-3">
+          <Select value={tipoBusca} onValueChange={(value) => {
+            setTipoBusca(value);
+            setSearchTerm("");
+            setDataEmissaoFiltro(undefined);
+            setDataVencimentoFiltro(undefined);
+            setDataPagamentoFiltro(undefined);
+            setPlanoContaFiltro("todos");
+            setPessoaFiltro("");
+          }}>
+            <SelectTrigger className="w-full md:w-[200px]">
+              <Filter className="h-4 w-4 mr-2" />
+              <SelectValue placeholder="Filtrar por..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="descricao">Descrição</SelectItem>
+              <SelectItem value="data_emissao">Data de Emissão</SelectItem>
+              <SelectItem value="plano_contas">Plano de Contas</SelectItem>
+              <SelectItem value="pessoa">Pessoa</SelectItem>
+              <SelectItem value="data_vencimento">Data de Vencimento</SelectItem>
+              <SelectItem value="data_pagamento">Data de Pagamento</SelectItem>
+              <SelectItem value="status">Status</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Campo de busca dinâmico baseado no tipo */}
+          {tipoBusca === "descricao" && (
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9C8B82]" />
+              <Input
+                placeholder="Buscar por descrição..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          )}
+
+          {tipoBusca === "pessoa" && (
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9C8B82]" />
+              <Input
+                placeholder="Buscar por nome da pessoa..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          )}
+
+          {tipoBusca === "data_emissao" && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "flex-1 justify-start text-left font-normal",
+                    !dataEmissaoFiltro && "text-muted-foreground"
+                  )}
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
+                  {dataEmissaoFiltro ? format(dataEmissaoFiltro, "dd/MM/yyyy") : "Selecione a data de emissão"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <CalendarComponent
+                  mode="single"
+                  selected={dataEmissaoFiltro}
+                  onSelect={setDataEmissaoFiltro}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+          )}
+
+          {tipoBusca === "data_vencimento" && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "flex-1 justify-start text-left font-normal",
+                    !dataVencimentoFiltro && "text-muted-foreground"
+                  )}
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
+                  {dataVencimentoFiltro ? format(dataVencimentoFiltro, "dd/MM/yyyy") : "Selecione a data de vencimento"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <CalendarComponent
+                  mode="single"
+                  selected={dataVencimentoFiltro}
+                  onSelect={setDataVencimentoFiltro}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+          )}
+
+          {tipoBusca === "data_pagamento" && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "flex-1 justify-start text-left font-normal",
+                    !dataPagamentoFiltro && "text-muted-foreground"
+                  )}
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
+                  {dataPagamentoFiltro ? format(dataPagamentoFiltro, "dd/MM/yyyy") : "Selecione a data de pagamento"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <CalendarComponent
+                  mode="single"
+                  selected={dataPagamentoFiltro}
+                  onSelect={setDataPagamentoFiltro}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+          )}
+
+          {tipoBusca === "plano_contas" && (
+            <Select value={planoContaFiltro} onValueChange={setPlanoContaFiltro}>
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder="Selecione o plano de contas" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos os planos</SelectItem>
+                {planoContas
+                  .filter(p => p.aceita_lancamento)
+                  .map(plano => (
+                    <SelectItem key={plano.id} value={plano.id}>
+                      {plano.codigo} - {plano.nome}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          )}
+
+          {tipoBusca === "status" && (
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder="Selecione o status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos</SelectItem>
+                <SelectItem value="pendente">Aberto</SelectItem>
+                <SelectItem value="recebido">Pago</SelectItem>
+                <SelectItem value="atrasado">Vencido</SelectItem>
+                <SelectItem value="cancelado">Cancelado</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+
+          {/* Botão Limpar Filtros */}
+          {(searchTerm || dataEmissaoFiltro || dataVencimentoFiltro || dataPagamentoFiltro || planoContaFiltro !== "todos" || statusFilter !== "todos") && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSearchTerm("");
+                setDataEmissaoFiltro(undefined);
+                setDataVencimentoFiltro(undefined);
+                setDataPagamentoFiltro(undefined);
+                setPlanoContaFiltro("todos");
+                setStatusFilter("todos");
+                setPessoaFiltro("");
+              }}
+              className="shrink-0"
+            >
+              <RotateCcw className="h-4 w-4 mr-2" />
+              Limpar
+            </Button>
+          )}
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full md:w-[180px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos</SelectItem>
-            <SelectItem value="pendente">Aberto</SelectItem>
-            <SelectItem value="recebido">Pago</SelectItem>
-            <SelectItem value="atrasado">Vencido</SelectItem>
-            <SelectItem value="cancelado">Cancelado</SelectItem>
-          </SelectContent>
-        </Select>
-        
-        {/* Botões de Ação */}
-        <div className="flex gap-2">
+
+        {/* Linha 2: Botões de Ação */}
+        <div className="flex gap-2 justify-end">
           {selectedContas.length > 0 && (
             <>
               <Button
