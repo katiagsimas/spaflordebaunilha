@@ -183,6 +183,17 @@ export function RegistrarRecebimentoDialog({
     }).format(value);
   }
 
+  function formatDate(dateString: string | undefined | null): string {
+    if (!dateString) return "-";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "-";
+      return format(date, "dd/MM/yyyy");
+    } catch {
+      return "-";
+    }
+  }
+
   function isAtrasada() {
     if (!conta) return false;
     const hoje = new Date();
@@ -223,7 +234,7 @@ export function RegistrarRecebimentoDialog({
             Valor: <span className="font-semibold text-[#6B5047]">{formatCurrency(conta.valor)}</span>
           </p>
           <p className="text-sm text-[#9C8B82]">
-            Vencimento: {format(new Date(conta.dataVencimento), "dd/MM/yyyy")}
+            Vencimento: {formatDate(conta.dataVencimento)}
             {isAtrasada() && (
               <span className="ml-2 text-[#C62828] font-medium">(ATRASADA)</span>
             )}
@@ -249,7 +260,7 @@ export function RegistrarRecebimentoDialog({
                     />
                   </FormControl>
                   <p className="text-xs text-[#9C8B82]">
-                    Hoje: {format(new Date(), "dd/MM/yyyy")}
+                    Hoje: {formatDate(new Date().toISOString())}
                   </p>
                   <FormMessage />
                 </FormItem>
