@@ -65,8 +65,8 @@ export default function ContasReceber() {
   const resumo = {
     aberto: contas.filter(c => c.status === 'pendente').reduce((sum, c) => sum + c.valor, 0),
     abertoQtd: contas.filter(c => c.status === 'pendente').length,
-    pago: contas.filter(c => ['recebido', 'pagto_adiantado', 'pagto_atrasado', 'pagto_parcial'].includes(c.status)).reduce((sum, c) => sum + c.valor, 0),
-    pagoQtd: contas.filter(c => ['recebido', 'pagto_adiantado', 'pagto_atrasado', 'pagto_parcial'].includes(c.status)).length,
+    recebido: contas.filter(c => ['recebido', 'pagto_adiantado', 'pagto_atrasado', 'pagto_parcial'].includes(c.status)).reduce((sum, c) => sum + c.valor, 0),
+    recebidoQtd: contas.filter(c => ['recebido', 'pagto_adiantado', 'pagto_atrasado', 'pagto_parcial'].includes(c.status)).length,
     vencido: contas.filter(c => c.status === 'atrasado').reduce((sum, c) => sum + c.valor, 0),
     vencidoQtd: contas.filter(c => c.status === 'atrasado').length,
     esteMes: contas.filter(c => {
@@ -81,8 +81,17 @@ export default function ContasReceber() {
     }).length,
   };
 
-  // Filtrar contas
-  const contasFiltradas = contas.filter(conta => {
+  // Separar contas recebidas das demais
+  const contasRecebidas = contas.filter(c => 
+    ['recebido', 'pagto_adiantado', 'pagto_atrasado', 'pagto_parcial'].includes(c.status)
+  );
+
+  const contasAReceber = contas.filter(c => 
+    !['recebido', 'pagto_adiantado', 'pagto_atrasado', 'pagto_parcial'].includes(c.status)
+  );
+
+  // Filtrar contas (excluindo as já recebidas)
+  const contasFiltradas = contasAReceber.filter(conta => {
     // Filtro de busca
     if (searchTerm) {
       const termo = searchTerm.toLowerCase();
@@ -99,7 +108,24 @@ export default function ContasReceber() {
     // Filtro de tab
     if (selectedTab === "abertos" && conta.status !== "pendente") return false;
     if (selectedTab === "vencendo" && !isVencendoHoje(conta)) return false;
-    if (selectedTab === "pagos" && !['recebido', 'pagto_adiantado', 'pagto_atrasado', 'pagto_parcial'].includes(conta.status)) return false;
+
+    return true;
+  });
+
+  // Filtrar contas recebidas
+  const contasRecebidasFiltradas = contasRecebidas.filter(conta => {
+    // Filtro de busca
+    if (searchTerm) {
+      const termo = searchTerm.toLowerCase();
+      if (!conta.descricao.toLowerCase().includes(termo)) {
+        return false;
+      }
+    }
+
+    // Filtro de status (apenas para contas recebidas)
+    if (statusFilter !== "todos" && conta.status !== statusFilter) {
+      return false;
+    }
 
     return true;
   });
@@ -411,14 +437,6 @@ export default function ContasReceber() {
           </div>
         </Card>
 
-        <Card className="p-4 border-l-4 border-l-[#8BA888] hover:shadow-lg transition-shadow">
-          <div className="space-y-2">
-            <p className="text-sm text-[#9C8B82]">Pago</p>
-            <p className="text-2xl font-bold text-[#388E3C]">{formatCurrency(resumo.pago)}</p>
-            <p className="text-xs text-[#9C8B82]">{resumo.pagoQtd} contas</p>
-          </div>
-        </Card>
-
         <Card className="p-4 border-l-4 border-l-[#D88B8B] hover:shadow-lg transition-shadow">
           <div className="space-y-2">
             <p className="text-sm text-[#9C8B82]">Vencido</p>
@@ -432,6 +450,14 @@ export default function ContasReceber() {
             <p className="text-sm text-[#9C8B82]">Este Mês</p>
             <p className="text-2xl font-bold text-[#D89B8C]">{formatCurrency(resumo.esteMes)}</p>
             <p className="text-xs text-[#9C8B82]">{resumo.esteMesQtd} contas</p>
+          </div>
+        </Card>
+
+        <Card className="p-4 border-l-4 border-l-[#8BA888] hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setSelectedTab('recebidos')}>
+          <div className="space-y-2">
+            <p className="text-sm text-[#9C8B82]">Contas Recebidas</p>
+            <p className="text-2xl font-bold text-[#388E3C]">{formatCurrency(resumo.recebido)}</p>
+            <p className="text-xs text-[#9C8B82]">{resumo.recebidoQtd} contas</p>
           </div>
         </Card>
       </div>
@@ -520,7 +546,7 @@ export default function ContasReceber() {
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
         <TabsList>
           <TabsTrigger value="todas">
-            Todas ({contas.length})
+            A Receber ({contasAReceber.length})
           </TabsTrigger>
           <TabsTrigger value="abertos">
             Abertos ({contas.filter(c => c.status === 'pendente').length})
@@ -528,28 +554,132 @@ export default function ContasReceber() {
           <TabsTrigger value="vencendo">
             Vencendo Hoje ({contas.filter(isVencendoHoje).length})
           </TabsTrigger>
-          <TabsTrigger value="pagos">
-            Pagos ({contas.filter(c => ['recebido', 'pagto_adiantado', 'pagto_atrasado', 'pagto_parcial'].includes(c.status)).length})
+          <TabsTrigger value="recebidos">
+            Recebidos ({contasRecebidas.length})
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value={selectedTab} className="space-y-4">
-          {contasFiltradas.length === 0 ? (
-            <Card className="p-12 text-center">
-              <DollarSign className="h-12 w-12 mx-auto text-[#9C8B82] mb-4 opacity-50" />
-              <h3 className="text-lg font-semibold text-[#6B5047] mb-2">
-                Nenhuma conta encontrada
-              </h3>
-              <p className="text-sm text-[#9C8B82] mb-6">
-                Comece adicionando sua primeira conta a receber
-              </p>
-              <Button onClick={() => setIsDialogOpen(true)} className="bg-[#D89B8C] hover:bg-[#B87C6D]">
-                <Plus className="h-4 w-4 mr-2" />
-                Nova Conta a Receber
-              </Button>
-            </Card>
+          {selectedTab === 'recebidos' ? (
+            // Listagem de Contas Recebidas
+            contasRecebidasFiltradas.length === 0 ? (
+              <Card className="p-12 text-center">
+                <CheckCircle className="h-12 w-12 mx-auto text-[#9C8B82] mb-4 opacity-50" />
+                <h3 className="text-lg font-semibold text-[#6B5047] mb-2">
+                  Nenhuma conta recebida
+                </h3>
+                <p className="text-sm text-[#9C8B82]">
+                  As contas pagas aparecerão aqui
+                </p>
+              </Card>
+            ) : (
+              <Card className="overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[50px]">
+                        <Checkbox
+                          checked={selectedContas.length === contasRecebidasFiltradas.length}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedContas(contasRecebidasFiltradas.map(c => c.id));
+                            } else {
+                              handleDesselecionarTodas();
+                            }
+                          }}
+                        />
+                      </TableHead>
+                      <TableHead>Emissão</TableHead>
+                      <TableHead>Plano de Contas</TableHead>
+                      <TableHead>Pessoa</TableHead>
+                      <TableHead className="text-right">Valor Total</TableHead>
+                      <TableHead>Data Recebimento</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="w-[50px]"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {contasRecebidasFiltradas.map((conta) => (
+                      <TableRow
+                        key={conta.id}
+                        className={getRowStyle(conta)}
+                      >
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedContas.includes(conta.id)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedContas([...selectedContas, conta.id]);
+                              } else {
+                                setSelectedContas(selectedContas.filter(id => id !== conta.id));
+                              }
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell className="text-sm text-[#6B5047]">
+                          {conta.data_emissao ? formatDate(conta.data_emissao) : "-"}
+                        </TableCell>
+                        <TableCell className="text-sm text-[#6B5047]">
+                          {getPlanoContaNome(conta.plano_conta_id)}
+                        </TableCell>
+                        <TableCell className="text-sm text-[#6B5047]">
+                          {conta.cliente_nome || "-"}
+                        </TableCell>
+                        <TableCell className="text-sm text-right font-semibold text-[#388E3C]">
+                          {formatCurrency(conta.valor)}
+                        </TableCell>
+                        <TableCell className="text-sm text-[#6B5047]">
+                          {conta.data_recebimento ? formatDate(conta.data_recebimento) : "-"}
+                        </TableCell>
+                        <TableCell>
+                          {getStatusBadge(conta.status)}
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="bg-background">
+                              <DropdownMenuItem onClick={() => handleEditar(conta)}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Editar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleOpenDeleteConfirm(conta)}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Excluir
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Card>
+            )
           ) : (
-            <Card className="overflow-hidden">
+            // Listagem de Contas a Receber
+            contasFiltradas.length === 0 ? (
+              <Card className="p-12 text-center">
+                <DollarSign className="h-12 w-12 mx-auto text-[#9C8B82] mb-4 opacity-50" />
+                <h3 className="text-lg font-semibold text-[#6B5047] mb-2">
+                  Nenhuma conta encontrada
+                </h3>
+                <p className="text-sm text-[#9C8B82] mb-6">
+                  Comece adicionando sua primeira conta a receber
+                </p>
+                <Button onClick={() => setIsDialogOpen(true)} className="bg-[#D89B8C] hover:bg-[#B87C6D]">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nova Conta a Receber
+                </Button>
+              </Card>
+            ) : (
+              <Card className="overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -659,6 +789,7 @@ export default function ContasReceber() {
                 </TableBody>
               </Table>
             </Card>
+            )
           )}
         </TabsContent>
       </Tabs>
