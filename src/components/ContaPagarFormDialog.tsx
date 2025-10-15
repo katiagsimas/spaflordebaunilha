@@ -743,21 +743,11 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
 
             {/* Valores */}
             <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between pb-4 border-b border-[#E8E3DF]">
+              <div className="flex items-center pb-4 border-b border-[#E8E3DF]">
                 <h3 className="font-semibold text-[#6B5047] flex items-center gap-2">
                   <DollarSign className="h-5 w-5 text-[#D89B8C]" />
                   Valores
                 </h3>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setParcelaDialogOpen(true)}
-                  className="flex items-center gap-2"
-                >
-                  <CreditCard className="h-4 w-4" />
-                  Parcela
-                </Button>
               </div>
 
               <FormField
@@ -842,6 +832,54 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                   </div>
                 </div>
               )}
+
+              {/* Checkboxes de Parcela e Recorrente */}
+              <div className="mt-6 pt-4 border-t border-[#E8E3DF] space-y-3">
+                <FormField
+                  control={form.control}
+                  name="parcelado"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center space-x-2 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={(checked) => {
+                            field.onChange(checked);
+                            if (checked) {
+                              setParcelaDialogOpen(true);
+                            } else {
+                              setParcelas([]);
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <FormLabel className="text-[#6B5047] cursor-pointer flex items-center gap-2 font-normal">
+                        <CreditCard className="h-4 w-4 text-[#D89B8C]" />
+                        Parcela
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="recorrente"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center space-x-2 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="text-[#6B5047] cursor-pointer flex items-center gap-2 font-normal">
+                        <Calendar className="h-4 w-4 text-[#D89B8C]" />
+                        Recorrente
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
 
             {/* Observações */}
