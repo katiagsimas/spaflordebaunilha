@@ -373,10 +373,6 @@ export function ContaReceberFormDialog({
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-4">
             {/* Datas */}
             <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow">
-              <h3 className="font-semibold text-[#6B5047] flex items-center gap-2 mb-4 pb-2 border-b border-[#E8E3DF]">
-                <Calendar className="h-5 w-5 text-[#D89B8C]" />
-                Data de Emissão
-              </h3>
               <FormField
                 control={form.control}
                 name="dataEmissao"
