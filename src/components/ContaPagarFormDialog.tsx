@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { useCategoriasFinanceiras } from "@/hooks/useCategoriasFinanceiras";
 import { usePlanoContas } from "@/hooks/usePlanoContas";
 import { useTiposDocumento } from "@/hooks/useTiposDocumento";
-import { useBancos } from "@/hooks/useBancos";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,18 @@ import { cn } from "@/lib/utils";
 import { formatCpfCnpj } from "@/lib/utils";
 import { DatePickerField } from "@/components/DatePickerField";
 import { FornecedorAutocomplete } from "@/components/FornecedorAutocomplete";
+
+interface Banco {
+  id: string;
+  codigo: string;
+  descricao: string;
+}
+
+interface TipoDocumento {
+  id: string;
+  codigo: string;
+  descricao: string;
+}
 
 interface ContaPagar {
   id: string;
@@ -146,7 +158,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
   const { categorias, loading: loadingCategorias } = useCategoriasFinanceiras();
   const { planoContas, loading: loadingPlanos } = usePlanoContas();
   const { tiposDocumento, loading: loadingTiposDocumento } = useTiposDocumento();
-  const { bancos, loading: loadingBancos } = useBancos();
+  const [bancos] = useLocalStorage<Banco[]>("sugarbox_bancos", []);
 
   // Filtrar apenas categorias de despesa
   const categoriasDespesa = categorias.filter(c => c.tipo === 'despesa');
@@ -423,7 +435,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                         ) : (
                           bancos.map((banco) => (
                             <SelectItem key={banco.id} value={banco.id}>
-                              {banco.nome}
+                              {banco.descricao}
                             </SelectItem>
                           ))
                         )}
