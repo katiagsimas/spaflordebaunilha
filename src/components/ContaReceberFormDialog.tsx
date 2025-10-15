@@ -270,23 +270,26 @@ export function ContaReceberFormDialog({
         valor: values.valor,
         data_vencimento: values.dataVencimento.toISOString().split('T')[0],
         status,
-        categoria_id: values.categoriaId,
+        categoria_id: values.categoriaId || null,
         observacoes: values.observacoes?.trim() || null,
       };
+
+      console.log('Dados a serem enviados:', contaData);
 
       if (conta?.id) {
         await updateItem(conta.id, contaData);
         toast.success("✓ Conta atualizada com sucesso!");
       } else {
-        await createItem(contaData);
+        const result = await createItem(contaData);
+        console.log('Resultado da criação:', result);
         toast.success("✓ Conta a receber criada com sucesso!");
       }
       
       onOpenChange(false);
       onSave();
     } catch (error: any) {
-      console.error('Erro ao salvar conta:', error);
-      toast.error('Erro ao salvar conta: ' + error.message);
+      console.error('Erro completo ao salvar conta:', error);
+      toast.error('Erro ao salvar conta: ' + (error.message || 'Erro desconhecido'));
     }
   }
 
