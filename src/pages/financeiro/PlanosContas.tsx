@@ -1126,7 +1126,7 @@ export default function PlanosContas() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.nome.trim()) {
@@ -1214,70 +1214,42 @@ export default function PlanosContas() {
     };
 
     if (editingPlanoConta) {
-      const updated = planosContas.map(pc =>
-        pc.id === editingPlanoConta.id
-          ? { 
-              ...pc, 
-              nome: formData.nome.trim(),
-              descricao: formData.descricao?.trim() || '',
-              categoriaId: formData.categoriaId,
-              tipo: formData.tipo,
-              ativo: formData.ativo,
-              iconeCustomizado: formData.iconeCustomizado || undefined,
-              corCustomizada: formData.corCustomizada || undefined,
-              updatedAt: new Date().toISOString(),
-              historico: [...(pc.historico || []), novaAlteracao]
-            }
-          : pc
-      );
-      
-      // Ordenar por categoria e nome
-      updated.sort((a, b) => {
-        if (a.categoriaId !== b.categoriaId) {
-          return a.categoriaId.localeCompare(b.categoriaId);
-        }
-        return a.nome.localeCompare(b.nome);
-      });
-      
-      setPlanosContas(updated);
-      toast({
-        title: "Sucesso",
-        description: "✓ Plano de conta atualizado com sucesso!",
-      });
+      // Salvar no Supabase usando o hook
+      try {
+        // Encontrar a categoria para pegar o nome
+        const categoriaNome = categoria.nome;
+        
+        await updateConta(editingPlanoConta.id, {
+          nome: formData.nome.trim(),
+          tipo: formData.tipo.toUpperCase() as 'RECEITA' | 'DESPESA',
+          categoria: categoriaNome, // Salvar o nome da categoria no campo categoria
+          ativo: formData.ativo,
+        });
+        
+        handleCloseDialog();
+      } catch (error) {
+        console.error('Erro ao atualizar conta:', error);
+      }
     } else {
-      const newPlanoConta: PlanoConta = {
-        id: `pc-${Date.now()}`,
-        nome: formData.nome.trim(),
-        descricao: formData.descricao?.trim() || '',
-        categoriaId: formData.categoriaId,
-        tipo: formData.tipo,
-        ativo: formData.ativo,
-        iconeCustomizado: formData.iconeCustomizado || undefined,
-        corCustomizada: formData.corCustomizada || undefined,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        usoCount: 0,
-        historico: [novaAlteracao],
-      };
-      
-      const updated = [...planosContas, newPlanoConta];
-      
-      // Ordenar por categoria e nome
-      updated.sort((a, b) => {
-        if (a.categoriaId !== b.categoriaId) {
-          return a.categoriaId.localeCompare(b.categoriaId);
-        }
-        return a.nome.localeCompare(b.nome);
-      });
-      
-      setPlanosContas(updated);
-      toast({
-        title: "Sucesso",
-        description: "✓ Plano de conta criado com sucesso!",
-      });
+      // Criar novo plano de conta
+      try {
+        const categoriaNome = categoria.nome;
+        
+        await createConta({
+          codigo: `${formData.tipo === 'receita' ? '3' : '4'}.${(planosContas.length + 1).toString().padStart(3, '0')}`,
+          nome: formData.nome.trim(),
+          tipo: formData.tipo.toUpperCase() as 'RECEITA' | 'DESPESA',
+          categoria: categoriaNome,
+          nivel: 2,
+          aceita_lancamento: true,
+          ativo: formData.ativo,
+        });
+        
+        handleCloseDialog();
+      } catch (error) {
+        console.error('Erro ao criar conta:', error);
+      }
     }
-
-    handleCloseDialog();
   };
 
 
