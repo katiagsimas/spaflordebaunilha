@@ -958,8 +958,8 @@ export default function PlanosContas() {
       const planosFormatados = planosContasSupabase.map(p => ({
         id: p.id,
         nome: p.nome,
-        descricao: p.categoria,
-        categoriaId: p.tipo,
+        descricao: p.categoria || '',
+        categoriaId: p.categoria || p.tipo, // Usar categoria como ID temporário
         tipo: p.tipo.toLowerCase() === 'receita' ? 'receita' as const : 'despesa' as const,
         ativo: p.ativo,
         createdAt: p.created_at || '',
@@ -1451,11 +1451,37 @@ export default function PlanosContas() {
     return matchSearch && matchTipo && matchCategoria;
   });
 
-  // Agrupar planos por categoria
-  const groupedByCategoria = categorias.map(categoria => ({
-    categoria,
-    contas: filteredPlanos.filter(pc => pc.categoriaId === categoria.id)
-  })).filter(group => group.contas.length > 0);
+  // Agrupar planos por categoria (usando o campo descricao/categoria como chave)
+  const groupedByCategoria = (() => {
+    const grupos: Record<string, { categoria: CategoriaFinanceira; contas: typeof filteredPlanos }> = {};
+    
+    filteredPlanos.forEach(pc => {
+      const catKey = pc.categoriaId || pc.descricao || 'Sem Categoria';
+      
+      if (!grupos[catKey]) {
+        // Tentar encontrar categoria correspondente ou criar uma fictícia
+        const catEncontrada = categorias.find(c => 
+          c.id === catKey || c.nome.toLowerCase() === catKey.toLowerCase()
+        );
+        
+        grupos[catKey] = {
+          categoria: catEncontrada || {
+            id: catKey,
+            nome: catKey,
+            tipo: pc.tipo,
+            cor: pc.tipo === 'receita' ? '#10b981' : '#ef4444',
+            icone: 'Tag',
+            ativo: true
+          },
+          contas: []
+        };
+      }
+      
+      grupos[catKey].contas.push(pc);
+    });
+    
+    return Object.values(grupos);
+  })();
 
   // Estatísticas
   const totalReceitas = planosContas.filter(pc => pc.tipo === 'receita').length;
