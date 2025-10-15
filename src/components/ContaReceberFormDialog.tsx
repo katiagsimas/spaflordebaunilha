@@ -40,6 +40,7 @@ import { formatCpfCnpj } from "@/lib/utils";
 import { toast } from "sonner";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useCategoriasFinanceiras } from "@/hooks/useCategoriasFinanceiras";
+import { usePlanoContas } from "@/hooks/usePlanoContas";
 
 // Helper para renderizar ícone dinamicamente
 const renderIcon = (iconName?: string) => {
@@ -150,7 +151,7 @@ export function ContaReceberFormDialog({
   onSave,
 }: ContaReceberFormDialogProps) {
   const { categorias: categoriasFinanceiras } = useCategoriasFinanceiras();
-  const [planosContas] = useLocalStorage<PlanoContas[]>("sugarbox_planos_contas", []);
+  const { planoContas } = usePlanoContas();
   const [tiposDocumento] = useLocalStorage<TipoDocumento[]>("sugarbox_tipos_documento", []);
   const [contas, setContas] = useLocalStorage<ContaReceber[]>("sugarbox_contas_receber", []);
   const [selectedCategoriaId, setSelectedCategoriaId] = useState<string>("");
@@ -159,8 +160,12 @@ export function ContaReceberFormDialog({
   // Filtrar apenas categorias de receita
   const categoriasReceita = categoriasFinanceiras.filter(c => c.tipo === 'receita');
   
-  const planosContasFiltrados = planosContas.filter(
-    p => p.categoriaId === selectedCategoriaId && p.ativo
+  // Buscar o nome da categoria selecionada
+  const categoriaSelecionada = categoriasReceita.find(c => c.id === selectedCategoriaId);
+  
+  // Filtrar planos de contas pela categoria selecionada (comparando o nome)
+  const planosContasFiltrados = planoContas.filter(
+    p => p.categoria === categoriaSelecionada?.nome && p.ativo && p.tipo === 'RECEITA'
   );
 
   const form = useForm<FormValues>({
@@ -409,7 +414,18 @@ export function ContaReceberFormDialog({
                 name="planoContaId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[#6B5047] font-medium">Plano de Contas *</FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel className="text-[#6B5047] font-medium">Plano de Contas *</FormLabel>
+                      {selectedCategoriaId && planosContasFiltrados.length === 0 && (
+                        <Link 
+                          to="/financeiro/planos-contas"
+                          className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1"
+                          target="_blank"
+                        >
+                          + Criar plano de conta
+                        </Link>
+                      )}
+                    </div>
                     <Select
                       value={field.value}
                       onValueChange={field.onChange}
@@ -417,13 +433,19 @@ export function ContaReceberFormDialog({
                     >
                       <FormControl>
                         <SelectTrigger className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]">
-                          <SelectValue placeholder={selectedCategoriaId ? "Selecione o plano..." : "Primeiro selecione uma categoria"} />
+                          <SelectValue placeholder={
+                            !selectedCategoriaId 
+                              ? "Primeiro selecione uma categoria" 
+                              : planosContasFiltrados.length === 0 
+                                ? "Nenhum plano de conta disponível"
+                                : "Selecione o plano..."
+                          } />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="bg-background">
                         {planosContasFiltrados.map((plano) => (
                           <SelectItem key={plano.id} value={plano.id}>
-                            {plano.nome}
+                            {plano.codigo} - {plano.nome}
                           </SelectItem>
                         ))}
                       </SelectContent>
