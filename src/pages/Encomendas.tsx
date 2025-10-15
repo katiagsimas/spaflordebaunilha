@@ -1029,7 +1029,6 @@ const Encomendas = () => {
                         </Card>
                       </div>
 
-  const [uploadingImage, setUploadingImage] = useState(false);
                       {/* Sistema de Pagamentos */}
                       <div className="mt-6 space-y-4">
                         <div className="flex items-center justify-between">
