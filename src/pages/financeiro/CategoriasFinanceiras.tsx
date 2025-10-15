@@ -372,6 +372,7 @@ export default function CategoriasFinanceiras() {
   const [visualizacao, setVisualizacao] = useState<'grade' | 'lista'>('lista');
   const [busca, setBusca] = useState('');
   const [ordenacao, setOrdenacao] = useState<'nome' | 'tipo'>('nome');
+  const [iniciandoCategorias, setIniciandoCategorias] = useState(false);
   
   // Form state
   const [nome, setNome] = useState('');
@@ -379,6 +380,41 @@ export default function CategoriasFinanceiras() {
   const [cor, setCor] = useState('#D89B8C');
   const [icone, setIcone] = useState('Tag');
   const [erros, setErros] = useState<string[]>([]);
+
+  // Inicializar categorias pré-configuradas se não existirem
+  useEffect(() => {
+    const inicializarCategorias = async () => {
+      if (!loading && categorias.length === 0 && !iniciandoCategorias) {
+        setIniciandoCategorias(true);
+        try {
+          console.log('Inicializando categorias financeiras pré-configuradas...');
+          for (const cat of categoriasIniciais) {
+            await createCategoria({
+              nome: cat.nome,
+              tipo: cat.tipo,
+              cor: cat.cor,
+              icone: cat.icone,
+            });
+          }
+          toast({
+            title: '✓ Categorias Inicializadas',
+            description: `${categoriasIniciais.length} categorias financeiras foram criadas automaticamente.`,
+          });
+        } catch (error) {
+          console.error('Erro ao inicializar categorias:', error);
+          toast({
+            title: 'Erro ao Inicializar',
+            description: 'Ocorreu um erro ao criar as categorias iniciais.',
+            variant: 'destructive',
+          });
+        } finally {
+          setIniciandoCategorias(false);
+        }
+      }
+    };
+
+    inicializarCategorias();
+  }, [loading, categorias.length, createCategoria, iniciandoCategorias]);
 
   const resetarFormulario = () => {
     setNome('');
@@ -548,10 +584,13 @@ export default function CategoriasFinanceiras() {
     return <IconComponent className={className} />;
   };
 
-  if (loading) {
+  if (loading || iniciandoCategorias) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center justify-center min-h-screen gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        {iniciandoCategorias && (
+          <p className="text-sm text-muted-foreground">Configurando categorias financeiras...</p>
+        )}
       </div>
     );
   }
