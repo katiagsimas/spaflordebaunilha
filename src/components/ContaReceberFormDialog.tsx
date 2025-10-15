@@ -263,6 +263,28 @@ export function ContaReceberFormDialog({
     },
   });
 
+  const parcelado = form.watch("parcelado");
+  const recorrente = form.watch("recorrente");
+
+  // Quando marcar "Parcela", desmarcar "Recorrente" e limpar dados
+  useEffect(() => {
+    if (parcelado) {
+      form.setValue("recorrente", false);
+      form.setValue("frequenciaRecorrencia", "");
+      setRecorrencias([]);
+    }
+  }, [parcelado]);
+
+  // Quando marcar "Recorrente", desmarcar "Parcela" e limpar dados
+  useEffect(() => {
+    if (recorrente) {
+      form.setValue("parcelado", false);
+      form.setValue("totalParcelas", undefined);
+      form.setValue("numeroParcela", undefined);
+      setParcelas([]);
+    }
+  }, [recorrente]);
+
   useEffect(() => {
     if (conta && open) {
       const contaAny = conta as any;
