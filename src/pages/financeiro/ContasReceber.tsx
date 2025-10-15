@@ -515,22 +515,19 @@ export default function ContasReceber() {
                         </p>
                       </div>
 
+                      <div>
+                        <p className="text-sm text-[#9C8B82]">Vencimento</p>
+                        <p className="font-medium text-[#6B5047]">
+                          {format(new Date(conta.data_vencimento), 'dd/MM/yyyy')}
+                        </p>
+                        <p className="text-xs text-[#9C8B82]">
+                          {formatDateRelative(conta.data_vencimento)}
+                        </p>
+                      </div>
+
                       <div className="md:col-span-2">
-                          <div className="flex items-start gap-2">
-                            <Calendar className="h-4 w-4 text-[#9C8B82] mt-0.5 shrink-0" />
-                            <div>
-                              <p className="text-xs text-[#9C8B82]">
-                                {conta.status === 'recebido' && conta.data_recebimento
-                                  ? `Receb: ${format(new Date(conta.data_recebimento), 'dd/MM')}`
-                                  : `Venc: ${format(new Date(conta.data_vencimento), 'dd/MM')} (${formatDateRelative(conta.data_vencimento)})`
-                                }
-                              </p>
-                            </div>
-                          </div>
-                          <div className="mt-2">
-                            <h4 className="font-semibold text-[#6B5047]">{conta.descricao}</h4>
-                            <p className="text-xs text-[#9C8B82]">Plano de Contas</p>
-                          </div>
+                        <h4 className="font-semibold text-[#6B5047]">{conta.descricao}</h4>
+                        <p className="text-xs text-[#9C8B82]">Plano de Contas</p>
                       </div>
 
                         <div>
