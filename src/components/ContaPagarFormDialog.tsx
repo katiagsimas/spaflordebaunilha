@@ -376,21 +376,31 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
               />
             </div>
 
-            {/* Banco */}
+            {/* Documento */}
             <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
               <div className="flex items-center justify-between pb-2 border-b border-[#E8E3DF]">
                 <h3 className="font-semibold text-[#6B5047] flex items-center gap-2">
-                  <Landmark className="h-5 w-5 text-[#D89B8C]" />
-                  Banco (opcional)
+                  <Building2 className="h-5 w-5 text-[#D89B8C]" />
+                  Documento
                 </h3>
-                <Link 
-                  to="/configuracoes"
-                  className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1 transition-colors"
-                  target="_blank"
-                >
-                  <ExternalLink className="h-3 w-3" />
-                  Gerenciar Bancos
-                </Link>
+                <div className="flex gap-2">
+                  <Link 
+                    to="/configuracoes"
+                    className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1 transition-colors"
+                    target="_blank"
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                    Gerenciar Bancos
+                  </Link>
+                  <Link 
+                    to="/financeiro/tipos-documento"
+                    className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1 transition-colors"
+                    target="_blank"
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                    Gerenciar Tipos
+                  </Link>
+                </div>
               </div>
 
               <FormField
@@ -398,7 +408,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                 name="bancoId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[#6B5047]">Banco</FormLabel>
+                    <FormLabel className="text-[#6B5047]">Banco (opcional)</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -417,24 +427,6 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                   </FormItem>
                 )}
               />
-            </div>
-
-            {/* Documento */}
-            <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
-              <div className="flex items-center justify-between pb-2 border-b border-[#E8E3DF]">
-                <h3 className="font-semibold text-[#6B5047] flex items-center gap-2">
-                  <Building2 className="h-5 w-5 text-[#D89B8C]" />
-                  Documento
-                </h3>
-                <Link 
-                  to="/financeiro/tipos-documento"
-                  className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1 transition-colors"
-                  target="_blank"
-                >
-                  <ExternalLink className="h-3 w-3" />
-                  Gerenciar Tipos
-                </Link>
-              </div>
 
               <FormField
                 control={form.control}
