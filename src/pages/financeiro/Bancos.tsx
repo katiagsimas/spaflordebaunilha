@@ -6,88 +6,94 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useBancos } from "@/hooks/useBancos";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/EmptyState";
 
+interface Banco {
+  id: string;
+  codigo: string;
+  descricao: string;
+}
+
+const bancosIniciais: Banco[] = [
+  { id: "0", codigo: "000", descricao: "Caixa Empresa" },
+  { id: "1", codigo: "001", descricao: "Banco do Brasil" },
+  { id: "2", codigo: "033", descricao: "Santander" },
+  { id: "3", codigo: "104", descricao: "Caixa Econômica Federal" },
+  { id: "4", codigo: "237", descricao: "Bradesco" },
+  { id: "5", codigo: "341", descricao: "Itaú Unibanco" },
+  { id: "6", codigo: "260", descricao: "Nubank" },
+  { id: "7", codigo: "077", descricao: "Banco Inter" },
+  { id: "8", codigo: "290", descricao: "PagSeguro" },
+  { id: "9", codigo: "336", descricao: "C6 Bank" },
+  { id: "10", codigo: "323", descricao: "Mercado Pago" },
+];
+
 export default function Bancos() {
-  const { bancos, loading, createBanco, updateBanco, deleteBanco } = useBancos();
+  const [bancos, setBancos] = useLocalStorage<Banco[]>("sugarbox_bancos", bancosIniciais);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingBanco, setEditingBanco] = useState<any | null>(null);
+  const [editingBanco, setEditingBanco] = useState<Banco | null>(null);
   
   const [formData, setFormData] = useState({
-    nome: "",
-    tipo: "Conta Corrente",
-    saldo_inicial: "0,00",
+    codigo: "",
+    descricao: "",
   });
 
   const resetForm = () => {
-    setFormData({ nome: "", tipo: "Conta Corrente", saldo_inicial: "0,00" });
+    setFormData({ codigo: "", descricao: "" });
     setEditingBanco(null);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.nome.trim()) {
-      toast.error("Digite o nome do banco");
+    if (!formData.descricao.trim()) {
+      toast.error("Digite a descrição do banco");
       return;
     }
 
-    try {
-      const saldoInicial = parseFloat(formData.saldo_inicial.replace(/[^\d,]/g, '').replace(',', '.'));
-      
-      if (editingBanco) {
-        await updateBanco(editingBanco.id, {
-          nome: formData.nome.trim(),
-          tipo: formData.tipo,
-          saldo_inicial: saldoInicial,
-        });
-      } else {
-        await createBanco({
-          nome: formData.nome.trim(),
-          tipo: formData.tipo,
-          saldo_inicial: saldoInicial,
-        });
-      }
-      
-      setDialogOpen(false);
-      resetForm();
-    } catch (error: any) {
-      toast.error(error.message);
+    if (!formData.codigo.trim()) {
+      toast.error("Digite o código do banco");
+      return;
     }
+
+    if (editingBanco) {
+      setBancos(bancos.map(b => 
+        b.id === editingBanco.id 
+          ? { ...b, codigo: formData.codigo.trim(), descricao: formData.descricao.trim() }
+          : b
+      ));
+      toast.success("Banco atualizado!");
+    } else {
+      const novoBanco: Banco = {
+        id: crypto.randomUUID(),
+        codigo: formData.codigo.trim(),
+        descricao: formData.descricao.trim(),
+      };
+      setBancos([...bancos, novoBanco]);
+      toast.success("Banco criado com sucesso!");
+    }
+    
+    setDialogOpen(false);
+    resetForm();
   };
 
-  const handleEdit = (banco: any) => {
+  const handleEdit = (banco: Banco) => {
     setEditingBanco(banco);
     setFormData({
-      nome: banco.nome,
-      tipo: banco.tipo,
-      saldo_inicial: banco.saldo_inicial.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      codigo: banco.codigo,
+      descricao: banco.descricao,
     });
     setDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (confirm("Tem certeza que deseja excluir este banco?")) {
-      try {
-        await deleteBanco(id);
-      } catch (error: any) {
-        toast.error(error.message);
-      }
+      setBancos(bancos.filter(b => b.id !== id));
+      toast.success("Banco deletado!");
     }
-  };
-
-  const handleSaldoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length === 0) {
-      setFormData({ ...formData, saldo_inicial: '0,00' });
-      return;
-    }
-    const numValue = parseInt(value) / 100;
-    setFormData({ ...formData, saldo_inicial: numValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) });
   };
 
   return (
@@ -116,54 +122,32 @@ export default function Bancos() {
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <Label htmlFor="nome" className="text-[#6B5047]">Nome do Banco *</Label>
+                  <Label htmlFor="codigo" className="text-[#6B5047]">Código *</Label>
                   <Input
-                    id="nome"
-                    value={formData.nome}
-                    onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                    id="codigo"
+                    value={formData.codigo}
+                    onChange={(e) => setFormData({ ...formData, codigo: e.target.value })}
+                    placeholder="Ex: 001, 033, 260..."
+                    required
+                    maxLength={10}
+                  />
+                  <p className="text-xs text-[#9C8B82] mt-1">
+                    Digite o código da instituição bancária
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="descricao" className="text-[#6B5047]">Descrição *</Label>
+                  <Input
+                    id="descricao"
+                    value={formData.descricao}
+                    onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
                     placeholder="Ex: Banco do Brasil, Nubank, Caixa..."
                     required
                     maxLength={100}
                   />
                   <p className="text-xs text-[#9C8B82] mt-1">
                     Digite o nome da instituição bancária
-                  </p>
-                </div>
-
-                <div>
-                  <Label htmlFor="tipo" className="text-[#6B5047]">Tipo de Conta *</Label>
-                  <Select 
-                    value={formData.tipo} 
-                    onValueChange={(value) => setFormData({ ...formData, tipo: value })}
-                  >
-                    <SelectTrigger id="tipo">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Conta Corrente">Conta Corrente</SelectItem>
-                      <SelectItem value="Conta Poupança">Conta Poupança</SelectItem>
-                      <SelectItem value="Conta Salário">Conta Salário</SelectItem>
-                      <SelectItem value="Carteira Digital">Carteira Digital</SelectItem>
-                      <SelectItem value="Investimento">Investimento</SelectItem>
-                      <SelectItem value="Caixa">Caixa</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="saldo_inicial" className="text-[#6B5047]">Saldo Inicial</Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9C8B82]">R$</span>
-                    <Input
-                      id="saldo_inicial"
-                      value={formData.saldo_inicial}
-                      onChange={handleSaldoChange}
-                      placeholder="0,00"
-                      className="pl-10"
-                    />
-                  </div>
-                  <p className="text-xs text-[#9C8B82] mt-1">
-                    Informe o saldo inicial desta conta
                   </p>
                 </div>
 
@@ -191,9 +175,7 @@ export default function Bancos() {
         }
       />
 
-      {loading ? (
-        <div className="text-center py-8 text-[#9C8B82]">Carregando...</div>
-      ) : bancos.length === 0 ? (
+      {bancos.length === 0 ? (
         <EmptyState
           icon={Building2}
           title="Nenhum banco cadastrado"
@@ -206,20 +188,16 @@ export default function Bancos() {
           <Table>
             <TableHeader>
               <TableRow className="bg-[#FAF8F6] hover:bg-[#FAF8F6]">
-                <TableHead className="text-[#6B5047] font-semibold">Nome</TableHead>
-                <TableHead className="text-[#6B5047] font-semibold">Tipo</TableHead>
-                <TableHead className="text-[#6B5047] font-semibold text-right">Saldo Inicial</TableHead>
+                <TableHead className="text-[#6B5047] font-semibold">Código</TableHead>
+                <TableHead className="text-[#6B5047] font-semibold">Descrição</TableHead>
                 <TableHead className="text-[#6B5047] font-semibold text-center w-[100px]">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {bancos.map((banco) => (
                 <TableRow key={banco.id} className="hover:bg-[#FAF8F6]/50">
-                  <TableCell className="font-medium text-[#6B5047]">{banco.nome}</TableCell>
-                  <TableCell className="text-[#9C8B82]">{banco.tipo}</TableCell>
-                  <TableCell className="text-right text-[#6B5047]">
-                    R$ {banco.saldo_inicial.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </TableCell>
+                  <TableCell className="font-medium text-[#6B5047]">{banco.codigo}</TableCell>
+                  <TableCell className="text-[#9C8B82]">{banco.descricao}</TableCell>
                   <TableCell className="text-center">
                     <div className="flex gap-2 justify-center">
                       <Button
