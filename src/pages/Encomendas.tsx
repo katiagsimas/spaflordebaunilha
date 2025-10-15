@@ -62,6 +62,8 @@ const Encomendas = () => {
     { id: "7", codigo: "07", descricao: "Cheque" },
   ]);
   
+  const [bancos] = useLocalStorage<{ id: string; nome: string; tipo: string }[]>("sugarbox_bancos", []);
+  
   const [dialogOpen, setDialogOpen] = useState(false);
   const [produtoDialogOpen, setProdutoDialogOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<any | null>(null);
@@ -99,7 +101,7 @@ const Encomendas = () => {
     topo_idade: "",
     topo_obs: "",
     topo_imagens: [] as string[],
-    pagamentos: [] as Array<{ valor: number; data: string; tipo_pagamento: string; pago?: boolean }>,
+    pagamentos: [] as Array<{ valor: number; data: string; tipo_pagamento: string; banco_id?: string; pago?: boolean }>,
   });
 
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -107,6 +109,7 @@ const Encomendas = () => {
     valor: 0, 
     data: new Date().toISOString().split("T")[0],
     tipo_pagamento: "",
+    banco_id: "",
     pago: false
   });
 
@@ -178,7 +181,7 @@ const Encomendas = () => {
     });
     setEditingOrder(null);
     setTempProdutos([]);
-    setNovoPagamento({ valor: 0, data: new Date().toISOString().split("T")[0], tipo_pagamento: "", pago: false });
+    setNovoPagamento({ valor: 0, data: new Date().toISOString().split("T")[0], tipo_pagamento: "", banco_id: "", pago: false });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -467,7 +470,7 @@ const Encomendas = () => {
       pagamentos: [...formData.pagamentos, pagamentoParaAdicionar],
       status: novoStatus
     });
-    setNovoPagamento({ valor: 0, data: new Date().toISOString().split("T")[0], tipo_pagamento: "", pago: false });
+    setNovoPagamento({ valor: 0, data: new Date().toISOString().split("T")[0], tipo_pagamento: "", banco_id: "", pago: false });
     toast.success(isSinal ? 'Sinal adicionado!' : 'Pagamento adicionado!');
     
     if (isSinal && novoPagamento.pago) {
@@ -1182,6 +1185,25 @@ const Encomendas = () => {
                                         </SelectContent>
                                       </Select>
                                     </div>
+                                    
+                                    <div>
+                                      <Label className="text-xs text-blue-700 dark:text-blue-300">Banco *</Label>
+                                      <Select
+                                        value={novoPagamento.banco_id}
+                                        onValueChange={(value) => setNovoPagamento({ ...novoPagamento, banco_id: value })}
+                                      >
+                                        <SelectTrigger className="h-9 text-sm mt-1 bg-background">
+                                          <SelectValue placeholder={bancos.length === 0 ? "Nenhum banco cadastrado" : "Selecione o banco..."} />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-popover z-[100]">
+                                          {bancos.map((banco) => (
+                                            <SelectItem key={banco.id} value={banco.id}>
+                                              {banco.nome}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
                                   </>
                                 ) : (
                                   /* Formulário para Pagamentos normais */
@@ -1222,6 +1244,25 @@ const Encomendas = () => {
                                           {tiposDocumento.map((tipo) => (
                                             <SelectItem key={tipo.id} value={tipo.id}>
                                               {tipo.descricao}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    
+                                    <div>
+                                      <Label className="text-xs text-blue-700 dark:text-blue-300">Banco *</Label>
+                                      <Select
+                                        value={novoPagamento.banco_id}
+                                        onValueChange={(value) => setNovoPagamento({ ...novoPagamento, banco_id: value })}
+                                      >
+                                        <SelectTrigger className="h-9 text-sm mt-1 bg-background">
+                                          <SelectValue placeholder={bancos.length === 0 ? "Nenhum banco cadastrado" : "Selecione o banco..."} />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-popover z-[100]">
+                                          {bancos.map((banco) => (
+                                            <SelectItem key={banco.id} value={banco.id}>
+                                              {banco.nome}
                                             </SelectItem>
                                           ))}
                                         </SelectContent>
