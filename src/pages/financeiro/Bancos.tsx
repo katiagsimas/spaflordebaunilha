@@ -153,7 +153,7 @@ export default function Bancos() {
   return (
     <div className="min-h-screen bg-[#FAF7F5] p-4 md:p-6 space-y-6">
       <div className="flex items-center gap-4">
-        <BackButton to="/financeiro/configuracoes-financeiro" />
+        <BackButton to="/configuracoes" />
         <div className="flex-1">
           <PageHeader
             title="Bancos"
