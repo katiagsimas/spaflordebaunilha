@@ -43,6 +43,7 @@ import { useCategoriasFinanceiras } from "@/hooks/useCategoriasFinanceiras";
 import { usePlanoContas } from "@/hooks/usePlanoContas";
 import { useClientes } from "@/hooks/useClientes";
 import { ClienteAutocomplete } from "@/components/ClienteAutocomplete";
+import { useContasReceber } from "@/hooks/useContasReceber";
 
 // Helper para renderizar ícone dinamicamente
 const renderIcon = (iconName?: string) => {
@@ -162,9 +163,9 @@ export function ContaReceberFormDialog({
   const { categorias: categoriasFinanceiras } = useCategoriasFinanceiras();
   const { planoContas } = usePlanoContas();
   const { clientes } = useClientes();
+  const { createItem, updateItem } = useContasReceber();
   const [bancos] = useLocalStorage<Banco[]>("sugarbox_bancos", []);
   const [tiposDocumento] = useLocalStorage<TipoDocumento[]>("sugarbox_tipos_documento", []);
-  const [contas, setContas] = useLocalStorage<ContaReceber[]>("sugarbox_contas_receber", []);
   const [selectedCategoriaId, setSelectedCategoriaId] = useState<string>("");
   const [selectedClienteNome, setSelectedClienteNome] = useState<string>("");
   const [valorInput, setValorInput] = useState("");
@@ -252,54 +253,41 @@ export function ContaReceberFormDialog({
     }
   }, [conta, form, open]);
 
-  function onSubmit(values: FormValues) {
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
-    const vencimento = new Date(values.dataVencimento);
-    vencimento.setHours(0, 0, 0, 0);
+  async function onSubmit(values: FormValues) {
+    try {
+      const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
+      const vencimento = new Date(values.dataVencimento);
+      vencimento.setHours(0, 0, 0, 0);
 
-    let status: 'pendente' | 'atrasado' = 'pendente';
-    if (vencimento < hoje) {
-      status = 'atrasado';
+      let status: 'pendente' | 'atrasado' = 'pendente';
+      if (vencimento < hoje) {
+        status = 'atrasado';
+      }
+
+      const contaData = {
+        descricao: values.descricao.trim(),
+        valor: values.valor,
+        data_vencimento: values.dataVencimento.toISOString().split('T')[0],
+        status,
+        categoria_id: values.categoriaId,
+        observacoes: values.observacoes?.trim() || null,
+      };
+
+      if (conta?.id) {
+        await updateItem(conta.id, contaData);
+        toast.success("✓ Conta atualizada com sucesso!");
+      } else {
+        await createItem(contaData);
+        toast.success("✓ Conta a receber criada com sucesso!");
+      }
+      
+      onOpenChange(false);
+      onSave();
+    } catch (error: any) {
+      console.error('Erro ao salvar conta:', error);
+      toast.error('Erro ao salvar conta: ' + error.message);
     }
-
-    const novaConta: ContaReceber = {
-      id: conta?.id || crypto.randomUUID(),
-      descricao: values.descricao.trim(),
-      categoriaId: values.categoriaId,
-      planoContaId: values.planoContaId,
-      valor: values.valor,
-      dataEmissao: values.dataEmissao.toISOString(),
-      dataVencimento: values.dataVencimento.toISOString(),
-      status,
-      clienteNome: values.clienteNome?.trim(),
-      clienteDocumento: values.clienteDocumento?.trim(),
-      bancoId: values.bancoId,
-      tipoDocumentoId: values.tipoDocumentoId,
-      numeroDocumento: values.numeroDocumento?.trim(),
-      observacoes: values.observacoes?.trim(),
-      parcelado: values.parcelado,
-      numeroParcela: values.numeroParcela,
-      totalParcelas: values.totalParcelas,
-      recorrente: values.recorrente,
-      frequenciaRecorrencia: values.frequenciaRecorrencia,
-      tags: [],
-      createdAt: conta?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    const contasAtualizadas = conta
-      ? contas.map(c => c.id === conta.id ? novaConta : c)
-      : [...contas, novaConta];
-
-    contasAtualizadas.sort((a, b) => 
-      new Date(a.dataVencimento).getTime() - new Date(b.dataVencimento).getTime()
-    );
-
-    setContas(contasAtualizadas);
-    toast.success(conta ? "✓ Conta atualizada com sucesso!" : "✓ Conta a receber criada com sucesso!");
-    onOpenChange(false);
-    onSave();
   }
 
   function handleValorChange(value: string) {

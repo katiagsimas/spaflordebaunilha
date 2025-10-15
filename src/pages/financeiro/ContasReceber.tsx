@@ -23,74 +23,25 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { toast } from "sonner";
 import { ContaReceberFormDialog } from "@/components/ContaReceberFormDialog";
 import { RegistrarRecebimentoDialog } from "@/components/RegistrarRecebimentoDialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { useContasReceber } from "@/hooks/useContasReceber";
 
-interface ContaReceber {
-  id: string;
-  descricao: string;
-  categoriaId: string;
-  planoContaId: string;
-  valor: number;
-  dataEmissao: string;
-  dataVencimento: string;
-  dataPagamento?: string;
-  status: 'pendente' | 'recebido' | 'atrasado' | 'cancelado';
-  formaPagamento?: string;
-  bancoId?: string;
-  tipoDocumentoId?: string;
-  numeroDocumento?: string;
-  clienteNome?: string;
-  clienteDocumento?: string;
-  observacoes?: string;
-  parcelado: boolean;
-  numeroParcela?: number;
-  totalParcelas?: number;
-  grupoParcelasId?: string;
-  recorrente: boolean;
-  frequenciaRecorrencia?: string;
-  proximaRecorrencia?: string;
-  tags?: string[];
-  createdAt: string;
-  updatedAt: string;
-}
 
 export default function ContasReceber() {
-  const [contas, setContas] = useLocalStorage<ContaReceber[]>("sugarbox_contas_receber", []);
+  const { items: contas, loading, refetch, deleteItem } = useContasReceber();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("todos");
   const [periodoFilter, setPeriodoFilter] = useState<string>("todos");
   const [selectedTab, setSelectedTab] = useState("todas");
   const [selectedContas, setSelectedContas] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingConta, setEditingConta] = useState<ContaReceber | null>(null);
+  const [editingConta, setEditingConta] = useState<any | null>(null);
   const [isRecebimentoDialogOpen, setIsRecebimentoDialogOpen] = useState(false);
-  const [contaParaReceber, setContaParaReceber] = useState<ContaReceber | null>(null);
+  const [contaParaReceber, setContaParaReceber] = useState<any | null>(null);
 
-  // Calcular status automaticamente
-  useEffect(() => {
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
-
-    const contasAtualizadas = contas.map(conta => {
-      if (conta.status === 'pendente') {
-        const vencimento = new Date(conta.dataVencimento);
-        vencimento.setHours(0, 0, 0, 0);
-        
-        if (vencimento < hoje) {
-          return { ...conta, status: 'atrasado' as const };
-        }
-      }
-      return conta;
-    });
-
-    if (JSON.stringify(contasAtualizadas) !== JSON.stringify(contas)) {
-      setContas(contasAtualizadas);
-    }
-  }, [contas, setContas]);
 
   // Calcular resumos
   const resumo = {
@@ -101,12 +52,12 @@ export default function ContasReceber() {
     atrasado: contas.filter(c => c.status === 'atrasado').reduce((sum, c) => sum + c.valor, 0),
     atrasadoQtd: contas.filter(c => c.status === 'atrasado').length,
     esteMes: contas.filter(c => {
-      const data = new Date(c.dataVencimento);
+      const data = new Date(c.data_vencimento);
       const hoje = new Date();
       return data.getMonth() === hoje.getMonth() && data.getFullYear() === hoje.getFullYear();
     }).reduce((sum, c) => sum + c.valor, 0),
     esteMesQtd: contas.filter(c => {
-      const data = new Date(c.dataVencimento);
+      const data = new Date(c.data_vencimento);
       const hoje = new Date();
       return data.getMonth() === hoje.getMonth() && data.getFullYear() === hoje.getFullYear();
     }).length,
@@ -117,11 +68,7 @@ export default function ContasReceber() {
     // Filtro de busca
     if (searchTerm) {
       const termo = searchTerm.toLowerCase();
-      if (
-        !conta.descricao.toLowerCase().includes(termo) &&
-        !conta.clienteNome?.toLowerCase().includes(termo) &&
-        !conta.numeroDocumento?.toLowerCase().includes(termo)
-      ) {
+      if (!conta.descricao.toLowerCase().includes(termo)) {
         return false;
       }
     }
@@ -139,16 +86,16 @@ export default function ContasReceber() {
     return true;
   });
 
-  function isVencendoHoje(conta: ContaReceber) {
+  function isVencendoHoje(conta: any) {
     if (conta.status !== 'pendente') return false;
     const hoje = new Date();
-    const vencimento = new Date(conta.dataVencimento);
+    const vencimento = new Date(conta.data_vencimento);
     hoje.setHours(0, 0, 0, 0);
     vencimento.setHours(0, 0, 0, 0);
     return vencimento.getTime() === hoje.getTime();
   }
 
-  function getStatusBadge(status: ContaReceber['status']) {
+  function getStatusBadge(status: string) {
     const badges = {
       pendente: {
         icon: Clock,
@@ -183,9 +130,9 @@ export default function ContasReceber() {
     );
   }
 
-  function getRowStyle(conta: ContaReceber) {
+  function getRowStyle(conta: any) {
     const hoje = new Date();
-    const vencimento = new Date(conta.dataVencimento);
+    const vencimento = new Date(conta.data_vencimento);
     hoje.setHours(0, 0, 0, 0);
     vencimento.setHours(0, 0, 0, 0);
 
@@ -210,71 +157,24 @@ export default function ContasReceber() {
     return "";
   }
 
-  function handleExcluir(conta: ContaReceber) {
-    if (conta.parcelado && conta.grupoParcelasId) {
-      const parcelas = contas.filter(c => c.grupoParcelasId === conta.grupoParcelasId);
-      
-      if (confirm(`Esta conta faz parte de um parcelamento (${parcelas.length} parcelas).\n\nDeseja excluir todas as parcelas?\n\nOK = Excluir todas | Cancelar = Excluir apenas esta`)) {
-        const novasContas = contas.filter(c => c.grupoParcelasId !== conta.grupoParcelasId);
-        setContas(novasContas);
-        toast.success(`✓ ${parcelas.length} parcelas excluídas com sucesso!`);
-      } else {
-        const novasContas = contas.filter(c => c.id !== conta.id);
-        setContas(novasContas);
+  async function handleExcluir(conta: any) {
+    if (confirm(`Tem certeza que deseja excluir "${conta.descricao}"?`)) {
+      try {
+        await deleteItem(conta.id);
         toast.success("✓ Conta excluída com sucesso!");
-      }
-    } else {
-      if (confirm(`Tem certeza que deseja excluir "${conta.descricao}"?`)) {
-        const novasContas = contas.filter(c => c.id !== conta.id);
-        setContas(novasContas);
-        toast.success("✓ Conta excluída com sucesso!");
+        refetch();
+      } catch (error: any) {
+        toast.error('Erro ao excluir conta: ' + error.message);
       }
     }
   }
 
-  function handleEstornar(conta: ContaReceber) {
-    if (confirm("Tem certeza que deseja estornar este recebimento?\nA conta voltará para o status pendente.")) {
-      const hoje = new Date();
-      hoje.setHours(0, 0, 0, 0);
-      const vencimento = new Date(conta.dataVencimento);
-      vencimento.setHours(0, 0, 0, 0);
-
-      const contaEstornada: ContaReceber = {
-        ...conta,
-        dataPagamento: undefined,
-        formaPagamento: undefined,
-        bancoId: undefined,
-        status: vencimento < hoje ? 'atrasado' : 'pendente',
-        updatedAt: new Date().toISOString(),
-      };
-
-      const contasAtualizadas = contas.map(c => c.id === conta.id ? contaEstornada : c);
-      setContas(contasAtualizadas);
-      toast.success("✓ Recebimento estornado com sucesso!");
-    }
+  async function handleEstornar(conta: any) {
+    toast.info("Funcionalidade em desenvolvimento");
   }
 
-  function handleDuplicar(conta: ContaReceber) {
-    const novaConta: ContaReceber = {
-      ...conta,
-      id: crypto.randomUUID(),
-      descricao: `${conta.descricao} (cópia)`,
-      dataEmissao: new Date().toISOString(),
-      dataVencimento: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      status: 'pendente',
-      dataPagamento: undefined,
-      formaPagamento: undefined,
-      bancoId: undefined,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    const contasAtualizadas = [...contas, novaConta].sort((a, b) => 
-      new Date(a.dataVencimento).getTime() - new Date(b.dataVencimento).getTime()
-    );
-    
-    setContas(contasAtualizadas);
-    toast.success("✓ Conta duplicada com sucesso!");
+  async function handleDuplicar(conta: any) {
+    toast.info("Funcionalidade em desenvolvimento");
   }
 
   function handleSelecionarTodas() {
@@ -285,17 +185,23 @@ export default function ContasReceber() {
     setSelectedContas([]);
   }
 
-  function handleExcluirSelecionadas() {
+  async function handleExcluirSelecionadas() {
     if (selectedContas.length === 0) {
       toast.warning("Selecione pelo menos uma conta");
       return;
     }
 
     if (confirm(`Tem certeza que deseja excluir ${selectedContas.length} conta(s) selecionada(s)?`)) {
-      const novasContas = contas.filter(c => !selectedContas.includes(c.id));
-      setContas(novasContas);
-      setSelectedContas([]);
-      toast.success(`✓ ${selectedContas.length} conta(s) excluída(s) com sucesso!`);
+      try {
+        for (const id of selectedContas) {
+          await deleteItem(id);
+        }
+        setSelectedContas([]);
+        toast.success(`✓ ${selectedContas.length} conta(s) excluída(s) com sucesso!`);
+        refetch();
+      } catch (error: any) {
+        toast.error('Erro ao excluir contas: ' + error.message);
+      }
     }
   }
 
@@ -312,14 +218,14 @@ export default function ContasReceber() {
     ];
 
     const rows = contasFiltradas.map(c => [
-      formatDate(c.dataEmissao),
-      formatDate(c.dataVencimento),
+      formatDate(c.created_at || ''),
+      formatDate(c.data_vencimento),
       c.descricao,
-      c.clienteNome || '',
+      '',
       c.valor.toFixed(2),
       c.status,
-      c.dataPagamento ? formatDate(c.dataPagamento) : '',
-      c.formaPagamento || ''
+      c.data_recebimento ? formatDate(c.data_recebimento) : '',
+      ''
     ]);
 
     const csv = [headers, ...rows]
@@ -367,7 +273,7 @@ export default function ContasReceber() {
   const contasVencemHoje = contas.filter(c => {
     if (c.status !== 'pendente') return false;
     const hoje = new Date();
-    const vencimento = new Date(c.dataVencimento);
+    const vencimento = new Date(c.data_vencimento);
     hoje.setHours(0, 0, 0, 0);
     vencimento.setHours(0, 0, 0, 0);
     return vencimento.getTime() === hoje.getTime();
@@ -603,31 +509,28 @@ export default function ContasReceber() {
 
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-4">
                       <div className="md:col-span-2">
-                        <div className="flex items-start gap-2">
-                          <Calendar className="h-4 w-4 text-[#9C8B82] mt-0.5 shrink-0" />
-                          <div>
-                            <p className="text-sm text-[#9C8B82]">{format(new Date(conta.dataEmissao), 'dd/MM')}</p>
-                            <p className="text-xs text-[#9C8B82]">
-                              {conta.status === 'recebido' && conta.dataPagamento
-                                ? `Receb: ${format(new Date(conta.dataPagamento), 'dd/MM')}`
-                                : `Venc: ${format(new Date(conta.dataVencimento), 'dd/MM')} (${formatDateRelative(conta.dataVencimento)})`
-                              }
-                            </p>
+                          <div className="flex items-start gap-2">
+                            <Calendar className="h-4 w-4 text-[#9C8B82] mt-0.5 shrink-0" />
+                            <div>
+                              <p className="text-sm text-[#9C8B82]">{format(new Date(conta.created_at || conta.data_vencimento), 'dd/MM')}</p>
+                              <p className="text-xs text-[#9C8B82]">
+                                {conta.status === 'recebido' && conta.data_recebimento
+                                  ? `Receb: ${format(new Date(conta.data_recebimento), 'dd/MM')}`
+                                  : `Venc: ${format(new Date(conta.data_vencimento), 'dd/MM')} (${formatDateRelative(conta.data_vencimento)})`
+                                }
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                        <div className="mt-2">
-                          <h4 className="font-semibold text-[#6B5047]">{conta.descricao}</h4>
-                          <p className="text-xs text-[#9C8B82]">Plano de Contas</p>
-                          {conta.formaPagamento && conta.status === 'recebido' && (
-                            <p className="text-xs text-[#9C8B82]">{conta.formaPagamento}</p>
-                          )}
-                        </div>
+                          <div className="mt-2">
+                            <h4 className="font-semibold text-[#6B5047]">{conta.descricao}</h4>
+                            <p className="text-xs text-[#9C8B82]">Plano de Contas</p>
+                          </div>
                       </div>
 
-                      <div>
-                        <p className="text-sm text-[#9C8B82]">Cliente</p>
-                        <p className="font-medium text-[#6B5047]">{conta.clienteNome || '-'}</p>
-                      </div>
+                        <div>
+                          <p className="text-sm text-[#9C8B82]">Cliente</p>
+                          <p className="font-medium text-[#6B5047]">-</p>
+                        </div>
 
                       <div>
                         <p className="text-sm text-[#9C8B82]">Valor</p>
@@ -711,9 +614,6 @@ export default function ContasReceber() {
                         <div className="flex-1">
                           {getStatusBadge(conta.status)}
                           <h4 className="font-semibold text-[#6B5047] mt-2">{conta.descricao}</h4>
-                          {conta.clienteNome && (
-                            <p className="text-sm text-[#9C8B82] mt-1">Cliente: {conta.clienteNome}</p>
-                          )}
                         </div>
                       </div>
                       <DropdownMenu>
@@ -768,9 +668,9 @@ export default function ContasReceber() {
                       <div>
                         <p className="text-2xl font-bold text-[#6B5047]">{formatCurrency(conta.valor)}</p>
                         <p className="text-xs text-[#9C8B82] mt-1">
-                          {conta.status === 'recebido' && conta.dataPagamento
-                            ? `Recebido em ${format(new Date(conta.dataPagamento), 'dd/MM/yyyy')}`
-                            : `Vence ${formatDateRelative(conta.dataVencimento)}`
+                          {conta.status === 'recebido' && conta.data_recebimento
+                            ? `Recebido em ${format(new Date(conta.data_recebimento), 'dd/MM/yyyy')}`
+                            : `Vence ${formatDateRelative(conta.data_vencimento)}`
                           }
                         </p>
                       </div>
@@ -790,9 +690,6 @@ export default function ContasReceber() {
 
                     <div className="text-xs text-[#9C8B82]">
                       Plano de Contas
-                      {conta.formaPagamento && conta.status === 'recebido' && (
-                        <> • {conta.formaPagamento}</>
-                      )}
                     </div>
                   </div>
                 </Card>
@@ -809,6 +706,7 @@ export default function ContasReceber() {
         conta={editingConta}
         onSave={() => {
           setEditingConta(null);
+          refetch();
         }}
       />
 
