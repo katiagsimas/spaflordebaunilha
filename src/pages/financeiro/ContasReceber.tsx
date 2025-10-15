@@ -483,7 +483,7 @@ export default function ContasReceber() {
           }}
         >
           <div className="space-y-2">
-            <p className="text-sm text-[#9C8B82]">Aberto</p>
+            <p className="text-sm text-[#9C8B82]">Em Aberto</p>
             <p className="text-2xl font-bold text-[#6B5047]">{formatCurrency(resumo.aberto)}</p>
             <p className="text-xs text-[#9C8B82]">{resumo.abertoQtd} contas</p>
           </div>
