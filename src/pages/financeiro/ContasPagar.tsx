@@ -634,7 +634,7 @@ export default function ContasPagar() {
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-[#9C8B82] flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4" />
-                Atrasado
+                Vencido
               </CardTitle>
             </CardHeader>
             <CardContent>
