@@ -420,6 +420,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
     }
     
     setParcelas(novasParcelas);
+    form.setValue('totalParcelas', numeroParcelas);
     setParcelaDialogOpen(false);
     toast.success(`✓ ${numeroParcelas} parcelas geradas com sucesso!`);
   };
@@ -949,6 +950,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                               setParcelaDialogOpen(true);
                             } else {
                               setParcelas([]);
+                              form.setValue('totalParcelas', undefined);
                             }
                           }}
                         />
