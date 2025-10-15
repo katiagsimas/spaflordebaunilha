@@ -77,9 +77,13 @@ export function useContasReceber() {
       .eq('id', id)
       .eq('usuario_id', user.id)
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
+    
+    if (!data) {
+      throw new Error('Registro não encontrado');
+    }
     
     // Recarregar a lista completa para manter a ordenação correta
     await fetchItems();
