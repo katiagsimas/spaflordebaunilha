@@ -34,8 +34,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { formatCpfCnpj } from "@/lib/utils";
 import { toast } from "sonner";
@@ -45,6 +43,7 @@ import { usePlanoContas } from "@/hooks/usePlanoContas";
 import { useClientes } from "@/hooks/useClientes";
 import { ClienteAutocomplete } from "@/components/ClienteAutocomplete";
 import { useContasReceber } from "@/hooks/useContasReceber";
+import { DatePickerField } from "@/components/DatePickerField";
 
 // Helper para renderizar ícone dinamicamente
 const renderIcon = (iconName?: string) => {
@@ -472,35 +471,13 @@ export function ContaReceberFormDialog({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel className="text-[#6B5047] font-medium">Data de Emissão *</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "pl-3 text-left font-normal border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "dd/MM/yyyy")
-                            ) : (
-                              <span>Selecione...</span>
-                            )}
-                            <Calendar className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <CalendarComponent
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          initialFocus
-                          className={cn("p-3 pointer-events-auto")}
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <FormControl>
+                      <DatePickerField
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Selecione a data..."
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -1104,33 +1081,11 @@ export function ContaReceberFormDialog({
               <label className="text-sm font-medium text-[#6B5047] mb-2 block">
                 Data de Vencimento da 1ª Parcela *
               </label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full pl-3 text-left font-normal border-[#E8E3DF] focus:border-[#8BA888] focus:ring-[#8BA888]",
-                      !dataVencimentoParcela && "text-muted-foreground"
-                    )}
-                  >
-                    {dataVencimentoParcela ? (
-                      format(dataVencimentoParcela, "dd/MM/yyyy")
-                    ) : (
-                      <span>Selecione...</span>
-                    )}
-                    <Calendar className="ml-auto h-4 w-4 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <CalendarComponent
-                    mode="single"
-                    selected={dataVencimentoParcela}
-                    onSelect={setDataVencimentoParcela}
-                    initialFocus
-                    className={cn("p-3 pointer-events-auto")}
-                  />
-                </PopoverContent>
-              </Popover>
+              <DatePickerField
+                value={dataVencimentoParcela}
+                onChange={setDataVencimentoParcela}
+                placeholder="Selecione a data..."
+              />
             </div>
           </div>
 
@@ -1227,33 +1182,11 @@ export function ContaReceberFormDialog({
               <label className="text-sm font-medium text-[#6B5047] mb-2 block">
                 Data de Vencimento da 1ª Recorrência *
               </label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full pl-3 text-left font-normal border-[#E8E3DF] focus:border-[#7BA8D8] focus:ring-[#7BA8D8]",
-                      !dataVencimentoRecorrencia && "text-muted-foreground"
-                    )}
-                  >
-                    {dataVencimentoRecorrencia ? (
-                      format(dataVencimentoRecorrencia, "dd/MM/yyyy")
-                    ) : (
-                      <span>Selecione...</span>
-                    )}
-                    <Calendar className="ml-auto h-4 w-4 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <CalendarComponent
-                    mode="single"
-                    selected={dataVencimentoRecorrencia}
-                    onSelect={setDataVencimentoRecorrencia}
-                    initialFocus
-                    className={cn("p-3 pointer-events-auto")}
-                  />
-                </PopoverContent>
-              </Popover>
+              <DatePickerField
+                value={dataVencimentoRecorrencia}
+                onChange={setDataVencimentoRecorrencia}
+                placeholder="Selecione a data..."
+              />
             </div>
           </div>
 

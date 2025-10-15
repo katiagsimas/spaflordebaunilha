@@ -13,10 +13,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { formatCpfCnpj } from "@/lib/utils";
+import { DatePickerField } from "@/components/DatePickerField";
 
 interface ContaPagar {
   id: string;
@@ -455,36 +454,13 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel className="text-[#6B5047]">Data de Emissão *</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "dd/MM/yyyy")
-                              ) : (
-                                <span>Selecione a data</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <CalendarComponent
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) => date > new Date()}
-                            initialFocus
-                            className="pointer-events-auto"
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      <FormControl>
+                        <DatePickerField
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder="Selecione a data"
+                        />
+                      </FormControl>
                       <p className="text-xs text-[#9C8B82]">Data em que a despesa foi gerada</p>
                       <FormMessage />
                     </FormItem>
@@ -497,35 +473,13 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel className="text-[#6B5047]">Data de Vencimento *</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "dd/MM/yyyy")
-                              ) : (
-                                <span>Selecione a data</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <CalendarComponent
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                            className="pointer-events-auto"
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      <FormControl>
+                        <DatePickerField
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder="Selecione a data"
+                        />
+                      </FormControl>
                       <p className="text-xs text-[#9C8B82]">Data limite para pagamento</p>
                       <FormMessage />
                     </FormItem>
@@ -800,35 +754,13 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel className="text-[#6B5047]">Próxima Recorrência</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                className={cn(
-                                  "pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "dd/MM/yyyy")
-                                ) : (
-                                  <span>Selecione a data</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <CalendarComponent
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              initialFocus
-                              className="pointer-events-auto"
-                            />
-                          </PopoverContent>
-                        </Popover>
+                        <FormControl>
+                          <DatePickerField
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Selecione a data"
+                          />
+                        </FormControl>
                         <p className="text-xs text-[#9C8B82]">💡 Dica: Despesas recorrentes são criadas automaticamente na data programada</p>
                         <FormMessage />
                       </FormItem>
