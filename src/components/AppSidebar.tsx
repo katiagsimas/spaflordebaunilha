@@ -40,8 +40,8 @@ const menuItems = [
   // 📦 ESTOQUE
   // { title: "Estoque", url: "/estoque", icon: Package, active: true },
   
-  { title: "Clientes", url: "/clientes", icon: User, active: true },
-  { title: "Fornecedores", url: "/fornecedores", icon: Truck, active: true },
+  { title: "Clientes", url: "/cadastros/clientes", icon: User, active: true },
+  { title: "Fornecedores", url: "/cadastros/fornecedores", icon: Truck, active: true },
   { title: "Precificação", url: "/precificacao", icon: Calculator, active: true },
   { title: "Financeiro", url: "/financeiro", icon: DollarSign, active: true },
   
