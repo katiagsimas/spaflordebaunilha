@@ -20,6 +20,8 @@ import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useBancos } from "@/hooks/useBancos";
+import { useTiposDocumento } from "@/hooks/useTiposDocumento";
 
 interface TipoDocumento {
   id: string;
@@ -29,8 +31,8 @@ interface TipoDocumento {
 
 interface Banco {
   id: string;
-  codigo: string;
-  descricao: string;
+  nome: string;
+  tipo: string;
 }
 
 const statusColors = {
@@ -56,19 +58,8 @@ const Encomendas = () => {
   const { clientes } = useClientes();
   const { receitas } = useReceitas();
   const { unidades } = useUnidadesMedida();
-  
-  // Carregar tipos de documento do localStorage com valores padrão
-  const [tiposDocumento] = useLocalStorage<TipoDocumento[]>("sugarbox_tipos_documento", [
-    { id: "1", codigo: "01", descricao: "Dinheiro" },
-    { id: "2", codigo: "02", descricao: "PIX" },
-    { id: "3", codigo: "03", descricao: "Cartão de Crédito" },
-    { id: "4", codigo: "04", descricao: "Cartão de Débito" },
-    { id: "5", codigo: "05", descricao: "Boleto Bancário" },
-    { id: "6", codigo: "06", descricao: "Transferência Bancária" },
-    { id: "7", codigo: "07", descricao: "Cheque" },
-  ]);
-  
-  const [bancos] = useLocalStorage<Banco[]>("sugarbox_bancos", []);
+  const { bancos } = useBancos();
+  const { tiposDocumento } = useTiposDocumento();
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [produtoDialogOpen, setProdutoDialogOpen] = useState(false);
@@ -1204,7 +1195,7 @@ const Encomendas = () => {
                                         <SelectContent className="bg-popover z-[100]">
                                           {bancos.map((banco) => (
                                             <SelectItem key={banco.id} value={banco.id}>
-                                              {banco.descricao}
+                                              {banco.nome}
                                             </SelectItem>
                                           ))}
                                         </SelectContent>
@@ -1268,7 +1259,7 @@ const Encomendas = () => {
                                         <SelectContent className="bg-popover z-[100]">
                                           {bancos.map((banco) => (
                                             <SelectItem key={banco.id} value={banco.id}>
-                                              {banco.descricao}
+                                              {banco.nome}
                                             </SelectItem>
                                           ))}
                                         </SelectContent>
