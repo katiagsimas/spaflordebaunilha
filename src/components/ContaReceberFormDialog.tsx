@@ -98,7 +98,8 @@ interface PlanoContas {
 
 interface TipoDocumento {
   id: string;
-  nome: string;
+  codigo?: string;
+  descricao: string;
   ativo: boolean;
 }
 
@@ -644,27 +645,48 @@ export function ContaReceberFormDialog({
 
             {/* Documento */}
             <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
-              <h3 className="font-semibold text-[#6B5047] flex items-center gap-2 pb-2 border-b border-[#E8E3DF]">
-                <CreditCard className="h-5 w-5 text-[#D89B8C]" />
-                Documento (opcional)
-              </h3>
+              <div className="flex items-center justify-between pb-2 border-b border-[#E8E3DF]">
+                <h3 className="font-semibold text-[#6B5047] flex items-center gap-2">
+                  <CreditCard className="h-5 w-5 text-[#D89B8C]" />
+                  Documento (opcional)
+                </h3>
+                <Link 
+                  to="/financeiro/tipos-documento"
+                  className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1 transition-colors"
+                  target="_blank"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Gerenciar Tipos de Documento
+                </Link>
+              </div>
               
               <FormField
                 control={form.control}
                 name="tipoDocumentoId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[#6B5047] font-medium">Tipo de Documento</FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel className="text-[#6B5047] font-medium">Tipo de Documento</FormLabel>
+                      {tiposDocumento.filter(t => t.ativo).length === 0 && (
+                        <Link 
+                          to="/financeiro/tipos-documento"
+                          className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1"
+                          target="_blank"
+                        >
+                          + Criar tipo de documento
+                        </Link>
+                      )}
+                    </div>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
                         <SelectTrigger className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]">
-                          <SelectValue placeholder="Selecione..." />
+                          <SelectValue placeholder="Selecione o tipo de documento..." />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="bg-background">
                         {tiposDocumento.filter(t => t.ativo).map((tipo) => (
                           <SelectItem key={tipo.id} value={tipo.id}>
-                            {tipo.nome}
+                            {tipo.descricao}
                           </SelectItem>
                         ))}
                       </SelectContent>
