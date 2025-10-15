@@ -166,34 +166,11 @@ export default function ContasPagar() {
     };
   }, [contasFiltradas]);
 
-  const handleSave = async (conta: any) => {
-    try {
-      if (selectedConta) {
-        await updateItem(selectedConta.id, {
-          descricao: conta.descricao,
-          valor: conta.valor,
-          data_vencimento: conta.data_vencimento,
-          data_pagamento: conta.data_pagamento,
-          status: conta.status,
-          categoria_id: conta.categoria_id,
-          observacoes: conta.observacoes
-        });
-      } else {
-        await createItem({
-          descricao: conta.descricao,
-          valor: conta.valor,
-          data_vencimento: conta.data_vencimento,
-          status: conta.status || 'pendente',
-          categoria_id: conta.categoria_id,
-          observacoes: conta.observacoes
-        });
-      }
-      setIsFormOpen(false);
-      setSelectedConta(undefined);
-      refetch();
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao salvar conta a pagar");
-    }
+  const handleSave = async () => {
+    // O salvamento agora é feito pelo próprio componente ContaPagarFormDialog
+    setIsFormOpen(false);
+    setSelectedConta(undefined);
+    refetch();
   };
 
   const handleEdit = (conta: ContaPagar) => {

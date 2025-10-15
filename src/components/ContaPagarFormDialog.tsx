@@ -22,6 +22,7 @@ import { DatePickerField } from "@/components/DatePickerField";
 import { FornecedorAutocomplete } from "@/components/FornecedorAutocomplete";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
+import { useContasPagar } from "@/hooks/useContasPagar";
 
 interface Banco {
   id: string;
@@ -53,53 +54,11 @@ interface ParcelaRecorrente {
   dataVencimento: Date;
 }
 
-interface ContaPagar {
-  id: string;
-  descricao: string;
-  categoriaId: string;
-  planoContaId: string;
-  valor: number;
-  dataEmissao: string;
-  dataVencimento: string;
-  dataPagamento?: string;
-  status: 'pendente' | 'pago' | 'atrasado' | 'cancelado';
-  formaPagamento?: 'dinheiro' | 'pix' | 'cartao_credito' | 'cartao_debito' | 'transferencia' | 'boleto' | 'outros';
-  bancoId?: string;
-  tipoDocumentoId?: string;
-  numeroDocumento?: string;
-  fornecedorNome?: string;
-  fornecedorDocumento?: string;
-  observacoes?: string;
-  parcelado: boolean;
-  numeroParcela?: number;
-  totalParcelas?: number;
-  grupoParcelasId?: string;
-  recorrente: boolean;
-  frequenciaRecorrencia?: 'mensal' | 'bimestral' | 'trimestral' | 'semestral' | 'anual';
-  proximaRecorrencia?: string;
-  centroCusto?: string;
-  tags?: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Categoria {
-  id: string;
-  nome: string;
-  cor: string;
-  tipo: 'receita' | 'despesa';
-}
-
-interface PlanoContas {
-  id: string;
-  nome: string;
-  categoriaId: string;
-}
-
-interface TipoDocumento {
-  id: string;
-  codigo: string;
-  descricao: string;
+interface ContaPagarFormDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  conta?: any;
+  onSave: () => void;
 }
 
 const formSchema = z.object({
@@ -159,18 +118,12 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface ContaPagarFormDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  conta?: ContaPagar;
-  onSave: (conta: any) => void;
-}
-
 export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: ContaPagarFormDialogProps) {
   const { categorias, loading: loadingCategorias } = useCategoriasFinanceiras();
   const { planoContas, loading: loadingPlanos } = usePlanoContas();
   const { tiposDocumento, loading: loadingTiposDocumento } = useTiposDocumento();
   const { bancos } = useBancos();
+  const { createItem } = useContasPagar();
   
   const [parcelaDialogOpen, setParcelaDialogOpen] = useState(false);
   const [numeroParcelas, setNumeroParcelas] = useState<number>(1);
@@ -288,21 +241,96 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
     }
   }, [conta, form]);
 
-  const onSubmit = (data: FormValues) => {
-    const valor = parseFloat(data.valor.replace(/[^\d,]/g, '').replace(',', '.'));
+  const onSubmit = async (data: FormValues) => {
+    try {
+      const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
 
-    const contaPagar = {
-      descricao: data.descricao,
-      categoria_id: data.categoriaId,
-      valor,
-      data_vencimento: formatDateToISO(data.dataEmissao),
-      status: 'pendente',
-      observacoes: data.observacoes || null,
-      banco_id: data.bancoId || null,
-    };
+      // Se tem parcelas configuradas, criar múltiplas contas (uma para cada parcela)
+      if (parcelas.length > 0) {
+        for (const parcela of parcelas) {
+          const vencimento = new Date(parcela.dataVencimento);
+          vencimento.setHours(0, 0, 0, 0);
 
-    onSave(contaPagar);
-    toast.success("✓ Evento Lançado com Sucesso!");
+          let status: 'pendente' | 'atrasado' = 'pendente';
+          if (vencimento < hoje) {
+            status = 'atrasado';
+          }
+
+          const contaData = {
+            descricao: `${data.descricao} (${parcela.numero}/${parcela.total})`,
+            valor: parcela.valor,
+            data_vencimento: formatDateToISO(parcela.dataVencimento),
+            status,
+            categoria_id: data.categoriaId || null,
+            observacoes: data.observacoes || null,
+            banco_id: data.bancoId || null,
+          };
+
+          await createItem(contaData);
+        }
+        toast.success(`✓ Evento Lançado com Sucesso! ${parcelas.length} parcelas criadas.`);
+        onOpenChange(false);
+        onSave();
+      }
+      // Se tem recorrências configuradas, criar múltiplas contas (uma para cada recorrência)
+      else if (parcelasRecorrentes.length > 0) {
+        for (const recorrencia of parcelasRecorrentes) {
+          const vencimento = new Date(recorrencia.dataVencimento);
+          vencimento.setHours(0, 0, 0, 0);
+
+          let status: 'pendente' | 'atrasado' = 'pendente';
+          if (vencimento < hoje) {
+            status = 'atrasado';
+          }
+
+          const contaData = {
+            descricao: `${data.descricao} (${recorrencia.numero}/${recorrencia.totalParcelas})`,
+            valor: recorrencia.valorPagar,
+            data_vencimento: formatDateToISO(recorrencia.dataVencimento),
+            status,
+            categoria_id: data.categoriaId || null,
+            observacoes: data.observacoes || null,
+            banco_id: data.bancoId || null,
+          };
+
+          await createItem(contaData);
+        }
+        toast.success(`✓ Evento Lançado com Sucesso! ${parcelasRecorrentes.length} recorrências criadas.`);
+        onOpenChange(false);
+        onSave();
+      }
+      // Se não tem parcelas nem recorrências, criar apenas uma conta
+      else {
+        const valor = parseFloat(data.valor.replace(/[^\d,]/g, '').replace(',', '.'));
+        
+        const vencimento = new Date(data.dataEmissao);
+        vencimento.setHours(0, 0, 0, 0);
+
+        let status: 'pendente' | 'atrasado' = 'pendente';
+        if (vencimento < hoje) {
+          status = 'atrasado';
+        }
+
+        const contaPagar = {
+          descricao: data.descricao,
+          categoria_id: data.categoriaId,
+          valor,
+          data_vencimento: formatDateToISO(data.dataEmissao),
+          status,
+          observacoes: data.observacoes || null,
+          banco_id: data.bancoId || null,
+        };
+
+        await createItem(contaPagar);
+        toast.success("✓ Evento Lançado com Sucesso!");
+        onOpenChange(false);
+        onSave();
+      }
+    } catch (error: any) {
+      console.error('Erro ao salvar conta:', error);
+      toast.error('Erro ao salvar conta: ' + (error.message || 'Erro desconhecido'));
+    }
   };
 
   // Função auxiliar para formatar data sem problemas de timezone
