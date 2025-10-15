@@ -881,21 +881,25 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                     <Table>
                       <TableHeader>
                         <TableRow className="bg-[#FAF7F5]">
-                          <TableHead className="text-[#6B5047]">Parcela</TableHead>
                           <TableHead className="text-[#6B5047]">Data Emissão</TableHead>
+                          <TableHead className="text-[#6B5047] text-right">Valor Total</TableHead>
+                          <TableHead className="text-[#6B5047]">Parcela</TableHead>
                           <TableHead className="text-[#6B5047]">Data Vencimento</TableHead>
-                          <TableHead className="text-[#6B5047] text-right">Valor</TableHead>
+                          <TableHead className="text-[#6B5047] text-right">Valor a Pagar</TableHead>
                           <TableHead className="w-[50px]"></TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {parcelas.map((parcela, index) => (
                           <TableRow key={index}>
-                            <TableCell className="font-medium">
-                              {parcela.numero} de {parcela.total}
-                            </TableCell>
                             <TableCell>
                               {format(parcela.dataEmissao, "dd/MM/yyyy")}
+                            </TableCell>
+                            <TableCell className="text-right font-medium">
+                              R$ {(parcela.valor * parcela.total).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </TableCell>
+                            <TableCell className="font-medium">
+                              {parcela.numero} de {parcela.total}
                             </TableCell>
                             <TableCell>
                               {format(parcela.dataVencimento, "dd/MM/yyyy")}
