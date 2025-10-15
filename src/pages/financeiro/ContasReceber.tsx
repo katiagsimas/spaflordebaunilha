@@ -51,6 +51,8 @@ export default function ContasReceber() {
   const [editingConta, setEditingConta] = useState<any | null>(null);
   const [isRecebimentoDialogOpen, setIsRecebimentoDialogOpen] = useState(false);
   const [contaParaReceber, setContaParaReceber] = useState<any | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [contaToDelete, setContaToDelete] = useState<any | null>(null);
 
   const getPlanoContaNome = (planoContaId?: string) => {
     if (!planoContaId) return "-";
@@ -173,16 +175,33 @@ export default function ContasReceber() {
     return "";
   }
 
-  async function handleExcluir(conta: any) {
-    if (confirm(`Tem certeza que deseja excluir "${conta.descricao}"?`)) {
-      try {
-        await deleteItem(conta.id);
-        toast.success("✓ Conta excluída com sucesso!");
-        refetch();
-      } catch (error: any) {
-        toast.error('Erro ao excluir conta: ' + error.message);
-      }
+  function handleOpenDeleteConfirm(conta: any) {
+    setContaToDelete(conta);
+    setDeleteConfirmOpen(true);
+  }
+
+  async function handleConfirmDelete() {
+    if (!contaToDelete) return;
+    
+    try {
+      await deleteItem(contaToDelete.id);
+      toast.success("✓ Conta excluída com sucesso!");
+      setDeleteConfirmOpen(false);
+      setContaToDelete(null);
+      refetch();
+    } catch (error: any) {
+      toast.error('Erro ao excluir conta: ' + error.message);
     }
+  }
+
+  function handleEditar(conta: any) {
+    setEditingConta(conta);
+    setIsDialogOpen(true);
+  }
+
+  function handleRegistrarRecebimento(conta: any) {
+    setContaParaReceber(conta);
+    setIsRecebimentoDialogOpen(true);
   }
 
   async function handleEstornar(conta: any) {
@@ -591,40 +610,19 @@ export default function ContasReceber() {
                           <DropdownMenuContent align="end" className="bg-background">
                             {conta.status === 'pendente' && (
                               <>
-                                <DropdownMenuItem
-                                  onClick={() => {
-                                    setContaParaReceber(conta);
-                                    setIsRecebimentoDialogOpen(true);
-                                  }}
-                                >
+                                <DropdownMenuItem onClick={() => handleRegistrarRecebimento(conta)}>
                                   <DollarSign className="h-4 w-4 mr-2" />
-                                  Registrar Recebimento
+                                  Recebimento
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                               </>
                             )}
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setEditingConta(conta);
-                                setIsDialogOpen(true);
-                              }}
-                            >
+                            <DropdownMenuItem onClick={() => handleEditar(conta)}>
                               <Edit className="h-4 w-4 mr-2" />
                               Editar
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDuplicar(conta)}>
-                              <Copy className="h-4 w-4 mr-2" />
-                              Duplicar
-                            </DropdownMenuItem>
-                            {conta.status === 'recebido' && (
-                              <DropdownMenuItem onClick={() => handleEstornar(conta)}>
-                                <RotateCcw className="h-4 w-4 mr-2" />
-                                Estornar
-                              </DropdownMenuItem>
-                            )}
-                            <DropdownMenuSeparator />
                             <DropdownMenuItem
-                              onClick={() => handleExcluir(conta)}
+                              onClick={() => handleOpenDeleteConfirm(conta)}
                               className="text-destructive focus:text-destructive"
                             >
                               <Trash2 className="h-4 w-4 mr-2" />
@@ -660,7 +658,19 @@ export default function ContasReceber() {
         conta={contaParaReceber}
         onSave={() => {
           setContaParaReceber(null);
+          refetch();
         }}
+      />
+
+      {/* Confirmação de Exclusão */}
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        onConfirm={handleConfirmDelete}
+        title="Excluir Conta a Receber"
+        description={`Tem certeza que deseja excluir "${contaToDelete?.descricao}"? Esta ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        cancelLabel="Cancelar"
       />
     </div>
   );

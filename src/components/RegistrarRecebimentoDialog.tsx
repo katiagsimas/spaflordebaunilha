@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Calendar, DollarSign, TrendingDown, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
   DialogContent,
@@ -40,31 +41,24 @@ import { DatePickerField } from "@/components/DatePickerField";
 
 interface ContaReceber {
   id: string;
+  usuario_id: string;
   descricao: string;
-  categoriaId: string;
-  planoContaId: string;
   valor: number;
-  dataEmissao: string;
-  dataVencimento: string;
-  dataPagamento?: string;
-  status: 'pendente' | 'recebido' | 'atrasado' | 'cancelado';
-  formaPagamento?: string;
-  bancoId?: string;
-  tipoDocumentoId?: string;
-  numeroDocumento?: string;
-  clienteNome?: string;
-  clienteDocumento?: string;
+  data_emissao?: string;
+  data_vencimento: string;
+  data_recebimento?: string;
+  status: string;
+  categoria_id?: string;
+  plano_conta_id?: string;
+  banco_id?: string;
+  tipo_documento_id?: string;
+  numero_documento?: string;
   observacoes?: string;
-  parcelado: boolean;
-  numeroParcela?: number;
-  totalParcelas?: number;
-  grupoParcelasId?: string;
-  recorrente: boolean;
-  frequenciaRecorrencia?: string;
-  proximaRecorrencia?: string;
-  tags?: string[];
-  createdAt: string;
-  updatedAt: string;
+  cliente_nome?: string;
+  cliente_documento?: string;
+  cliente_id?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 interface Banco {
@@ -119,52 +113,84 @@ export function RegistrarRecebimentoDialog({
         dataRecebimento: new Date(),
         valorRecebido: conta.valor,
         formaPagamento: 'pix',
-        bancoId: "",
+        bancoId: conta.banco_id || "",
         observacoes: "",
       });
       setValorInput(conta.valor.toFixed(2));
     }
   }, [conta, open, form]);
 
-  function onSubmit(values: FormValues) {
+  async function onSubmit(values: FormValues) {
     if (!conta) return;
 
-    const valorOriginal = conta.valor;
-    const diferenca = values.valorRecebido - valorOriginal;
-    
-    let observacaoAdicional = "";
-    if (diferenca !== 0) {
-      if (diferenca > 0) {
-        observacaoAdicional = `Juros de R$ ${diferenca.toFixed(2)}`;
+    try {
+      const valorOriginal = conta.valor;
+      const valorPago = values.valorRecebido;
+      
+      // Se o valor pago for menor que o valor original, criar uma nova conta com o saldo restante
+      if (valorPago < valorOriginal) {
+        const valorRestante = valorOriginal - valorPago;
+        
+        // Atualizar a conta atual como paga (parcialmente)
+        const { error: updateError } = await supabase
+          .from('contas_receber')
+          .update({
+            data_recebimento: format(values.dataRecebimento, 'yyyy-MM-dd'),
+            status: 'recebido',
+            valor: valorPago,
+            observacoes: conta.observacoes 
+              ? `${conta.observacoes}\n\nPagamento parcial: ${formatCurrency(valorPago)} de ${formatCurrency(valorOriginal)}`
+              : `Pagamento parcial: ${formatCurrency(valorPago)} de ${formatCurrency(valorOriginal)}`,
+          })
+          .eq('id', conta.id);
+
+        if (updateError) throw updateError;
+
+        // Criar nova conta com o saldo restante
+        const { error: insertError } = await supabase
+          .from('contas_receber')
+          .insert({
+            usuario_id: conta.usuario_id,
+            descricao: `${conta.descricao} - Saldo Restante`,
+            valor: valorRestante,
+            data_vencimento: conta.data_vencimento,
+            data_emissao: conta.data_emissao,
+            status: 'pendente',
+            categoria_id: conta.categoria_id,
+            plano_conta_id: conta.plano_conta_id,
+            cliente_id: conta.cliente_id,
+            cliente_nome: conta.cliente_nome,
+            cliente_documento: conta.cliente_documento,
+            observacoes: `Saldo restante de pagamento parcial. Valor original: ${formatCurrency(valorOriginal)}, Valor pago: ${formatCurrency(valorPago)}`,
+          });
+
+        if (insertError) throw insertError;
+        
+        toast.success(`✓ Recebimento parcial registrado! Nova conta criada com saldo de ${formatCurrency(valorRestante)}`);
       } else {
-        observacaoAdicional = `Desconto de R$ ${Math.abs(diferenca).toFixed(2)}`;
+        // Pagamento completo ou com juros/desconto
+        const { error } = await supabase
+          .from('contas_receber')
+          .update({
+            data_recebimento: format(values.dataRecebimento, 'yyyy-MM-dd'),
+            status: 'recebido',
+            valor: valorPago,
+            observacoes: conta.observacoes 
+              ? `${conta.observacoes}\n\n${values.observacoes || ''}`
+              : values.observacoes,
+          })
+          .eq('id', conta.id);
+
+        if (error) throw error;
+        toast.success("✓ Recebimento registrado com sucesso!");
       }
+
+      onOpenChange(false);
+      onSave();
+    } catch (error: any) {
+      console.error('Erro ao registrar recebimento:', error);
+      toast.error('Erro ao registrar recebimento: ' + error.message);
     }
-
-    const observacaoCompleta = [
-      observacaoAdicional,
-      values.observacoes
-    ].filter(Boolean).join('\n');
-
-    const contaAtualizada: ContaReceber = {
-      ...conta,
-      dataPagamento: values.dataRecebimento.toISOString(),
-      valor: values.valorRecebido,
-      formaPagamento: values.formaPagamento,
-      bancoId: values.bancoId,
-      status: 'recebido',
-      observacoes: observacaoCompleta || conta.observacoes,
-      updatedAt: new Date().toISOString(),
-    };
-
-    const contasAtualizadas = contas.map(c => 
-      c.id === conta.id ? contaAtualizada : c
-    );
-
-    setContas(contasAtualizadas);
-    toast.success("✓ Recebimento registrado com sucesso!");
-    onOpenChange(false);
-    onSave();
   }
 
   function handleValorChange(value: string) {
@@ -197,7 +223,7 @@ export function RegistrarRecebimentoDialog({
   function isAtrasada() {
     if (!conta) return false;
     const hoje = new Date();
-    const vencimento = new Date(conta.dataVencimento);
+    const vencimento = new Date(conta.data_vencimento);
     hoje.setHours(0, 0, 0, 0);
     vencimento.setHours(0, 0, 0, 0);
     return vencimento < hoje;
@@ -227,14 +253,14 @@ export function RegistrarRecebimentoDialog({
             : "bg-[#FAF7F5] border-[#E8E3DF]"
         )}>
           <h3 className="font-semibold text-[#6B5047]">{conta.descricao}</h3>
-          {conta.clienteNome && (
-            <p className="text-sm text-[#9C8B82]">Cliente: {conta.clienteNome}</p>
+          {conta.cliente_nome && (
+            <p className="text-sm text-[#9C8B82]">Cliente: {conta.cliente_nome}</p>
           )}
           <p className="text-sm text-[#9C8B82]">
             Valor: <span className="font-semibold text-[#6B5047]">{formatCurrency(conta.valor)}</span>
           </p>
           <p className="text-sm text-[#9C8B82]">
-            Vencimento: {formatDate(conta.dataVencimento)}
+            Vencimento: {formatDate(conta.data_vencimento)}
             {isAtrasada() && (
               <span className="ml-2 text-[#C62828] font-medium">(ATRASADA)</span>
             )}
