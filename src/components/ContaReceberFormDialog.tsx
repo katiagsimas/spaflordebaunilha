@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Calendar, DollarSign, FileText, User, CreditCard, Repeat, Package, ExternalLink } from "lucide-react";
+import * as LucideIcons from "lucide-react";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 import {
@@ -39,6 +40,14 @@ import { formatCpfCnpj } from "@/lib/utils";
 import { toast } from "sonner";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useCategoriasFinanceiras } from "@/hooks/useCategoriasFinanceiras";
+
+// Helper para renderizar ícone dinamicamente
+const renderIcon = (iconName?: string) => {
+  if (!iconName) return null;
+  const IconComponent = (LucideIcons as any)[iconName];
+  if (!IconComponent) return null;
+  return <IconComponent className="h-4 w-4 inline mr-2" />;
+};
 
 interface ContaReceber {
   id: string;
@@ -369,21 +378,23 @@ export function ContaReceberFormDialog({
                               (() => {
                                 const selectedCat = categoriasReceita.find(c => c.id === field.value);
                                 return selectedCat ? (
-                                  <>
-                                    {selectedCat.icone && <span className="mr-2">{selectedCat.icone}</span>}
+                                  <span className="flex items-center">
+                                    {renderIcon(selectedCat.icone)}
                                     {selectedCat.nome}
-                                  </>
+                                  </span>
                                 ) : 'Selecione a categoria...';
                               })()
                             ) : 'Selecione a categoria...'}
                           </SelectValue>
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="bg-background">
+                      <SelectContent className="bg-background z-50">
                         {categoriasReceita.map((cat) => (
                           <SelectItem key={cat.id} value={cat.id}>
-                            {cat.icone && <span className="mr-2">{cat.icone}</span>}
-                            {cat.nome}
+                            <span className="flex items-center">
+                              {renderIcon(cat.icone)}
+                              {cat.nome}
+                            </span>
                           </SelectItem>
                         ))}
                       </SelectContent>
