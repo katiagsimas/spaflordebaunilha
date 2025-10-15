@@ -296,6 +296,58 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
     toast.success("✓ Evento Lançado com Sucesso!");
   };
 
+  function handleFormError(errors: any) {
+    // Montar mensagem de erro amigável
+    const errorMessages: string[] = [];
+    
+    if (errors.descricao) {
+      errorMessages.push(`• Descrição: ${errors.descricao.message}`);
+    }
+    if (errors.categoriaId) {
+      errorMessages.push(`• Categoria: ${errors.categoriaId.message}`);
+    }
+    if (errors.planoContaId) {
+      errorMessages.push(`• Plano de Contas: ${errors.planoContaId.message}`);
+    }
+    if (errors.valor) {
+      errorMessages.push(`• Valor: ${errors.valor.message}`);
+    }
+    if (errors.dataEmissao) {
+      errorMessages.push(`• Data de Emissão: ${errors.dataEmissao.message}`);
+    }
+    if (errors.fornecedorNome) {
+      errorMessages.push(`• Nome do Fornecedor: ${errors.fornecedorNome.message}`);
+    }
+    if (errors.fornecedorDocumento) {
+      errorMessages.push(`• CPF/CNPJ do Fornecedor: ${errors.fornecedorDocumento.message}`);
+    }
+    if (errors.bancoId) {
+      errorMessages.push(`• Banco: ${errors.bancoId.message}`);
+    }
+    if (errors.tipoDocumentoId) {
+      errorMessages.push(`• Tipo de Documento: ${errors.tipoDocumentoId.message}`);
+    }
+    if (errors.numeroDocumento) {
+      errorMessages.push(`• Número do Documento: ${errors.numeroDocumento.message}`);
+    }
+    if (errors.observacoes) {
+      errorMessages.push(`• Observações: ${errors.observacoes.message}`);
+    }
+    if (errors.totalParcelas) {
+      errorMessages.push(`• Total de Parcelas: ${errors.totalParcelas.message}`);
+    }
+    if (errors.frequenciaRecorrencia) {
+      errorMessages.push(`• Frequência de Recorrência: ${errors.frequenciaRecorrencia.message}`);
+    }
+    
+    if (errorMessages.length > 0) {
+      toast.error(
+        `Salvamento não foi possível devido a:\n\n${errorMessages.join('\n')}`,
+        { duration: 5000 }
+      );
+    }
+  }
+
   const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, '');
     if (value.length === 0) {
@@ -404,7 +456,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit, handleFormError)} className="space-y-6">
             {/* Datas */}
             <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
               <h3 className="font-semibold text-[#6B5047] flex items-center gap-2 pb-2 border-b border-[#E8E3DF]">

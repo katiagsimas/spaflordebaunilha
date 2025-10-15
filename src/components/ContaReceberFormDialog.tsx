@@ -506,6 +506,52 @@ export function ContaReceberFormDialog({
     }
   }
 
+  function handleFormError(errors: any) {
+    // Montar mensagem de erro amigável
+    const errorMessages: string[] = [];
+    
+    if (errors.descricao) {
+      errorMessages.push(`• Descrição: ${errors.descricao.message}`);
+    }
+    if (errors.categoriaId) {
+      errorMessages.push(`• Categoria: ${errors.categoriaId.message}`);
+    }
+    if (errors.planoContaId) {
+      errorMessages.push(`• Plano de Contas: ${errors.planoContaId.message}`);
+    }
+    if (errors.valor) {
+      errorMessages.push(`• Valor: ${errors.valor.message}`);
+    }
+    if (errors.dataEmissao) {
+      errorMessages.push(`• Data de Emissão: ${errors.dataEmissao.message}`);
+    }
+    if (errors.clienteNome) {
+      errorMessages.push(`• Nome do Cliente: ${errors.clienteNome.message}`);
+    }
+    if (errors.clienteDocumento) {
+      errorMessages.push(`• CPF/CNPJ do Cliente: ${errors.clienteDocumento.message}`);
+    }
+    if (errors.bancoId) {
+      errorMessages.push(`• Banco: ${errors.bancoId.message}`);
+    }
+    if (errors.tipoDocumentoId) {
+      errorMessages.push(`• Tipo de Documento: ${errors.tipoDocumentoId.message}`);
+    }
+    if (errors.numeroDocumento) {
+      errorMessages.push(`• Número do Documento: ${errors.numeroDocumento.message}`);
+    }
+    if (errors.observacoes) {
+      errorMessages.push(`• Observações: ${errors.observacoes.message}`);
+    }
+    
+    if (errorMessages.length > 0) {
+      toast.error(
+        `Salvamento não foi possível devido a:\n\n${errorMessages.join('\n')}`,
+        { duration: 5000 }
+      );
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-background to-[#FAF7F5]">
@@ -520,7 +566,7 @@ export function ContaReceberFormDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-4">
+          <form onSubmit={form.handleSubmit(onSubmit, handleFormError)} className="space-y-6 mt-4">
             {/* Datas */}
             <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow">
               <h3 className="font-semibold text-[#6B5047] flex items-center gap-2 mb-4 pb-2 border-b border-[#E8E3DF]">
