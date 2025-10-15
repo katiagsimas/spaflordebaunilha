@@ -205,15 +205,25 @@ export function ContaReceberFormDialog({
   });
 
   useEffect(() => {
-    if (conta) {
+    if (conta && open) {
       const contaAny = conta as any;
+      
+      // Parse das datas corretamente
+      const dataEmissao = contaAny.data_emissao 
+        ? new Date(contaAny.data_emissao + 'T12:00:00') 
+        : (contaAny.created_at ? new Date(contaAny.created_at) : new Date());
+      
+      const dataVencimento = contaAny.data_vencimento 
+        ? new Date(contaAny.data_vencimento + 'T12:00:00') 
+        : new Date();
+
       form.reset({
         descricao: contaAny.descricao || "",
         categoriaId: contaAny.categoria_id || contaAny.categoriaId || "",
         planoContaId: contaAny.planoContaId || "",
         valor: contaAny.valor || 0,
-        dataEmissao: contaAny.created_at ? new Date(contaAny.created_at) : new Date(),
-        dataVencimento: contaAny.data_vencimento ? new Date(contaAny.data_vencimento) : new Date(),
+        dataEmissao,
+        dataVencimento,
         clienteNome: contaAny.cliente_nome || contaAny.clienteNome || "",
         clienteDocumento: contaAny.cliente_documento || contaAny.clienteDocumento || "",
         bancoId: contaAny.bancoId || "",
@@ -229,7 +239,8 @@ export function ContaReceberFormDialog({
       setSelectedCategoriaId(contaAny.categoria_id || contaAny.categoriaId || "");
       setSelectedClienteNome(contaAny.cliente_nome || contaAny.clienteNome || "");
       setValorInput(contaAny.valor ? contaAny.valor.toFixed(2) : "");
-    } else {
+    } else if (!open) {
+      // Quando fechar o diálogo, resetar o formulário
       form.reset({
         descricao: "",
         categoriaId: "",
@@ -253,7 +264,7 @@ export function ContaReceberFormDialog({
       setSelectedClienteNome("");
       setValorInput("");
     }
-  }, [conta, form, open]);
+  }, [conta, open, form]);
 
   async function onSubmit(values: FormValues) {
     try {
