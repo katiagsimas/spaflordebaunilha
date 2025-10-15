@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CreditCard, Plus, Pencil, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
@@ -7,32 +7,26 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useTiposDocumento } from "@/hooks/useTiposDocumento";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 
-interface TipoDocumento {
-  id: string;
-  codigo: string;
-  descricao: string;
-}
-
-const tiposIniciais: TipoDocumento[] = [
-  { id: "1", codigo: "01", descricao: "Dinheiro" },
-  { id: "2", codigo: "02", descricao: "PIX" },
-  { id: "3", codigo: "03", descricao: "Cartão de Crédito" },
-  { id: "4", codigo: "04", descricao: "Cartão de Débito" },
-  { id: "5", codigo: "05", descricao: "Boleto Bancário" },
-  { id: "6", codigo: "06", descricao: "Transferência Bancária" },
-  { id: "7", codigo: "07", descricao: "Cheque" },
+const tiposIniciais = [
+  { codigo: "01", descricao: "Dinheiro" },
+  { codigo: "02", descricao: "PIX" },
+  { codigo: "03", descricao: "Cartão de Crédito" },
+  { codigo: "04", descricao: "Cartão de Débito" },
+  { codigo: "05", descricao: "Boleto Bancário" },
+  { codigo: "06", descricao: "Transferência Bancária" },
+  { codigo: "07", descricao: "Cheque" },
 ];
 
 export default function TiposDocumento() {
-  const [tipos, setTipos] = useLocalStorage<TipoDocumento[]>("sugarbox_tipos_documento", tiposIniciais);
+  const { tiposDocumento, loading, createTipoDocumento, updateTipoDocumento, deleteTipoDocumento } = useTiposDocumento();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [editingTipo, setEditingTipo] = useState<TipoDocumento | null>(null);
+  const [editingTipo, setEditingTipo] = useState<any>(null);
   const [tipoToDelete, setTipoToDelete] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
@@ -40,35 +34,45 @@ export default function TiposDocumento() {
     descricao: "",
   });
 
+  // Popular com dados iniciais se estiver vazio
+  useEffect(() => {
+    const popularDadosIniciais = async () => {
+      if (!loading && tiposDocumento.length === 0) {
+        try {
+          for (const tipo of tiposIniciais) {
+            await createTipoDocumento(tipo);
+          }
+        } catch (error) {
+          console.error('Erro ao popular tipos de documento:', error);
+        }
+      }
+    };
+    popularDadosIniciais();
+  }, [loading, tiposDocumento.length]);
+
   const resetForm = () => {
     setFormData({ codigo: "", descricao: "" });
     setEditingTipo(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (editingTipo) {
-      setTipos(tipos.map(t => 
-        t.id === editingTipo.id 
-          ? { ...editingTipo, ...formData }
-          : t
-      ));
-      toast.success("Tipo de documento atualizado com sucesso!");
-    } else {
-      const novoTipo: TipoDocumento = {
-        id: Date.now().toString(),
-        ...formData,
-      };
-      setTipos([...tipos, novoTipo]);
-      toast.success("Tipo de documento criado com sucesso!");
+    try {
+      if (editingTipo) {
+        await updateTipoDocumento(editingTipo.id, formData);
+      } else {
+        await createTipoDocumento(formData);
+      }
+      
+      setDialogOpen(false);
+      resetForm();
+    } catch (error) {
+      console.error('Erro ao salvar tipo de documento:', error);
     }
-    
-    setDialogOpen(false);
-    resetForm();
   };
 
-  const handleEdit = (tipo: TipoDocumento) => {
+  const handleEdit = (tipo: any) => {
     setEditingTipo(tipo);
     setFormData({
       codigo: tipo.codigo,
@@ -77,12 +81,15 @@ export default function TiposDocumento() {
     setDialogOpen(true);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (tipoToDelete) {
-      setTipos(tipos.filter(t => t.id !== tipoToDelete));
-      toast.success("Tipo de documento excluído com sucesso!");
-      setDeleteDialogOpen(false);
-      setTipoToDelete(null);
+      try {
+        await deleteTipoDocumento(tipoToDelete);
+        setDeleteDialogOpen(false);
+        setTipoToDelete(null);
+      } catch (error) {
+        console.error('Erro ao deletar tipo de documento:', error);
+      }
     }
   };
 
@@ -143,7 +150,9 @@ export default function TiposDocumento() {
         }
       />
 
-      {tipos.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-8">Carregando...</div>
+      ) : tiposDocumento.length === 0 ? (
         <EmptyState
           icon={CreditCard}
           title="Nenhum tipo de documento cadastrado"
@@ -162,7 +171,7 @@ export default function TiposDocumento() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {tipos.map((tipo) => (
+              {tiposDocumento.map((tipo) => (
                 <TableRow key={tipo.id}>
                   <TableCell className="font-medium">{tipo.codigo}</TableCell>
                   <TableCell>{tipo.descricao}</TableCell>
