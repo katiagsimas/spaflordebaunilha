@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { CalendarIcon, DollarSign, FileText, Building2, Calendar, User, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useCategoriasFinanceiras } from "@/hooks/useCategoriasFinanceiras";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -141,7 +142,7 @@ interface ContaPagarFormDialogProps {
 }
 
 export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: ContaPagarFormDialogProps) {
-  const [categorias] = useLocalStorage<Categoria[]>("categorias_financeiras", []);
+  const { categorias, loading: loadingCategorias } = useCategoriasFinanceiras();
   const [planos] = useLocalStorage<PlanoContas[]>("planos_contas", []);
   const [tiposDocumento] = useLocalStorage<TipoDocumento[]>("tipos_documento", []);
 
