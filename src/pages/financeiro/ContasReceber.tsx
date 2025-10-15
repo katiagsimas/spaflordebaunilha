@@ -10,6 +10,14 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -28,10 +36,12 @@ import { ContaReceberFormDialog } from "@/components/ContaReceberFormDialog";
 import { RegistrarRecebimentoDialog } from "@/components/RegistrarRecebimentoDialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useContasReceber } from "@/hooks/useContasReceber";
+import { usePlanoContas } from "@/hooks/usePlanoContas";
 
 
 export default function ContasReceber() {
   const { items: contas, loading, refetch, deleteItem } = useContasReceber();
+  const { planoContas } = usePlanoContas();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("todos");
   const [periodoFilter, setPeriodoFilter] = useState<string>("todos");
@@ -41,6 +51,12 @@ export default function ContasReceber() {
   const [editingConta, setEditingConta] = useState<any | null>(null);
   const [isRecebimentoDialogOpen, setIsRecebimentoDialogOpen] = useState(false);
   const [contaParaReceber, setContaParaReceber] = useState<any | null>(null);
+
+  const getPlanoContaNome = (planoContaId?: string) => {
+    if (!planoContaId) return "-";
+    const plano = planoContas.find(p => p.id === planoContaId);
+    return plano ? plano.nome : "-";
+  };
 
 
   // Calcular resumos
@@ -491,119 +507,40 @@ export default function ContasReceber() {
               </Button>
             </Card>
           ) : (
-            <div className="space-y-2">
-              {contasFiltradas.map(conta => (
-                <Card key={conta.id} className={`p-4 hover:shadow-md transition-all ${getRowStyle(conta)}`}>
-                  {/* Layout Desktop */}
-                  <div className="hidden md:flex items-start gap-4">
-                    <Checkbox
-                      checked={selectedContas.includes(conta.id)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setSelectedContas([...selectedContas, conta.id]);
-                        } else {
-                          setSelectedContas(selectedContas.filter(id => id !== conta.id));
-                        }
-                      }}
-                    />
-
-                    <div className="flex-1 grid grid-cols-1 md:grid-cols-6 gap-4">
-                      <div>
-                        <p className="text-sm text-[#9C8B82]">Emissão</p>
-                        <p className="font-medium text-[#6B5047]">
-                          {conta.data_emissao ? format(new Date(conta.data_emissao), 'dd/MM/yyyy') : '-'}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-sm text-[#9C8B82]">Vencimento</p>
-                        <p className="font-medium text-[#6B5047]">
-                          {format(new Date(conta.data_vencimento), 'dd/MM/yyyy')}
-                        </p>
-                        <p className="text-xs text-[#9C8B82]">
-                          {formatDateRelative(conta.data_vencimento)}
-                        </p>
-                      </div>
-
-                      <div className="md:col-span-2">
-                        <h4 className="font-semibold text-[#6B5047]">{conta.descricao}</h4>
-                        <p className="text-xs text-[#9C8B82]">Plano de Contas</p>
-                      </div>
-
-                        <div>
-                          <p className="text-sm text-[#9C8B82]">Cliente</p>
-                          <p className="font-medium text-[#6B5047]">{conta.cliente_nome || '-'}</p>
-                        </div>
-
-                      <div>
-                        <p className="text-sm text-[#9C8B82]">Valor</p>
-                        <p className="font-bold text-lg text-[#6B5047]">{formatCurrency(conta.valor)}</p>
-                      </div>
-
-                      <div className="flex items-start justify-between">
-                        {getStatusBadge(conta.status)}
-                        
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-background">
-                            {conta.status === 'pendente' && (
-                              <>
-                                <DropdownMenuItem onClick={() => {
-                                  setContaParaReceber(conta);
-                                  setIsRecebimentoDialogOpen(true);
-                                }}>
-                                  <CheckCircle className="h-4 w-4 mr-2" />
-                                  Registrar Recebimento
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                              </>
-                            )}
-                            <DropdownMenuItem>
-                              <Eye className="h-4 w-4 mr-2" />
-                              Ver Detalhes
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => {
-                              setEditingConta(conta);
-                              setIsDialogOpen(true);
-                            }}>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Editar
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDuplicar(conta)}>
-                              <Copy className="h-4 w-4 mr-2" />
-                              Duplicar
-                            </DropdownMenuItem>
-                            {conta.status === 'recebido' && (
-                              <>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => handleEstornar(conta)}>
-                                  <RotateCcw className="h-4 w-4 mr-2" />
-                                  Estornar Recebimento
-                                </DropdownMenuItem>
-                              </>
-                            )}
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem 
-                              className="text-destructive"
-                              onClick={() => handleExcluir(conta)}
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Excluir
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Layout Mobile */}
-                  <div className="md:hidden space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-start gap-2 flex-1">
+            <Card className="overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[50px]">
+                      <Checkbox
+                        checked={selectedContas.length === contasFiltradas.length}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            handleSelecionarTodas();
+                          } else {
+                            handleDesselecionarTodas();
+                          }
+                        }}
+                      />
+                    </TableHead>
+                    <TableHead>Emissão</TableHead>
+                    <TableHead>Plano de Contas</TableHead>
+                    <TableHead>Pessoa</TableHead>
+                    <TableHead className="text-right">Valor Total</TableHead>
+                    <TableHead>Vencimento</TableHead>
+                    <TableHead className="text-right">Valor a Pagar</TableHead>
+                    <TableHead>Data de Pagamento</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {contasFiltradas.map((conta) => (
+                    <TableRow
+                      key={conta.id}
+                      className={getRowStyle(conta)}
+                    >
+                      <TableCell>
                         <Checkbox
                           checked={selectedContas.includes(conta.id)}
                           onCheckedChange={(checked) => {
@@ -614,90 +551,93 @@ export default function ContasReceber() {
                             }
                           }}
                         />
-                        <div className="flex-1">
-                          {getStatusBadge(conta.status)}
-                          <h4 className="font-semibold text-[#6B5047] mt-2">{conta.descricao}</h4>
+                      </TableCell>
+                      <TableCell className="text-sm text-[#6B5047]">
+                        {conta.data_emissao ? formatDate(conta.data_emissao) : "-"}
+                      </TableCell>
+                      <TableCell className="text-sm text-[#6B5047]">
+                        {getPlanoContaNome(conta.plano_conta_id)}
+                      </TableCell>
+                      <TableCell className="text-sm text-[#6B5047]">
+                        {conta.cliente_nome || "-"}
+                      </TableCell>
+                      <TableCell className="text-sm text-right font-semibold text-[#6B5047]">
+                        {formatCurrency(conta.valor)}
+                      </TableCell>
+                      <TableCell className="text-sm text-[#6B5047]">
+                        <div className="flex flex-col gap-1">
+                          <span>{formatDate(conta.data_vencimento)}</span>
+                          <span className="text-xs text-[#9C8B82]">
+                            {formatDateRelative(conta.data_vencimento)}
+                          </span>
                         </div>
-                      </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-background">
-                          {conta.status === 'pendente' && (
-                            <>
-                              <DropdownMenuItem onClick={() => {
-                                setContaParaReceber(conta);
-                                setIsRecebimentoDialogOpen(true);
-                              }}>
-                                <CheckCircle className="h-4 w-4 mr-2" />
-                                Registrar Recebimento
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                            </>
-                          )}
-                          <DropdownMenuItem onClick={() => {
-                            setEditingConta(conta);
-                            setIsDialogOpen(true);
-                          }}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Editar
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDuplicar(conta)}>
-                            <Copy className="h-4 w-4 mr-2" />
-                            Duplicar
-                          </DropdownMenuItem>
-                          {conta.status === 'recebido' && (
-                            <DropdownMenuItem onClick={() => handleEstornar(conta)}>
-                              <RotateCcw className="h-4 w-4 mr-2" />
-                              Estornar
+                      </TableCell>
+                      <TableCell className="text-sm text-right font-semibold text-[#6B5047]">
+                        {conta.status === 'recebido' ? formatCurrency(0) : formatCurrency(conta.valor)}
+                      </TableCell>
+                      <TableCell className="text-sm text-[#6B5047]">
+                        {conta.data_recebimento ? formatDate(conta.data_recebimento) : "-"}
+                      </TableCell>
+                      <TableCell>
+                        {getStatusBadge(conta.status)}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-background">
+                            {conta.status === 'pendente' && (
+                              <>
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setContaParaReceber(conta);
+                                    setIsRecebimentoDialogOpen(true);
+                                  }}
+                                >
+                                  <DollarSign className="h-4 w-4 mr-2" />
+                                  Registrar Recebimento
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                              </>
+                            )}
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setEditingConta(conta);
+                                setIsDialogOpen(true);
+                              }}
+                            >
+                              <Edit className="h-4 w-4 mr-2" />
+                              Editar
                             </DropdownMenuItem>
-                          )}
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem 
-                            className="text-destructive"
-                            onClick={() => handleExcluir(conta)}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Excluir
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-2xl font-bold text-[#6B5047]">{formatCurrency(conta.valor)}</p>
-                        <p className="text-xs text-[#9C8B82] mt-1">
-                          {conta.status === 'recebido' && conta.data_recebimento
-                            ? `Recebido em ${format(new Date(conta.data_recebimento), 'dd/MM/yyyy')}`
-                            : `Vence ${formatDateRelative(conta.data_vencimento)}`
-                          }
-                        </p>
-                      </div>
-                      {conta.status === 'pendente' && (
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            setContaParaReceber(conta);
-                            setIsRecebimentoDialogOpen(true);
-                          }}
-                          className="bg-[#8BA888] hover:bg-[#7A9777]"
-                        >
-                          Receber
-                        </Button>
-                      )}
-                    </div>
-
-                    <div className="text-xs text-[#9C8B82]">
-                      Plano de Contas
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
+                            <DropdownMenuItem onClick={() => handleDuplicar(conta)}>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Duplicar
+                            </DropdownMenuItem>
+                            {conta.status === 'recebido' && (
+                              <DropdownMenuItem onClick={() => handleEstornar(conta)}>
+                                <RotateCcw className="h-4 w-4 mr-2" />
+                                Estornar
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => handleExcluir(conta)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Excluir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
           )}
         </TabsContent>
       </Tabs>
