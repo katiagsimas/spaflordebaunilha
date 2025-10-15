@@ -412,15 +412,21 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecione..." />
+                          <SelectValue placeholder={bancos.length === 0 ? "Nenhum banco cadastrado" : "Selecione..."} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {bancos.map((banco) => (
-                          <SelectItem key={banco.id} value={banco.id}>
-                            {banco.nome}
-                          </SelectItem>
-                        ))}
+                        {bancos.length === 0 ? (
+                          <div className="p-2 text-sm text-muted-foreground text-center">
+                            Nenhum banco cadastrado
+                          </div>
+                        ) : (
+                          bancos.map((banco) => (
+                            <SelectItem key={banco.id} value={banco.id}>
+                              {banco.nome}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                     <FormMessage />
