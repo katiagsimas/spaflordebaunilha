@@ -270,6 +270,7 @@ export function ContaReceberFormDialog({
       const contaData = {
         descricao: values.descricao.trim(),
         valor: values.valor,
+        data_emissao: values.dataEmissao.toISOString().split('T')[0],
         data_vencimento: values.dataVencimento.toISOString().split('T')[0],
         status,
         categoria_id: values.categoriaId || null,

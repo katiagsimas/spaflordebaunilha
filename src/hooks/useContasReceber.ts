@@ -8,6 +8,7 @@ interface ContaReceber {
   usuario_id: string;
   descricao: string;
   valor: number;
+  data_emissao?: string;
   data_vencimento: string;
   data_recebimento?: string;
   status: string;

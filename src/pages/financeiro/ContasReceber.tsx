@@ -512,7 +512,7 @@ export default function ContasReceber() {
                           <div className="flex items-start gap-2">
                             <Calendar className="h-4 w-4 text-[#9C8B82] mt-0.5 shrink-0" />
                             <div>
-                              <p className="text-sm text-[#9C8B82]">{format(new Date(conta.created_at || conta.data_vencimento), 'dd/MM')}</p>
+                              <p className="text-sm text-[#9C8B82]">{conta.data_emissao ? format(new Date(conta.data_emissao), 'dd/MM') : format(new Date(conta.created_at || conta.data_vencimento), 'dd/MM')}</p>
                               <p className="text-xs text-[#9C8B82]">
                                 {conta.status === 'recebido' && conta.data_recebimento
                                   ? `Receb: ${format(new Date(conta.data_recebimento), 'dd/MM')}`
