@@ -38,6 +38,7 @@ import { cn } from "@/lib/utils";
 import { formatCpfCnpj } from "@/lib/utils";
 import { toast } from "sonner";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useCategoriasFinanceiras } from "@/hooks/useCategoriasFinanceiras";
 
 interface ContaReceber {
   id: string;
@@ -139,14 +140,16 @@ export function ContaReceberFormDialog({
   conta,
   onSave,
 }: ContaReceberFormDialogProps) {
-  const [categorias] = useLocalStorage<Categoria[]>("sugarbox_categorias_financeiras", []);
+  const { categorias: categoriasFinanceiras } = useCategoriasFinanceiras();
   const [planosContas] = useLocalStorage<PlanoContas[]>("sugarbox_planos_contas", []);
   const [tiposDocumento] = useLocalStorage<TipoDocumento[]>("sugarbox_tipos_documento", []);
   const [contas, setContas] = useLocalStorage<ContaReceber[]>("sugarbox_contas_receber", []);
   const [selectedCategoriaId, setSelectedCategoriaId] = useState<string>("");
   const [valorInput, setValorInput] = useState("");
 
-  const categoriasReceita = categorias.filter(c => c.tipo === 'receita' && c.ativa);
+  // Filtrar apenas categorias de receita
+  const categoriasReceita = categoriasFinanceiras.filter(c => c.tipo === 'receita');
+  
   const planosContasFiltrados = planosContas.filter(
     p => p.categoriaId === selectedCategoriaId && p.ativo
   );
