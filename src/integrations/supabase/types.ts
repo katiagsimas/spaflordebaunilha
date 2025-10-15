@@ -193,6 +193,7 @@ export type Database = {
       }
       contas_pagar: {
         Row: {
+          banco_id: string | null
           categoria_id: string | null
           created_at: string
           data_pagamento: string | null
@@ -206,6 +207,7 @@ export type Database = {
           valor: number
         }
         Insert: {
+          banco_id?: string | null
           categoria_id?: string | null
           created_at?: string
           data_pagamento?: string | null
@@ -219,6 +221,7 @@ export type Database = {
           valor: number
         }
         Update: {
+          banco_id?: string | null
           categoria_id?: string | null
           created_at?: string
           data_pagamento?: string | null
@@ -232,6 +235,13 @@ export type Database = {
           valor?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "contas_pagar_banco_id_fkey"
+            columns: ["banco_id"]
+            isOneToOne: false
+            referencedRelation: "bancos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "contas_pagar_categoria_id_fkey"
             columns: ["categoria_id"]
