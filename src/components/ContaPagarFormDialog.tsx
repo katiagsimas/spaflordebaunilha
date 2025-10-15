@@ -364,11 +364,39 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
     const valorString = form.getValues("valor");
     const dataEmissao = form.getValues("dataEmissao");
     
-    if (!valorString || !dataEmissao) {
+    // Validações com feedback ao usuário
+    if (!valorString || valorString === '' || valorString === '0,00') {
+      toast.error('Por favor, informe o valor total da conta antes de gerar as parcelas.');
+      return;
+    }
+    
+    if (!dataEmissao) {
+      toast.error('Por favor, informe a data de emissão antes de gerar as parcelas.');
+      return;
+    }
+    
+    if (!numeroParcelas || numeroParcelas < 2) {
+      toast.error('O número de parcelas deve ser no mínimo 2.');
+      return;
+    }
+    
+    if (numeroParcelas > 60) {
+      toast.error('O número de parcelas não pode ser maior que 60.');
+      return;
+    }
+    
+    if (!dataVencimentoParcelas) {
+      toast.error('Por favor, informe a data de vencimento da primeira parcela.');
       return;
     }
     
     const valorTotal = parseFloat(valorString.replace(/[^\d,]/g, '').replace(',', '.'));
+    
+    if (isNaN(valorTotal) || valorTotal <= 0) {
+      toast.error('Valor informado é inválido.');
+      return;
+    }
+    
     const valorParcela = valorTotal / numeroParcelas;
     
     const novasParcelas: Parcela[] = [];
@@ -384,6 +412,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
     
     setParcelas(novasParcelas);
     setParcelaDialogOpen(false);
+    toast.success(`✓ ${numeroParcelas} parcelas geradas com sucesso!`);
   };
 
   const handleRemoverParcela = (index: number) => {
