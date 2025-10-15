@@ -449,12 +449,20 @@ const Encomendas = () => {
       pago: isSinal ? novoPagamento.pago : undefined // Só incluir "pago" para o sinal
     };
     
+    // Se for sinal e estiver marcado como pago, alterar status para "confirmado"
+    const novoStatus = (isSinal && novoPagamento.pago) ? 'confirmado' : formData.status;
+    
     setFormData({
       ...formData,
-      pagamentos: [...formData.pagamentos, pagamentoParaAdicionar]
+      pagamentos: [...formData.pagamentos, pagamentoParaAdicionar],
+      status: novoStatus
     });
     setNovoPagamento({ valor: 0, data: new Date().toISOString().split("T")[0], tipo_pagamento: "", pago: false });
     toast.success(isSinal ? 'Sinal adicionado!' : 'Pagamento adicionado!');
+    
+    if (isSinal && novoPagamento.pago) {
+      toast.success('Status alterado para Confirmado');
+    }
   };
 
   const handleRemovePagamento = (index: number) => {
