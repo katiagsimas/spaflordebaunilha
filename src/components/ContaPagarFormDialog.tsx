@@ -139,7 +139,8 @@ const formSchema = z.object({
   message: "Data de emissão não pode ser futura",
   path: ["dataEmissao"],
 }).refine((data) => {
-  if (data.parcelado && (!data.totalParcelas || data.totalParcelas < 1)) {
+  // Apenas valida se parcelado estiver explicitamente marcado como true
+  if (data.parcelado === true && (!data.totalParcelas || data.totalParcelas < 1)) {
     return false;
   }
   return true;
