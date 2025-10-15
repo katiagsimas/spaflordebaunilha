@@ -242,6 +242,8 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
   }, [conta, form]);
 
   const onSubmit = async (data: FormValues) => {
+    console.log('Dados do formulário:', data);
+    console.log('Data de Emissão:', data.dataEmissao, 'Type:', typeof data.dataEmissao);
     try {
       const hoje = new Date();
       hoje.setHours(0, 0, 0, 0);
