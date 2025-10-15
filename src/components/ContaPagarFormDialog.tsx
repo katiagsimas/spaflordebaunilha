@@ -419,7 +419,6 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                         placeholder="Selecione a data"
                       />
                     </FormControl>
-                    <p className="text-xs text-[#9C8B82]">Data em que a despesa foi gerada</p>
                     <FormMessage />
                   </FormItem>
                 )}
