@@ -1,159 +1,98 @@
-import { useState, useEffect } from "react";
-import { Building2, Plus, Pencil, AlertCircle } from "lucide-react";
+import { useState } from "react";
+import { Building2, Plus, Pencil, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useBancos } from "@/hooks/useBancos";
 import { toast } from "sonner";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { EmptyState } from "@/components/EmptyState";
 
-interface Banco {
-  id: string;
-  codigo: string;
-  descricao: string;
-}
-
-// Base de dados de bancos brasileiros conhecidos
-const bancosConhecidos = [
-  { codigo: "001", nome: "Banco do Brasil" },
-  { codigo: "033", nome: "Santander" },
-  { codigo: "104", nome: "Caixa Econômica Federal" },
-  { codigo: "237", nome: "Bradesco" },
-  { codigo: "341", nome: "Itaú Unibanco" },
-  { codigo: "260", nome: "Nubank" },
-  { codigo: "077", nome: "Banco Inter" },
-  { codigo: "290", nome: "PagSeguro" },
-  { codigo: "336", nome: "C6 Bank" },
-  { codigo: "323", nome: "Mercado Pago" },
-  { codigo: "212", nome: "Banco Original" },
-  { codigo: "422", nome: "Banco Safra" },
-  { codigo: "389", nome: "Banco Mercantil do Brasil" },
-  { codigo: "756", nome: "Bancoob" },
-  { codigo: "748", nome: "Sicredi" },
-  { codigo: "136", nome: "Unicred" },
-  { codigo: "655", nome: "Neon" },
-  { codigo: "637", nome: "Sofisa" },
-  { codigo: "340", nome: "Super Pagamentos" },
-  { codigo: "380", nome: "PicPay" },
-];
-
-const bancosIniciais: Banco[] = [
-  { id: "0", codigo: "000", descricao: "Caixa Empresa" },
-  { id: "1", codigo: "001", descricao: "Banco do Brasil" },
-  { id: "2", codigo: "033", descricao: "Santander" },
-  { id: "3", codigo: "104", descricao: "Caixa Econômica Federal" },
-  { id: "4", codigo: "237", descricao: "Bradesco" },
-  { id: "5", codigo: "341", descricao: "Itaú Unibanco" },
-  { id: "6", codigo: "260", descricao: "Nubank" },
-  { id: "7", codigo: "077", descricao: "Banco Inter" },
-  { id: "8", codigo: "290", descricao: "PagSeguro" },
-  { id: "9", codigo: "336", descricao: "C6 Bank" },
-  { id: "10", codigo: "323", descricao: "Mercado Pago" },
-];
-
 export default function Bancos() {
-  const [bancos, setBancos] = useLocalStorage<Banco[]>("sugarbox_bancos", bancosIniciais);
+  const { bancos, loading, createBanco, updateBanco, deleteBanco } = useBancos();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingBanco, setEditingBanco] = useState<Banco | null>(null);
-  const [bancoJaExiste, setBancoJaExiste] = useState(false);
-  const [codigoAutoGerado, setCodigoAutoGerado] = useState(false);
+  const [editingBanco, setEditingBanco] = useState<any | null>(null);
   
   const [formData, setFormData] = useState({
-    codigo: "",
-    descricao: "",
+    nome: "",
+    tipo: "Conta Corrente",
+    saldo_inicial: "0,00",
   });
 
   const resetForm = () => {
-    setFormData({ codigo: "", descricao: "" });
+    setFormData({ nome: "", tipo: "Conta Corrente", saldo_inicial: "0,00" });
     setEditingBanco(null);
-    setBancoJaExiste(false);
-    setCodigoAutoGerado(false);
   };
 
-  // Buscar código do banco automaticamente ao digitar o nome
-  useEffect(() => {
-    if (!formData.descricao || editingBanco) return;
-
-    const nomeDigitado = formData.descricao.toLowerCase().trim();
-    
-    // Verificar se o banco já existe no sistema
-    const bancoExistente = bancos.find(
-      b => b.descricao.toLowerCase() === nomeDigitado
-    );
-    
-    if (bancoExistente) {
-      setBancoJaExiste(true);
-      setCodigoAutoGerado(false);
-      return;
-    } else {
-      setBancoJaExiste(false);
-    }
-
-    // Buscar código em bancos conhecidos
-    const bancoConhecido = bancosConhecidos.find(
-      b => b.nome.toLowerCase().includes(nomeDigitado) || 
-           nomeDigitado.includes(b.nome.toLowerCase())
-    );
-
-    if (bancoConhecido) {
-      setFormData(prev => ({ ...prev, codigo: bancoConhecido.codigo }));
-      setCodigoAutoGerado(false);
-    } else if (nomeDigitado.length >= 3) {
-      // Gerar código automático para banco fictício
-      const proximoNumero = bancos.length + 1;
-      const codigoGerado = `${String(proximoNumero).padStart(3, '0')}User`;
-      setFormData(prev => ({ ...prev, codigo: codigoGerado }));
-      setCodigoAutoGerado(true);
-    }
-  }, [formData.descricao, bancos, editingBanco]);
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (bancoJaExiste && !editingBanco) {
-      toast.error("Este banco já existe no sistema!");
+    if (!formData.nome.trim()) {
+      toast.error("Digite o nome do banco");
       return;
     }
-    
-    if (editingBanco) {
-      setBancos(bancos.map(b => 
-        b.id === editingBanco.id 
-          ? { ...editingBanco, ...formData }
-          : b
-      ));
-      toast.success("Banco atualizado com sucesso!");
-    } else {
-      const novoBanco: Banco = {
-        id: Date.now().toString(),
-        ...formData,
-      };
-      setBancos([...bancos, novoBanco]);
-      toast.success("Banco criado com sucesso!");
+
+    try {
+      const saldoInicial = parseFloat(formData.saldo_inicial.replace(/[^\d,]/g, '').replace(',', '.'));
+      
+      if (editingBanco) {
+        await updateBanco(editingBanco.id, {
+          nome: formData.nome.trim(),
+          tipo: formData.tipo,
+          saldo_inicial: saldoInicial,
+        });
+      } else {
+        await createBanco({
+          nome: formData.nome.trim(),
+          tipo: formData.tipo,
+          saldo_inicial: saldoInicial,
+        });
+      }
+      
+      setDialogOpen(false);
+      resetForm();
+    } catch (error: any) {
+      toast.error(error.message);
     }
-    
-    setDialogOpen(false);
-    resetForm();
   };
 
-  const handleEdit = (banco: Banco) => {
+  const handleEdit = (banco: any) => {
     setEditingBanco(banco);
     setFormData({
-      codigo: banco.codigo,
-      descricao: banco.descricao,
+      nome: banco.nome,
+      tipo: banco.tipo,
+      saldo_inicial: banco.saldo_inicial.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
     });
     setDialogOpen(true);
   };
 
+  const handleDelete = async (id: string) => {
+    if (confirm("Tem certeza que deseja excluir este banco?")) {
+      try {
+        await deleteBanco(id);
+      } catch (error: any) {
+        toast.error(error.message);
+      }
+    }
+  };
+
+  const handleSaldoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length === 0) {
+      setFormData({ ...formData, saldo_inicial: '0,00' });
+      return;
+    }
+    const numValue = parseInt(value) / 100;
+    setFormData({ ...formData, saldo_inicial: numValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) });
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mb-6">
-        <BackButton to="/configuracoes" />
-      </div>
+    <div className="container mx-auto p-4 sm:p-6 space-y-6 animate-fade-in">
+      <BackButton to="/configuracoes" />
       
       <PageHeader
         title="Bancos"
@@ -164,77 +103,86 @@ export default function Bancos() {
             if (!open) resetForm();
           }}>
             <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
+              <Button className="bg-[#D89B8C] hover:bg-[#B87C6D] text-white">
+                <Plus className="h-4 w-4 mr-2" />
                 Novo Banco
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[500px]">
               <DialogHeader>
-                <DialogTitle>
-                  {editingBanco ? "Editar Banco" : "Novo Banco"}
+                <DialogTitle className="text-[#6B5047]">
+                  {editingBanco ? 'Editar Banco' : 'Novo Banco'}
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Campo de Descrição/Nome PRIMEIRO */}
-                <div className="space-y-2">
-                  <Label htmlFor="descricao">Nome do Banco *</Label>
+                <div>
+                  <Label htmlFor="nome" className="text-[#6B5047]">Nome do Banco *</Label>
                   <Input
-                    id="descricao"
-                    value={formData.descricao}
-                    onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                    id="nome"
+                    value={formData.nome}
+                    onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                    placeholder="Ex: Banco do Brasil, Nubank, Caixa..."
                     required
-                    placeholder="Ex: Banco do Brasil, Nubank, etc"
-                    autoFocus
+                    maxLength={100}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Digite o nome e o código será preenchido automaticamente
+                  <p className="text-xs text-[#9C8B82] mt-1">
+                    Digite o nome da instituição bancária
                   </p>
                 </div>
 
-                {/* Alertas */}
-                {bancoJaExiste && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      Este banco já existe no sistema!
-                    </AlertDescription>
-                  </Alert>
-                )}
-
-                {codigoAutoGerado && (
-                  <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      Código gerado automaticamente (finalizado com "User" para identificar banco personalizado)
-                    </AlertDescription>
-                  </Alert>
-                )}
-
-                {/* Campo de Código SEGUNDO (auto-preenchido) */}
-                <div className="space-y-2">
-                  <Label htmlFor="codigo">Código do Banco *</Label>
-                  <Input
-                    id="codigo"
-                    value={formData.codigo}
-                    onChange={(e) => setFormData({ ...formData, codigo: e.target.value })}
-                    required
-                    placeholder="Ex: 001"
-                    className={codigoAutoGerado ? 'bg-secondary' : ''}
-                  />
-                  {codigoAutoGerado && (
-                    <p className="text-xs text-warning">
-                      Código gerado automaticamente. Você pode editá-lo se desejar.
-                    </p>
-                  )}
+                <div>
+                  <Label htmlFor="tipo" className="text-[#6B5047]">Tipo de Conta *</Label>
+                  <Select 
+                    value={formData.tipo} 
+                    onValueChange={(value) => setFormData({ ...formData, tipo: value })}
+                  >
+                    <SelectTrigger id="tipo">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Conta Corrente">Conta Corrente</SelectItem>
+                      <SelectItem value="Conta Poupança">Conta Poupança</SelectItem>
+                      <SelectItem value="Conta Salário">Conta Salário</SelectItem>
+                      <SelectItem value="Carteira Digital">Carteira Digital</SelectItem>
+                      <SelectItem value="Investimento">Investimento</SelectItem>
+                      <SelectItem value="Caixa">Caixa</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                <div className="flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                <div>
+                  <Label htmlFor="saldo_inicial" className="text-[#6B5047]">Saldo Inicial</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9C8B82]">R$</span>
+                    <Input
+                      id="saldo_inicial"
+                      value={formData.saldo_inicial}
+                      onChange={handleSaldoChange}
+                      placeholder="0,00"
+                      className="pl-10"
+                    />
+                  </div>
+                  <p className="text-xs text-[#9C8B82] mt-1">
+                    Informe o saldo inicial desta conta
+                  </p>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setDialogOpen(false);
+                      resetForm();
+                    }}
+                  >
                     Cancelar
                   </Button>
-                  <Button type="submit" disabled={bancoJaExiste && !editingBanco}>
-                    Salvar
+                  <Button
+                    type="submit"
+                    className="bg-[#D89B8C] hover:bg-[#B87C6D] text-white"
+                  >
+                    {editingBanco ? 'Atualizar' : 'Criar'}
                   </Button>
                 </div>
               </form>
@@ -243,38 +191,54 @@ export default function Bancos() {
         }
       />
 
-      {bancos.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-8 text-[#9C8B82]">Carregando...</div>
+      ) : bancos.length === 0 ? (
         <EmptyState
           icon={Building2}
           title="Nenhum banco cadastrado"
-          description="Comece criando seu primeiro banco"
-          actionLabel="Novo Banco"
+          description="Comece adicionando as instituições bancárias que você utiliza"
+          actionLabel="Adicionar primeiro banco"
           onAction={() => setDialogOpen(true)}
         />
       ) : (
-        <div className="bg-card rounded-xl border shadow-sm">
+        <div className="bg-white rounded-lg border border-[#E8E3DF] shadow-sm overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Código</TableHead>
-                <TableHead>Descrição</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+              <TableRow className="bg-[#FAF8F6] hover:bg-[#FAF8F6]">
+                <TableHead className="text-[#6B5047] font-semibold">Nome</TableHead>
+                <TableHead className="text-[#6B5047] font-semibold">Tipo</TableHead>
+                <TableHead className="text-[#6B5047] font-semibold text-right">Saldo Inicial</TableHead>
+                <TableHead className="text-[#6B5047] font-semibold text-center w-[100px]">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {bancos.map((banco) => (
-                <TableRow key={banco.id}>
-                  <TableCell className="font-medium">{banco.codigo}</TableCell>
-                  <TableCell>{banco.descricao}</TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEdit(banco)}
-                      title="Editar banco"
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
+                <TableRow key={banco.id} className="hover:bg-[#FAF8F6]/50">
+                  <TableCell className="font-medium text-[#6B5047]">{banco.nome}</TableCell>
+                  <TableCell className="text-[#9C8B82]">{banco.tipo}</TableCell>
+                  <TableCell className="text-right text-[#6B5047]">
+                    R$ {banco.saldo_inicial.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex gap-2 justify-center">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(banco)}
+                        className="text-[#D89B8C] hover:text-[#B87C6D] hover:bg-[#D89B8C]/10"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(banco.id)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
