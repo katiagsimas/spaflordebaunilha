@@ -42,7 +42,6 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useCategoriasFinanceiras } from "@/hooks/useCategoriasFinanceiras";
 import { usePlanoContas } from "@/hooks/usePlanoContas";
 import { useClientes } from "@/hooks/useClientes";
-import { useBancos } from "@/hooks/useBancos";
 import { ClienteAutocomplete } from "@/components/ClienteAutocomplete";
 
 // Helper para renderizar ícone dinamicamente
@@ -103,6 +102,12 @@ interface TipoDocumento {
   descricao: string;
 }
 
+interface Banco {
+  id: string;
+  codigo: string;
+  descricao: string;
+}
+
 const formSchema = z.object({
   descricao: z.string()
     .min(1, "Descrição é obrigatória")
@@ -157,7 +162,7 @@ export function ContaReceberFormDialog({
   const { categorias: categoriasFinanceiras } = useCategoriasFinanceiras();
   const { planoContas } = usePlanoContas();
   const { clientes } = useClientes();
-  const { bancos } = useBancos();
+  const [bancos] = useLocalStorage<Banco[]>("sugarbox_bancos", []);
   const [tiposDocumento] = useLocalStorage<TipoDocumento[]>("sugarbox_tipos_documento", []);
   const [contas, setContas] = useLocalStorage<ContaReceber[]>("sugarbox_contas_receber", []);
   const [selectedCategoriaId, setSelectedCategoriaId] = useState<string>("");
@@ -733,10 +738,7 @@ export function ContaReceberFormDialog({
                       <SelectContent className="bg-background">
                         {bancos.map((banco) => (
                           <SelectItem key={banco.id} value={banco.id}>
-                            <span className="flex items-center gap-2">
-                              <Building2 className="h-4 w-4" />
-                              {banco.nome} ({banco.tipo})
-                            </span>
+                            {banco.codigo} - {banco.descricao}
                           </SelectItem>
                         ))}
                       </SelectContent>
