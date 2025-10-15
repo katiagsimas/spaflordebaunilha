@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Building2, Plus, Pencil, Trash2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Building2, Plus, Pencil, Trash2, Download } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
@@ -19,12 +19,83 @@ export default function Bancos() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editingBanco, setEditingBanco] = useState<any | null>(null);
   const [bancoToDelete, setBancoToDelete] = useState<any | null>(null);
+  const [hasLocalStorageData, setHasLocalStorageData] = useState(false);
   
   const [formData, setFormData] = useState({
     nome: "",
     tipo: "corrente",
     saldo_inicial: 0,
   });
+
+  // Verificar se há dados no localStorage ao carregar
+  useEffect(() => {
+    const checkLocalStorage = () => {
+      const sugarboxBancos = localStorage.getItem("sugarbox_bancos");
+      const bancosSimples = localStorage.getItem("bancos");
+      
+      if (sugarboxBancos || bancosSimples) {
+        try {
+          const data = JSON.parse(sugarboxBancos || bancosSimples || "[]");
+          setHasLocalStorageData(Array.isArray(data) && data.length > 0);
+        } catch {
+          setHasLocalStorageData(false);
+        }
+      }
+    };
+    
+    checkLocalStorage();
+  }, []);
+
+  const importFromLocalStorage = async () => {
+    const sugarboxBancos = localStorage.getItem("sugarbox_bancos");
+    const bancosSimples = localStorage.getItem("bancos");
+    const rawData = sugarboxBancos || bancosSimples;
+    
+    if (!rawData) {
+      toast.error("Nenhum dado encontrado no localStorage");
+      return;
+    }
+
+    try {
+      const data = JSON.parse(rawData);
+      if (!Array.isArray(data) || data.length === 0) {
+        toast.error("Dados inválidos no localStorage");
+        return;
+      }
+
+      let importedCount = 0;
+      let errorCount = 0;
+
+      for (const banco of data) {
+        try {
+          await createBanco({
+            nome: banco.nome || banco.descricao,
+            tipo: banco.tipo || "corrente",
+            saldo_inicial: Number(banco.saldo_inicial || 0),
+          });
+          importedCount++;
+        } catch (error) {
+          console.error("Erro ao importar banco:", banco, error);
+          errorCount++;
+        }
+      }
+
+      if (importedCount > 0) {
+        toast.success(`${importedCount} banco(s) importado(s) com sucesso!`);
+        setHasLocalStorageData(false);
+        // Limpar localStorage após importação bem-sucedida
+        localStorage.removeItem("sugarbox_bancos");
+        localStorage.removeItem("bancos");
+      }
+
+      if (errorCount > 0) {
+        toast.error(`${errorCount} banco(s) não puderam ser importados`);
+      }
+    } catch (error) {
+      console.error("Erro ao importar dados:", error);
+      toast.error("Erro ao importar dados do localStorage");
+    }
+  };
 
   const resetForm = () => {
     setFormData({ nome: "", tipo: "corrente", saldo_inicial: 0 });
@@ -95,7 +166,18 @@ export default function Bancos() {
         <p className="text-sm text-[#9C8B82]">
           {bancos.length} {bancos.length === 1 ? 'banco cadastrado' : 'bancos cadastrados'}
         </p>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <div className="flex gap-2">
+          {hasLocalStorageData && bancos.length === 0 && (
+            <Button
+              onClick={importFromLocalStorage}
+              variant="outline"
+              className="border-[#D89B8C] text-[#D89B8C] hover:bg-[#FEF3E2]"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Recuperar Dados Salvos
+            </Button>
+          )}
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button
               onClick={() => {
@@ -179,7 +261,8 @@ export default function Bancos() {
               </div>
             </form>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       {bancos.length === 0 ? (
