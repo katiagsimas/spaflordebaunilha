@@ -379,35 +379,40 @@ export function ContaReceberFormDialog({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel className="text-[#6B5047] font-medium">Data de Emissão *</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
+                    <div className="flex gap-2">
+                      <Input
+                        type="date"
+                        value={field.value ? format(field.value, "yyyy-MM-dd") : ""}
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            field.onChange(new Date(e.target.value + "T12:00:00"));
+                          }
+                        }}
+                        className="flex-1 border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]"
+                      />
+                      <Popover>
+                        <PopoverTrigger asChild>
                           <Button
                             variant={"outline"}
                             className={cn(
-                              "pl-3 text-left font-normal border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]",
+                              "px-3 border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]",
                               !field.value && "text-muted-foreground"
                             )}
                           >
-                            {field.value ? (
-                              format(field.value, "dd/MM/yyyy")
-                            ) : (
-                              <span>Selecione...</span>
-                            )}
-                            <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                            <Calendar className="h-4 w-4" />
                           </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <CalendarComponent
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          initialFocus
-                          className={cn("p-3 pointer-events-auto")}
-                        />
-                      </PopoverContent>
-                    </Popover>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <CalendarComponent
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
