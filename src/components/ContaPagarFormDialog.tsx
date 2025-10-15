@@ -279,6 +279,33 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Datas */}
+            <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
+              <h3 className="font-semibold text-[#6B5047] flex items-center gap-2 pb-2 border-b border-[#E8E3DF]">
+                <Calendar className="h-5 w-5 text-[#D89B8C]" />
+                Data
+              </h3>
+
+              <FormField
+                control={form.control}
+                name="dataEmissao"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel className="text-[#6B5047]">Data de Emissão *</FormLabel>
+                    <FormControl>
+                      <DatePickerField
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Selecione a data"
+                      />
+                    </FormControl>
+                    <p className="text-xs text-[#9C8B82]">Data em que a despesa foi gerada</p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             {/* Fornecedor */}
             <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
               <div className="flex items-center justify-between pb-2 border-b border-[#E8E3DF]">
