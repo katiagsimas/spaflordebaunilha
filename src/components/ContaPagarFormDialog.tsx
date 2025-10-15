@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { format, addDays } from "date-fns";
+import { format, addDays, addMonths, startOfMonth } from "date-fns";
 import { CalendarIcon, DollarSign, FileText, Building2, Calendar, User, ExternalLink, Landmark, CreditCard, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCategoriasFinanceiras } from "@/hooks/useCategoriasFinanceiras";
@@ -42,6 +42,15 @@ interface Parcela {
   valor: number;
   dataVencimento: Date;
   dataEmissao: Date;
+}
+
+interface ParcelaRecorrente {
+  numero: number;
+  dataEmissao: Date;
+  valorTotal: number;
+  totalParcelas: number;
+  valorPagar: number;
+  dataVencimento: Date;
 }
 
 interface ContaPagar {
@@ -167,6 +176,11 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
   const [numeroParcelas, setNumeroParcelas] = useState<number>(1);
   const [dataVencimentoParcelas, setDataVencimentoParcelas] = useState<Date>(new Date());
   const [parcelas, setParcelas] = useState<Parcela[]>([]);
+  
+  const [recorrenteDialogOpen, setRecorrenteDialogOpen] = useState(false);
+  const [numeroParcelasRecorrente, setNumeroParcelasRecorrente] = useState<number>(1);
+  const [dataVencimentoRecorrente, setDataVencimentoRecorrente] = useState<Date>(new Date());
+  const [parcelasRecorrentes, setParcelasRecorrentes] = useState<ParcelaRecorrente[]>([]);
 
   // Filtrar apenas categorias de despesa
   const categoriasDespesa = categorias.filter(c => c.tipo === 'despesa');
@@ -215,6 +229,9 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
       form.setValue("totalParcelas", undefined);
       form.setValue("numeroParcela", undefined);
       setParcelas([]);
+      setRecorrenteDialogOpen(true);
+    } else {
+      setParcelasRecorrentes([]);
     }
   }, [recorrente]);
   
@@ -420,6 +437,63 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
     setParcelas(parcelas.filter((_, i) => i !== index));
   };
 
+  const handleGerarParcelasRecorrentes = () => {
+    const valorString = form.getValues("valor");
+    
+    // Validações com feedback ao usuário
+    if (!valorString || valorString === '' || valorString === '0,00') {
+      toast.error('Por favor, informe o valor total da conta antes de gerar as parcelas recorrentes.');
+      return;
+    }
+    
+    if (!numeroParcelasRecorrente || numeroParcelasRecorrente < 1) {
+      toast.error('O número de parcelas deve ser no mínimo 1.');
+      return;
+    }
+    
+    if (numeroParcelasRecorrente > 60) {
+      toast.error('O número de parcelas não pode ser maior que 60.');
+      return;
+    }
+    
+    if (!dataVencimentoRecorrente) {
+      toast.error('Por favor, informe a data de vencimento da primeira parcela.');
+      return;
+    }
+    
+    const valorTotal = parseFloat(valorString.replace(/[^\d,]/g, '').replace(',', '.'));
+    
+    if (isNaN(valorTotal) || valorTotal <= 0) {
+      toast.error('Valor informado é inválido.');
+      return;
+    }
+    
+    const novasParcelasRecorrentes: ParcelaRecorrente[] = [];
+    for (let i = 0; i < numeroParcelasRecorrente; i++) {
+      // Calcular a data de vencimento adicionando meses
+      const dataVenc = addMonths(dataVencimentoRecorrente, i);
+      // Data de emissão é sempre o dia 1 do mês do vencimento
+      const dataEmis = startOfMonth(dataVenc);
+      
+      novasParcelasRecorrentes.push({
+        numero: i + 1,
+        dataEmissao: dataEmis,
+        valorTotal: valorTotal,
+        totalParcelas: numeroParcelasRecorrente,
+        valorPagar: valorTotal,
+        dataVencimento: dataVenc,
+      });
+    }
+    
+    setParcelasRecorrentes(novasParcelasRecorrentes);
+    setRecorrenteDialogOpen(false);
+    toast.success(`✓ ${numeroParcelasRecorrente} parcelas recorrentes geradas com sucesso!`);
+  };
+
+  const handleRemoverParcelaRecorrente = (index: number) => {
+    setParcelasRecorrentes(parcelasRecorrentes.filter((_, i) => i !== index));
+  };
+
   return (
     <>
       {/* Diálogo de Parcelamento */}
@@ -471,6 +545,65 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
             <Button
               type="button"
               onClick={handleGerarParcelas}
+            >
+              Gerar Parcelas
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo de Recorrência */}
+      <Dialog open={recorrenteDialogOpen} onOpenChange={setRecorrenteDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl text-[#6B5047]">Configurar Recorrência</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="text-sm font-medium text-[#6B5047] mb-2 block">
+                Número de Parcelas *
+              </label>
+              <Input
+                type="number"
+                min="1"
+                max="60"
+                value={numeroParcelasRecorrente}
+                onChange={(e) => setNumeroParcelasRecorrente(parseInt(e.target.value) || 1)}
+                placeholder="Ex: 12"
+              />
+              <p className="text-xs text-[#9C8B82] mt-1">Mínimo 1, máximo 60 parcelas</p>
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium text-[#6B5047] mb-2 block">
+                Data de Vencimento *
+              </label>
+              <DatePickerField
+                value={dataVencimentoRecorrente}
+                onChange={(date) => date && setDataVencimentoRecorrente(date)}
+                placeholder="Selecione a data"
+              />
+              <p className="text-xs text-[#9C8B82] mt-1">
+                As próximas parcelas terão o mesmo dia de vencimento nos meses seguintes
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex justify-end gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setRecorrenteDialogOpen(false);
+                form.setValue("recorrente", false);
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              onClick={handleGerarParcelasRecorrentes}
             >
               Gerar Parcelas
             </Button>
@@ -900,7 +1033,12 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                       <FormControl>
                         <Checkbox
                           checked={field.value}
-                          onCheckedChange={field.onChange}
+                          onCheckedChange={(checked) => {
+                            field.onChange(checked);
+                            if (!checked) {
+                              setParcelasRecorrentes([]);
+                            }
+                          }}
                           className="border-[#7BA8D8] data-[state=checked]:bg-[#7BA8D8] data-[state=checked]:border-[#7BA8D8]"
                         />
                       </FormControl>
@@ -975,6 +1113,63 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                     <span className="font-bold text-lg text-[#6B5047]">
                       R$ {(parcelas.reduce((acc, p) => acc + p.valor, 0)).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
+                  </div>
+                </div>
+              )}
+              
+              {/* Tabela de Parcelas Recorrentes */}
+              {parcelasRecorrentes.length > 0 && (
+                <div className="mt-6 space-y-3">
+                  <h4 className="font-semibold text-[#6B5047] flex items-center gap-2">
+                    <CreditCard className="h-4 w-4 text-[#D89B8C]" />
+                    Parcelas Recorrentes Configuradas
+                  </h4>
+                  
+                  <div className="border border-[#E8E3DF] rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-[#FAF7F5]">
+                          <TableHead className="text-[#6B5047]">Data Emissão</TableHead>
+                          <TableHead className="text-[#6B5047] text-right">Valor Total</TableHead>
+                          <TableHead className="text-[#6B5047]">Parcela</TableHead>
+                          <TableHead className="text-[#6B5047] text-right">Valor a Pagar</TableHead>
+                          <TableHead className="text-[#6B5047]">Data Vencimento</TableHead>
+                          <TableHead className="w-[50px]"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {parcelasRecorrentes.map((parcela, index) => (
+                          <TableRow key={index}>
+                            <TableCell>
+                              {format(parcela.dataEmissao, "dd/MM/yyyy")}
+                            </TableCell>
+                            <TableCell className="text-right font-medium">
+                              R$ {parcela.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </TableCell>
+                            <TableCell className="font-medium">
+                              {parcela.numero} de {parcela.totalParcelas}
+                            </TableCell>
+                            <TableCell className="text-right font-medium">
+                              R$ {parcela.valorPagar.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </TableCell>
+                            <TableCell>
+                              {format(parcela.dataVencimento, "dd/MM/yyyy")}
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleRemoverParcelaRecorrente(index)}
+                                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
                   </div>
                 </div>
               )}
