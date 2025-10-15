@@ -603,9 +603,9 @@ export default function ContasPagar() {
         )}
 
         {/* Cards de Resumo */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="border-l-4 border-[#E5A868] hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <Card className="border-l-4 border-[#E5A868]">
+            <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-[#9C8B82] flex items-center gap-2">
                 <TrendingDown className="h-4 w-4" />
                 A Pagar
@@ -617,21 +617,8 @@ export default function ContasPagar() {
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-[#8BA888] hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-[#9C8B82] flex items-center gap-2">
-                <CheckCircle className="h-4 w-4" />
-                Pago
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-[#6B5047]">{formatCurrency(stats.pagas.valor)}</div>
-              <p className="text-xs text-[#9C8B82] mt-1">{stats.pagas.count} contas</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-l-4 border-[#D88B8B] hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-3">
+          <Card className="border-l-4 border-[#D88B8B]">
+            <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-[#9C8B82] flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4" />
                 Vencido
@@ -643,8 +630,21 @@ export default function ContasPagar() {
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-[#D89B8C] hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-3">
+          <Card className="border-l-4 border-[#E5C89F]">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-[#9C8B82] flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                Vencidas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-[#6B5047]">{formatCurrency(stats.vencidas.valor)}</div>
+              <p className="text-xs text-[#9C8B82] mt-1">{stats.vencidas.count} contas</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-l-4 border-[#D89B8C]">
+            <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-[#9C8B82] flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
                 Este Mês
@@ -653,6 +653,19 @@ export default function ContasPagar() {
             <CardContent>
               <div className="text-2xl font-bold text-[#6B5047]">{formatCurrency(stats.esteMes.valor)}</div>
               <p className="text-xs text-[#9C8B82] mt-1">{stats.esteMes.count} contas</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-l-4 border-[#8BA888]">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-[#9C8B82] flex items-center gap-2">
+                <CheckCircle className="h-4 w-4" />
+                Pago
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-[#6B5047]">{formatCurrency(stats.pagas.valor)}</div>
+              <p className="text-xs text-[#9C8B82] mt-1">{stats.pagas.count} contas</p>
             </CardContent>
           </Card>
         </div>
