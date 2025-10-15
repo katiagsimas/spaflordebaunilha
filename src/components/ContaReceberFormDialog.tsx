@@ -416,20 +416,6 @@ export function ContaReceberFormDialog({
 
             {/* Cliente */}
             <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
-              <div className="flex items-center justify-between pb-2 border-b border-[#E8E3DF]">
-                <h3 className="font-semibold text-[#6B5047] flex items-center gap-2">
-                  <User className="h-5 w-5 text-[#D89B8C]" />
-                  Cliente
-                </h3>
-                <Link 
-                  to="/cadastros/clientes"
-                  className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1 transition-colors"
-                  target="_blank"
-                >
-                  <ExternalLink className="h-3 w-3" />
-                  Gerenciar Clientes
-                </Link>
-              </div>
               
               <div className="space-y-4">
                 <div>
