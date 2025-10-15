@@ -329,6 +329,69 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
               />
             </div>
 
+            {/* Fornecedor */}
+            <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
+              <div className="flex items-center justify-between pb-2 border-b border-[#E8E3DF]">
+                <h3 className="font-semibold text-[#6B5047] flex items-center gap-2">
+                  <User className="h-5 w-5 text-[#D89B8C]" />
+                  Fornecedor (opcional)
+                </h3>
+                <Link 
+                  to="/cadastros/fornecedores"
+                  className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1 transition-colors"
+                  target="_blank"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Gerenciar Fornecedores
+                </Link>
+              </div>
+
+              <FormField
+                control={form.control}
+                name="fornecedorNome"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[#6B5047]">Nome do Fornecedor</FormLabel>
+                    <FormControl>
+                      <FornecedorAutocomplete
+                        value={field.value || ""}
+                        onSelect={(nome, documento) => {
+                          field.onChange(nome);
+                          if (documento) {
+                            form.setValue('fornecedorDocumento', documento);
+                          }
+                        }}
+                        placeholder="Selecione um fornecedor..."
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="fornecedorDocumento"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[#6B5047]">CPF/CNPJ</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                        {...field}
+                        onChange={(e) => {
+                          const formatted = formatCpfCnpj(e.target.value);
+                          field.onChange(formatted);
+                        }}
+                        maxLength={18}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             {/* Documento */}
             <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
               <div className="flex items-center justify-between pb-2 border-b border-[#E8E3DF]">
@@ -543,69 +606,6 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                       </div>
                     </FormControl>
                     <p className="text-xs text-[#9C8B82]">Valor total da despesa</p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Fornecedor */}
-            <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
-              <div className="flex items-center justify-between pb-2 border-b border-[#E8E3DF]">
-                <h3 className="font-semibold text-[#6B5047] flex items-center gap-2">
-                  <User className="h-5 w-5 text-[#D89B8C]" />
-                  Fornecedor (opcional)
-                </h3>
-                <Link 
-                  to="/cadastros/fornecedores"
-                  className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1 transition-colors"
-                  target="_blank"
-                >
-                  <ExternalLink className="h-3 w-3" />
-                  Gerenciar Fornecedores
-                </Link>
-              </div>
-
-              <FormField
-                control={form.control}
-                name="fornecedorNome"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[#6B5047]">Nome do Fornecedor</FormLabel>
-                    <FormControl>
-                      <FornecedorAutocomplete
-                        value={field.value || ""}
-                        onSelect={(nome, documento) => {
-                          field.onChange(nome);
-                          if (documento) {
-                            form.setValue('fornecedorDocumento', documento);
-                          }
-                        }}
-                        placeholder="Selecione um fornecedor..."
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="fornecedorDocumento"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[#6B5047]">CPF/CNPJ</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="000.000.000-00 ou 00.000.000/0000-00"
-                        {...field}
-                        onChange={(e) => {
-                          const formatted = formatCpfCnpj(e.target.value);
-                          field.onChange(formatted);
-                        }}
-                        maxLength={18}
-                      />
-                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
