@@ -579,7 +579,7 @@ export default function ContasReceber() {
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
         <TabsList>
           <TabsTrigger value="todas">
-            A Receber ({contasAReceber.length})
+            Todos ({contasAReceber.length})
           </TabsTrigger>
           <TabsTrigger value="abertos">
             Abertos ({contas.filter(c => c.status === 'pendente').length})
