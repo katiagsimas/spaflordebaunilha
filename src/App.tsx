@@ -107,151 +107,41 @@ const App = () => (
             <Route path="/auth/login" element={<AuthLogin />} />
             <Route path="/auth/signup" element={<SignUp />} />
             <Route path="/auth/forgot-password" element={<ForgotPassword />} />
-          {/* ============================================ */}
-          {/* 🔒 ROTAS TEMPORARIAMENTE DESABILITADAS */}
-          {/* Data: 15/10/2025 - Validação focada nos módulos core */}
-          {/* Para reativar: Descomentar as linhas abaixo */}
-          {/* ============================================ */}
-          
-          {/* 📊 DASHBOARD */}
-          {/* <Route path="/" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} /> */}
-          
-          {/* Redirecionar / para Encomendas durante validação */}
+          {/* Redirecionar raiz para Encomendas */}
           <Route path="/" element={<Navigate to="/encomendas" replace />} />
           
+          {/* Páginas Diretas */}
           <Route path="/encomendas" element={<ProtectedRoute><Layout><Encomendas /></Layout></ProtectedRoute>} />
+          <Route path="/clientes" element={<ProtectedRoute><Layout><Clientes /></Layout></ProtectedRoute>} />
+          <Route path="/fornecedores" element={<ProtectedRoute><Layout><Fornecedores /></Layout></ProtectedRoute>} />
           
-          {/* 🏭 PRODUÇÃO */}
-          {/* <Route path="/producao" element={<ProtectedRoute><Layout><Producao /></Layout></ProtectedRoute>} /> */}
-          
-          {/* 📦 ESTOQUE */}
-          {/* <Route path="/estoque" element={<ProtectedRoute><Layout><Estoque /></Layout></ProtectedRoute>} /> */}
-          {/* <Route path="/estoque/relatorios" element={<ProtectedRoute><Layout><RelatoriosEstoque /></Layout></ProtectedRoute>} /> */}
-          {/* <Route path="/estoque/relatorios/movimentacoes" element={<ProtectedRoute><Layout><RelatorioMovimentacoes /></Layout></ProtectedRoute>} /> */}
-          {/* <Route path="/estoque/relatorios/consumo-medio" element={<ProtectedRoute><Layout><RelatorioConsumoMedio /></Layout></ProtectedRoute>} /> */}
-          {/* <Route path="/estoque/relatorios/cmv-global" element={<ProtectedRoute><Layout><RelatorioCMVGlobal /></Layout></ProtectedRoute>} /> */}
-          
+          {/* Precificação - Página Container + Sub-rotas */}
           <Route path="/precificacao" element={<ProtectedRoute><Layout><Precificacao /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao/custos-fixos" element={<ProtectedRoute><Layout><CustosFixos /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao/ingredientes" element={<ProtectedRoute><Layout><Ingredientes /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao/embalagens" element={<ProtectedRoute><Layout><Embalagens /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao/pre-preparo" element={<ProtectedRoute><Layout><SubReceitas /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao/pre-preparo/nova" element={<ProtectedRoute><Layout><SubReceitaForm /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao/pre-preparo/editar/:id" element={<ProtectedRoute><Layout><SubReceitaForm /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao/ficha-tecnica" element={<ProtectedRoute><Layout><Receitas /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao/ficha-tecnica/nova" element={<ProtectedRoute><Layout><ReceitaForm /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao/ficha-tecnica/editar/:id" element={<ProtectedRoute><Layout><ReceitaForm /></Layout></ProtectedRoute>} />
           
-          {/* 🎯 PLANEJAMENTO */}
-          {/* <Route path="/planejamento" element={<ProtectedRoute><Layout><Planejamento /></Layout></ProtectedRoute>} /> */}
-          {/* <Route path="/cmv-global" element={<ProtectedRoute><Layout><CMVGlobal /></Layout></ProtectedRoute>} /> */}
+          {/* Financeiro - Página Container + Sub-rotas */}
+          <Route path="/financeiro" element={<ProtectedRoute><Layout><Financeiro /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/contas-receber" element={<ProtectedRoute><Layout><ContasReceber /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/contas-pagar" element={<ProtectedRoute><Layout><ContasPagar /></Layout></ProtectedRoute>} />
           
-          {/* ============================================ */}
-          {/* FIM DAS ROTAS DESABILITADAS */}
-          {/* ============================================ */}
-          <Route path="/cadastros" element={<ProtectedRoute><Layout><Cadastros /></Layout></ProtectedRoute>} />
-          <Route path="/clientes-fornecedores" element={<ProtectedRoute><Layout><ClientesFornecedores /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/seus-dados" element={<ProtectedRoute><Layout><SeusDados /></Layout></ProtectedRoute>} />
-          <Route path="/cadastros/seus-dados" element={<ProtectedRoute><Layout><SeusDados /></Layout></ProtectedRoute>} />
-          <Route path="/cadastros/custos-fixos" element={<ProtectedRoute><Layout><CustosFixos /></Layout></ProtectedRoute>} />
-          <Route path="/cadastros/clientes" element={<ProtectedRoute><Layout><Clientes /></Layout></ProtectedRoute>} />
-          <Route path="/cadastros/fornecedores" element={<ProtectedRoute><Layout><Fornecedores /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/unidades" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
-          <Route path="/cadastros/unidades" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
-          <Route path="/cadastros/ingredientes" element={<ProtectedRoute><Layout><Ingredientes /></Layout></ProtectedRoute>} />
-          <Route path="/cadastros/embalagens" element={<ProtectedRoute><Layout><Embalagens /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/tipos-insumos-embalagens" element={<ProtectedRoute><Layout><TiposInsumosEmbalagens /></Layout></ProtectedRoute>} />
+          {/* Configurações - Página Container + Sub-rotas */}
+          <Route path="/configuracoes" element={<ProtectedRoute><Layout><Configuracoes /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/dados-confeitaria" element={<ProtectedRoute><Layout><SeusDados /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/categorias-receitas" element={<ProtectedRoute><Layout><Categorias /></Layout></ProtectedRoute>} />
-          <Route path="/cadastros/categorias" element={<ProtectedRoute><Layout><Categorias /></Layout></ProtectedRoute>} />
-          <Route path="/receitas" element={<ProtectedRoute><Layout><Receitas /></Layout></ProtectedRoute>} />
-          <Route path="/receitas/nova" element={<ProtectedRoute><Layout><ReceitaForm /></Layout></ProtectedRoute>} />
-          <Route path="/receitas/editar/:id" element={<ProtectedRoute><Layout><ReceitaForm /></Layout></ProtectedRoute>} />
-          <Route path="/sub-receitas" element={<ProtectedRoute><Layout><SubReceitas /></Layout></ProtectedRoute>} />
-          <Route path="/sub-receitas/nova" element={<ProtectedRoute><Layout><SubReceitaForm /></Layout></ProtectedRoute>} />
-          <Route path="/sub-receitas/editar/:id" element={<ProtectedRoute><Layout><SubReceitaForm /></Layout></ProtectedRoute>} />
-          <Route 
-            path="/financeiro" 
-            element={<ProtectedRoute><Layout><Financeiro /></Layout></ProtectedRoute>} 
-          />
-          <Route 
-            path="/financeiro/contas-receber" 
-            element={<ProtectedRoute><Layout><ContasReceber /></Layout></ProtectedRoute>} 
-          />
-          <Route 
-            path="/financeiro/contas-pagar" 
-            element={<ProtectedRoute><Layout><ContasPagar /></Layout></ProtectedRoute>} 
-          />
-          <Route 
-            path="/financeiro/configuracoes" 
-            element={<ProtectedRoute><Layout><ConfiguracoesFinanceiro /></Layout></ProtectedRoute>} 
-          />
-          <Route 
-            path="/configuracoes" 
-            element={<ProtectedRoute><Layout><Configuracoes /></Layout></ProtectedRoute>} 
-          />
-          <Route 
-            path="/migration-status" 
-            element={<ProtectedRoute><Layout><MigrationStatus /></Layout></ProtectedRoute>} 
-          />
-          <Route 
-            path="/configuracoes/categorias" 
-            element={<ProtectedRoute><Layout><CategoriasFinanceiras /></Layout></ProtectedRoute>} 
-          />
-          <Route 
-            path="/financeiro/configuracoes/categorias" 
-            element={<ProtectedRoute><Layout><CategoriasPlanoContas /></Layout></ProtectedRoute>} 
-          />
-          <Route 
-            path="/financeiro/categorias" 
-            element={<ProtectedRoute><Layout><CategoriasFinanceiras /></Layout></ProtectedRoute>} 
-          />
-          <Route 
-            path="/financeiro/categorias-financeiras" 
-            element={<ProtectedRoute><Layout><CategoriasFinanceiras /></Layout></ProtectedRoute>} 
-          />
-          <Route 
-            path="/financeiro/ajuda-categorias" 
-            element={<ProtectedRoute><Layout><AjudaCategorias /></Layout></ProtectedRoute>} 
-          />
-          <Route 
-            path="/configuracoes/planos-contas" 
-            element={<ProtectedRoute><Layout><PlanosContas /></Layout></ProtectedRoute>} 
-          />
-          <Route 
-            path="/financeiro/configuracoes/planos-contas" 
-            element={<ProtectedRoute><Layout><PlanosContas /></Layout></ProtectedRoute>} 
-          />
-          <Route 
-            path="/configuracoes/tipos-documento" 
-            element={<ProtectedRoute><Layout><TiposDocumento /></Layout></ProtectedRoute>} 
-          />
-          <Route 
-            path="/financeiro/configuracoes/tipos-documento" 
-            element={<ProtectedRoute><Layout><TiposDocumento /></Layout></ProtectedRoute>} 
-          />
-          <Route 
-            path="/financeiro/tipos-documento" 
-            element={<ProtectedRoute><Layout><TiposDocumento /></Layout></ProtectedRoute>} 
-          />
-          <Route 
-            path="/configuracoes/bancos" 
-            element={<ProtectedRoute><Layout><Bancos /></Layout></ProtectedRoute>} 
-          />
-          <Route 
-            path="/financeiro/configuracoes/bancos" 
-            element={<ProtectedRoute><Layout><Bancos /></Layout></ProtectedRoute>} 
-          />
-          {/* ============================================ */}
-          {/* 📈 RELATÓRIOS DESABILITADOS */}
-          {/* ============================================ */}
-          {/* <Route
-            path="/relatorios" 
-            element={<ProtectedRoute><Layout><Relatorios /></Layout></ProtectedRoute>} 
-          /> */}
-          {/* <Route
-            path="/relatorios/fluxo-caixa-diario" 
-            element={<ProtectedRoute><Layout><FluxoCaixaDiario /></Layout></ProtectedRoute>} 
-          /> */}
-          {/* <Route
-            path="/relatorios/fluxo-caixa-mensal" 
-            element={<ProtectedRoute><Layout><FluxoCaixaMensal /></Layout></ProtectedRoute>} 
-          /> */}
-          {/* <Route
-            path="/relatorios/dre" 
-            element={<ProtectedRoute><Layout><DRE /></Layout></ProtectedRoute>} 
-          /> */}
-          {/* ============================================ */}
+          <Route path="/configuracoes/unidades-medida" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/tipos-insumos" element={<ProtectedRoute><Layout><TiposInsumosEmbalagens /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/categorias-financeiras" element={<ProtectedRoute><Layout><CategoriasFinanceiras /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/plano-contas" element={<ProtectedRoute><Layout><PlanosContas /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/tipos-documento" element={<ProtectedRoute><Layout><TiposDocumento /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/bancos" element={<ProtectedRoute><Layout><Bancos /></Layout></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

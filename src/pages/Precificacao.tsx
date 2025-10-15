@@ -55,35 +55,35 @@ const opcoes = [
     title: "Custos Fixos",
     description: "Despesas mensais fixas",
     icon: DollarSign,
-    url: "/cadastros/custos-fixos",
+    url: "/precificacao/custos-fixos",
     color: "text-red-600 bg-red-50 dark:bg-red-950",
   },
   {
     title: "Ingredientes",
     description: "Cadastro de Insumos",
     icon: Boxes,
-    url: "/cadastros/ingredientes",
+    url: "/precificacao/ingredientes",
     color: "text-orange-600 bg-orange-50 dark:bg-orange-950",
   },
   {
     title: "Embalagens",
     description: "Cadastro de embalagens",
     icon: Package,
-    url: "/cadastros/embalagens",
+    url: "/precificacao/embalagens",
     color: "text-pink-600 bg-pink-50 dark:bg-pink-950",
   },
   {
     title: "Pré-Preparo",
     description: "Gerencie suas sub-receitas",
     icon: ChefHat,
-    url: "/sub-receitas",
+    url: "/precificacao/pre-preparo",
     color: "text-purple-600 bg-purple-50 dark:bg-purple-950",
   },
   {
     title: "Ficha Técnica",
     description: "Calcule Custos e Preços de Venda",
     icon: CookingPot,
-    url: "/receitas",
+    url: "/precificacao/ficha-tecnica",
     color: "text-orange-600 bg-orange-50 dark:bg-orange-950",
   },
 ];
@@ -119,7 +119,7 @@ export default function Precificacao() {
   };
 
   const handleEdit = (id: string) => {
-    navigate(`/receitas/editar/${id}`);
+    navigate(`/precificacao/ficha-tecnica/editar/${id}`);
   };
 
   return (
