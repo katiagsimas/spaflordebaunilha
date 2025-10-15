@@ -452,9 +452,33 @@ export function ContaReceberFormDialog({
         toast.success("✓ Conta a receber criada com sucesso!");
       }
       
-      // NÃO fechar o diálogo - manter aberto com os dados
-      // onOpenChange(false);
-      onSave(); // Apenas atualizar a lista
+      // Após salvar com sucesso, limpar o formulário mas manter o diálogo aberto
+      form.reset({
+        descricao: "",
+        categoriaId: "",
+        planoContaId: "",
+        valor: 0,
+        dataEmissao: new Date(),
+        clienteNome: "",
+        clienteDocumento: "",
+        bancoId: "",
+        tipoDocumentoId: "",
+        numeroDocumento: "",
+        observacoes: "",
+        parcelado: false,
+        numeroParcela: 1,
+        totalParcelas: 1,
+        recorrente: false,
+        frequenciaRecorrencia: "mensal",
+      });
+      setSelectedCategoriaId("");
+      setSelectedClienteNome("");
+      setValorInput("");
+      setParcelas([]);
+      setRecorrencias([]);
+      
+      onSave(); // Atualizar a lista
+      toast.success("✓ Formulário limpo! Você pode criar outra conta para o mesmo ou outro cliente.");
     } catch (error: any) {
       console.error('Erro completo ao salvar conta:', error);
       toast.error('Erro ao salvar conta: ' + (error.message || 'Erro desconhecido'));
@@ -1179,11 +1203,16 @@ export function ContaReceberFormDialog({
                   return;
                 }
 
-                const valorParcela = valorTotal / numParcelas;
                 const dataEmissaoForm = form.getValues('dataEmissao');
+                if (!dataEmissaoForm) {
+                  toast.error("Informe a data de emissão antes de criar parcelas");
+                  return;
+                }
+
+                const valorParcela = valorTotal / numParcelas;
                 
                 const novasParcelas = Array.from({ length: numParcelas }, (_, i) => {
-                  const dataVenc = addDays(dataVencimentoParcela, i * 30);
+                  const dataVenc = addMonths(dataVencimentoParcela, i);
                   return {
                     numero: i + 1,
                     total: numParcelas,
@@ -1281,6 +1310,10 @@ export function ContaReceberFormDialog({
                 }
                 
                 const dataEmissaoForm = form.getValues('dataEmissao');
+                if (!dataEmissaoForm) {
+                  toast.error("Informe a data de emissão antes de criar recorrências");
+                  return;
+                }
                 
                 const novasRecorrencias = Array.from({ length: numRecorrencias }, (_, i) => {
                   // Data de vencimento: primeira é a informada, demais no mesmo dia do mês seguinte
