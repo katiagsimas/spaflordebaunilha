@@ -81,18 +81,31 @@ export async function migrateAllLocalStorageData(userId: string): Promise<Migrat
       
       console.log(`🔄 Migrando ${tableName}: ${data.length} registros...`);
       
-      // Adicionar usuario_id em cada registro
+      // Adicionar usuario_id em cada registro e mapear campos para o novo formato
       const dataWithUserId = data.map(record => {
         // Remover campos temporários ou desnecessários
         const { id: _id, ...rest } = record;
         
+        // Mapear campos antigos para novos (específico para contas_receber)
+        let mappedRecord = { ...rest };
+        
+        if (tableName === 'contas_receber') {
+          // Não migrar contas a receber do localStorage - serão criadas manualmente
+          return null;
+        }
+        
         return {
-          ...rest,
+          ...mappedRecord,
           usuario_id: userId,
           created_at: record.created_at || new Date().toISOString(),
           updated_at: record.updated_at || new Date().toISOString()
         };
-      });
+      }).filter(Boolean); // Remove registros nulos
+      
+      if (dataWithUserId.length === 0) {
+        console.log(`ℹ️ Nenhum registro para migrar em ${tableName}`);
+        continue;
+      }
       
       // Inserir no Supabase
       const { error } = await supabase
