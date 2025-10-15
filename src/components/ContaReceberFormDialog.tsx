@@ -181,6 +181,7 @@ export function ContaReceberFormDialog({
     dataEmissao: string;
     dataVencimento: string;
     valor: number;
+    valorTotal: number;
   }>>([]);
 
   // Estados para recorrência
@@ -193,6 +194,7 @@ export function ContaReceberFormDialog({
     dataEmissao: string;
     dataVencimento: string;
     valor: number;
+    valorTotal: number;
   }>>([]);
 
   // Filtrar apenas categorias de receita
@@ -887,20 +889,24 @@ export function ContaReceberFormDialog({
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-[#FAF7F5]">
-                        <TableHead className="text-[#6B5047] font-semibold">Parcela</TableHead>
                         <TableHead className="text-[#6B5047] font-semibold">Data Emissão</TableHead>
+                        <TableHead className="text-[#6B5047] font-semibold text-right">Valor Total</TableHead>
+                        <TableHead className="text-[#6B5047] font-semibold">Parcela</TableHead>
                         <TableHead className="text-[#6B5047] font-semibold">Data Vencimento</TableHead>
-                        <TableHead className="text-[#6B5047] font-semibold text-right">Valor</TableHead>
+                        <TableHead className="text-[#6B5047] font-semibold text-right">Valor a Pagar</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {parcelas.map((parcela) => (
                         <TableRow key={parcela.numero} className="hover:bg-[#FAF7F5]/50">
-                          <TableCell className="font-medium text-[#6B5047]">
-                            {parcela.numero} de {parcela.total}
-                          </TableCell>
                           <TableCell className="text-[#9C8B82]">
                             {format(new Date(parcela.dataEmissao), "dd/MM/yyyy")}
+                          </TableCell>
+                          <TableCell className="text-right font-semibold text-[#6B5047]">
+                            R$ {parcela.valorTotal.toFixed(2).replace('.', ',')}
+                          </TableCell>
+                          <TableCell className="font-medium text-[#6B5047]">
+                            {parcela.numero} de {parcela.total}
                           </TableCell>
                           <TableCell className="text-[#9C8B82]">
                             {format(new Date(parcela.dataVencimento), "dd/MM/yyyy")}
@@ -943,8 +949,9 @@ export function ContaReceberFormDialog({
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-[#FAF7F5]">
-                        <TableHead className="text-[#6B5047] font-semibold">Recorrência</TableHead>
                         <TableHead className="text-[#6B5047] font-semibold">Data Emissão</TableHead>
+                        <TableHead className="text-[#6B5047] font-semibold text-right">Valor Total</TableHead>
+                        <TableHead className="text-[#6B5047] font-semibold">Recorrência</TableHead>
                         <TableHead className="text-[#6B5047] font-semibold">Data Vencimento</TableHead>
                         <TableHead className="text-[#6B5047] font-semibold text-right">Valor a Pagar</TableHead>
                       </TableRow>
@@ -952,11 +959,14 @@ export function ContaReceberFormDialog({
                     <TableBody>
                       {recorrencias.map((recorrencia) => (
                         <TableRow key={recorrencia.numero} className="hover:bg-[#FAF7F5]/50">
-                          <TableCell className="font-medium text-[#6B5047]">
-                            {recorrencia.numero} de {recorrencia.total}
-                          </TableCell>
                           <TableCell className="text-[#9C8B82]">
                             {format(new Date(recorrencia.dataEmissao), "dd/MM/yyyy")}
+                          </TableCell>
+                          <TableCell className="text-right font-semibold text-[#6B5047]">
+                            R$ {recorrencia.valorTotal.toFixed(2).replace('.', ',')}
+                          </TableCell>
+                          <TableCell className="font-medium text-[#6B5047]">
+                            {recorrencia.numero} de {recorrencia.total}
                           </TableCell>
                           <TableCell className="text-[#9C8B82]">
                             {format(new Date(recorrencia.dataVencimento), "dd/MM/yyyy")}
@@ -1124,7 +1134,8 @@ export function ContaReceberFormDialog({
                     total: numParcelas,
                     dataEmissao: dataEmissaoForm.toISOString().split('T')[0],
                     dataVencimento: dataVenc.toISOString().split('T')[0],
-                    valor: valorParcela
+                    valor: valorParcela,
+                    valorTotal: valorTotal
                   };
                 });
 
@@ -1247,7 +1258,8 @@ export function ContaReceberFormDialog({
                     total: numRecorrencias,
                     dataEmissao: dataEmis.toISOString().split('T')[0],
                     dataVencimento: dataVenc.toISOString().split('T')[0],
-                    valor: valorTotal // Sem divisão, mantém o valor integral
+                    valor: valorTotal, // Sem divisão, mantém o valor integral
+                    valorTotal: valorTotal
                   };
                 });
 
