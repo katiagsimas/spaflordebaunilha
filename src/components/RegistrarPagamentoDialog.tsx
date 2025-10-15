@@ -162,7 +162,7 @@ export function RegistrarPagamentoDialog({ open, onOpenChange, conta, onSave, ti
             <div className="flex items-center justify-between text-sm">
               <span className="text-[#9C8B82]">Vencimento:</span>
               <span className="font-medium text-[#6B5047]">
-                {format(new Date(conta.dataVencimento), "dd/MM/yyyy", { locale: ptBR })}
+                {conta.dataVencimento ? format(new Date(conta.dataVencimento), "dd/MM/yyyy", { locale: ptBR }) : 'Não definido'}
               </span>
             </div>
           </div>
