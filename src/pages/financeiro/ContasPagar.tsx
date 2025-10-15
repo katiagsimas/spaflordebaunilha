@@ -603,57 +603,37 @@ export default function ContasPagar() {
         )}
 
         {/* Cards de Resumo */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="border-l-4 border-[#E5A868]">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-[#9C8B82] flex items-center gap-2">
-                <TrendingDown className="h-4 w-4" />
-                A Pagar
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-[#6B5047]">{formatCurrency(stats.aPagar.valor)}</div>
-              <p className="text-xs text-[#9C8B82] mt-1">{stats.aPagar.count} contas</p>
-            </CardContent>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+          <Card className="p-4 border-l-4 border-l-[#7BA8D8] hover:shadow-lg transition-shadow">
+            <div className="space-y-2">
+              <p className="text-sm text-[#9C8B82]">A Pagar</p>
+              <p className="text-2xl font-bold text-[#6B5047]">{formatCurrency(stats.aPagar.valor)}</p>
+              <p className="text-xs text-[#9C8B82]">{stats.aPagar.count} contas</p>
+            </div>
           </Card>
 
-          <Card className="border-l-4 border-[#D88B8B]">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-[#9C8B82] flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4" />
-                Vencido
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-[#D88B8B]">{formatCurrency(stats.atrasadas.valor)}</div>
-              <p className="text-xs text-[#9C8B82] mt-1">{stats.atrasadas.count} contas</p>
-            </CardContent>
+          <Card className="p-4 border-l-4 border-l-[#D88B8B] hover:shadow-lg transition-shadow">
+            <div className="space-y-2">
+              <p className="text-sm text-[#9C8B82]">Vencido</p>
+              <p className="text-2xl font-bold text-[#C62828]">{formatCurrency(stats.atrasadas.valor)}</p>
+              <p className="text-xs text-[#9C8B82]">{stats.atrasadas.count} contas</p>
+            </div>
           </Card>
 
-          <Card className="border-l-4 border-[#D89B8C]">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-[#9C8B82] flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                Este Mês
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-[#6B5047]">{formatCurrency(stats.esteMes.valor)}</div>
-              <p className="text-xs text-[#9C8B82] mt-1">{stats.esteMes.count} contas</p>
-            </CardContent>
+          <Card className="p-4 border-l-4 border-l-[#D89B8C] hover:shadow-lg transition-shadow">
+            <div className="space-y-2">
+              <p className="text-sm text-[#9C8B82]">Este Mês</p>
+              <p className="text-2xl font-bold text-[#D89B8C]">{formatCurrency(stats.esteMes.valor)}</p>
+              <p className="text-xs text-[#9C8B82]">{stats.esteMes.count} contas</p>
+            </div>
           </Card>
 
-          <Card className="border-l-4 border-[#8BA888]">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-[#9C8B82] flex items-center gap-2">
-                <CheckCircle className="h-4 w-4" />
-                Pago
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-[#6B5047]">{formatCurrency(stats.pagas.valor)}</div>
-              <p className="text-xs text-[#9C8B82] mt-1">{stats.pagas.count} contas</p>
-            </CardContent>
+          <Card className="p-4 border-l-4 border-l-[#8BA888] hover:shadow-lg transition-shadow">
+            <div className="space-y-2">
+              <p className="text-sm text-[#9C8B82]">Contas Pagas</p>
+              <p className="text-2xl font-bold text-[#388E3C]">{formatCurrency(stats.pagas.valor)}</p>
+              <p className="text-xs text-[#9C8B82]">{stats.pagas.count} contas</p>
+            </div>
           </Card>
         </div>
 
