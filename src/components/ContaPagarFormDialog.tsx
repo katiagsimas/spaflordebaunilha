@@ -83,7 +83,6 @@ const formSchema = z.object({
       return num > 0 && num <= 999999.99;
     }, "Valor deve ser entre R$ 0,01 e R$ 999.999,99"),
   dataEmissao: z.date(),
-  dataVencimento: z.date(),
   fornecedorNome: z.string().max(100, "Nome deve ter no máximo 100 caracteres").optional(),
   fornecedorDocumento: z.string().optional(),
   tipoDocumentoId: z.string().optional(),
@@ -114,9 +113,6 @@ const formSchema = z.object({
 }, {
   message: "Data de emissão não pode ser futura",
   path: ["dataEmissao"],
-}).refine((data) => data.dataVencimento >= data.dataEmissao, {
-  message: "Data de vencimento deve ser igual ou posterior à data de emissão",
-  path: ["dataVencimento"],
 }).refine((data) => {
   if (data.parcelado && (!data.totalParcelas || data.totalParcelas < 2)) {
     return false;
@@ -160,7 +156,6 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
       planoContaId: "",
       valor: "",
       dataEmissao: new Date(),
-      dataVencimento: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // +7 dias
       fornecedorNome: "",
       fornecedorDocumento: "",
       tipoDocumentoId: "",
@@ -196,7 +191,6 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
         planoContaId: conta.planoContaId,
         valor: conta.valor.toString(),
         dataEmissao: new Date(conta.dataEmissao),
-        dataVencimento: new Date(conta.dataVencimento),
         fornecedorNome: conta.fornecedorNome || "",
         fornecedorDocumento: conta.fornecedorDocumento || "",
         tipoDocumentoId: conta.tipoDocumentoId || "",
@@ -216,7 +210,6 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
         planoContaId: "",
         valor: "",
         dataEmissao: new Date(),
-        dataVencimento: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         fornecedorNome: "",
         fornecedorDocumento: "",
         tipoDocumentoId: "",
@@ -235,16 +228,6 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
 
   const onSubmit = (data: FormValues) => {
     const valor = parseFloat(data.valor.replace(/[^\d,]/g, '').replace(',', '.'));
-    
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
-    const dataVenc = new Date(data.dataVencimento);
-    dataVenc.setHours(0, 0, 0, 0);
-    let status: 'pendente' | 'atrasado' = 'pendente';
-    
-    if (dataVenc < hoje) {
-      status = 'atrasado';
-    }
 
     const contaPagar: ContaPagar = {
       id: conta?.id || crypto.randomUUID(),
@@ -253,8 +236,8 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
       planoContaId: data.planoContaId,
       valor,
       dataEmissao: data.dataEmissao.toISOString(),
-      dataVencimento: data.dataVencimento.toISOString(),
-      status,
+      dataVencimento: data.dataEmissao.toISOString(), // Usa data de emissão como vencimento
+      status: 'pendente',
       fornecedorNome: data.fornecedorNome || undefined,
       fornecedorDocumento: data.fornecedorDocumento || undefined,
       tipoDocumentoId: data.tipoDocumentoId || undefined,
@@ -486,48 +469,27 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
             <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
               <h3 className="font-semibold text-[#6B5047] flex items-center gap-2 pb-2 border-b border-[#E8E3DF]">
                 <Calendar className="h-5 w-5 text-[#D89B8C]" />
-                Datas
+                Data
               </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="dataEmissao"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel className="text-[#6B5047]">Data de Emissão *</FormLabel>
-                      <FormControl>
-                        <DatePickerField
-                          value={field.value}
-                          onChange={field.onChange}
-                          placeholder="Selecione a data"
-                        />
-                      </FormControl>
-                      <p className="text-xs text-[#9C8B82]">Data em que a despesa foi gerada</p>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="dataVencimento"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel className="text-[#6B5047]">Data de Vencimento *</FormLabel>
-                      <FormControl>
-                        <DatePickerField
-                          value={field.value}
-                          onChange={field.onChange}
-                          placeholder="Selecione a data"
-                        />
-                      </FormControl>
-                      <p className="text-xs text-[#9C8B82]">Data limite para pagamento</p>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="dataEmissao"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel className="text-[#6B5047]">Data de Emissão *</FormLabel>
+                    <FormControl>
+                      <DatePickerField
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Selecione a data"
+                      />
+                    </FormControl>
+                    <p className="text-xs text-[#9C8B82]">Data em que a despesa foi gerada</p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             {/* Fornecedor */}
