@@ -37,24 +37,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Marcar para verificar primeiro acesso quando usuário logar
         if (session?.user && _event === 'SIGNED_IN') {
           setShouldCheckFirstAccess(true);
-          
-          // Migração automática após login
-          setTimeout(async () => {
-            try {
-              console.log('🔄 Iniciando migração automática de dados...');
-              const result = await migrateAllLocalStorageData(session.user.id);
-              
-              if (result.success && result.totalRecords > 0) {
-                toast({
-                  title: '✅ Migração Concluída!',
-                  description: `${result.totalRecords} registros foram transferidos para a nuvem.`,
-                });
-                console.table(result.results);
-              }
-            } catch (error) {
-              console.error('❌ Erro na migração:', error);
-            }
-          }, 1000);
         }
       });
 
@@ -66,24 +48,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       setLoading(false);
       
-      // Migração automática se já estiver logado
-      if (session?.user) {
-        setTimeout(async () => {
-          try {
-            console.log('🔄 Verificando migração de dados...');
-            const result = await migrateAllLocalStorageData(session.user.id);
-            
-            if (result.success && result.totalRecords > 0) {
-              toast({
-                title: '✅ Migração Concluída!',
-                description: `${result.totalRecords} registros foram transferidos para a nuvem.`,
-              });
-            }
-          } catch (error) {
-            console.error('❌ Erro na migração:', error);
-          }
-        }, 1000);
-      }
     };
 
     setupAuth();
