@@ -253,22 +253,22 @@ export function RegistrarRecebimentoDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Registrar Recebimento</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg">Registrar Recebimento</DialogTitle>
+          <DialogDescription className="text-sm">
             Confirme os dados do recebimento
           </DialogDescription>
         </DialogHeader>
 
         {/* Resumo da Conta */}
         <div className={cn(
-          "p-4 rounded-lg border space-y-2",
+          "p-3 rounded-lg border space-y-1.5 text-sm",
           isAtrasada() 
             ? "bg-[#FFEBEE]/30 border-[#D88B8B]" 
             : "bg-[#FAF7F5] border-[#E8E3DF]"
         )}>
-          <h3 className="font-semibold text-[#6B5047]">{conta.descricao}</h3>
+          <h3 className="font-semibold text-[#6B5047] text-base">{conta.descricao}</h3>
           {conta.cliente_nome && (
             <p className="text-sm text-[#9C8B82]">Cliente: {conta.cliente_nome}</p>
           )}
@@ -286,7 +286,7 @@ export function RegistrarRecebimentoDialog({
         <Separator />
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
             {/* Data do Recebimento */}
             <FormField
               control={form.control}
@@ -301,9 +301,6 @@ export function RegistrarRecebimentoDialog({
                       placeholder="Selecione a data..."
                     />
                   </FormControl>
-                  <p className="text-xs text-[#9C8B82]">
-                    Hoje: {formatDate(new Date().toISOString())}
-                  </p>
                   <FormMessage />
                 </FormItem>
               )}
@@ -317,7 +314,7 @@ export function RegistrarRecebimentoDialog({
                 <FormItem>
                   <FormLabel>Valor Recebido *</FormLabel>
                   <FormControl>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <div className="relative">
                         <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9C8B82]" />
                         <Input
@@ -360,13 +357,13 @@ export function RegistrarRecebimentoDialog({
               control={form.control}
               name="formaPagamento"
               render={({ field }) => (
-                <FormItem className="space-y-3">
+                <FormItem className="space-y-2">
                   <FormLabel>Forma de Pagamento *</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
                       value={field.value}
-                      className="space-y-2"
+                      className="space-y-1.5"
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="dinheiro" id="dinheiro" />
