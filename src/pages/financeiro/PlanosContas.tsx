@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Plus, Pencil, FolderTree, ChevronDown, ChevronRight, Search, Trash2, AlertTriangle, Package, Search as SearchIcon, Copy, History, TrendingUp, FileDown, Upload, Loader2 } from "lucide-react";
 import { usePlanoContas } from "@/hooks/usePlanoContas";
-import { supabase } from "@/integrations/supabase/client";
+import { useCategoriasFinanceiras } from "@/hooks/useCategoriasFinanceiras";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { ExportImport } from "@/components/ExportImport";
@@ -971,33 +971,22 @@ export default function PlanosContas() {
     }
   }, [planosContasSupabase, loadingPlanos]);
 
+  const { categorias: categoriasFinanceiras } = useCategoriasFinanceiras();
+
   useEffect(() => {
-    // Carregar categorias financeiras do Supabase
-    const loadCategorias = async () => {
-      try {
-        const { data } = await supabase
-          .from('categorias_financeiras')
-          .select('*')
-          .eq('ativo', true);
-        
-        if (data && data.length > 0) {
-          const categoriasFormatadas: CategoriaFinanceira[] = data.map((cat: any) => ({
-            id: cat.id,
-            nome: cat.nome,
-            tipo: cat.tipo as 'receita' | 'despesa',
-            cor: cat.cor || '#8BA888',
-            icone: cat.icone || 'Tag',
-            ativo: true
-          }));
-          setCategorias(categoriasFormatadas);
-        }
-      } catch (err) {
-        console.error('Erro ao carregar categorias:', err);
-      }
-    };
-    
-    loadCategorias();
-  }, []);
+    // Converter categorias financeiras do hook para o formato esperado
+    if (categoriasFinanceiras.length > 0) {
+      const categoriasFormatadas: CategoriaFinanceira[] = categoriasFinanceiras.map((cat) => ({
+        id: cat.id,
+        nome: cat.nome,
+        tipo: cat.tipo as 'receita' | 'despesa',
+        cor: cat.cor || '#8BA888',
+        icone: cat.icone || 'Tag',
+        ativo: true
+      }));
+      setCategorias(categoriasFormatadas);
+    }
+  }, [categoriasFinanceiras]);
 
   // Inicializar planos de contas pré-configurados se não existirem
   useEffect(() => {
