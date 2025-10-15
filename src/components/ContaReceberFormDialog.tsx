@@ -120,7 +120,6 @@ const formSchema = z.object({
   valor: z.number()
     .min(0.01, "Valor deve ser maior que zero"),
   dataEmissao: z.date(),
-  dataVencimento: z.date(),
   clienteNome: z.string().min(1, "Nome do cliente é obrigatório").max(100),
   clienteDocumento: z.string().optional().or(z.literal("")),
   bancoId: z.string().min(1, "Selecione um banco"),
@@ -132,9 +131,6 @@ const formSchema = z.object({
   totalParcelas: z.number().optional(),
   recorrente: z.boolean(),
   frequenciaRecorrencia: z.string().optional().or(z.literal("")),
-}).refine((data) => data.dataVencimento >= data.dataEmissao, {
-  message: "Data de vencimento deve ser igual ou posterior à data de emissão",
-  path: ["dataVencimento"],
 }).refine((data) => {
   if (data.clienteDocumento) {
     const doc = data.clienteDocumento.replace(/\D/g, '');
@@ -216,7 +212,6 @@ export function ContaReceberFormDialog({
       planoContaId: "",
       valor: 0,
       dataEmissao: new Date(),
-      dataVencimento: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       clienteNome: "",
       clienteDocumento: "",
       bancoId: "",
@@ -250,7 +245,6 @@ export function ContaReceberFormDialog({
         planoContaId: contaAny.plano_conta_id || contaAny.planoContaId || "",
         valor: contaAny.valor || 0,
         dataEmissao,
-        dataVencimento,
         clienteNome: contaAny.cliente_nome || contaAny.clienteNome || "",
         clienteDocumento: contaAny.cliente_documento || contaAny.clienteDocumento || "",
         bancoId: contaAny.banco_id || contaAny.bancoId || "",
@@ -274,7 +268,6 @@ export function ContaReceberFormDialog({
         planoContaId: "",
         valor: 0,
         dataEmissao: new Date(),
-        dataVencimento: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         clienteNome: "",
         clienteDocumento: "",
         bancoId: "",
@@ -295,9 +288,12 @@ export function ContaReceberFormDialog({
 
   async function onSubmit(values: FormValues) {
     try {
+      // Usar a data de emissão como data de vencimento padrão se não houver parcelas/recorrências
+      const dataVencimentoPadrao = values.dataEmissao;
+
       const hoje = new Date();
       hoje.setHours(0, 0, 0, 0);
-      const vencimento = new Date(values.dataVencimento);
+      const vencimento = new Date(dataVencimentoPadrao);
       vencimento.setHours(0, 0, 0, 0);
 
       let status: 'pendente' | 'atrasado' = 'pendente';
@@ -309,7 +305,7 @@ export function ContaReceberFormDialog({
         descricao: values.descricao.trim(),
         valor: values.valor,
         data_emissao: values.dataEmissao.toISOString().split('T')[0],
-        data_vencimento: values.dataVencimento.toISOString().split('T')[0],
+        data_vencimento: dataVencimentoPadrao.toISOString().split('T')[0],
         status,
         categoria_id: values.categoriaId || null,
         plano_conta_id: values.planoContaId || null,
@@ -379,89 +375,47 @@ export function ContaReceberFormDialog({
             <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow">
               <h3 className="font-semibold text-[#6B5047] flex items-center gap-2 mb-4 pb-2 border-b border-[#E8E3DF]">
                 <Calendar className="h-5 w-5 text-[#D89B8C]" />
-                Datas
+                Data de Emissão
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="dataEmissao"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel className="text-[#6B5047] font-medium">Data de Emissão *</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
+              <FormField
+                control={form.control}
+                name="dataEmissao"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel className="text-[#6B5047] font-medium">Data de Emissão *</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
                             variant={"outline"}
                             className={cn(
                               "pl-3 text-left font-normal border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]",
                               !field.value && "text-muted-foreground"
                             )}
                           >
-                              {field.value ? (
-                                format(field.value, "dd/MM/yyyy")
-                              ) : (
-                                <span>Selecione...</span>
-                              )}
-                              <Calendar className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <CalendarComponent
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                            className={cn("p-3 pointer-events-auto")}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="dataVencimento"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel className="text-[#6B5047] font-medium">Data de Vencimento *</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                            variant={"outline"}
-                            className={cn(
-                              "pl-3 text-left font-normal border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]",
-                              !field.value && "text-muted-foreground"
+                            {field.value ? (
+                              format(field.value, "dd/MM/yyyy")
+                            ) : (
+                              <span>Selecione...</span>
                             )}
-                          >
-                              {field.value ? (
-                                format(field.value, "dd/MM/yyyy")
-                              ) : (
-                                <span>Selecione...</span>
-                              )}
-                              <Calendar className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <CalendarComponent
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                            className={cn("p-3 pointer-events-auto")}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                            <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <CalendarComponent
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             {/* Cliente */}
