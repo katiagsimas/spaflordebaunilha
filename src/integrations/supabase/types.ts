@@ -826,9 +826,11 @@ export type Database = {
           cidade: string | null
           cpf: string | null
           created_at: string | null
+          dias_trabalho_mes: number | null
           email: string
           endereco: string | null
           estado: string | null
+          horas_diaria_trabalho: number | null
           id: string
           instagram: string | null
           nome_completo: string | null
@@ -844,9 +846,11 @@ export type Database = {
           cidade?: string | null
           cpf?: string | null
           created_at?: string | null
+          dias_trabalho_mes?: number | null
           email: string
           endereco?: string | null
           estado?: string | null
+          horas_diaria_trabalho?: number | null
           id: string
           instagram?: string | null
           nome_completo?: string | null
@@ -862,9 +866,11 @@ export type Database = {
           cidade?: string | null
           cpf?: string | null
           created_at?: string | null
+          dias_trabalho_mes?: number | null
           email?: string
           endereco?: string | null
           estado?: string | null
+          horas_diaria_trabalho?: number | null
           id?: string
           instagram?: string | null
           nome_completo?: string | null

@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { Plus, Pencil, Trash2, AlertCircle } from "lucide-react";
-import { useState } from "react";
+import { useCustosFixos } from "@/hooks/useCustosFixos";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { Plus, Pencil, Trash2, AlertCircle, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
@@ -20,16 +21,124 @@ interface CustoFixo {
 }
 
 export default function CustosFixos() {
-  const [custos, setCustos] = useLocalStorage<CustoFixo[]>("custosFixos", []);
-  const [diasTrabalho, setDiasTrabalho] = useLocalStorage<number>("diasTrabalhoMes", 22);
-  const [horasDiarias, setHorasDiarias] = useLocalStorage<number>("horasDiariaTrabalho", 8);
+  const { 
+    custosFixos, 
+    loading: loadingCustos, 
+    createCustoFixo, 
+    updateCustoFixo, 
+    deleteCustoFixo,
+    refetch: refetchCustos 
+  } = useCustosFixos();
+
+  const { 
+    profile, 
+    loading: loadingProfile, 
+    updateProfile 
+  } = useUserProfile();
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCusto, setEditingCusto] = useState<CustoFixo | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [nome, setNome] = useState("");
   const [valor, setValor] = useState("");
+  
+  // Estados locais para dias e horas (para edição)
+  const [diasTrabalho, setDiasTrabalho] = useState(22);
+  const [horasDiarias, setHorasDiarias] = useState(8);
+  const [migrationDone, setMigrationDone] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Sincronizar com profile quando carregar
+  useEffect(() => {
+    if (profile) {
+      setDiasTrabalho(profile.dias_trabalho_mes || 22);
+      setHorasDiarias(profile.horas_diaria_trabalho || 8);
+    }
+  }, [profile]);
+
+  // Migração automática de dados antigos do localStorage
+  useEffect(() => {
+    const migrateOldData = async () => {
+      if (migrationDone || loadingCustos || loadingProfile || !profile) return;
+
+      try {
+        // Verificar se há dados no localStorage
+        const oldCustos = localStorage.getItem('custosFixos');
+        const oldDias = localStorage.getItem('diasTrabalhoMes');
+        const oldHoras = localStorage.getItem('horasDiariaTrabalho');
+        
+        if (!oldCustos && !oldDias && !oldHoras) {
+          setMigrationDone(true);
+          return; // Nada pra migrar
+        }
+
+        console.log('🔄 Migrando dados antigos de Custos Fixos...');
+        let migratedCount = 0;
+
+        // Migrar custos fixos
+        if (oldCustos) {
+          try {
+            const custosArray = JSON.parse(oldCustos);
+            if (Array.isArray(custosArray) && custosArray.length > 0) {
+              for (const custo of custosArray) {
+                // Verificar se já não existe no Supabase
+                const jaExiste = custosFixos.some(c => 
+                  c.nome === custo.nome && c.valor === custo.valor
+                );
+                if (!jaExiste) {
+                  await createCustoFixo({
+                    nome: custo.nome,
+                    valor: custo.valor
+                  });
+                  migratedCount++;
+                }
+              }
+              if (migratedCount > 0) {
+                console.log(`✅ ${migratedCount} custos fixos migrados`);
+              }
+            }
+          } catch (e) {
+            console.error('Erro ao parsear custos do localStorage:', e);
+          }
+        }
+
+        // Migrar configurações de trabalho
+        if (oldDias || oldHoras) {
+          const dias = oldDias ? parseInt(oldDias) : 22;
+          const horas = oldHoras ? parseInt(oldHoras) : 8;
+          
+          // Só migrar se for diferente do padrão atual
+          if (dias !== profile.dias_trabalho_mes || horas !== profile.horas_diaria_trabalho) {
+            await updateProfile({
+              dias_trabalho_mes: dias,
+              horas_diaria_trabalho: horas
+            });
+            console.log(`✅ Configurações de trabalho migradas: ${dias} dias, ${horas} horas`);
+          }
+        }
+
+        // Limpar localStorage após migração bem-sucedida
+        localStorage.removeItem('custosFixos');
+        localStorage.removeItem('diasTrabalhoMes');
+        localStorage.removeItem('horasDiariaTrabalho');
+        
+        if (migratedCount > 0 || oldDias || oldHoras) {
+          toast.success('✅ Dados migrados para a nuvem!');
+          // Recarregar dados
+          refetchCustos();
+        }
+        
+        setMigrationDone(true);
+      } catch (error) {
+        console.error('❌ Erro na migração:', error);
+        setMigrationDone(true);
+        // Não mostrar erro pro usuário, apenas logar
+      }
+    };
+
+    migrateOldData();
+  }, [loadingCustos, loadingProfile, custosFixos, profile, migrationDone]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!nome.trim() || !valor) {
@@ -37,24 +146,22 @@ export default function CustosFixos() {
       return;
     }
 
-    if (editingCusto) {
-      setCustos(custos.map(c => 
-        c.id === editingCusto.id 
-          ? { ...c, nome: nome.trim(), valor: parseFloat(valor) }
-          : c
-      ));
-      toast.success("Custo atualizado com sucesso!");
-    } else {
-      const novoCusto: CustoFixo = {
-        id: Date.now().toString(),
-        nome: nome.trim(),
-        valor: parseFloat(valor),
-      };
-      setCustos([...custos, novoCusto]);
-      toast.success("Custo adicionado com sucesso!");
+    try {
+      if (editingCusto) {
+        await updateCustoFixo(editingCusto.id, {
+          nome: nome.trim(),
+          valor: parseFloat(valor)
+        });
+      } else {
+        await createCustoFixo({
+          nome: nome.trim(),
+          valor: parseFloat(valor)
+        });
+      }
+      resetForm();
+    } catch (error) {
+      console.error('Erro ao salvar custo:', error);
     }
-
-    resetForm();
   };
 
   const resetForm = () => {
@@ -71,13 +178,39 @@ export default function CustosFixos() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    setCustos(custos.filter(c => c.id !== id));
-    setDeletingId(null);
-    toast.success("Custo removido com sucesso!");
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteCustoFixo(id);
+      setDeletingId(null);
+    } catch (error) {
+      console.error('Erro ao excluir custo:', error);
+    }
   };
 
-  const totalCustos = custos.reduce((acc, custo) => acc + custo.valor, 0);
+  const handleSaveConfigTrabalho = async () => {
+    if (diasTrabalho <= 0 || horasDiarias <= 0) {
+      toast.error('Dias e horas devem ser maiores que zero.');
+      return;
+    }
+
+    await updateProfile({
+      dias_trabalho_mes: diasTrabalho,
+      horas_diaria_trabalho: horasDiarias,
+    });
+  };
+
+  const loading = loadingCustos || loadingProfile;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin mr-2" />
+        <span>Carregando custos fixos...</span>
+      </div>
+    );
+  }
+
+  const totalCustos = custosFixos.reduce((acc, custo) => acc + custo.valor, 0);
   const horasMes = diasTrabalho * horasDiarias;
   const custoPorHora = horasMes > 0 ? totalCustos / horasMes : 0;
 
@@ -145,6 +278,7 @@ export default function CustosFixos() {
                 max="31"
                 value={diasTrabalho}
                 onChange={(e) => setDiasTrabalho(Number(e.target.value))}
+                onBlur={handleSaveConfigTrabalho}
               />
             </div>
             <div className="space-y-2">
@@ -157,6 +291,7 @@ export default function CustosFixos() {
                 step="0.5"
                 value={horasDiarias}
                 onChange={(e) => setHorasDiarias(Number(e.target.value))}
+                onBlur={handleSaveConfigTrabalho}
               />
             </div>
             <div className="space-y-2">
@@ -220,7 +355,7 @@ export default function CustosFixos() {
         </Dialog>
       </div>
 
-      {custos.length === 0 ? (
+      {custosFixos.length === 0 ? (
         <EmptyState
           icon={AlertCircle}
           title="Nenhum custo cadastrado"
@@ -230,7 +365,7 @@ export default function CustosFixos() {
         />
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {custos.map((custo) => (
+          {custosFixos.map((custo) => (
             <Card key={custo.id}>
               <CardHeader>
                 <CardTitle className="text-lg">{custo.nome}</CardTitle>
