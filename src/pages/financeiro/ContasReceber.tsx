@@ -90,6 +90,13 @@ export default function ContasReceber() {
     !['recebido', 'pagto_adiantado', 'pagto_atrasado', 'pagto_parcial'].includes(c.status)
   );
 
+  // Função para verificar se é do mês atual
+  const isEsteMes = (conta: any) => {
+    const data = new Date(conta.data_vencimento);
+    const hoje = new Date();
+    return data.getMonth() === hoje.getMonth() && data.getFullYear() === hoje.getFullYear();
+  };
+
   // Filtrar contas (excluindo as já recebidas)
   const contasFiltradas = contasAReceber.filter(conta => {
     // Filtro de busca
@@ -108,6 +115,8 @@ export default function ContasReceber() {
     // Filtro de tab
     if (selectedTab === "abertos" && conta.status !== "pendente") return false;
     if (selectedTab === "vencendo" && !isVencendoHoje(conta)) return false;
+    if (selectedTab === "vencidos" && conta.status !== "atrasado") return false;
+    if (selectedTab === "esteMes" && !isEsteMes(conta)) return false;
 
     return true;
   });
@@ -429,7 +438,13 @@ export default function ContasReceber() {
 
       {/* Cards de Resumo */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        <Card className="p-4 border-l-4 border-l-[#7BA8D8] hover:shadow-lg transition-shadow">
+        <Card 
+          className="p-4 border-l-4 border-l-[#7BA8D8] hover:shadow-lg transition-shadow cursor-pointer" 
+          onClick={() => {
+            setSelectedTab('abertos');
+            setStatusFilter('todos');
+          }}
+        >
           <div className="space-y-2">
             <p className="text-sm text-[#9C8B82]">Aberto</p>
             <p className="text-2xl font-bold text-[#6B5047]">{formatCurrency(resumo.aberto)}</p>
@@ -437,7 +452,13 @@ export default function ContasReceber() {
           </div>
         </Card>
 
-        <Card className="p-4 border-l-4 border-l-[#D88B8B] hover:shadow-lg transition-shadow">
+        <Card 
+          className="p-4 border-l-4 border-l-[#D88B8B] hover:shadow-lg transition-shadow cursor-pointer" 
+          onClick={() => {
+            setSelectedTab('vencidos');
+            setStatusFilter('todos');
+          }}
+        >
           <div className="space-y-2">
             <p className="text-sm text-[#9C8B82]">Vencido</p>
             <p className="text-2xl font-bold text-[#C62828]">{formatCurrency(resumo.vencido)}</p>
@@ -445,7 +466,13 @@ export default function ContasReceber() {
           </div>
         </Card>
 
-        <Card className="p-4 border-l-4 border-l-[#D89B8C] hover:shadow-lg transition-shadow">
+        <Card 
+          className="p-4 border-l-4 border-l-[#D89B8C] hover:shadow-lg transition-shadow cursor-pointer" 
+          onClick={() => {
+            setSelectedTab('esteMes');
+            setStatusFilter('todos');
+          }}
+        >
           <div className="space-y-2">
             <p className="text-sm text-[#9C8B82]">Este Mês</p>
             <p className="text-2xl font-bold text-[#D89B8C]">{formatCurrency(resumo.esteMes)}</p>
@@ -453,7 +480,13 @@ export default function ContasReceber() {
           </div>
         </Card>
 
-        <Card className="p-4 border-l-4 border-l-[#8BA888] hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setSelectedTab('recebidos')}>
+        <Card 
+          className="p-4 border-l-4 border-l-[#8BA888] hover:shadow-lg transition-shadow cursor-pointer" 
+          onClick={() => {
+            setSelectedTab('recebidos');
+            setStatusFilter('todos');
+          }}
+        >
           <div className="space-y-2">
             <p className="text-sm text-[#9C8B82]">Contas Recebidas</p>
             <p className="text-2xl font-bold text-[#388E3C]">{formatCurrency(resumo.recebido)}</p>
@@ -553,6 +586,12 @@ export default function ContasReceber() {
           </TabsTrigger>
           <TabsTrigger value="vencendo">
             Vencendo Hoje ({contas.filter(isVencendoHoje).length})
+          </TabsTrigger>
+          <TabsTrigger value="vencidos">
+            Vencidos ({resumo.vencidoQtd})
+          </TabsTrigger>
+          <TabsTrigger value="esteMes">
+            Este Mês ({resumo.esteMesQtd})
           </TabsTrigger>
           <TabsTrigger value="recebidos">
             Recebidos ({contasRecebidas.length})
