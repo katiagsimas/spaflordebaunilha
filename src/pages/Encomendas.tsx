@@ -17,7 +17,7 @@ import { useClientes } from "@/hooks/useClientes";
 import { useReceitas } from "@/hooks/useReceitas";
 import { useEncomendaItens } from "@/hooks/useEncomendaItens";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
-import { useBancos } from "@/hooks/useBancos";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 
@@ -50,7 +50,6 @@ const Encomendas = () => {
   const { clientes } = useClientes();
   const { receitas } = useReceitas();
   const { unidades } = useUnidadesMedida();
-  const { bancos } = useBancos();
   
   // Carregar tipos de documento do localStorage com valores padrão
   const [tiposDocumento] = useLocalStorage<TipoDocumento[]>("sugarbox_tipos_documento", [
@@ -100,7 +99,7 @@ const Encomendas = () => {
     topo_idade: "",
     topo_obs: "",
     topo_imagens: [] as string[],
-    pagamentos: [] as Array<{ valor: number; data: string; tipo_pagamento: string; pago?: boolean; banco_id?: string }>,
+    pagamentos: [] as Array<{ valor: number; data: string; tipo_pagamento: string; pago?: boolean }>,
   });
 
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -108,8 +107,7 @@ const Encomendas = () => {
     valor: 0, 
     data: new Date().toISOString().split("T")[0],
     tipo_pagamento: "",
-    pago: false,
-    banco_id: ""
+    pago: false
   });
 
   const [produtoForm, setProdutoForm] = useState({
@@ -180,7 +178,7 @@ const Encomendas = () => {
     });
     setEditingOrder(null);
     setTempProdutos([]);
-    setNovoPagamento({ valor: 0, data: new Date().toISOString().split("T")[0], tipo_pagamento: "", pago: false, banco_id: "" });
+    setNovoPagamento({ valor: 0, data: new Date().toISOString().split("T")[0], tipo_pagamento: "", pago: false });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -454,16 +452,10 @@ const Encomendas = () => {
       return;
     }
     
-    if (!novoPagamento.banco_id) {
-      toast.error('Selecione o banco');
-      return;
-    }
-    
     const pagamentoParaAdicionar = {
       valor: valorPagamento,
       data: novoPagamento.data,
       tipo_pagamento: novoPagamento.tipo_pagamento,
-      banco_id: novoPagamento.banco_id,
       pago: isSinal ? novoPagamento.pago : undefined // Só incluir "pago" para o sinal
     };
     
@@ -475,7 +467,7 @@ const Encomendas = () => {
       pagamentos: [...formData.pagamentos, pagamentoParaAdicionar],
       status: novoStatus
     });
-    setNovoPagamento({ valor: 0, data: new Date().toISOString().split("T")[0], tipo_pagamento: "", pago: false, banco_id: "" });
+    setNovoPagamento({ valor: 0, data: new Date().toISOString().split("T")[0], tipo_pagamento: "", pago: false });
     toast.success(isSinal ? 'Sinal adicionado!' : 'Pagamento adicionado!');
     
     if (isSinal && novoPagamento.pago) {
@@ -1065,7 +1057,6 @@ const Encomendas = () => {
                         <div className="space-y-3">
                           {formData.pagamentos.map((pagamento, index) => {
                             const tipoPagamento = tiposDocumento.find(t => t.id === pagamento.tipo_pagamento);
-                            const banco = bancos.find(b => b.id === pagamento.banco_id);
                             const isSinal = index === 0;
                             return (
                               <Card key={index} className="border-l-4 border-l-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20">
@@ -1090,12 +1081,6 @@ const Encomendas = () => {
                                           <Label className="text-xs text-emerald-700 dark:text-emerald-300">Tipo</Label>
                                           <p className="text-sm text-emerald-800 dark:text-emerald-200">
                                             {tipoPagamento?.descricao || 'N/A'}
-                                          </p>
-                                        </div>
-                                        <div>
-                                          <Label className="text-xs text-emerald-700 dark:text-emerald-300">Banco</Label>
-                                          <p className="text-sm text-emerald-800 dark:text-emerald-200">
-                                            {banco?.nome || 'N/A'}
                                           </p>
                                         </div>
                                         <div>
@@ -1179,49 +1164,23 @@ const Encomendas = () => {
                                       </Label>
                                     </div>
                                     
-                                    <div className="grid grid-cols-2 gap-3">
-                                      <div>
-                                        <Label className="text-xs text-blue-700 dark:text-blue-300">Tipo de Pagamento *</Label>
-                                        <Select
-                                          value={novoPagamento.tipo_pagamento}
-                                          onValueChange={(value) => setNovoPagamento({ ...novoPagamento, tipo_pagamento: value })}
-                                        >
-                                          <SelectTrigger className="h-9 text-sm mt-1 bg-background">
-                                            <SelectValue placeholder="Selecione o tipo..." />
-                                          </SelectTrigger>
-                                          <SelectContent className="bg-popover z-[100]">
-                                            {tiposDocumento.map((tipo) => (
-                                              <SelectItem key={tipo.id} value={tipo.id}>
-                                                {tipo.descricao}
-                                              </SelectItem>
-                                            ))}
-                                          </SelectContent>
-                                        </Select>
-                                      </div>
-                                      <div>
-                                        <Label className="text-xs text-blue-700 dark:text-blue-300">Banco *</Label>
-                                        <Select
-                                          value={novoPagamento.banco_id}
-                                          onValueChange={(value) => setNovoPagamento({ ...novoPagamento, banco_id: value })}
-                                        >
-                                          <SelectTrigger className="h-9 text-sm mt-1 bg-background">
-                                            <SelectValue placeholder={bancos.length === 0 ? "Nenhum banco cadastrado" : "Selecione o banco..."} />
-                                          </SelectTrigger>
-                                          <SelectContent className="bg-popover z-[100]">
-                                            {bancos.length === 0 ? (
-                                              <div className="p-2 text-sm text-muted-foreground">
-                                                Cadastre um banco em Configurações → Bancos
-                                              </div>
-                                            ) : (
-                                              bancos.map((banco) => (
-                                                <SelectItem key={banco.id} value={banco.id}>
-                                                  {banco.nome}
-                                                </SelectItem>
-                                              ))
-                                            )}
-                                          </SelectContent>
-                                        </Select>
-                                      </div>
+                                    <div>
+                                      <Label className="text-xs text-blue-700 dark:text-blue-300">Tipo de Pagamento *</Label>
+                                      <Select
+                                        value={novoPagamento.tipo_pagamento}
+                                        onValueChange={(value) => setNovoPagamento({ ...novoPagamento, tipo_pagamento: value })}
+                                      >
+                                        <SelectTrigger className="h-9 text-sm mt-1 bg-background">
+                                          <SelectValue placeholder="Selecione o tipo..." />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-popover z-[100]">
+                                          {tiposDocumento.map((tipo) => (
+                                            <SelectItem key={tipo.id} value={tipo.id}>
+                                              {tipo.descricao}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
                                     </div>
                                   </>
                                 ) : (
@@ -1250,49 +1209,23 @@ const Encomendas = () => {
                                         />
                                       </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-3">
-                                      <div>
-                                        <Label className="text-xs text-blue-700 dark:text-blue-300">Tipo de Pagamento *</Label>
-                                        <Select
-                                          value={novoPagamento.tipo_pagamento}
-                                          onValueChange={(value) => setNovoPagamento({ ...novoPagamento, tipo_pagamento: value })}
-                                        >
-                                          <SelectTrigger className="h-9 text-sm mt-1 bg-background">
-                                            <SelectValue placeholder="Selecione o tipo..." />
-                                          </SelectTrigger>
-                                          <SelectContent className="bg-popover z-[100]">
-                                            {tiposDocumento.map((tipo) => (
-                                              <SelectItem key={tipo.id} value={tipo.id}>
-                                                {tipo.descricao}
-                                              </SelectItem>
-                                            ))}
-                                          </SelectContent>
-                                        </Select>
-                                      </div>
-                                      <div>
-                                        <Label className="text-xs text-blue-700 dark:text-blue-300">Banco *</Label>
-                                        <Select
-                                          value={novoPagamento.banco_id}
-                                          onValueChange={(value) => setNovoPagamento({ ...novoPagamento, banco_id: value })}
-                                        >
-                                          <SelectTrigger className="h-9 text-sm mt-1 bg-background">
-                                            <SelectValue placeholder={bancos.length === 0 ? "Nenhum banco cadastrado" : "Selecione o banco..."} />
-                                          </SelectTrigger>
-                                          <SelectContent className="bg-popover z-[100]">
-                                            {bancos.length === 0 ? (
-                                              <div className="p-2 text-sm text-muted-foreground">
-                                                Cadastre um banco em Configurações → Bancos
-                                              </div>
-                                            ) : (
-                                              bancos.map((banco) => (
-                                                <SelectItem key={banco.id} value={banco.id}>
-                                                  {banco.nome}
-                                                </SelectItem>
-                                              ))
-                                            )}
-                                          </SelectContent>
-                                        </Select>
-                                      </div>
+                                    <div>
+                                      <Label className="text-xs text-blue-700 dark:text-blue-300">Tipo de Pagamento *</Label>
+                                      <Select
+                                        value={novoPagamento.tipo_pagamento}
+                                        onValueChange={(value) => setNovoPagamento({ ...novoPagamento, tipo_pagamento: value })}
+                                      >
+                                        <SelectTrigger className="h-9 text-sm mt-1 bg-background">
+                                          <SelectValue placeholder="Selecione o tipo..." />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-popover z-[100]">
+                                          {tiposDocumento.map((tipo) => (
+                                            <SelectItem key={tipo.id} value={tipo.id}>
+                                              {tipo.descricao}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
                                     </div>
                                   </>
                                 )}
