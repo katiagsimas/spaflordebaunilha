@@ -1205,14 +1205,20 @@ const Encomendas = () => {
                                           onValueChange={(value) => setNovoPagamento({ ...novoPagamento, banco_id: value })}
                                         >
                                           <SelectTrigger className="h-9 text-sm mt-1 bg-background">
-                                            <SelectValue placeholder="Selecione o banco..." />
+                                            <SelectValue placeholder={bancos.length === 0 ? "Nenhum banco cadastrado" : "Selecione o banco..."} />
                                           </SelectTrigger>
                                           <SelectContent className="bg-popover z-[100]">
-                                            {bancos.map((banco) => (
-                                              <SelectItem key={banco.id} value={banco.id}>
-                                                {banco.nome}
-                                              </SelectItem>
-                                            ))}
+                                            {bancos.length === 0 ? (
+                                              <div className="p-2 text-sm text-muted-foreground">
+                                                Cadastre um banco em Configurações → Bancos
+                                              </div>
+                                            ) : (
+                                              bancos.map((banco) => (
+                                                <SelectItem key={banco.id} value={banco.id}>
+                                                  {banco.nome}
+                                                </SelectItem>
+                                              ))
+                                            )}
                                           </SelectContent>
                                         </Select>
                                       </div>
@@ -1270,14 +1276,20 @@ const Encomendas = () => {
                                           onValueChange={(value) => setNovoPagamento({ ...novoPagamento, banco_id: value })}
                                         >
                                           <SelectTrigger className="h-9 text-sm mt-1 bg-background">
-                                            <SelectValue placeholder="Selecione o banco..." />
+                                            <SelectValue placeholder={bancos.length === 0 ? "Nenhum banco cadastrado" : "Selecione o banco..."} />
                                           </SelectTrigger>
                                           <SelectContent className="bg-popover z-[100]">
-                                            {bancos.map((banco) => (
-                                              <SelectItem key={banco.id} value={banco.id}>
-                                                {banco.nome}
-                                              </SelectItem>
-                                            ))}
+                                            {bancos.length === 0 ? (
+                                              <div className="p-2 text-sm text-muted-foreground">
+                                                Cadastre um banco em Configurações → Bancos
+                                              </div>
+                                            ) : (
+                                              bancos.map((banco) => (
+                                                <SelectItem key={banco.id} value={banco.id}>
+                                                  {banco.nome}
+                                                </SelectItem>
+                                              ))
+                                            )}
                                           </SelectContent>
                                         </Select>
                                       </div>
