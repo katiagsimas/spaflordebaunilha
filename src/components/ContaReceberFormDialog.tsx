@@ -364,7 +364,19 @@ export function ContaReceberFormDialog({
                     >
                       <FormControl>
                         <SelectTrigger className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]">
-                          <SelectValue placeholder="Selecione a categoria..." />
+                          <SelectValue placeholder="Selecione a categoria...">
+                            {field.value ? (
+                              (() => {
+                                const selectedCat = categoriasReceita.find(c => c.id === field.value);
+                                return selectedCat ? (
+                                  <>
+                                    {selectedCat.icone && <span className="mr-2">{selectedCat.icone}</span>}
+                                    {selectedCat.nome}
+                                  </>
+                                ) : 'Selecione a categoria...';
+                              })()
+                            ) : 'Selecione a categoria...'}
+                          </SelectValue>
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="bg-background">
