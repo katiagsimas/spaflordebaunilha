@@ -130,15 +130,6 @@ const formSchema = z.object({
   message: "CPF deve ter 11 dígitos ou CNPJ deve ter 14 dígitos",
   path: ["fornecedorDocumento"],
 }).refine((data) => {
-  const emissao = new Date(data.dataEmissao);
-  const hoje = new Date();
-  hoje.setHours(0, 0, 0, 0);
-  emissao.setHours(0, 0, 0, 0);
-  return emissao <= hoje;
-}, {
-  message: "Data de emissão não pode ser futura",
-  path: ["dataEmissao"],
-}).refine((data) => {
   // Apenas valida se parcelado estiver explicitamente marcado como true
   if (data.parcelado === true && (!data.totalParcelas || data.totalParcelas < 1)) {
     return false;
