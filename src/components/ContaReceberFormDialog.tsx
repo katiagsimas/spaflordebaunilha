@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Calendar, DollarSign, FileText, User, CreditCard, Repeat, Package, ExternalLink, Building2 } from "lucide-react";
+import { Calendar, DollarSign, FileText, User, CreditCard, Repeat, Package, ExternalLink, Building2, X } from "lucide-react";
 import * as LucideIcons from "lucide-react";
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 import { Link } from "react-router-dom";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -169,6 +170,18 @@ export function ContaReceberFormDialog({
   const [selectedCategoriaId, setSelectedCategoriaId] = useState<string>("");
   const [selectedClienteNome, setSelectedClienteNome] = useState<string>("");
   const [valorInput, setValorInput] = useState("");
+  
+  // Estados para parcelamento
+  const [showParcelamentoDialog, setShowParcelamentoDialog] = useState(false);
+  const [numeroParcelas, setNumeroParcelas] = useState("");
+  const [dataVencimentoParcela, setDataVencimentoParcela] = useState<Date | undefined>();
+  const [parcelas, setParcelas] = useState<Array<{
+    numero: number;
+    total: number;
+    dataEmissao: string;
+    dataVencimento: string;
+    valor: number;
+  }>>([]);
 
   // Filtrar apenas categorias de receita
   const categoriasReceita = categoriasFinanceiras.filter(c => c.tipo === 'receita');
@@ -783,7 +796,14 @@ export function ContaReceberFormDialog({
                       <FormControl>
                         <Checkbox
                           checked={field.value}
-                          onCheckedChange={field.onChange}
+                          onCheckedChange={(checked) => {
+                            field.onChange(checked);
+                            if (checked) {
+                              setShowParcelamentoDialog(true);
+                            } else {
+                              setParcelas([]);
+                            }
+                          }}
                           className="border-[#8BA888] data-[state=checked]:bg-[#8BA888] data-[state=checked]:border-[#8BA888]"
                         />
                       </FormControl>
@@ -821,6 +841,61 @@ export function ContaReceberFormDialog({
               </div>
             </div>
 
+            {/* Tabela de Parcelas */}
+            {parcelas.length > 0 && (
+              <div className="bg-white rounded-lg p-5 border border-[#8BA888]/30 shadow-sm space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-[#E8E3DF]">
+                  <h3 className="font-semibold text-[#6B5047] flex items-center gap-2">
+                    <Repeat className="h-5 w-5 text-[#8BA888]" />
+                    Parcelas
+                  </h3>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setParcelas([]);
+                      form.setValue('parcelado', false);
+                    }}
+                    className="text-xs text-[#9C8B82] hover:text-[#6B5047]"
+                  >
+                    <X className="h-4 w-4 mr-1" />
+                    Limpar
+                  </Button>
+                </div>
+                
+                <div className="rounded-md border border-[#E8E3DF] overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-[#FAF7F5]">
+                        <TableHead className="text-[#6B5047] font-semibold">Parcela</TableHead>
+                        <TableHead className="text-[#6B5047] font-semibold">Data Emissão</TableHead>
+                        <TableHead className="text-[#6B5047] font-semibold">Data Vencimento</TableHead>
+                        <TableHead className="text-[#6B5047] font-semibold text-right">Valor</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {parcelas.map((parcela) => (
+                        <TableRow key={parcela.numero} className="hover:bg-[#FAF7F5]/50">
+                          <TableCell className="font-medium text-[#6B5047]">
+                            {parcela.numero} de {parcela.total}
+                          </TableCell>
+                          <TableCell className="text-[#9C8B82]">
+                            {format(new Date(parcela.dataEmissao), "dd/MM/yyyy")}
+                          </TableCell>
+                          <TableCell className="text-[#9C8B82]">
+                            {format(new Date(parcela.dataVencimento), "dd/MM/yyyy")}
+                          </TableCell>
+                          <TableCell className="text-right font-semibold text-[#8BA888]">
+                            R$ {parcela.valor.toFixed(2).replace('.', ',')}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            )}
 
             {/* Cliente */}
             {/* Documento */}
@@ -867,6 +942,128 @@ export function ContaReceberFormDialog({
           </form>
         </Form>
       </DialogContent>
+
+      {/* Diálogo de Parcelamento */}
+      <Dialog open={showParcelamentoDialog} onOpenChange={setShowParcelamentoDialog}>
+        <DialogContent className="max-w-md bg-gradient-to-br from-background to-[#FAF7F5]">
+          <DialogHeader className="border-b border-[#E8E3DF] pb-4">
+            <DialogTitle className="text-xl font-bold text-[#6B5047] flex items-center gap-2">
+              <Repeat className="h-5 w-5 text-[#8BA888]" />
+              Configurar Parcelamento
+            </DialogTitle>
+            <DialogDescription className="text-[#9C8B82]">
+              Defina o número de parcelas e a data de vencimento
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="text-sm font-medium text-[#6B5047] mb-2 block">
+                Número de Parcelas *
+              </label>
+              <Input
+                type="number"
+                min="2"
+                max="999"
+                placeholder="Ex: 3"
+                value={numeroParcelas}
+                onChange={(e) => setNumeroParcelas(e.target.value)}
+                className="border-[#E8E3DF] focus:border-[#8BA888] focus:ring-[#8BA888]"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-[#6B5047] mb-2 block">
+                Data de Vencimento da 1ª Parcela *
+              </label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full pl-3 text-left font-normal border-[#E8E3DF] focus:border-[#8BA888] focus:ring-[#8BA888]",
+                      !dataVencimentoParcela && "text-muted-foreground"
+                    )}
+                  >
+                    {dataVencimentoParcela ? (
+                      format(dataVencimentoParcela, "dd/MM/yyyy")
+                    ) : (
+                      <span>Selecione...</span>
+                    )}
+                    <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    mode="single"
+                    selected={dataVencimentoParcela}
+                    onSelect={setDataVencimentoParcela}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+
+          <DialogFooter className="border-t border-[#E8E3DF] pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowParcelamentoDialog(false);
+                form.setValue('parcelado', false);
+                setNumeroParcelas("");
+                setDataVencimentoParcela(undefined);
+              }}
+              className="border-[#E8E3DF] hover:bg-[#FAF7F5]"
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              onClick={() => {
+                const numParcelas = parseInt(numeroParcelas);
+                if (!numParcelas || numParcelas < 2) {
+                  toast.error("Informe um número válido de parcelas (mínimo 2)");
+                  return;
+                }
+                if (!dataVencimentoParcela) {
+                  toast.error("Selecione a data de vencimento da primeira parcela");
+                  return;
+                }
+
+                const valorTotal = form.getValues('valor');
+                if (!valorTotal || valorTotal <= 0) {
+                  toast.error("Informe o valor total antes de parcelar");
+                  return;
+                }
+
+                const valorParcela = valorTotal / numParcelas;
+                const dataEmissaoForm = form.getValues('dataEmissao');
+                
+                const novasParcelas = Array.from({ length: numParcelas }, (_, i) => {
+                  const dataVenc = addDays(dataVencimentoParcela, i * 30);
+                  return {
+                    numero: i + 1,
+                    total: numParcelas,
+                    dataEmissao: dataEmissaoForm.toISOString().split('T')[0],
+                    dataVencimento: dataVenc.toISOString().split('T')[0],
+                    valor: valorParcela
+                  };
+                });
+
+                setParcelas(novasParcelas);
+                setShowParcelamentoDialog(false);
+                toast.success(`${numParcelas} parcelas criadas com sucesso!`);
+              }}
+              className="bg-[#8BA888] hover:bg-[#7A9777] text-white"
+            >
+              Gerar Parcelas
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
