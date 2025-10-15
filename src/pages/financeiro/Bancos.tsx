@@ -6,213 +6,222 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useBancos } from "@/hooks/useBancos";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/EmptyState";
-
-interface Banco {
-  id: string;
-  codigo: string;
-  descricao: string;
-}
-
-const bancosIniciais: Banco[] = [
-  { id: "0", codigo: "000", descricao: "Caixa Empresa" },
-  { id: "1", codigo: "001", descricao: "Banco do Brasil" },
-  { id: "2", codigo: "033", descricao: "Santander" },
-  { id: "3", codigo: "104", descricao: "Caixa Econômica Federal" },
-  { id: "4", codigo: "237", descricao: "Bradesco" },
-  { id: "5", codigo: "341", descricao: "Itaú Unibanco" },
-  { id: "6", codigo: "260", descricao: "Nubank" },
-  { id: "7", codigo: "077", descricao: "Banco Inter" },
-  { id: "8", codigo: "290", descricao: "PagSeguro" },
-  { id: "9", codigo: "336", descricao: "C6 Bank" },
-  { id: "10", codigo: "323", descricao: "Mercado Pago" },
-];
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export default function Bancos() {
-  const [bancos, setBancos] = useLocalStorage<Banco[]>("sugarbox_bancos", bancosIniciais);
+  const { bancos, loading, createBanco, updateBanco, deleteBanco } = useBancos();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingBanco, setEditingBanco] = useState<Banco | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [editingBanco, setEditingBanco] = useState<any | null>(null);
+  const [bancoToDelete, setBancoToDelete] = useState<any | null>(null);
   
   const [formData, setFormData] = useState({
-    codigo: "",
-    descricao: "",
+    nome: "",
+    tipo: "corrente",
+    saldo_inicial: 0,
   });
 
   const resetForm = () => {
-    setFormData({ codigo: "", descricao: "" });
+    setFormData({ nome: "", tipo: "corrente", saldo_inicial: 0 });
     setEditingBanco(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.descricao.trim()) {
-      toast.error("Digite a descrição do banco");
+    if (!formData.nome.trim()) {
+      toast.error("Preencha o nome do banco");
       return;
     }
 
-    if (!formData.codigo.trim()) {
-      toast.error("Digite o código do banco");
-      return;
+    try {
+      if (editingBanco) {
+        await updateBanco(editingBanco.id, formData);
+      } else {
+        await createBanco(formData);
+      }
+      setDialogOpen(false);
+      resetForm();
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao salvar banco");
     }
-
-    if (editingBanco) {
-      setBancos(bancos.map(b => 
-        b.id === editingBanco.id 
-          ? { ...b, codigo: formData.codigo.trim(), descricao: formData.descricao.trim() }
-          : b
-      ));
-      toast.success("Banco atualizado!");
-    } else {
-      const novoBanco: Banco = {
-        id: crypto.randomUUID(),
-        codigo: formData.codigo.trim(),
-        descricao: formData.descricao.trim(),
-      };
-      setBancos([...bancos, novoBanco]);
-      toast.success("Banco criado com sucesso!");
-    }
-    
-    setDialogOpen(false);
-    resetForm();
   };
 
-  const handleEdit = (banco: Banco) => {
+  const handleEdit = (banco: any) => {
     setEditingBanco(banco);
     setFormData({
-      codigo: banco.codigo,
-      descricao: banco.descricao,
+      nome: banco.nome,
+      tipo: banco.tipo,
+      saldo_inicial: banco.saldo_inicial,
     });
     setDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm("Tem certeza que deseja excluir este banco?")) {
-      setBancos(bancos.filter(b => b.id !== id));
-      toast.success("Banco deletado!");
+  const handleDeleteClick = (banco: any) => {
+    setBancoToDelete(banco);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!bancoToDelete) return;
+    
+    try {
+      await deleteBanco(bancoToDelete.id);
+      setDeleteDialogOpen(false);
+      setBancoToDelete(null);
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao excluir banco");
     }
   };
 
   return (
-    <div className="container mx-auto p-4 sm:p-6 space-y-6 animate-fade-in">
-      <BackButton to="/configuracoes" />
-      
-      <PageHeader
-        title="Bancos"
-        description="Gerencie as instituições bancárias utilizadas"
-        actions={
-          <Dialog open={dialogOpen} onOpenChange={(open) => {
-            setDialogOpen(open);
-            if (!open) resetForm();
-          }}>
-            <DialogTrigger asChild>
-              <Button className="bg-[#D89B8C] hover:bg-[#B87C6D] text-white">
-                <Plus className="h-4 w-4 mr-2" />
-                Novo Banco
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-              <DialogHeader>
-                <DialogTitle className="text-[#6B5047]">
-                  {editingBanco ? 'Editar Banco' : 'Novo Banco'}
-                </DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="codigo" className="text-[#6B5047]">Código *</Label>
-                  <Input
-                    id="codigo"
-                    value={formData.codigo}
-                    onChange={(e) => setFormData({ ...formData, codigo: e.target.value })}
-                    placeholder="Ex: 001, 033, 260..."
-                    required
-                    maxLength={10}
-                  />
-                  <p className="text-xs text-[#9C8B82] mt-1">
-                    Digite o código da instituição bancária
-                  </p>
-                </div>
+    <div className="min-h-screen bg-[#FAF7F5] p-4 md:p-6 space-y-6">
+      <div className="flex items-center gap-4">
+        <BackButton to="/financeiro/configuracoes-financeiro" />
+        <div className="flex-1">
+          <PageHeader
+            title="Bancos"
+            description="Gerencie suas contas bancárias"
+          />
+        </div>
+      </div>
 
-                <div>
-                  <Label htmlFor="descricao" className="text-[#6B5047]">Descrição *</Label>
-                  <Input
-                    id="descricao"
-                    value={formData.descricao}
-                    onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-                    placeholder="Ex: Banco do Brasil, Nubank, Caixa..."
-                    required
-                    maxLength={100}
-                  />
-                  <p className="text-xs text-[#9C8B82] mt-1">
-                    Digite o nome da instituição bancária
-                  </p>
-                </div>
+      <div className="flex justify-between items-center">
+        <p className="text-sm text-[#9C8B82]">
+          {bancos.length} {bancos.length === 1 ? 'banco cadastrado' : 'bancos cadastrados'}
+        </p>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogTrigger asChild>
+            <Button
+              onClick={() => {
+                resetForm();
+                setDialogOpen(true);
+              }}
+              className="bg-[#D89B8C] hover:bg-[#B87C6D] text-white"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Novo Banco
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="bg-background">
+            <DialogHeader>
+              <DialogTitle className="text-[#6B5047]">
+                {editingBanco ? "Editar Banco" : "Novo Banco"}
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <Label htmlFor="nome" className="text-[#6B5047]">Nome do Banco *</Label>
+                <Input
+                  id="nome"
+                  value={formData.nome}
+                  onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                  placeholder="Ex: Banco do Brasil"
+                  className="border-[#E8E3DF] focus:border-[#D89B8C]"
+                  required
+                />
+              </div>
 
-                <div className="flex justify-end gap-3 pt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setDialogOpen(false);
-                      resetForm();
-                    }}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="bg-[#D89B8C] hover:bg-[#B87C6D] text-white"
-                  >
-                    {editingBanco ? 'Atualizar' : 'Criar'}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
-        }
-      />
+              <div>
+                <Label htmlFor="tipo" className="text-[#6B5047]">Tipo de Conta *</Label>
+                <Select
+                  value={formData.tipo}
+                  onValueChange={(value) => setFormData({ ...formData, tipo: value })}
+                >
+                  <SelectTrigger className="border-[#E8E3DF] focus:border-[#D89B8C]">
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="corrente">Conta Corrente</SelectItem>
+                    <SelectItem value="poupanca">Conta Poupança</SelectItem>
+                    <SelectItem value="investimento">Conta Investimento</SelectItem>
+                    <SelectItem value="caixa">Caixa</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="saldo_inicial" className="text-[#6B5047]">Saldo Inicial</Label>
+                <Input
+                  id="saldo_inicial"
+                  type="number"
+                  step="0.01"
+                  value={formData.saldo_inicial}
+                  onChange={(e) => setFormData({ ...formData, saldo_inicial: parseFloat(e.target.value) || 0 })}
+                  placeholder="R$ 0,00"
+                  className="border-[#E8E3DF] focus:border-[#D89B8C]"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setDialogOpen(false);
+                    resetForm();
+                  }}
+                  className="border-[#E8E3DF]"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="submit"
+                  className="bg-[#D89B8C] hover:bg-[#B87C6D] text-white"
+                >
+                  {editingBanco ? "Salvar" : "Criar"}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
 
       {bancos.length === 0 ? (
         <EmptyState
           icon={Building2}
           title="Nenhum banco cadastrado"
-          description="Comece adicionando as instituições bancárias que você utiliza"
-          actionLabel="Adicionar primeiro banco"
-          onAction={() => setDialogOpen(true)}
+          description="Comece criando seu primeiro banco para gerenciar suas contas."
         />
       ) : (
-        <div className="bg-white rounded-lg border border-[#E8E3DF] shadow-sm overflow-hidden">
+        <div className="bg-white rounded-lg border border-[#E8E3DF] overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="bg-[#FAF8F6] hover:bg-[#FAF8F6]">
-                <TableHead className="text-[#6B5047] font-semibold">Código</TableHead>
-                <TableHead className="text-[#6B5047] font-semibold">Descrição</TableHead>
-                <TableHead className="text-[#6B5047] font-semibold text-center w-[100px]">Ações</TableHead>
+              <TableRow className="bg-[#FAF7F5] hover:bg-[#FAF7F5]">
+                <TableHead className="text-[#6B5047] font-semibold">Nome</TableHead>
+                <TableHead className="text-[#6B5047] font-semibold">Tipo</TableHead>
+                <TableHead className="text-[#6B5047] font-semibold">Saldo Inicial</TableHead>
+                <TableHead className="text-[#6B5047] font-semibold text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {bancos.map((banco) => (
-                <TableRow key={banco.id} className="hover:bg-[#FAF8F6]/50">
-                  <TableCell className="font-medium text-[#6B5047]">{banco.codigo}</TableCell>
-                  <TableCell className="text-[#9C8B82]">{banco.descricao}</TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex gap-2 justify-center">
+                <TableRow key={banco.id} className="hover:bg-[#FAF7F5]">
+                  <TableCell className="font-medium text-[#6B5047]">{banco.nome}</TableCell>
+                  <TableCell className="text-[#9C8B82] capitalize">{banco.tipo}</TableCell>
+                  <TableCell className="text-[#9C8B82]">
+                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(banco.saldo_inicial)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleEdit(banco)}
-                        className="text-[#D89B8C] hover:text-[#B87C6D] hover:bg-[#D89B8C]/10"
+                        className="text-[#D89B8C] hover:text-[#B87C6D] hover:bg-[#FEF3E2]"
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDelete(banco.id)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => handleDeleteClick(banco)}
+                        className="text-[#D88B8B] hover:text-[#B87C6D] hover:bg-[#FFEBEE]"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -224,6 +233,14 @@ export default function Bancos() {
           </Table>
         </div>
       )}
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Excluir Banco"
+        description={`Tem certeza que deseja excluir o banco "${bancoToDelete?.nome}"? Esta ação não pode ser desfeita.`}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }
