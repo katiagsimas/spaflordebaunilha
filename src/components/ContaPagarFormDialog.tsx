@@ -1,9 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { format } from "date-fns";
-import { CalendarIcon, DollarSign, FileText, Building2, Calendar, User, ExternalLink, Landmark } from "lucide-react";
+import { format, addDays } from "date-fns";
+import { CalendarIcon, DollarSign, FileText, Building2, Calendar, User, ExternalLink, Landmark, CreditCard, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCategoriasFinanceiras } from "@/hooks/useCategoriasFinanceiras";
 import { usePlanoContas } from "@/hooks/usePlanoContas";
@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { formatCpfCnpj } from "@/lib/utils";
 import { DatePickerField } from "@/components/DatePickerField";
 import { FornecedorAutocomplete } from "@/components/FornecedorAutocomplete";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface Banco {
   id: string;
@@ -31,6 +32,14 @@ interface TipoDocumento {
   id: string;
   codigo: string;
   descricao: string;
+}
+
+interface Parcela {
+  numero: number;
+  total: number;
+  valor: number;
+  dataVencimento: Date;
+  dataEmissao: Date;
 }
 
 interface ContaPagar {
@@ -159,6 +168,11 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
   const { planoContas, loading: loadingPlanos } = usePlanoContas();
   const { tiposDocumento, loading: loadingTiposDocumento } = useTiposDocumento();
   const [bancos] = useLocalStorage<Banco[]>("sugarbox_bancos", []);
+  
+  const [parcelaDialogOpen, setParcelaDialogOpen] = useState(false);
+  const [numeroParcelas, setNumeroParcelas] = useState<number>(2);
+  const [dataVencimentoParcelas, setDataVencimentoParcelas] = useState<Date>(new Date());
+  const [parcelas, setParcelas] = useState<Parcela[]>([]);
 
   // Filtrar apenas categorias de despesa
   const categoriasDespesa = categorias.filter(c => c.tipo === 'despesa');
@@ -287,7 +301,93 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
 
   const getCategoriaById = (id: string) => categorias.find(c => c.id === id);
 
+  const handleGerarParcelas = () => {
+    const valorString = form.getValues("valor");
+    const dataEmissao = form.getValues("dataEmissao");
+    
+    if (!valorString || !dataEmissao) {
+      return;
+    }
+    
+    const valorTotal = parseFloat(valorString.replace(/[^\d,]/g, '').replace(',', '.'));
+    const valorParcela = valorTotal / numeroParcelas;
+    
+    const novasParcelas: Parcela[] = [];
+    for (let i = 0; i < numeroParcelas; i++) {
+      novasParcelas.push({
+        numero: i + 1,
+        total: numeroParcelas,
+        valor: valorParcela,
+        dataVencimento: addDays(dataVencimentoParcelas, i * 30),
+        dataEmissao: dataEmissao,
+      });
+    }
+    
+    setParcelas(novasParcelas);
+    setParcelaDialogOpen(false);
+  };
+
+  const handleRemoverParcela = (index: number) => {
+    setParcelas(parcelas.filter((_, i) => i !== index));
+  };
+
   return (
+    <>
+      {/* Diálogo de Parcelamento */}
+      <Dialog open={parcelaDialogOpen} onOpenChange={setParcelaDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl text-[#6B5047]">Configurar Parcelamento</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="text-sm font-medium text-[#6B5047] mb-2 block">
+                Número de Parcelas *
+              </label>
+              <Input
+                type="number"
+                min="2"
+                max="60"
+                value={numeroParcelas}
+                onChange={(e) => setNumeroParcelas(parseInt(e.target.value) || 2)}
+                placeholder="Ex: 3"
+              />
+              <p className="text-xs text-[#9C8B82] mt-1">Mínimo 2, máximo 60 parcelas</p>
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium text-[#6B5047] mb-2 block">
+                Data de Vencimento da 1ª Parcela *
+              </label>
+              <DatePickerField
+                value={dataVencimentoParcelas}
+                onChange={(date) => date && setDataVencimentoParcelas(date)}
+                placeholder="Selecione a data"
+              />
+              <p className="text-xs text-[#9C8B82] mt-1">
+                As próximas parcelas terão vencimento a cada 30 dias
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex justify-end gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setParcelaDialogOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              onClick={handleGerarParcelas}
+            >
+              Gerar Parcelas
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -643,10 +743,22 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
 
             {/* Valores */}
             <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow">
-              <h3 className="font-semibold text-[#6B5047] flex items-center gap-2 pb-4 border-b border-[#E8E3DF]">
-                <DollarSign className="h-5 w-5 text-[#D89B8C]" />
-                Valores
-              </h3>
+              <div className="flex items-center justify-between pb-4 border-b border-[#E8E3DF]">
+                <h3 className="font-semibold text-[#6B5047] flex items-center gap-2">
+                  <DollarSign className="h-5 w-5 text-[#D89B8C]" />
+                  Valores
+                </h3>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setParcelaDialogOpen(true)}
+                  className="flex items-center gap-2"
+                >
+                  <CreditCard className="h-4 w-4" />
+                  Parcela
+                </Button>
+              </div>
 
               <FormField
                 control={form.control}
@@ -670,6 +782,66 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                   </FormItem>
                 )}
               />
+              
+              {/* Tabela de Parcelas */}
+              {parcelas.length > 0 && (
+                <div className="mt-6 space-y-3">
+                  <h4 className="font-semibold text-[#6B5047] flex items-center gap-2">
+                    <CreditCard className="h-4 w-4 text-[#D89B8C]" />
+                    Parcelas Configuradas
+                  </h4>
+                  
+                  <div className="border border-[#E8E3DF] rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-[#FAF7F5]">
+                          <TableHead className="text-[#6B5047]">Parcela</TableHead>
+                          <TableHead className="text-[#6B5047]">Data Emissão</TableHead>
+                          <TableHead className="text-[#6B5047]">Data Vencimento</TableHead>
+                          <TableHead className="text-[#6B5047] text-right">Valor</TableHead>
+                          <TableHead className="w-[50px]"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {parcelas.map((parcela, index) => (
+                          <TableRow key={index}>
+                            <TableCell className="font-medium">
+                              {parcela.numero} de {parcela.total}
+                            </TableCell>
+                            <TableCell>
+                              {format(parcela.dataEmissao, "dd/MM/yyyy")}
+                            </TableCell>
+                            <TableCell>
+                              {format(parcela.dataVencimento, "dd/MM/yyyy")}
+                            </TableCell>
+                            <TableCell className="text-right font-medium">
+                              R$ {parcela.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleRemoverParcela(index)}
+                                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  
+                  <div className="flex justify-between items-center p-3 bg-[#FAF7F5] rounded-lg border border-[#E8E3DF]">
+                    <span className="font-semibold text-[#6B5047]">Valor Total:</span>
+                    <span className="font-bold text-lg text-[#6B5047]">
+                      R$ {(parcelas.reduce((acc, p) => acc + p.valor, 0)).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Observações */}
@@ -856,5 +1028,6 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
         </Form>
       </DialogContent>
     </Dialog>
+    </>
   );
 }
