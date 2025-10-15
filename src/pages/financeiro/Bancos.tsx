@@ -61,38 +61,66 @@ export default function Bancos() {
   // Migrar dados do localStorage para Supabase
   useEffect(() => {
     const migrateFromLocalStorage = async () => {
-      if (loading || bancos.length > 0 || migrating) return;
+      if (migrating) return;
       
       try {
         const localData = localStorage.getItem("sugarbox_bancos");
-        if (!localData) return;
+        console.log('Verificando localStorage:', localData ? 'Dados encontrados' : 'Sem dados');
         
-        const bancosAntigos: BancoLocalStorage[] = JSON.parse(localData);
-        if (!bancosAntigos || bancosAntigos.length === 0) return;
-        
-        setMigrating(true);
-        console.log('Migrando bancos do localStorage para Supabase...', bancosAntigos);
-        
-        for (const bancoAntigo of bancosAntigos) {
-          await createBanco({
-            nome: bancoAntigo.descricao,
-            tipo: "Conta Corrente",
-            saldo_inicial: 0,
-          });
+        if (!localData) {
+          console.log('Nenhum dado antigo encontrado no localStorage');
+          return;
         }
         
-        // Remover dados antigos do localStorage
-        localStorage.removeItem("sugarbox_bancos");
-        toast.success(`${bancosAntigos.length} banco(s) migrado(s) com sucesso!`);
+        const bancosAntigos: BancoLocalStorage[] = JSON.parse(localData);
+        console.log('Bancos encontrados no localStorage:', bancosAntigos);
+        
+        if (!bancosAntigos || bancosAntigos.length === 0) {
+          console.log('Array vazio no localStorage');
+          return;
+        }
+        
+        // Verificar se já existem bancos no Supabase
+        if (bancos.length > 0) {
+          console.log('Bancos já existem no Supabase, pulando migração');
+          return;
+        }
+        
+        setMigrating(true);
+        console.log('Iniciando migração de', bancosAntigos.length, 'bancos...');
+        
+        let migrados = 0;
+        for (const bancoAntigo of bancosAntigos) {
+          try {
+            await createBanco({
+              nome: bancoAntigo.descricao,
+              tipo: "Conta Corrente",
+              saldo_inicial: 0,
+            });
+            migrados++;
+            console.log('Banco migrado:', bancoAntigo.descricao);
+          } catch (err) {
+            console.error('Erro ao migrar banco:', bancoAntigo.descricao, err);
+          }
+        }
+        
+        if (migrados > 0) {
+          // Só remove do localStorage se conseguiu migrar pelo menos um
+          localStorage.removeItem("sugarbox_bancos");
+          toast.success(`${migrados} banco(s) migrado(s) com sucesso!`);
+        }
       } catch (error) {
         console.error('Erro ao migrar bancos:', error);
+        toast.error('Erro ao migrar bancos do sistema antigo');
       } finally {
         setMigrating(false);
       }
     };
     
-    migrateFromLocalStorage();
-  }, [loading, bancos.length, createBanco]);
+    if (!loading) {
+      migrateFromLocalStorage();
+    }
+  }, [loading, bancos.length, createBanco, migrating]);
 
   const resetForm = () => {
     setFormData({ nome: "", tipo: "Conta Corrente", saldo_inicial: 0 });
