@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Calendar, DollarSign, FileText, User, CreditCard, Repeat, Package, ExternalLink, Building2, X } from "lucide-react";
 import * as LucideIcons from "lucide-react";
-import { format, addDays } from "date-fns";
+import { format, addDays, addMonths, startOfMonth } from "date-fns";
 import { Link } from "react-router-dom";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
@@ -176,6 +176,18 @@ export function ContaReceberFormDialog({
   const [numeroParcelas, setNumeroParcelas] = useState("");
   const [dataVencimentoParcela, setDataVencimentoParcela] = useState<Date | undefined>();
   const [parcelas, setParcelas] = useState<Array<{
+    numero: number;
+    total: number;
+    dataEmissao: string;
+    dataVencimento: string;
+    valor: number;
+  }>>([]);
+
+  // Estados para recorrência
+  const [showRecorrenciaDialog, setShowRecorrenciaDialog] = useState(false);
+  const [numeroRecorrencias, setNumeroRecorrencias] = useState("");
+  const [dataVencimentoRecorrencia, setDataVencimentoRecorrencia] = useState<Date | undefined>();
+  const [recorrencias, setRecorrencias] = useState<Array<{
     numero: number;
     total: number;
     dataEmissao: string;
@@ -825,7 +837,14 @@ export function ContaReceberFormDialog({
                       <FormControl>
                         <Checkbox
                           checked={field.value}
-                          onCheckedChange={field.onChange}
+                          onCheckedChange={(checked) => {
+                            field.onChange(checked);
+                            if (checked) {
+                              setShowRecorrenciaDialog(true);
+                            } else {
+                              setRecorrencias([]);
+                            }
+                          }}
                           className="border-[#7BA8D8] data-[state=checked]:bg-[#7BA8D8] data-[state=checked]:border-[#7BA8D8]"
                         />
                       </FormControl>
@@ -888,6 +907,62 @@ export function ContaReceberFormDialog({
                           </TableCell>
                           <TableCell className="text-right font-semibold text-[#8BA888]">
                             R$ {parcela.valor.toFixed(2).replace('.', ',')}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            )}
+
+            {/* Tabela de Recorrências */}
+            {recorrencias.length > 0 && (
+              <div className="bg-white rounded-lg p-5 border border-[#7BA8D8]/30 shadow-sm space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-[#E8E3DF]">
+                  <h3 className="font-semibold text-[#6B5047] flex items-center gap-2">
+                    <Repeat className="h-5 w-5 text-[#7BA8D8]" />
+                    Recorrências
+                  </h3>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setRecorrencias([]);
+                      form.setValue('recorrente', false);
+                    }}
+                    className="text-xs text-[#9C8B82] hover:text-[#6B5047]"
+                  >
+                    <X className="h-4 w-4 mr-1" />
+                    Limpar
+                  </Button>
+                </div>
+                
+                <div className="rounded-md border border-[#E8E3DF] overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-[#FAF7F5]">
+                        <TableHead className="text-[#6B5047] font-semibold">Recorrência</TableHead>
+                        <TableHead className="text-[#6B5047] font-semibold">Data Emissão</TableHead>
+                        <TableHead className="text-[#6B5047] font-semibold">Data Vencimento</TableHead>
+                        <TableHead className="text-[#6B5047] font-semibold text-right">Valor a Pagar</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {recorrencias.map((recorrencia) => (
+                        <TableRow key={recorrencia.numero} className="hover:bg-[#FAF7F5]/50">
+                          <TableCell className="font-medium text-[#6B5047]">
+                            {recorrencia.numero} de {recorrencia.total}
+                          </TableCell>
+                          <TableCell className="text-[#9C8B82]">
+                            {format(new Date(recorrencia.dataEmissao), "dd/MM/yyyy")}
+                          </TableCell>
+                          <TableCell className="text-[#9C8B82]">
+                            {format(new Date(recorrencia.dataVencimento), "dd/MM/yyyy")}
+                          </TableCell>
+                          <TableCell className="text-right font-semibold text-[#7BA8D8]">
+                            R$ {recorrencia.valor.toFixed(2).replace('.', ',')}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -1060,6 +1135,129 @@ export function ContaReceberFormDialog({
               className="bg-[#8BA888] hover:bg-[#7A9777] text-white"
             >
               Gerar Parcelas
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo de Recorrência */}
+      <Dialog open={showRecorrenciaDialog} onOpenChange={setShowRecorrenciaDialog}>
+        <DialogContent className="max-w-md bg-gradient-to-br from-background to-[#FAF7F5]">
+          <DialogHeader className="border-b border-[#E8E3DF] pb-4">
+            <DialogTitle className="text-xl font-bold text-[#6B5047] flex items-center gap-2">
+              <Repeat className="h-5 w-5 text-[#7BA8D8]" />
+              Configurar Recorrência
+            </DialogTitle>
+            <DialogDescription className="text-[#9C8B82]">
+              Defina o número de recorrências e a data de vencimento
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="text-sm font-medium text-[#6B5047] mb-2 block">
+                Número de Recorrências *
+              </label>
+              <Input
+                type="number"
+                min="2"
+                max="999"
+                placeholder="Ex: 12"
+                value={numeroRecorrencias}
+                onChange={(e) => setNumeroRecorrencias(e.target.value)}
+                className="border-[#E8E3DF] focus:border-[#7BA8D8] focus:ring-[#7BA8D8]"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-[#6B5047] mb-2 block">
+                Data de Vencimento da 1ª Recorrência *
+              </label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full pl-3 text-left font-normal border-[#E8E3DF] focus:border-[#7BA8D8] focus:ring-[#7BA8D8]",
+                      !dataVencimentoRecorrencia && "text-muted-foreground"
+                    )}
+                  >
+                    {dataVencimentoRecorrencia ? (
+                      format(dataVencimentoRecorrencia, "dd/MM/yyyy")
+                    ) : (
+                      <span>Selecione...</span>
+                    )}
+                    <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    mode="single"
+                    selected={dataVencimentoRecorrencia}
+                    onSelect={setDataVencimentoRecorrencia}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+
+          <DialogFooter className="border-t border-[#E8E3DF] pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowRecorrenciaDialog(false);
+                form.setValue('recorrente', false);
+                setNumeroRecorrencias("");
+                setDataVencimentoRecorrencia(undefined);
+              }}
+              className="border-[#E8E3DF] hover:bg-[#FAF7F5]"
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              onClick={() => {
+                const numRecorrencias = parseInt(numeroRecorrencias);
+                if (!numRecorrencias || numRecorrencias < 2) {
+                  toast.error("Informe um número válido de recorrências (mínimo 2)");
+                  return;
+                }
+                if (!dataVencimentoRecorrencia) {
+                  toast.error("Selecione a data de vencimento da primeira recorrência");
+                  return;
+                }
+
+                const valorTotal = form.getValues('valor');
+                if (!valorTotal || valorTotal <= 0) {
+                  toast.error("Informe o valor total antes de criar recorrências");
+                  return;
+                }
+                
+                const novasRecorrencias = Array.from({ length: numRecorrencias }, (_, i) => {
+                  // Data de vencimento: primeira é a informada, demais no mesmo dia do mês seguinte
+                  const dataVenc = addMonths(dataVencimentoRecorrencia, i);
+                  // Data de emissão: sempre 1º dia do mês de vencimento
+                  const dataEmis = startOfMonth(dataVenc);
+                  
+                  return {
+                    numero: i + 1,
+                    total: numRecorrencias,
+                    dataEmissao: dataEmis.toISOString().split('T')[0],
+                    dataVencimento: dataVenc.toISOString().split('T')[0],
+                    valor: valorTotal // Sem divisão, mantém o valor integral
+                  };
+                });
+
+                setRecorrencias(novasRecorrencias);
+                setShowRecorrenciaDialog(false);
+                toast.success(`${numRecorrencias} recorrências criadas com sucesso!`);
+              }}
+              className="bg-[#7BA8D8] hover:bg-[#6A97C7] text-white"
+            >
+              Gerar Recorrências
             </Button>
           </DialogFooter>
         </DialogContent>
