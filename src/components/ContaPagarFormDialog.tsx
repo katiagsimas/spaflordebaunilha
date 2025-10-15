@@ -21,6 +21,7 @@ import { formatCpfCnpj } from "@/lib/utils";
 import { DatePickerField } from "@/components/DatePickerField";
 import { FornecedorAutocomplete } from "@/components/FornecedorAutocomplete";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { toast } from "sonner";
 
 interface Banco {
   id: string;
@@ -292,6 +293,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
     };
 
     onSave(contaPagar);
+    toast.success("✓ Evento Lançado com Sucesso!");
   };
 
   const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {

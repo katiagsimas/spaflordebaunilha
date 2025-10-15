@@ -377,7 +377,7 @@ export function ContaReceberFormDialog({
         };
 
         await updateItem(conta.id, contaData);
-        toast.success("✓ Conta atualizada com sucesso!");
+        toast.success("✓ Evento Lançado com Sucesso!");
         onOpenChange(false);
         onSave();
         return;
@@ -413,7 +413,8 @@ export function ContaReceberFormDialog({
 
           await createItem(contaData);
         }
-        toast.success(`✓ ${parcelas.length} parcelas criadas com sucesso!`);
+        toast.success(`✓ Evento Lançado com Sucesso! ${parcelas.length} parcelas criadas.`);
+        onOpenChange(false);
       }
       // Se tem recorrências, criar múltiplas contas (uma para cada recorrência)
       else if (recorrencias.length > 0) {
@@ -444,7 +445,8 @@ export function ContaReceberFormDialog({
 
           await createItem(contaData);
         }
-        toast.success(`✓ ${recorrencias.length} recorrências criadas com sucesso!`);
+        toast.success(`✓ Evento Lançado com Sucesso! ${recorrencias.length} recorrências criadas.`);
+        onOpenChange(false);
       }
       // Se não tem parcelas nem recorrências, criar apenas uma conta
       else {
@@ -473,36 +475,11 @@ export function ContaReceberFormDialog({
         };
 
         await createItem(contaData);
-        toast.success("✓ Conta a receber criada com sucesso!");
+        toast.success("✓ Evento Lançado com Sucesso!");
+        onOpenChange(false);
       }
       
-      // Após salvar com sucesso, limpar o formulário mas manter o diálogo aberto
-      form.reset({
-        descricao: "",
-        categoriaId: "",
-        planoContaId: "",
-        valor: 0,
-        dataEmissao: new Date(),
-        clienteNome: "",
-        clienteDocumento: "",
-        bancoId: "",
-        tipoDocumentoId: "",
-        numeroDocumento: "",
-        observacoes: "",
-        parcelado: false,
-        numeroParcela: 1,
-        totalParcelas: 1,
-        recorrente: false,
-        frequenciaRecorrencia: "mensal",
-      });
-      setSelectedCategoriaId("");
-      setSelectedClienteNome("");
-      setValorInput("");
-      setParcelas([]);
-      setRecorrencias([]);
-      
-      onSave(); // Atualizar a lista
-      toast.success("✓ Formulário limpo! Você pode criar outra conta para o mesmo ou outro cliente.");
+      onSave();
     } catch (error: any) {
       console.error('Erro completo ao salvar conta:', error);
       toast.error('Erro ao salvar conta: ' + (error.message || 'Erro desconhecido'));
