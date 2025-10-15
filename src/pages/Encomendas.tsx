@@ -499,7 +499,7 @@ const Encomendas = () => {
   }).length;
 
   const totalReceivable = encomendas.filter(e => e.status !== "entregue" && e.status !== "cancelado")
-    .reduce((sum, e) => sum + e.valor, 0);
+    .reduce((sum, e) => sum + (e.saldo_restante || 0), 0);
 
   const stats = [
     {
