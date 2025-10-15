@@ -746,7 +746,7 @@ export function ContaReceberFormDialog({
             </div>
 
             {/* Valor */}
-            <div className="bg-gradient-to-r from-[#8BA888]/10 to-transparent rounded-lg p-5 border border-[#8BA888]/20 shadow-sm">
+            <div className="bg-gradient-to-r from-[#8BA888]/10 to-transparent rounded-lg p-5 border border-[#8BA888]/20 shadow-sm space-y-4">
               <FormField
                 control={form.control}
                 name="valor"
@@ -772,6 +772,59 @@ export function ContaReceberFormDialog({
                   </FormItem>
                 )}
               />
+
+              {/* Opções: Parcela e Recorrente */}
+              <div className="flex gap-3 pt-2">
+                <FormField
+                  control={form.control}
+                  name="parcelado"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormControl>
+                        <Button
+                          type="button"
+                          variant={field.value ? "default" : "outline"}
+                          className={cn(
+                            "w-full",
+                            field.value 
+                              ? "bg-[#8BA888] hover:bg-[#7A9777] text-white" 
+                              : "border-[#8BA888]/30 text-[#6B5047] hover:bg-[#8BA888]/10"
+                          )}
+                          onClick={() => field.onChange(!field.value)}
+                        >
+                          <Repeat className="h-4 w-4 mr-2" />
+                          Parcela
+                        </Button>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="recorrente"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormControl>
+                        <Button
+                          type="button"
+                          variant={field.value ? "default" : "outline"}
+                          className={cn(
+                            "w-full",
+                            field.value 
+                              ? "bg-[#7BA8D8] hover:bg-[#6A97C7] text-white" 
+                              : "border-[#7BA8D8]/30 text-[#6B5047] hover:bg-[#7BA8D8]/10"
+                          )}
+                          onClick={() => field.onChange(!field.value)}
+                        >
+                          <Repeat className="h-4 w-4 mr-2" />
+                          Recorrente
+                        </Button>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
 
 
@@ -800,48 +853,6 @@ export function ContaReceberFormDialog({
               />
             </div>
 
-            {/* Opções Avançadas */}
-            <div className="bg-gradient-to-r from-[#7BA8D8]/10 to-transparent rounded-lg p-4 border border-[#7BA8D8]/20 space-y-3">
-              <h3 className="font-semibold text-[#6B5047] flex items-center gap-2 text-sm">
-                <Repeat className="h-4 w-4 text-[#7BA8D8]" />
-                Opções Avançadas
-              </h3>
-              <FormField
-                control={form.control}
-                name="parcelado"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Esta é uma receita parcelada</FormLabel>
-                    </div>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="recorrente"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Esta é uma receita recorrente</FormLabel>
-                    </div>
-                  </FormItem>
-                )}
-              />
-            </div>
 
             <DialogFooter className="bg-gradient-to-r from-[#FAF7F5] to-transparent pt-6 border-t border-[#E8E3DF]">
               <Button 
