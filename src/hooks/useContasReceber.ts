@@ -65,7 +65,6 @@ export function useContasReceber() {
     // Recarregar a lista completa para manter a ordenação correta
     await fetchItems();
     
-    toast.success('Conta a receber criada!');
     return data;
   };
 
@@ -85,7 +84,6 @@ export function useContasReceber() {
     // Recarregar a lista completa para manter a ordenação correta
     await fetchItems();
     
-    toast.success('Conta a receber atualizada!');
     return data;
   };
 
