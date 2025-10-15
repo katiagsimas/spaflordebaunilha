@@ -98,7 +98,7 @@ const formSchema = z.object({
   dataEmissao: z.date(),
   fornecedorNome: z.string().min(1, "Nome do fornecedor é obrigatório").max(100, "Nome deve ter no máximo 100 caracteres"),
   fornecedorDocumento: z.string().optional(),
-  bancoId: z.string().optional(),
+  bancoId: z.string().min(1, "Selecione um banco"),
   tipoDocumentoId: z.string().min(1, "Tipo de documento é obrigatório"),
   numeroDocumento: z.string().max(50, "Número deve ter no máximo 50 caracteres").optional(),
   observacoes: z.string().max(500, "Observações devem ter no máximo 500 caracteres").optional(),
@@ -420,7 +420,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                 name="bancoId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[#6B5047]">Banco (opcional)</FormLabel>
+                    <FormLabel className="text-[#6B5047]">Banco *</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
