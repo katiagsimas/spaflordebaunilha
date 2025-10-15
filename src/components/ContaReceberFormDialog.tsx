@@ -774,28 +774,25 @@ export function ContaReceberFormDialog({
               />
 
               {/* Opções: Parcela e Recorrente */}
-              <div className="flex gap-3 pt-2">
+              <div className="grid grid-cols-2 gap-4 pt-3 border-t border-[#8BA888]/20">
                 <FormField
                   control={form.control}
                   name="parcelado"
                   render={({ field }) => (
-                    <FormItem className="flex-1">
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-[#E8E3DF] p-3 hover:bg-[#8BA888]/5 transition-colors">
                       <FormControl>
-                        <Button
-                          type="button"
-                          variant={field.value ? "default" : "outline"}
-                          className={cn(
-                            "w-full",
-                            field.value 
-                              ? "bg-[#8BA888] hover:bg-[#7A9777] text-white" 
-                              : "border-[#8BA888]/30 text-[#6B5047] hover:bg-[#8BA888]/10"
-                          )}
-                          onClick={() => field.onChange(!field.value)}
-                        >
-                          <Repeat className="h-4 w-4 mr-2" />
-                          Parcela
-                        </Button>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          className="border-[#8BA888] data-[state=checked]:bg-[#8BA888] data-[state=checked]:border-[#8BA888]"
+                        />
                       </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm font-medium text-[#6B5047] cursor-pointer">
+                          Parcela
+                        </FormLabel>
+                        <p className="text-xs text-[#9C8B82]">Receita parcelada</p>
+                      </div>
                     </FormItem>
                   )}
                 />
@@ -804,23 +801,20 @@ export function ContaReceberFormDialog({
                   control={form.control}
                   name="recorrente"
                   render={({ field }) => (
-                    <FormItem className="flex-1">
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-[#E8E3DF] p-3 hover:bg-[#7BA8D8]/5 transition-colors">
                       <FormControl>
-                        <Button
-                          type="button"
-                          variant={field.value ? "default" : "outline"}
-                          className={cn(
-                            "w-full",
-                            field.value 
-                              ? "bg-[#7BA8D8] hover:bg-[#6A97C7] text-white" 
-                              : "border-[#7BA8D8]/30 text-[#6B5047] hover:bg-[#7BA8D8]/10"
-                          )}
-                          onClick={() => field.onChange(!field.value)}
-                        >
-                          <Repeat className="h-4 w-4 mr-2" />
-                          Recorrente
-                        </Button>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          className="border-[#7BA8D8] data-[state=checked]:bg-[#7BA8D8] data-[state=checked]:border-[#7BA8D8]"
+                        />
                       </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm font-medium text-[#6B5047] cursor-pointer">
+                          Recorrente
+                        </FormLabel>
+                        <p className="text-xs text-[#9C8B82]">Receita recorrente</p>
+                      </div>
                     </FormItem>
                   )}
                 />
