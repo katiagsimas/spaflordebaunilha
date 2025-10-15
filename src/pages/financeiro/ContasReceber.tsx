@@ -569,7 +569,7 @@ export default function ContasReceber() {
 
           {/* Campo de busca dinâmico baseado no tipo */}
           {tipoBusca === "pessoa" && (
-            <div className="relative flex-1">
+            <div className="relative w-full md:w-[300px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9C8B82]" />
               <Input
                 placeholder="Buscar por nome da pessoa..."
@@ -728,10 +728,42 @@ export default function ContasReceber() {
               Limpar
             </Button>
           )}
+
+          {/* Botão Exportar */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Exportar
+                <ChevronDown className="h-4 w-4 ml-2" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-background">
+              <DropdownMenuItem onClick={handleExportarCSV}>
+                <Download className="h-4 w-4 mr-2" />
+                Exportar CSV
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
-        {/* Linha 2: Botões de Ação */}
-        <div className="flex gap-2 justify-end">
+        {/* Linha 2: Selecionar Todas e Botões de Ação */}
+        <div className="flex gap-2 justify-between items-center">
+          {/* Botão Selecionar Todas - Lado Esquerdo */}
+          {contasFiltradas.length > 0 && selectedContas.length === 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSelecionarTodas}
+              className="text-xs text-[#9C8B82] hover:text-[#6B5047]"
+            >
+              <CheckCircle className="h-3 w-3 mr-1" />
+              Selecionar todas ({contasFiltradas.length})
+            </Button>
+          )}
+
+          {/* Botões de ação quando há seleção */}
+          <div className="flex gap-2 ml-auto">
           {selectedContas.length > 0 && (
             <>
               <Button
@@ -753,38 +785,9 @@ export default function ContasReceber() {
               </Button>
             </>
           )}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Exportar
-                <ChevronDown className="h-4 w-4 ml-2" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-background">
-              <DropdownMenuItem onClick={handleExportarCSV}>
-                <Download className="h-4 w-4 mr-2" />
-                Exportar CSV
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
-
-      {/* Botão Selecionar Todas */}
-      {contasFiltradas.length > 0 && selectedContas.length === 0 && (
-        <div className="flex justify-end">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSelecionarTodas}
-            className="text-xs text-[#9C8B82] hover:text-[#6B5047]"
-          >
-            <CheckCircle className="h-3 w-3 mr-1" />
-            Selecionar todas ({contasFiltradas.length})
-          </Button>
-        </div>
-      )}
+      </div>
 
       {/* Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
