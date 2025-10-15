@@ -389,6 +389,115 @@ export function ContaReceberFormDialog({
               />
             </div>
 
+            {/* Documento */}
+            <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
+              <div className="flex items-center justify-between pb-2 border-b border-[#E8E3DF]">
+                <h3 className="font-semibold text-[#6B5047] flex items-center gap-2">
+                  <CreditCard className="h-5 w-5 text-[#D89B8C]" />
+                  Documento
+                </h3>
+                <Link 
+                  to="/configuracoes/tipos-documento"
+                  className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1 transition-colors"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Gerenciar Tipos de Documento
+                </Link>
+              </div>
+              
+              <FormField
+                control={form.control}
+                name="tipoDocumentoId"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center justify-between">
+                      <FormLabel className="text-[#6B5047] font-medium">Tipo de Documento *</FormLabel>
+                      {tiposDocumento.length === 0 && (
+                        <Link 
+                          to="/configuracoes/tipos-documento"
+                          className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1"
+                        >
+                          + Criar tipo de documento
+                        </Link>
+                      )}
+                    </div>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]">
+                          <SelectValue placeholder={
+                            tiposDocumento.length === 0 
+                              ? "Nenhum tipo cadastrado" 
+                              : "Selecione o tipo de documento..."
+                          } />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-background">
+                        {tiposDocumento.map((tipo) => (
+                          <SelectItem key={tipo.id} value={tipo.id}>
+                            {tipo.codigo} - {tipo.descricao}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="bancoId"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center justify-between">
+                      <FormLabel className="text-[#6B5047] font-medium">Banco *</FormLabel>
+                      {bancos.length === 0 && (
+                        <Link 
+                          to="/configuracoes/bancos"
+                          className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1"
+                        >
+                          + Criar banco
+                        </Link>
+                      )}
+                    </div>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]">
+                          <SelectValue placeholder={
+                            bancos.length === 0 
+                              ? "Nenhum banco cadastrado" 
+                              : "Selecione o banco..."
+                          } />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-background">
+                        {bancos.map((banco) => (
+                          <SelectItem key={banco.id} value={banco.id}>
+                            {banco.codigo} - {banco.descricao}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="numeroDocumento"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[#6B5047] font-medium">Número do Documento (opcional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ex: NF-001234" {...field} maxLength={50} className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             {/* Descrição */}
             <div className="bg-white rounded-lg p-4 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow">
               <FormField
@@ -656,114 +765,6 @@ export function ContaReceberFormDialog({
 
             {/* Cliente */}
             {/* Documento */}
-            <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
-              <div className="flex items-center justify-between pb-2 border-b border-[#E8E3DF]">
-                <h3 className="font-semibold text-[#6B5047] flex items-center gap-2">
-                  <CreditCard className="h-5 w-5 text-[#D89B8C]" />
-                  Documento
-                </h3>
-                <Link 
-                  to="/configuracoes/tipos-documento"
-                  className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1 transition-colors"
-                >
-                  <ExternalLink className="h-3 w-3" />
-                  Gerenciar Tipos de Documento
-                </Link>
-              </div>
-              
-              <FormField
-                control={form.control}
-                name="tipoDocumentoId"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center justify-between">
-                      <FormLabel className="text-[#6B5047] font-medium">Tipo de Documento *</FormLabel>
-                      {tiposDocumento.length === 0 && (
-                        <Link 
-                          to="/configuracoes/tipos-documento"
-                          className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1"
-                        >
-                          + Criar tipo de documento
-                        </Link>
-                      )}
-                    </div>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]">
-                          <SelectValue placeholder={
-                            tiposDocumento.length === 0 
-                              ? "Nenhum tipo cadastrado" 
-                              : "Selecione o tipo de documento..."
-                          } />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-background">
-                        {tiposDocumento.map((tipo) => (
-                          <SelectItem key={tipo.id} value={tipo.id}>
-                            {tipo.codigo} - {tipo.descricao}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="bancoId"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center justify-between">
-                      <FormLabel className="text-[#6B5047] font-medium">Banco *</FormLabel>
-                      {bancos.length === 0 && (
-                        <Link 
-                          to="/configuracoes/bancos"
-                          className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1"
-                        >
-                          + Criar banco
-                        </Link>
-                      )}
-                    </div>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]">
-                          <SelectValue placeholder={
-                            bancos.length === 0 
-                              ? "Nenhum banco cadastrado" 
-                              : "Selecione o banco..."
-                          } />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-background">
-                        {bancos.map((banco) => (
-                          <SelectItem key={banco.id} value={banco.id}>
-                            {banco.codigo} - {banco.descricao}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="numeroDocumento"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[#6B5047] font-medium">Número do Documento (opcional)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ex: NF-001234" {...field} maxLength={50} className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
             {/* Observações */}
             <div className="bg-white rounded-lg p-4 border border-[#E8E3DF] shadow-sm">
               <FormField
