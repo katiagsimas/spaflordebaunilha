@@ -41,6 +41,8 @@ import { toast } from "sonner";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useCategoriasFinanceiras } from "@/hooks/useCategoriasFinanceiras";
 import { usePlanoContas } from "@/hooks/usePlanoContas";
+import { useClientes } from "@/hooks/useClientes";
+import { ClienteAutocomplete } from "@/components/ClienteAutocomplete";
 
 // Helper para renderizar ícone dinamicamente
 const renderIcon = (iconName?: string) => {
@@ -152,9 +154,11 @@ export function ContaReceberFormDialog({
 }: ContaReceberFormDialogProps) {
   const { categorias: categoriasFinanceiras } = useCategoriasFinanceiras();
   const { planoContas } = usePlanoContas();
+  const { clientes } = useClientes();
   const [tiposDocumento] = useLocalStorage<TipoDocumento[]>("sugarbox_tipos_documento", []);
   const [contas, setContas] = useLocalStorage<ContaReceber[]>("sugarbox_contas_receber", []);
   const [selectedCategoriaId, setSelectedCategoriaId] = useState<string>("");
+  const [selectedClienteNome, setSelectedClienteNome] = useState<string>("");
   const [valorInput, setValorInput] = useState("");
 
   // Filtrar apenas categorias de receita
@@ -232,6 +236,7 @@ export function ContaReceberFormDialog({
         frequenciaRecorrencia: "mensal",
       });
       setSelectedCategoriaId("");
+      setSelectedClienteNome("");
       setValorInput("");
     }
   }, [conta, form, open]);
@@ -291,6 +296,17 @@ export function ContaReceberFormDialog({
     const parsed = parseFloat(numericValue);
     if (!isNaN(parsed)) {
       form.setValue('valor', parsed);
+    }
+  }
+
+  function handleClienteSelect(clienteNome: string) {
+    setSelectedClienteNome(clienteNome);
+    form.setValue('clienteNome', clienteNome);
+    
+    // Buscar cliente completo e preencher CPF/CNPJ
+    const cliente = clientes.find(c => c.nome === clienteNome);
+    if (cliente?.cpf_cnpj) {
+      form.setValue('clienteDocumento', cliente.cpf_cnpj);
     }
   }
 
@@ -591,19 +607,41 @@ export function ContaReceberFormDialog({
                 </Link>
               </div>
               
-              <FormField
-                control={form.control}
-                name="clienteNome"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[#6B5047] font-medium">Nome do Cliente</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nome completo" {...field} maxLength={100} className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-[#6B5047] mb-2 block">
+                    Selecionar Cliente
+                  </label>
+                  <ClienteAutocomplete
+                    value={selectedClienteNome}
+                    onSelect={handleClienteSelect}
+                    placeholder="Buscar cliente cadastrado..."
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="clienteNome"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[#6B5047] font-medium">Nome do Cliente</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Nome completo" 
+                          {...field} 
+                          maxLength={100} 
+                          className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]"
+                          onChange={(e) => {
+                            field.onChange(e);
+                            setSelectedClienteNome(e.target.value);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <FormField
                 control={form.control}
