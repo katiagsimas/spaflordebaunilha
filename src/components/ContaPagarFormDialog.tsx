@@ -507,7 +507,6 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                         placeholder="Selecione a data"
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
