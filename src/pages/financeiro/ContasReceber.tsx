@@ -61,12 +61,12 @@ export default function ContasReceber() {
 
   // Calcular resumos
   const resumo = {
-    aReceber: contas.filter(c => c.status === 'pendente').reduce((sum, c) => sum + c.valor, 0),
-    aReceberQtd: contas.filter(c => c.status === 'pendente').length,
-    recebido: contas.filter(c => c.status === 'recebido').reduce((sum, c) => sum + c.valor, 0),
-    recebidoQtd: contas.filter(c => c.status === 'recebido').length,
-    atrasado: contas.filter(c => c.status === 'atrasado').reduce((sum, c) => sum + c.valor, 0),
-    atrasadoQtd: contas.filter(c => c.status === 'atrasado').length,
+    aberto: contas.filter(c => c.status === 'pendente').reduce((sum, c) => sum + c.valor, 0),
+    abertoQtd: contas.filter(c => c.status === 'pendente').length,
+    pago: contas.filter(c => c.status === 'recebido').reduce((sum, c) => sum + c.valor, 0),
+    pagoQtd: contas.filter(c => c.status === 'recebido').length,
+    vencido: contas.filter(c => c.status === 'atrasado').reduce((sum, c) => sum + c.valor, 0),
+    vencidoQtd: contas.filter(c => c.status === 'atrasado').length,
     esteMes: contas.filter(c => {
       const data = new Date(c.data_vencimento);
       const hoje = new Date();
@@ -95,9 +95,9 @@ export default function ContasReceber() {
     }
 
     // Filtro de tab
-    if (selectedTab === "pendentes" && conta.status !== "pendente") return false;
+    if (selectedTab === "abertos" && conta.status !== "pendente") return false;
     if (selectedTab === "vencendo" && !isVencendoHoje(conta)) return false;
-    if (selectedTab === "recebidas" && conta.status !== "recebido") return false;
+    if (selectedTab === "pagos" && conta.status !== "recebido") return false;
 
     return true;
   });
@@ -115,17 +115,17 @@ export default function ContasReceber() {
     const badges = {
       pendente: {
         icon: Clock,
-        label: "Pendente",
-        className: "bg-[#FEF3E2] text-[#B8860B] border border-[#E5C89F]"
+        label: "Aberto",
+        className: "bg-[#E3F2FD] text-[#1976D2] border border-[#7BA8D8]"
       },
       recebido: {
         icon: CheckCircle,
-        label: "Recebido",
+        label: "Pago",
         className: "bg-[#E8F5E9] text-[#388E3C] border border-[#8BA888]"
       },
       atrasado: {
         icon: AlertCircle,
-        label: "Atrasado",
+        label: "Vencido",
         className: "bg-[#FFEBEE] text-[#C62828] border border-[#D88B8B]"
       },
       cancelado: {
@@ -314,13 +314,13 @@ export default function ContasReceber() {
       </div>
 
       {/* Banners de Alertas */}
-      {resumo.atrasadoQtd > 0 && (
+      {resumo.vencidoQtd > 0 && (
         <div className="bg-[#FFEBEE] border-l-4 border-[#D88B8B] p-4 rounded-lg animate-in fade-in slide-in-from-top-2">
           <div className="flex items-center gap-3">
             <AlertCircle className="text-[#D88B8B] h-5 w-5 shrink-0" />
             <div className="flex-1">
               <p className="font-semibold text-[#6B5047]">
-                Você tem {resumo.atrasadoQtd} conta(s) atrasada(s) totalizando {formatCurrency(resumo.atrasado)}
+                Você tem {resumo.vencidoQtd} conta(s) vencida(s) totalizando {formatCurrency(resumo.vencido)}
               </p>
             </div>
             <Button
@@ -363,25 +363,25 @@ export default function ContasReceber() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <Card className="p-4 border-l-4 border-l-[#7BA8D8] hover:shadow-lg transition-shadow">
           <div className="space-y-2">
-            <p className="text-sm text-[#9C8B82]">A Receber</p>
-            <p className="text-2xl font-bold text-[#6B5047]">{formatCurrency(resumo.aReceber)}</p>
-            <p className="text-xs text-[#9C8B82]">{resumo.aReceberQtd} contas</p>
+            <p className="text-sm text-[#9C8B82]">Aberto</p>
+            <p className="text-2xl font-bold text-[#6B5047]">{formatCurrency(resumo.aberto)}</p>
+            <p className="text-xs text-[#9C8B82]">{resumo.abertoQtd} contas</p>
           </div>
         </Card>
 
         <Card className="p-4 border-l-4 border-l-[#8BA888] hover:shadow-lg transition-shadow">
           <div className="space-y-2">
-            <p className="text-sm text-[#9C8B82]">Recebido</p>
-            <p className="text-2xl font-bold text-[#388E3C]">{formatCurrency(resumo.recebido)}</p>
-            <p className="text-xs text-[#9C8B82]">{resumo.recebidoQtd} contas</p>
+            <p className="text-sm text-[#9C8B82]">Pago</p>
+            <p className="text-2xl font-bold text-[#388E3C]">{formatCurrency(resumo.pago)}</p>
+            <p className="text-xs text-[#9C8B82]">{resumo.pagoQtd} contas</p>
           </div>
         </Card>
 
         <Card className="p-4 border-l-4 border-l-[#D88B8B] hover:shadow-lg transition-shadow">
           <div className="space-y-2">
-            <p className="text-sm text-[#9C8B82]">Atrasado</p>
-            <p className="text-2xl font-bold text-[#C62828]">{formatCurrency(resumo.atrasado)}</p>
-            <p className="text-xs text-[#9C8B82]">{resumo.atrasadoQtd} contas</p>
+            <p className="text-sm text-[#9C8B82]">Vencido</p>
+            <p className="text-2xl font-bold text-[#C62828]">{formatCurrency(resumo.vencido)}</p>
+            <p className="text-xs text-[#9C8B82]">{resumo.vencidoQtd} contas</p>
           </div>
         </Card>
 
@@ -411,9 +411,9 @@ export default function ContasReceber() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos</SelectItem>
-            <SelectItem value="pendente">Pendente</SelectItem>
-            <SelectItem value="recebido">Recebido</SelectItem>
-            <SelectItem value="atrasado">Atrasado</SelectItem>
+            <SelectItem value="pendente">Aberto</SelectItem>
+            <SelectItem value="recebido">Pago</SelectItem>
+            <SelectItem value="atrasado">Vencido</SelectItem>
             <SelectItem value="cancelado">Cancelado</SelectItem>
           </SelectContent>
         </Select>
@@ -480,14 +480,14 @@ export default function ContasReceber() {
           <TabsTrigger value="todas">
             Todas ({contas.length})
           </TabsTrigger>
-          <TabsTrigger value="pendentes">
-            Pendentes ({contas.filter(c => c.status === 'pendente').length})
+          <TabsTrigger value="abertos">
+            Abertos ({contas.filter(c => c.status === 'pendente').length})
           </TabsTrigger>
           <TabsTrigger value="vencendo">
             Vencendo Hoje ({contas.filter(isVencendoHoje).length})
           </TabsTrigger>
-          <TabsTrigger value="recebidas">
-            Recebidas ({contas.filter(c => c.status === 'recebido').length})
+          <TabsTrigger value="pagos">
+            Pagos ({contas.filter(c => c.status === 'recebido').length})
           </TabsTrigger>
         </TabsList>
 
