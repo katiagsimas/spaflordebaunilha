@@ -279,29 +279,6 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Descrição */}
-            <FormField
-              control={form.control}
-              name="descricao"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-[#6B5047]">
-                    Descrição *
-                    <span className="text-xs text-[#9C8B82] ml-2">({field.value.length}/200 caracteres)</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Ex: Conta de Luz - Outubro, Fornecedor ABC - Ingredientes"
-                      {...field}
-                      maxLength={200}
-                    />
-                  </FormControl>
-                  <p className="text-xs text-[#9C8B82]">Descreva a despesa de forma clara e objetiva</p>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             {/* Datas */}
             <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
               <h3 className="font-semibold text-[#6B5047] flex items-center gap-2 pb-2 border-b border-[#E8E3DF]">
@@ -448,6 +425,29 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                 )}
               />
             </div>
+
+            {/* Descrição */}
+            <FormField
+              control={form.control}
+              name="descricao"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-[#6B5047]">
+                    Descrição *
+                    <span className="text-xs text-[#9C8B82] ml-2">({field.value.length}/200 caracteres)</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Ex: Conta de Luz - Outubro, Fornecedor ABC - Ingredientes"
+                      {...field}
+                      maxLength={200}
+                    />
+                  </FormControl>
+                  <p className="text-xs text-[#9C8B82]">Descreva a despesa de forma clara e objetiva</p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Categoria e Plano de Contas */}
             <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
