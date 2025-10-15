@@ -364,14 +364,11 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
     const valorString = form.getValues("valor");
     const dataEmissao = form.getValues("dataEmissao");
     
+    console.log('Valores do formulário:', { valorString, dataEmissao, numeroParcelas, dataVencimentoParcelas });
+    
     // Validações com feedback ao usuário
     if (!valorString || valorString === '' || valorString === '0,00') {
       toast.error('Por favor, informe o valor total da conta antes de gerar as parcelas.');
-      return;
-    }
-    
-    if (!dataEmissao) {
-      toast.error('Por favor, informe a data de emissão antes de gerar as parcelas.');
       return;
     }
     
@@ -399,6 +396,9 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
     
     const valorParcela = valorTotal / numeroParcelas;
     
+    // Usar data de emissão do formulário ou data atual se não estiver preenchida
+    const dataEmissaoFinal = dataEmissao || new Date();
+    
     const novasParcelas: Parcela[] = [];
     for (let i = 0; i < numeroParcelas; i++) {
       novasParcelas.push({
@@ -406,7 +406,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
         total: numeroParcelas,
         valor: valorParcela,
         dataVencimento: addDays(dataVencimentoParcelas, i * 30),
-        dataEmissao: dataEmissao,
+        dataEmissao: dataEmissaoFinal,
       });
     }
     
