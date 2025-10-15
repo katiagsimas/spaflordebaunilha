@@ -1251,8 +1251,10 @@ export function ContaReceberFormDialog({
                 }
 
                 const dataEmissaoForm = form.getValues('dataEmissao');
+                console.log('Data de emissão do formulário:', dataEmissaoForm);
+                
                 if (!dataEmissaoForm) {
-                  toast.error("Informe a data de emissão antes de criar parcelas");
+                  toast.error("Por favor, informe a data de emissão antes de gerar as parcelas");
                   return;
                 }
 
@@ -1272,7 +1274,7 @@ export function ContaReceberFormDialog({
 
                 setParcelas(novasParcelas);
                 setShowParcelamentoDialog(false);
-                toast.success(`${numParcelas} parcelas criadas com sucesso!`);
+                toast.success(`✓ ${numParcelas} parcelas geradas com sucesso!`);
               }}
               className="bg-[#8BA888] hover:bg-[#7A9777] text-white"
             >
