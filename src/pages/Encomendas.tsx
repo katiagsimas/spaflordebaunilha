@@ -27,6 +27,12 @@ interface TipoDocumento {
   descricao: string;
 }
 
+interface Banco {
+  id: string;
+  codigo: string;
+  descricao: string;
+}
+
 const statusColors = {
   pendente: "bg-yellow-100 text-yellow-800 border-yellow-200",
   confirmado: "bg-blue-100 text-blue-800 border-blue-200",
@@ -62,7 +68,7 @@ const Encomendas = () => {
     { id: "7", codigo: "07", descricao: "Cheque" },
   ]);
   
-  const [bancos] = useLocalStorage<{ id: string; nome: string; tipo: string }[]>("sugarbox_bancos", []);
+  const [bancos] = useLocalStorage<Banco[]>("sugarbox_bancos", []);
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [produtoDialogOpen, setProdutoDialogOpen] = useState(false);
@@ -1198,7 +1204,7 @@ const Encomendas = () => {
                                         <SelectContent className="bg-popover z-[100]">
                                           {bancos.map((banco) => (
                                             <SelectItem key={banco.id} value={banco.id}>
-                                              {banco.nome}
+                                              {banco.descricao}
                                             </SelectItem>
                                           ))}
                                         </SelectContent>
@@ -1262,7 +1268,7 @@ const Encomendas = () => {
                                         <SelectContent className="bg-popover z-[100]">
                                           {bancos.map((banco) => (
                                             <SelectItem key={banco.id} value={banco.id}>
-                                              {banco.nome}
+                                              {banco.descricao}
                                             </SelectItem>
                                           ))}
                                         </SelectContent>
