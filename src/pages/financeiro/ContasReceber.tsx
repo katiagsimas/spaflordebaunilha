@@ -783,6 +783,18 @@ export default function ContasReceber() {
       </div>
       </div>
 
+      {/* Botão Nova Conta - Centralizado acima dos filtros */}
+      <div className="flex justify-center">
+        <Button 
+          onClick={() => setIsDialogOpen(true)} 
+          className="bg-[#D89B8C] hover:bg-[#B87C6D]"
+          size="lg"
+        >
+          <Plus className="h-5 w-5 mr-2" />
+          Nova Conta a Receber
+        </Button>
+      </div>
+
       {/* Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
         <TabsList>
@@ -805,18 +817,6 @@ export default function ContasReceber() {
             Recebidos ({contasRecebidas.length})
           </TabsTrigger>
         </TabsList>
-
-        {/* Botão Nova Conta - Centralizado */}
-        <div className="flex justify-center my-4">
-          <Button 
-            onClick={() => setIsDialogOpen(true)} 
-            className="bg-[#D89B8C] hover:bg-[#B87C6D]"
-            size="lg"
-          >
-            <Plus className="h-5 w-5 mr-2" />
-            Nova Conta a Receber
-          </Button>
-        </div>
 
         <TabsContent value={selectedTab} className="space-y-4">
           {selectedTab === 'recebidos' ? (
