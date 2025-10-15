@@ -336,7 +336,59 @@ export function ContaReceberFormDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-4">\
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-4">
+            {/* Cliente */}
+            <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
+              <div className="flex items-center justify-between pb-2 border-b border-[#E8E3DF]">
+                <h3 className="font-semibold text-[#6B5047] flex items-center gap-2">
+                  <User className="h-5 w-5 text-[#D89B8C]" />
+                  Cliente
+                </h3>
+                <Link 
+                  to="/cadastros/clientes"
+                  className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1 transition-colors"
+                  target="_blank"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Gerenciar Clientes
+                </Link>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-[#6B5047] mb-2 block">
+                    Nome do Cliente *
+                  </label>
+                  <ClienteAutocomplete
+                    value={selectedClienteNome}
+                    onSelect={handleClienteSelect}
+                    placeholder="Buscar cliente cadastrado..."
+                  />
+                </div>
+
+              </div>
+
+              <FormField
+                control={form.control}
+                name="clienteDocumento"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[#6B5047] font-medium">CPF/CNPJ</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                        value={field.value ? formatCpfCnpj(field.value) : ''}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]"
+                        disabled
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             {/* Descrição */}
             <div className="bg-white rounded-lg p-4 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow">
               <FormField
@@ -603,57 +655,6 @@ export function ContaReceberFormDialog({
             </div>
 
             {/* Cliente */}
-            <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
-              <div className="flex items-center justify-between pb-2 border-b border-[#E8E3DF]">
-                <h3 className="font-semibold text-[#6B5047] flex items-center gap-2">
-                  <User className="h-5 w-5 text-[#D89B8C]" />
-                  Cliente
-                </h3>
-                <Link 
-                  to="/cadastros/clientes"
-                  className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1 transition-colors"
-                  target="_blank"
-                >
-                  <ExternalLink className="h-3 w-3" />
-                  Gerenciar Clientes
-                </Link>
-              </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-[#6B5047] mb-2 block">
-                    Nome do Cliente *
-                  </label>
-                  <ClienteAutocomplete
-                    value={selectedClienteNome}
-                    onSelect={handleClienteSelect}
-                    placeholder="Buscar cliente cadastrado..."
-                  />
-                </div>
-
-              </div>
-
-              <FormField
-                control={form.control}
-                name="clienteDocumento"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[#6B5047] font-medium">CPF/CNPJ</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="000.000.000-00 ou 00.000.000/0000-00"
-                        value={field.value ? formatCpfCnpj(field.value) : ''}
-                        onChange={(e) => field.onChange(e.target.value)}
-                        className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]"
-                        disabled
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
             {/* Documento */}
             <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow space-y-4">
               <div className="flex items-center justify-between pb-2 border-b border-[#E8E3DF]">
