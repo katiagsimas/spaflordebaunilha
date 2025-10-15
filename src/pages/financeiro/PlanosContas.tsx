@@ -1058,10 +1058,25 @@ export default function PlanosContas() {
   const handleOpenDialog = (planoConta?: PlanoConta, categoriaId?: string) => {
     if (planoConta) {
       setEditingPlanoConta(planoConta);
+      
+      // Tentar encontrar a categoria financeira correspondente
+      let categoriaIdReal = planoConta.categoriaId;
+      
+      // Se categoriaId não é um UUID válido, tentar encontrar pela descrição/categoria
+      const categoriaEncontrada = categorias.find(c => 
+        c.id === planoConta.categoriaId || 
+        c.nome.toLowerCase() === (planoConta.categoriaId || '').toLowerCase() ||
+        c.nome.toLowerCase() === (planoConta.descricao || '').toLowerCase()
+      );
+      
+      if (categoriaEncontrada) {
+        categoriaIdReal = categoriaEncontrada.id;
+      }
+      
       setFormData({
         nome: planoConta.nome,
         descricao: planoConta.descricao || '',
-        categoriaId: planoConta.categoriaId,
+        categoriaId: categoriaIdReal,
         tipo: planoConta.tipo,
         ativo: planoConta.ativo,
         iconeCustomizado: planoConta.iconeCustomizado || '',
