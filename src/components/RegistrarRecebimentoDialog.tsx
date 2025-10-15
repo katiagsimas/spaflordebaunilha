@@ -93,8 +93,14 @@ export function RegistrarRecebimentoDialog({
   conta,
   onSave,
 }: RegistrarRecebimentoDialogProps) {
-  const { bancos } = useBancos();
+  const { bancos, loading } = useBancos();
   const [valorInput, setValorInput] = useState("");
+
+  // Debug: verificar se os bancos estão sendo carregados
+  useEffect(() => {
+    console.log('📊 RegistrarRecebimentoDialog - Bancos carregados:', bancos);
+    console.log('📊 RegistrarRecebimentoDialog - Loading:', loading);
+  }, [bancos, loading]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -434,13 +440,24 @@ export function RegistrarRecebimentoDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent className="bg-background">
-                      {bancos.map((banco) => (
-                        <SelectItem key={banco.id} value={banco.id}>
-                          {banco.nome}
-                        </SelectItem>
-                      ))}
+                      {loading ? (
+                        <SelectItem value="loading" disabled>Carregando...</SelectItem>
+                      ) : bancos.length === 0 ? (
+                        <SelectItem value="empty" disabled>Nenhum banco cadastrado</SelectItem>
+                      ) : (
+                        bancos.map((banco) => (
+                          <SelectItem key={banco.id} value={banco.id}>
+                            {banco.nome}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
+                  {bancos.length === 0 && !loading && (
+                    <p className="text-xs text-[#C62828] mt-1">
+                      Você precisa cadastrar bancos em Configurações antes de registrar recebimentos.
+                    </p>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
