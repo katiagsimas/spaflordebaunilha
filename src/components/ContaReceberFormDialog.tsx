@@ -121,8 +121,8 @@ const formSchema = z.object({
   dataVencimento: z.date(),
   clienteNome: z.string().max(100).optional().or(z.literal("")),
   clienteDocumento: z.string().optional().or(z.literal("")),
-  bancoId: z.string().optional().or(z.literal("")),
-  tipoDocumentoId: z.string().optional().or(z.literal("")),
+  bancoId: z.string().min(1, "Selecione um banco"),
+  tipoDocumentoId: z.string().min(1, "Selecione um tipo de documento"),
   numeroDocumento: z.string().max(50).optional().or(z.literal("")),
   observacoes: z.string().max(500).optional().or(z.literal("")),
   parcelado: z.boolean(),
@@ -659,7 +659,7 @@ export function ContaReceberFormDialog({
               <div className="flex items-center justify-between pb-2 border-b border-[#E8E3DF]">
                 <h3 className="font-semibold text-[#6B5047] flex items-center gap-2">
                   <CreditCard className="h-5 w-5 text-[#D89B8C]" />
-                  Documento (opcional)
+                  Documento
                 </h3>
                 <Link 
                   to="/configuracoes/tipos-documento"
@@ -676,7 +676,7 @@ export function ContaReceberFormDialog({
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center justify-between">
-                      <FormLabel className="text-[#6B5047] font-medium">Tipo de Documento</FormLabel>
+                      <FormLabel className="text-[#6B5047] font-medium">Tipo de Documento *</FormLabel>
                       {tiposDocumento.length === 0 && (
                         <Link 
                           to="/configuracoes/tipos-documento"
@@ -715,7 +715,7 @@ export function ContaReceberFormDialog({
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center justify-between">
-                      <FormLabel className="text-[#6B5047] font-medium">Banco</FormLabel>
+                      <FormLabel className="text-[#6B5047] font-medium">Banco *</FormLabel>
                       {bancos.length === 0 && (
                         <Link 
                           to="/configuracoes/bancos"
@@ -753,7 +753,7 @@ export function ContaReceberFormDialog({
                 name="numeroDocumento"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[#6B5047] font-medium">Número do Documento</FormLabel>
+                    <FormLabel className="text-[#6B5047] font-medium">Número do Documento (opcional)</FormLabel>
                     <FormControl>
                       <Input placeholder="Ex: NF-001234" {...field} maxLength={50} className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]" />
                     </FormControl>
