@@ -619,28 +619,6 @@ export function ContaReceberFormDialog({
                   />
                 </div>
 
-                <FormField
-                  control={form.control}
-                  name="clienteNome"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-[#6B5047] font-medium">Nome do Cliente</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Nome completo" 
-                          {...field} 
-                          maxLength={100} 
-                          className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]"
-                          onChange={(e) => {
-                            field.onChange(e);
-                            setSelectedClienteNome(e.target.value);
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
 
               <FormField
@@ -655,6 +633,7 @@ export function ContaReceberFormDialog({
                         value={field.value ? formatCpfCnpj(field.value) : ''}
                         onChange={(e) => field.onChange(e.target.value)}
                         className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]"
+                        disabled
                       />
                     </FormControl>
                     <FormMessage />
