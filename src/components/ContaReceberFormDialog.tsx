@@ -511,7 +511,7 @@ export function ContaReceberFormDialog({
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Ex: Venda de bolo para Maria Silva, Encomenda Casamento"
+                        placeholder='Ex: Kit Festa "P"'
                         {...field}
                         maxLength={200}
                         className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]"
