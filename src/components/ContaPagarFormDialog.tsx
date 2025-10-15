@@ -147,8 +147,9 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
   const { planoContas, loading: loadingPlanos } = usePlanoContas();
   const [tiposDocumento] = useLocalStorage<TipoDocumento[]>("tipos_documento", []);
 
+  // Filtrar apenas categorias de despesa
   const categoriasDespesa = categorias.filter(c => c.tipo === 'despesa');
-
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -177,11 +178,12 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
   const parcelado = form.watch("parcelado");
   const recorrente = form.watch("recorrente");
   
-  // Filtra apenas os planos de DESPESA que aceitam lançamento e estão ativos
-  const planosDisponiveis = planoContas.filter(p => 
-    p.tipo === 'DESPESA' && 
-    p.aceita_lancamento === true && 
-    p.ativo === true
+  // Buscar o nome da categoria selecionada
+  const categoriaSelecionada = categoriasDespesa.find(c => c.id === selectedCategoriaId);
+  
+  // Filtrar planos de contas pela categoria selecionada (comparando o nome)
+  const planosDisponiveis = planoContas.filter(
+    p => p.categoria === categoriaSelecionada?.nome && p.ativo && p.tipo === 'DESPESA'
   );
 
   useEffect(() => {
@@ -338,7 +340,14 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[#6B5047]">Categoria *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select 
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        // Limpa o plano de contas quando mudar a categoria
+                        form.setValue('planoContaId', '');
+                      }} 
+                      value={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione a categoria..." />
@@ -409,7 +418,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                         {planosDisponiveis.length === 0 ? (
                           <div className="p-2 text-sm text-[#9C8B82]">
                             {selectedCategoriaId 
-                              ? "Nenhum plano de contas de despesa cadastrado" 
+                              ? "Nenhum plano de contas disponível para esta categoria" 
                               : "Selecione uma categoria primeiro"}
                           </div>
                         ) : (
