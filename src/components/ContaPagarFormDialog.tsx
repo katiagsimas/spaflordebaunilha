@@ -115,7 +115,7 @@ const formSchema = z.object({
   observacoes: z.string().max(500, "Observações devem ter no máximo 500 caracteres").optional(),
   parcelado: z.boolean(),
   numeroParcela: z.number().optional(),
-  totalParcelas: z.number().min(2, "Mínimo 2 parcelas").max(60, "Máximo 60 parcelas").optional(),
+  totalParcelas: z.number().min(1, "Mínimo 1 parcela").max(60, "Máximo 60 parcelas").optional(),
   frequenciaParcelas: z.enum(['mensal', 'quinzenal', 'semanal', 'personalizado']).optional(),
   recorrente: z.boolean(),
   frequenciaRecorrencia: z.enum(['mensal', 'bimestral', 'trimestral', 'semestral', 'anual']).optional(),
@@ -139,12 +139,12 @@ const formSchema = z.object({
   message: "Data de emissão não pode ser futura",
   path: ["dataEmissao"],
 }).refine((data) => {
-  if (data.parcelado && (!data.totalParcelas || data.totalParcelas < 2)) {
+  if (data.parcelado && (!data.totalParcelas || data.totalParcelas < 1)) {
     return false;
   }
   return true;
 }, {
-  message: "Para despesas parceladas, informe o número de parcelas (mínimo 2)",
+  message: "Para despesas parceladas, informe o número de parcelas (mínimo 1)",
   path: ["totalParcelas"],
 }).refine((data) => {
   if (data.recorrente && !data.frequenciaRecorrencia) {
@@ -172,7 +172,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
   const { bancos } = useBancos();
   
   const [parcelaDialogOpen, setParcelaDialogOpen] = useState(false);
-  const [numeroParcelas, setNumeroParcelas] = useState<number>(2);
+  const [numeroParcelas, setNumeroParcelas] = useState<number>(1);
   const [dataVencimentoParcelas, setDataVencimentoParcelas] = useState<Date>(new Date());
   const [parcelas, setParcelas] = useState<Parcela[]>([]);
 
@@ -372,8 +372,8 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
       return;
     }
     
-    if (!numeroParcelas || numeroParcelas < 2) {
-      toast.error('O número de parcelas deve ser no mínimo 2.');
+    if (!numeroParcelas || numeroParcelas < 1) {
+      toast.error('O número de parcelas deve ser no mínimo 1.');
       return;
     }
     
@@ -435,13 +435,13 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
               </label>
               <Input
                 type="number"
-                min="2"
+                min="1"
                 max="60"
                 value={numeroParcelas}
-                onChange={(e) => setNumeroParcelas(parseInt(e.target.value) || 2)}
+                onChange={(e) => setNumeroParcelas(parseInt(e.target.value) || 1)}
                 placeholder="Ex: 3"
               />
-              <p className="text-xs text-[#9C8B82] mt-1">Mínimo 2, máximo 60 parcelas</p>
+              <p className="text-xs text-[#9C8B82] mt-1">Mínimo 1, máximo 60 parcelas</p>
             </div>
             
             <div>

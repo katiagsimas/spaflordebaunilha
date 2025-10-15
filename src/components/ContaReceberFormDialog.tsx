@@ -1196,13 +1196,14 @@ export function ContaReceberFormDialog({
               </label>
               <Input
                 type="number"
-                min="2"
+                min="1"
                 max="999"
                 placeholder="Ex: 3"
                 value={numeroParcelas}
                 onChange={(e) => setNumeroParcelas(e.target.value)}
                 className="border-[#E8E3DF] focus:border-[#8BA888] focus:ring-[#8BA888]"
               />
+              <p className="text-xs text-[#9C8B82] mt-1">Mínimo 1, máximo 999 parcelas</p>
             </div>
 
             <div>
@@ -1235,8 +1236,8 @@ export function ContaReceberFormDialog({
               type="button"
               onClick={() => {
                 const numParcelas = parseInt(numeroParcelas);
-                if (!numParcelas || numParcelas < 2) {
-                  toast.error("Informe um número válido de parcelas (mínimo 2)");
+                if (!numParcelas || numParcelas < 1) {
+                  toast.error("Informe um número válido de parcelas (mínimo 1)");
                   return;
                 }
                 if (!dataVencimentoParcela) {
@@ -1304,13 +1305,14 @@ export function ContaReceberFormDialog({
               </label>
               <Input
                 type="number"
-                min="2"
+                min="1"
                 max="999"
                 placeholder="Ex: 12"
                 value={numeroRecorrencias}
                 onChange={(e) => setNumeroRecorrencias(e.target.value)}
                 className="border-[#E8E3DF] focus:border-[#7BA8D8] focus:ring-[#7BA8D8]"
               />
+              <p className="text-xs text-[#9C8B82] mt-1">Mínimo 1, máximo 999 recorrências</p>
             </div>
 
             <div>
@@ -1343,8 +1345,8 @@ export function ContaReceberFormDialog({
               type="button"
               onClick={() => {
                 const numRecorrencias = parseInt(numeroRecorrencias);
-                if (!numRecorrencias || numRecorrencias < 2) {
-                  toast.error("Informe um número válido de recorrências (mínimo 2)");
+                if (!numRecorrencias || numRecorrencias < 1) {
+                  toast.error("Informe um número válido de recorrências (mínimo 1)");
                   return;
                 }
                 if (!dataVencimentoRecorrencia) {
