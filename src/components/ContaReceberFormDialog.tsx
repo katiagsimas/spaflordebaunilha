@@ -119,7 +119,7 @@ const formSchema = z.object({
     .min(0.01, "Valor deve ser maior que zero"),
   dataEmissao: z.date(),
   dataVencimento: z.date(),
-  clienteNome: z.string().max(100).optional().or(z.literal("")),
+  clienteNome: z.string().min(1, "Nome do cliente é obrigatório").max(100),
   clienteDocumento: z.string().optional().or(z.literal("")),
   bancoId: z.string().min(1, "Selecione um banco"),
   tipoDocumentoId: z.string().min(1, "Selecione um tipo de documento"),
@@ -607,7 +607,7 @@ export function ContaReceberFormDialog({
               <div className="flex items-center justify-between pb-2 border-b border-[#E8E3DF]">
                 <h3 className="font-semibold text-[#6B5047] flex items-center gap-2">
                   <User className="h-5 w-5 text-[#D89B8C]" />
-                  Cliente (opcional)
+                  Cliente
                 </h3>
                 <Link 
                   to="/cadastros/clientes"
@@ -622,7 +622,7 @@ export function ContaReceberFormDialog({
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-[#6B5047] mb-2 block">
-                    Selecionar Cliente
+                    Nome do Cliente *
                   </label>
                   <ClienteAutocomplete
                     value={selectedClienteNome}
