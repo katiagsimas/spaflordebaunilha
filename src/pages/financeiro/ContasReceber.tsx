@@ -44,11 +44,13 @@ import { RegistrarRecebimentoDialog } from "@/components/RegistrarRecebimentoDia
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useContasReceber } from "@/hooks/useContasReceber";
 import { usePlanoContas } from "@/hooks/usePlanoContas";
+import { useCategorias } from "@/hooks/useCategorias";
 
 
 export default function ContasReceber() {
   const { items: contas, loading, refetch, deleteItem } = useContasReceber();
   const { planoContas } = usePlanoContas();
+  const { categorias } = useCategorias();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("todos");
   const [periodoFilter, setPeriodoFilter] = useState<string>("todos");
@@ -62,11 +64,12 @@ export default function ContasReceber() {
   const [contaToDelete, setContaToDelete] = useState<any | null>(null);
   
   // Novos estados para filtro avançado
-  const [tipoBusca, setTipoBusca] = useState<string>("descricao");
+  const [tipoBusca, setTipoBusca] = useState<string>("pessoa");
   const [dataEmissaoFiltro, setDataEmissaoFiltro] = useState<Date | undefined>();
   const [dataVencimentoFiltro, setDataVencimentoFiltro] = useState<Date | undefined>();
   const [dataPagamentoFiltro, setDataPagamentoFiltro] = useState<Date | undefined>();
   const [planoContaFiltro, setPlanoContaFiltro] = useState<string>("todos");
+  const [categoriaFiltro, setCategoriaFiltro] = useState<string>("todos");
   const [pessoaFiltro, setPessoaFiltro] = useState<string>("");
 
   const getPlanoContaNome = (planoContaId?: string) => {
@@ -119,9 +122,6 @@ export default function ContasReceber() {
       const termo = searchTerm.toLowerCase();
       
       switch (tipoBusca) {
-        case "descricao":
-          if (!conta.descricao.toLowerCase().includes(termo)) return false;
-          break;
         case "pessoa":
           if (!conta.cliente_nome?.toLowerCase().includes(termo)) return false;
           break;
@@ -160,6 +160,11 @@ export default function ContasReceber() {
     // Filtro por plano de contas
     if (planoContaFiltro !== "todos") {
       if (conta.plano_conta_id !== planoContaFiltro) return false;
+    }
+
+    // Filtro por categoria
+    if (categoriaFiltro !== "todos") {
+      if (conta.categoria_id !== categoriaFiltro) return false;
     }
 
     // Filtro por pessoa
@@ -544,6 +549,7 @@ export default function ContasReceber() {
             setDataVencimentoFiltro(undefined);
             setDataPagamentoFiltro(undefined);
             setPlanoContaFiltro("todos");
+            setCategoriaFiltro("todos");
             setPessoaFiltro("");
           }}>
             <SelectTrigger className="w-full md:w-[200px]">
@@ -551,10 +557,10 @@ export default function ContasReceber() {
               <SelectValue placeholder="Filtrar por..." />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="descricao">Descrição</SelectItem>
-              <SelectItem value="data_emissao">Data de Emissão</SelectItem>
-              <SelectItem value="plano_contas">Plano de Contas</SelectItem>
               <SelectItem value="pessoa">Pessoa</SelectItem>
+              <SelectItem value="data_emissao">Data de Emissão</SelectItem>
+              <SelectItem value="categoria">Categoria</SelectItem>
+              <SelectItem value="plano_contas">Plano de Contas</SelectItem>
               <SelectItem value="data_vencimento">Data de Vencimento</SelectItem>
               <SelectItem value="data_pagamento">Data de Pagamento</SelectItem>
               <SelectItem value="status">Status</SelectItem>
@@ -562,18 +568,6 @@ export default function ContasReceber() {
           </Select>
 
           {/* Campo de busca dinâmico baseado no tipo */}
-          {tipoBusca === "descricao" && (
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9C8B82]" />
-              <Input
-                placeholder="Buscar por descrição..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          )}
-
           {tipoBusca === "pessoa" && (
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9C8B82]" />
@@ -664,6 +658,22 @@ export default function ContasReceber() {
             </Popover>
           )}
 
+          {tipoBusca === "categoria" && (
+            <Select value={categoriaFiltro} onValueChange={setCategoriaFiltro}>
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder="Selecione a categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todas as categorias</SelectItem>
+                {categorias.map(cat => (
+                  <SelectItem key={cat.id} value={cat.id}>
+                    {cat.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
           {tipoBusca === "plano_contas" && (
             <Select value={planoContaFiltro} onValueChange={setPlanoContaFiltro}>
               <SelectTrigger className="flex-1">
@@ -698,7 +708,7 @@ export default function ContasReceber() {
           )}
 
           {/* Botão Limpar Filtros */}
-          {(searchTerm || dataEmissaoFiltro || dataVencimentoFiltro || dataPagamentoFiltro || planoContaFiltro !== "todos" || statusFilter !== "todos") && (
+          {(searchTerm || dataEmissaoFiltro || dataVencimentoFiltro || dataPagamentoFiltro || planoContaFiltro !== "todos" || categoriaFiltro !== "todos" || statusFilter !== "todos") && (
             <Button
               variant="outline"
               size="sm"
@@ -708,6 +718,7 @@ export default function ContasReceber() {
                 setDataVencimentoFiltro(undefined);
                 setDataPagamentoFiltro(undefined);
                 setPlanoContaFiltro("todos");
+                setCategoriaFiltro("todos");
                 setStatusFilter("todos");
                 setPessoaFiltro("");
               }}
