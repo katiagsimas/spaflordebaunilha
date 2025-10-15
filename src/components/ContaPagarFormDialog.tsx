@@ -286,7 +286,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
       descricao: data.descricao,
       categoria_id: data.categoriaId,
       valor,
-      data_vencimento: data.dataEmissao.toISOString().split('T')[0],
+      data_vencimento: formatDateToISO(data.dataEmissao),
       status: 'pendente',
       observacoes: data.observacoes || null,
       banco_id: data.bancoId || null,
@@ -295,6 +295,14 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
     onSave(contaPagar);
     toast.success("✓ Evento Lançado com Sucesso!");
   };
+
+  // Função auxiliar para formatar data sem problemas de timezone
+  function formatDateToISO(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 
   function handleFormError(errors: any) {
     // Montar mensagem de erro amigável

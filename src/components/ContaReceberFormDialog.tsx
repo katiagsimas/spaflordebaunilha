@@ -363,8 +363,8 @@ export function ContaReceberFormDialog({
         const contaData = {
           descricao: values.descricao.trim(),
           valor: values.valor,
-          data_emissao: values.dataEmissao.toISOString().split('T')[0],
-          data_vencimento: values.dataEmissao.toISOString().split('T')[0],
+          data_emissao: values.dataEmissao ? formatDateToISO(values.dataEmissao) : formatDateToISO(new Date()),
+          data_vencimento: values.dataEmissao ? formatDateToISO(values.dataEmissao) : formatDateToISO(new Date()),
           status,
           categoria_id: values.categoriaId || null,
           plano_conta_id: values.planoContaId || null,
@@ -461,8 +461,8 @@ export function ContaReceberFormDialog({
         const contaData = {
           descricao: values.descricao.trim(),
           valor: values.valor,
-          data_emissao: values.dataEmissao.toISOString().split('T')[0],
-          data_vencimento: values.dataEmissao.toISOString().split('T')[0],
+          data_emissao: values.dataEmissao ? formatDateToISO(values.dataEmissao) : formatDateToISO(new Date()),
+          data_vencimento: values.dataEmissao ? formatDateToISO(values.dataEmissao) : formatDateToISO(new Date()),
           status,
           categoria_id: values.categoriaId || null,
           plano_conta_id: values.planoContaId || null,
@@ -504,6 +504,14 @@ export function ContaReceberFormDialog({
     if (cliente?.cpf_cnpj) {
       form.setValue('clienteDocumento', cliente.cpf_cnpj);
     }
+  }
+
+  // Função auxiliar para formatar data sem problemas de timezone
+  function formatDateToISO(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   function handleFormError(errors: any) {
@@ -1263,8 +1271,8 @@ export function ContaReceberFormDialog({
                   return {
                     numero: i + 1,
                     total: numParcelas,
-                    dataEmissao: dataEmissaoFinal.toISOString().split('T')[0],
-                    dataVencimento: dataVenc.toISOString().split('T')[0],
+                    dataEmissao: formatDateToISO(dataEmissaoFinal),
+                    dataVencimento: formatDateToISO(dataVenc),
                     valor: valorParcela,
                     valorTotal: valorTotal
                   };
@@ -1372,8 +1380,8 @@ export function ContaReceberFormDialog({
                   return {
                     numero: i + 1,
                     total: numRecorrencias,
-                    dataEmissao: dataEmis.toISOString().split('T')[0],
-                    dataVencimento: dataVenc.toISOString().split('T')[0],
+                    dataEmissao: formatDateToISO(dataEmis),
+                    dataVencimento: formatDateToISO(dataVenc),
                     valor: valorTotal,
                     valorTotal: valorTotal
                   };
