@@ -1201,18 +1201,20 @@ export function ContaReceberFormDialog({
                   return;
                 }
                 
+                const dataEmissaoForm = form.getValues('dataEmissao');
+                
                 const novasRecorrencias = Array.from({ length: numRecorrencias }, (_, i) => {
                   // Data de vencimento: primeira é a informada, demais no mesmo dia do mês seguinte
                   const dataVenc = addMonths(dataVencimentoRecorrencia, i);
-                  // Data de emissão: sempre 1º dia do mês de vencimento
-                  const dataEmis = startOfMonth(dataVenc);
+                  // Data de emissão: usa a data do formulário e adiciona meses
+                  const dataEmis = addMonths(dataEmissaoForm, i);
                   
                   return {
                     numero: i + 1,
                     total: numRecorrencias,
                     dataEmissao: dataEmis.toISOString().split('T')[0],
                     dataVencimento: dataVenc.toISOString().split('T')[0],
-                    valor: valorTotal, // Sem divisão, mantém o valor integral
+                    valor: valorTotal,
                     valorTotal: valorTotal
                   };
                 });
