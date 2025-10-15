@@ -106,14 +106,6 @@ const formSchema = z.object({
 }, {
   message: "Para despesas parceladas, informe o número de parcelas (mínimo 1)",
   path: ["totalParcelas"],
-}).refine((data) => {
-  if (data.recorrente && !data.frequenciaRecorrencia) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Para despesas recorrentes, selecione a frequência",
-  path: ["frequenciaRecorrencia"],
 });
 
 type FormValues = z.infer<typeof formSchema>;
