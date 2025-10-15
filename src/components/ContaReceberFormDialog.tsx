@@ -288,43 +288,132 @@ export function ContaReceberFormDialog({
 
   async function onSubmit(values: FormValues) {
     try {
-      // Usar a data de emissão como data de vencimento padrão se não houver parcelas/recorrências
-      const dataVencimentoPadrao = values.dataEmissao;
-
       const hoje = new Date();
       hoje.setHours(0, 0, 0, 0);
-      const vencimento = new Date(dataVencimentoPadrao);
-      vencimento.setHours(0, 0, 0, 0);
 
-      let status: 'pendente' | 'atrasado' = 'pendente';
-      if (vencimento < hoje) {
-        status = 'atrasado';
-      }
-
-      const contaData = {
-        descricao: values.descricao.trim(),
-        valor: values.valor,
-        data_emissao: values.dataEmissao.toISOString().split('T')[0],
-        data_vencimento: dataVencimentoPadrao.toISOString().split('T')[0],
-        status,
-        categoria_id: values.categoriaId || null,
-        plano_conta_id: values.planoContaId || null,
-        banco_id: values.bancoId || null,
-        tipo_documento_id: values.tipoDocumentoId || null,
-        numero_documento: values.numeroDocumento?.trim() || null,
-        observacoes: values.observacoes?.trim() || null,
-        cliente_nome: values.clienteNome?.trim() || null,
-        cliente_documento: values.clienteDocumento?.trim() || null,
-      };
-
-      console.log('Dados a serem enviados:', contaData);
-
+      // Se está editando, apenas atualiza a conta existente
       if (conta?.id) {
+        const vencimento = new Date(values.dataEmissao);
+        vencimento.setHours(0, 0, 0, 0);
+
+        let status: 'pendente' | 'atrasado' = 'pendente';
+        if (vencimento < hoje) {
+          status = 'atrasado';
+        }
+
+        const contaData = {
+          descricao: values.descricao.trim(),
+          valor: values.valor,
+          data_emissao: values.dataEmissao.toISOString().split('T')[0],
+          data_vencimento: values.dataEmissao.toISOString().split('T')[0],
+          status,
+          categoria_id: values.categoriaId || null,
+          plano_conta_id: values.planoContaId || null,
+          banco_id: values.bancoId || null,
+          tipo_documento_id: values.tipoDocumentoId || null,
+          numero_documento: values.numeroDocumento?.trim() || null,
+          observacoes: values.observacoes?.trim() || null,
+          cliente_nome: values.clienteNome?.trim() || null,
+          cliente_documento: values.clienteDocumento?.trim() || null,
+        };
+
         await updateItem(conta.id, contaData);
         toast.success("✓ Conta atualizada com sucesso!");
-      } else {
-        const result = await createItem(contaData);
-        console.log('Resultado da criação:', result);
+        onOpenChange(false);
+        onSave();
+        return;
+      }
+
+      // Criando novas contas
+      // Se tem parcelas, criar múltiplas contas (uma para cada parcela)
+      if (parcelas.length > 0) {
+        for (const parcela of parcelas) {
+          const vencimento = new Date(parcela.dataVencimento);
+          vencimento.setHours(0, 0, 0, 0);
+
+          let status: 'pendente' | 'atrasado' = 'pendente';
+          if (vencimento < hoje) {
+            status = 'atrasado';
+          }
+
+          const contaData = {
+            descricao: `${values.descricao.trim()} (${parcela.numero}/${parcela.total})`,
+            valor: parcela.valor,
+            data_emissao: parcela.dataEmissao,
+            data_vencimento: parcela.dataVencimento,
+            status,
+            categoria_id: values.categoriaId || null,
+            plano_conta_id: values.planoContaId || null,
+            banco_id: values.bancoId || null,
+            tipo_documento_id: values.tipoDocumentoId || null,
+            numero_documento: values.numeroDocumento?.trim() || null,
+            observacoes: values.observacoes?.trim() || null,
+            cliente_nome: values.clienteNome?.trim() || null,
+            cliente_documento: values.clienteDocumento?.trim() || null,
+          };
+
+          await createItem(contaData);
+        }
+        toast.success(`✓ ${parcelas.length} parcelas criadas com sucesso!`);
+      }
+      // Se tem recorrências, criar múltiplas contas (uma para cada recorrência)
+      else if (recorrencias.length > 0) {
+        for (const recorrencia of recorrencias) {
+          const vencimento = new Date(recorrencia.dataVencimento);
+          vencimento.setHours(0, 0, 0, 0);
+
+          let status: 'pendente' | 'atrasado' = 'pendente';
+          if (vencimento < hoje) {
+            status = 'atrasado';
+          }
+
+          const contaData = {
+            descricao: `${values.descricao.trim()} (${recorrencia.numero}/${recorrencia.total})`,
+            valor: recorrencia.valor,
+            data_emissao: recorrencia.dataEmissao,
+            data_vencimento: recorrencia.dataVencimento,
+            status,
+            categoria_id: values.categoriaId || null,
+            plano_conta_id: values.planoContaId || null,
+            banco_id: values.bancoId || null,
+            tipo_documento_id: values.tipoDocumentoId || null,
+            numero_documento: values.numeroDocumento?.trim() || null,
+            observacoes: values.observacoes?.trim() || null,
+            cliente_nome: values.clienteNome?.trim() || null,
+            cliente_documento: values.clienteDocumento?.trim() || null,
+          };
+
+          await createItem(contaData);
+        }
+        toast.success(`✓ ${recorrencias.length} recorrências criadas com sucesso!`);
+      }
+      // Se não tem parcelas nem recorrências, criar apenas uma conta
+      else {
+        const vencimento = new Date(values.dataEmissao);
+        vencimento.setHours(0, 0, 0, 0);
+
+        let status: 'pendente' | 'atrasado' = 'pendente';
+        if (vencimento < hoje) {
+          status = 'atrasado';
+        }
+
+        const contaData = {
+          descricao: values.descricao.trim(),
+          valor: values.valor,
+          data_emissao: values.dataEmissao.toISOString().split('T')[0],
+          data_vencimento: values.dataEmissao.toISOString().split('T')[0],
+          status,
+          categoria_id: values.categoriaId || null,
+          plano_conta_id: values.planoContaId || null,
+          banco_id: values.bancoId || null,
+          tipo_documento_id: values.tipoDocumentoId || null,
+          numero_documento: values.numeroDocumento?.trim() || null,
+          observacoes: values.observacoes?.trim() || null,
+          cliente_nome: values.clienteNome?.trim() || null,
+          cliente_documento: values.clienteDocumento?.trim() || null,
+        };
+
+        await createItem(contaData);
         toast.success("✓ Conta a receber criada com sucesso!");
       }
       
