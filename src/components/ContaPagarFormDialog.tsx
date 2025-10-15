@@ -859,6 +859,61 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                   </FormItem>
                 )}
               />
+
+              {/* Checkboxes de Parcela e Recorrente */}
+              <div className="mt-6 pt-4 border-t border-[#E8E3DF] grid grid-cols-2 gap-3">
+                <FormField
+                  control={form.control}
+                  name="parcelado"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-[#E8E3DF] p-3 hover:bg-[#8BA888]/5 transition-colors">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={(checked) => {
+                            field.onChange(checked);
+                            if (checked) {
+                              setParcelaDialogOpen(true);
+                            } else {
+                              setParcelas([]);
+                              form.setValue('totalParcelas', undefined);
+                            }
+                          }}
+                          className="border-[#8BA888] data-[state=checked]:bg-[#8BA888] data-[state=checked]:border-[#8BA888]"
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm font-medium text-[#6B5047] cursor-pointer">
+                          Parcela
+                        </FormLabel>
+                        <p className="text-xs text-[#9C8B82]">Despesa parcelada</p>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="recorrente"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-[#E8E3DF] p-3 hover:bg-[#7BA8D8]/5 transition-colors">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          className="border-[#7BA8D8] data-[state=checked]:bg-[#7BA8D8] data-[state=checked]:border-[#7BA8D8]"
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm font-medium text-[#6B5047] cursor-pointer">
+                          Recorrente
+                        </FormLabel>
+                        <p className="text-xs text-[#9C8B82]">Despesa recorrente</p>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
               
               {/* Tabela de Parcelas */}
               {parcelas.length > 0 && (
@@ -923,61 +978,6 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                   </div>
                 </div>
               )}
-
-              {/* Checkboxes de Parcela e Recorrente */}
-              <div className="mt-6 pt-4 border-t border-[#E8E3DF] grid grid-cols-2 gap-3">
-                <FormField
-                  control={form.control}
-                  name="parcelado"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-[#E8E3DF] p-3 hover:bg-[#8BA888]/5 transition-colors">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={(checked) => {
-                            field.onChange(checked);
-                            if (checked) {
-                              setParcelaDialogOpen(true);
-                            } else {
-                              setParcelas([]);
-                              form.setValue('totalParcelas', undefined);
-                            }
-                          }}
-                          className="border-[#8BA888] data-[state=checked]:bg-[#8BA888] data-[state=checked]:border-[#8BA888]"
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel className="text-sm font-medium text-[#6B5047] cursor-pointer">
-                          Parcela
-                        </FormLabel>
-                        <p className="text-xs text-[#9C8B82]">Despesa parcelada</p>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="recorrente"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-[#E8E3DF] p-3 hover:bg-[#7BA8D8]/5 transition-colors">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          className="border-[#7BA8D8] data-[state=checked]:bg-[#7BA8D8] data-[state=checked]:border-[#7BA8D8]"
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel className="text-sm font-medium text-[#6B5047] cursor-pointer">
-                          Recorrente
-                        </FormLabel>
-                        <p className="text-xs text-[#9C8B82]">Despesa recorrente</p>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              </div>
             </div>
 
             {/* Observações */}
