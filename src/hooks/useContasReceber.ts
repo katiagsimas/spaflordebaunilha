@@ -13,6 +13,9 @@ interface ContaReceber {
   status: string;
   categoria_id?: string;
   observacoes?: string;
+  cliente_nome?: string;
+  cliente_documento?: string;
+  cliente_id?: string;
   created_at?: string;
   updated_at?: string;
 }

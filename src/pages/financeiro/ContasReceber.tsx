@@ -529,7 +529,7 @@ export default function ContasReceber() {
 
                         <div>
                           <p className="text-sm text-[#9C8B82]">Cliente</p>
-                          <p className="font-medium text-[#6B5047]">-</p>
+                          <p className="font-medium text-[#6B5047]">{conta.cliente_nome || '-'}</p>
                         </div>
 
                       <div>

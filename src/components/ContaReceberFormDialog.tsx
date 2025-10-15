@@ -272,6 +272,8 @@ export function ContaReceberFormDialog({
         status,
         categoria_id: values.categoriaId || null,
         observacoes: values.observacoes?.trim() || null,
+        cliente_nome: values.clienteNome?.trim() || null,
+        cliente_documento: values.clienteDocumento?.trim() || null,
       };
 
       console.log('Dados a serem enviados:', contaData);

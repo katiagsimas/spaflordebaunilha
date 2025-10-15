@@ -244,6 +244,9 @@ export type Database = {
       contas_receber: {
         Row: {
           categoria_id: string | null
+          cliente_documento: string | null
+          cliente_id: string | null
+          cliente_nome: string | null
           created_at: string
           data_recebimento: string | null
           data_vencimento: string
@@ -257,6 +260,9 @@ export type Database = {
         }
         Insert: {
           categoria_id?: string | null
+          cliente_documento?: string | null
+          cliente_id?: string | null
+          cliente_nome?: string | null
           created_at?: string
           data_recebimento?: string | null
           data_vencimento: string
@@ -270,6 +276,9 @@ export type Database = {
         }
         Update: {
           categoria_id?: string | null
+          cliente_documento?: string | null
+          cliente_id?: string | null
+          cliente_nome?: string | null
           created_at?: string
           data_recebimento?: string | null
           data_vencimento?: string
@@ -287,6 +296,13 @@ export type Database = {
             columns: ["categoria_id"]
             isOneToOne: false
             referencedRelation: "categorias_financeiras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contas_receber_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
             referencedColumns: ["id"]
           },
         ]
