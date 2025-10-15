@@ -206,27 +206,29 @@ export function ContaReceberFormDialog({
 
   useEffect(() => {
     if (conta) {
+      const contaAny = conta as any;
       form.reset({
-        descricao: conta.descricao,
-        categoriaId: conta.categoriaId,
-        planoContaId: conta.planoContaId,
-        valor: conta.valor,
-        dataEmissao: new Date(conta.dataEmissao),
-        dataVencimento: new Date(conta.dataVencimento),
-        clienteNome: conta.clienteNome || "",
-        clienteDocumento: conta.clienteDocumento || "",
-        bancoId: conta.bancoId || "",
-        tipoDocumentoId: conta.tipoDocumentoId || "",
-        numeroDocumento: conta.numeroDocumento || "",
-        observacoes: conta.observacoes || "",
-        parcelado: conta.parcelado,
-        numeroParcela: conta.numeroParcela,
-        totalParcelas: conta.totalParcelas,
-        recorrente: conta.recorrente,
-        frequenciaRecorrencia: conta.frequenciaRecorrencia || "mensal",
+        descricao: contaAny.descricao || "",
+        categoriaId: contaAny.categoria_id || contaAny.categoriaId || "",
+        planoContaId: contaAny.planoContaId || "",
+        valor: contaAny.valor || 0,
+        dataEmissao: contaAny.created_at ? new Date(contaAny.created_at) : new Date(),
+        dataVencimento: contaAny.data_vencimento ? new Date(contaAny.data_vencimento) : new Date(),
+        clienteNome: contaAny.cliente_nome || contaAny.clienteNome || "",
+        clienteDocumento: contaAny.cliente_documento || contaAny.clienteDocumento || "",
+        bancoId: contaAny.bancoId || "",
+        tipoDocumentoId: contaAny.tipoDocumentoId || "",
+        numeroDocumento: contaAny.numeroDocumento || "",
+        observacoes: contaAny.observacoes || "",
+        parcelado: contaAny.parcelado || false,
+        numeroParcela: contaAny.numeroParcela || 1,
+        totalParcelas: contaAny.totalParcelas || 1,
+        recorrente: contaAny.recorrente || false,
+        frequenciaRecorrencia: contaAny.frequenciaRecorrencia || "mensal",
       });
-      setSelectedCategoriaId(conta.categoriaId);
-      setValorInput(conta.valor.toFixed(2));
+      setSelectedCategoriaId(contaAny.categoria_id || contaAny.categoriaId || "");
+      setSelectedClienteNome(contaAny.cliente_nome || contaAny.clienteNome || "");
+      setValorInput(contaAny.valor ? contaAny.valor.toFixed(2) : "");
     } else {
       form.reset({
         descricao: "",
