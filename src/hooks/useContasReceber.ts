@@ -39,7 +39,7 @@ export function useContasReceber() {
         .from('contas_receber')
         .select('*')
         .eq('usuario_id', user.id)
-        .order('data_vencimento', { ascending: false });
+        .order('data_vencimento', { ascending: true });
 
       if (error) throw error;
       setItems(data || []);
@@ -61,7 +61,10 @@ export function useContasReceber() {
       .single();
 
     if (error) throw error;
-    setItems([data, ...items]);
+    
+    // Recarregar a lista completa para manter a ordenação correta
+    await fetchItems();
+    
     toast.success('Conta a receber criada!');
     return data;
   };
@@ -78,7 +81,10 @@ export function useContasReceber() {
       .single();
 
     if (error) throw error;
-    setItems(items.map(i => i.id === id ? data : i));
+    
+    // Recarregar a lista completa para manter a ordenação correta
+    await fetchItems();
+    
     toast.success('Conta a receber atualizada!');
     return data;
   };
