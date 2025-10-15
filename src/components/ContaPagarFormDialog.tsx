@@ -1,9 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { format } from "date-fns";
-import { CalendarIcon, DollarSign, FileText, Building2, Calendar, User, ExternalLink, Landmark } from "lucide-react";
+import { format, addDays } from "date-fns";
+import { CalendarIcon, DollarSign, FileText, Building2, Calendar, User, ExternalLink, Landmark, CreditCard, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCategoriasFinanceiras } from "@/hooks/useCategoriasFinanceiras";
 import { usePlanoContas } from "@/hooks/usePlanoContas";
@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { formatCpfCnpj } from "@/lib/utils";
 import { DatePickerField } from "@/components/DatePickerField";
 import { FornecedorAutocomplete } from "@/components/FornecedorAutocomplete";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface Banco {
   id: string;
@@ -31,6 +32,14 @@ interface TipoDocumento {
   id: string;
   codigo: string;
   descricao: string;
+}
+
+interface Parcela {
+  numero: number;
+  total: number;
+  valor: number;
+  dataVencimento: Date;
+  dataEmissao: Date;
 }
 
 interface ContaPagar {
@@ -159,6 +168,11 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
   const { planoContas, loading: loadingPlanos } = usePlanoContas();
   const { tiposDocumento, loading: loadingTiposDocumento } = useTiposDocumento();
   const [bancos] = useLocalStorage<Banco[]>("sugarbox_bancos", []);
+  
+  const [parcelaDialogOpen, setParcelaDialogOpen] = useState(false);
+  const [numeroParcelas, setNumeroParcelas] = useState<number>(2);
+  const [dataVencimentoParcelas, setDataVencimentoParcelas] = useState<Date>(new Date());
+  const [parcelas, setParcelas] = useState<Parcela[]>([]);
 
   // Filtrar apenas categorias de despesa
   const categoriasDespesa = categorias.filter(c => c.tipo === 'despesa');
@@ -287,7 +301,93 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
 
   const getCategoriaById = (id: string) => categorias.find(c => c.id === id);
 
+  const handleGerarParcelas = () => {
+    const valorString = form.getValues("valor");
+    const dataEmissao = form.getValues("dataEmissao");
+    
+    if (!valorString || !dataEmissao) {
+      return;
+    }
+    
+    const valorTotal = parseFloat(valorString.replace(/[^\d,]/g, '').replace(',', '.'));
+    const valorParcela = valorTotal / numeroParcelas;
+    
+    const novasParcelas: Parcela[] = [];
+    for (let i = 0; i < numeroParcelas; i++) {
+      novasParcelas.push({
+        numero: i + 1,
+        total: numeroParcelas,
+        valor: valorParcela,
+        dataVencimento: addDays(dataVencimentoParcelas, i * 30),
+        dataEmissao: dataEmissao,
+      });
+    }
+    
+    setParcelas(novasParcelas);
+    setParcelaDialogOpen(false);
+  };
+
+  const handleRemoverParcela = (index: number) => {
+    setParcelas(parcelas.filter((_, i) => i !== index));
+  };
+
   return (
+    <>
+      {/* Diálogo de Parcelamento */}
+      <Dialog open={parcelaDialogOpen} onOpenChange={setParcelaDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl text-[#6B5047]">Configurar Parcelamento</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="text-sm font-medium text-[#6B5047] mb-2 block">
+                Número de Parcelas *
+              </label>
+              <Input
+                type="number"
+                min="2"
+                max="60"
+                value={numeroParcelas}
+                onChange={(e) => setNumeroParcelas(parseInt(e.target.value) || 2)}
+                placeholder="Ex: 3"
+              />
+              <p className="text-xs text-[#9C8B82] mt-1">Mínimo 2, máximo 60 parcelas</p>
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium text-[#6B5047] mb-2 block">
+                Data de Vencimento da 1ª Parcela *
+              </label>
+              <DatePickerField
+                value={dataVencimentoParcelas}
+                onChange={(date) => date && setDataVencimentoParcelas(date)}
+                placeholder="Selecione a data"
+              />
+              <p className="text-xs text-[#9C8B82] mt-1">
+                As próximas parcelas terão vencimento a cada 30 dias
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex justify-end gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setParcelaDialogOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              onClick={handleGerarParcelas}
+            >
+              Gerar Parcelas
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -643,10 +743,12 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
 
             {/* Valores */}
             <div className="bg-white rounded-lg p-5 border border-[#E8E3DF] shadow-sm hover:shadow-md transition-shadow">
-              <h3 className="font-semibold text-[#6B5047] flex items-center gap-2 pb-4 border-b border-[#E8E3DF]">
-                <DollarSign className="h-5 w-5 text-[#D89B8C]" />
-                Valores
-              </h3>
+              <div className="flex items-center pb-4 border-b border-[#E8E3DF]">
+                <h3 className="font-semibold text-[#6B5047] flex items-center gap-2">
+                  <DollarSign className="h-5 w-5 text-[#D89B8C]" />
+                  Valores
+                </h3>
+              </div>
 
               <FormField
                 control={form.control}
@@ -670,6 +772,114 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                   </FormItem>
                 )}
               />
+              
+              {/* Tabela de Parcelas */}
+              {parcelas.length > 0 && (
+                <div className="mt-6 space-y-3">
+                  <h4 className="font-semibold text-[#6B5047] flex items-center gap-2">
+                    <CreditCard className="h-4 w-4 text-[#D89B8C]" />
+                    Parcelas Configuradas
+                  </h4>
+                  
+                  <div className="border border-[#E8E3DF] rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-[#FAF7F5]">
+                          <TableHead className="text-[#6B5047]">Parcela</TableHead>
+                          <TableHead className="text-[#6B5047]">Data Emissão</TableHead>
+                          <TableHead className="text-[#6B5047]">Data Vencimento</TableHead>
+                          <TableHead className="text-[#6B5047] text-right">Valor</TableHead>
+                          <TableHead className="w-[50px]"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {parcelas.map((parcela, index) => (
+                          <TableRow key={index}>
+                            <TableCell className="font-medium">
+                              {parcela.numero} de {parcela.total}
+                            </TableCell>
+                            <TableCell>
+                              {format(parcela.dataEmissao, "dd/MM/yyyy")}
+                            </TableCell>
+                            <TableCell>
+                              {format(parcela.dataVencimento, "dd/MM/yyyy")}
+                            </TableCell>
+                            <TableCell className="text-right font-medium">
+                              R$ {parcela.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleRemoverParcela(index)}
+                                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  
+                  <div className="flex justify-between items-center p-3 bg-[#FAF7F5] rounded-lg border border-[#E8E3DF]">
+                    <span className="font-semibold text-[#6B5047]">Valor Total:</span>
+                    <span className="font-bold text-lg text-[#6B5047]">
+                      R$ {(parcelas.reduce((acc, p) => acc + p.valor, 0)).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Checkboxes de Parcela e Recorrente */}
+              <div className="mt-6 pt-4 border-t border-[#E8E3DF] space-y-3">
+                <FormField
+                  control={form.control}
+                  name="parcelado"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center space-x-2 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={(checked) => {
+                            field.onChange(checked);
+                            if (checked) {
+                              setParcelaDialogOpen(true);
+                            } else {
+                              setParcelas([]);
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <FormLabel className="text-[#6B5047] cursor-pointer flex items-center gap-2 font-normal">
+                        <CreditCard className="h-4 w-4 text-[#D89B8C]" />
+                        Parcela
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="recorrente"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center space-x-2 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="text-[#6B5047] cursor-pointer flex items-center gap-2 font-normal">
+                        <Calendar className="h-4 w-4 text-[#D89B8C]" />
+                        Recorrente
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
 
             {/* Observações */}
@@ -696,148 +906,6 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
               )}
             />
 
-            {/* Opções Avançadas */}
-            <div className="space-y-4 p-4 bg-[#FAF7F5] rounded-lg border border-[#E8E3DF]">
-              <FormField
-                control={form.control}
-                name="parcelado"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel className="text-[#6B5047] font-semibold">
-                        Esta é uma despesa parcelada
-                      </FormLabel>
-                    </div>
-                  </FormItem>
-                )}
-              />
-
-              {/* Expandir opções de parcelamento */}
-              {parcelado && (
-                <div className="ml-6 space-y-4 p-4 bg-white rounded-lg border border-[#E8E3DF]">
-                  <FormField
-                    control={form.control}
-                    name="totalParcelas"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-[#6B5047]">Número de Parcelas *</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min="2"
-                            max="60"
-                            placeholder="Ex: 12"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                            value={field.value || ''}
-                          />
-                        </FormControl>
-                        <p className="text-xs text-[#9C8B82]">Mínimo 2 parcelas, máximo 60</p>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="numeroParcela"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-[#6B5047]">Esta é a parcela número</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min="1"
-                            placeholder="Ex: 1"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                            value={field.value || ''}
-                          />
-                        </FormControl>
-                        <p className="text-xs text-[#9C8B82]">Deixe vazio para gerar todas as parcelas automaticamente</p>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              )}
-
-              <FormField
-                control={form.control}
-                name="recorrente"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel className="text-[#6B5047] font-semibold">
-                        Esta é uma despesa recorrente
-                      </FormLabel>
-                      <p className="text-xs text-[#9C8B82]">Despesas que se repetem periodicamente</p>
-                    </div>
-                  </FormItem>
-                )}
-              />
-
-              {/* Expandir opções de recorrência */}
-              {recorrente && (
-                <div className="ml-6 space-y-4 p-4 bg-white rounded-lg border border-[#E8E3DF]">
-                  <FormField
-                    control={form.control}
-                    name="frequenciaRecorrencia"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-[#6B5047]">Frequência *</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Selecione a frequência..." />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="mensal">Mensal (Ex: Aluguel, Luz, Água)</SelectItem>
-                            <SelectItem value="bimestral">Bimestral</SelectItem>
-                            <SelectItem value="trimestral">Trimestral</SelectItem>
-                            <SelectItem value="semestral">Semestral</SelectItem>
-                            <SelectItem value="anual">Anual (Ex: Impostos, Seguros)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="proximaRecorrencia"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel className="text-[#6B5047]">Próxima Recorrência</FormLabel>
-                        <FormControl>
-                          <DatePickerField
-                            value={field.value}
-                            onChange={field.onChange}
-                            placeholder="Selecione a data"
-                          />
-                        </FormControl>
-                        <p className="text-xs text-[#9C8B82]">💡 Dica: Despesas recorrentes são criadas automaticamente na data programada</p>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              )}
-            </div>
 
             {/* Ações */}
             <div className="flex justify-end gap-3 pt-4">
@@ -856,5 +924,6 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
         </Form>
       </DialogContent>
     </Dialog>
+    </>
   );
 }
