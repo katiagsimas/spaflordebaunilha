@@ -1,7 +1,10 @@
 import { useState, useMemo, useEffect } from "react";
 import * as XLSX from 'xlsx';
-import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { format, isToday, isAfter, isBefore, differenceInDays, startOfDay } from "date-fns";
+import { useContasPagar } from "@/hooks/useContasPagar";
+import { useCategoriasFinanceiras } from "@/hooks/useCategoriasFinanceiras";
+import { usePlanoContas } from "@/hooks/usePlanoContas";
+import { useBancos } from "@/hooks/useBancos";
+import { format, isToday, isAfter, isBefore, differenceInDays, startOfDay, startOfMonth, endOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Search, Settings, MoreVertical, Clock, CheckCircle, AlertCircle, XCircle, Edit, Copy, Trash2, Eye, RotateCcw, DollarSign, TrendingDown, AlertTriangle, Calendar, Download, FileSpreadsheet, FileText, X } from "lucide-react";
+import { Plus, Search, Settings, MoreVertical, Clock, CheckCircle, AlertCircle, XCircle, Edit, Copy, Trash2, Eye, RotateCcw, DollarSign, TrendingDown, AlertTriangle, Calendar, Download, FileSpreadsheet, FileText, X, Filter } from "lucide-react";
 import { toast } from "sonner";
 import { ContaPagarFormDialog } from "@/components/ContaPagarFormDialog";
 import { RegistrarPagamentoDialog } from "@/components/RegistrarPagamentoDialog";
@@ -20,62 +23,28 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 interface ContaPagar {
   id: string;
+  usuario_id: string;
   descricao: string;
-  categoriaId: string;
-  planoContaId: string;
   valor: number;
-  valorPago?: number;
-  dataEmissao: string;
-  dataVencimento: string;
-  dataPagamento?: string;
-  status: 'pendente' | 'pago' | 'atrasado' | 'cancelado';
-  formaPagamento?: 'dinheiro' | 'pix' | 'cartao_credito' | 'cartao_debito' | 'transferencia' | 'boleto' | 'outros';
-  bancoId?: string;
-  tipoDocumentoId?: string;
-  numeroDocumento?: string;
-  fornecedorNome?: string;
-  fornecedorDocumento?: string;
+  data_vencimento: string;
+  data_pagamento?: string;
+  status: string;
+  categoria_id?: string;
   observacoes?: string;
-  observacoesPagamento?: string;
-  parcelado: boolean;
-  numeroParcela?: number;
-  totalParcelas?: number;
-  grupoParcelasId?: string;
-  recorrente: boolean;
-  frequenciaRecorrencia?: 'mensal' | 'bimestral' | 'trimestral' | 'semestral' | 'anual';
-  proximaRecorrencia?: string;
-  centroCusto?: string;
-  tags?: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Categoria {
-  id: string;
-  nome: string;
-  cor: string;
-}
-
-interface PlanoContas {
-  id: string;
-  nome: string;
-  categoriaId: string;
-}
-
-interface Banco {
-  id: string;
-  nome: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export default function ContasPagar() {
-  const [contas, setContas] = useLocalStorage<ContaPagar[]>("contas_pagar", []);
-  const [categorias] = useLocalStorage<Categoria[]>("categorias_financeiras", []);
-  const [planos] = useLocalStorage<PlanoContas[]>("planos_contas", []);
-  const [bancos] = useLocalStorage<Banco[]>("bancos", []);
+  const { items: contas, loading, createItem, updateItem, deleteItem, refetch } = useContasPagar();
+  const { categorias } = useCategoriasFinanceiras();
+  const { planoContas: planos } = usePlanoContas();
+  const { bancos } = useBancos();
   
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isPagamentoOpen, setIsPagamentoOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [deleteMultipleConfirmOpen, setDeleteMultipleConfirmOpen] = useState(false);
   const [selectedConta, setSelectedConta] = useState<ContaPagar | undefined>();
   const [contaToDelete, setContaToDelete] = useState<ContaPagar | undefined>();
   
@@ -83,60 +52,22 @@ export default function ContasPagar() {
   const [statusFilter, setStatusFilter] = useState("todos");
   const [periodoFilter, setPeriodoFilter] = useState("todos");
   const [categoriaFilter, setCategoriaFilter] = useState("todos");
+  const [fornecedorFilter, setFornecedorFilter] = useState("");
+  const [dataEmissaoFilter, setDataEmissaoFilter] = useState("");
+  const [planoContaFilter, setPlanoContaFilter] = useState("todos");
+  const [dataVencimentoFilter, setDataVencimentoFilter] = useState("");
+  const [dataPagamentoFilter, setDataPagamentoFilter] = useState("");
   const [selectedContas, setSelectedContas] = useState<string[]>([]);
-  const [activeTab, setActiveTab] = useState("todas");
+  const [activeTab, setActiveTab] = useState("todos");
   const [mostrarAlertas, setMostrarAlertas] = useState(true);
+  const [mostrarFiltros, setMostrarFiltros] = useState(false);
 
-  // Atualizar status de contas atrasadas
-  useEffect(() => {
-    const hoje = startOfDay(new Date());
-    let atualizou = false;
-    
-    const contasComStatusAtualizado = contas.map(conta => {
-      if (conta.status === 'pendente') {
-        const vencimento = new Date(conta.dataVencimento);
-        if (isBefore(vencimento, hoje)) {
-          atualizou = true;
-          return { ...conta, status: 'atrasado' as const };
-        }
-      }
-      return conta;
-    });
-    
-    if (atualizou) {
-      setContas(contasComStatusAtualizado);
-    }
-    
-    // Atualizar a cada hora
-    const interval = setInterval(() => {
-      const hoje = startOfDay(new Date());
-      let precisaAtualizar = false;
-      
-      const novasContas = contas.map(conta => {
-        if (conta.status === 'pendente') {
-          const vencimento = new Date(conta.dataVencimento);
-          if (isBefore(vencimento, hoje)) {
-            precisaAtualizar = true;
-            return { ...conta, status: 'atrasado' as const };
-          }
-        }
-        return conta;
-      });
-      
-      if (precisaAtualizar) {
-        setContas(novasContas);
-      }
-    }, 60 * 60 * 1000); // 1 hora
-    
-    return () => clearInterval(interval);
-  }, []);
-
-  // Atualizar status de contas quando mudar a lista
+  // Atualizar status de contas atrasadas automaticamente
   const contasAtualizadas = useMemo(() => {
     const hoje = startOfDay(new Date());
     return contas.map(conta => {
-      if (conta.status === 'pendente' && isBefore(new Date(conta.dataVencimento), hoje)) {
-        return { ...conta, status: 'atrasado' as const };
+      if (conta.status === 'pendente' && isBefore(new Date(conta.data_vencimento), hoje)) {
+        return { ...conta, status: 'atrasado' };
       }
       return conta;
     });
@@ -144,9 +75,8 @@ export default function ContasPagar() {
 
   // Contas que vencem hoje e nos próximos 3 dias
   const contasVencemHoje = useMemo(() => {
-    const hoje = startOfDay(new Date());
     return contasAtualizadas.filter(c => 
-      c.status === 'pendente' && isToday(new Date(c.dataVencimento))
+      c.status === 'pendente' && isToday(new Date(c.data_vencimento))
     );
   }, [contasAtualizadas]);
 
@@ -154,28 +84,30 @@ export default function ContasPagar() {
     const hoje = startOfDay(new Date());
     return contasAtualizadas.filter(c => {
       if (c.status !== 'pendente') return false;
-      const vencimento = new Date(c.dataVencimento);
+      const vencimento = new Date(c.data_vencimento);
       const dias = differenceInDays(vencimento, hoje);
       return dias > 0 && dias <= 3;
     });
   }, [contasAtualizadas]);
 
-  // Filtros
+  // Filtros avançados
   const contasFiltradas = useMemo(() => {
     return contasAtualizadas.filter(conta => {
       const matchSearch = searchTerm === "" || 
         conta.descricao.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        conta.fornecedorNome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        conta.numeroDocumento?.toLowerCase().includes(searchTerm.toLowerCase());
+        conta.observacoes?.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchStatus = statusFilter === "todos" || conta.status === statusFilter;
+      const matchCategoria = categoriaFilter === "todos" || conta.categoria_id === categoriaFilter;
+      const matchPlano = planoContaFilter === "todos" || conta.categoria_id === planoContaFilter;
       
-      const matchCategoria = categoriaFilter === "todos" || conta.categoriaId === categoriaFilter;
+      const matchDataVencimento = !dataVencimentoFilter || conta.data_vencimento === dataVencimentoFilter;
+      const matchDataPagamento = !dataPagamentoFilter || conta.data_pagamento === dataPagamentoFilter;
       
       let matchPeriodo = true;
       if (periodoFilter !== "todos") {
         const hoje = new Date();
-        const dataVenc = new Date(conta.dataVencimento);
+        const dataVenc = new Date(conta.data_vencimento);
         
         if (periodoFilter === "hoje") {
           matchPeriodo = isToday(dataVenc);
@@ -186,54 +118,81 @@ export default function ContasPagar() {
         }
       }
       
-      return matchSearch && matchStatus && matchCategoria && matchPeriodo;
+      return matchSearch && matchStatus && matchCategoria && matchPeriodo && matchPlano && matchDataVencimento && matchDataPagamento;
     });
-  }, [contasAtualizadas, searchTerm, statusFilter, categoriaFilter, periodoFilter]);
+  }, [contasAtualizadas, searchTerm, statusFilter, categoriaFilter, periodoFilter, planoContaFilter, dataVencimentoFilter, dataPagamentoFilter]);
 
   // Estatísticas
   const stats = useMemo(() => {
     const hoje = startOfDay(new Date());
-    const mesAtual = new Date().getMonth();
-    const anoAtual = new Date().getFullYear();
+    const inicioMes = startOfMonth(hoje);
+    const fimMes = endOfMonth(hoje);
 
-    const aPagar = contasAtualizadas.filter(c => c.status === 'pendente');
+    const aPagar = contasAtualizadas.filter(c => c.status === 'pendente' || c.status === 'atrasado');
     const pagas = contasAtualizadas.filter(c => c.status === 'pago');
     const atrasadas = contasAtualizadas.filter(c => c.status === 'atrasado');
     const esteMes = contasAtualizadas.filter(c => {
-      const data = new Date(c.dataVencimento);
-      return data.getMonth() === mesAtual && data.getFullYear() === anoAtual;
+      const data = new Date(c.data_vencimento);
+      return data >= inicioMes && data <= fimMes;
     });
+    const vencidas = contasAtualizadas.filter(c => c.status === 'atrasado');
 
     return {
-      aPagar: { valor: aPagar.reduce((sum, c) => sum + c.valor, 0), count: aPagar.length },
-      pagas: { valor: pagas.reduce((sum, c) => sum + c.valor, 0), count: pagas.length },
-      atrasadas: { valor: atrasadas.reduce((sum, c) => sum + c.valor, 0), count: atrasadas.length },
-      esteMes: { valor: esteMes.reduce((sum, c) => sum + c.valor, 0), count: esteMes.length }
+      aPagar: { valor: aPagar.reduce((sum, c) => sum + Number(c.valor), 0), count: aPagar.length },
+      pagas: { valor: pagas.reduce((sum, c) => sum + Number(c.valor), 0), count: pagas.length },
+      atrasadas: { valor: atrasadas.reduce((sum, c) => sum + Number(c.valor), 0), count: atrasadas.length },
+      esteMes: { valor: esteMes.reduce((sum, c) => sum + Number(c.valor), 0), count: esteMes.length },
+      vencidas: { valor: vencidas.reduce((sum, c) => sum + Number(c.valor), 0), count: vencidas.length }
     };
   }, [contasAtualizadas]);
 
   // Filtros por aba
   const contasPorAba = useMemo(() => {
     const hoje = startOfDay(new Date());
+    const inicioMes = startOfMonth(hoje);
+    const fimMes = endOfMonth(hoje);
     
     return {
-      todas: contasFiltradas,
-      pendentes: contasFiltradas.filter(c => c.status === 'pendente'),
-      vencendoHoje: contasFiltradas.filter(c => c.status === 'pendente' && isToday(new Date(c.dataVencimento))),
+      todos: contasFiltradas,
+      emAberto: contasFiltradas.filter(c => c.status === 'pendente' || c.status === 'atrasado'),
+      vencendoHoje: contasFiltradas.filter(c => c.status === 'pendente' && isToday(new Date(c.data_vencimento))),
+      vencidas: contasFiltradas.filter(c => c.status === 'atrasado'),
+      esteMes: contasFiltradas.filter(c => {
+        const data = new Date(c.data_vencimento);
+        return data >= inicioMes && data <= fimMes;
+      }),
       pagas: contasFiltradas.filter(c => c.status === 'pago')
     };
   }, [contasFiltradas]);
 
-  const handleSave = (conta: ContaPagar) => {
-    if (selectedConta) {
-      setContas(contas.map(c => c.id === conta.id ? conta : c));
-      toast.success("Conta atualizada com sucesso!");
-    } else {
-      setContas([...contas, conta]);
-      toast.success("Conta criada com sucesso!");
+  const handleSave = async (conta: any) => {
+    try {
+      if (selectedConta) {
+        await updateItem(selectedConta.id, {
+          descricao: conta.descricao,
+          valor: conta.valor,
+          data_vencimento: conta.data_vencimento,
+          data_pagamento: conta.data_pagamento,
+          status: conta.status,
+          categoria_id: conta.categoria_id,
+          observacoes: conta.observacoes
+        });
+      } else {
+        await createItem({
+          descricao: conta.descricao,
+          valor: conta.valor,
+          data_vencimento: conta.data_vencimento,
+          status: conta.status || 'pendente',
+          categoria_id: conta.categoria_id,
+          observacoes: conta.observacoes
+        });
+      }
+      setIsFormOpen(false);
+      setSelectedConta(undefined);
+      refetch();
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao salvar conta a pagar");
     }
-    setIsFormOpen(false);
-    setSelectedConta(undefined);
   };
 
   const handleEdit = (conta: ContaPagar) => {
@@ -241,45 +200,72 @@ export default function ContasPagar() {
     setIsFormOpen(true);
   };
 
-  const handleDuplicate = (conta: ContaPagar) => {
-    const novaConta: ContaPagar = {
-      ...conta,
-      id: crypto.randomUUID(),
-      descricao: `${conta.descricao} (Cópia)`,
-      status: 'pendente',
-      dataPagamento: undefined,
-      formaPagamento: undefined,
-      bancoId: undefined,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    setContas([...contas, novaConta]);
-    toast.success("Conta duplicada com sucesso!");
+  const handleDuplicate = async (conta: ContaPagar) => {
+    try {
+      await createItem({
+        descricao: `${conta.descricao} (Cópia)`,
+        valor: conta.valor,
+        data_vencimento: conta.data_vencimento,
+        status: 'pendente',
+        categoria_id: conta.categoria_id,
+        observacoes: conta.observacoes
+      });
+      refetch();
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao duplicar conta");
+    }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!contaToDelete) return;
     
-    // Verificar se é parcelado
-    if (contaToDelete.parcelado && contaToDelete.grupoParcelasId) {
-      const parcelas = contas.filter(c => c.grupoParcelasId === contaToDelete.grupoParcelasId);
-      
-      if (parcelas.length > 1) {
-        // Mostrar opções de exclusão
-        toast.info(`Esta conta faz parte de ${parcelas.length} parcelas. Use o menu de ações para excluir todas.`);
-        setContas(contas.filter(c => c.id !== contaToDelete.id));
-        toast.success("Parcela excluída com sucesso!");
-      } else {
-        setContas(contas.filter(c => c.id !== contaToDelete.id));
-        toast.success("Conta excluída com sucesso!");
-      }
-    } else {
-      setContas(contas.filter(c => c.id !== contaToDelete.id));
-      toast.success("Conta excluída com sucesso!");
+    try {
+      await deleteItem(contaToDelete.id);
+      setIsDeleteOpen(false);
+      setContaToDelete(undefined);
+      refetch();
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao excluir conta");
     }
-    
-    setIsDeleteOpen(false);
-    setContaToDelete(undefined);
+  };
+
+  // Ações em lote
+  const handleSelectAll = () => {
+    if (selectedContas.length === contasFiltradas.length) {
+      setSelectedContas([]);
+    } else {
+      setSelectedContas(contasFiltradas.map(c => c.id));
+    }
+  };
+
+  const handleExcluirSelecionadas = () => {
+    if (selectedContas.length === 0) {
+      toast.error("Nenhuma conta selecionada");
+      return;
+    }
+    setDeleteMultipleConfirmOpen(true);
+  };
+
+  const confirmExcluirSelecionadas = async () => {
+    try {
+      for (const id of selectedContas) {
+        await deleteItem(id);
+      }
+      toast.success(`${selectedContas.length} conta(s) excluída(s) com sucesso!`);
+      setSelectedContas([]);
+      setDeleteMultipleConfirmOpen(false);
+      refetch();
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao excluir contas");
+    }
+  };
+
+  const handleEditarEmLote = () => {
+    toast.info("Funcionalidade de edição em lote em desenvolvimento");
+  };
+
+  const handlePagamentoEmLote = () => {
+    toast.info("Funcionalidade de pagamento em lote em desenvolvimento");
   };
 
   const handleRegistrarPagamento = (conta: ContaPagar) => {
@@ -287,12 +273,30 @@ export default function ContasPagar() {
     setIsPagamentoOpen(true);
   };
 
-  const handlePagamentoRegistrado = (contaAtualizada: ContaPagar) => {
+  const handlePagamentoRegistrado = async (contaAtualizada: any) => {
+    try {
+      // Atualizar conta com dados do pagamento
+      await updateItem(contaAtualizada.id, {
+        status: 'pago',
+        data_pagamento: contaAtualizada.data_pagamento,
+        observacoes: contaAtualizada.observacoes
+      });
+      
+      toast.success("Pagamento registrado com sucesso!");
+      setIsPagamentoOpen(false);
+      setSelectedConta(undefined);
+      refetch();
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao registrar pagamento");
+    }
+  };
+
+  const handlePagamentoRegistrado_OLD = (contaAtualizada: any) => {
     // Construir observação automática
     let obsAdicional = '';
     
-    // Verificar diferença de valor
-    const diferenca = (contaAtualizada.valorPago || contaAtualizada.valor) - contaAtualizada.valor;
+    // Verificar diferença de valor (removido: não existe valorPago no schema atual)
+    const diferenca = 0;
     if (diferenca !== 0) {
       if (diferenca > 0) {
         obsAdicional = `Acréscimo de ${formatCurrency(diferenca)} (juros/multa)`;
@@ -302,8 +306,8 @@ export default function ContasPagar() {
     }
     
     // Verificar atraso
-    const vencimento = new Date(contaAtualizada.dataVencimento);
-    const pagamento = contaAtualizada.dataPagamento ? new Date(contaAtualizada.dataPagamento) : new Date();
+    const vencimento = new Date(contaAtualizada.data_vencimento);
+    const pagamento = contaAtualizada.data_pagamento ? new Date(contaAtualizada.data_pagamento) : new Date();
     vencimento.setHours(0, 0, 0, 0);
     pagamento.setHours(0, 0, 0, 0);
     
@@ -313,107 +317,28 @@ export default function ContasPagar() {
       obsAdicional = obsAdicional ? `${obsAdicional}. ${atrasoObs}` : atrasoObs;
     }
     
-    // Adicionar observações
-    let observacoes = contaAtualizada.observacoes || '';
-    if (obsAdicional) {
-      observacoes = observacoes ? `${observacoes}\n${obsAdicional}` : obsAdicional;
-    }
-    if (contaAtualizada.observacoesPagamento) {
-      observacoes = observacoes ? `${observacoes}\n${contaAtualizada.observacoesPagamento}` : contaAtualizada.observacoesPagamento;
-    }
-    
-    const contaFinal = {
-      ...contaAtualizada,
-      observacoes: observacoes || undefined,
-    };
-    
-    setContas(contas.map(c => c.id === contaFinal.id ? contaFinal : c));
-    toast.success("Pagamento registrado com sucesso!");
-    setIsPagamentoOpen(false);
-    setSelectedConta(undefined);
-    
-    // Se for recorrente, criar próxima ocorrência
-    if (contaFinal.recorrente && contaFinal.proximaRecorrencia) {
-      criarProximaRecorrencia(contaFinal);
-    }
   };
 
-  const criarProximaRecorrencia = (contaOriginal: ContaPagar) => {
-    if (!contaOriginal.recorrente || !contaOriginal.proximaRecorrencia) return;
-    
-    const proximaData = new Date(contaOriginal.proximaRecorrencia);
-    const hoje = new Date();
-    
-    if (proximaData <= hoje) return;
-    
-    const novaConta: ContaPagar = {
-      ...contaOriginal,
-      id: crypto.randomUUID(),
-      dataEmissao: new Date().toISOString(),
-      dataVencimento: contaOriginal.proximaRecorrencia,
-      status: 'pendente',
-      dataPagamento: undefined,
-      formaPagamento: undefined,
-      bancoId: undefined,
-      valorPago: undefined,
-      observacoesPagamento: undefined,
-      proximaRecorrencia: calcularProximaRecorrencia(
-        contaOriginal.proximaRecorrencia,
-        contaOriginal.frequenciaRecorrencia!
-      ),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    
-    setContas(prev => [...prev, novaConta]);
-    toast.info("Próxima recorrência criada automaticamente!");
-  };
 
-  const calcularProximaRecorrencia = (dataAtual: string, frequencia: string): string => {
-    const data = new Date(dataAtual);
-    
-    switch (frequencia) {
-      case 'mensal':
-        data.setMonth(data.getMonth() + 1);
-        break;
-      case 'bimestral':
-        data.setMonth(data.getMonth() + 2);
-        break;
-      case 'trimestral':
-        data.setMonth(data.getMonth() + 3);
-        break;
-      case 'semestral':
-        data.setMonth(data.getMonth() + 6);
-        break;
-      case 'anual':
-        data.setFullYear(data.getFullYear() + 1);
-        break;
-    }
-    
-    return data.toISOString();
-  };
-
-  const handleEstornarPagamento = (conta: ContaPagar) => {
+  const handleEstornarPagamento = async (conta: ContaPagar) => {
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
-    const vencimento = new Date(conta.dataVencimento);
+    const vencimento = new Date(conta.data_vencimento);
     vencimento.setHours(0, 0, 0, 0);
     
-    const contaEstornada: ContaPagar = {
-      ...conta,
-      status: vencimento < hoje ? 'atrasado' : 'pendente',
-      dataPagamento: undefined,
-      valorPago: undefined,
-      formaPagamento: undefined,
-      bancoId: undefined,
-      observacoesPagamento: undefined,
-      observacoes: conta.observacoes 
-        ? `${conta.observacoes}\nPagamento estornado em ${format(new Date(), "dd/MM/yyyy", { locale: ptBR })}`
-        : `Pagamento estornado em ${format(new Date(), "dd/MM/yyyy", { locale: ptBR })}`,
-      updatedAt: new Date().toISOString()
-    };
-    setContas(contas.map(c => c.id === conta.id ? contaEstornada : c));
-    toast.success("Pagamento estornado com sucesso!");
+    try {
+      await updateItem(conta.id, {
+        status: vencimento < hoje ? 'atrasado' : 'pendente',
+        data_pagamento: null,
+        observacoes: conta.observacoes 
+          ? `${conta.observacoes}\nPagamento estornado em ${format(new Date(), "dd/MM/yyyy", { locale: ptBR })}`
+          : `Pagamento estornado em ${format(new Date(), "dd/MM/yyyy", { locale: ptBR })}`
+      });
+      toast.success("Pagamento estornado com sucesso!");
+      refetch();
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao estornar pagamento");
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -435,7 +360,7 @@ export default function ContasPagar() {
 
   const getRowClassName = (conta: ContaPagar) => {
     const hoje = startOfDay(new Date());
-    const vencimento = new Date(conta.dataVencimento);
+    const vencimento = new Date(conta.data_vencimento);
     const diasAteVencimento = differenceInDays(vencimento, hoje);
 
     if (conta.status === 'atrasado') {
@@ -457,7 +382,7 @@ export default function ContasPagar() {
     if (conta.status === 'atrasado') return 'alta';
     
     const hoje = new Date();
-    const vencimento = new Date(conta.dataVencimento);
+    const vencimento = new Date(conta.data_vencimento);
     const diffDays = Math.floor((vencimento.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24));
     
     if (diffDays <= 0) return 'alta';
@@ -477,22 +402,15 @@ export default function ContasPagar() {
 
   const exportarExcel = () => {
     const dados = contasFiltradas.map(conta => {
-      const categoria = getCategoriaById(conta.categoriaId);
-      const plano = getPlanoById(conta.planoContaId);
-      const banco = conta.bancoId ? getBancoById(conta.bancoId) : null;
+      const categoria = getCategoriaById(conta.categoria_id);
 
       return {
-        'Data Emissão': format(new Date(conta.dataEmissao), "dd/MM/yyyy"),
-        'Data Vencimento': format(new Date(conta.dataVencimento), "dd/MM/yyyy"),
+        'Data Vencimento': format(new Date(conta.data_vencimento), "dd/MM/yyyy"),
         'Descrição': conta.descricao,
-        'Fornecedor': conta.fornecedorNome || '',
         'Categoria': categoria?.nome || '',
-        'Plano de Contas': plano?.nome || '',
         'Valor': conta.valor,
         'Status': conta.status,
-        'Data Pagamento': conta.dataPagamento ? format(new Date(conta.dataPagamento), "dd/MM/yyyy") : '',
-        'Forma Pagamento': conta.formaPagamento ? formasPagamentoLabels[conta.formaPagamento] : '',
-        'Banco': banco?.nome || '',
+        'Data Pagamento': conta.data_pagamento ? format(new Date(conta.data_pagamento), "dd/MM/yyyy") : '',
         'Observações': conta.observacoes || ''
       };
     });
@@ -524,36 +442,26 @@ export default function ContasPagar() {
 
   const exportarCSV = () => {
     const headers = [
-      'Data Emissão',
       'Data Vencimento',
       'Descrição',
-      'Fornecedor',
       'Categoria',
-      'Plano de Contas',
       'Valor',
       'Status',
       'Data Pagamento',
-      'Forma Pagamento',
-      'Banco'
+      'Observações'
     ];
 
     const rows = contasFiltradas.map(conta => {
-      const categoria = getCategoriaById(conta.categoriaId);
-      const plano = getPlanoById(conta.planoContaId);
-      const banco = conta.bancoId ? getBancoById(conta.bancoId) : null;
+      const categoria = getCategoriaById(conta.categoria_id);
 
       return [
-        format(new Date(conta.dataEmissao), "dd/MM/yyyy"),
-        format(new Date(conta.dataVencimento), "dd/MM/yyyy"),
+        format(new Date(conta.data_vencimento), "dd/MM/yyyy"),
         conta.descricao,
-        conta.fornecedorNome || '',
         categoria?.nome || '',
-        plano?.nome || '',
         conta.valor.toFixed(2),
         conta.status,
-        conta.dataPagamento ? format(new Date(conta.dataPagamento), "dd/MM/yyyy") : '',
-        conta.formaPagamento ? formasPagamentoLabels[conta.formaPagamento] : '',
-        banco?.nome || ''
+        conta.data_pagamento ? format(new Date(conta.data_pagamento), "dd/MM/yyyy") : '',
+        conta.observacoes || ''
       ];
     });
 
@@ -835,10 +743,12 @@ export default function ContasPagar() {
         <Card>
           <CardContent className="pt-6">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="todas">Todas ({contasPorAba.todas.length})</TabsTrigger>
-                <TabsTrigger value="pendentes">Pendentes ({contasPorAba.pendentes.length})</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-6">
+                <TabsTrigger value="todos">Todos ({contasPorAba.todos.length})</TabsTrigger>
+                <TabsTrigger value="emAberto">Em Aberto ({contasPorAba.emAberto.length})</TabsTrigger>
                 <TabsTrigger value="vencendoHoje">Vencendo Hoje ({contasPorAba.vencendoHoje.length})</TabsTrigger>
+                <TabsTrigger value="vencidas">Vencidas ({contasPorAba.vencidas.length})</TabsTrigger>
+                <TabsTrigger value="esteMes">Este Mês ({contasPorAba.esteMes.length})</TabsTrigger>
                 <TabsTrigger value="pagas">Pagas ({contasPorAba.pagas.length})</TabsTrigger>
               </TabsList>
 
@@ -850,13 +760,60 @@ export default function ContasPagar() {
                       <p>Nenhuma conta encontrada</p>
                     </div>
                   ) : (
-                    <div className="overflow-x-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead className="w-[50px]">
-                              <Checkbox />
-                            </TableHead>
+                    <>
+                      {/* Barra de Ações em Lote */}
+                      <div className="flex items-center gap-3 mb-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleSelectAll}
+                        >
+                          {selectedContas.length === contas.length ? "Desmarcar todas" : "Selecionar todas"}
+                        </Button>
+
+                        {selectedContas.length > 0 && (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleEditarEmLote}
+                            >
+                              <Edit className="h-4 w-4 mr-2" />
+                              Editar
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handlePagamentoEmLote}
+                            >
+                              <DollarSign className="h-4 w-4 mr-2" />
+                              Pagamento
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={handleExcluirSelecionadas}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Excluir
+                            </Button>
+                            <span className="text-sm text-[#9C8B82]">
+                              {selectedContas.length} selecionada(s)
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="w-[50px]">
+                                <Checkbox 
+                                  checked={selectedContas.length === contas.length && contas.length > 0}
+                                  onCheckedChange={handleSelectAll}
+                                />
+                              </TableHead>
                             <TableHead className="w-[50px]"></TableHead>
                             <TableHead>Data</TableHead>
                             <TableHead>Descrição</TableHead>
@@ -868,26 +825,30 @@ export default function ContasPagar() {
                         </TableHeader>
                         <TableBody>
                           {contas.map((conta) => {
-                            const categoria = getCategoriaById(conta.categoriaId);
-                            const plano = getPlanoById(conta.planoContaId);
-                            const banco = conta.bancoId ? getBancoById(conta.bancoId) : null;
+                            const categoria = getCategoriaById(conta.categoria_id);
 
                             return (
                               <TableRow key={conta.id} className={getRowClassName(conta)}>
                                 <TableCell>
-                                  <Checkbox />
+                                  <Checkbox 
+                                    checked={selectedContas.includes(conta.id)}
+                                    onCheckedChange={(checked) => {
+                                      if (checked) {
+                                        setSelectedContas([...selectedContas, conta.id]);
+                                      } else {
+                                        setSelectedContas(selectedContas.filter(id => id !== conta.id));
+                                      }
+                                    }}
+                                  />
                                 </TableCell>
                                 <TableCell>
                                   <PrioridadeIndicador prioridade={getPrioridadeConta(conta)} />
                                 </TableCell>
                                 <TableCell>
                                   <div className="flex flex-col text-sm">
-                                    <span className="font-medium text-[#6B5047]">
-                                      {format(new Date(conta.dataEmissao), "dd/MMM", { locale: ptBR })}
-                                    </span>
                                     <span className="text-xs text-[#9C8B82]">
                                       {conta.status === 'pago' ? 'Pago: ' : 'Venc: '}
-                                      {format(new Date(conta.status === 'pago' && conta.dataPagamento ? conta.dataPagamento : conta.dataVencimento), "dd/MMM", { locale: ptBR })}
+                                      {format(new Date(conta.status === 'pago' && conta.data_pagamento ? conta.data_pagamento : conta.data_vencimento), "dd/MMM", { locale: ptBR })}
                                     </span>
                                   </div>
                                 </TableCell>
@@ -895,17 +856,10 @@ export default function ContasPagar() {
                                   <div className="flex flex-col">
                                     <span className="font-semibold text-[#6B5047]">{conta.descricao}</span>
                                     <span className="text-sm text-[#9C8B82]">{categoria?.nome}</span>
-                                    <span className="text-xs text-[#9C8B82]">{plano?.nome}</span>
-                                    {conta.status === 'pago' && conta.formaPagamento && (
-                                      <span className="text-xs text-[#9C8B82] mt-1">
-                                        {formasPagamentoLabels[conta.formaPagamento]}
-                                        {banco && ` - ${banco.nome}`}
-                                      </span>
-                                    )}
                                   </div>
                                 </TableCell>
                                 <TableCell className="text-sm text-[#9C8B82]">
-                                  {conta.fornecedorNome || '-'}
+                                  -
                                 </TableCell>
                                 <TableCell className={`font-semibold ${conta.status === 'atrasado' ? 'text-[#D88B8B] font-bold' : 'text-[#6B5047]'}`}>
                                   {formatCurrency(conta.valor)}
@@ -972,6 +926,7 @@ export default function ContasPagar() {
                         </TableBody>
                       </Table>
                     </div>
+                    </>
                   )}
                 </TabsContent>
               ))}
@@ -983,14 +938,14 @@ export default function ContasPagar() {
       <ContaPagarFormDialog
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
-        conta={selectedConta}
+        conta={selectedConta as any}
         onSave={handleSave}
       />
 
       <RegistrarPagamentoDialog
         open={isPagamentoOpen}
         onOpenChange={setIsPagamentoOpen}
-        conta={selectedConta}
+        conta={selectedConta as any}
         onSave={handlePagamentoRegistrado}
         tipo="pagar"
       />
@@ -1001,6 +956,14 @@ export default function ContasPagar() {
         title="Excluir Conta a Pagar"
         description="Tem certeza que deseja excluir esta conta? Esta ação não pode ser desfeita."
         onConfirm={handleDelete}
+      />
+
+      <ConfirmDialog
+        open={deleteMultipleConfirmOpen}
+        onOpenChange={setDeleteMultipleConfirmOpen}
+        title="Excluir Múltiplas Contas"
+        description={`Tem certeza que deseja excluir TODOS os ${selectedContas.length} lançamento(s) selecionado(s)? Esta ação não pode ser desfeita e todos os registros serão permanentemente removidos.`}
+        onConfirm={confirmExcluirSelecionadas}
       />
     </div>
   );
