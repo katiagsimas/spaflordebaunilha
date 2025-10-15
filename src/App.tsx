@@ -107,17 +107,39 @@ const App = () => (
             <Route path="/auth/login" element={<AuthLogin />} />
             <Route path="/auth/signup" element={<SignUp />} />
             <Route path="/auth/forgot-password" element={<ForgotPassword />} />
-          <Route path="/" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
+          {/* ============================================ */}
+          {/* 🔒 ROTAS TEMPORARIAMENTE DESABILITADAS */}
+          {/* Data: 15/10/2025 - Validação focada nos módulos core */}
+          {/* Para reativar: Descomentar as linhas abaixo */}
+          {/* ============================================ */}
+          
+          {/* 📊 DASHBOARD */}
+          {/* <Route path="/" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} /> */}
+          
+          {/* Redirecionar / para Encomendas durante validação */}
+          <Route path="/" element={<Navigate to="/encomendas" replace />} />
+          
           <Route path="/encomendas" element={<ProtectedRoute><Layout><Encomendas /></Layout></ProtectedRoute>} />
-          <Route path="/producao" element={<ProtectedRoute><Layout><Producao /></Layout></ProtectedRoute>} />
-          <Route path="/estoque" element={<ProtectedRoute><Layout><Estoque /></Layout></ProtectedRoute>} />
-          <Route path="/estoque/relatorios" element={<ProtectedRoute><Layout><RelatoriosEstoque /></Layout></ProtectedRoute>} />
-          <Route path="/estoque/relatorios/movimentacoes" element={<ProtectedRoute><Layout><RelatorioMovimentacoes /></Layout></ProtectedRoute>} />
-          <Route path="/estoque/relatorios/consumo-medio" element={<ProtectedRoute><Layout><RelatorioConsumoMedio /></Layout></ProtectedRoute>} />
-          <Route path="/estoque/relatorios/cmv-global" element={<ProtectedRoute><Layout><RelatorioCMVGlobal /></Layout></ProtectedRoute>} />
+          
+          {/* 🏭 PRODUÇÃO */}
+          {/* <Route path="/producao" element={<ProtectedRoute><Layout><Producao /></Layout></ProtectedRoute>} /> */}
+          
+          {/* 📦 ESTOQUE */}
+          {/* <Route path="/estoque" element={<ProtectedRoute><Layout><Estoque /></Layout></ProtectedRoute>} /> */}
+          {/* <Route path="/estoque/relatorios" element={<ProtectedRoute><Layout><RelatoriosEstoque /></Layout></ProtectedRoute>} /> */}
+          {/* <Route path="/estoque/relatorios/movimentacoes" element={<ProtectedRoute><Layout><RelatorioMovimentacoes /></Layout></ProtectedRoute>} /> */}
+          {/* <Route path="/estoque/relatorios/consumo-medio" element={<ProtectedRoute><Layout><RelatorioConsumoMedio /></Layout></ProtectedRoute>} /> */}
+          {/* <Route path="/estoque/relatorios/cmv-global" element={<ProtectedRoute><Layout><RelatorioCMVGlobal /></Layout></ProtectedRoute>} /> */}
+          
           <Route path="/precificacao" element={<ProtectedRoute><Layout><Precificacao /></Layout></ProtectedRoute>} />
-          <Route path="/planejamento" element={<ProtectedRoute><Layout><Planejamento /></Layout></ProtectedRoute>} />
-          <Route path="/cmv-global" element={<ProtectedRoute><Layout><CMVGlobal /></Layout></ProtectedRoute>} />
+          
+          {/* 🎯 PLANEJAMENTO */}
+          {/* <Route path="/planejamento" element={<ProtectedRoute><Layout><Planejamento /></Layout></ProtectedRoute>} /> */}
+          {/* <Route path="/cmv-global" element={<ProtectedRoute><Layout><CMVGlobal /></Layout></ProtectedRoute>} /> */}
+          
+          {/* ============================================ */}
+          {/* FIM DAS ROTAS DESABILITADAS */}
+          {/* ============================================ */}
           <Route path="/cadastros" element={<ProtectedRoute><Layout><Cadastros /></Layout></ProtectedRoute>} />
           <Route path="/clientes-fornecedores" element={<ProtectedRoute><Layout><ClientesFornecedores /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/seus-dados" element={<ProtectedRoute><Layout><SeusDados /></Layout></ProtectedRoute>} />
@@ -210,22 +232,26 @@ const App = () => (
             path="/financeiro/configuracoes/bancos" 
             element={<ProtectedRoute><Layout><Bancos /></Layout></ProtectedRoute>} 
           />
-          <Route
+          {/* ============================================ */}
+          {/* 📈 RELATÓRIOS DESABILITADOS */}
+          {/* ============================================ */}
+          {/* <Route
             path="/relatorios" 
             element={<ProtectedRoute><Layout><Relatorios /></Layout></ProtectedRoute>} 
-          />
-          <Route
+          /> */}
+          {/* <Route
             path="/relatorios/fluxo-caixa-diario" 
             element={<ProtectedRoute><Layout><FluxoCaixaDiario /></Layout></ProtectedRoute>} 
-          />
-          <Route
+          /> */}
+          {/* <Route
             path="/relatorios/fluxo-caixa-mensal" 
             element={<ProtectedRoute><Layout><FluxoCaixaMensal /></Layout></ProtectedRoute>} 
-          />
-          <Route
+          /> */}
+          {/* <Route
             path="/relatorios/dre" 
             element={<ProtectedRoute><Layout><DRE /></Layout></ProtectedRoute>} 
-          />
+          /> */}
+          {/* ============================================ */}
           <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
