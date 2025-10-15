@@ -145,8 +145,14 @@ const App = () => (
           <Route path="/configuracoes/seus-dados" element={<ProtectedRoute><Layout><SeusDados /></Layout></ProtectedRoute>} />
           <Route path="/cadastros/seus-dados" element={<ProtectedRoute><Layout><SeusDados /></Layout></ProtectedRoute>} />
           <Route path="/cadastros/custos-fixos" element={<ProtectedRoute><Layout><CustosFixos /></Layout></ProtectedRoute>} />
-          <Route path="/cadastros/clientes" element={<ProtectedRoute><Layout><Clientes /></Layout></ProtectedRoute>} />
-          <Route path="/cadastros/fornecedores" element={<ProtectedRoute><Layout><Fornecedores /></Layout></ProtectedRoute>} />
+          
+          {/* Páginas independentes de Clientes e Fornecedores */}
+          <Route path="/clientes" element={<ProtectedRoute><Layout><Clientes /></Layout></ProtectedRoute>} />
+          <Route path="/fornecedores" element={<ProtectedRoute><Layout><Fornecedores /></Layout></ProtectedRoute>} />
+          
+          {/* Manter rotas antigas para compatibilidade */}
+          <Route path="/cadastros/clientes" element={<Navigate to="/clientes" replace />} />
+          <Route path="/cadastros/fornecedores" element={<Navigate to="/fornecedores" replace />} />
           <Route path="/configuracoes/unidades" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
           <Route path="/cadastros/unidades" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
           <Route path="/cadastros/ingredientes" element={<ProtectedRoute><Layout><Ingredientes /></Layout></ProtectedRoute>} />
