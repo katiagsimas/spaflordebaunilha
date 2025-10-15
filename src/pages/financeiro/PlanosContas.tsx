@@ -1059,19 +1059,34 @@ export default function PlanosContas() {
     if (planoConta) {
       setEditingPlanoConta(planoConta);
       
+      console.log('📋 Plano de Conta sendo editado:', planoConta);
+      console.log('📂 Categorias disponíveis:', categorias);
+      
       // Tentar encontrar a categoria financeira correspondente
       let categoriaIdReal = planoConta.categoriaId;
       
       // Se categoriaId não é um UUID válido, tentar encontrar pela descrição/categoria
-      const categoriaEncontrada = categorias.find(c => 
-        c.id === planoConta.categoriaId || 
-        c.nome.toLowerCase() === (planoConta.categoriaId || '').toLowerCase() ||
-        c.nome.toLowerCase() === (planoConta.descricao || '').toLowerCase()
-      );
+      const categoriaEncontrada = categorias.find(c => {
+        const match = c.id === planoConta.categoriaId || 
+               c.nome.toLowerCase() === (planoConta.categoriaId || '').toLowerCase() ||
+               c.nome.toLowerCase() === (planoConta.descricao || '').toLowerCase();
+        
+        if (match) {
+          console.log('✅ Categoria encontrada:', c);
+        }
+        return match;
+      });
       
       if (categoriaEncontrada) {
         categoriaIdReal = categoriaEncontrada.id;
+      } else {
+        console.log('❌ Nenhuma categoria correspondente encontrada para:', {
+          categoriaId: planoConta.categoriaId,
+          descricao: planoConta.descricao
+        });
       }
+      
+      console.log('🎯 Categoria ID final:', categoriaIdReal);
       
       setFormData({
         nome: planoConta.nome,
