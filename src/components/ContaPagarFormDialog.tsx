@@ -161,7 +161,7 @@ interface ContaPagarFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   conta?: ContaPagar;
-  onSave: (conta: ContaPagar) => void;
+  onSave: (conta: any) => void;
 }
 
 export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: ContaPagarFormDialogProps) {
@@ -262,29 +262,14 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
   const onSubmit = (data: FormValues) => {
     const valor = parseFloat(data.valor.replace(/[^\d,]/g, '').replace(',', '.'));
 
-    const contaPagar: ContaPagar = {
-      id: conta?.id || crypto.randomUUID(),
+    const contaPagar = {
       descricao: data.descricao,
-      categoriaId: data.categoriaId,
-      planoContaId: data.planoContaId,
+      categoria_id: data.categoriaId,
       valor,
-      dataEmissao: data.dataEmissao.toISOString(),
-      dataVencimento: data.dataEmissao.toISOString(), // Usa data de emissão como vencimento
+      data_vencimento: data.dataEmissao.toISOString().split('T')[0],
       status: 'pendente',
-      fornecedorNome: data.fornecedorNome || undefined,
-      fornecedorDocumento: data.fornecedorDocumento || undefined,
-      bancoId: data.bancoId || undefined,
-      tipoDocumentoId: data.tipoDocumentoId || undefined,
-      numeroDocumento: data.numeroDocumento || undefined,
-      observacoes: data.observacoes || undefined,
-      parcelado: data.parcelado,
-      numeroParcela: data.numeroParcela,
-      totalParcelas: data.totalParcelas,
-      recorrente: data.recorrente,
-      frequenciaRecorrencia: data.frequenciaRecorrencia,
-      proximaRecorrencia: data.proximaRecorrencia?.toISOString(),
-      createdAt: conta?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      observacoes: data.observacoes || null,
+      banco_id: data.bancoId || null,
     };
 
     onSave(contaPagar);
