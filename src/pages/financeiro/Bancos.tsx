@@ -13,6 +13,12 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { EmptyState } from "@/components/EmptyState";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+interface BancoLocalStorage {
+  id: string;
+  codigo: string;
+  descricao: string;
+}
+
 
 // Base de dados de bancos brasileiros conhecidos
 const bancosConhecidos = [
@@ -44,12 +50,49 @@ export default function Bancos() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBanco, setEditingBanco] = useState<any | null>(null);
   const [bancoJaExiste, setBancoJaExiste] = useState(false);
+  const [migrating, setMigrating] = useState(false);
   
   const [formData, setFormData] = useState({
     nome: "",
     tipo: "Conta Corrente",
     saldo_inicial: 0,
   });
+
+  // Migrar dados do localStorage para Supabase
+  useEffect(() => {
+    const migrateFromLocalStorage = async () => {
+      if (loading || bancos.length > 0 || migrating) return;
+      
+      try {
+        const localData = localStorage.getItem("sugarbox_bancos");
+        if (!localData) return;
+        
+        const bancosAntigos: BancoLocalStorage[] = JSON.parse(localData);
+        if (!bancosAntigos || bancosAntigos.length === 0) return;
+        
+        setMigrating(true);
+        console.log('Migrando bancos do localStorage para Supabase...', bancosAntigos);
+        
+        for (const bancoAntigo of bancosAntigos) {
+          await createBanco({
+            nome: bancoAntigo.descricao,
+            tipo: "Conta Corrente",
+            saldo_inicial: 0,
+          });
+        }
+        
+        // Remover dados antigos do localStorage
+        localStorage.removeItem("sugarbox_bancos");
+        toast.success(`${bancosAntigos.length} banco(s) migrado(s) com sucesso!`);
+      } catch (error) {
+        console.error('Erro ao migrar bancos:', error);
+      } finally {
+        setMigrating(false);
+      }
+    };
+    
+    migrateFromLocalStorage();
+  }, [loading, bancos.length, createBanco]);
 
   const resetForm = () => {
     setFormData({ nome: "", tipo: "Conta Corrente", saldo_inicial: 0 });
@@ -195,8 +238,10 @@ export default function Bancos() {
         }
       />
 
-      {loading ? (
-        <div className="text-center py-8">Carregando...</div>
+      {loading || migrating ? (
+        <div className="text-center py-8">
+          {migrating ? "Migrando bancos..." : "Carregando..."}
+        </div>
       ) : bancos.length === 0 ? (
         <EmptyState
           icon={Building2}
