@@ -1259,7 +1259,6 @@ export function ContaReceberFormDialog({
                 }
 
                 const dataEmissaoForm = form.getValues('dataEmissao');
-                console.log('Data de emissão do formulário:', dataEmissaoForm);
                 
                 // Usar data de emissão do formulário ou data atual se não estiver preenchida
                 const dataEmissaoFinal = dataEmissaoForm || new Date();
@@ -1267,11 +1266,17 @@ export function ContaReceberFormDialog({
                 const valorParcela = valorTotal / numParcelas;
                 
                 const novasParcelas = Array.from({ length: numParcelas }, (_, i) => {
-                  const dataVenc = addMonths(dataVencimentoParcela, i);
+                  // Criar nova data sem problemas de timezone
+                  const dataVenc = new Date(dataVencimentoParcela);
+                  dataVenc.setMonth(dataVenc.getMonth() + i);
+                  
+                  // Garantir que usa a data de emissão original para todas as parcelas
+                  const dataEmis = new Date(dataEmissaoFinal);
+                  
                   return {
                     numero: i + 1,
                     total: numParcelas,
-                    dataEmissao: formatDateToISO(dataEmissaoFinal),
+                    dataEmissao: formatDateToISO(dataEmis),
                     dataVencimento: formatDateToISO(dataVenc),
                     valor: valorParcela,
                     valorTotal: valorTotal
@@ -1372,10 +1377,13 @@ export function ContaReceberFormDialog({
                 }
                 
                 const novasRecorrencias = Array.from({ length: numRecorrencias }, (_, i) => {
-                  // Data de vencimento: primeira é a informada, demais no mesmo dia do mês seguinte
-                  const dataVenc = addMonths(dataVencimentoRecorrencia, i);
+                  // Criar nova data sem problemas de timezone
+                  const dataVenc = new Date(dataVencimentoRecorrencia);
+                  dataVenc.setMonth(dataVenc.getMonth() + i);
+                  
                   // Data de emissão: usa a data do formulário e adiciona meses
-                  const dataEmis = addMonths(dataEmissaoForm, i);
+                  const dataEmis = new Date(dataEmissaoForm);
+                  dataEmis.setMonth(dataEmis.getMonth() + i);
                   
                   return {
                     numero: i + 1,
