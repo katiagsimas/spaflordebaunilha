@@ -62,6 +62,7 @@ export default function ContasReceber() {
   const [contaParaReceber, setContaParaReceber] = useState<any | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [contaToDelete, setContaToDelete] = useState<any | null>(null);
+  const [deleteMultipleConfirmOpen, setDeleteMultipleConfirmOpen] = useState(false);
   
   // Novos estados para filtro avançado
   const [tipoBusca, setTipoBusca] = useState<string>("pessoa");
@@ -350,18 +351,29 @@ export default function ContasReceber() {
       return;
     }
 
-    if (confirm(`Tem certeza que deseja excluir ${selectedContas.length} conta(s) selecionada(s)?`)) {
-      try {
-        for (const id of selectedContas) {
-          await deleteItem(id);
-        }
-        setSelectedContas([]);
-        toast.success(`✓ ${selectedContas.length} conta(s) excluída(s) com sucesso!`);
-        refetch();
-      } catch (error: any) {
-        toast.error('Erro ao excluir contas: ' + error.message);
+    setDeleteMultipleConfirmOpen(true);
+  }
+
+  async function confirmExcluirSelecionadas() {
+    try {
+      for (const id of selectedContas) {
+        await deleteItem(id);
       }
+      setSelectedContas([]);
+      toast.success(`✓ ${selectedContas.length} conta(s) excluída(s) com sucesso!`);
+      setDeleteMultipleConfirmOpen(false);
+      refetch();
+    } catch (error: any) {
+      toast.error('Erro ao excluir contas: ' + error.message);
     }
+  }
+
+  function handleEditarEmLote() {
+    toast.info("Funcionalidade de edição em lote em desenvolvimento");
+  }
+
+  function handleRecebimentoEmLote() {
+    toast.info("Funcionalidade de recebimento em lote em desenvolvimento");
   }
 
   function handleExportarCSV() {
@@ -744,43 +756,61 @@ export default function ContasReceber() {
         {/* Linha 2: Selecionar Todas e Botões de Ação */}
         <div className="flex gap-2 justify-between items-center">
           {/* Botão Selecionar Todas - Lado Esquerdo */}
-          {contasFiltradas.length > 0 && selectedContas.length === 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleSelecionarTodas}
-              className="text-xs text-[#9C8B82] hover:text-[#6B5047]"
-            >
-              <CheckCircle className="h-3 w-3 mr-1" />
-              Selecionar todas ({contasFiltradas.length})
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {contasFiltradas.length > 0 && selectedContas.length === 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSelecionarTodas}
+                className="text-xs text-[#9C8B82] hover:text-[#6B5047]"
+              >
+                <CheckCircle className="h-3 w-3 mr-1" />
+                Selecionar todas ({contasFiltradas.length})
+              </Button>
+            )}
 
-          {/* Botões de ação quando há seleção */}
-          <div className="flex gap-2 ml-auto">
-          {selectedContas.length > 0 && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleDesselecionarTodas}
-                className="text-xs"
-              >
-                Desselecionar ({selectedContas.length})
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleExcluirSelecionadas}
-                className="text-xs"
-              >
-                <Trash2 className="h-3 w-3 mr-1" />
-                Excluir
-              </Button>
-            </>
-          )}
+            {/* Botões de ação quando há seleção - Lado Esquerdo */}
+            {selectedContas.length > 0 && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDesselecionarTodas}
+                  className="text-xs"
+                >
+                  Desselecionar ({selectedContas.length})
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleEditarEmLote}
+                  className="text-xs"
+                >
+                  <Edit className="h-3 w-3 mr-1" />
+                  Editar
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRecebimentoEmLote}
+                  className="text-xs bg-[#E8F5E9] text-[#388E3C] hover:bg-[#C8E6C9]"
+                >
+                  <DollarSign className="h-3 w-3 mr-1" />
+                  Recebimento
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleExcluirSelecionadas}
+                  className="text-xs"
+                >
+                  <Trash2 className="h-3 w-3 mr-1" />
+                  Excluir
+                </Button>
+              </>
+            )}
+          </div>
         </div>
-      </div>
       </div>
 
       {/* Botão Nova Conta - Centralizado acima dos filtros */}
@@ -1083,6 +1113,17 @@ export default function ContasReceber() {
         title="Excluir Conta a Receber"
         description={`Tem certeza que deseja excluir "${contaToDelete?.descricao}"? Esta ação não pode ser desfeita.`}
         confirmLabel="Excluir"
+        cancelLabel="Cancelar"
+      />
+
+      {/* Confirmação de Exclusão Múltipla */}
+      <ConfirmDialog
+        open={deleteMultipleConfirmOpen}
+        onOpenChange={setDeleteMultipleConfirmOpen}
+        onConfirm={confirmExcluirSelecionadas}
+        title="Excluir Contas Selecionadas"
+        description={`Tem certeza que deseja excluir TODOS os ${selectedContas.length} lançamento(s) selecionado(s)? Esta ação não pode ser desfeita e todos os registros serão permanentemente removidos.`}
+        confirmLabel="Sim, excluir todos"
         cancelLabel="Cancelar"
       />
     </div>
