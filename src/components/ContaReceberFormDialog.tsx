@@ -1254,10 +1254,8 @@ export function ContaReceberFormDialog({
                 const dataEmissaoForm = form.getValues('dataEmissao');
                 console.log('Data de emissão do formulário:', dataEmissaoForm);
                 
-                if (!dataEmissaoForm) {
-                  toast.error("Por favor, informe a data de emissão antes de gerar as parcelas");
-                  return;
-                }
+                // Usar data de emissão do formulário ou data atual se não estiver preenchida
+                const dataEmissaoFinal = dataEmissaoForm || new Date();
 
                 const valorParcela = valorTotal / numParcelas;
                 
@@ -1266,7 +1264,7 @@ export function ContaReceberFormDialog({
                   return {
                     numero: i + 1,
                     total: numParcelas,
-                    dataEmissao: dataEmissaoForm.toISOString().split('T')[0],
+                    dataEmissao: dataEmissaoFinal.toISOString().split('T')[0],
                     dataVencimento: dataVenc.toISOString().split('T')[0],
                     valor: valorParcela,
                     valorTotal: valorTotal
