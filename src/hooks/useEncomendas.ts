@@ -27,7 +27,7 @@ interface Encomenda {
   topo_idade?: string;
   topo_obs?: string;
   topo_imagens?: string[];
-  pagamentos?: Array<{ valor: number; data: string; tipo_pagamento: string; pago?: boolean }>;
+  pagamentos?: Array<{ valor: number; data: string; tipo_pagamento: string; pago?: boolean; banco_id?: string }>;
   saldo_restante?: number;
   created_at?: string;
   updated_at?: string;
