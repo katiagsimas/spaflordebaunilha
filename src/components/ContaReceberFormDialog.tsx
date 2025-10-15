@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Calendar, DollarSign, FileText, User, CreditCard, Repeat, Package, ExternalLink } from "lucide-react";
+import { Calendar, DollarSign, FileText, User, CreditCard, Repeat, Package, ExternalLink, Building2 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
@@ -42,6 +42,7 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useCategoriasFinanceiras } from "@/hooks/useCategoriasFinanceiras";
 import { usePlanoContas } from "@/hooks/usePlanoContas";
 import { useClientes } from "@/hooks/useClientes";
+import { useBancos } from "@/hooks/useBancos";
 import { ClienteAutocomplete } from "@/components/ClienteAutocomplete";
 
 // Helper para renderizar ícone dinamicamente
@@ -115,6 +116,7 @@ const formSchema = z.object({
   dataVencimento: z.date(),
   clienteNome: z.string().max(100).optional().or(z.literal("")),
   clienteDocumento: z.string().optional().or(z.literal("")),
+  bancoId: z.string().optional().or(z.literal("")),
   tipoDocumentoId: z.string().optional().or(z.literal("")),
   numeroDocumento: z.string().max(50).optional().or(z.literal("")),
   observacoes: z.string().max(500).optional().or(z.literal("")),
@@ -155,6 +157,7 @@ export function ContaReceberFormDialog({
   const { categorias: categoriasFinanceiras } = useCategoriasFinanceiras();
   const { planoContas } = usePlanoContas();
   const { clientes } = useClientes();
+  const { bancos } = useBancos();
   const [tiposDocumento] = useLocalStorage<TipoDocumento[]>("sugarbox_tipos_documento", []);
   const [contas, setContas] = useLocalStorage<ContaReceber[]>("sugarbox_contas_receber", []);
   const [selectedCategoriaId, setSelectedCategoriaId] = useState<string>("");
@@ -183,6 +186,7 @@ export function ContaReceberFormDialog({
       dataVencimento: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       clienteNome: "",
       clienteDocumento: "",
+      bancoId: "",
       tipoDocumentoId: "",
       numeroDocumento: "",
       observacoes: "",
@@ -205,6 +209,7 @@ export function ContaReceberFormDialog({
         dataVencimento: new Date(conta.dataVencimento),
         clienteNome: conta.clienteNome || "",
         clienteDocumento: conta.clienteDocumento || "",
+        bancoId: conta.bancoId || "",
         tipoDocumentoId: conta.tipoDocumentoId || "",
         numeroDocumento: conta.numeroDocumento || "",
         observacoes: conta.observacoes || "",
@@ -226,6 +231,7 @@ export function ContaReceberFormDialog({
         dataVencimento: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         clienteNome: "",
         clienteDocumento: "",
+        bancoId: "",
         tipoDocumentoId: "",
         numeroDocumento: "",
         observacoes: "",
@@ -263,6 +269,7 @@ export function ContaReceberFormDialog({
       status,
       clienteNome: values.clienteNome?.trim(),
       clienteDocumento: values.clienteDocumento?.trim(),
+      bancoId: values.bancoId,
       tipoDocumentoId: values.tipoDocumentoId,
       numeroDocumento: values.numeroDocumento?.trim(),
       observacoes: values.observacoes?.trim(),
@@ -688,6 +695,48 @@ export function ContaReceberFormDialog({
                         {tiposDocumento.map((tipo) => (
                           <SelectItem key={tipo.id} value={tipo.id}>
                             {tipo.codigo} - {tipo.descricao}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="bancoId"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center justify-between">
+                      <FormLabel className="text-[#6B5047] font-medium">Banco</FormLabel>
+                      {bancos.length === 0 && (
+                        <Link 
+                          to="/configuracoes/bancos"
+                          className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1"
+                        >
+                          + Criar banco
+                        </Link>
+                      )}
+                    </div>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]">
+                          <SelectValue placeholder={
+                            bancos.length === 0 
+                              ? "Nenhum banco cadastrado" 
+                              : "Selecione o banco..."
+                          } />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-background">
+                        {bancos.map((banco) => (
+                          <SelectItem key={banco.id} value={banco.id}>
+                            <span className="flex items-center gap-2">
+                              <Building2 className="h-4 w-4" />
+                              {banco.nome} ({banco.tipo})
+                            </span>
                           </SelectItem>
                         ))}
                       </SelectContent>
