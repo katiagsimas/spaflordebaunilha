@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { ContaPagarFormDialog } from "@/components/ContaPagarFormDialog";
 import { RegistrarPagamentoDialog } from "@/components/RegistrarPagamentoDialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { BackButton } from "@/components/BackButton";
 
 interface ContaPagar {
   id: string;
@@ -500,6 +501,7 @@ export default function ContasPagar() {
     <div className="min-h-screen bg-[#FAF7F5]">
       <div className="bg-white border-b border-[#E8E3DF] shadow-sm">
         <div className="container mx-auto px-4 py-6">
+          <BackButton to="/financeiro" />
           <h1 className="text-3xl font-bold text-[#6B5047]">Contas a Pagar</h1>
           <p className="text-[#9C8B82] mt-1">Controle de despesas e pagamentos</p>
         </div>
