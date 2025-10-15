@@ -37,7 +37,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { DatePickerField } from "@/components/DatePickerField";
-import { useBancos } from "@/hooks/useBancos";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 interface ContaReceber {
   id: string;
@@ -63,11 +63,8 @@ interface ContaReceber {
 
 interface Banco {
   id: string;
-  nome: string;
-  tipo: string;
-  saldo_inicial: number;
-  created_at?: string;
-  updated_at?: string;
+  codigo: string;
+  descricao: string;
 }
 
 const formSchema = z.object({
@@ -93,14 +90,8 @@ export function RegistrarRecebimentoDialog({
   conta,
   onSave,
 }: RegistrarRecebimentoDialogProps) {
-  const { bancos, loading } = useBancos();
+  const [bancos] = useLocalStorage<Banco[]>("sugarbox_bancos", []);
   const [valorInput, setValorInput] = useState("");
-
-  // Debug: verificar se os bancos estão sendo carregados
-  useEffect(() => {
-    console.log('📊 RegistrarRecebimentoDialog - Bancos carregados:', bancos);
-    console.log('📊 RegistrarRecebimentoDialog - Loading:', loading);
-  }, [bancos, loading]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -440,22 +431,20 @@ export function RegistrarRecebimentoDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent className="bg-background">
-                      {loading ? (
-                        <SelectItem value="loading" disabled>Carregando...</SelectItem>
-                      ) : bancos.length === 0 ? (
+                      {bancos.length === 0 ? (
                         <SelectItem value="empty" disabled>Nenhum banco cadastrado</SelectItem>
                       ) : (
                         bancos.map((banco) => (
                           <SelectItem key={banco.id} value={banco.id}>
-                            {banco.nome}
+                            {banco.descricao}
                           </SelectItem>
                         ))
                       )}
                     </SelectContent>
                   </Select>
-                  {bancos.length === 0 && !loading && (
+                  {bancos.length === 0 && (
                     <p className="text-xs text-[#C62828] mt-1">
-                      Você precisa cadastrar bancos em Configurações antes de registrar recebimentos.
+                      Você precisa cadastrar bancos em Configurações {">"} Bancos antes de registrar recebimentos.
                     </p>
                   )}
                   <FormMessage />
