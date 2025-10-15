@@ -5,9 +5,9 @@ import * as z from "zod";
 import { format } from "date-fns";
 import { CalendarIcon, DollarSign, FileText, Building2, Calendar, User, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useCategoriasFinanceiras } from "@/hooks/useCategoriasFinanceiras";
 import { usePlanoContas } from "@/hooks/usePlanoContas";
+import { useTiposDocumento } from "@/hooks/useTiposDocumento";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,7 +65,8 @@ interface PlanoContas {
 
 interface TipoDocumento {
   id: string;
-  nome: string;
+  codigo: string;
+  descricao: string;
 }
 
 const formSchema = z.object({
@@ -146,7 +147,7 @@ interface ContaPagarFormDialogProps {
 export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: ContaPagarFormDialogProps) {
   const { categorias, loading: loadingCategorias } = useCategoriasFinanceiras();
   const { planoContas, loading: loadingPlanos } = usePlanoContas();
-  const [tiposDocumento] = useLocalStorage<TipoDocumento[]>("tipos_documento", []);
+  const { tiposDocumento, loading: loadingTiposDocumento } = useTiposDocumento();
 
   // Filtrar apenas categorias de despesa
   const categoriasDespesa = categorias.filter(c => c.tipo === 'despesa');
@@ -624,7 +625,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                       <SelectContent>
                         {tiposDocumento.map((tipo) => (
                           <SelectItem key={tipo.id} value={tipo.id}>
-                            {tipo.nome}
+                            {tipo.descricao}
                           </SelectItem>
                         ))}
                       </SelectContent>

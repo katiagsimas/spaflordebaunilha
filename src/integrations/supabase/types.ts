@@ -866,6 +866,33 @@ export type Database = {
         }
         Relationships: []
       }
+      tipos_documento: {
+        Row: {
+          codigo: string
+          created_at: string
+          descricao: string
+          id: string
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          codigo: string
+          created_at?: string
+          descricao: string
+          id?: string
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          codigo?: string
+          created_at?: string
+          descricao?: string
+          id?: string
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       tipos_embalagens: {
         Row: {
           codigo: number
