@@ -98,9 +98,8 @@ interface PlanoContas {
 
 interface TipoDocumento {
   id: string;
-  codigo?: string;
+  codigo: string;
   descricao: string;
-  ativo: boolean;
 }
 
 const formSchema = z.object({
@@ -651,9 +650,8 @@ export function ContaReceberFormDialog({
                   Documento (opcional)
                 </h3>
                 <Link 
-                  to="/financeiro/tipos-documento"
+                  to="/configuracoes/tipos-documento"
                   className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1 transition-colors"
-                  target="_blank"
                 >
                   <ExternalLink className="h-3 w-3" />
                   Gerenciar Tipos de Documento
@@ -667,11 +665,10 @@ export function ContaReceberFormDialog({
                   <FormItem>
                     <div className="flex items-center justify-between">
                       <FormLabel className="text-[#6B5047] font-medium">Tipo de Documento</FormLabel>
-                      {tiposDocumento.filter(t => t.ativo).length === 0 && (
+                      {tiposDocumento.length === 0 && (
                         <Link 
-                          to="/financeiro/tipos-documento"
+                          to="/configuracoes/tipos-documento"
                           className="text-xs text-[#D89B8C] hover:text-[#B87C6D] flex items-center gap-1"
-                          target="_blank"
                         >
                           + Criar tipo de documento
                         </Link>
@@ -680,13 +677,17 @@ export function ContaReceberFormDialog({
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
                         <SelectTrigger className="border-[#E8E3DF] focus:border-[#D89B8C] focus:ring-[#D89B8C]">
-                          <SelectValue placeholder="Selecione o tipo de documento..." />
+                          <SelectValue placeholder={
+                            tiposDocumento.length === 0 
+                              ? "Nenhum tipo cadastrado" 
+                              : "Selecione o tipo de documento..."
+                          } />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="bg-background">
-                        {tiposDocumento.filter(t => t.ativo).map((tipo) => (
+                        {tiposDocumento.map((tipo) => (
                           <SelectItem key={tipo.id} value={tipo.id}>
-                            {tipo.descricao}
+                            {tipo.codigo} - {tipo.descricao}
                           </SelectItem>
                         ))}
                       </SelectContent>
