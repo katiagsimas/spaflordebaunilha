@@ -614,6 +614,31 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
 
               <FormField
                 control={form.control}
+                name="tipoDocumentoId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[#6B5047]">Tipo de Documento *</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {tiposDocumento.map((tipo) => (
+                          <SelectItem key={tipo.id} value={tipo.id}>
+                            {tipo.descricao}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="bancoId"
                 render={({ field }) => (
                   <FormItem>
@@ -636,31 +661,6 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                             </SelectItem>
                           ))
                         )}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="tipoDocumentoId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[#6B5047]">Tipo de Documento *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {tiposDocumento.map((tipo) => (
-                          <SelectItem key={tipo.id} value={tipo.id}>
-                            {tipo.descricao}
-                          </SelectItem>
-                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
