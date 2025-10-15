@@ -36,8 +36,8 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { DatePickerField } from "@/components/DatePickerField";
+import { useBancos } from "@/hooks/useBancos";
 
 interface ContaReceber {
   id: string;
@@ -64,7 +64,10 @@ interface ContaReceber {
 interface Banco {
   id: string;
   nome: string;
-  ativo: boolean;
+  tipo: string;
+  saldo_inicial: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 const formSchema = z.object({
@@ -90,11 +93,8 @@ export function RegistrarRecebimentoDialog({
   conta,
   onSave,
 }: RegistrarRecebimentoDialogProps) {
-  const [bancos] = useLocalStorage<Banco[]>("sugarbox_bancos", []);
-  const [contas, setContas] = useLocalStorage<ContaReceber[]>("sugarbox_contas_receber", []);
+  const { bancos } = useBancos();
   const [valorInput, setValorInput] = useState("");
-
-  const bancosAtivos = bancos.filter(b => b.ativo);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -434,7 +434,7 @@ export function RegistrarRecebimentoDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent className="bg-background">
-                      {bancosAtivos.map((banco) => (
+                      {bancos.map((banco) => (
                         <SelectItem key={banco.id} value={banco.id}>
                           {banco.nome}
                         </SelectItem>
