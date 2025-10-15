@@ -115,7 +115,7 @@ const formSchema = z.object({
   observacoes: z.string().max(500, "Observações devem ter no máximo 500 caracteres").optional(),
   parcelado: z.boolean(),
   numeroParcela: z.number().optional(),
-  totalParcelas: z.number().min(1, "Mínimo 1 parcela").max(60, "Máximo 60 parcelas").optional(),
+  totalParcelas: z.number().optional(),
   frequenciaParcelas: z.enum(['mensal', 'quinzenal', 'semanal', 'personalizado']).optional(),
   recorrente: z.boolean(),
   frequenciaRecorrencia: z.enum(['mensal', 'bimestral', 'trimestral', 'semestral', 'anual']).optional(),
