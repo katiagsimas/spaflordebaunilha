@@ -1262,9 +1262,6 @@ export function ContaReceberFormDialog({
                 
                 // Usar data de emissão do formulário ou data atual se não estiver preenchida
                 const dataEmissaoFinal = dataEmissaoForm || new Date();
-                
-                // Formatar a data de emissão UMA VEZ para todas as parcelas
-                const dataEmissaoFormatada = formatDateToISO(dataEmissaoFinal);
 
                 const valorParcela = valorTotal / numParcelas;
                 
@@ -1276,7 +1273,7 @@ export function ContaReceberFormDialog({
                   return {
                     numero: i + 1,
                     total: numParcelas,
-                    dataEmissao: dataEmissaoFormatada, // Usar a mesma data para todas
+                    dataEmissao: formatDateToISO(dataEmissaoFinal),
                     dataVencimento: formatDateToISO(dataVenc),
                     valor: valorParcela,
                     valorTotal: valorTotal
