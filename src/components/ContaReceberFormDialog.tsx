@@ -37,13 +37,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { formatCpfCnpj } from "@/lib/utils";
 import { toast } from "sonner";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useCategoriasFinanceiras } from "@/hooks/useCategoriasFinanceiras";
 import { usePlanoContas } from "@/hooks/usePlanoContas";
 import { useClientes } from "@/hooks/useClientes";
 import { ClienteAutocomplete } from "@/components/ClienteAutocomplete";
 import { useContasReceber } from "@/hooks/useContasReceber";
 import { DatePickerField } from "@/components/DatePickerField";
+import { useBancos } from "@/hooks/useBancos";
+import { useTiposDocumento } from "@/hooks/useTiposDocumento";
 
 // Helper para renderizar ícone dinamicamente
 const renderIcon = (iconName?: string) => {
@@ -105,8 +106,9 @@ interface TipoDocumento {
 
 interface Banco {
   id: string;
-  codigo: string;
-  descricao: string;
+  nome: string;
+  tipo: string;
+  saldo_inicial: number;
 }
 
 const formSchema = z.object({
@@ -160,8 +162,8 @@ export function ContaReceberFormDialog({
   const { planoContas } = usePlanoContas();
   const { clientes } = useClientes();
   const { createItem, updateItem } = useContasReceber();
-  const [bancos] = useLocalStorage<Banco[]>("sugarbox_bancos", []);
-  const [tiposDocumento] = useLocalStorage<TipoDocumento[]>("sugarbox_tipos_documento", []);
+  const { bancos } = useBancos();
+  const { tiposDocumento } = useTiposDocumento();
   const [selectedCategoriaId, setSelectedCategoriaId] = useState<string>("");
   const [selectedClienteNome, setSelectedClienteNome] = useState<string>("");
   const [valorInput, setValorInput] = useState("");
@@ -642,7 +644,7 @@ export function ContaReceberFormDialog({
                       <SelectContent className="bg-background">
                         {tiposDocumento.map((tipo) => (
                           <SelectItem key={tipo.id} value={tipo.id}>
-                            {tipo.codigo} - {tipo.descricao}
+                            {tipo.descricao}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -681,7 +683,7 @@ export function ContaReceberFormDialog({
                       <SelectContent className="bg-background">
                         {bancos.map((banco) => (
                           <SelectItem key={banco.id} value={banco.id}>
-                            {banco.codigo} - {banco.descricao}
+                            {banco.nome}
                           </SelectItem>
                         ))}
                       </SelectContent>

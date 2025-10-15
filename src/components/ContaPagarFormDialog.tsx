@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { useCategoriasFinanceiras } from "@/hooks/useCategoriasFinanceiras";
 import { usePlanoContas } from "@/hooks/usePlanoContas";
 import { useTiposDocumento } from "@/hooks/useTiposDocumento";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useBancos } from "@/hooks/useBancos";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,8 +24,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 interface Banco {
   id: string;
-  codigo: string;
-  descricao: string;
+  nome: string;
+  tipo: string;
+  saldo_inicial: number;
 }
 
 interface TipoDocumento {
@@ -167,7 +168,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
   const { categorias, loading: loadingCategorias } = useCategoriasFinanceiras();
   const { planoContas, loading: loadingPlanos } = usePlanoContas();
   const { tiposDocumento, loading: loadingTiposDocumento } = useTiposDocumento();
-  const [bancos] = useLocalStorage<Banco[]>("sugarbox_bancos", []);
+  const { bancos } = useBancos();
   
   const [parcelaDialogOpen, setParcelaDialogOpen] = useState(false);
   const [numeroParcelas, setNumeroParcelas] = useState<number>(2);
@@ -535,7 +536,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                         ) : (
                           bancos.map((banco) => (
                             <SelectItem key={banco.id} value={banco.id}>
-                              {banco.descricao}
+                              {banco.nome}
                             </SelectItem>
                           ))
                         )}
