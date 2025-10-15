@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Plus, Pencil, FolderTree, ChevronDown, ChevronRight, Search, Trash2, AlertTriangle, Package, Search as SearchIcon, Copy, History, TrendingUp, FileDown, Upload, Loader2 } from "lucide-react";
 import { usePlanoContas } from "@/hooks/usePlanoContas";
+import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { ExportImport } from "@/components/ExportImport";
@@ -937,6 +938,8 @@ export default function PlanosContas() {
   const [editingPlanoConta, setEditingPlanoConta] = useState<PlanoConta | null>(null);
   const [deletingPlanoConta, setDeletingPlanoConta] = useState<PlanoConta | null>(null);
   const [selectedCategoriaForNew, setSelectedCategoriaForNew] = useState<string | null>(null);
+  const [inicializandoPlanos, setInicializandoPlanos] = useState(false);
+  const inicializadoRef = useRef(false);
   const [formData, setFormData] = useState({
     nome: '',
     descricao: '',
@@ -969,17 +972,89 @@ export default function PlanosContas() {
   }, [planosContasSupabase, loadingPlanos]);
 
   useEffect(() => {
-    // Carregar categorias financeiras
-    const categoriasStr = localStorage.getItem('sugarbox_categorias_financeiras');
-    if (categoriasStr) {
-      setCategorias(JSON.parse(categoriasStr));
-    }
+    // Carregar categorias financeiras do Supabase
+    const loadCategorias = async () => {
+      try {
+        const { data } = await supabase
+          .from('categorias_financeiras')
+          .select('*')
+          .eq('ativo', true);
+        
+        if (data && data.length > 0) {
+          const categoriasFormatadas: CategoriaFinanceira[] = data.map((cat: any) => ({
+            id: cat.id,
+            nome: cat.nome,
+            tipo: cat.tipo as 'receita' | 'despesa',
+            cor: cat.cor || '#8BA888',
+            icone: cat.icone || 'Tag',
+            ativo: true
+          }));
+          setCategorias(categoriasFormatadas);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar categorias:', err);
+      }
+    };
+    
+    loadCategorias();
   }, []);
 
-  if (loadingPlanos) {
+  // Inicializar planos de contas pré-configurados se não existirem
+  useEffect(() => {
+    const inicializarPlanos = async () => {
+      if (
+        !loadingPlanos && 
+        !inicializadoRef.current &&
+        planosContasSupabase.length === 0 && 
+        categorias.length > 0 && 
+        !inicializandoPlanos
+      ) {
+        inicializadoRef.current = true;
+        setInicializandoPlanos(true);
+        try {
+          console.log('Inicializando planos de contas pré-configurados...');
+          
+          // Criar planos de contas agrupados
+          for (const plano of planosContasPreConfigurados) {
+            // Gerar código único baseado no ID
+            const codigoIndex = planosContasPreConfigurados.indexOf(plano) + 1;
+            const codigo = plano.tipo === 'receita' 
+              ? `3.${codigoIndex.toString().padStart(3, '0')}`
+              : `4.${codigoIndex.toString().padStart(3, '0')}`;
+            
+            await createConta({
+              codigo,
+              nome: plano.nome,
+              tipo: plano.tipo.toUpperCase() as 'RECEITA' | 'DESPESA',
+              categoria: plano.descricao,
+              nivel: 2,
+              aceita_lancamento: true,
+              ativo: true,
+            });
+          }
+          
+          sonnerToast.success(`✅ ${planosContasPreConfigurados.length} planos de contas criados com sucesso!`);
+        } catch (error) {
+          console.error('Erro ao inicializar planos:', error);
+          sonnerToast.error('Erro ao inicializar planos de contas');
+          inicializadoRef.current = false;
+        } finally {
+          setInicializandoPlanos(false);
+        }
+      }
+    };
+
+    inicializarPlanos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadingPlanos, planosContasSupabase.length, categorias.length, inicializandoPlanos]);
+
+  if (loadingPlanos || inicializandoPlanos) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center justify-center min-h-screen gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        {inicializandoPlanos && (
+          <p className="text-sm text-muted-foreground">Configurando planos de contas...</p>
+        )}
       </div>
     );
   }
