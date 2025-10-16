@@ -13,7 +13,7 @@ import { useTiposInsumos, TipoInsumo } from "@/hooks/useTiposInsumos";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { BackButton } from "@/components/BackButton";
 import { formatarNumero } from "@/lib/utils";
-import { validarDuplicata } from "@/utils/validacaoDuplicatas";
+import { validarDuplicataTipoInsumo } from "@/utils/validacaoDuplicatas";
 import { toast } from "sonner";
 
 type FormData = {
@@ -64,11 +64,12 @@ export default function TiposInsumosIngredientes() {
     }
 
     try {
-      // Validar duplicatas
-      await validarDuplicata({
+      // Validar duplicata INTELIGENTE (combinação completa)
+      await validarDuplicataTipoInsumo({
         tabela: 'tipos_insumos',
-        campoNome: 'descricao',
-        valorNome: formData.descricao,
+        descricao: formData.descricao,
+        quantidade_embalagem: quantidadeNum,
+        unidade_medida_id: formData.unidade_medida_id,
         idAtual: editandoId || undefined,
       });
 
@@ -83,12 +84,18 @@ export default function TiposInsumosIngredientes() {
           onSuccess: resetForm,
         });
       } else {
+        const qtdFormatada = quantidadeNum.toLocaleString('pt-BR');
         createTipoInsumo.mutate(data, {
-          onSuccess: resetForm,
+          onSuccess: () => {
+            toast.success(`"${formData.descricao}" (${qtdFormatada}) cadastrado!`);
+            resetForm();
+          },
         });
       }
     } catch (error: any) {
-      toast.error(error.message || 'Erro ao salvar tipo de insumo');
+      toast.error(error.message || 'Erro ao salvar tipo de ingrediente', {
+        duration: 6000,
+      });
     }
   };
 

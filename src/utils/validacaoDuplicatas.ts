@@ -1,33 +1,88 @@
 import { supabase } from '@/integrations/supabase/client';
 
-interface ValidacaoDuplicataOptions {
-  tabela: string;
-  campoNome: string;
-  valorNome: string;
-  campoAbreviacao?: string;
-  valorAbreviacao?: string;
+/**
+ * Valida duplicata para Tipos de Insumos/Embalagens
+ * Considera COMBINAÇÃO COMPLETA: descrição + quantidade + unidade
+ */
+export async function validarDuplicataTipoInsumo(options: {
+  tabela: 'tipos_insumos' | 'tipos_embalagens';
+  descricao: string;
+  quantidade_embalagem: number;
+  unidade_medida_id: string;
   idAtual?: string;
+}): Promise<void> {
+  const {
+    tabela,
+    descricao,
+    quantidade_embalagem,
+    unidade_medida_id,
+    idAtual
+  } = options;
+  
+  try {
+    // Buscar registros com COMBINAÇÃO IDÊNTICA
+    let query: any = supabase
+      .from(tabela as any)
+      .select(`
+        id,
+        descricao,
+        quantidade_embalagem,
+        unidade_medida_id,
+        unidades_medida!inner(nome, sigla)
+      `)
+      .ilike('descricao', descricao.trim())
+      .eq('quantidade_embalagem', quantidade_embalagem)
+      .eq('unidade_medida_id', unidade_medida_id);
+    
+    if (idAtual) {
+      query = query.neq('id', idAtual);
+    }
+    
+    const { data: duplicata, error } = await query;
+    
+    if (error) {
+      console.error('Erro ao validar duplicata:', error);
+      throw new Error('Erro ao validar dados. Tente novamente.');
+    }
+    
+    // Se encontrou combinação idêntica, bloquear
+    if (duplicata && duplicata.length > 0) {
+      const item = duplicata[0];
+      const unidadeAbrev = item.unidades_medida?.sigla || '';
+      
+      // Formatar quantidade
+      const qtdFormatada = quantidade_embalagem.toLocaleString('pt-BR', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 3
+      });
+      
+      throw new Error(
+        `Já existe um cadastro idêntico:\n` +
+        `"${item.descricao}" - ${qtdFormatada} ${unidadeAbrev}\n\n` +
+        `Se for uma embalagem diferente, altere a quantidade ou a unidade de medida.`
+      );
+    }
+    
+  } catch (error) {
+    throw error;
+  }
 }
 
 /**
- * Valida se já existe registro com mesmo nome ou abreviação (case-insensitive)
- * @throws Error com mensagem amigável se encontrar duplicata
+ * Valida duplicata para Unidades de Medida
  */
-export async function validarDuplicata(options: ValidacaoDuplicataOptions): Promise<void> {
-  const {
-    tabela,
-    campoNome,
-    valorNome,
-    campoAbreviacao,
-    valorAbreviacao,
-    idAtual
-  } = options;
-
-  // 1. Validar nome duplicado (case-insensitive)
+export async function validarDuplicataUnidadeMedida(options: {
+  nome: string;
+  sigla: string;
+  idAtual?: string;
+}): Promise<void> {
+  const { nome, sigla, idAtual } = options;
+  
+  // Validar nome duplicado
   let queryNome: any = supabase
-    .from(tabela as any)
+    .from('unidades_medida' as any)
     .select('*')
-    .ilike(campoNome, valorNome.trim());
+    .ilike('nome', nome.trim());
   
   if (idAtual) {
     queryNome = queryNome.neq('id', idAtual);
@@ -41,37 +96,35 @@ export async function validarDuplicata(options: ValidacaoDuplicataOptions): Prom
   }
 
   if (nomeDuplicado && nomeDuplicado.length > 0) {
-    const nomeExistente = nomeDuplicado[0][campoNome];
+    const nomeExistente = nomeDuplicado[0].nome;
     throw new Error(
-      `Já existe um registro com o nome "${nomeExistente}". ` +
+      `Já existe uma unidade com o nome "${nomeExistente}". ` +
       `Por favor, escolha outro nome.`
     );
   }
 
-  // 2. Validar abreviação duplicada (se fornecida)
-  if (campoAbreviacao && valorAbreviacao) {
-    let queryAbrev: any = supabase
-      .from(tabela as any)
-      .select('*')
-      .ilike(campoAbreviacao, valorAbreviacao.trim());
-    
-    if (idAtual) {
-      queryAbrev = queryAbrev.neq('id', idAtual);
-    }
+  // Validar sigla duplicada
+  let querySigla: any = supabase
+    .from('unidades_medida' as any)
+    .select('*')
+    .ilike('sigla', sigla.trim());
+  
+  if (idAtual) {
+    querySigla = querySigla.neq('id', idAtual);
+  }
 
-    const { data: abrevDuplicada, error: erroAbrev } = await queryAbrev;
+  const { data: siglaDuplicada, error: erroSigla } = await querySigla;
 
-    if (erroAbrev) {
-      console.error('Erro ao validar abreviação:', erroAbrev);
-      throw new Error('Erro ao validar dados. Tente novamente.');
-    }
+  if (erroSigla) {
+    console.error('Erro ao validar sigla:', erroSigla);
+    throw new Error('Erro ao validar dados. Tente novamente.');
+  }
 
-    if (abrevDuplicada && abrevDuplicada.length > 0) {
-      const abrevExistente = abrevDuplicada[0][campoAbreviacao];
-      throw new Error(
-        `Já existe um registro com a abreviação "${abrevExistente}". ` +
-        `Por favor, escolha outra abreviação.`
-      );
-    }
+  if (siglaDuplicada && siglaDuplicada.length > 0) {
+    const siglaExistente = siglaDuplicada[0].sigla;
+    throw new Error(
+      `Já existe uma unidade com a abreviação "${siglaExistente}". ` +
+      `Por favor, escolha outra abreviação.`
+    );
   }
 }
