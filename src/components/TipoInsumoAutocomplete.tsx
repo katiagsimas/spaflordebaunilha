@@ -67,7 +67,7 @@ export function TipoInsumoAutocomplete({ onSelect, value, onAfterCreate }: TipoI
     setCreateDialogOpen(true);
   };
 
-  const handleSubmitNew = (e: React.FormEvent) => {
+  const handleSubmitNew = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const data = {

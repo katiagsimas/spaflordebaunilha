@@ -368,6 +368,7 @@ export type Database = {
           nome: string
           preco: number
           quantidade: number
+          tipo_embalagem_id: string | null
           unidade_medida: string
           updated_at: string
           usuario_id: string
@@ -380,6 +381,7 @@ export type Database = {
           nome: string
           preco: number
           quantidade: number
+          tipo_embalagem_id?: string | null
           unidade_medida: string
           updated_at?: string
           usuario_id: string
@@ -392,11 +394,20 @@ export type Database = {
           nome?: string
           preco?: number
           quantidade?: number
+          tipo_embalagem_id?: string | null
           unidade_medida?: string
           updated_at?: string
           usuario_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "embalagens_tipo_embalagem_id_fkey"
+            columns: ["tipo_embalagem_id"]
+            isOneToOne: false
+            referencedRelation: "tipos_embalagens"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       encomenda_itens: {
         Row: {
@@ -673,6 +684,7 @@ export type Database = {
           nome: string
           preco: number
           quantidade: number
+          tipo_insumo_id: string | null
           unidade_medida: string
           updated_at: string
           usuario_id: string
@@ -685,6 +697,7 @@ export type Database = {
           nome: string
           preco: number
           quantidade: number
+          tipo_insumo_id?: string | null
           unidade_medida: string
           updated_at?: string
           usuario_id: string
@@ -697,11 +710,20 @@ export type Database = {
           nome?: string
           preco?: number
           quantidade?: number
+          tipo_insumo_id?: string | null
           unidade_medida?: string
           updated_at?: string
           usuario_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ingredientes_tipo_insumo_id_fkey"
+            columns: ["tipo_insumo_id"]
+            isOneToOne: false
+            referencedRelation: "tipos_insumos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       movimentacoes_estoque: {
         Row: {
