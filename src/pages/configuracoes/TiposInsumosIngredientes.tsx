@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,13 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Plus, Edit, Ban, CheckCircle, RefreshCw, AlertCircle } from "lucide-react";
+import { Plus, Edit, Ban, CheckCircle } from "lucide-react";
 import { useTiposInsumos, TipoInsumo } from "@/hooks/useTiposInsumos";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { BackButton } from "@/components/BackButton";
 import { formatarNumero } from "@/lib/utils";
-import { reorganizarCodigos, verificarBuracosSequencia } from "@/utils/reorganizarCodigos";
+import { validarDuplicata } from "@/utils/validacaoDuplicatas";
 import { toast } from "sonner";
 
 type FormData = {
@@ -27,8 +26,6 @@ export default function TiposInsumosIngredientes() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [filtroStatus, setFiltroStatus] = useState<'todos' | 'ativos' | 'inativos'>('ativos');
-  const [verificando, setVerificando] = useState(false);
-  const [reorganizando, setReorganizando] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     descricao: "",
@@ -42,61 +39,6 @@ export default function TiposInsumosIngredientes() {
   // Filtrar apenas unidades ativas
   const unidadesAtivas = unidadesMedida.filter(u => u.ativo !== false);
 
-  // Verificação automática ao carregar
-  useEffect(() => {
-    if (!isLoading) {
-      verificarEReorganizarSeNecessario();
-    }
-  }, [isLoading]);
-
-  const verificarEReorganizarSeNecessario = async () => {
-    setVerificando(true);
-    
-    try {
-      const temBuracos = await verificarBuracosSequencia('tipos_insumos');
-      
-      if (temBuracos) {
-        console.log('⚠️ Sequência com buracos detectada. Reorganizando...');
-        
-        const resultado = await reorganizarCodigos('tipos_insumos', 'descricao');
-        
-        if (resultado.sucesso) {
-          toast.success('✅ Sequência de códigos corrigida automaticamente.');
-        }
-      }
-    } catch (error) {
-      console.error('Erro na verificação:', error);
-    } finally {
-      setVerificando(false);
-    }
-  };
-
-  const handleReorganizarManualmente = async () => {
-    const confirmou = confirm(
-      'Reorganizar códigos?\n\n' +
-      'Todos os códigos serão reorganizados sequencialmente (001, 002, 003...) ' +
-      'eliminando "buracos" de itens deletados.\n\n' +
-      'A reorganização será feita em ordem alfabética por descrição.'
-    );
-    
-    if (!confirmou) return;
-    
-    setReorganizando(true);
-    
-    try {
-      const resultado = await reorganizarCodigos('tipos_insumos', 'descricao');
-      
-      if (resultado.sucesso) {
-        toast.success(`✅ ${resultado.mensagem}`);
-      }
-    } catch (error) {
-      console.error('Erro:', error);
-      toast.error('Não foi possível reorganizar.');
-    } finally {
-      setReorganizando(false);
-    }
-  };
-
   const resetForm = () => {
     setFormData({
       descricao: "",
@@ -107,23 +49,46 @@ export default function TiposInsumosIngredientes() {
     setDialogOpen(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const data = {
-      descricao: formData.descricao,
-      quantidade_embalagem: parseFloat(formData.quantidade_embalagem),
-      unidade_medida_id: formData.unidade_medida_id,
-    };
+    if (!formData.descricao.trim() || !formData.quantidade_embalagem || !formData.unidade_medida_id) {
+      toast.error('Preencha todos os campos obrigatórios');
+      return;
+    }
 
-    if (editandoId) {
-      updateTipoInsumo.mutate({ id: editandoId, ...data }, {
-        onSuccess: resetForm,
+    const quantidadeNum = parseFloat(formData.quantidade_embalagem);
+    if (quantidadeNum <= 0) {
+      toast.error('Quantidade deve ser maior que zero');
+      return;
+    }
+
+    try {
+      // Validar duplicatas
+      await validarDuplicata({
+        tabela: 'tipos_insumos',
+        campoNome: 'descricao',
+        valorNome: formData.descricao,
+        idAtual: editandoId || undefined,
       });
-    } else {
-      createTipoInsumo.mutate(data, {
-        onSuccess: resetForm,
-      });
+
+      const data = {
+        descricao: formData.descricao.trim(),
+        quantidade_embalagem: quantidadeNum,
+        unidade_medida_id: formData.unidade_medida_id,
+      };
+
+      if (editandoId) {
+        updateTipoInsumo.mutate({ id: editandoId, ...data }, {
+          onSuccess: resetForm,
+        });
+      } else {
+        createTipoInsumo.mutate(data, {
+          onSuccess: resetForm,
+        });
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao salvar tipo de insumo');
     }
   };
 
@@ -171,16 +136,6 @@ export default function TiposInsumosIngredientes() {
         </div>
       </div>
 
-      {verificando && (
-        <Alert className="bg-blue-50 border-blue-200">
-          <AlertCircle className="h-4 w-4 text-blue-600" />
-          <AlertTitle>Verificando códigos...</AlertTitle>
-          <AlertDescription>
-            Aguarde enquanto verificamos a integridade dos códigos.
-          </AlertDescription>
-        </Alert>
-      )}
-
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
@@ -198,15 +153,6 @@ export default function TiposInsumosIngredientes() {
               </Select>
             </div>
             <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleReorganizarManualmente}
-                disabled={reorganizando || verificando}
-                title="Reorganizar códigos em ordem alfabética"
-              >
-                <RefreshCw className={`h-4 w-4 ${reorganizando ? 'animate-spin' : ''}`} />
-              </Button>
               <Button onClick={() => setDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Adicionar
@@ -218,7 +164,6 @@ export default function TiposInsumosIngredientes() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Código</TableHead>
                 <TableHead>Descrição</TableHead>
                 <TableHead>Qtd. Embalagem</TableHead>
                 <TableHead>Unidade</TableHead>
@@ -229,13 +174,13 @@ export default function TiposInsumosIngredientes() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center">
+                  <TableCell colSpan={5} className="text-center">
                     Carregando...
                   </TableCell>
                 </TableRow>
               ) : dadosFiltrados.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground">
+                  <TableCell colSpan={5} className="text-center text-muted-foreground">
                     {filtroStatus === 'inativos' ? 'Nenhum tipo inativo' : 'Nenhum registro encontrado'}
                   </TableCell>
                 </TableRow>
@@ -247,7 +192,6 @@ export default function TiposInsumosIngredientes() {
                       key={item.id}
                       className={item.ativo === false ? 'opacity-50 bg-muted/30' : ''}
                     >
-                      <TableCell className="font-mono">{item.codigo}</TableCell>
                       <TableCell>{item.descricao}</TableCell>
                       <TableCell>{formatarNumero(item.quantidade_embalagem)}</TableCell>
                       <TableCell>{unidade?.sigla || "-"}</TableCell>
