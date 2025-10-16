@@ -38,7 +38,7 @@ export function useUnidadesMedida() {
         .from('unidades_medida')
         .select('*')
         .eq('usuario_id', user.id)
-        .order('codigo');
+        .order('nome', { ascending: true });
 
       if (error) throw error;
       

@@ -12,16 +12,21 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useUnidadesMedida, UnidadeMedida } from "@/hooks/useUnidadesMedida";
-import { Plus, Pencil, Ban, CheckCircle, Ruler } from "lucide-react";
+import { Plus, Pencil, Ban, CheckCircle, Ruler, RefreshCw, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { reorganizarCodigos, verificarItensSemCodigo } from "@/utils/reorganizarCodigos";
 
 export default function UnidadesMedida() {
   const navigate = useNavigate();
-  const { unidades, loading, createUnidade, updateUnidade, toggleAtivo } = useUnidadesMedida();
+  const { unidades, loading, createUnidade, updateUnidade, toggleAtivo, refetch } = useUnidadesMedida();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUnidade, setEditingUnidade] = useState<UnidadeMedida | null>(null);
   const [filtroStatus, setFiltroStatus] = useState<'todos' | 'ativos' | 'inativos'>('ativos');
+  const [verificando, setVerificando] = useState(false);
+  const [reorganizando, setReorganizando] = useState(false);
+  const [itensSemCodigo, setItensSemCodigo] = useState(0);
 
   const [formData, setFormData] = useState({
     nome: "",
@@ -37,6 +42,66 @@ export default function UnidadesMedida() {
       setIsDialogOpen(true);
     }
   }, [editingUnidade]);
+
+  // Verificação automática ao carregar
+  useEffect(() => {
+    if (!loading) {
+      verificarEReorganizarSeNecessario();
+    }
+  }, [loading]);
+
+  const verificarEReorganizarSeNecessario = async () => {
+    setVerificando(true);
+    
+    try {
+      const semCodigo = await verificarItensSemCodigo('unidades_medida');
+      setItensSemCodigo(semCodigo);
+      
+      if (semCodigo > 0) {
+        console.log(`⚠️ Encontrados ${semCodigo} itens sem código. Reorganizando...`);
+        
+        const resultado = await reorganizarCodigos('unidades_medida', 'nome');
+        
+        if (resultado.sucesso) {
+          toast.success(`✅ ${resultado.total} unidades receberam códigos automáticos.`);
+          refetch();
+        }
+      }
+    } catch (error) {
+      console.error('Erro na verificação:', error);
+    } finally {
+      setVerificando(false);
+    }
+  };
+
+  const handleReorganizarManualmente = async () => {
+    const confirmou = confirm(
+      'Reorganizar códigos?\n\n' +
+      'Todos os códigos serão reorganizados sequencialmente (001, 002, 003...) ' +
+      'em ordem alfabética.\n\n' +
+      'Esta ação não afeta os dados, apenas reorganiza os códigos.'
+    );
+    
+    if (!confirmou) return;
+    
+    setReorganizando(true);
+    
+    try {
+      const resultado = await reorganizarCodigos('unidades_medida', 'nome');
+      
+      if (resultado.sucesso) {
+        toast.success(`✅ ${resultado.mensagem}`);
+        refetch();
+      } else {
+        toast.error(resultado.mensagem);
+      }
+    } catch (error) {
+      console.error('Erro ao reorganizar:', error);
+      toast.error('Não foi possível reorganizar os códigos.');
+    } finally {
+      setReorganizando(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,6 +176,16 @@ export default function UnidadesMedida() {
         </div>
       </div>
 
+      {verificando && (
+        <Alert className="bg-blue-50 border-blue-200">
+          <AlertCircle className="h-4 w-4 text-blue-600" />
+          <AlertTitle>Verificando códigos...</AlertTitle>
+          <AlertDescription>
+            Aguarde enquanto verificamos a integridade dos códigos.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex items-center gap-4 flex-1">
@@ -126,14 +201,24 @@ export default function UnidadesMedida() {
               </SelectContent>
             </Select>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => setEditingUnidade(null)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Nova Unidade
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleReorganizarManualmente}
+              disabled={reorganizando || verificando}
+              title="Reorganizar códigos em ordem alfabética"
+            >
+              <RefreshCw className={`h-4 w-4 ${reorganizando ? 'animate-spin' : ''}`} />
+            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => setEditingUnidade(null)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nova Unidade
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
               <DialogHeader>
                 <DialogTitle>{editingUnidade ? "Editar Unidade" : "Nova Unidade"}</DialogTitle>
               </DialogHeader>
@@ -167,8 +252,9 @@ export default function UnidadesMedida() {
                   </Button>
                 </div>
               </form>
-            </DialogContent>
-          </Dialog>
+              </DialogContent>
+            </Dialog>
+          </div>
         </CardHeader>
         <CardContent>
           {dadosFiltrados.length === 0 ? (

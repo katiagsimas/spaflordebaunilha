@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,11 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Ban, CheckCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Plus, Edit, Ban, CheckCircle, RefreshCw, AlertCircle } from "lucide-react";
 import { useTiposInsumos, TipoInsumo } from "@/hooks/useTiposInsumos";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { BackButton } from "@/components/BackButton";
 import { formatarNumero } from "@/lib/utils";
+import { reorganizarCodigos, verificarBuracosSequencia } from "@/utils/reorganizarCodigos";
+import { toast } from "sonner";
 
 type FormData = {
   descricao: string;
@@ -24,6 +27,8 @@ export default function TiposInsumosIngredientes() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [filtroStatus, setFiltroStatus] = useState<'todos' | 'ativos' | 'inativos'>('ativos');
+  const [verificando, setVerificando] = useState(false);
+  const [reorganizando, setReorganizando] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     descricao: "",
@@ -36,6 +41,61 @@ export default function TiposInsumosIngredientes() {
 
   // Filtrar apenas unidades ativas
   const unidadesAtivas = unidadesMedida.filter(u => u.ativo !== false);
+
+  // Verificação automática ao carregar
+  useEffect(() => {
+    if (!isLoading) {
+      verificarEReorganizarSeNecessario();
+    }
+  }, [isLoading]);
+
+  const verificarEReorganizarSeNecessario = async () => {
+    setVerificando(true);
+    
+    try {
+      const temBuracos = await verificarBuracosSequencia('tipos_insumos');
+      
+      if (temBuracos) {
+        console.log('⚠️ Sequência com buracos detectada. Reorganizando...');
+        
+        const resultado = await reorganizarCodigos('tipos_insumos', 'descricao');
+        
+        if (resultado.sucesso) {
+          toast.success('✅ Sequência de códigos corrigida automaticamente.');
+        }
+      }
+    } catch (error) {
+      console.error('Erro na verificação:', error);
+    } finally {
+      setVerificando(false);
+    }
+  };
+
+  const handleReorganizarManualmente = async () => {
+    const confirmou = confirm(
+      'Reorganizar códigos?\n\n' +
+      'Todos os códigos serão reorganizados sequencialmente (001, 002, 003...) ' +
+      'eliminando "buracos" de itens deletados.\n\n' +
+      'A reorganização será feita em ordem alfabética por descrição.'
+    );
+    
+    if (!confirmou) return;
+    
+    setReorganizando(true);
+    
+    try {
+      const resultado = await reorganizarCodigos('tipos_insumos', 'descricao');
+      
+      if (resultado.sucesso) {
+        toast.success(`✅ ${resultado.mensagem}`);
+      }
+    } catch (error) {
+      console.error('Erro:', error);
+      toast.error('Não foi possível reorganizar.');
+    } finally {
+      setReorganizando(false);
+    }
+  };
 
   const resetForm = () => {
     setFormData({
@@ -111,6 +171,16 @@ export default function TiposInsumosIngredientes() {
         </div>
       </div>
 
+      {verificando && (
+        <Alert className="bg-blue-50 border-blue-200">
+          <AlertCircle className="h-4 w-4 text-blue-600" />
+          <AlertTitle>Verificando códigos...</AlertTitle>
+          <AlertDescription>
+            Aguarde enquanto verificamos a integridade dos códigos.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
@@ -127,10 +197,21 @@ export default function TiposInsumosIngredientes() {
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={() => setDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleReorganizarManualmente}
+                disabled={reorganizando || verificando}
+                title="Reorganizar códigos em ordem alfabética"
+              >
+                <RefreshCw className={`h-4 w-4 ${reorganizando ? 'animate-spin' : ''}`} />
+              </Button>
+              <Button onClick={() => setDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
