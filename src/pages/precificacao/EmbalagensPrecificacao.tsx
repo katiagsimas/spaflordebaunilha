@@ -79,6 +79,19 @@ export default function EmbalagensPrecificacao() {
         return;
       }
 
+      // Validação adicional: verificar se tipo ainda está ativo
+      const tipoEscolhido = tiposAtivos.find(t => t.id === tipoSelecionado);
+      
+      if (!tipoEscolhido) {
+        toast({
+          title: 'Erro',
+          description: 'O tipo selecionado não está mais disponível. Por favor, selecione outro.',
+          variant: 'destructive',
+        });
+        setTipoSelecionado('');
+        return;
+      }
+
       const precoNum = parseFloat(preco.replace(',', '.'));
       if (!precoNum || precoNum <= 0) {
         toast({
