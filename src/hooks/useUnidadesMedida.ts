@@ -8,6 +8,8 @@ export interface UnidadeMedida {
   usuario_id: string;
   nome: string;
   sigla: string;
+  codigo?: string;
+  ativo?: boolean;
   created_at?: string;
   updated_at?: string;
 }
@@ -36,7 +38,7 @@ export function useUnidadesMedida() {
         .from('unidades_medida')
         .select('*')
         .eq('usuario_id', user.id)
-        .order('nome');
+        .order('codigo');
 
       if (error) throw error;
       
@@ -53,6 +55,27 @@ export function useUnidadesMedida() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const gerarProximoCodigo = async (): Promise<string> => {
+    if (!user) return '001';
+    
+    const { data, error } = await supabase
+      .from('unidades_medida')
+      .select('codigo')
+      .eq('usuario_id', user.id)
+      .order('codigo', { ascending: false })
+      .limit(1);
+    
+    if (error || !data || data.length === 0) {
+      return '001';
+    }
+    
+    const ultimoCodigo = data[0].codigo;
+    if (!ultimoCodigo) return '001';
+    
+    const proximoNumero = parseInt(ultimoCodigo) + 1;
+    return proximoNumero.toString().padStart(3, '0');
   };
 
   const createUnidadesPadrao = async () => {
@@ -76,18 +99,37 @@ export function useUnidadesMedida() {
     }
   };
 
-  const createUnidade = async (unidade: Omit<UnidadeMedida, 'id' | 'usuario_id' | 'created_at' | 'updated_at'>) => {
+  const createUnidade = async (unidade: Omit<UnidadeMedida, 'id' | 'usuario_id' | 'created_at' | 'updated_at' | 'codigo' | 'ativo'>) => {
     if (!user) throw new Error('Usuário não autenticado');
+
+    const codigo = await gerarProximoCodigo();
 
     const { data, error } = await supabase
       .from('unidades_medida')
-      .insert({ ...unidade, usuario_id: user.id })
+      .insert({ ...unidade, usuario_id: user.id, codigo, ativo: true })
       .select()
       .single();
 
     if (error) throw error;
     setUnidades([...unidades, data]);
     toast.success('Unidade criada com sucesso!');
+    return data;
+  };
+
+  const toggleAtivo = async (id: string, ativo: boolean) => {
+    if (!user) throw new Error('Usuário não autenticado');
+
+    const { data, error } = await supabase
+      .from('unidades_medida')
+      .update({ ativo })
+      .eq('id', id)
+      .eq('usuario_id', user.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    setUnidades(unidades.map(u => u.id === id ? data : u));
+    toast.success(ativo ? 'Unidade reativada!' : 'Unidade desabilitada!');
     return data;
   };
 
@@ -132,6 +174,7 @@ export function useUnidadesMedida() {
     createUnidade,
     updateUnidade,
     deleteUnidade,
+    toggleAtivo,
     refetch: fetchUnidades,
   };
 }

@@ -29,7 +29,9 @@ import UnidadesMedida from "./pages/cadastros/UnidadesMedida";
 import Ingredientes from "./pages/cadastros/Ingredientes";
 import Embalagens from "./pages/cadastros/Embalagens";
 import Categorias from "./pages/cadastros/Categorias";
-import TiposInsumosEmbalagens from "./pages/cadastros/TiposInsumosEmbalagens";
+import TiposInsumos from "./pages/configuracoes/TiposInsumos";
+import TiposInsumosIngredientes from "./pages/configuracoes/TiposInsumosIngredientes";
+import TiposInsumosEmbalagens from "./pages/configuracoes/TiposInsumosEmbalagens";
 import SubReceitas from "./pages/SubReceitas";
 import SubReceitaForm from "./pages/SubReceitaForm";
 import Receitas from "./pages/Receitas";
@@ -137,7 +139,9 @@ const App = () => (
           <Route path="/configuracoes/dados-confeitaria" element={<ProtectedRoute><Layout><SeusDados /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/categorias-receitas" element={<ProtectedRoute><Layout><Categorias /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/unidades-medida" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/tipos-insumos" element={<ProtectedRoute><Layout><TiposInsumosEmbalagens /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/tipos-insumos" element={<ProtectedRoute><Layout><TiposInsumos /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/tipos-insumos/ingredientes" element={<ProtectedRoute><Layout><TiposInsumosIngredientes /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/tipos-insumos/embalagens" element={<ProtectedRoute><Layout><TiposInsumosEmbalagens /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/categorias-financeiras" element={<ProtectedRoute><Layout><CategoriasFinanceiras /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/plano-contas" element={<ProtectedRoute><Layout><PlanosContas /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/tipos-documento" element={<ProtectedRoute><Layout><TiposDocumento /></Layout></ProtectedRoute>} />

@@ -24,3 +24,10 @@ export function formatCpfCnpj(value: string): string {
   
   return value;
 }
+
+export function formatarNumero(valor: number): string {
+  return valor.toLocaleString('pt-BR', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 3
+  });
+}

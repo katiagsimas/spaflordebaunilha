@@ -9,6 +9,7 @@ export interface TipoInsumo {
   quantidade_embalagem: number;
   unidade_medida_id: string;
   usuario_id: string;
+  ativo?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -30,13 +31,13 @@ export const useTiposInsumos = () => {
   });
 
   const createTipoInsumo = useMutation({
-    mutationFn: async (newTipo: Omit<TipoInsumo, "id" | "codigo" | "usuario_id" | "created_at" | "updated_at">) => {
+    mutationFn: async (newTipo: Omit<TipoInsumo, "id" | "codigo" | "usuario_id" | "created_at" | "updated_at" | "ativo">) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado");
 
       const { data, error } = await supabase
         .from("tipos_insumos")
-        .insert([{ ...newTipo, usuario_id: user.id }])
+        .insert([{ ...newTipo, usuario_id: user.id, ativo: true }])
         .select()
         .single();
 
@@ -49,6 +50,27 @@ export const useTiposInsumos = () => {
     },
     onError: (error) => {
       toast.error("Erro ao criar tipo de insumo: " + error.message);
+    },
+  });
+
+  const toggleAtivo = useMutation({
+    mutationFn: async ({ id, ativo }: { id: string; ativo: boolean }) => {
+      const { data, error } = await supabase
+        .from("tipos_insumos")
+        .update({ ativo })
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, { ativo }) => {
+      queryClient.invalidateQueries({ queryKey: ["tipos-insumos"] });
+      toast.success(ativo ? "Tipo de insumo reativado!" : "Tipo de insumo desabilitado!");
+    },
+    onError: (error) => {
+      toast.error("Erro ao atualizar tipo de insumo: " + error.message);
     },
   });
 
@@ -97,5 +119,6 @@ export const useTiposInsumos = () => {
     createTipoInsumo,
     updateTipoInsumo,
     deleteTipoInsumo,
+    toggleAtivo,
   };
 };

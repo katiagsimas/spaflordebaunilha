@@ -911,6 +911,7 @@ export type Database = {
       }
       tipos_embalagens: {
         Row: {
+          ativo: boolean | null
           codigo: number
           created_at: string
           descricao: string
@@ -921,6 +922,7 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
+          ativo?: boolean | null
           codigo?: number
           created_at?: string
           descricao: string
@@ -931,6 +933,7 @@ export type Database = {
           usuario_id: string
         }
         Update: {
+          ativo?: boolean | null
           codigo?: number
           created_at?: string
           descricao?: string
@@ -952,6 +955,7 @@ export type Database = {
       }
       tipos_insumos: {
         Row: {
+          ativo: boolean | null
           codigo: number
           created_at: string
           descricao: string
@@ -962,6 +966,7 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
+          ativo?: boolean | null
           codigo?: number
           created_at?: string
           descricao: string
@@ -972,6 +977,7 @@ export type Database = {
           usuario_id: string
         }
         Update: {
+          ativo?: boolean | null
           codigo?: number
           created_at?: string
           descricao?: string
@@ -993,6 +999,8 @@ export type Database = {
       }
       unidades_medida: {
         Row: {
+          ativo: boolean | null
+          codigo: string | null
           created_at: string
           id: string
           nome: string
@@ -1001,6 +1009,8 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
+          ativo?: boolean | null
+          codigo?: string | null
           created_at?: string
           id?: string
           nome: string
@@ -1009,6 +1019,8 @@ export type Database = {
           usuario_id: string
         }
         Update: {
+          ativo?: boolean | null
+          codigo?: string | null
           created_at?: string
           id?: string
           nome?: string
