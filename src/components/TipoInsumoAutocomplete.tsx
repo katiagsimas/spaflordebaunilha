@@ -59,6 +59,32 @@ export function TipoInsumoAutocomplete({ onSelect, value, onAfterCreate }: TipoI
     }
   }, [search, createDialogOpen]);
 
+  // Debug: mostrar tipos carregados
+  useEffect(() => {
+    console.log('═══════════════════════════════════════');
+    console.log('🔍 DEBUG - TIPOS DE INGREDIENTES');
+    console.log('═══════════════════════════════════════');
+    console.log(' ');
+    
+    console.log('📊 Total de tipos:', tiposInsumos?.length);
+    console.log(' ');
+    
+    const ativos = tiposInsumos?.filter(t => t.ativo === true) || [];
+    const inativos = tiposInsumos?.filter(t => t.ativo === false) || [];
+    
+    console.log(`✅ TIPOS ATIVOS (${ativos.length}):`);
+    ativos.forEach(tipo => {
+      console.log('  ✓', tipo.descricao);
+    });
+    console.log(' ');
+    
+    console.log(`❌ TIPOS INATIVOS (${inativos.length}):`);
+    inativos.forEach(tipo => {
+      console.log('  ✗', tipo.descricao);
+    });
+    console.log('═══════════════════════════════════════');
+  }, [tiposInsumos]);
+
   const filteredTipos = tiposInsumos.filter((tipo) =>
     tipo.descricao.toLowerCase().includes(search.toLowerCase())
   );
