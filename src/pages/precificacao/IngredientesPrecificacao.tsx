@@ -52,6 +52,33 @@ export default function IngredientesPrecificacao() {
   // Filtrar apenas tipos ativos
   const tiposAtivos = tiposInsumos.filter(t => t.ativo);
 
+  // Debug: mostrar tipos carregados
+  useEffect(() => {
+    console.log('═══════════════════════════════════════');
+    console.log('🔍 PÁGINA DE INGREDIENTES - DEBUG');
+    console.log('═══════════════════════════════════════');
+    console.log(' ');
+    
+    console.log('📋 TIPOS CARREGADOS:');
+    console.log('Total de tipos:', tiposInsumos?.length);
+    console.log('Lista completa:', tiposInsumos);
+    console.log(' ');
+    console.log('✅ TIPOS ATIVOS (que devem aparecer no picklist):');
+    const ativos = tiposInsumos?.filter(t => t.ativo === true) || [];
+    console.log('Total de ativos:', ativos.length);
+    ativos.forEach(tipo => {
+      console.log('  ✓', tipo.descricao);
+    });
+    console.log(' ');
+    console.log('❌ TIPOS INATIVOS (que NÃO devem aparecer):');
+    const inativos = tiposInsumos?.filter(t => t.ativo === false) || [];
+    console.log('Total de inativos:', inativos.length);
+    inativos.forEach(tipo => {
+      console.log('  ✗', tipo.descricao);
+    });
+    console.log('═══════════════════════════════════════');
+  }, [tiposInsumos]);
+
   useEffect(() => {
     if (tipoSelecionado) {
       const tipo = tiposAtivos.find(t => t.id === tipoSelecionado);
