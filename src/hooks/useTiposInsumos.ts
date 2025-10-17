@@ -23,9 +23,25 @@ export const useTiposInsumos = () => {
       const { data, error } = await supabase
         .from("tipos_insumos")
         .select("*")
+        .eq("ativo", true)
         .order("descricao", { ascending: true });
 
       if (error) throw error;
+      
+      console.log('🔍 Query executada na tabela tipos_insumos');
+      console.log('📊 Total retornado:', data?.length);
+      console.log('✅ Esperado: 12 tipos ativos');
+      
+      if (data && data.length !== 12) {
+        console.error('❌ ERRO: Número incorreto! Deveria ser 12, veio:', data.length);
+      }
+      
+      // Verificar se passou algum inativo (não deveria)
+      const inativos = data?.filter(t => t.ativo === false);
+      if (inativos && inativos.length > 0) {
+        console.error('❌ TIPOS INATIVOS DETECTADOS:', inativos.map(t => t.descricao));
+      }
+      
       return data as TipoInsumo[];
     },
   });

@@ -49,8 +49,8 @@ export default function IngredientesPrecificacao() {
   
   const [dadosTipoSelecionado, setDadosTipoSelecionado] = useState<any>(null);
 
-  // Filtrar apenas tipos ativos
-  const tiposAtivos = tiposInsumos.filter(t => t.ativo);
+  // Tipos já vêm filtrados (apenas ativos) do hook useTiposInsumos
+  const tiposAtivos = tiposInsumos;
 
   // Debug: mostrar tipos carregados
   useEffect(() => {
