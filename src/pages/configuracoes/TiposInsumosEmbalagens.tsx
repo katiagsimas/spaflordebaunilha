@@ -165,7 +165,7 @@ export default function TiposInsumosEmbalagens() {
         <AlertTitle>ℹ️ Como funciona a exclusão</AlertTitle>
         <AlertDescription>
           Você pode excluir tipos que <strong>não estão sendo usados</strong> em nenhuma embalagem.
-          Se um tipo estiver em uso, o sistema bloqueará a exclusão até que você remova todas as embalagens que o utilizam.
+          Se um tipo estiver em uso, o sistema bloqueará a exclusão até que você remova todas as receitas que o utilizam.
         </AlertDescription>
       </Alert>
 
