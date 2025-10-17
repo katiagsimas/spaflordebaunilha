@@ -7,14 +7,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Ban, CheckCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Plus, Edit, Trash2, Info } from "lucide-react";
 import { useTiposInsumos, TipoInsumo } from "@/hooks/useTiposInsumos";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { BackButton } from "@/components/BackButton";
 import { formatarNumero } from "@/lib/utils";
 import { validarDuplicataTipoInsumo } from "@/utils/validacaoDuplicatas";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 type FormData = {
   descricao: string;
@@ -25,7 +26,6 @@ type FormData = {
 export default function TiposInsumosIngredientes() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editandoId, setEditandoId] = useState<string | null>(null);
-  const [filtroStatus, setFiltroStatus] = useState<'todos' | 'ativos' | 'inativos'>('ativos');
 
   const [formData, setFormData] = useState<FormData>({
     descricao: "",
@@ -33,7 +33,7 @@ export default function TiposInsumosIngredientes() {
     unidade_medida_id: "",
   });
 
-  const { tiposInsumos, isLoading, createTipoInsumo, updateTipoInsumo, toggleAtivo } = useTiposInsumos();
+  const { tiposInsumos, isLoading, createTipoInsumo, updateTipoInsumo, deleteTipoInsumo } = useTiposInsumos();
   const { unidades: unidadesMedida } = useUnidadesMedida();
 
   // Filtrar apenas unidades ativas
@@ -109,27 +109,44 @@ export default function TiposInsumosIngredientes() {
     setDialogOpen(true);
   };
 
-  const handleToggleAtivo = (item: TipoInsumo) => {
-    const novoStatus = !item.ativo;
-    
-    if (!novoStatus) {
-      if (!confirm(`Desabilitar "${item.descricao}"?\n\nEste tipo não poderá mais ser selecionado em novos cadastros.`)) {
+  const handleExcluir = async (id: string, descricao: string) => {
+    try {
+      // 1. Verificar se está em uso
+      const { data: emUso, error: erroVerificacao } = await supabase
+        .from('ingredientes')
+        .select('id')
+        .eq('tipo_insumo_id', id);
+
+      if (erroVerificacao) throw erroVerificacao;
+
+      // 2. Se está em uso, bloquear
+      if (emUso && emUso.length > 0) {
+        toast.error(
+          `⚠️ Não é possível excluir\n\nO tipo "${descricao}" está sendo usado em ${emUso.length} ingrediente(s) cadastrado(s).\n\nPara excluir este tipo, primeiro remova todos os ingredientes que o utilizam.`,
+          { duration: 8000 }
+        );
         return;
       }
-    } else {
-      if (!confirm(`Reativar "${item.descricao}"?`)) {
-        return;
-      }
+
+      // 3. Confirmar exclusão
+      const confirmacao = window.confirm(
+        `Tem certeza que deseja excluir "${descricao}"?\n\nEsta ação é permanente e não pode ser desfeita.`
+      );
+
+      if (!confirmacao) return;
+
+      // 4. Excluir permanentemente
+      deleteTipoInsumo.mutate(id, {
+        onSuccess: () => {
+          toast.success(`✅ Tipo excluído: "${descricao}" foi removido com sucesso.`);
+        }
+      });
+
+    } catch (error: any) {
+      console.error('Erro ao excluir:', error);
+      toast.error(error.message || 'Não foi possível excluir o tipo.');
     }
-
-    toggleAtivo.mutate({ id: item.id, ativo: novoStatus });
   };
-
-  const dadosFiltrados = tiposInsumos.filter(item => {
-    if (filtroStatus === 'ativos') return item.ativo !== false;
-    if (filtroStatus === 'inativos') return item.ativo === false;
-    return true;
-  });
 
   return (
     <div className="space-y-6">
@@ -143,28 +160,23 @@ export default function TiposInsumosIngredientes() {
         </div>
       </div>
 
+      <Alert className="bg-blue-50 border-blue-200 mb-4">
+        <Info className="h-4 w-4 text-blue-600" />
+        <AlertTitle>ℹ️ Como funciona a exclusão</AlertTitle>
+        <AlertDescription>
+          Você pode excluir tipos que <strong>não estão sendo usados</strong> em nenhum ingrediente.
+          Se um tipo estiver em uso, o sistema bloqueará a exclusão até que você remova todos os ingredientes que o utilizam.
+        </AlertDescription>
+      </Alert>
+
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4 flex-1">
-              <CardTitle>Tipos de Ingredientes</CardTitle>
-              <Select value={filtroStatus} onValueChange={(v: any) => setFiltroStatus(v)}>
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ativos">Ativos</SelectItem>
-                  <SelectItem value="inativos">Inativos</SelectItem>
-                  <SelectItem value="todos">Todos</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={() => setDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Adicionar
-              </Button>
-            </div>
+            <CardTitle>Tipos de Ingredientes</CardTitle>
+            <Button onClick={() => setDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Adicionar
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -174,46 +186,31 @@ export default function TiposInsumosIngredientes() {
                 <TableHead>Descrição</TableHead>
                 <TableHead>Qtd. Embalagem</TableHead>
                 <TableHead>Unidade</TableHead>
-                <TableHead>Status</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center">
+                  <TableCell colSpan={4} className="text-center">
                     Carregando...
                   </TableCell>
                 </TableRow>
-              ) : dadosFiltrados.length === 0 ? (
+              ) : tiposInsumos.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground">
-                    {filtroStatus === 'inativos' ? 'Nenhum tipo inativo' : 'Nenhum registro encontrado'}
+                  <TableCell colSpan={4} className="text-center text-muted-foreground">
+                    Nenhum tipo cadastrado
                   </TableCell>
                 </TableRow>
               ) : (
-                dadosFiltrados.map((item) => {
+                tiposInsumos.map((item) => {
                   const unidade = unidadesMedida.find((u) => u.id === item.unidade_medida_id);
                   return (
-                    <TableRow 
-                      key={item.id}
-                      className={item.ativo === false ? 'opacity-50 bg-muted/30' : ''}
-                    >
-                      <TableCell>{item.descricao}</TableCell>
+                    <TableRow key={item.id}>
+                      <TableCell className="font-medium">{item.descricao}</TableCell>
                       <TableCell>{formatarNumero(item.quantidade_embalagem)}</TableCell>
                       <TableCell>{unidade?.sigla || "-"}</TableCell>
-                      <TableCell>
-                        {item.ativo !== false ? (
-                          <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
-                            ✅ Ativo
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary">
-                            ⚠️ Inativo
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right space-x-2">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -222,25 +219,15 @@ export default function TiposInsumosIngredientes() {
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        {item.ativo !== false ? (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleToggleAtivo(item)}
-                            title="Desabilitar"
-                          >
-                            <Ban className="h-4 w-4 text-orange-500" />
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleToggleAtivo(item)}
-                            title="Reativar"
-                          >
-                            <CheckCircle className="h-4 w-4 text-green-500" />
-                          </Button>
-                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleExcluir(item.id, item.descricao)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          title="Excluir"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   );

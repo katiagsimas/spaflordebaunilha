@@ -49,7 +49,8 @@ export default function EmbalagensPrecificacao() {
   
   const [dadosTipoSelecionado, setDadosTipoSelecionado] = useState<any>(null);
 
-  const tiposAtivos = tiposEmbalagens.filter(t => t.ativo);
+  // Tipos já vêm filtrados (apenas ativos) do hook useTiposEmbalagens
+  const tiposAtivos = tiposEmbalagens;
 
   useEffect(() => {
     if (tipoSelecionado) {

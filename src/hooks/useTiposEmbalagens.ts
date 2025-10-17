@@ -23,9 +23,20 @@ export const useTiposEmbalagens = () => {
       const { data, error } = await supabase
         .from("tipos_embalagens")
         .select("*")
+        .eq("ativo", true)
         .order("descricao", { ascending: true });
 
       if (error) throw error;
+      
+      console.log('🔍 Query executada na tabela tipos_embalagens');
+      console.log('📊 Total retornado:', data?.length);
+      
+      // Verificar se passou algum inativo (não deveria)
+      const inativos = data?.filter(t => t.ativo === false);
+      if (inativos && inativos.length > 0) {
+        console.error('❌ TIPOS INATIVOS DETECTADOS:', inativos.map(t => t.descricao));
+      }
+      
       return data as TipoEmbalagem[];
     },
   });
