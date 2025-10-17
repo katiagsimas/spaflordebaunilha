@@ -165,7 +165,7 @@ export default function TiposInsumosIngredientes() {
         <AlertTitle>ℹ️ Como funciona a exclusão</AlertTitle>
         <AlertDescription>
           Você pode excluir tipos que <strong>não estão sendo usados</strong> em nenhum ingrediente.
-          Se um tipo estiver em uso, o sistema bloqueará a exclusão até que você remova todos os ingredientes que o utilizam.
+          Se um tipo estiver em uso, o sistema bloqueará a exclusão até que você remova todos os pré-preparos e receitas que o utilizam.
         </AlertDescription>
       </Alert>
 
