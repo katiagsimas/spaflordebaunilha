@@ -111,39 +111,63 @@ export default function TiposInsumosEmbalagens() {
 
   const handleExcluir = async (id: string, descricao: string) => {
     try {
-      // 1. Verificar se está em uso
-      const { data: emUso, error: erroVerificacao } = await supabase
+      console.log('🔍 Verificando se tipo está em uso...');
+      console.log('Tipo ID:', id);
+      console.log('Descrição:', descricao);
+
+      // 1. Verificar se está em uso na tabela embalagens
+      const { data: embalagensUsando, error: erroVerificacao } = await supabase
         .from('embalagens')
-        .select('id')
+        .select('id, nome, tipo_embalagem_id')
         .eq('tipo_embalagem_id', id);
 
-      if (erroVerificacao) throw erroVerificacao;
+      console.log('📊 Resultado da verificação:', embalagensUsando);
+      console.log('Quantidade encontrada:', embalagensUsando?.length || 0);
 
-      // 2. Se está em uso, bloquear
-      if (emUso && emUso.length > 0) {
+      if (erroVerificacao) {
+        console.error('❌ Erro na verificação:', erroVerificacao);
+        throw erroVerificacao;
+      }
+
+      // 2. SE ESTÁ EM USO = BLOQUEAR!
+      if (embalagensUsando && embalagensUsando.length > 0) {
+        console.log('❌ BLOQUEANDO: Tipo está em uso!');
+        
         toast.error(
-          `⚠️ Não é possível excluir\n\nO tipo "${descricao}" está sendo usado em ${emUso.length} embalagem(ns) cadastrada(s).\n\nPara excluir este tipo, primeiro remova todas as embalagens que o utilizam.`,
-          { duration: 8000 }
+          `⚠️ Não é possível excluir\n\nO tipo "${descricao}" está sendo usado em ${embalagensUsando.length} embalagem(ns) cadastrada(s).\n\nPara excluir este tipo:\n1. Vá em Precificação → Embalagens\n2. Remova todas as embalagens que usam "${descricao}"\n3. Depois volte aqui para excluir o tipo`,
+          { duration: 10000 }
         );
+        
+        // IMPORTANTE: RETURN AQUI! Não continua!
         return;
       }
 
-      // 3. Confirmar exclusão
+      // 3. SE NÃO ESTÁ EM USO = Pedir confirmação
+      console.log('✅ Tipo não está em uso, pode excluir');
+      
       const confirmacao = window.confirm(
-        `Tem certeza que deseja excluir "${descricao}"?\n\nEsta ação é permanente e não pode ser desfeita.`
+        `⚠️ ATENÇÃO: Exclusão Permanente\n\n` +
+        `Tem certeza que deseja excluir o tipo:\n"${descricao}"?\n\n` +
+        `Esta ação NÃO pode ser desfeita!`
       );
 
-      if (!confirmacao) return;
+      if (!confirmacao) {
+        console.log('❌ Usuário cancelou a exclusão');
+        return;
+      }
 
-      // 4. Excluir permanentemente
+      // 4. EXCLUIR
+      console.log('🗑️ Excluindo tipo...');
+      
       deleteTipoEmbalagem.mutate(id, {
         onSuccess: () => {
-          toast.success(`✅ Tipo excluído: "${descricao}" foi removido com sucesso.`);
+          console.log('✅ Tipo excluído com sucesso!');
+          toast.success(`✅ Tipo excluído: "${descricao}" foi removido permanentemente.`);
         }
       });
 
     } catch (error: any) {
-      console.error('Erro ao excluir:', error);
+      console.error('❌ Erro geral:', error);
       toast.error(error.message || 'Não foi possível excluir o tipo.');
     }
   };
