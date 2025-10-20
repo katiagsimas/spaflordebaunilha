@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { IngredienteAutocomplete } from "@/components/IngredienteAutocomplete";
+
 interface Ingrediente {
   id: string;
   nome: string;
@@ -301,11 +301,10 @@ export default function SubReceitaForm() {
                   <TableBody>
                     {ingredientes.map((ingrediente, index) => <TableRow key={ingrediente.id}>
                         <TableCell className="min-w-[300px]">
-                          <IngredienteAutocomplete
-                            ingredientes={ingredientesCadastrados}
-                            value={ingrediente.ingredienteId}
-                            onSelect={(value) => handleSelectIngrediente(index, value)}
-                            placeholder="Digite para buscar..."
+                          <Input
+                            placeholder="Ingrediente (a ser implementado)"
+                            disabled
+                            value={ingrediente.ingrediente}
                           />
                         </TableCell>
                         <TableCell className="text-sm">{ingrediente.marca}</TableCell>

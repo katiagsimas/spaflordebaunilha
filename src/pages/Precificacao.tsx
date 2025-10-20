@@ -1,7 +1,7 @@
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Users, ChefHat, CookingPot, DollarSign, Boxes, Package, Pencil } from "lucide-react";
+import { ChefHat, CookingPot, DollarSign, Pencil } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -57,20 +57,6 @@ const opcoes = [
     icon: DollarSign,
     url: "/precificacao/custos-fixos",
     color: "text-red-600 bg-red-50 dark:bg-red-950",
-  },
-  {
-    title: "Ingredientes",
-    description: "Cadastro de Insumos",
-    icon: Boxes,
-    url: "/precificacao/ingredientes",
-    color: "text-orange-600 bg-orange-50 dark:bg-orange-950",
-  },
-  {
-    title: "Embalagens",
-    description: "Cadastro de embalagens",
-    icon: Package,
-    url: "/precificacao/embalagens",
-    color: "text-pink-600 bg-pink-50 dark:bg-pink-950",
   },
   {
     title: "Pré-Preparo",

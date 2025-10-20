@@ -8,7 +8,6 @@ interface ConfigStatus {
   unidadesMedida: boolean;
   bancos: boolean;
   tiposDocumento: boolean;
-  tiposInsumosEmbalagens: boolean;
 }
 
 /**
@@ -27,7 +26,6 @@ export function useConfigStatus() {
           unidadesMedida: false,
           bancos: false,
           tiposDocumento: false,
-          tiposInsumosEmbalagens: false,
         };
       }
 
@@ -65,19 +63,6 @@ export function useConfigStatus() {
         .from('unidades_medida')
         .select('*', { count: 'exact', head: true })
         .eq('usuario_id', user.id);
-
-      // Verificar tipos de insumos e embalagens no Supabase
-      const { count: tiposInsumosCount } = await supabase
-        .from('tipos_insumos')
-        .select('*', { count: 'exact', head: true })
-        .eq('usuario_id', user.id);
-
-      const { count: tiposEmbalagenCount } = await supabase
-        .from('tipos_embalagens')
-        .select('*', { count: 'exact', head: true })
-        .eq('usuario_id', user.id);
-
-      const hasTiposInsumosEmbalagens = (tiposInsumosCount || 0) > 0 && (tiposEmbalagenCount || 0) > 0;
 
       // Verificar bancos no localStorage (igual aos tipos de documento)
       const bancosStorage = localStorage.getItem('sugarbox_bancos');
@@ -117,7 +102,6 @@ export function useConfigStatus() {
         unidadesMedida: (unidadesCount || 0) > 0,
         bancos: hasBancos,
         tiposDocumento: hasTiposDocumento,
-        tiposInsumosEmbalagens: hasTiposInsumosEmbalagens,
       };
     },
     enabled: !!user,

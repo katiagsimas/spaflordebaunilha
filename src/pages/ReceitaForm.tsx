@@ -15,8 +15,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { IngredienteAutocomplete } from "@/components/IngredienteAutocomplete";
-import { EmbalagemAutocomplete } from "@/components/EmbalagemAutocomplete";
 
 interface CustoFixo {
   id: string;
@@ -638,11 +636,10 @@ export default function ReceitaForm() {
                     {ingredientes.map((ingrediente, index) => (
                       <TableRow key={ingrediente.id}>
                         <TableCell className="min-w-[300px]">
-                          <IngredienteAutocomplete
-                            ingredientes={ingredientesCadastrados}
-                            value={ingrediente.ingredienteId}
-                            onSelect={(value) => handleSelectIngrediente(index, value)}
-                            placeholder="Digite para buscar..."
+                          <Input
+                            placeholder="Ingrediente (a ser implementado)"
+                            disabled
+                            value={ingrediente.ingrediente}
                           />
                         </TableCell>
                         <TableCell className="text-sm">{ingrediente.marca}</TableCell>
@@ -722,11 +719,10 @@ export default function ReceitaForm() {
                     {embalagens.map((embalagem, index) => (
                       <TableRow key={embalagem.id}>
                         <TableCell className="min-w-[300px]">
-                          <EmbalagemAutocomplete
-                            embalagens={embalagensCadastradas}
-                            value={embalagem.embalagemId}
-                            onSelect={(value) => handleSelectEmbalagem(index, value)}
-                            placeholder="Digite para buscar..."
+                          <Input
+                            placeholder="Embalagem (a ser implementado)"
+                            disabled
+                            value={embalagem.embalagem}
                           />
                         </TableCell>
                         <TableCell className="text-sm">{embalagem.marca}</TableCell>

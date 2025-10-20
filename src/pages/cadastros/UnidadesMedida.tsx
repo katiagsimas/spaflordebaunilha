@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useUnidadesMedida, UnidadeMedida } from "@/hooks/useUnidadesMedida";
 import { Plus, Pencil, Ban, CheckCircle, Ruler } from "lucide-react";
 import { toast } from "sonner";
-import { validarDuplicataUnidadeMedida } from "@/utils/validacaoDuplicatas";
+
 
 export default function UnidadesMedida() {
   const { unidades, loading, createUnidade, updateUnidade, toggleAtivo, refetch } = useUnidadesMedida();
@@ -45,13 +45,6 @@ export default function UnidadesMedida() {
     }
 
     try {
-      // Validar duplicatas
-      await validarDuplicataUnidadeMedida({
-        nome: formData.nome,
-        sigla: formData.sigla,
-        idAtual: editingUnidade?.id,
-      });
-
       if (editingUnidade) {
         await updateUnidade(editingUnidade.id, {
           nome: formData.nome.trim(),

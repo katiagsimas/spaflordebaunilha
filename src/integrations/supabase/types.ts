@@ -359,56 +359,6 @@ export type Database = {
         }
         Relationships: []
       }
-      embalagens: {
-        Row: {
-          created_at: string
-          data_atualizacao: string
-          id: string
-          marca: string | null
-          nome: string
-          preco: number
-          quantidade: number
-          tipo_embalagem_id: string | null
-          unidade_medida: string
-          updated_at: string
-          usuario_id: string
-        }
-        Insert: {
-          created_at?: string
-          data_atualizacao?: string
-          id?: string
-          marca?: string | null
-          nome: string
-          preco: number
-          quantidade: number
-          tipo_embalagem_id?: string | null
-          unidade_medida: string
-          updated_at?: string
-          usuario_id: string
-        }
-        Update: {
-          created_at?: string
-          data_atualizacao?: string
-          id?: string
-          marca?: string | null
-          nome?: string
-          preco?: number
-          quantidade?: number
-          tipo_embalagem_id?: string | null
-          unidade_medida?: string
-          updated_at?: string
-          usuario_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "embalagens_tipo_embalagem_id_fkey"
-            columns: ["tipo_embalagem_id"]
-            isOneToOne: false
-            referencedRelation: "tipos_embalagens"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       encomenda_itens: {
         Row: {
           created_at: string
@@ -675,56 +625,6 @@ export type Database = {
         }
         Relationships: []
       }
-      ingredientes: {
-        Row: {
-          created_at: string
-          data_atualizacao: string
-          id: string
-          marca: string | null
-          nome: string
-          preco: number
-          quantidade: number
-          tipo_insumo_id: string | null
-          unidade_medida: string
-          updated_at: string
-          usuario_id: string
-        }
-        Insert: {
-          created_at?: string
-          data_atualizacao?: string
-          id?: string
-          marca?: string | null
-          nome: string
-          preco: number
-          quantidade: number
-          tipo_insumo_id?: string | null
-          unidade_medida: string
-          updated_at?: string
-          usuario_id: string
-        }
-        Update: {
-          created_at?: string
-          data_atualizacao?: string
-          id?: string
-          marca?: string | null
-          nome?: string
-          preco?: number
-          quantidade?: number
-          tipo_insumo_id?: string | null
-          unidade_medida?: string
-          updated_at?: string
-          usuario_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ingredientes_tipo_insumo_id_fkey"
-            columns: ["tipo_insumo_id"]
-            isOneToOne: false
-            referencedRelation: "tipos_insumos"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       movimentacoes_estoque: {
         Row: {
           created_at: string
@@ -930,94 +830,6 @@ export type Database = {
           usuario_id?: string
         }
         Relationships: []
-      }
-      tipos_embalagens: {
-        Row: {
-          ativo: boolean | null
-          codigo: number
-          created_at: string
-          descricao: string
-          id: string
-          quantidade_embalagem: number
-          unidade_medida_id: string | null
-          updated_at: string
-          usuario_id: string
-        }
-        Insert: {
-          ativo?: boolean | null
-          codigo?: number
-          created_at?: string
-          descricao: string
-          id?: string
-          quantidade_embalagem: number
-          unidade_medida_id?: string | null
-          updated_at?: string
-          usuario_id: string
-        }
-        Update: {
-          ativo?: boolean | null
-          codigo?: number
-          created_at?: string
-          descricao?: string
-          id?: string
-          quantidade_embalagem?: number
-          unidade_medida_id?: string | null
-          updated_at?: string
-          usuario_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "tipos_embalagens_unidade_medida_id_fkey"
-            columns: ["unidade_medida_id"]
-            isOneToOne: false
-            referencedRelation: "unidades_medida"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      tipos_insumos: {
-        Row: {
-          ativo: boolean | null
-          codigo: number
-          created_at: string
-          descricao: string
-          id: string
-          quantidade_embalagem: number
-          unidade_medida_id: string | null
-          updated_at: string
-          usuario_id: string
-        }
-        Insert: {
-          ativo?: boolean | null
-          codigo?: number
-          created_at?: string
-          descricao: string
-          id?: string
-          quantidade_embalagem: number
-          unidade_medida_id?: string | null
-          updated_at?: string
-          usuario_id: string
-        }
-        Update: {
-          ativo?: boolean | null
-          codigo?: number
-          created_at?: string
-          descricao?: string
-          id?: string
-          quantidade_embalagem?: number
-          unidade_medida_id?: string | null
-          updated_at?: string
-          usuario_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "tipos_insumos_unidade_medida_id_fkey"
-            columns: ["unidade_medida_id"]
-            isOneToOne: false
-            referencedRelation: "unidades_medida"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       unidades_medida: {
         Row: {

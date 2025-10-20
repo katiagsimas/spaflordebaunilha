@@ -2,7 +2,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Boxes, Package, DollarSign } from "lucide-react";
+import { DollarSign } from "lucide-react";
 
 const cadastros = [
   {
@@ -11,20 +11,6 @@ const cadastros = [
     icon: DollarSign,
     url: "/cadastros/custos-fixos",
     color: "text-red-600 bg-red-50 dark:bg-red-950",
-  },
-  {
-    title: "Ingredientes",
-    description: "Cadastro de Insumos",
-    icon: Boxes,
-    url: "/cadastros/ingredientes",
-    color: "text-orange-600 bg-orange-50 dark:bg-orange-950",
-  },
-  {
-    title: "Embalagens",
-    description: "Cadastro de embalagens",
-    icon: Package,
-    url: "/cadastros/embalagens",
-    color: "text-pink-600 bg-pink-50 dark:bg-pink-950",
   },
 ];
 
