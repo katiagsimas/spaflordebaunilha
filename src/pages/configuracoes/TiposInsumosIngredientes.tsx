@@ -111,112 +111,75 @@ export default function TiposInsumosIngredientes() {
 
   const handleExcluir = async (id: string, descricao: string) => {
     console.log('═══════════════════════════════════════');
-    console.log('🗑️ INÍCIO DA EXCLUSÃO');
+    console.log('🗑️ VERIFICANDO SE PODE EXCLUIR:', descricao);
     console.log('═══════════════════════════════════════');
-    console.log('ID do tipo:', id);
-    console.log('Descrição:', descricao);
     
     try {
-      // PASSO 1: Verificar uso
-      console.log('');
-      console.log('📊 PASSO 1: Verificando uso...');
-      
+      // VERIFICAR SE ESTÁ EM USO
       const { data: ingredientesUsando, error: erroVerificacao } = await supabase
         .from('ingredientes')
-        .select('*')
+        .select('id, nome, tipo_insumo_id')
         .eq('tipo_insumo_id', id);
       
-      console.log('Query executada em: ingredientes');
-      console.log('Filtro: tipo_insumo_id =', id);
-      console.log('Resultado:', ingredientesUsando);
-      console.log('Quantidade:', ingredientesUsando?.length || 0);
-      console.log('Erro?', erroVerificacao);
+      console.log('📊 Ingredientes usando este tipo:', ingredientesUsando);
+      console.log('📊 Quantidade:', ingredientesUsando?.length || 0);
       
       if (erroVerificacao) {
-        console.error('❌ ERRO na verificação:', erroVerificacao);
-        alert(`ERRO ao verificar: ${erroVerificacao.message}`);
-        throw erroVerificacao;
-      }
-      
-      // PASSO 2: Validar resultado
-      console.log('');
-      console.log('🔍 PASSO 2: Validando resultado...');
-      
-      const quantidadeEmUso = ingredientesUsando?.length || 0;
-      console.log('Quantidade em uso:', quantidadeEmUso);
-      
-      if (quantidadeEmUso > 0) {
-        console.log('');
-        console.log('❌❌❌ BLOQUEANDO EXCLUSÃO! ❌❌❌');
-        console.log(`Motivo: ${quantidadeEmUso} ingrediente(s) usando este tipo`);
-        console.log('Ingredientes encontrados:', ingredientesUsando);
-        console.log('═══════════════════════════════════════');
-        
-        // BLOQUEAR COM ALERT TAMBÉM (para ter certeza que vê)
-        alert(
-          `⚠️ EXCLUSÃO BLOQUEADA!\n\n` +
-          `O tipo "${descricao}" está sendo usado em ${quantidadeEmUso} ingrediente(s).\n\n` +
-          `Você precisa remover TODOS os ingredientes que usam este tipo antes de poder excluí-lo.\n\n` +
-          `Verifique em: Precificação > Ingredientes`
-        );
-        
-        // Toast também
-        toast.error(
-          `⚠️ Não é possível excluir\n\nO tipo "${descricao}" está sendo usado em ${quantidadeEmUso} ingrediente(s) cadastrado(s).\n\nPara excluir este tipo:\n1. Vá em Precificação → Ingredientes\n2. Remova todos os ingredientes que usam "${descricao}"\n3. Depois volte aqui para excluir o tipo`,
-          { duration: 10000 }
-        );
-        
-        // IMPORTANTE: PARAR AQUI!
-        console.log('Função encerrada - não continuou para exclusão');
-        return; // ← CRÍTICO: RETURN AQUI!
-      }
-      
-      // PASSO 3: Se chegou aqui = não está em uso
-      console.log('');
-      console.log('✅ PASSO 3: Tipo não está em uso');
-      console.log('Pode prosseguir com exclusão');
-      
-      // PASSO 4: Confirmação
-      console.log('');
-      console.log('📝 PASSO 4: Pedindo confirmação...');
-      
-      const confirmacao = window.confirm(
-        `⚠️ EXCLUSÃO PERMANENTE\n\n` +
-        `Confirma exclusão de:\n"${descricao}"\n\n` +
-        `Esta ação NÃO pode ser desfeita!`
-      );
-      
-      console.log('Usuário confirmou?', confirmacao);
-      
-      if (!confirmacao) {
-        console.log('❌ Usuário cancelou');
-        console.log('═══════════════════════════════════════');
+        console.error('❌ Erro ao verificar:', erroVerificacao);
+        toast.error('Erro ao verificar uso do tipo');
         return;
       }
       
-      // PASSO 5: Excluir
-      console.log('');
-      console.log('🗑️ PASSO 5: Executando exclusão...');
+      // SE ESTÁ EM USO = BLOQUEAR!
+      if (ingredientesUsando && ingredientesUsando.length > 0) {
+        console.log('❌ EXCLUSÃO BLOQUEADA - Tipo em uso!');
+        console.log('═══════════════════════════════════════');
+        
+        toast.error(
+          `⚠️ Não é possível excluir!\n\n` +
+          `O tipo "${descricao}" está sendo usado em ${ingredientesUsando.length} ingrediente(s).\n\n` +
+          `Para excluir:\n` +
+          `1. Vá em Precificação → Ingredientes\n` +
+          `2. Remova todos os ingredientes que usam "${descricao}"\n` +
+          `3. Depois volte aqui para excluir o tipo`,
+          { duration: 10000 }
+        );
+        
+        return; // BLOQUEIA AQUI!
+      }
+      
+      // NÃO ESTÁ EM USO - Pedir confirmação
+      console.log('✅ Tipo não está em uso - pode excluir');
+      
+      const confirmacao = window.confirm(
+        `⚠️ ATENÇÃO: Exclusão Permanente\n\n` +
+        `Confirma exclusão de "${descricao}"?\n\n` +
+        `Esta ação NÃO pode ser desfeita!`
+      );
+      
+      if (!confirmacao) {
+        console.log('❌ Usuário cancelou');
+        return;
+      }
+      
+      // EXCLUIR
+      console.log('🗑️ Excluindo tipo...');
       
       deleteTipoInsumo.mutate(id, {
         onSuccess: () => {
-          console.log('✅ Exclusão concluída com sucesso!');
+          console.log('✅ Tipo excluído com sucesso!');
           console.log('═══════════════════════════════════════');
-          
-          toast.success(`✅ Tipo excluído: "${descricao}" foi removido permanentemente.`);
+          toast.success(`Tipo "${descricao}" excluído com sucesso!`);
         },
         onError: (error: any) => {
-          console.error('❌ ERRO ao excluir:', error);
-          console.log('═══════════════════════════════════════');
-          alert(`ERRO ao excluir: ${error.message}`);
+          console.error('❌ Erro ao excluir:', error);
+          toast.error(`Erro ao excluir: ${error.message}`);
         }
       });
       
     } catch (error: any) {
-      console.error('❌ ERRO GERAL:', error);
-      console.log('═══════════════════════════════════════');
-      
-      toast.error(error.message || 'Não foi possível excluir o tipo.');
+      console.error('❌ Erro geral:', error);
+      toast.error('Erro ao processar exclusão');
     }
   };
 
