@@ -97,7 +97,7 @@ export function IngredienteAutocomplete({
                 onClick={() => navigate("/cadastros/ingredientes")}
                 className="w-full"
               >
-                Ir para Cadastro de Matéria-prima
+                Ir para Cadastro de Ingredientes
               </Button>
             </div>
           </CommandEmpty>

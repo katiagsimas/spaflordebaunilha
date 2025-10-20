@@ -39,7 +39,7 @@ interface Ingrediente {
   dataAtualizacao: string;
 }
 
-export default function MateriaPrima() {
+export default function Ingredientes() {
   const navigate = useNavigate();
   const [ingredientes, setIngredientes] = useLocalStorage<Ingrediente[]>("ingredientes", []);
   const { unidades } = useUnidadesMedida();
@@ -90,14 +90,14 @@ export default function MateriaPrima() {
   const saveIngrediente = (data: typeof formData) => {
     if (editingIngrediente) {
       setIngredientes(ingredientes.map(i => i.id === editingIngrediente.id ? { ...data, id: i.id } : i));
-      toast.success("Matéria-prima atualizada com sucesso!");
+      toast.success("Ingrediente atualizado com sucesso!");
     } else {
       const newIngrediente: Ingrediente = {
         ...data,
         id: Date.now().toString(),
       };
       setIngredientes([...ingredientes, newIngrediente]);
-      toast.success("Matéria-prima cadastrada com sucesso!");
+      toast.success("Ingrediente cadastrado com sucesso!");
     }
 
     resetForm();
@@ -139,7 +139,7 @@ export default function MateriaPrima() {
   const handleDelete = (id: string) => {
     setIngredientes(ingredientes.filter(i => i.id !== id));
     setDeleteId(null);
-    toast.success("Matéria-prima excluída com sucesso!");
+    toast.success("Ingrediente excluído com sucesso!");
   };
 
   const handleEdit = (ingrediente: Ingrediente) => {
@@ -152,25 +152,25 @@ export default function MateriaPrima() {
         <BackButton to="/precificacao" />
         <div className="flex-1">
           <PageHeader
-            title="Matéria-prima"
-            description="Gerencie sua matéria-prima e insumos"
+            title="Ingredientes"
+            description="Gerencie seus ingredientes e insumos"
           />
         </div>
       </div>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Lista de Matéria-prima</CardTitle>
+          <CardTitle>Lista de Ingredientes</CardTitle>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button onClick={() => setEditingIngrediente(null)}>
                 <Plus className="h-4 w-4 mr-2" />
-                Nova Matéria-prima
+                Novo Ingrediente
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
-                <DialogTitle>{editingIngrediente ? "Editar Matéria-prima" : "Nova Matéria-prima"}</DialogTitle>
+                <DialogTitle>{editingIngrediente ? "Editar Ingrediente" : "Novo Ingrediente"}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -269,15 +269,15 @@ export default function MateriaPrima() {
           {ingredientes.length === 0 ? (
             <EmptyState
               icon={Boxes}
-              title="Nenhuma matéria-prima cadastrada"
-              description="Comece adicionando sua primeira matéria-prima"
+              title="Nenhum ingrediente cadastrado"
+              description="Comece adicionando seu primeiro ingrediente"
             />
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Matéria-prima</TableHead>
+                    <TableHead>Ingrediente</TableHead>
                     <TableHead>Marca</TableHead>
                     <TableHead>Quantidade</TableHead>
                     <TableHead>Unidade</TableHead>
@@ -328,8 +328,8 @@ export default function MateriaPrima() {
         open={!!deleteId}
         onOpenChange={(open) => !open && setDeleteId(null)}
         onConfirm={() => deleteId && handleDelete(deleteId)}
-        title="Excluir Matéria-prima"
-        description="Tem certeza que deseja excluir esta matéria-prima? Esta ação não pode ser desfeita."
+        title="Excluir Ingrediente"
+        description="Tem certeza que deseja excluir este ingrediente? Esta ação não pode ser desfeita."
       />
 
       <AlertDialog open={showZeroPriceConfirm} onOpenChange={setShowZeroPriceConfirm}>
@@ -337,7 +337,7 @@ export default function MateriaPrima() {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar Preço Zerado</AlertDialogTitle>
             <AlertDialogDescription>
-              O preço informado é R$ 0,00. Tem certeza que deseja cadastrar a matéria-prima com este valor?
+              O preço informado é R$ 0,00. Tem certeza que deseja cadastrar o ingrediente com este valor?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

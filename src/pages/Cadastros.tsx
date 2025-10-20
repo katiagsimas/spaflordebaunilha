@@ -13,7 +13,7 @@ const cadastros = [
     color: "text-red-600 bg-red-50 dark:bg-red-950",
   },
   {
-    title: "Matéria-prima",
+    title: "Ingredientes",
     description: "Cadastro de Insumos",
     icon: Boxes,
     url: "/cadastros/ingredientes",

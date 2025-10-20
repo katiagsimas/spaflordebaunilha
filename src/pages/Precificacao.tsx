@@ -59,7 +59,7 @@ const opcoes = [
     color: "text-red-600 bg-red-50 dark:bg-red-950",
   },
   {
-    title: "Matéria-prima",
+    title: "Ingredientes",
     description: "Cadastro de Insumos",
     icon: Boxes,
     url: "/precificacao/ingredientes",
@@ -126,7 +126,7 @@ export default function Precificacao() {
     <div className="space-y-6">
       <PageHeader
         title="Precificação"
-        description="Gerencie a Precificação dos seus Produtos iniciando pelo Cadastro de Matéria-prima e Embalagens; na sequência crie suas sub-receitas e Ficha Técnica dos Produtos Finalizados"
+        description="Gerencie a Precificação dos seus Produtos iniciando pelo Cadastro de Ingredientes e Embalagens; na sequência crie suas sub-receitas e Ficha Técnica dos Produtos Finalizados"
       />
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">

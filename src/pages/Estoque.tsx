@@ -63,7 +63,7 @@ export default function Estoque() {
       <div className="container mx-auto p-6">
         <PageHeader
           title="Estoque"
-          description="Controle seu estoque de matéria-prima e embalagens"
+          description="Controle seu estoque de ingredientes e embalagens"
         />
         <EmptyState
           icon={Package}
@@ -151,8 +151,8 @@ export default function Estoque() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="todos">Todas Categorias</SelectItem>
-              <SelectItem value="base">Matéria-prima Base</SelectItem>
-              <SelectItem value="especiais">Matéria-prima Especiais</SelectItem>
+              <SelectItem value="base">Ingredientes Base</SelectItem>
+              <SelectItem value="especiais">Ingredientes Especiais</SelectItem>
               <SelectItem value="decoracao">Decoração</SelectItem>
               <SelectItem value="embalagens">Embalagens</SelectItem>
             </SelectContent>
