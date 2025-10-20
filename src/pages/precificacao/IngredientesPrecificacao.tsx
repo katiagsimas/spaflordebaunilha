@@ -44,6 +44,7 @@ export default function IngredientesPrecificacao() {
   
   const [modalEdicaoAberto, setModalEdicaoAberto] = useState(false);
   const [ingredienteEditando, setIngredienteEditando] = useState<any>(null);
+  const [tipoEdicao, setTipoEdicao] = useState('');
   const [marcaEdicao, setMarcaEdicao] = useState('');
   const [precoEdicao, setPrecoEdicao] = useState('');
   
@@ -152,6 +153,7 @@ export default function IngredientesPrecificacao() {
 
   const handleAbrirEdicao = (ingrediente: any) => {
     setIngredienteEditando(ingrediente);
+    setTipoEdicao(ingrediente.tipo_insumo_id || '');
     setMarcaEdicao(ingrediente.marca || '');
     setPrecoEdicao(ingrediente.preco.toString().replace('.', ','));
     setModalEdicaoAberto(true);
@@ -381,12 +383,17 @@ export default function IngredientesPrecificacao() {
 
           {ingredienteEditando && (
             <div className="space-y-4 py-4">
-              <div className="p-4 bg-muted/50 rounded-lg">
-                <Label className="text-xs text-muted-foreground">Ingrediente</Label>
-                <p className="font-medium">
-                  {ingredienteEditando.tipo_insumo?.descricao} ({' '}
-                  {ingredienteEditando.tipo_insumo?.quantidade_embalagem.toLocaleString('pt-BR')}{' '}
-                  {ingredienteEditando.tipo_insumo?.unidade_medida?.sigla})
+              <div className="space-y-2">
+                <Label>Tipo de Ingrediente</Label>
+                <TipoInsumoAutocomplete
+                  onSelect={(tipo) => setTipoEdicao(tipo.id)}
+                  value={tipoEdicao}
+                  onAfterCreate={() => {
+                    refetch();
+                  }}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Este campo não pode ser alterado para manter a integridade das receitas
                 </p>
               </div>
 
