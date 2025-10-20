@@ -101,11 +101,11 @@ export default function SubReceitas() {
   };
 
   const handleCreateNew = () => {
-    navigate("/sub-receitas/nova");
+    navigate("/precificacao/pre-preparo/nova");
   };
 
   const handleEdit = (id: string) => {
-    navigate(`/sub-receitas/editar/${id}`);
+    navigate(`/precificacao/pre-preparo/editar/${id}`);
   };
 
   const handleDuplicate = (id: string) => {
@@ -126,7 +126,7 @@ export default function SubReceitas() {
     toast.success("Sub-receita duplicada com sucesso!");
     
     // Navega para edição da cópia
-    navigate(`/sub-receitas/editar/${novaSubReceita.id}`);
+    navigate(`/precificacao/pre-preparo/editar/${novaSubReceita.id}`);
   };
 
   return (

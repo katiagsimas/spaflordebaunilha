@@ -147,11 +147,11 @@ export default function Receitas() {
   };
 
   const handleCreateNew = () => {
-    navigate("/receitas/nova");
+    navigate("/precificacao/ficha-tecnica/nova");
   };
 
   const handleEdit = (id: string) => {
-    navigate(`/receitas/editar/${id}`);
+    navigate(`/precificacao/ficha-tecnica/editar/${id}`);
   };
 
   const handleDuplicate = (id: string) => {
@@ -180,7 +180,7 @@ export default function Receitas() {
     toast.success("Receita duplicada com sucesso!");
     
     // Navega para edição da cópia
-    navigate(`/receitas/editar/${novaReceita.id}`);
+    navigate(`/precificacao/ficha-tecnica/editar/${novaReceita.id}`);
   };
 
   return (
