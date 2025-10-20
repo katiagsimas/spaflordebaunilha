@@ -31,7 +31,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/components/PageHeader';
 
-export default function IngredientesPrecificacao() {
+export default function MateriaPrimaPrecificacao() {
   const { ingredientes, loading, createIngrediente, updateIngrediente, refetch } = useIngredientesPrecificacao();
   const { tiposInsumos, isLoading: loadingTipos } = useTiposInsumos();
   const { toast } = useToast();
@@ -55,7 +55,7 @@ export default function IngredientesPrecificacao() {
   // Debug: mostrar tipos carregados
   useEffect(() => {
     console.log('═══════════════════════════════════════');
-    console.log('🔍 PÁGINA DE INGREDIENTES - DEBUG');
+    console.log('🔍 PÁGINA DE MATÉRIA-PRIMA - DEBUG');
     console.log('═══════════════════════════════════════');
     console.log(' ');
     
@@ -143,7 +143,7 @@ export default function IngredientesPrecificacao() {
       console.error('Erro ao cadastrar:', error);
       toast({
         title: 'Erro ao Cadastrar',
-        description: error.message || 'Não foi possível cadastrar o ingrediente.',
+        description: error.message || 'Não foi possível cadastrar a matéria-prima.',
         variant: 'destructive',
         duration: 6000,
       });
@@ -213,12 +213,12 @@ export default function IngredientesPrecificacao() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <PageHeader title="Ingredientes" description="Gerencie ingredientes com marca e preço para usar em receitas" />
+      <PageHeader title="Matéria-prima" description="Gerencie matéria-prima com marca e preço para usar em receitas" />
 
       <div className="flex justify-end">
         <Button onClick={handleAbrirModalCadastro}>
           <Plus className="mr-2 h-4 w-4" />
-          Novo Ingrediente
+          Nova Matéria-prima
         </Button>
       </div>
 
@@ -226,8 +226,8 @@ export default function IngredientesPrecificacao() {
         <Info className="h-4 w-4 text-blue-600" />
         <AlertTitle>ℹ️ Importante</AlertTitle>
         <AlertDescription>
-          Após cadastrar um ingrediente, você poderá editar apenas a <strong>marca</strong> e o <strong>preço</strong>. 
-          Não é possível excluir ingredientes para manter a integridade das receitas.
+          Após cadastrar uma matéria-prima, você poderá editar apenas a <strong>marca</strong> e o <strong>preço</strong>. 
+          Não é possível excluir matérias-primas para manter a integridade das receitas.
         </AlertDescription>
       </Alert>
 
@@ -235,7 +235,7 @@ export default function IngredientesPrecificacao() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Ingrediente</TableHead>
+              <TableHead>Matéria-prima</TableHead>
               <TableHead>Marca</TableHead>
               <TableHead>Qtde Embalagem</TableHead>
               <TableHead>Unidade</TableHead>
@@ -248,9 +248,9 @@ export default function IngredientesPrecificacao() {
             {ingredientes.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                  Nenhum ingrediente cadastrado ainda.
+                  Nenhuma matéria-prima cadastrada ainda.
                   <br />
-                  Clique em "Novo Ingrediente" para começar.
+                  Clique em "Nova Matéria-prima" para começar.
                 </TableCell>
               </TableRow>
             ) : (
@@ -294,7 +294,7 @@ export default function IngredientesPrecificacao() {
       <Dialog open={modalCadastroAberto} onOpenChange={setModalCadastroAberto}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Novo Ingrediente</DialogTitle>
+            <DialogTitle>Nova Matéria-prima</DialogTitle>
             <DialogDescription>
               Selecione o tipo e informe marca e preço
             </DialogDescription>
@@ -313,7 +313,7 @@ export default function IngredientesPrecificacao() {
             {dadosTipoSelecionado && (
               <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
                 <div>
-                  <Label className="text-xs text-muted-foreground">Ingrediente</Label>
+                  <Label className="text-xs text-muted-foreground">Matéria-prima</Label>
                   <p className="font-medium">{dadosTipoSelecionado.descricao}</p>
                 </div>
                 <div>
@@ -373,7 +373,7 @@ export default function IngredientesPrecificacao() {
       <Dialog open={modalEdicaoAberto} onOpenChange={setModalEdicaoAberto}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Editar Ingrediente</DialogTitle>
+            <DialogTitle>Editar Matéria-prima</DialogTitle>
             <DialogDescription>
               Você pode alterar apenas marca e preço
             </DialogDescription>
@@ -382,7 +382,7 @@ export default function IngredientesPrecificacao() {
           {ingredienteEditando && (
             <div className="space-y-4 py-4">
               <div className="p-4 bg-muted/50 rounded-lg">
-                <Label className="text-xs text-muted-foreground">Ingrediente</Label>
+                <Label className="text-xs text-muted-foreground">Matéria-prima</Label>
                 <p className="font-medium">
                   {ingredienteEditando.tipo_insumo?.descricao} ({' '}
                   {ingredienteEditando.tipo_insumo?.quantidade_embalagem.toLocaleString('pt-BR')}{' '}

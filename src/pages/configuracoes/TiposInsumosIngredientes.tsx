@@ -137,10 +137,10 @@ export default function TiposInsumosIngredientes() {
         
         toast.error(
           `⚠️ Não é possível excluir!\n\n` +
-          `O tipo "${descricao}" está sendo usado em ${ingredientesUsando.length} ingrediente(s).\n\n` +
+          `O tipo "${descricao}" está sendo usado em ${ingredientesUsando.length} matéria-prima(s).\n\n` +
           `Para excluir:\n` +
-          `1. Vá em Precificação → Ingredientes\n` +
-          `2. Remova todos os ingredientes que usam "${descricao}"\n` +
+          `1. Vá em Precificação → Matéria-prima\n` +
+          `2. Remova todas as matérias-primas que usam "${descricao}"\n` +
           `3. Depois volte aqui para excluir o tipo`,
           { duration: 10000 }
         );
@@ -199,7 +199,7 @@ export default function TiposInsumosIngredientes() {
         <Info className="h-4 w-4 text-blue-600" />
         <AlertTitle>ℹ️ Como funciona a exclusão</AlertTitle>
         <AlertDescription>
-          Você pode excluir tipos que <strong>não estão sendo usados</strong> em nenhum ingrediente.
+          Você pode excluir tipos que <strong>não estão sendo usados</strong> em nenhuma matéria-prima.
           Se um tipo estiver em uso, o sistema bloqueará a exclusão até que você remova todos os pré-preparos e receitas que o utilizam.
         </AlertDescription>
       </Alert>
@@ -207,7 +207,7 @@ export default function TiposInsumosIngredientes() {
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>Tipos de Ingredientes</CardTitle>
+            <CardTitle>Tipos de Matéria-prima</CardTitle>
             <Button onClick={() => setDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Adicionar
@@ -280,7 +280,7 @@ export default function TiposInsumosIngredientes() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editandoId ? "Editar" : "Novo"} Tipo de Ingrediente
+              {editandoId ? "Editar" : "Novo"} Tipo de Matéria-prima
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit}>

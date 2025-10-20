@@ -840,7 +840,7 @@ export function ContaPagarFormDialog({ open, onOpenChange, conta, onSave }: Cont
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Ex: Conta de Luz - Outubro, Fornecedor ABC - Ingredientes"
+                      placeholder="Ex: Conta de Luz - Outubro, Fornecedor ABC - Matéria-prima"
                       {...field}
                       maxLength={200}
                     />

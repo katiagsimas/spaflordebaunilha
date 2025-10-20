@@ -362,7 +362,7 @@ export function CMVGlobalCard() {
             {/* Dica */}
             <div className="bg-info/10 border-l-4 border-info p-4 rounded-lg mt-6">
               <p className="text-sm text-foreground">
-                <span className="font-semibold">💡 Dica:</span> Focar em reduzir custos de ingredientes 
+                <span className="font-semibold">💡 Dica:</span> Focar em reduzir custos de matéria-prima 
                 (negociando com fornecedores ou otimizando receitas) para melhorar seu CMV.
               </p>
             </div>
