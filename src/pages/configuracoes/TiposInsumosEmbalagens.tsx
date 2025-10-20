@@ -110,64 +110,112 @@ export default function TiposInsumosEmbalagens() {
   };
 
   const handleExcluir = async (id: string, descricao: string) => {
+    console.log('═══════════════════════════════════════');
+    console.log('🗑️ INÍCIO DA EXCLUSÃO (EMBALAGENS)');
+    console.log('═══════════════════════════════════════');
+    console.log('ID do tipo:', id);
+    console.log('Descrição:', descricao);
+    
     try {
-      console.log('🔍 Verificando se tipo está em uso...');
-      console.log('Tipo ID:', id);
-      console.log('Descrição:', descricao);
-
-      // 1. Verificar se está em uso na tabela embalagens
+      // PASSO 1: Verificar uso
+      console.log('');
+      console.log('📊 PASSO 1: Verificando uso...');
+      
       const { data: embalagensUsando, error: erroVerificacao } = await supabase
         .from('embalagens')
-        .select('id, nome, tipo_embalagem_id')
+        .select('*')
         .eq('tipo_embalagem_id', id);
-
-      console.log('📊 Resultado da verificação:', embalagensUsando);
-      console.log('Quantidade encontrada:', embalagensUsando?.length || 0);
-
+      
+      console.log('Query executada em: embalagens');
+      console.log('Filtro: tipo_embalagem_id =', id);
+      console.log('Resultado:', embalagensUsando);
+      console.log('Quantidade:', embalagensUsando?.length || 0);
+      console.log('Erro?', erroVerificacao);
+      
       if (erroVerificacao) {
-        console.error('❌ Erro na verificação:', erroVerificacao);
+        console.error('❌ ERRO na verificação:', erroVerificacao);
+        alert(`ERRO ao verificar: ${erroVerificacao.message}`);
         throw erroVerificacao;
       }
-
-      // 2. SE ESTÁ EM USO = BLOQUEAR!
-      if (embalagensUsando && embalagensUsando.length > 0) {
-        console.log('❌ BLOQUEANDO: Tipo está em uso!');
+      
+      // PASSO 2: Validar resultado
+      console.log('');
+      console.log('🔍 PASSO 2: Validando resultado...');
+      
+      const quantidadeEmUso = embalagensUsando?.length || 0;
+      console.log('Quantidade em uso:', quantidadeEmUso);
+      
+      if (quantidadeEmUso > 0) {
+        console.log('');
+        console.log('❌❌❌ BLOQUEANDO EXCLUSÃO! ❌❌❌');
+        console.log(`Motivo: ${quantidadeEmUso} embalagem(ns) usando este tipo`);
+        console.log('Embalagens encontradas:', embalagensUsando);
+        console.log('═══════════════════════════════════════');
         
+        // BLOQUEAR COM ALERT TAMBÉM (para ter certeza que vê)
+        alert(
+          `⚠️ EXCLUSÃO BLOQUEADA!\n\n` +
+          `O tipo "${descricao}" está sendo usado em ${quantidadeEmUso} embalagem(ns).\n\n` +
+          `Você precisa remover TODAS as embalagens que usam este tipo antes de poder excluí-lo.\n\n` +
+          `Verifique em: Precificação > Embalagens`
+        );
+        
+        // Toast também
         toast.error(
-          `⚠️ Não é possível excluir\n\nO tipo "${descricao}" está sendo usado em ${embalagensUsando.length} embalagem(ns) cadastrada(s).\n\nPara excluir este tipo:\n1. Vá em Precificação → Embalagens\n2. Remova todas as embalagens que usam "${descricao}"\n3. Depois volte aqui para excluir o tipo`,
+          `⚠️ Não é possível excluir\n\nO tipo "${descricao}" está sendo usado em ${quantidadeEmUso} embalagem(ns) cadastrada(s).\n\nPara excluir este tipo:\n1. Vá em Precificação → Embalagens\n2. Remova todas as embalagens que usam "${descricao}"\n3. Depois volte aqui para excluir o tipo`,
           { duration: 10000 }
         );
         
-        // IMPORTANTE: RETURN AQUI! Não continua!
-        return;
+        // IMPORTANTE: PARAR AQUI!
+        console.log('Função encerrada - não continuou para exclusão');
+        return; // ← CRÍTICO: RETURN AQUI!
       }
-
-      // 3. SE NÃO ESTÁ EM USO = Pedir confirmação
-      console.log('✅ Tipo não está em uso, pode excluir');
+      
+      // PASSO 3: Se chegou aqui = não está em uso
+      console.log('');
+      console.log('✅ PASSO 3: Tipo não está em uso');
+      console.log('Pode prosseguir com exclusão');
+      
+      // PASSO 4: Confirmação
+      console.log('');
+      console.log('📝 PASSO 4: Pedindo confirmação...');
       
       const confirmacao = window.confirm(
-        `⚠️ ATENÇÃO: Exclusão Permanente\n\n` +
-        `Tem certeza que deseja excluir o tipo:\n"${descricao}"?\n\n` +
+        `⚠️ EXCLUSÃO PERMANENTE\n\n` +
+        `Confirma exclusão de:\n"${descricao}"\n\n` +
         `Esta ação NÃO pode ser desfeita!`
       );
-
+      
+      console.log('Usuário confirmou?', confirmacao);
+      
       if (!confirmacao) {
-        console.log('❌ Usuário cancelou a exclusão');
+        console.log('❌ Usuário cancelou');
+        console.log('═══════════════════════════════════════');
         return;
       }
-
-      // 4. EXCLUIR
-      console.log('🗑️ Excluindo tipo...');
+      
+      // PASSO 5: Excluir
+      console.log('');
+      console.log('🗑️ PASSO 5: Executando exclusão...');
       
       deleteTipoEmbalagem.mutate(id, {
         onSuccess: () => {
-          console.log('✅ Tipo excluído com sucesso!');
+          console.log('✅ Exclusão concluída com sucesso!');
+          console.log('═══════════════════════════════════════');
+          
           toast.success(`✅ Tipo excluído: "${descricao}" foi removido permanentemente.`);
+        },
+        onError: (error: any) => {
+          console.error('❌ ERRO ao excluir:', error);
+          console.log('═══════════════════════════════════════');
+          alert(`ERRO ao excluir: ${error.message}`);
         }
       });
-
+      
     } catch (error: any) {
-      console.error('❌ Erro geral:', error);
+      console.error('❌ ERRO GERAL:', error);
+      console.log('═══════════════════════════════════════');
+      
       toast.error(error.message || 'Não foi possível excluir o tipo.');
     }
   };
