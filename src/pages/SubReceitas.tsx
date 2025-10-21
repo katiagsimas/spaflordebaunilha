@@ -151,9 +151,9 @@ export default function SubReceitas() {
       {subReceitas.length === 0 ? (
         <EmptyState
           icon={ChefHat}
-          title="Nenhuma sub-receita cadastrada"
-          description="Comece criando sua primeira sub-receita"
-          actionLabel="Criar nova sub-receita"
+          title="Nenhum pré-preparo cadastrado"
+          description="Crie seus pré-preparos para otimizar a produção e calcular custos de forma precisa"
+          actionLabel="Criar novo Pré-Preparo"
           onAction={handleCreateNew}
         />
       ) : (
