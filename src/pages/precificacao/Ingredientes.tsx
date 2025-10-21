@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,6 +49,7 @@ import { BackButton } from '@/components/BackButton';
 import { PageHeader } from '@/components/PageHeader';
 
 export default function Ingredientes() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [ingredientes, setIngredientes] = useState<any[]>([]);
   const [tiposDisponiveis, setTiposDisponiveis] = useState<any[]>([]);
@@ -566,9 +568,13 @@ export default function Ingredientes() {
                     </TableCell>
                     <TableCell className="text-right">
                       {ePrePreparo ? (
-                        <div className="text-sm text-muted-foreground italic">
-                          Editar em Pré-Preparos
-                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => navigate(`/precificacao/pre-preparos/${ingrediente.tipo_insumo?.pre_preparo_id}`)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
                       ) : (
                         <Button
                           variant="ghost"
