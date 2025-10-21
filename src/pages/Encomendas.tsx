@@ -943,22 +943,23 @@ const Encomendas = () => {
                           </CardContent>
                         </Card>
                       </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                  <Label htmlFor="observacoes">Observações</Label>
-                  <Textarea
-                    id="observacoes"
-                    rows={3}
-                    value={formData.observacoes}
-                    onChange={(e) =>
-                      setFormData({ ...formData, observacoes: e.target.value })
-                    }
-                  />
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex gap-2 justify-end">
+                <div className="space-y-2">
+                    <Label htmlFor="observacoes">Observações</Label>
+                    <Textarea
+                      id="observacoes"
+                      rows={3}
+                      value={formData.observacoes}
+                      onChange={(e) =>
+                        setFormData({ ...formData, observacoes: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div className="flex gap-2 justify-end">
                   <Button
                     type="button"
                     variant="outline"
