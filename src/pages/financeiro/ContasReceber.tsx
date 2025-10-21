@@ -38,7 +38,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, MoreVertical, Eye, DollarSign, Edit, Trash2, Info, Search } from 'lucide-react';
+import { Plus, MoreVertical, Eye, DollarSign, Edit, Trash2, Info, Search, Filter } from 'lucide-react';
 
 export default function ContasReceber() {
   const navigate = useNavigate();
@@ -97,8 +97,13 @@ export default function ContasReceber() {
     }
 
     // Filtro de status
-    if (filtroStatus !== 'todos' && p.status !== filtroStatus) {
-      return false;
+    if (filtroStatus !== 'todos') {
+      // Tratar "vencido" como sinônimo de "atrasado"
+      if (filtroStatus === 'vencido' && p.status !== 'atrasado') {
+        return false;
+      } else if (filtroStatus !== 'vencido' && p.status !== filtroStatus) {
+        return false;
+      }
     }
 
     return true;
@@ -151,6 +156,7 @@ export default function ContasReceber() {
       pago: <Badge className="bg-green-100 text-green-700 border-green-300">Pago</Badge>,
       pagamento_parcial: <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">Pagamento Parcial</Badge>,
       atrasado: <Badge className="bg-red-100 text-red-700 border-red-300">Atrasado</Badge>,
+      vencido: <Badge className="bg-red-100 text-red-700 border-red-300">Vencido</Badge>,
       adiantado: <Badge className="bg-blue-100 text-blue-700 border-blue-300">Adiantado</Badge>,
     };
     return badges[status] || <Badge variant="outline">{status}</Badge>;
@@ -180,7 +186,67 @@ export default function ContasReceber() {
         </AlertDescription>
       </Alert>
 
-      {/* Filtros */}
+      {/* Filtros Pré-Definidos */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Filter className="h-4 w-4 text-muted-foreground" />
+          <Label>Filtros Pré-Definidos</Label>
+        </div>
+        
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant={filtroStatus === 'todos' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFiltroStatus('todos')}
+          >
+            Todos
+          </Button>
+          <Button
+            variant={filtroStatus === 'aberto' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFiltroStatus('aberto')}
+          >
+            Em Aberto
+          </Button>
+          <Button
+            variant={filtroStatus === 'pagamento_parcial' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFiltroStatus('pagamento_parcial')}
+          >
+            Pago Parcialmente
+          </Button>
+          <Button
+            variant={filtroStatus === 'pago' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFiltroStatus('pago')}
+          >
+            Pago
+          </Button>
+          <Button
+            variant={filtroStatus === 'vencido' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFiltroStatus('vencido')}
+          >
+            Vencido
+          </Button>
+          <Button
+            variant={filtroStatus === 'adiantado' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFiltroStatus('adiantado')}
+          >
+            Adiantado
+          </Button>
+          <Button
+            variant={filtroStatus === 'atrasado' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFiltroStatus('atrasado')}
+          >
+            Atrasado
+          </Button>
+        </div>
+      </div>
+
+      {/* Filtros de Busca */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Buscar</Label>
@@ -193,23 +259,6 @@ export default function ContasReceber() {
               className="pl-10"
             />
           </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Status</Label>
-          <Select value={filtroStatus} onValueChange={setFiltroStatus}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todos">Todos</SelectItem>
-              <SelectItem value="aberto">Aberto</SelectItem>
-              <SelectItem value="pago">Pago</SelectItem>
-              <SelectItem value="atrasado">Atrasado</SelectItem>
-              <SelectItem value="pagamento_parcial">Pagamento Parcial</SelectItem>
-              <SelectItem value="adiantado">Adiantado</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
