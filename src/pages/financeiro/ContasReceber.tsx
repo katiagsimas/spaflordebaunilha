@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import DarBaixaDialog from '@/components/financeiro/DarBaixaDialog';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { DatePickerField } from '@/components/DatePickerField';
 import {
   Select,
@@ -435,9 +436,8 @@ export default function ContasReceber() {
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 p-4 border rounded-lg bg-muted/30">
               <div className="space-y-2">
                 <Label className="text-sm">Plano de Contas</Label>
-                <input
+                <Input
                   type="text"
-                  className="w-full px-3 py-2 border rounded-md text-sm"
                   placeholder="Buscar plano..."
                   value={filtroPlanoContas}
                   onChange={(e) => setFiltroPlanoContas(e.target.value)}
@@ -445,9 +445,8 @@ export default function ContasReceber() {
               </div>
               <div className="space-y-2">
                 <Label className="text-sm">Cliente</Label>
-                <input
+                <Input
                   type="text"
-                  className="w-full px-3 py-2 border rounded-md text-sm"
                   placeholder="Buscar cliente..."
                   value={filtroCliente}
                   onChange={(e) => setFiltroCliente(e.target.value)}
@@ -455,9 +454,8 @@ export default function ContasReceber() {
               </div>
               <div className="space-y-2">
                 <Label className="text-sm">Categoria do Plano de Contas</Label>
-                <input
+                <Input
                   type="text"
-                  className="w-full px-3 py-2 border rounded-md text-sm"
                   placeholder="Buscar categoria..."
                   value={filtroCategoria}
                   onChange={(e) => setFiltroCategoria(e.target.value)}
@@ -465,9 +463,8 @@ export default function ContasReceber() {
               </div>
               <div className="space-y-2">
                 <Label className="text-sm">Tipo de Documento</Label>
-                <input
+                <Input
                   type="text"
-                  className="w-full px-3 py-2 border rounded-md text-sm"
                   placeholder="Buscar tipo..."
                   value={filtroTipoDoc}
                   onChange={(e) => setFiltroTipoDoc(e.target.value)}
@@ -475,9 +472,8 @@ export default function ContasReceber() {
               </div>
               <div className="space-y-2">
                 <Label className="text-sm">Banco</Label>
-                <input
+                <Input
                   type="text"
-                  className="w-full px-3 py-2 border rounded-md text-sm"
                   placeholder="Buscar banco..."
                   value={filtroBanco}
                   onChange={(e) => setFiltroBanco(e.target.value)}
