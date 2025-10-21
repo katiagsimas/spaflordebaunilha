@@ -293,9 +293,25 @@ export default function ContasReceberDetalhes() {
               </div>
 
               <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Valor a Pagar</span>
+                <span className="text-sm text-muted-foreground">
+                  {conta.numero_parcelas === 1 ? 'Valor a Pagar (Parcela)' : 'Próxima Parcela a Pagar'}
+                </span>
                 <span className="font-medium text-lg text-red-600">
-                  {formatarValor(totais.totalAberto)}
+                  {(() => {
+                    const proximaParcelaAberta = parcelas
+                      .filter(p => p.status === 'aberto' || p.status === 'atrasado' || p.status === 'pagamento_parcial')
+                      .sort((a, b) => {
+                        const dateA = new Date(a.data_vencimento).getTime();
+                        const dateB = new Date(b.data_vencimento).getTime();
+                        return dateA - dateB;
+                      })[0];
+                    
+                    if (proximaParcelaAberta) {
+                      const valorRestante = Number(proximaParcelaAberta.valor_parcela) - Number(proximaParcelaAberta.valor_pago || 0);
+                      return formatarValor(valorRestante);
+                    }
+                    return 'R$ 0,00';
+                  })()}
                 </span>
               </div>
 
