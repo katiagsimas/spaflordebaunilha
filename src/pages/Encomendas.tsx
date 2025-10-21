@@ -149,6 +149,7 @@ const Encomendas = () => {
       const dadosParaSalvar = {
         ...formData,
         valor: valorFinal,
+        hora_entrega: formData.hora_entrega || null, // Converte string vazia para null
       };
       
       if (editingOrder) {
