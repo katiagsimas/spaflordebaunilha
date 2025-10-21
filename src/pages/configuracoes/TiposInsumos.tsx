@@ -2,12 +2,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Package } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
+import { BackButton } from '@/components/BackButton';
 import TiposInsumosIngredientes from '@/components/TiposInsumos/Ingredientes';
 import TiposInsumosEmbalagens from '@/components/TiposInsumos/Embalagens';
 
 export default function TiposInsumos() {
   return (
     <div className="space-y-6">
+      <BackButton to="/configuracoes" />
       <PageHeader
         title="Tipos de Insumos e Embalagens"
         description="Cadastre os tipos base de ingredientes e embalagens"
