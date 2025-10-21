@@ -73,10 +73,10 @@ const opcoes = [
     color: "text-blue-600 bg-blue-50 dark:bg-blue-950",
   },
   {
-    title: "Pré-Preparo",
-    description: "Gerencie suas sub-receitas",
+    title: "Pré-Preparos",
+    description: "Preparos intermediários para receitas",
     icon: ChefHat,
-    url: "/precificacao/pre-preparo",
+    url: "/precificacao/pre-preparos",
     color: "text-purple-600 bg-purple-50 dark:bg-purple-950",
   },
   {

@@ -823,6 +823,110 @@ export type Database = {
           },
         ]
       }
+      pre_preparos: {
+        Row: {
+          created_at: string | null
+          custo_por_unidade: number | null
+          custo_total: number | null
+          id: string
+          imagem_1_url: string | null
+          imagem_2_url: string | null
+          modo_preparo: string | null
+          nome: string
+          rendimento_quantidade: number
+          rendimento_unidade_id: string
+          tempo_preparo: number
+          tempo_preparo_unidade: string
+          updated_at: string | null
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          custo_por_unidade?: number | null
+          custo_total?: number | null
+          id?: string
+          imagem_1_url?: string | null
+          imagem_2_url?: string | null
+          modo_preparo?: string | null
+          nome: string
+          rendimento_quantidade: number
+          rendimento_unidade_id: string
+          tempo_preparo: number
+          tempo_preparo_unidade: string
+          updated_at?: string | null
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string | null
+          custo_por_unidade?: number | null
+          custo_total?: number | null
+          id?: string
+          imagem_1_url?: string | null
+          imagem_2_url?: string | null
+          modo_preparo?: string | null
+          nome?: string
+          rendimento_quantidade?: number
+          rendimento_unidade_id?: string
+          tempo_preparo?: number
+          tempo_preparo_unidade?: string
+          updated_at?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pre_preparos_rendimento_unidade_id_fkey"
+            columns: ["rendimento_unidade_id"]
+            isOneToOne: false
+            referencedRelation: "unidades_medida"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pre_preparos_ingredientes: {
+        Row: {
+          created_at: string | null
+          custo_ingrediente: number
+          id: string
+          ingrediente_id: string
+          ordem: number
+          pre_preparo_id: string
+          quantidade_utilizada: number
+        }
+        Insert: {
+          created_at?: string | null
+          custo_ingrediente?: number
+          id?: string
+          ingrediente_id: string
+          ordem?: number
+          pre_preparo_id: string
+          quantidade_utilizada: number
+        }
+        Update: {
+          created_at?: string | null
+          custo_ingrediente?: number
+          id?: string
+          ingrediente_id?: string
+          ordem?: number
+          pre_preparo_id?: string
+          quantidade_utilizada?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pre_preparos_ingredientes_ingrediente_id_fkey"
+            columns: ["ingrediente_id"]
+            isOneToOne: false
+            referencedRelation: "ingredientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pre_preparos_ingredientes_pre_preparo_id_fkey"
+            columns: ["pre_preparo_id"]
+            isOneToOne: false
+            referencedRelation: "pre_preparos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1013,6 +1117,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calcular_custo_pre_preparo: {
+        Args: { preparo_id: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

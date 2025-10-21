@@ -1,0 +1,148 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { useToast } from '@/hooks/use-toast';
+import { Plus, Edit, Clock, Scale } from 'lucide-react';
+import { EmptyState } from '@/components/EmptyState';
+import { ChefHat } from 'lucide-react';
+
+export default function PrePreparos() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [preparos, setPreparos] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchPreparos();
+  }, []);
+
+  const fetchPreparos = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('pre_preparos')
+        .select(`
+          *,
+          rendimento_unidade:unidades_medida!rendimento_unidade_id (
+            nome,
+            sigla
+          )
+        `)
+        .eq('usuario_id', user.id)
+        .order('nome');
+
+      if (error) throw error;
+      setPreparos(data || []);
+    } catch (error) {
+      console.error('Erro ao buscar pré-preparos:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível carregar os pré-preparos.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatarTempo = (tempo: number, unidade: string) => {
+    return `${tempo} ${unidade}`;
+  };
+
+  const formatarPreco = (preco: number) => {
+    return preco.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    });
+  };
+
+  if (loading) return <div className="flex justify-center p-8">Carregando...</div>;
+
+  return (
+    <div className="container mx-auto p-6 space-y-6">
+      <div className="flex justify-between items-start mb-6">
+        <div>
+          <h1 className="text-3xl font-bold">Pré-Preparos</h1>
+          <p className="text-muted-foreground">
+            Cadastre preparos intermediários para usar em receitas
+          </p>
+        </div>
+        <Button onClick={() => navigate('/precificacao/pre-preparos/novo')}>
+          <Plus className="mr-2 h-4 w-4" />
+          Criar Novo Pré-Preparo
+        </Button>
+      </div>
+
+      {preparos.length === 0 ? (
+        <EmptyState
+          icon={ChefHat}
+          title="Nenhum pré-preparo cadastrado"
+          description="Crie seus pré-preparos para otimizar a produção e calcular custos de forma precisa"
+          actionLabel="Criar novo Pré-Preparo"
+          onAction={() => navigate('/precificacao/pre-preparos/novo')}
+        />
+      ) : (
+        <div className="border rounded-lg">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nome</TableHead>
+                <TableHead>Tempo de Preparo</TableHead>
+                <TableHead>Rendimento</TableHead>
+                <TableHead>Custo Total</TableHead>
+                <TableHead>Custo/Unidade</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {preparos.map(preparo => (
+                <TableRow key={preparo.id}>
+                  <TableCell className="font-medium">{preparo.nome}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      {formatarTempo(preparo.tempo_preparo, preparo.tempo_preparo_unidade)}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Scale className="h-4 w-4 text-muted-foreground" />
+                      {preparo.rendimento_quantidade.toLocaleString('pt-BR')}{' '}
+                      {preparo.rendimento_unidade?.sigla}
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {formatarPreco(preparo.custo_total || 0)}
+                  </TableCell>
+                  <TableCell className="font-medium text-primary">
+                    {formatarPreco(preparo.custo_por_unidade || 0)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate(`/precificacao/pre-preparos/${preparo.id}`)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -46,6 +46,8 @@ import Bancos from "./pages/financeiro/Bancos";
 import TiposInsumos from "./pages/configuracoes/TiposInsumos";
 import Ingredientes from "./pages/precificacao/Ingredientes";
 import Embalagens from "./pages/precificacao/Embalagens";
+import PrePreparos from "./pages/precificacao/PrePreparos";
+import PrePreparoForm from "./pages/precificacao/PrePreparoForm";
 import Relatorios from "./pages/relatorios/Relatorios";
 import FluxoCaixaDiario from "./pages/relatorios/FluxoCaixaDiario";
 import FluxoCaixaMensal from "./pages/relatorios/FluxoCaixaMensal";
@@ -144,6 +146,12 @@ const App = () => (
           {/* Precificação - Ingredientes e Embalagens */}
           <Route path="/precificacao/ingredientes" element={<ProtectedRoute><Layout><Ingredientes /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/embalagens" element={<ProtectedRoute><Layout><Embalagens /></Layout></ProtectedRoute>} />
+          
+          {/* Pré-Preparos */}
+          <Route path="/precificacao/pre-preparos" element={<ProtectedRoute><Layout><PrePreparos /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao/pre-preparos/novo" element={<ProtectedRoute><Layout><PrePreparoForm /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao/pre-preparos/:id" element={<ProtectedRoute><Layout><PrePreparoForm /></Layout></ProtectedRoute>} />
+          
           <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
