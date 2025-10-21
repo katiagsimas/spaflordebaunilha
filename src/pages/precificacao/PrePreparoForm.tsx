@@ -249,12 +249,8 @@ export default function PrePreparoForm() {
 
   const handleQtdUtilizadaChange = (index: number, valor: string) => {
     const novosIngredientes = [...ingredientesSelecionados];
-    // Aceitar vírgula e ponto como separador decimal
-    const valorNormalizado = valor.replace(',', '.');
-    const qtd = parseFloat(valorNormalizado) || 0;
-    
-    // Manter o valor original com vírgula para exibição
-    novosIngredientes[index].qtdUtilizada = valor ? parseFloat(valorNormalizado) : 0;
+    const qtd = parseFloat(valor.replace(',', '.')) || 0;
+    novosIngredientes[index].qtdUtilizada = qtd;
 
     // Calcular custo deste ingrediente
     const custoIngrediente = (novosIngredientes[index].preco / novosIngredientes[index].qtdEmbalagem) * qtd;
@@ -741,7 +737,7 @@ export default function PrePreparoForm() {
                             className="w-24"
                             value={ing.qtdUtilizada || ''}
                             onChange={(e) => {
-                              const valor = e.target.value.replace(/[^\d,\.]/g, '');
+                              const valor = e.target.value.replace(/[^\d,]/g, '');
                               handleQtdUtilizadaChange(index, valor);
                             }}
                           />
