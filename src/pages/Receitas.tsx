@@ -289,39 +289,67 @@ export default function Receitas() {
                   <TableRow 
                     key={receita.id}
                     className={cn(
-                      temAlerta && "bg-red-50/50 dark:bg-red-950/20"
+                      temAlerta && "bg-red-50/50 dark:bg-red-950/20 animate-pulse"
                     )}
                   >
-                    <TableCell className="font-medium">{receita.nome}</TableCell>
-                    <TableCell className="text-center">{receita.categoria || "-"}</TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className={cn(
+                      "font-medium",
+                      temAlerta && "text-red-700 dark:text-red-400 font-semibold"
+                    )}>
+                      {receita.nome}
+                    </TableCell>
+                    <TableCell className={cn(
+                      "text-center",
+                      temAlerta && "text-red-700 dark:text-red-400"
+                    )}>
+                      {receita.categoria || "-"}
+                    </TableCell>
+                    <TableCell className={cn(
+                      "text-center",
+                      temAlerta && "text-red-700 dark:text-red-400"
+                    )}>
                       {receita.cardapio === "ativo" ? "Ativo" : "Fora"}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className={cn(
+                      "text-right",
+                      temAlerta && "text-red-700 dark:text-red-400"
+                    )}>
                       R$ {(receita.valorVenda || 0).toFixed(2)}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className={cn(
+                      "text-right",
+                      temAlerta && "text-red-700 dark:text-red-400"
+                    )}>
                       R$ {custoInsumosEmbalagens.toFixed(2)}
                     </TableCell>
                     <TableCell className={cn(
                       "text-right",
-                      percentualCMV > 35 && "font-semibold text-red-600 dark:text-red-400"
+                      percentualCMV > 35 && "font-bold text-red-600 dark:text-red-400"
                     )}>
                       {percentualCMV.toFixed(1)}%
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className={cn(
+                      "text-right",
+                      temAlerta && "text-red-700 dark:text-red-400"
+                    )}>
                       R$ {margemContribuicao.toFixed(2)}
                     </TableCell>
                     <TableCell className={cn(
                       "text-right",
-                      percentualMargem < 30 && "font-semibold text-red-600 dark:text-red-400"
+                      percentualMargem < 30 && "font-bold text-red-600 dark:text-red-400"
                     )}>
                       {percentualMargem.toFixed(1)}%
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className={cn(
+                      "text-right",
+                      temAlerta && "text-red-700 dark:text-red-400"
+                    )}>
                       R$ {despesasVenda.toFixed(2)}
                     </TableCell>
-                    <TableCell className="text-right font-semibold">
+                    <TableCell className={cn(
+                      "text-right font-semibold",
+                      temAlerta && "text-red-700 dark:text-red-400"
+                    )}>
                       R$ {lucro.toFixed(2)}
                     </TableCell>
                     <TableCell className="text-center">
