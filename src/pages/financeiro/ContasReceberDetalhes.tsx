@@ -443,63 +443,61 @@ export default function ContasReceberDetalhes() {
       </Card>
 
       {/* Tabela de Pagamentos Realizados */}
-      {pagamentos.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Pagamentos Realizados</CardTitle>
-            <CardDescription>
-              Histórico completo de todos os pagamentos efetuados
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="border rounded-lg overflow-x-auto">
-              <Table>
-                <TableHeader>
+      <Card>
+        <CardHeader>
+          <CardTitle>Pagamentos Realizados</CardTitle>
+          <CardDescription>
+            Histórico completo de todos os pagamentos efetuados
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="border rounded-lg overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Parcela</TableHead>
+                  <TableHead>Data Pagamento</TableHead>
+                  <TableHead className="text-right">Valor Pago</TableHead>
+                  <TableHead>Banco</TableHead>
+                  <TableHead>Tipo Documento</TableHead>
+                  <TableHead>Observação</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {pagamentos.length === 0 ? (
                   <TableRow>
-                    <TableHead>Parcela</TableHead>
-                    <TableHead>Data Pagamento</TableHead>
-                    <TableHead className="text-right">Valor Pago</TableHead>
-                    <TableHead>Banco</TableHead>
-                    <TableHead>Tipo Documento</TableHead>
-                    <TableHead>Observação</TableHead>
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      Nenhum pagamento registrado ainda. Use "Dar Baixa" nas parcelas para registrar pagamentos.
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {pagamentos.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                        Nenhum pagamento registrado.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    pagamentos.map((pagamento) => {
-                      const parcela = parcelas.find(p => p.id === pagamento.parcela_id);
-                      if (!pagamento || !parcela) return null;
-                      
-                      return (
-                        <TableRow key={pagamento.id}>
-                          <TableCell className="font-medium">
-                            {parcela.numero_parcela}/{conta.numero_parcelas || 1}
-                          </TableCell>
-                          <TableCell>{formatarData(pagamento.data_pagamento)}</TableCell>
-                          <TableCell className="text-right font-semibold text-green-600">
-                            {formatarValor(Number(pagamento.valor_pago))}
-                          </TableCell>
-                          <TableCell>{pagamento.banco?.nome || '-'}</TableCell>
-                          <TableCell>{pagamento.tipo_documento?.descricao || '-'}</TableCell>
-                          <TableCell className="max-w-[200px] truncate">
-                            {pagamento.observacao || '-'}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                ) : (
+                  pagamentos.map((pagamento) => {
+                    const parcela = parcelas.find(p => p.id === pagamento.parcela_id);
+                    if (!pagamento || !parcela) return null;
+                    
+                    return (
+                      <TableRow key={pagamento.id}>
+                        <TableCell className="font-medium">
+                          {parcela.numero_parcela}/{conta.numero_parcelas || 1}
+                        </TableCell>
+                        <TableCell>{formatarData(pagamento.data_pagamento)}</TableCell>
+                        <TableCell className="text-right font-semibold text-green-600">
+                          {formatarValor(Number(pagamento.valor_pago))}
+                        </TableCell>
+                        <TableCell>{pagamento.banco?.nome || '-'}</TableCell>
+                        <TableCell>{pagamento.tipo_documento?.descricao || '-'}</TableCell>
+                        <TableCell className="max-w-[200px] truncate">
+                          {pagamento.observacao || '-'}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Observações */}
       {parcelas.some(p => p.observacao) && (
