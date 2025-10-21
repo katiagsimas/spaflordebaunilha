@@ -481,8 +481,8 @@ export default function ContasReceber() {
       </div>
 
       {/* Mais Opções de Busca + Limpar + Exportar */}
-      <div className="flex flex-wrap gap-2">
-        <Collapsible open={maisOpcoesOpen} onOpenChange={setMaisOpcoesOpen} className="w-full">
+      <Collapsible open={maisOpcoesOpen} onOpenChange={setMaisOpcoesOpen} className="w-full space-y-4">
+        <div className="flex flex-wrap gap-2">
           <CollapsibleTrigger asChild>
             <Button 
               variant={maisOpcoesOpen ? 'default' : 'outline'}
@@ -493,106 +493,107 @@ export default function ContasReceber() {
               <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${maisOpcoesOpen ? 'rotate-180' : ''}`} />
             </Button>
           </CollapsibleTrigger>
-          <CollapsibleContent className="mt-4 w-full">
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 p-4 border rounded-lg bg-muted/30">
-              <div className="space-y-2">
-                <Label className="text-sm">Plano de Contas</Label>
-                <Select value={filtroPlanoContasId} onValueChange={setFiltroPlanoContasId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">Todos</SelectItem>
-                    {planoContas.map((plano) => (
-                      <SelectItem key={plano.id} value={plano.id}>
-                        {plano.codigo} - {plano.descricao}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label className="text-sm">Cliente</Label>
-                <Select value={filtroClienteId} onValueChange={setFiltroClienteId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">Todos</SelectItem>
-                    {clientes.map((cliente) => (
-                      <SelectItem key={cliente.id} value={cliente.id}>
-                        {cliente.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label className="text-sm">Categoria do Plano de Contas</Label>
-                <Select value={filtroCategoriaId} onValueChange={setFiltroCategoriaId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">Todos</SelectItem>
-                    {categorias.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>
-                        {cat.codigo} - {cat.descricao}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label className="text-sm">Tipo de Documento</Label>
-                <Select value={filtroTipoDocId} onValueChange={setFiltroTipoDocId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">Todos</SelectItem>
-                    {tiposDocumento.map((tipo) => (
-                      <SelectItem key={tipo.id} value={tipo.id}>
-                        {tipo.descricao}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label className="text-sm">Banco</Label>
-                <Select value={filtroBancoId} onValueChange={setFiltroBancoId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">Todos</SelectItem>
-                    {bancos.map((banco) => (
-                      <SelectItem key={banco.id} value={banco.id}>
-                        {banco.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+
+          <Button variant="default" size="sm" onClick={limparFiltros}>
+            <X className="mr-2 h-4 w-4" />
+            Limpar Filtros
+          </Button>
+
+          <Button variant="outline" size="sm" onClick={exportarParaExcel}>
+            <Download className="mr-2 h-4 w-4" />
+            Exportar para Excel
+          </Button>
+        </div>
+
+        <CollapsibleContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 p-4 border rounded-lg bg-muted/30">
+            <div className="space-y-2">
+              <Label className="text-sm">Plano de Contas</Label>
+              <Select value={filtroPlanoContasId} onValueChange={setFiltroPlanoContasId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {planoContas.map((plano) => (
+                    <SelectItem key={plano.id} value={plano.id}>
+                      {plano.codigo} - {plano.descricao}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          </CollapsibleContent>
-        </Collapsible>
-
-        <Button variant="outline" size="sm" onClick={limparFiltros}>
-          <X className="mr-2 h-4 w-4" />
-          Limpar Filtros
-        </Button>
-
-        <Button variant="outline" size="sm" onClick={exportarParaExcel}>
-          <Download className="mr-2 h-4 w-4" />
-          Exportar para Excel
-        </Button>
-      </div>
+            
+            <div className="space-y-2">
+              <Label className="text-sm">Cliente</Label>
+              <Select value={filtroClienteId} onValueChange={setFiltroClienteId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {clientes.map((cliente) => (
+                    <SelectItem key={cliente.id} value={cliente.id}>
+                      {cliente.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label className="text-sm">Categoria do Plano de Contas</Label>
+              <Select value={filtroCategoriaId} onValueChange={setFiltroCategoriaId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {categorias.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {cat.codigo} - {cat.descricao}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label className="text-sm">Tipo de Documento</Label>
+              <Select value={filtroTipoDocId} onValueChange={setFiltroTipoDocId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {tiposDocumento.map((tipo) => (
+                    <SelectItem key={tipo.id} value={tipo.id}>
+                      {tipo.descricao}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label className="text-sm">Banco</Label>
+              <Select value={filtroBancoId} onValueChange={setFiltroBancoId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {bancos.map((banco) => (
+                    <SelectItem key={banco.id} value={banco.id}>
+                      {banco.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
 
       <div className="text-sm text-muted-foreground">
         Mostrando <strong>{parcelasFiltradas.length}</strong> de <strong>{parcelas.length}</strong> parcela(s)
