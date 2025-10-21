@@ -663,8 +663,7 @@ export default function ReceitaForm() {
                       <TableHead>Unidade</TableHead>
                       <TableHead>Preço Emb.</TableHead>
                       <TableHead>Qtde Utilizada</TableHead>
-                      <TableHead>Custo Unit.</TableHead>
-                      <TableHead>Custo Total</TableHead>
+                      <TableHead>Custo</TableHead>
                       <TableHead></TableHead>
                     </TableRow>
                   </TableHeader>
@@ -707,9 +706,6 @@ export default function ReceitaForm() {
                         </TableCell>
                         <TableCell className="text-sm">
                           R$ {ingrediente.custoUnitario.toFixed(4)}
-                        </TableCell>
-                        <TableCell className="text-sm font-semibold">
-                          R$ {ingrediente.custoReceita.toFixed(2)}
                         </TableCell>
                         <TableCell>
                           <Button
