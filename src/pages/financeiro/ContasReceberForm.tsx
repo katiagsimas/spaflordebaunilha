@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,7 +41,9 @@ import { cn } from '@/lib/utils';
 
 export default function ContasReceberForm() {
   const navigate = useNavigate();
+  const { id } = useParams();
   const { toast } = useToast();
+  const isEditMode = !!id;
 
   const [dataEmissao, setDataEmissao] = useState(new Date().toISOString().split('T')[0]);
   const [clienteId, setClienteId] = useState('');
@@ -68,10 +70,14 @@ export default function ContasReceberForm() {
   const [novoClienteTelefone, setNovoClienteTelefone] = useState('');
 
   const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(isEditMode);
 
   useEffect(() => {
     fetchDados();
-  }, []);
+    if (isEditMode) {
+      fetchContaReceber();
+    }
+  }, [id]);
 
   const fetchDados = async () => {
     try {
@@ -101,18 +107,16 @@ export default function ContasReceberForm() {
           id,
           codigo_estruturado,
           descricao,
-          categoria:categorias_plano_contas (
+          categoria:categorias_plano_contas!inner (
             indicador
           )
         `)
         .eq('user_id', user.id)
         .eq('ativo', true)
+        .eq('categoria.indicador', 'Credito')
         .order('codigo_estruturado');
 
-      const planosCredito = (dataPlanos || []).filter(
-        (p: any) => p.categoria?.indicador === 'Credito'
-      );
-      setPlanosContas(planosCredito);
+      setPlanosContas(dataPlanos || []);
 
       const { data: dataBancos } = await supabase
         .from('bancos')
@@ -123,6 +127,48 @@ export default function ContasReceberForm() {
       setBancos(dataBancos || []);
     } catch (error) {
       console.error('Erro ao buscar dados:', error);
+    }
+  };
+
+  const fetchContaReceber = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('contas_receber')
+        .select(`
+          *,
+          parcelas:contas_receber_parcelas (
+            data_vencimento
+          )
+        `)
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+
+      setDataEmissao(data.data_emissao);
+      setClienteId(data.cliente_id);
+      setTipoDocumentoId(data.tipo_documento_id);
+      setPlanoContasId(data.plano_conta_id);
+      setBancoId(data.banco_id);
+      setDescricao(data.descricao || '');
+      setValorTotal(data.valor.toString().replace('.', ','));
+      setNumeroParcelas(data.numero_parcelas.toString());
+      setTipoLancamento(data.tipo_lancamento);
+
+      if (data.parcelas && data.parcelas.length > 0) {
+        setPrimeiroVencimento(data.parcelas[0].data_vencimento);
+      }
+
+    } catch (error) {
+      console.error('Erro ao buscar conta:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível carregar os dados da conta.',
+        variant: 'destructive',
+      });
+      navigate('/financeiro/contas-receber');
+    } finally {
+      setLoadingData(false);
     }
   };
 
@@ -261,26 +307,51 @@ export default function ContasReceberForm() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Não autenticado');
 
-      const { data: conta, error: errorConta } = await supabase
-        .from('contas_receber')
-        .insert({
-          usuario_id: user.id,
-          cliente_id: clienteId,
-          data_emissao: dataEmissao,
-          tipo_documento_id: tipoDocumentoId,
-          plano_conta_id: planoContasId,
-          banco_id: bancoId,
-          descricao: descricao.trim() || null,
-          valor: valor,
-          data_vencimento: primeiroVencimento,
-          numero_parcelas: parcelas,
-          tipo_lancamento: tipoLancamento,
-          e_recorrente: tipoLancamento === 'recorrente',
-        })
-        .select()
-        .single();
+      const dadosConta = {
+        cliente_id: clienteId,
+        data_emissao: dataEmissao,
+        tipo_documento_id: tipoDocumentoId,
+        plano_conta_id: planoContasId,
+        banco_id: bancoId,
+        descricao: descricao.trim() || null,
+        valor: valor,
+        data_vencimento: primeiroVencimento,
+        numero_parcelas: parcelas,
+        tipo_lancamento: tipoLancamento,
+        e_recorrente: tipoLancamento === 'recorrente',
+      };
 
-      if (errorConta) throw errorConta;
+      let contaId;
+
+      if (isEditMode) {
+        const { error: errorUpdate } = await supabase
+          .from('contas_receber')
+          .update(dadosConta)
+          .eq('id', id);
+
+        if (errorUpdate) throw errorUpdate;
+
+        const { error: errorDeleteParcelas } = await supabase
+          .from('contas_receber_parcelas')
+          .delete()
+          .eq('conta_receber_id', id);
+
+        if (errorDeleteParcelas) throw errorDeleteParcelas;
+
+        contaId = id;
+      } else {
+        const { data: conta, error: errorConta } = await supabase
+          .from('contas_receber')
+          .insert({
+            usuario_id: user.id,
+            ...dadosConta
+          })
+          .select()
+          .single();
+
+        if (errorConta) throw errorConta;
+        contaId = conta.id;
+      }
 
       const parcelas_data = [];
       const dataBase = new Date(primeiroVencimento + 'T00:00:00');
@@ -293,7 +364,7 @@ export default function ContasReceberForm() {
           dataVenc.setDate(dataVenc.getDate() + (i * 30));
 
           parcelas_data.push({
-            conta_receber_id: conta.id,
+            conta_receber_id: contaId,
             numero_parcela: i + 1,
             data_emissao: dataEmissao,
             data_vencimento: dataVenc.toISOString().split('T')[0],
@@ -311,7 +382,7 @@ export default function ContasReceberForm() {
           dataEmissaoParcela.setDate(1);
 
           parcelas_data.push({
-            conta_receber_id: conta.id,
+            conta_receber_id: contaId,
             numero_parcela: i + 1,
             data_emissao: dataEmissaoParcela.toISOString().split('T')[0],
             data_vencimento: dataVenc.toISOString().split('T')[0],
@@ -329,8 +400,10 @@ export default function ContasReceberForm() {
       if (errorParcelas) throw errorParcelas;
 
       toast({
-        title: '✅ Conta cadastrada',
-        description: `${parcelas} parcela(s) criada(s) com sucesso!`,
+        title: isEditMode ? '✅ Conta atualizada' : '✅ Conta cadastrada',
+        description: isEditMode 
+          ? 'Conta atualizada e parcelas recalculadas!' 
+          : `${parcelas} parcela(s) criada(s) com sucesso!`,
       });
 
       navigate('/financeiro/contas-receber');
@@ -351,6 +424,8 @@ export default function ContasReceberForm() {
     c.nome.toLowerCase().includes(buscaCliente.toLowerCase())
   );
 
+  if (loadingData) return <div className="flex justify-center p-8">Carregando dados...</div>;
+
   return (
     <div className="container mx-auto p-6 space-y-6 max-w-4xl">
       <div className="flex items-center gap-4">
@@ -358,18 +433,29 @@ export default function ContasReceberForm() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">Nova Conta a Receber</h1>
+          <h1 className="text-3xl font-bold">
+            {isEditMode ? 'Editar Conta a Receber' : 'Nova Conta a Receber'}
+          </h1>
           <p className="text-muted-foreground">
-            Cadastre uma nova conta a receber
+            {isEditMode ? 'Edite a conta e as parcelas serão recalculadas' : 'Cadastre uma nova conta a receber'}
           </p>
         </div>
       </div>
 
-      <Alert className="bg-blue-50 border-blue-200">
-        <Info className="h-4 w-4 text-blue-600" />
+      <Alert className={isEditMode ? "bg-amber-50 border-amber-200" : "bg-blue-50 border-blue-200"}>
+        <Info className={isEditMode ? "h-4 w-4 text-amber-600" : "h-4 w-4 text-blue-600"} />
         <AlertDescription>
-          <strong>Parcelado:</strong> Divide o valor total em X parcelas. Emissão = mesma data.<br />
-          <strong>Recorrente:</strong> Repete o valor total em cada parcela. Emissão = dia 01 de cada mês.
+          {isEditMode ? (
+            <>
+              <strong>Atenção:</strong> Ao salvar, todas as parcelas serão recalculadas com base nos novos valores.
+              Pagamentos já registrados serão perdidos.
+            </>
+          ) : (
+            <>
+              <strong>Parcelado:</strong> Divide o valor total em X parcelas. Emissão = mesma data.<br />
+              <strong>Recorrente:</strong> Repete o valor total em cada parcela. Emissão = dia 01 de cada mês.
+            </>
+          )}
         </AlertDescription>
       </Alert>
 
@@ -586,7 +672,7 @@ export default function ContasReceberForm() {
           Cancelar
         </Button>
         <Button onClick={handleSalvar} disabled={loading} className="flex-1">
-          {loading ? 'Salvando...' : 'Cadastrar Conta a Receber'}
+          {loading ? 'Salvando...' : (isEditMode ? 'Atualizar Conta' : 'Cadastrar Conta a Receber')}
         </Button>
       </div>
 
