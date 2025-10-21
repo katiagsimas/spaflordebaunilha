@@ -627,7 +627,10 @@ export default function Ingredientes() {
                       eReceita && "text-pink-700 dark:text-pink-400",
                       ePrePreparo && "text-purple-700 dark:text-purple-400"
                     )}>
-                      {ingrediente.tipo_insumo?.unidade_medida?.sigla || ingrediente.tipo_insumo?.unidade_medida?.nome || 'N/A'}
+                      {eReceita 
+                        ? ingrediente.tipo_insumo?.unidade_medida?.nome 
+                        : ingrediente.tipo_insumo?.unidade_medida?.sigla || 'N/A'
+                      }
                     </TableCell>
                     <TableCell className={cn(
                       "font-medium", 
