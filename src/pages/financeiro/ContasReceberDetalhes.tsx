@@ -14,7 +14,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Edit, Calendar, User, FileText, Building2, DollarSign, Info } from 'lucide-react';
+import { ArrowLeft, Edit, Calendar, User, FileText, Building2, DollarSign, Info, AlertTriangle } from 'lucide-react';
 
 export default function ContasReceberDetalhes() {
   const navigate = useNavigate();
@@ -31,11 +31,24 @@ export default function ContasReceberDetalhes() {
 
   const fetchDetalhes = async () => {
     try {
+      console.log('Buscando detalhes da conta:', id);
+
       // Buscar conta principal
       const { data: dataConta, error: errorConta } = await supabase
         .from('contas_receber')
         .select(`
-          *,
+          id,
+          data_emissao,
+          tipo_documento_id,
+          plano_conta_id,
+          banco_id,
+          cliente_id,
+          descricao,
+          valor,
+          numero_parcelas,
+          tipo_lancamento,
+          e_recorrente,
+          created_at,
           cliente:clientes (
             nome,
             email,
@@ -57,6 +70,10 @@ export default function ContasReceberDetalhes() {
         .single();
 
       if (errorConta) throw errorConta;
+      
+      console.log('Conta carregada:', dataConta);
+      console.log('Valor total:', dataConta.valor);
+      
       setConta(dataConta);
 
       // Buscar parcelas
@@ -67,6 +84,9 @@ export default function ContasReceberDetalhes() {
         .order('numero_parcela');
 
       if (errorParcelas) throw errorParcelas;
+      
+      console.log('Parcelas carregadas:', dataParcelas?.length);
+      
       setParcelas(dataParcelas || []);
 
     } catch (error) {
@@ -121,19 +141,20 @@ export default function ContasReceberDetalhes() {
   };
 
   const calcularTotais = () => {
-    const totalParcelas = parcelas.reduce((acc, p) => acc + p.valor_parcela, 0);
+    const totalSomaParcelas = parcelas.reduce((acc, p) => acc + (p.valor_parcela || 0), 0);
     const totalPago = parcelas.reduce((acc, p) => acc + (p.valor_pago || 0), 0);
-    const totalAberto = totalParcelas - totalPago;
+    const totalAberto = totalSomaParcelas - totalPago;
     const parcelasPagas = parcelas.filter(p => p.status === 'pago' || p.status === 'adiantado').length;
     const parcelasAbertas = parcelas.filter(p => p.status === 'aberto' || p.status === 'atrasado').length;
+    const totalParcelasCount = parcelas.length;
 
     return {
-      totalParcelas,
+      totalSomaParcelas,
       totalPago,
       totalAberto,
       parcelasPagas,
       parcelasAbertas,
-      totalParcelasCount: parcelas.length,
+      totalParcelasCount,
     };
   };
 
@@ -237,10 +258,10 @@ export default function ContasReceberDetalhes() {
             </div>
 
             <div className="space-y-2 pt-2 border-t">
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Valor Total</span>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Valor Total da Conta</span>
                 <span className="font-medium text-lg text-green-600">
-                  {formatarValor(conta.valor_total)}
+                  {conta.valor ? formatarValor(conta.valor) : 'R$ 0,00'}
                 </span>
               </div>
 
@@ -280,6 +301,20 @@ export default function ContasReceberDetalhes() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Debug - Remover depois de corrigir */}
+      {(!conta.valor || conta.valor === 0) && (
+        <Alert className="bg-amber-50 border-amber-200">
+          <AlertTriangle className="h-4 w-4 text-amber-600" />
+          <AlertDescription>
+            <strong>Debug:</strong> Valor total não encontrado no banco.
+            <br />
+            <strong>Soma das parcelas:</strong> {formatarValor(totais.totalSomaParcelas)}
+            <br />
+            <em>Execute o SQL de correção no Supabase.</em>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Histórico de Pagamentos */}
       <Card>
