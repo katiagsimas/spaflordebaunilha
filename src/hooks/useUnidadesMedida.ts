@@ -15,13 +15,10 @@ export interface UnidadeMedida {
 }
 
 const UNIDADES_PADRAO = [
-  { nome: "Unidades", sigla: "un" },
-  { nome: "Gramas", sigla: "g" },
-  { nome: "Quilogramas", sigla: "kg" },
-  { nome: "Mililitros", sigla: "ml" },
-  { nome: "Litros", sigla: "l" },
   { nome: "Centímetros", sigla: "cm" },
-  { nome: "Metros", sigla: "m" },
+  { nome: "Gramas", sigla: "g" },
+  { nome: "Mililitros", sigla: "ml" },
+  { nome: "Unidades", sigla: "un" },
 ];
 
 export function useUnidadesMedida() {
