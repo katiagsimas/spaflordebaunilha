@@ -1070,7 +1070,7 @@ const Encomendas = () => {
                       </TableCell>
                       <TableCell>{new Date(encomenda.data_pedido).toLocaleDateString("pt-BR")}</TableCell>
                       <TableCell>{new Date(encomenda.data_entrega).toLocaleDateString("pt-BR")}</TableCell>
-                      <TableCell>{encomenda.hora_entrega || "-"}</TableCell>
+                      <TableCell>{encomenda.hora_entrega ? encomenda.hora_entrega.slice(0, 5) : "-"}</TableCell>
                       <TableCell>R$ {encomenda.valor.toFixed(2)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex gap-1 justify-end">
