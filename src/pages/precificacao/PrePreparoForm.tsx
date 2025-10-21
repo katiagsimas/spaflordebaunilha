@@ -219,6 +219,7 @@ export default function PrePreparoForm() {
         unidade: item.ingrediente.tipo_insumo?.unidade_medida?.sigla,
         preco: item.ingrediente.preco,
         qtdUtilizada: item.quantidade_utilizada,
+        qtdUtilizadaDisplay: item.quantidade_utilizada.toString().replace('.', ','),
         custo: item.custo_ingrediente,
       }));
 
@@ -252,6 +253,7 @@ export default function PrePreparoForm() {
       unidade: ingrediente.tipo_insumo?.unidade_medida?.sigla,
       preco: ingrediente.preco,
       qtdUtilizada: 0,
+      qtdUtilizadaDisplay: '',
       custo: 0,
     };
 
@@ -266,6 +268,20 @@ export default function PrePreparoForm() {
 
   const handleQtdUtilizadaChange = (index: number, valor: string) => {
     const novosIngredientes = [...ingredientesSelecionados];
+    
+    // Permitir string vazia para limpar o campo
+    if (valor === '') {
+      novosIngredientes[index].qtdUtilizada = 0;
+      novosIngredientes[index].qtdUtilizadaDisplay = '';
+      novosIngredientes[index].custo = 0;
+      setIngredientesSelecionados(novosIngredientes);
+      return;
+    }
+    
+    // Armazenar o valor digitado com vírgula para exibição
+    novosIngredientes[index].qtdUtilizadaDisplay = valor;
+    
+    // Converter vírgula para ponto para cálculo
     const qtd = parseFloat(valor.replace(',', '.')) || 0;
     novosIngredientes[index].qtdUtilizada = qtd;
 
@@ -752,7 +768,7 @@ export default function PrePreparoForm() {
                             type="text"
                             placeholder="0"
                             className="w-24"
-                            value={ing.qtdUtilizada || ''}
+                            value={ing.qtdUtilizadaDisplay !== undefined ? ing.qtdUtilizadaDisplay : (ing.qtdUtilizada || '')}
                             onChange={(e) => {
                               const valor = e.target.value.replace(/[^\d,]/g, '');
                               handleQtdUtilizadaChange(index, valor);
