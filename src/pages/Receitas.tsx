@@ -262,7 +262,7 @@ export default function Receitas() {
             <TableHeader>
               <TableRow>
                 <TableHead className="text-center w-[250px]">Nome da Receita</TableHead>
-                <TableHead className="text-center">Tipo</TableHead>
+                <TableHead className="text-center">Categoria</TableHead>
                 <TableHead className="text-center">Venda</TableHead>
                 <TableHead className="text-center">Valor de Venda</TableHead>
                 <TableHead className="text-center">Custos de Produção</TableHead>
@@ -300,9 +300,7 @@ export default function Receitas() {
                         <span>{receita.nome}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-center">
-                      {receita.tipo === "produto_combo" ? "Produto Combo" : "Produto Avulso"}
-                    </TableCell>
+                    <TableCell className="text-center">{receita.categoria || "-"}</TableCell>
                     <TableCell className="text-center">
                       {receita.cardapio === "ativo" ? "Ativo" : "Fora"}
                     </TableCell>
