@@ -726,11 +726,13 @@ export default function ReceitaForm() {
                         </TableCell>
                         <TableCell>
                           <Input
-                            type="number"
+                            type="text"
                             min="0"
-                            step="0.01"
                             value={ingrediente.quantidadeUtilizada || ""}
-                            onChange={(e) => handleQuantidadeChange(index, parseFloat(e.target.value) || 0)}
+                            onChange={(e) => {
+                              const valor = e.target.value.replace(/[^\d,\.]/g, '');
+                              handleQuantidadeChange(index, parseFloat(valor.replace(',', '.')) || 0);
+                            }}
                             className="w-24"
                             placeholder="0"
                           />
@@ -824,11 +826,13 @@ export default function ReceitaForm() {
                         </TableCell>
                         <TableCell>
                           <Input
-                            type="number"
+                            type="text"
                             min="0"
-                            step="0.01"
                             value={embalagem.quantidadeUtilizada || ""}
-                            onChange={(e) => handleQuantidadeEmbalagemChange(index, parseFloat(e.target.value) || 0)}
+                            onChange={(e) => {
+                              const valor = e.target.value.replace(/[^\d,\.]/g, '');
+                              handleQuantidadeEmbalagemChange(index, parseFloat(valor.replace(',', '.')) || 0);
+                            }}
                             className="w-24"
                             placeholder="0"
                           />
