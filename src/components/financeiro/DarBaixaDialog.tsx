@@ -200,7 +200,7 @@ export default function DarBaixaDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Dar Baixa - Parcela {parcela.numero_parcela}</DialogTitle>
           <DialogDescription>
@@ -208,7 +208,7 @@ export default function DarBaixaDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 overflow-y-auto flex-1">
           {/* Informações da Parcela */}
           <Alert className="bg-blue-50 border-blue-200">
             <Info className="h-4 w-4 text-blue-600" />
@@ -307,7 +307,7 @@ export default function DarBaixaDialog({
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="border-t pt-4 mt-4 sticky bottom-0 bg-background">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
             Cancelar
           </Button>
