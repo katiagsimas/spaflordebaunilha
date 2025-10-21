@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Select,
   SelectContent,
@@ -52,8 +52,7 @@ export default function ContasReceberForm() {
   const [valorTotal, setValorTotal] = useState('');
   const [numeroParcelas, setNumeroParcelas] = useState('1');
   const [primeiroVencimento, setPrimeiroVencimento] = useState('');
-  const [eRecorrente, setERecorrente] = useState(false);
-  const [diaVencimentoRecorrente, setDiaVencimentoRecorrente] = useState('');
+  const [tipoLancamento, setTipoLancamento] = useState('unico');
 
   const [clientes, setClientes] = useState<any[]>([]);
   const [tiposDocumento, setTiposDocumento] = useState<any[]>([]);
@@ -170,7 +169,6 @@ export default function ContasReceberForm() {
       setClientes([...clientes, data]);
       setClienteId(data.id);
       setModalClienteAberto(false);
-      
       fetchDados();
     } catch (error) {
       console.error('Erro ao criar cliente:', error);
@@ -220,6 +218,15 @@ export default function ContasReceberForm() {
         return;
       }
 
+      if (!bancoId) {
+        toast({
+          title: 'Erro',
+          description: 'Selecione o banco!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       const valor = parseFloat(valorTotal.replace(',', '.'));
       if (!valor || valor <= 0) {
         toast({
@@ -240,25 +247,7 @@ export default function ContasReceberForm() {
         return;
       }
 
-      if (eRecorrente && parcelas > 1) {
-        toast({
-          title: 'Erro',
-          description: 'Contas recorrentes não podem ser parceladas!',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (eRecorrente && !diaVencimentoRecorrente) {
-        toast({
-          title: 'Erro',
-          description: 'Informe o dia do vencimento para contas recorrentes!',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (!eRecorrente && !primeiroVencimento) {
+      if (!primeiroVencimento) {
         toast({
           title: 'Erro',
           description: 'Informe a data do primeiro vencimento!',
@@ -280,14 +269,13 @@ export default function ContasReceberForm() {
           data_emissao: dataEmissao,
           tipo_documento_id: tipoDocumentoId,
           plano_conta_id: planoContasId,
-          banco_id: bancoId || null,
+          banco_id: bancoId,
           descricao: descricao.trim() || null,
           valor: valor,
-          data_vencimento: primeiroVencimento || dataEmissao,
+          data_vencimento: primeiroVencimento,
           numero_parcelas: parcelas,
-          e_recorrente: eRecorrente,
-          dia_vencimento_recorrente: eRecorrente ? parseInt(diaVencimentoRecorrente) : null,
-          status: 'pendente',
+          tipo_lancamento: tipoLancamento,
+          e_recorrente: tipoLancamento === 'recorrente',
         })
         .select()
         .single();
@@ -295,33 +283,41 @@ export default function ContasReceberForm() {
       if (errorConta) throw errorConta;
 
       const parcelas_data = [];
-      const valorParcela = valor / parcelas;
+      const dataBase = new Date(primeiroVencimento + 'T00:00:00');
 
-      if (eRecorrente) {
-        const diaVenc = parseInt(diaVencimentoRecorrente);
-        for (let i = 0; i < 12; i++) {
-          const dataVenc = new Date(dataEmissao);
-          dataVenc.setMonth(dataVenc.getMonth() + i);
-          dataVenc.setDate(diaVenc);
+      if (tipoLancamento === 'parcelado' || tipoLancamento === 'unico') {
+        const valorParcela = valor / parcelas;
+
+        for (let i = 0; i < parcelas; i++) {
+          const dataVenc = new Date(dataBase);
+          dataVenc.setDate(dataVenc.getDate() + (i * 30));
 
           parcelas_data.push({
             conta_receber_id: conta.id,
             numero_parcela: i + 1,
+            data_emissao: dataEmissao,
             data_vencimento: dataVenc.toISOString().split('T')[0],
-            valor_parcela: valor,
+            valor_total: valor,
+            valor_parcela: valorParcela,
+            status: 'aberto',
           });
         }
       } else {
-        const dataBase = new Date(primeiroVencimento + 'T00:00:00');
         for (let i = 0; i < parcelas; i++) {
           const dataVenc = new Date(dataBase);
-          dataVenc.setMonth(dataVenc.getMonth() + i);
+          dataVenc.setDate(dataVenc.getDate() + (i * 30));
+
+          const dataEmissaoParcela = new Date(dataVenc);
+          dataEmissaoParcela.setDate(1);
 
           parcelas_data.push({
             conta_receber_id: conta.id,
             numero_parcela: i + 1,
+            data_emissao: dataEmissaoParcela.toISOString().split('T')[0],
             data_vencimento: dataVenc.toISOString().split('T')[0],
-            valor_parcela: valorParcela,
+            valor_total: valor,
+            valor_parcela: valor,
+            status: 'aberto',
           });
         }
       }
@@ -334,9 +330,7 @@ export default function ContasReceberForm() {
 
       toast({
         title: '✅ Conta cadastrada',
-        description: eRecorrente 
-          ? 'Conta recorrente criada com 12 primeiras parcelas!'
-          : `Conta criada com ${parcelas} parcela(s)!`,
+        description: `${parcelas} parcela(s) criada(s) com sucesso!`,
       });
 
       navigate('/financeiro/contas-receber');
@@ -374,8 +368,8 @@ export default function ContasReceberForm() {
       <Alert className="bg-blue-50 border-blue-200">
         <Info className="h-4 w-4 text-blue-600" />
         <AlertDescription>
-          <strong>Parcelado:</strong> Divide o valor em X parcelas com vencimentos mensais.<br />
-          <strong>Recorrente:</strong> Gera lançamento mensal automático (não pode ser parcelado).
+          <strong>Parcelado:</strong> Divide o valor total em X parcelas. Emissão = mesma data.<br />
+          <strong>Recorrente:</strong> Repete o valor total em cada parcela. Emissão = dia 01 de cada mês.
         </AlertDescription>
       </Alert>
 
@@ -384,16 +378,15 @@ export default function ContasReceberForm() {
           <CardTitle>Informações da Conta</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="data-emissao">Data de Emissão *</Label>
-              <Input
-                id="data-emissao"
-                type="date"
-                value={dataEmissao}
-                onChange={(e) => setDataEmissao(e.target.value)}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="data-emissao">Data de Emissão *</Label>
+            <Input
+              id="data-emissao"
+              type="date"
+              value={dataEmissao}
+              onChange={(e) => setDataEmissao(e.target.value)}
+              className="max-w-xs"
+            />
           </div>
 
           <div className="space-y-2">
@@ -492,7 +485,7 @@ export default function ContasReceberForm() {
           </div>
 
           <div className="space-y-2">
-            <Label>Banco (opcional)</Label>
+            <Label>Banco *</Label>
             <Select value={bancoId} onValueChange={setBancoId}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione..." />
@@ -511,43 +504,68 @@ export default function ContasReceberForm() {
             <Label htmlFor="descricao">Descrição</Label>
             <Textarea
               id="descricao"
-              placeholder="Informações adicionais sobre esta conta..."
+              placeholder="Informações adicionais..."
               rows={3}
               value={descricao}
               onChange={(e) => setDescricao(e.target.value)}
             />
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="valor">Valor Total *</Label>
+            <Input
+              id="valor"
+              placeholder="Ex: 1000,00"
+              value={valorTotal}
+              onChange={(e) => {
+                const valor = e.target.value.replace(/[^\d,]/g, '');
+                setValorTotal(valor);
+              }}
+              className="max-w-xs"
+            />
+          </div>
+
+          <div className="space-y-3">
+            <Label>Tipo de Lançamento *</Label>
+            <RadioGroup value={tipoLancamento} onValueChange={setTipoLancamento}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="unico" id="unico" />
+                <Label htmlFor="unico" className="cursor-pointer">
+                  Único (1 parcela)
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="parcelado" id="parcelado" />
+                <Label htmlFor="parcelado" className="cursor-pointer">
+                  Parcelado (divide valor total)
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="recorrente" id="recorrente" />
+                <Label htmlFor="recorrente" className="cursor-pointer">
+                  Recorrente (repete valor total)
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="valor">Valor Total *</Label>
-              <Input
-                id="valor"
-                placeholder="Ex: 1500,00"
-                value={valorTotal}
-                onChange={(e) => {
-                  const valor = e.target.value.replace(/[^\d,]/g, '');
-                  setValorTotal(valor);
-                }}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="parcelas">Número de Parcelas *</Label>
+              <Label htmlFor="parcelas">
+                {tipoLancamento === 'unico' ? 'Parcelas (fixo)' : 'Número de Parcelas *'}
+              </Label>
               <Input
                 id="parcelas"
                 type="number"
                 min="1"
                 value={numeroParcelas}
                 onChange={(e) => setNumeroParcelas(e.target.value)}
-                disabled={eRecorrente}
+                disabled={tipoLancamento === 'unico'}
               />
             </div>
-          </div>
 
-          {!eRecorrente && (
             <div className="space-y-2">
-              <Label htmlFor="vencimento">Data do Primeiro Vencimento *</Label>
+              <Label htmlFor="vencimento">Primeiro Vencimento *</Label>
               <Input
                 id="vencimento"
                 type="date"
@@ -555,37 +573,6 @@ export default function ContasReceberForm() {
                 onChange={(e) => setPrimeiroVencimento(e.target.value)}
               />
             </div>
-          )}
-
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="recorrente"
-                checked={eRecorrente}
-                onCheckedChange={(checked) => setERecorrente(checked as boolean)}
-              />
-              <Label htmlFor="recorrente" className="cursor-pointer">
-                Conta Recorrente (mensal)
-              </Label>
-            </div>
-
-            {eRecorrente && (
-              <div className="pl-6 space-y-2">
-                <Label htmlFor="dia-vencimento">Dia do Vencimento (1-31) *</Label>
-                <Input
-                  id="dia-vencimento"
-                  type="number"
-                  min="1"
-                  max="31"
-                  placeholder="Ex: 10"
-                  value={diaVencimentoRecorrente}
-                  onChange={(e) => setDiaVencimentoRecorrente(e.target.value)}
-                />
-                <p className="text-xs text-muted-foreground">
-                  O sistema criará automaticamente as próximas 12 parcelas
-                </p>
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>

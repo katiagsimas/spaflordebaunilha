@@ -304,7 +304,7 @@ export type Database = {
       }
       contas_receber: {
         Row: {
-          banco_id: string | null
+          banco_id: string
           categoria_id: string | null
           cliente_documento: string | null
           cliente_id: string | null
@@ -323,12 +323,13 @@ export type Database = {
           plano_conta_id: string | null
           status: string
           tipo_documento_id: string | null
+          tipo_lancamento: string
           updated_at: string
           usuario_id: string
           valor: number
         }
         Insert: {
-          banco_id?: string | null
+          banco_id: string
           categoria_id?: string | null
           cliente_documento?: string | null
           cliente_id?: string | null
@@ -347,12 +348,13 @@ export type Database = {
           plano_conta_id?: string | null
           status?: string
           tipo_documento_id?: string | null
+          tipo_lancamento?: string
           updated_at?: string
           usuario_id: string
           valor: number
         }
         Update: {
-          banco_id?: string | null
+          banco_id?: string
           categoria_id?: string | null
           cliente_documento?: string | null
           cliente_id?: string | null
@@ -371,6 +373,7 @@ export type Database = {
           plano_conta_id?: string | null
           status?: string
           tipo_documento_id?: string | null
+          tipo_lancamento?: string
           updated_at?: string
           usuario_id?: string
           valor?: number
@@ -417,6 +420,8 @@ export type Database = {
         Row: {
           conta_receber_id: string
           created_at: string | null
+          data_emissao: string
+          data_pagamento: string | null
           data_recebimento: string | null
           data_vencimento: string
           desconto: number | null
@@ -426,12 +431,16 @@ export type Database = {
           observacao: string | null
           status: string
           updated_at: string | null
+          valor_pago: number | null
           valor_parcela: number
           valor_recebido: number | null
+          valor_total: number
         }
         Insert: {
           conta_receber_id: string
           created_at?: string | null
+          data_emissao?: string
+          data_pagamento?: string | null
           data_recebimento?: string | null
           data_vencimento: string
           desconto?: number | null
@@ -441,12 +450,16 @@ export type Database = {
           observacao?: string | null
           status?: string
           updated_at?: string | null
+          valor_pago?: number | null
           valor_parcela: number
           valor_recebido?: number | null
+          valor_total?: number
         }
         Update: {
           conta_receber_id?: string
           created_at?: string | null
+          data_emissao?: string
+          data_pagamento?: string | null
           data_recebimento?: string | null
           data_vencimento?: string
           desconto?: number | null
@@ -456,8 +469,10 @@ export type Database = {
           observacao?: string | null
           status?: string
           updated_at?: string | null
+          valor_pago?: number | null
           valor_parcela?: number
           valor_recebido?: number | null
+          valor_total?: number
         }
         Relationships: [
           {
@@ -1317,7 +1332,75 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      vw_contas_receber_parcelas: {
+        Row: {
+          banco_id: string | null
+          banco_nome: string | null
+          cliente_id: string | null
+          cliente_nome: string | null
+          conta_receber_id: string | null
+          created_at: string | null
+          data_emissao: string | null
+          data_pagamento: string | null
+          data_recebimento: string | null
+          data_vencimento: string | null
+          desconto: number | null
+          id: string | null
+          juros: number | null
+          numero_parcela: number | null
+          observacao: string | null
+          plano_conta_id: string | null
+          plano_contas_codigo: string | null
+          plano_contas_descricao: string | null
+          status: string | null
+          tipo_documento_descricao: string | null
+          tipo_documento_id: string | null
+          tipo_lancamento: string | null
+          updated_at: string | null
+          user_id: string | null
+          valor_pago: number | null
+          valor_parcela: number | null
+          valor_recebido: number | null
+          valor_total: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contas_receber_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contas_receber_parcelas_conta_receber_id_fkey"
+            columns: ["conta_receber_id"]
+            isOneToOne: false
+            referencedRelation: "contas_receber"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_contas_receber_banco"
+            columns: ["banco_id"]
+            isOneToOne: false
+            referencedRelation: "bancos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_contas_receber_plano_conta"
+            columns: ["plano_conta_id"]
+            isOneToOne: false
+            referencedRelation: "plano_contas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_contas_receber_tipo_documento"
+            columns: ["tipo_documento_id"]
+            isOneToOne: false
+            referencedRelation: "tipos_documento"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       atualizar_status_parcelas_vencidas: {
