@@ -390,6 +390,27 @@ export type Database = {
             referencedRelation: "clientes"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_contas_receber_banco"
+            columns: ["banco_id"]
+            isOneToOne: false
+            referencedRelation: "bancos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_contas_receber_plano_conta"
+            columns: ["plano_conta_id"]
+            isOneToOne: false
+            referencedRelation: "plano_contas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_contas_receber_tipo_documento"
+            columns: ["tipo_documento_id"]
+            isOneToOne: false
+            referencedRelation: "tipos_documento"
+            referencedColumns: ["id"]
+          },
         ]
       }
       contas_receber_parcelas: {
