@@ -61,7 +61,7 @@ export default function CategoriasPlanoContas() {
   // Modal criar/editar
   const [modalAberto, setModalAberto] = useState(false);
   const [editando, setEditando] = useState<Categoria | null>(null);
-  const [codigo, setCodigo] = useState('');
+  const [codigoSugerido, setCodigoSugerido] = useState('');
   const [descricao, setDescricao] = useState('');
   const [indicador, setIndicador] = useState('');
   const [faixaDRE, setFaixaDRE] = useState('');
@@ -161,7 +161,7 @@ export default function CategoriasPlanoContas() {
     return faixas.sort();
   }, [categorias]);
 
-  const handleAbrirModal = (categoria: Categoria | null = null) => {
+  const handleAbrirModal = async (categoria: Categoria | null = null) => {
     if (categoria) {
       // Editar
       if (categoria.e_padrao) {
@@ -174,14 +174,32 @@ export default function CategoriasPlanoContas() {
       }
 
       setEditando(categoria);
-      setCodigo(categoria.codigo);
       setDescricao(categoria.descricao);
       setIndicador(categoria.indicador);
       setFaixaDRE(categoria.faixa_dre);
+      setCodigoSugerido('');
     } else {
-      // Criar nova
+      // Criar nova - gerar código automaticamente
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data, error } = await supabase.rpc('gerar_proximo_codigo_categoria', {
+          p_user_id: user.id
+        });
+
+        if (error) {
+          console.error('Erro ao gerar código:', error);
+          setCodigoSugerido('200'); // Fallback
+        } else {
+          setCodigoSugerido(data);
+        }
+      } catch (error) {
+        console.error('Erro:', error);
+        setCodigoSugerido('200');
+      }
+
       setEditando(null);
-      setCodigo('');
       setDescricao('');
       setIndicador('');
       setFaixaDRE('');
@@ -192,15 +210,6 @@ export default function CategoriasPlanoContas() {
   const handleSalvar = async () => {
     try {
       // Validações
-      if (!codigo.trim()) {
-        toast({
-          title: 'Erro',
-          description: 'Informe o código da categoria!',
-          variant: 'destructive',
-        });
-        return;
-      }
-
       if (!descricao.trim()) {
         toast({
           title: 'Erro',
@@ -236,27 +245,35 @@ export default function CategoriasPlanoContas() {
         const { error } = await supabase
           .from('categorias_plano_contas')
           .update({
-            codigo: codigo.trim(),
             descricao: descricao.trim(),
             indicador,
             faixa_dre: faixaDRE,
           })
           .eq('id', editando.id)
-          .eq('e_padrao', false); // Garantir que não edita padrão
+          .eq('e_padrao', false);
 
-        if (error) {
-          if (error.code === '23505') {
-            throw new Error('Já existe uma categoria com este código!');
-          }
-          throw error;
-        }
+        if (error) throw error;
 
         toast({
           title: '✅ Atualizado',
           description: 'Categoria atualizada com sucesso!',
         });
       } else {
-        // Criar nova categoria customizada
+        // Criar nova categoria com código gerado
+        const codigoFinal = codigoSugerido;
+
+        // Verificar se código já existe (segurança extra)
+        const { data: existente } = await supabase
+          .from('categorias_plano_contas')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('codigo', codigoFinal)
+          .maybeSingle();
+
+        if (existente) {
+          throw new Error('Código já existe. Por favor, tente novamente.');
+        }
+
         // Pegar maior ordem e adicionar 1
         const maxOrdem = Math.max(...categorias.map(c => c.ordem), 0);
 
@@ -264,25 +281,25 @@ export default function CategoriasPlanoContas() {
           .from('categorias_plano_contas')
           .insert({
             user_id: user.id,
-            codigo: codigo.trim(),
+            codigo: codigoFinal,
             descricao: descricao.trim(),
             indicador,
             faixa_dre: faixaDRE,
-            e_padrao: false, // Categoria customizada
+            e_padrao: false,
             ativo: true,
             ordem: maxOrdem + 1,
           });
 
         if (error) {
           if (error.code === '23505') {
-            throw new Error('Já existe uma categoria com este código!');
+            throw new Error('Código já existe. Por favor, tente novamente.');
           }
           throw error;
         }
 
         toast({
           title: '✅ Cadastrado',
-          description: 'Categoria criada com sucesso!',
+          description: `Categoria criada com código ${codigoFinal}!`,
         });
       }
 
@@ -701,21 +718,26 @@ export default function CategoriasPlanoContas() {
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="codigo">Código *</Label>
-              <Input
-                id="codigo"
-                placeholder="Ex: 200, 300, ABC"
-                value={codigo}
-                onChange={(e) => setCodigo(e.target.value)}
-                disabled={!!editando}
-              />
-              {editando && (
-                <p className="text-xs text-muted-foreground">
-                  O código não pode ser alterado após criação
+            {/* Mostrar código gerado (somente ao criar) */}
+            {!editando && codigoSugerido && (
+              <Alert className="bg-blue-50 border-blue-200">
+                <Info className="h-4 w-4 text-blue-600" />
+                <AlertDescription>
+                  <strong>Código gerado automaticamente:</strong> {codigoSugerido}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Mostrar código atual (somente ao editar) */}
+            {editando && (
+              <div className="p-3 bg-muted rounded-lg">
+                <Label className="text-xs text-muted-foreground">Código</Label>
+                <p className="font-mono font-bold text-lg">{editando.codigo}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  O código não pode ser alterado
                 </p>
-              )}
-            </div>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="descricao">Descrição *</Label>
@@ -724,6 +746,7 @@ export default function CategoriasPlanoContas() {
                 placeholder="Ex: Marketing Digital"
                 value={descricao}
                 onChange={(e) => setDescricao(e.target.value)}
+                autoFocus
               />
             </div>
 

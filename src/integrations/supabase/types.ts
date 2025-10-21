@@ -1180,6 +1180,10 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
+      gerar_proximo_codigo_categoria: {
+        Args: { p_user_id: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
