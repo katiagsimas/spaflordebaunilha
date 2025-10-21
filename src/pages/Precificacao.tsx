@@ -52,6 +52,13 @@ interface Receita {
 
 const opcoes = [
   {
+    title: "Custos Fixos",
+    description: "Despesas mensais fixas",
+    icon: DollarSign,
+    url: "/precificacao/custos-fixos",
+    color: "text-red-600 bg-red-50 dark:bg-red-950",
+  },
+  {
     title: "Ingredientes",
     description: "Ingredientes com marca e preço",
     icon: ChefHat,
@@ -64,13 +71,6 @@ const opcoes = [
     icon: Package,
     url: "/precificacao/embalagens",
     color: "text-blue-600 bg-blue-50 dark:bg-blue-950",
-  },
-  {
-    title: "Custos Fixos",
-    description: "Despesas mensais fixas",
-    icon: DollarSign,
-    url: "/precificacao/custos-fixos",
-    color: "text-red-600 bg-red-50 dark:bg-red-950",
   },
   {
     title: "Pré-Preparo",
