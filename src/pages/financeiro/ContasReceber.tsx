@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import DarBaixaDialog from '@/components/financeiro/DarBaixaDialog';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { DatePickerField } from '@/components/DatePickerField';
 import {
   Select,
   SelectContent,
@@ -38,7 +38,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, MoreVertical, Eye, DollarSign, Edit, Trash2, Info, Search, Filter } from 'lucide-react';
+import { Plus, MoreVertical, Eye, DollarSign, Edit, Trash2, Info, Filter, Calendar } from 'lucide-react';
 
 export default function ContasReceber() {
   const navigate = useNavigate();
@@ -47,8 +47,15 @@ export default function ContasReceber() {
   const [loading, setLoading] = useState(true);
 
   // Filtros
-  const [termoBusca, setTermoBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('todos');
+  
+  // Filtros de Data
+  const [dataEmissaoInicial, setDataEmissaoInicial] = useState<Date | undefined>();
+  const [dataEmissaoFinal, setDataEmissaoFinal] = useState<Date | undefined>();
+  const [dataPagamentoInicial, setDataPagamentoInicial] = useState<Date | undefined>();
+  const [dataPagamentoFinal, setDataPagamentoFinal] = useState<Date | undefined>();
+  const [dataVencimentoInicial, setDataVencimentoInicial] = useState<Date | undefined>();
+  const [dataVencimentoFinal, setDataVencimentoFinal] = useState<Date | undefined>();
 
   // Modal de baixa
   const [darBaixaOpen, setDarBaixaOpen] = useState(false);
@@ -84,18 +91,6 @@ export default function ContasReceber() {
   };
 
   const parcelasFiltradas = parcelas.filter(p => {
-    // Filtro de busca
-    if (termoBusca) {
-      const termo = termoBusca.toLowerCase();
-      if (
-        !p.cliente_nome?.toLowerCase().includes(termo) &&
-        !p.tipo_documento_descricao?.toLowerCase().includes(termo) &&
-        !p.plano_contas_descricao?.toLowerCase().includes(termo)
-      ) {
-        return false;
-      }
-    }
-
     // Filtro de status
     if (filtroStatus !== 'todos') {
       // Tratar "vencido" como sinônimo de "atrasado"
@@ -104,6 +99,36 @@ export default function ContasReceber() {
       } else if (filtroStatus !== 'vencido' && p.status !== filtroStatus) {
         return false;
       }
+    }
+
+    // Filtro de Data de Emissão
+    if (dataEmissaoInicial && p.data_emissao) {
+      const dataEmissao = new Date(p.data_emissao + 'T00:00:00');
+      if (dataEmissao < dataEmissaoInicial) return false;
+    }
+    if (dataEmissaoFinal && p.data_emissao) {
+      const dataEmissao = new Date(p.data_emissao + 'T00:00:00');
+      if (dataEmissao > dataEmissaoFinal) return false;
+    }
+
+    // Filtro de Data de Pagamento
+    if (dataPagamentoInicial && p.data_pagamento) {
+      const dataPagamento = new Date(p.data_pagamento + 'T00:00:00');
+      if (dataPagamento < dataPagamentoInicial) return false;
+    }
+    if (dataPagamentoFinal && p.data_pagamento) {
+      const dataPagamento = new Date(p.data_pagamento + 'T00:00:00');
+      if (dataPagamento > dataPagamentoFinal) return false;
+    }
+
+    // Filtro de Data de Vencimento
+    if (dataVencimentoInicial && p.data_vencimento) {
+      const dataVencimento = new Date(p.data_vencimento + 'T00:00:00');
+      if (dataVencimento < dataVencimentoInicial) return false;
+    }
+    if (dataVencimentoFinal && p.data_vencimento) {
+      const dataVencimento = new Date(p.data_vencimento + 'T00:00:00');
+      if (dataVencimento > dataVencimentoFinal) return false;
     }
 
     return true;
@@ -246,18 +271,73 @@ export default function ContasReceber() {
         </div>
       </div>
 
-      {/* Filtros de Busca */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Buscar</Label>
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Cliente, documento ou plano..."
-              value={termoBusca}
-              onChange={(e) => setTermoBusca(e.target.value)}
-              className="pl-10"
-            />
+      {/* Filtros de Data */}
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Data de Emissão */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 mb-3">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <Label className="text-sm">Data de Emissão</Label>
+            </div>
+            <div className="flex gap-2">
+              <DatePickerField
+                value={dataEmissaoInicial}
+                onChange={setDataEmissaoInicial}
+                placeholder="Inicial"
+                className="flex-1"
+              />
+              <DatePickerField
+                value={dataEmissaoFinal}
+                onChange={setDataEmissaoFinal}
+                placeholder="Final"
+                className="flex-1"
+              />
+            </div>
+          </div>
+
+          {/* Data de Pagamento */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 mb-3">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <Label className="text-sm">Data de Pagamento</Label>
+            </div>
+            <div className="flex gap-2">
+              <DatePickerField
+                value={dataPagamentoInicial}
+                onChange={setDataPagamentoInicial}
+                placeholder="Inicial"
+                className="flex-1"
+              />
+              <DatePickerField
+                value={dataPagamentoFinal}
+                onChange={setDataPagamentoFinal}
+                placeholder="Final"
+                className="flex-1"
+              />
+            </div>
+          </div>
+
+          {/* Data de Vencimento */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 mb-3">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <Label className="text-sm">Data de Vencimento</Label>
+            </div>
+            <div className="flex gap-2">
+              <DatePickerField
+                value={dataVencimentoInicial}
+                onChange={setDataVencimentoInicial}
+                placeholder="Inicial"
+                className="flex-1"
+              />
+              <DatePickerField
+                value={dataVencimentoFinal}
+                onChange={setDataVencimentoFinal}
+                placeholder="Final"
+                className="flex-1"
+              />
+            </div>
           </div>
         </div>
       </div>
