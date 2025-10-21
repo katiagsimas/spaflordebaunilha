@@ -535,8 +535,17 @@ export default function Ingredientes() {
                 const ePrePreparo = ingrediente.e_pre_preparo || ingrediente.tipo_insumo?.pre_preparo_id;
                 
                 return (
-                  <TableRow key={ingrediente.id} className={desatualizado ? 'bg-amber-50/50 dark:bg-amber-950/20' : ''}>
-                    <TableCell className="font-medium">
+                  <TableRow 
+                    key={ingrediente.id} 
+                    className={
+                      ePrePreparo 
+                        ? 'bg-purple-50/50 dark:bg-purple-950/20' 
+                        : desatualizado 
+                        ? 'bg-amber-50/50 dark:bg-amber-950/20' 
+                        : ''
+                    }
+                  >
+                    <TableCell className={cn("font-medium", ePrePreparo && "text-purple-700 dark:text-purple-400")}>
                       <div className="flex items-center gap-2">
                         {ingrediente.tipo_insumo?.descricao || 'N/A'}
                         {desatualizado && !ePrePreparo && (
@@ -547,23 +556,29 @@ export default function Ingredientes() {
                         )}
                       </div>
                     </TableCell>
-      <TableCell>
+      <TableCell className={ePrePreparo ? "text-purple-700 dark:text-purple-400" : ""}>
         {ePrePreparo ? (
-          <span className="font-semibold text-purple-700">Pré-Preparo</span>
+          <span className="font-semibold">Pré-Preparo</span>
         ) : (
           ingrediente.marca || <span className="text-muted-foreground italic">Sem marca</span>
         )}
       </TableCell>
-                    <TableCell>
+                    <TableCell className={ePrePreparo ? "text-purple-700 dark:text-purple-400" : ""}>
                       {ingrediente.tipo_insumo?.quantidade_embalagem?.toLocaleString('pt-BR')}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className={ePrePreparo ? "text-purple-700 dark:text-purple-400" : ""}>
                       {ingrediente.tipo_insumo?.unidade_medida?.sigla || 'N/A'}
                     </TableCell>
-                    <TableCell className="font-medium">
+                    <TableCell className={cn("font-medium", ePrePreparo && "text-purple-700 dark:text-purple-400")}>
                       {formatarPreco(ingrediente.preco)}
                     </TableCell>
-                    <TableCell className={desatualizado ? 'text-amber-700 font-medium dark:text-amber-400' : ''}>
+                    <TableCell className={
+                      ePrePreparo 
+                        ? "text-purple-700 dark:text-purple-400" 
+                        : desatualizado 
+                        ? 'text-amber-700 font-medium dark:text-amber-400' 
+                        : ''
+                    }>
                       {formatarData(ingrediente.data_atualizacao)}
                     </TableCell>
                     <TableCell className="text-right">
