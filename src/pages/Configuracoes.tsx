@@ -1,4 +1,4 @@
-import { Settings, Tag, UserCircle, Ruler, Lock, Package, Layers, BookOpen } from "lucide-react";
+import { Settings, Tag, UserCircle, Ruler, Lock, Package, Layers, BookOpen, Building2 } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
@@ -40,6 +40,15 @@ const opcoes = [
     icon: BookOpen,
     url: "/configuracoes/plano-contas",
     color: "text-orange-600 bg-orange-50 dark:bg-orange-950",
+    statusKey: null,
+    requiresAdmin: false,
+  },
+  {
+    title: "Bancos",
+    description: "Cadastre os bancos que você utiliza",
+    icon: Building2,
+    url: "/configuracoes/bancos",
+    color: "text-teal-600 bg-teal-50 dark:bg-teal-950",
     statusKey: null,
     requiresAdmin: false,
   },

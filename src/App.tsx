@@ -36,6 +36,7 @@ import Configuracoes from "./pages/Configuracoes";
 import TiposInsumos from "./pages/configuracoes/TiposInsumos";
 import CategoriasPlanoContas from "./pages/configuracoes/CategoriasPlanoContas";
 import PlanoContas from "./pages/configuracoes/PlanoContas";
+import Bancos from "./pages/configuracoes/Bancos";
 import Ingredientes from "./pages/precificacao/Ingredientes";
 import Embalagens from "./pages/precificacao/Embalagens";
 import PrePreparos from "./pages/precificacao/PrePreparos";
@@ -120,6 +121,7 @@ const App = () => (
           <Route path="/configuracoes/tipos-insumos" element={<ProtectedRoute><Layout><TiposInsumos /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/categorias-plano-contas" element={<ProtectedRoute><Layout><CategoriasPlanoContas /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/plano-contas" element={<ProtectedRoute><Layout><PlanoContas /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/bancos" element={<ProtectedRoute><Layout><Bancos /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/dados-confeitaria" element={<ProtectedRoute><Layout><SeusDados /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/categorias-receitas" element={<ProtectedRoute><Layout><Categorias /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/unidades-medida" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
