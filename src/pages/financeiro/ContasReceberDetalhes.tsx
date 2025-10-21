@@ -292,6 +292,13 @@ export default function ContasReceberDetalhes() {
                 </span>
               </div>
 
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Valor a Pagar</span>
+                <span className="font-medium text-lg text-red-600">
+                  {formatarValor(totais.totalAberto)}
+                </span>
+              </div>
+
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Tipo de Lançamento</span>
                 {getBadgeTipoLancamento(conta.tipo_lancamento)}
