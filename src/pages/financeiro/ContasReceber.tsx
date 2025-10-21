@@ -49,6 +49,13 @@ export default function ContasReceber() {
   const [parcelas, setParcelas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Dados para os filtros
+  const [planoContas, setPlanoContas] = useState<any[]>([]);
+  const [clientes, setClientes] = useState<any[]>([]);
+  const [categorias, setCategorias] = useState<any[]>([]);
+  const [tiposDocumento, setTiposDocumento] = useState<any[]>([]);
+  const [bancos, setBancos] = useState<any[]>([]);
+
   // Filtros
   const [filtroStatus, setFiltroStatus] = useState('todos');
   
@@ -62,11 +69,11 @@ export default function ContasReceber() {
 
   // Mais opções de busca
   const [maisOpcoesOpen, setMaisOpcoesOpen] = useState(false);
-  const [filtroPlanoContas, setFiltroPlanoContas] = useState('');
-  const [filtroCliente, setFiltroCliente] = useState('');
-  const [filtroCategoria, setFiltroCategoria] = useState('');
-  const [filtroTipoDoc, setFiltroTipoDoc] = useState('');
-  const [filtroBanco, setFiltroBanco] = useState('');
+  const [filtroPlanoContasId, setFiltroPlanoContasId] = useState('');
+  const [filtroClienteId, setFiltroClienteId] = useState('');
+  const [filtroCategoriaId, setFiltroCategoriaId] = useState('');
+  const [filtroTipoDocId, setFiltroTipoDocId] = useState('');
+  const [filtroBancoId, setFiltroBancoId] = useState('');
 
   // Modal de baixa
   const [darBaixaOpen, setDarBaixaOpen] = useState(false);
@@ -74,7 +81,65 @@ export default function ContasReceber() {
 
   useEffect(() => {
     fetchParcelas();
+    fetchDadosFiltros();
   }, []);
+
+  const fetchDadosFiltros = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Buscar planos de contas
+      const { data: planosData } = await supabase
+        .from('plano_contas')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('ativo', true)
+        .order('codigo');
+      
+      setPlanoContas(planosData || []);
+
+      // Buscar clientes
+      const { data: clientesData } = await supabase
+        .from('clientes')
+        .select('*')
+        .eq('usuario_id', user.id)
+        .order('nome');
+      
+      setClientes(clientesData || []);
+
+      // Buscar categorias
+      const { data: categoriasData } = await supabase
+        .from('categorias_plano_contas')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('ativo', true)
+        .order('codigo');
+      
+      setCategorias(categoriasData || []);
+
+      // Buscar tipos de documento
+      const { data: tiposData } = await supabase
+        .from('tipos_documento')
+        .select('*')
+        .eq('usuario_id', user.id)
+        .eq('ativo', true)
+        .order('descricao');
+      
+      setTiposDocumento(tiposData || []);
+
+      // Buscar bancos
+      const { data: bancosData } = await supabase
+        .from('bancos')
+        .select('*')
+        .eq('usuario_id', user.id)
+        .order('nome');
+      
+      setBancos(bancosData || []);
+    } catch (error) {
+      console.error('Erro ao buscar dados dos filtros:', error);
+    }
+  };
 
   const fetchParcelas = async () => {
     try {
@@ -143,30 +208,23 @@ export default function ContasReceber() {
     }
 
     // Mais opções de busca
-    if (filtroPlanoContas && p.plano_contas_descricao) {
-      if (!p.plano_contas_descricao.toLowerCase().includes(filtroPlanoContas.toLowerCase())) {
+    if (filtroPlanoContasId && p.plano_conta_id !== filtroPlanoContasId) {
+      return false;
+    }
+    if (filtroClienteId && p.cliente_id !== filtroClienteId) {
+      return false;
+    }
+    if (filtroCategoriaId) {
+      const plano = planoContas.find(pc => pc.id === p.plano_conta_id);
+      if (!plano || plano.categoria_id !== filtroCategoriaId) {
         return false;
       }
     }
-    if (filtroCliente && p.cliente_nome) {
-      if (!p.cliente_nome.toLowerCase().includes(filtroCliente.toLowerCase())) {
-        return false;
-      }
+    if (filtroTipoDocId && p.tipo_documento_id !== filtroTipoDocId) {
+      return false;
     }
-    if (filtroCategoria && p.plano_contas_codigo) {
-      if (!p.plano_contas_codigo.toLowerCase().includes(filtroCategoria.toLowerCase())) {
-        return false;
-      }
-    }
-    if (filtroTipoDoc && p.tipo_documento_descricao) {
-      if (!p.tipo_documento_descricao.toLowerCase().includes(filtroTipoDoc.toLowerCase())) {
-        return false;
-      }
-    }
-    if (filtroBanco && p.banco_nome) {
-      if (!p.banco_nome.toLowerCase().includes(filtroBanco.toLowerCase())) {
-        return false;
-      }
+    if (filtroBancoId && p.banco_id !== filtroBancoId) {
+      return false;
     }
 
     return true;
@@ -180,11 +238,11 @@ export default function ContasReceber() {
     setDataPagamentoFinal(undefined);
     setDataVencimentoInicial(undefined);
     setDataVencimentoFinal(undefined);
-    setFiltroPlanoContas('');
-    setFiltroCliente('');
-    setFiltroCategoria('');
-    setFiltroTipoDoc('');
-    setFiltroBanco('');
+    setFiltroPlanoContasId('');
+    setFiltroClienteId('');
+    setFiltroCategoriaId('');
+    setFiltroTipoDocId('');
+    setFiltroBancoId('');
   };
 
   const exportarParaExcel = () => {
@@ -424,60 +482,102 @@ export default function ContasReceber() {
 
       {/* Mais Opções de Busca + Limpar + Exportar */}
       <div className="flex flex-wrap gap-2">
-        <Collapsible open={maisOpcoesOpen} onOpenChange={setMaisOpcoesOpen}>
+        <Collapsible open={maisOpcoesOpen} onOpenChange={setMaisOpcoesOpen} className="w-full">
           <CollapsibleTrigger asChild>
-            <Button variant="outline" size="sm">
+            <Button 
+              variant={maisOpcoesOpen ? 'default' : 'outline'}
+              size="sm"
+            >
               <Filter className="mr-2 h-4 w-4" />
               Mais opções de Busca
               <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${maisOpcoesOpen ? 'rotate-180' : ''}`} />
             </Button>
           </CollapsibleTrigger>
-          <CollapsibleContent className="mt-4">
+          <CollapsibleContent className="mt-4 w-full">
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 p-4 border rounded-lg bg-muted/30">
               <div className="space-y-2">
                 <Label className="text-sm">Plano de Contas</Label>
-                <Input
-                  type="text"
-                  placeholder="Buscar plano..."
-                  value={filtroPlanoContas}
-                  onChange={(e) => setFiltroPlanoContas(e.target.value)}
-                />
+                <Select value={filtroPlanoContasId} onValueChange={setFiltroPlanoContasId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos</SelectItem>
+                    {planoContas.map((plano) => (
+                      <SelectItem key={plano.id} value={plano.id}>
+                        {plano.codigo} - {plano.descricao}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+              
               <div className="space-y-2">
                 <Label className="text-sm">Cliente</Label>
-                <Input
-                  type="text"
-                  placeholder="Buscar cliente..."
-                  value={filtroCliente}
-                  onChange={(e) => setFiltroCliente(e.target.value)}
-                />
+                <Select value={filtroClienteId} onValueChange={setFiltroClienteId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos</SelectItem>
+                    {clientes.map((cliente) => (
+                      <SelectItem key={cliente.id} value={cliente.id}>
+                        {cliente.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+              
               <div className="space-y-2">
                 <Label className="text-sm">Categoria do Plano de Contas</Label>
-                <Input
-                  type="text"
-                  placeholder="Buscar categoria..."
-                  value={filtroCategoria}
-                  onChange={(e) => setFiltroCategoria(e.target.value)}
-                />
+                <Select value={filtroCategoriaId} onValueChange={setFiltroCategoriaId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos</SelectItem>
+                    {categorias.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.codigo} - {cat.descricao}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+              
               <div className="space-y-2">
                 <Label className="text-sm">Tipo de Documento</Label>
-                <Input
-                  type="text"
-                  placeholder="Buscar tipo..."
-                  value={filtroTipoDoc}
-                  onChange={(e) => setFiltroTipoDoc(e.target.value)}
-                />
+                <Select value={filtroTipoDocId} onValueChange={setFiltroTipoDocId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos</SelectItem>
+                    {tiposDocumento.map((tipo) => (
+                      <SelectItem key={tipo.id} value={tipo.id}>
+                        {tipo.descricao}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+              
               <div className="space-y-2">
                 <Label className="text-sm">Banco</Label>
-                <Input
-                  type="text"
-                  placeholder="Buscar banco..."
-                  value={filtroBanco}
-                  onChange={(e) => setFiltroBanco(e.target.value)}
-                />
+                <Select value={filtroBancoId} onValueChange={setFiltroBancoId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos</SelectItem>
+                    {bancos.map((banco) => (
+                      <SelectItem key={banco.id} value={banco.id}>
+                        {banco.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CollapsibleContent>
