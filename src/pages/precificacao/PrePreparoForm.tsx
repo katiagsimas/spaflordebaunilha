@@ -363,7 +363,7 @@ export default function PrePreparoForm() {
     }
   };
 
-  const criarComoIngrediente = async (prePreparoId: string, nomePrePreparo: string, custoTotal: number) => {
+  const criarComoIngrediente = async (prePreparoId: string, nomePrePreparo: string, custoTotal: number, custoPorUnidade: number) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -371,6 +371,7 @@ export default function PrePreparoForm() {
       console.log('📝 Criando/atualizando pré-preparo como ingrediente...');
       console.log('Nome:', nomePrePreparo);
       console.log('Custo total:', custoTotal);
+      console.log('Custo por unidade:', custoPorUnidade);
 
       // ✅ USAR NOME LIMPO (sem prefixo)
       const nomeTipo = nomePrePreparo; // Nome limpo!
@@ -427,12 +428,12 @@ export default function PrePreparoForm() {
         .maybeSingle();
 
       if (ingredienteExistente) {
-        // Atualizar preço e marcar como pré-preparo
+        // Atualizar preço e marcar como pré-preparo (usar custo por unidade)
         await supabase
           .from('ingredientes')
           .update({
             marca: 'Pré-Preparo',
-            preco: custoTotal,
+            preco: custoPorUnidade,
             e_pre_preparo: true,
             data_atualizacao: new Date().toISOString().split('T')[0],
           })
@@ -440,14 +441,14 @@ export default function PrePreparoForm() {
           
         console.log('✅ Ingrediente atualizado:', ingredienteExistente.id);
       } else {
-        // Criar novo
+        // Criar novo (usar custo por unidade)
         await supabase
           .from('ingredientes')
           .insert({
             usuario_id: user.id,
             tipo_insumo_id: tipoId,
             marca: 'Pré-Preparo',
-            preco: custoTotal,
+            preco: custoPorUnidade,
             e_pre_preparo: true,
             data_atualizacao: new Date().toISOString().split('T')[0],
           });
@@ -620,7 +621,7 @@ export default function PrePreparoForm() {
       if (errorIngredientes) throw errorIngredientes;
 
       // Criar/atualizar na tabela ingredientes
-      await criarComoIngrediente(prePreparoId, nome, custoTotal);
+      await criarComoIngrediente(prePreparoId, nome, custoTotal, custoPorUnidade);
 
       toast({
         title: 'Sucesso',
