@@ -279,7 +279,7 @@ export default function TiposInsumosEmbalagens() {
                 <TableRow key={tipo.id}>
                   <TableCell className="font-medium">{tipo.descricao}</TableCell>
                   <TableCell>{tipo.quantidade_embalagem.toLocaleString('pt-BR')}</TableCell>
-                  <TableCell>{tipo.unidade_medida?.sigla}</TableCell>
+                  <TableCell>{tipo.unidade_medida?.nome}</TableCell>
                   <TableCell className="text-right space-x-2">
                     <Button
                       variant="ghost"
