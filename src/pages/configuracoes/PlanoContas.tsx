@@ -149,6 +149,18 @@ export default function PlanoContas() {
       resultado = resultado.filter(p => p.e_padrao === ePadrao);
     }
 
+    // Ordenar numericamente por código estruturado (ex: 1.01, 1.02, 2.01, 10.01)
+    resultado.sort((a, b) => {
+      const [catA, seqA] = a.codigo_estruturado.split('.').map(Number);
+      const [catB, seqB] = b.codigo_estruturado.split('.').map(Number);
+      
+      // Primeiro compara categoria
+      if (catA !== catB) return catA - catB;
+      
+      // Depois compara sequencial
+      return seqA - seqB;
+    });
+
     return resultado;
   }, [planos, termoBusca, filtroCategoria, filtroStatus, filtroTipo]);
 
