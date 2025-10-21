@@ -1054,6 +1054,7 @@ const Encomendas = () => {
                     <TableHead>Status</TableHead>
                     <TableHead>Data Pedido</TableHead>
                     <TableHead>Data Entrega</TableHead>
+                    <TableHead>Hora da Entrega</TableHead>
                     <TableHead>Valor</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
@@ -1069,6 +1070,7 @@ const Encomendas = () => {
                       </TableCell>
                       <TableCell>{new Date(encomenda.data_pedido).toLocaleDateString("pt-BR")}</TableCell>
                       <TableCell>{new Date(encomenda.data_entrega).toLocaleDateString("pt-BR")}</TableCell>
+                      <TableCell>{encomenda.hora_entrega || "-"}</TableCell>
                       <TableCell>R$ {encomenda.valor.toFixed(2)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex gap-1 justify-end">
