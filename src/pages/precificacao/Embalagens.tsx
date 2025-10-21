@@ -556,7 +556,7 @@ export default function Embalagens() {
                       {embalagem.tipo_insumo?.quantidade_embalagem?.toLocaleString('pt-BR')}
                     </TableCell>
                     <TableCell>
-                      {embalagem.tipo_insumo?.unidade_medida?.sigla || 'N/A'}
+                      {embalagem.tipo_insumo?.unidade_medida?.nome || 'N/A'}
                     </TableCell>
                     <TableCell className="font-medium">
                       {formatarPreco(embalagem.preco)}
