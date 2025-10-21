@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { AlertCircle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -35,6 +36,57 @@ interface Banco {
   e_customizado?: boolean;
 }
 
+// Lista de bancos oficiais brasileiros com códigos BACEN
+const BANCOS_OFICIAIS: Record<string, string> = {
+  'banco do brasil': '001',
+  'santander': '033',
+  'caixa economica federal': '104',
+  'caixa': '104',
+  'bradesco': '237',
+  'itau': '341',
+  'itaú': '341',
+  'itau unibanco': '341',
+  'itaú unibanco': '341',
+  'banco inter': '077',
+  'inter': '077',
+  'nubank': '260',
+  'banco c6': '336',
+  'c6 bank': '336',
+  'c6': '336',
+  'banco original': '212',
+  'original': '212',
+  'banco pan': '623',
+  'pan': '623',
+  'banco safra': '422',
+  'safra': '422',
+  'banrisul': '041',
+  'sicredi': '748',
+  'banco do nordeste': '004',
+  'banese': '047',
+  'mercado pago': '323',
+  'picpay': '380',
+  'banco neon': '735',
+  'neon': '735',
+  'bs2': '218',
+  'banco bs2': '218',
+  'banco bmg': '318',
+  'bmg': '318',
+  'btg pactual': '208',
+  'banco btg pactual': '208',
+  'banco votorantim': '655',
+  'votorantim': '655',
+  'bancoob': '756',
+  'sicoob': '756',
+  'crefisa': '069',
+  'banco crefisa': '069',
+  'banco pine': '643',
+  'pine': '643',
+  'banco daycoval': '707',
+  'daycoval': '707',
+  'unicred': '136',
+  'banco cooperativo': '756',
+};
+
 export default function Bancos() {
   const { toast } = useToast();
   const [bancos, setBancos] = useState<Banco[]>([]);
@@ -49,6 +101,8 @@ export default function Bancos() {
   const [codigo, setCodigo] = useState('');
   const [nome, setNome] = useState('');
   const [salvando, setSalvando] = useState(false);
+  const [mostrarAlertaCustomizado, setMostrarAlertaCustomizado] = useState(false);
+  const [codigoOficialEncontrado, setCodigoOficialEncontrado] = useState(false);
 
   useEffect(() => {
     fetchBancos();
@@ -106,25 +160,70 @@ export default function Bancos() {
       setEditando(banco);
       setCodigo(banco.codigo);
       setNome(banco.nome);
+      setCodigoOficialEncontrado(!!banco.e_banco_oficial);
     } else {
       setEditando(null);
       setCodigo('');
       setNome('');
+      setCodigoOficialEncontrado(false);
     }
+    setMostrarAlertaCustomizado(false);
     setModalAberto(true);
   };
 
-  const handleSalvar = async () => {
-    try {
-      if (!codigo.trim()) {
-        toast({
-          title: 'Erro',
-          description: 'Informe o código do banco!',
-          variant: 'destructive',
-        });
-        return;
+  // Buscar código oficial quando nome for digitado
+  const handleNomeChange = (novoNome: string) => {
+    setNome(novoNome);
+    setMostrarAlertaCustomizado(false);
+    
+    if (!editando && novoNome.trim()) {
+      const nomeNormalizado = novoNome.toLowerCase().trim();
+      const codigoOficial = BANCOS_OFICIAIS[nomeNormalizado];
+      
+      if (codigoOficial) {
+        setCodigo(codigoOficial);
+        setCodigoOficialEncontrado(true);
+      } else {
+        // Verificar se é um nome parcial que pode ser encontrado
+        const bancoEncontrado = Object.keys(BANCOS_OFICIAIS).find(key => 
+          key.includes(nomeNormalizado) || nomeNormalizado.includes(key)
+        );
+        
+        if (bancoEncontrado) {
+          setCodigo(BANCOS_OFICIAIS[bancoEncontrado]);
+          setCodigoOficialEncontrado(true);
+        } else {
+          setCodigo('');
+          setCodigoOficialEncontrado(false);
+          if (novoNome.length > 3) {
+            setMostrarAlertaCustomizado(true);
+          }
+        }
       }
+    }
+  };
 
+  const gerarCodigoCustomizado = async (userId: string): Promise<string> => {
+    // Buscar o maior código customizado existente
+    const { data } = await supabase
+      .from('bancos')
+      .select('codigo')
+      .eq('usuario_id', userId)
+      .ilike('codigo', 'C%')
+      .order('codigo', { ascending: false })
+      .limit(1);
+
+    if (data && data.length > 0) {
+      const ultimoCodigo = data[0].codigo;
+      const numero = parseInt(ultimoCodigo.substring(1)) + 1;
+      return `C${numero.toString().padStart(3, '0')}`;
+    }
+    
+    return 'C001';
+  };
+
+  const handleSalvar = async (forcarCadastro = false) => {
+    try {
       if (!nome.trim()) {
         toast({
           title: 'Erro',
@@ -134,9 +233,27 @@ export default function Bancos() {
         return;
       }
 
-      setSalvando(true);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Não autenticado');
+
+      // Se não tiver código e não for forçar cadastro, mostrar alerta
+      if (!editando && !codigo.trim() && !forcarCadastro) {
+        setMostrarAlertaCustomizado(true);
+        return;
+      }
+
+      setSalvando(true);
+
+      // Gerar código customizado se necessário
+      let codigoFinal = codigo.trim();
+      let eCustomizado = false;
+      let eBancoOficial = codigoOficialEncontrado;
+
+      if (!editando && (!codigoFinal || !codigoOficialEncontrado)) {
+        codigoFinal = await gerarCodigoCustomizado(user.id);
+        eCustomizado = true;
+        eBancoOficial = false;
+      }
 
       if (editando) {
         // Atualizar
@@ -144,7 +261,7 @@ export default function Bancos() {
           .from('bancos')
           .update({
             nome: nome.trim(),
-            codigo: codigo.trim(),
+            codigo: codigoFinal,
           })
           .eq('id', editando.id);
 
@@ -160,7 +277,7 @@ export default function Bancos() {
           .from('bancos')
           .select('id')
           .eq('usuario_id', user.id)
-          .eq('codigo', codigo.trim())
+          .eq('codigo', codigoFinal)
           .limit(1);
         
         const existe = checkResult.data && checkResult.data.length > 0;
@@ -171,6 +288,7 @@ export default function Bancos() {
             description: 'Você já cadastrou um banco com este código!',
             variant: 'destructive',
           });
+          setSalvando(false);
           return;
         }
 
@@ -179,12 +297,12 @@ export default function Bancos() {
           .from('bancos')
           .insert({
             usuario_id: user.id,
-            codigo: codigo.trim(),
+            codigo: codigoFinal,
             nome: nome.trim(),
             tipo: 'Conta Corrente',
             saldo_inicial: 0,
-            e_banco_oficial: false,
-            e_customizado: false,
+            e_banco_oficial: eBancoOficial,
+            e_customizado: eCustomizado,
           });
 
         if (error) {
@@ -194,9 +312,13 @@ export default function Bancos() {
           throw error;
         }
 
+        const mensagem = eCustomizado 
+          ? `Banco customizado cadastrado com código ${codigoFinal}!`
+          : 'Banco cadastrado com sucesso!';
+
         toast({
           title: '✅ Cadastrado',
-          description: 'Banco cadastrado com sucesso!',
+          description: mensagem,
         });
       }
 
@@ -406,21 +528,6 @@ export default function Bancos() {
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            {/* Código */}
-            <div className="space-y-2">
-              <Label htmlFor="codigo">Código *</Label>
-              <Input
-                id="codigo"
-                placeholder="Ex: 001, 237, 341"
-                value={codigo}
-                onChange={(e) => setCodigo(e.target.value)}
-                maxLength={10}
-              />
-              <p className="text-xs text-muted-foreground">
-                Use o código oficial do banco (geralmente 3 dígitos)
-              </p>
-            </div>
-
             {/* Nome */}
             <div className="space-y-2">
               <Label htmlFor="nome">Nome do Banco *</Label>
@@ -428,9 +535,47 @@ export default function Bancos() {
                 id="nome"
                 placeholder="Ex: Banco do Brasil, Itaú, Nubank"
                 value={nome}
-                onChange={(e) => setNome(e.target.value)}
+                onChange={(e) => handleNomeChange(e.target.value)}
+                autoFocus
               />
+              <p className="text-xs text-muted-foreground">
+                Digite o nome do banco para buscar o código oficial automaticamente
+              </p>
             </div>
+
+            {/* Código */}
+            <div className="space-y-2">
+              <Label htmlFor="codigo">Código</Label>
+              <Input
+                id="codigo"
+                placeholder="Código será preenchido automaticamente"
+                value={codigo}
+                onChange={(e) => setCodigo(e.target.value)}
+                maxLength={10}
+                disabled={!editando && codigoOficialEncontrado}
+              />
+              {codigoOficialEncontrado && (
+                <p className="text-xs text-green-600 dark:text-green-400">
+                  ✓ Código oficial BACEN encontrado
+                </p>
+              )}
+              {!codigoOficialEncontrado && codigo && (
+                <p className="text-xs text-muted-foreground">
+                  Código customizado
+                </p>
+              )}
+            </div>
+
+            {/* Alerta de banco não oficial */}
+            {mostrarAlertaCustomizado && !codigoOficialEncontrado && (
+              <Alert className="bg-yellow-50 border-yellow-200 dark:bg-yellow-950">
+                <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                <AlertDescription className="text-yellow-800 dark:text-yellow-200">
+                  <strong>Banco Inexistente:</strong> Este banco não consta na lista oficial BACEN.
+                  Deseja cadastrar mesmo assim? Um código customizado será gerado automaticamente.
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
 
           <DialogFooter>
@@ -441,14 +586,14 @@ export default function Bancos() {
             >
               Cancelar
             </Button>
-            <Button onClick={handleSalvar} disabled={salvando}>
+            <Button onClick={() => handleSalvar(true)} disabled={salvando}>
               {salvando ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Salvando...
                 </>
               ) : (
-                editando ? 'Atualizar' : 'Adicionar'
+                editando ? 'Atualizar' : (mostrarAlertaCustomizado ? 'Cadastrar Mesmo Assim' : 'Adicionar')
               )}
             </Button>
           </DialogFooter>
