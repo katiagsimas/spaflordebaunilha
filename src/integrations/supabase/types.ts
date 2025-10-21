@@ -418,31 +418,31 @@ export type Database = {
       }
       contas_receber_comprovantes: {
         Row: {
-          arquivo_nome: string
-          arquivo_tamanho: number | null
-          arquivo_tipo: string | null
-          arquivo_url: string
           created_at: string | null
           id: string
+          nome_arquivo: string
           pagamento_id: string
+          tamanho_bytes: number | null
+          tipo_arquivo: string | null
+          url_storage: string
         }
         Insert: {
-          arquivo_nome: string
-          arquivo_tamanho?: number | null
-          arquivo_tipo?: string | null
-          arquivo_url: string
           created_at?: string | null
           id?: string
+          nome_arquivo: string
           pagamento_id: string
+          tamanho_bytes?: number | null
+          tipo_arquivo?: string | null
+          url_storage: string
         }
         Update: {
-          arquivo_nome?: string
-          arquivo_tamanho?: number | null
-          arquivo_tipo?: string | null
-          arquivo_url?: string
           created_at?: string | null
           id?: string
+          nome_arquivo?: string
           pagamento_id?: string
+          tamanho_bytes?: number | null
+          tipo_arquivo?: string | null
+          url_storage?: string
         }
         Relationships: [
           {
@@ -458,8 +458,13 @@ export type Database = {
         Row: {
           banco_id: string
           created_at: string
+          data_estorno: string | null
           data_pagamento: string
+          desconto: number | null
+          estornado: boolean | null
           id: string
+          juros: number | null
+          motivo_estorno: string | null
           observacao: string | null
           parcela_id: string
           tipo_documento_id: string
@@ -469,8 +474,13 @@ export type Database = {
         Insert: {
           banco_id: string
           created_at?: string
+          data_estorno?: string | null
           data_pagamento: string
+          desconto?: number | null
+          estornado?: boolean | null
           id?: string
+          juros?: number | null
+          motivo_estorno?: string | null
           observacao?: string | null
           parcela_id: string
           tipo_documento_id: string
@@ -480,8 +490,13 @@ export type Database = {
         Update: {
           banco_id?: string
           created_at?: string
+          data_estorno?: string | null
           data_pagamento?: string
+          desconto?: number | null
+          estornado?: boolean | null
           id?: string
+          juros?: number | null
+          motivo_estorno?: string | null
           observacao?: string | null
           parcela_id?: string
           tipo_documento_id?: string
@@ -532,7 +547,9 @@ export type Database = {
           juros: number | null
           numero_parcela: number
           observacao: string | null
+          observacao_interna: string | null
           status: string
+          tags: string[] | null
           updated_at: string | null
           valor_pago: number | null
           valor_parcela: number
@@ -551,7 +568,9 @@ export type Database = {
           juros?: number | null
           numero_parcela: number
           observacao?: string | null
+          observacao_interna?: string | null
           status?: string
+          tags?: string[] | null
           updated_at?: string | null
           valor_pago?: number | null
           valor_parcela: number
@@ -570,7 +589,9 @@ export type Database = {
           juros?: number | null
           numero_parcela?: number
           observacao?: string | null
+          observacao_interna?: string | null
           status?: string
+          tags?: string[] | null
           updated_at?: string | null
           valor_pago?: number | null
           valor_parcela?: number
@@ -1295,6 +1316,38 @@ export type Database = {
         }
         Relationships: []
       }
+      tags_contas_receber: {
+        Row: {
+          cor: string
+          created_at: string | null
+          id: string
+          nome: string
+          usuario_id: string
+        }
+        Insert: {
+          cor?: string
+          created_at?: string | null
+          id?: string
+          nome: string
+          usuario_id: string
+        }
+        Update: {
+          cor?: string
+          created_at?: string | null
+          id?: string
+          nome?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tags_contas_receber_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tipos_documento: {
         Row: {
           ativo: boolean | null
@@ -1435,6 +1488,19 @@ export type Database = {
       }
     }
     Views: {
+      vw_contas_receber_dashboard: {
+        Row: {
+          parcelas_abertas: number | null
+          parcelas_atrasadas: number | null
+          parcelas_pagas: number | null
+          total_a_receber: number | null
+          total_atrasado: number | null
+          total_recebido: number | null
+          usuario_id: string | null
+          vencendo_hoje: number | null
+        }
+        Relationships: []
+      }
       vw_contas_receber_parcelas: {
         Row: {
           banco_id: string | null
@@ -1514,6 +1580,15 @@ export type Database = {
       calcular_custo_pre_preparo: {
         Args: { preparo_id: string }
         Returns: undefined
+      }
+      calcular_juros_atraso: {
+        Args: {
+          p_data_pagamento: string
+          p_data_vencimento: string
+          p_taxa_juros_dia?: number
+          p_valor_parcela: number
+        }
+        Returns: number
       }
       criar_categorias_plano_padrao: {
         Args: { p_user_id: string }
