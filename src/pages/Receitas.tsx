@@ -290,7 +290,7 @@ export default function Receitas() {
                   <TableRow 
                     key={receita.id}
                     className={cn(
-                      temAlerta && "bg-red-50/50 dark:bg-red-950/20 animate-pulse"
+                      temAlerta && "bg-red-50/50 dark:bg-red-950/20"
                     )}
                   >
                     <TableCell className={cn(
