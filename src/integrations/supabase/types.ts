@@ -416,6 +416,71 @@ export type Database = {
           },
         ]
       }
+      contas_receber_pagamentos: {
+        Row: {
+          banco_id: string
+          created_at: string
+          data_pagamento: string
+          id: string
+          observacao: string | null
+          parcela_id: string
+          tipo_documento_id: string
+          updated_at: string
+          valor_pago: number
+        }
+        Insert: {
+          banco_id: string
+          created_at?: string
+          data_pagamento: string
+          id?: string
+          observacao?: string | null
+          parcela_id: string
+          tipo_documento_id: string
+          updated_at?: string
+          valor_pago: number
+        }
+        Update: {
+          banco_id?: string
+          created_at?: string
+          data_pagamento?: string
+          id?: string
+          observacao?: string | null
+          parcela_id?: string
+          tipo_documento_id?: string
+          updated_at?: string
+          valor_pago?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contas_receber_pagamentos_banco_id_fkey"
+            columns: ["banco_id"]
+            isOneToOne: false
+            referencedRelation: "bancos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contas_receber_pagamentos_parcela_id_fkey"
+            columns: ["parcela_id"]
+            isOneToOne: false
+            referencedRelation: "contas_receber_parcelas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contas_receber_pagamentos_parcela_id_fkey"
+            columns: ["parcela_id"]
+            isOneToOne: false
+            referencedRelation: "vw_contas_receber_parcelas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contas_receber_pagamentos_tipo_documento_id_fkey"
+            columns: ["tipo_documento_id"]
+            isOneToOne: false
+            referencedRelation: "tipos_documento"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contas_receber_parcelas: {
         Row: {
           conta_receber_id: string

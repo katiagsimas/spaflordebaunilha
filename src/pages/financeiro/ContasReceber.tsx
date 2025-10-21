@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
+import DarBaixaDialog from '@/components/financeiro/DarBaixaDialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -31,6 +32,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
@@ -48,11 +50,9 @@ export default function ContasReceber() {
   const [termoBusca, setTermoBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('todos');
 
-  // Modal baixa
-  const [modalBaixaAberto, setModalBaixaAberto] = useState(false);
-  const [parcelaBaixa, setParcelaBaixa] = useState<any>(null);
-  const [valorPago, setValorPago] = useState('');
-  const [dataPagamento, setDataPagamento] = useState(new Date().toISOString().split('T')[0]);
+  // Modal de baixa
+  const [darBaixaOpen, setDarBaixaOpen] = useState(false);
+  const [parcelaSelecionada, setParcelaSelecionada] = useState<any>(null);
 
   useEffect(() => {
     fetchParcelas();
@@ -104,74 +104,28 @@ export default function ContasReceber() {
     return true;
   });
 
-  const handleAbrirBaixa = (parcela: any) => {
-    setParcelaBaixa(parcela);
-    setValorPago(parcela.valor_parcela.toString().replace('.', ','));
-    setDataPagamento(new Date().toISOString().split('T')[0]);
-    setModalBaixaAberto(true);
-  };
-
-  const handleDarBaixa = async () => {
+  const handleExcluir = async (contaId: string) => {
     try {
-      const valor = parseFloat(valorPago.replace(',', '.'));
-      if (!valor || valor <= 0) {
-        toast({
-          title: 'Erro',
-          description: 'Informe um valor válido!',
-          variant: 'destructive',
-        });
-        return;
-      }
+      if (!confirm('Deseja realmente excluir esta conta e todas as suas parcelas?')) return;
 
       const { error } = await supabase
-        .from('contas_receber_parcelas')
-        .update({
-          valor_pago: valor,
-          data_pagamento: dataPagamento,
-        })
-        .eq('id', parcelaBaixa.id);
-
-      if (error) throw error;
-
-      toast({
-        title: '✅ Baixa realizada',
-        description: 'Pagamento registrado com sucesso!',
-      });
-
-      setModalBaixaAberto(false);
-      fetchParcelas();
-    } catch (error) {
-      console.error('Erro ao dar baixa:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível registrar o pagamento.',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleDeletar = async (id: string) => {
-    try {
-      if (!confirm('Deletar esta parcela?')) return;
-
-      const { error } = await supabase
-        .from('contas_receber_parcelas')
+        .from('contas_receber')
         .delete()
-        .eq('id', id);
+        .eq('id', contaId);
 
       if (error) throw error;
 
       toast({
-        title: '✅ Deletado',
-        description: 'Parcela deletada com sucesso!',
+        title: '✅ Conta excluída',
+        description: 'Conta e parcelas excluídas com sucesso!',
       });
 
       fetchParcelas();
     } catch (error) {
-      console.error('Erro ao deletar:', error);
+      console.error('Erro ao excluir:', error);
       toast({
         title: 'Erro',
-        description: 'Não foi possível deletar a parcela.',
+        description: 'Não foi possível excluir a conta.',
         variant: 'destructive',
       });
     }
@@ -321,6 +275,17 @@ export default function ContasReceber() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem 
+                          onClick={() => {
+                            setParcelaSelecionada(parcela);
+                            setDarBaixaOpen(true);
+                          }}
+                          disabled={parcela.status === 'pago'}
+                        >
+                          <DollarSign className="mr-2 h-4 w-4" />
+                          Dar Baixa
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => navigate(`/financeiro/contas-receber/detalhes/${parcela.conta_receber_id}`)}>
                           <Eye className="mr-2 h-4 w-4" />
                           Detalhes
@@ -329,12 +294,9 @@ export default function ContasReceber() {
                           <Edit className="mr-2 h-4 w-4" />
                           Editar
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleAbrirBaixa(parcela)}>
-                          <DollarSign className="mr-2 h-4 w-4 text-green-600" />
-                          Dar Baixa
-                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
                         <DropdownMenuItem 
-                          onClick={() => handleDeletar(parcela.id)}
+                          onClick={() => handleExcluir(parcela.conta_receber_id)}
                           className="text-red-600"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
@@ -351,69 +313,12 @@ export default function ContasReceber() {
       </div>
 
       {/* Modal Dar Baixa */}
-      <Dialog open={modalBaixaAberto} onOpenChange={setModalBaixaAberto}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Dar Baixa na Parcela</DialogTitle>
-            <DialogDescription>
-              Registre o pagamento da parcela
-            </DialogDescription>
-          </DialogHeader>
-
-          {parcelaBaixa && (
-            <div className="space-y-4 py-4">
-              <div className="p-4 bg-muted rounded-lg space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Cliente:</span>
-                  <span className="font-medium">{parcelaBaixa.cliente_nome}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Parcela:</span>
-                  <span className="font-medium">{parcelaBaixa.numero_parcela}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Valor:</span>
-                  <span className="font-medium text-green-600">
-                    {formatarValor(parcelaBaixa.valor_parcela)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="valor-pago">Valor Pago *</Label>
-                <Input
-                  id="valor-pago"
-                  placeholder="Ex: 100,00"
-                  value={valorPago}
-                  onChange={(e) => {
-                    const valor = e.target.value.replace(/[^\d,]/g, '');
-                    setValorPago(valor);
-                  }}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="data-pag">Data do Pagamento *</Label>
-                <Input
-                  id="data-pag"
-                  type="date"
-                  value={dataPagamento}
-                  onChange={(e) => setDataPagamento(e.target.value)}
-                />
-              </div>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setModalBaixaAberto(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleDarBaixa}>
-              Confirmar Baixa
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <DarBaixaDialog
+        open={darBaixaOpen}
+        onOpenChange={setDarBaixaOpen}
+        parcela={parcelaSelecionada}
+        onSuccess={fetchParcelas}
+      />
     </div>
   );
 }

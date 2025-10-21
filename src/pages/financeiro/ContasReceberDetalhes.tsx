@@ -23,6 +23,7 @@ export default function ContasReceberDetalhes() {
 
   const [conta, setConta] = useState(null);
   const [parcelas, setParcelas] = useState([]);
+  const [pagamentos, setPagamentos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -88,6 +89,32 @@ export default function ContasReceberDetalhes() {
       console.log('Parcelas carregadas:', dataParcelas?.length);
       
       setParcelas(dataParcelas || []);
+
+      // Buscar histórico de pagamentos
+      if (dataParcelas && dataParcelas.length > 0) {
+        const parcelaIds = dataParcelas.map(p => p.id);
+        
+        const { data: dataPagamentos, error: errorPagamentos } = await supabase
+          .from('contas_receber_pagamentos')
+          .select(`
+            *,
+            banco:bancos (
+              codigo,
+              nome
+            ),
+            tipo_documento:tipos_documento (
+              descricao
+            )
+          `)
+          .in('parcela_id', parcelaIds)
+          .order('data_pagamento', { ascending: false });
+
+        if (errorPagamentos) throw errorPagamentos;
+        
+        console.log('Pagamentos carregados:', dataPagamentos?.length);
+        
+        setPagamentos(dataPagamentos || []);
+      }
 
     } catch (error) {
       console.error('Erro ao buscar detalhes:', error);
@@ -414,6 +441,97 @@ export default function ContasReceberDetalhes() {
           )}
         </CardContent>
       </Card>
+
+      {/* Histórico Detalhado de Pagamentos */}
+      {pagamentos.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Histórico Detalhado de Pagamentos</CardTitle>
+            <CardDescription>
+              Todos os pagamentos realizados para cada parcela
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {parcelas
+                .filter(parcela => {
+                  const pagamentosDaParcela = pagamentos.filter(p => p.parcela_id === parcela.id);
+                  return pagamentosDaParcela.length > 0;
+                })
+                .map(parcela => {
+                  const pagamentosDaParcela = pagamentos.filter(p => p.parcela_id === parcela.id);
+                  
+                  return (
+                    <div key={parcela.id} className="border rounded-lg p-4 space-y-3">
+                      <div className="flex items-center justify-between pb-2 border-b">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-semibold">
+                            Parcela {parcela.numero_parcela} de {conta.numero_parcelas}
+                          </span>
+                          {getBadgeStatus(parcela.status)}
+                        </div>
+                        <span className="text-sm text-muted-foreground">
+                          Vencimento: {formatarData(parcela.data_vencimento)}
+                        </span>
+                      </div>
+
+                      <div className="space-y-2">
+                        {pagamentosDaParcela.map((pagamento, index) => (
+                          <div key={pagamento.id} className="flex items-center justify-between p-3 bg-muted/50 rounded">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium">
+                                  Pagamento #{index + 1}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {formatarData(pagamento.data_pagamento)}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                                <span>
+                                  🏦 {pagamento.banco?.codigo} - {pagamento.banco?.nome}
+                                </span>
+                                <span>
+                                  📄 {pagamento.tipo_documento?.descricao}
+                                </span>
+                              </div>
+                              {pagamento.observacao && (
+                                <p className="text-xs text-muted-foreground italic">
+                                  {pagamento.observacao}
+                                </p>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              <div className="font-semibold text-green-600">
+                                {formatarValor(pagamento.valor_pago)}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {new Date(pagamento.created_at).toLocaleString('pt-BR', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex justify-between pt-2 border-t text-sm">
+                        <span className="text-muted-foreground">Total pago nesta parcela:</span>
+                        <span className="font-semibold text-green-600">
+                          {formatarValor(parcela.valor_pago || 0)} de {formatarValor(parcela.valor_parcela)}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Observações */}
       {parcelas.some(p => p.observacao) && (
