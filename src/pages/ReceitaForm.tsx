@@ -736,7 +736,7 @@ export default function ReceitaForm() {
                           />
                         </TableCell>
                         <TableCell className="text-sm">
-                          R$ {ingrediente.custoUnitario.toFixed(4)}
+                          R$ {ingrediente.custoReceita.toFixed(2)}
                         </TableCell>
                         <TableCell>
                           <Button
