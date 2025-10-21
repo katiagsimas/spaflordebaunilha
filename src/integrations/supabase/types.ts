@@ -18,6 +18,8 @@ export type Database = {
         Row: {
           codigo: string
           created_at: string
+          e_banco_oficial: boolean | null
+          e_customizado: boolean | null
           id: string
           nome: string
           saldo_inicial: number
@@ -28,6 +30,8 @@ export type Database = {
         Insert: {
           codigo: string
           created_at?: string
+          e_banco_oficial?: boolean | null
+          e_customizado?: boolean | null
           id?: string
           nome: string
           saldo_inicial?: number
@@ -38,6 +42,8 @@ export type Database = {
         Update: {
           codigo?: string
           created_at?: string
+          e_banco_oficial?: boolean | null
+          e_customizado?: boolean | null
           id?: string
           nome?: string
           saldo_inicial?: number
