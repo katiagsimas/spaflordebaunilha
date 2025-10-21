@@ -38,7 +38,9 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, MoreVertical, Eye, DollarSign, Edit, Trash2, Info, Filter, Calendar } from 'lucide-react';
+import { Plus, MoreVertical, Eye, DollarSign, Edit, Trash2, Info, Filter, Calendar, ChevronDown, X, Download } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import * as XLSX from 'xlsx';
 
 export default function ContasReceber() {
   const navigate = useNavigate();
@@ -56,6 +58,14 @@ export default function ContasReceber() {
   const [dataPagamentoFinal, setDataPagamentoFinal] = useState<Date | undefined>();
   const [dataVencimentoInicial, setDataVencimentoInicial] = useState<Date | undefined>();
   const [dataVencimentoFinal, setDataVencimentoFinal] = useState<Date | undefined>();
+
+  // Mais opções de busca
+  const [maisOpcoesOpen, setMaisOpcoesOpen] = useState(false);
+  const [filtroPlanoContas, setFiltroPlanoContas] = useState('');
+  const [filtroCliente, setFiltroCliente] = useState('');
+  const [filtroCategoria, setFiltroCategoria] = useState('');
+  const [filtroTipoDoc, setFiltroTipoDoc] = useState('');
+  const [filtroBanco, setFiltroBanco] = useState('');
 
   // Modal de baixa
   const [darBaixaOpen, setDarBaixaOpen] = useState(false);
@@ -131,8 +141,77 @@ export default function ContasReceber() {
       if (dataVencimento > dataVencimentoFinal) return false;
     }
 
+    // Mais opções de busca
+    if (filtroPlanoContas && p.plano_contas_descricao) {
+      if (!p.plano_contas_descricao.toLowerCase().includes(filtroPlanoContas.toLowerCase())) {
+        return false;
+      }
+    }
+    if (filtroCliente && p.cliente_nome) {
+      if (!p.cliente_nome.toLowerCase().includes(filtroCliente.toLowerCase())) {
+        return false;
+      }
+    }
+    if (filtroCategoria && p.plano_contas_codigo) {
+      if (!p.plano_contas_codigo.toLowerCase().includes(filtroCategoria.toLowerCase())) {
+        return false;
+      }
+    }
+    if (filtroTipoDoc && p.tipo_documento_descricao) {
+      if (!p.tipo_documento_descricao.toLowerCase().includes(filtroTipoDoc.toLowerCase())) {
+        return false;
+      }
+    }
+    if (filtroBanco && p.banco_nome) {
+      if (!p.banco_nome.toLowerCase().includes(filtroBanco.toLowerCase())) {
+        return false;
+      }
+    }
+
     return true;
   });
+
+  const limparFiltros = () => {
+    setFiltroStatus('todos');
+    setDataEmissaoInicial(undefined);
+    setDataEmissaoFinal(undefined);
+    setDataPagamentoInicial(undefined);
+    setDataPagamentoFinal(undefined);
+    setDataVencimentoInicial(undefined);
+    setDataVencimentoFinal(undefined);
+    setFiltroPlanoContas('');
+    setFiltroCliente('');
+    setFiltroCategoria('');
+    setFiltroTipoDoc('');
+    setFiltroBanco('');
+  };
+
+  const exportarParaExcel = () => {
+    const dadosExportacao = parcelasFiltradas.map(p => ({
+      'Documento': p.tipo_documento_descricao || 'N/A',
+      'Emissão': formatarData(p.data_emissao),
+      'Plano Contas': `${p.plano_contas_codigo} - ${p.plano_contas_descricao}`,
+      'Cliente': p.cliente_nome || 'N/A',
+      'Vencimento': formatarData(p.data_vencimento),
+      'Valor Total': p.valor_total,
+      'Parcela': `${p.numero_parcela} de ${p.numero_parcelas}`,
+      'Valor a Pagar': p.valor_parcela,
+      'Valor Pago': p.valor_pago || 0,
+      'Data Pagamento': formatarData(p.data_pagamento),
+      'Status': p.status,
+      'Banco': p.banco_nome || 'N/A',
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(dadosExportacao);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Contas a Receber');
+    XLSX.writeFile(wb, `contas-receber-${new Date().toISOString().split('T')[0]}.xlsx`);
+    
+    toast({
+      title: '✅ Exportado',
+      description: 'Dados exportados para Excel com sucesso!',
+    });
+  };
 
   const handleExcluir = async (contaId: string) => {
     try {
@@ -340,6 +419,83 @@ export default function ContasReceber() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Mais Opções de Busca + Limpar + Exportar */}
+      <div className="flex flex-wrap gap-2">
+        <Collapsible open={maisOpcoesOpen} onOpenChange={setMaisOpcoesOpen}>
+          <CollapsibleTrigger asChild>
+            <Button variant="outline" size="sm">
+              <Filter className="mr-2 h-4 w-4" />
+              Mais opções de Busca
+              <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${maisOpcoesOpen ? 'rotate-180' : ''}`} />
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 p-4 border rounded-lg bg-muted/30">
+              <div className="space-y-2">
+                <Label className="text-sm">Plano de Contas</Label>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border rounded-md text-sm"
+                  placeholder="Buscar plano..."
+                  value={filtroPlanoContas}
+                  onChange={(e) => setFiltroPlanoContas(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm">Cliente</Label>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border rounded-md text-sm"
+                  placeholder="Buscar cliente..."
+                  value={filtroCliente}
+                  onChange={(e) => setFiltroCliente(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm">Categoria do Plano de Contas</Label>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border rounded-md text-sm"
+                  placeholder="Buscar categoria..."
+                  value={filtroCategoria}
+                  onChange={(e) => setFiltroCategoria(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm">Tipo de Documento</Label>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border rounded-md text-sm"
+                  placeholder="Buscar tipo..."
+                  value={filtroTipoDoc}
+                  onChange={(e) => setFiltroTipoDoc(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm">Banco</Label>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border rounded-md text-sm"
+                  placeholder="Buscar banco..."
+                  value={filtroBanco}
+                  onChange={(e) => setFiltroBanco(e.target.value)}
+                />
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        <Button variant="outline" size="sm" onClick={limparFiltros}>
+          <X className="mr-2 h-4 w-4" />
+          Limpar Filtros
+        </Button>
+
+        <Button variant="outline" size="sm" onClick={exportarParaExcel}>
+          <Download className="mr-2 h-4 w-4" />
+          Exportar para Excel
+        </Button>
       </div>
 
       <div className="text-sm text-muted-foreground">
