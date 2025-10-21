@@ -470,6 +470,44 @@ const Encomendas = () => {
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="data_pedido">Data do Pedido *</Label>
+                    <Input
+                      id="data_pedido"
+                      type="date"
+                      required
+                      value={formData.data_pedido}
+                      onChange={(e) =>
+                        setFormData({ ...formData, data_pedido: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="data_entrega">Data de Entrega *</Label>
+                    <Input
+                      id="data_entrega"
+                      type="date"
+                      required
+                      value={formData.data_entrega}
+                      onChange={(e) =>
+                        setFormData({ ...formData, data_entrega: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="hora_entrega">Hora da Entrega</Label>
+                    <Input
+                      id="hora_entrega"
+                      type="time"
+                      value={formData.hora_entrega}
+                      onChange={(e) =>
+                        setFormData({ ...formData, hora_entrega: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="cliente">Nome do Cliente *</Label>
@@ -530,18 +568,6 @@ const Encomendas = () => {
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="data_pedido">Data do Pedido *</Label>
-                    <Input
-                      id="data_pedido"
-                      type="date"
-                      required
-                      value={formData.data_pedido}
-                      onChange={(e) =>
-                        setFormData({ ...formData, data_pedido: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
                     <Label htmlFor="status">Status</Label>
                     <Select
                       value={formData.status}
@@ -561,32 +587,6 @@ const Encomendas = () => {
                         <SelectItem value="cancelado">Cancelado</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="data_entrega">Data de Entrega *</Label>
-                    <Input
-                      id="data_entrega"
-                      type="date"
-                      required
-                      value={formData.data_entrega}
-                      onChange={(e) =>
-                        setFormData({ ...formData, data_entrega: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="hora_entrega">Hora da Entrega</Label>
-                    <Input
-                      id="hora_entrega"
-                      type="time"
-                      value={formData.hora_entrega}
-                      onChange={(e) =>
-                        setFormData({ ...formData, hora_entrega: e.target.value })
-                      }
-                    />
                   </div>
                 </div>
 
