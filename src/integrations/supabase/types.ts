@@ -134,6 +134,45 @@ export type Database = {
         }
         Relationships: []
       }
+      categorias_plano_contas: {
+        Row: {
+          ativo: boolean | null
+          codigo: string
+          created_at: string | null
+          descricao: string
+          faixa_dre: string
+          id: string
+          indicador: string
+          ordem: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ativo?: boolean | null
+          codigo: string
+          created_at?: string | null
+          descricao: string
+          faixa_dre: string
+          id?: string
+          indicador: string
+          ordem?: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ativo?: boolean | null
+          codigo?: string
+          created_at?: string | null
+          descricao?: string
+          faixa_dre?: string
+          id?: string
+          indicador?: string
+          ordem?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       clientes: {
         Row: {
           cep: string | null
@@ -1132,6 +1171,10 @@ export type Database = {
     Functions: {
       calcular_custo_pre_preparo: {
         Args: { preparo_id: string }
+        Returns: undefined
+      }
+      criar_categorias_plano_padrao: {
+        Args: { p_user_id: string }
         Returns: undefined
       }
       has_role: {
