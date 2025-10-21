@@ -314,8 +314,11 @@ export type Database = {
           data_recebimento: string | null
           data_vencimento: string
           descricao: string
+          dia_vencimento_recorrente: number | null
+          e_recorrente: boolean | null
           id: string
           numero_documento: string | null
+          numero_parcelas: number
           observacoes: string | null
           plano_conta_id: string | null
           status: string
@@ -335,8 +338,11 @@ export type Database = {
           data_recebimento?: string | null
           data_vencimento: string
           descricao: string
+          dia_vencimento_recorrente?: number | null
+          e_recorrente?: boolean | null
           id?: string
           numero_documento?: string | null
+          numero_parcelas?: number
           observacoes?: string | null
           plano_conta_id?: string | null
           status?: string
@@ -356,8 +362,11 @@ export type Database = {
           data_recebimento?: string | null
           data_vencimento?: string
           descricao?: string
+          dia_vencimento_recorrente?: number | null
+          e_recorrente?: boolean | null
           id?: string
           numero_documento?: string | null
+          numero_parcelas?: number
           observacoes?: string | null
           plano_conta_id?: string | null
           status?: string
@@ -379,6 +388,62 @@ export type Database = {
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contas_receber_parcelas: {
+        Row: {
+          conta_receber_id: string
+          created_at: string | null
+          data_recebimento: string | null
+          data_vencimento: string
+          desconto: number | null
+          id: string
+          juros: number | null
+          numero_parcela: number
+          observacao: string | null
+          status: string
+          updated_at: string | null
+          valor_parcela: number
+          valor_recebido: number | null
+        }
+        Insert: {
+          conta_receber_id: string
+          created_at?: string | null
+          data_recebimento?: string | null
+          data_vencimento: string
+          desconto?: number | null
+          id?: string
+          juros?: number | null
+          numero_parcela: number
+          observacao?: string | null
+          status?: string
+          updated_at?: string | null
+          valor_parcela: number
+          valor_recebido?: number | null
+        }
+        Update: {
+          conta_receber_id?: string
+          created_at?: string | null
+          data_recebimento?: string | null
+          data_vencimento?: string
+          desconto?: number | null
+          id?: string
+          juros?: number | null
+          numero_parcela?: number
+          observacao?: string | null
+          status?: string
+          updated_at?: string | null
+          valor_parcela?: number
+          valor_recebido?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contas_receber_parcelas_conta_receber_id_fkey"
+            columns: ["conta_receber_id"]
+            isOneToOne: false
+            referencedRelation: "contas_receber"
             referencedColumns: ["id"]
           },
         ]
@@ -1234,6 +1299,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      atualizar_status_parcelas_vencidas: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       calcular_custo_pre_preparo: {
         Args: { preparo_id: string }
         Returns: undefined

@@ -42,6 +42,8 @@ import Ingredientes from "./pages/precificacao/Ingredientes";
 import Embalagens from "./pages/precificacao/Embalagens";
 import PrePreparos from "./pages/precificacao/PrePreparos";
 import PrePreparoForm from "./pages/precificacao/PrePreparoForm";
+import ContasReceber from "./pages/financeiro/ContasReceber";
+import ContasReceberForm from "./pages/financeiro/ContasReceberForm";
 import AuthLogin from "./pages/auth/Login";
 import SignUp from "./pages/auth/SignUp";
 import ForgotPassword from "./pages/auth/ForgotPassword";
@@ -136,6 +138,11 @@ const App = () => (
           <Route path="/precificacao/pre-preparos" element={<ProtectedRoute><Layout><PrePreparos /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/pre-preparos/novo" element={<ProtectedRoute><Layout><PrePreparoForm /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/pre-preparos/:id" element={<ProtectedRoute><Layout><PrePreparoForm /></Layout></ProtectedRoute>} />
+          
+          {/* Financeiro - Contas a Receber */}
+          <Route path="/financeiro/contas-receber" element={<ProtectedRoute><Layout><ContasReceber /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/contas-receber/nova" element={<ProtectedRoute><Layout><ContasReceberForm /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/contas-receber/:id" element={<ProtectedRoute><Layout><ContasReceberForm /></Layout></ProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
           </Routes>
