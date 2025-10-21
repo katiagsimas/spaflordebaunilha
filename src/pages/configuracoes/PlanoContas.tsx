@@ -449,20 +449,17 @@ export default function PlanoContas() {
             </div>
           </div>
 
-          {/* Categoria */}
+          {/* Tipo */}
           <div className="space-y-2">
-            <Label>Categoria</Label>
-            <Select value={filtroCategoria} onValueChange={setFiltroCategoria}>
+            <Label>Tipo</Label>
+            <Select value={filtroTipo} onValueChange={setFiltroTipo}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="todos">Todas</SelectItem>
-                {categorias.map(cat => (
-                  <SelectItem key={cat.id} value={cat.id}>
-                    {cat.codigo} - {cat.descricao}
-                  </SelectItem>
-                ))}
+                <SelectItem value="todos">Todos</SelectItem>
+                <SelectItem value="padrao">Padrão</SelectItem>
+                <SelectItem value="customizado">Customizados</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -482,17 +479,20 @@ export default function PlanoContas() {
             </Select>
           </div>
 
-          {/* Tipo */}
+          {/* Categoria */}
           <div className="space-y-2">
-            <Label>Tipo</Label>
-            <Select value={filtroTipo} onValueChange={setFiltroTipo}>
+            <Label>Categoria</Label>
+            <Select value={filtroCategoria} onValueChange={setFiltroCategoria}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="todos">Todos</SelectItem>
-                <SelectItem value="padrao">Padrão</SelectItem>
-                <SelectItem value="customizado">Customizados</SelectItem>
+                <SelectItem value="todos">Todas</SelectItem>
+                {categorias.map(cat => (
+                  <SelectItem key={cat.id} value={cat.id}>
+                    {cat.codigo} - {cat.descricao}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
