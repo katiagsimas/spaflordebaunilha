@@ -115,7 +115,7 @@ export default function Precificacao() {
 
   const getUnidadeMedidaNome = (unidadeId: string) => {
     const unidade = unidades.find(u => u.id === unidadeId);
-    return unidade ? unidade.sigla : unidadeId;
+    return unidade ? unidade.nome : unidadeId;
   };
 
   const handleEdit = (id: string) => {
