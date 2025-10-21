@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
@@ -97,11 +98,46 @@ export default function ReceitaForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [receitas, setReceitas] = useLocalStorage<Receita[]>("receitas", []);
-  const [ingredientesCadastrados, setIngredientesCadastrados] = useLocalStorage<Ingrediente[]>("ingredientes", []);
+  const [ingredientesCadastrados, setIngredientesCadastrados] = useState<any[]>([]);
   const [embalagensCadastradas] = useLocalStorage<Embalagem[]>("embalagens", []);
   const [custosFixos] = useLocalStorage<CustoFixo[]>("custosFixos", []);
   const { categorias } = useCategorias();
   const { unidades } = useUnidadesMedida();
+
+  // Buscar ingredientes do Supabase
+  useEffect(() => {
+    const fetchIngredientes = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data, error } = await supabase
+          .from('ingredientes')
+          .select(`
+            *,
+            tipo_insumo:tipos_insumos (
+              id,
+              descricao,
+              quantidade_embalagem,
+              pre_preparo_id,
+              unidade_medida:unidades_medida (
+                nome,
+                sigla
+              )
+            )
+          `)
+          .eq('usuario_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setIngredientesCadastrados(data || []);
+      } catch (error) {
+        console.error('Erro ao buscar ingredientes:', error);
+      }
+    };
+
+    fetchIngredientes();
+  }, []);
 
   const [formData, setFormData] = useState({
     nome: "",
@@ -196,11 +232,11 @@ export default function ReceitaForm() {
       novosIngredientes[index] = calcularCustos({
         ...novosIngredientes[index],
         ingredienteId: ingredienteSelecionado.id,
-        ingrediente: ingredienteSelecionado.nome,
-        marca: ingredienteSelecionado.marca,
-        qtdeEmbalagem: ingredienteSelecionado.quantidade,
-        unidadeMedida: ingredienteSelecionado.unidadeMedida,
-        precoEmbalagem: ingredienteSelecionado.preco,
+        ingrediente: ingredienteSelecionado.tipo_insumo?.descricao || "",
+        marca: ingredienteSelecionado.marca || "",
+        qtdeEmbalagem: ingredienteSelecionado.tipo_insumo?.quantidade_embalagem || 0,
+        unidadeMedida: ingredienteSelecionado.tipo_insumo?.unidade_medida?.sigla || "",
+        precoEmbalagem: ingredienteSelecionado.preco || 0,
       });
       setIngredientes(novosIngredientes);
     }
@@ -636,11 +672,21 @@ export default function ReceitaForm() {
                     {ingredientes.map((ingrediente, index) => (
                       <TableRow key={ingrediente.id}>
                         <TableCell className="min-w-[300px]">
-                          <Input
-                            placeholder="Ingrediente (a ser implementado)"
-                            disabled
-                            value={ingrediente.ingrediente}
-                          />
+                          <Select
+                            value={ingrediente.ingredienteId}
+                            onValueChange={(value) => handleSelectIngrediente(index, value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione um ingrediente" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {ingredientesCadastrados.map((ing) => (
+                                <SelectItem key={ing.id} value={ing.id}>
+                                  {ing.tipo_insumo?.descricao} {ing.marca ? `- ${ing.marca}` : ''}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </TableCell>
                         <TableCell className="text-sm">{ingrediente.marca}</TableCell>
                         <TableCell className="text-sm">{ingrediente.qtdeEmbalagem || "-"}</TableCell>
