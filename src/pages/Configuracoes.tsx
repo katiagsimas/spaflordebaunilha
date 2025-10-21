@@ -1,4 +1,4 @@
-import { Settings, Tag, FileText, CreditCard, Building2, UserCircle, Ruler, Lock, Package } from "lucide-react";
+import { Settings, Tag, UserCircle, Ruler, Lock, Package } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
@@ -42,44 +42,6 @@ const opcoes = [
     color: "text-cyan-600 bg-cyan-50 dark:bg-cyan-950",
     statusKey: "categorias" as const,
     requiresAdmin: false,
-  },
-  {
-    title: "Bancos",
-    description: "Gerencie contas bancárias",
-    icon: Building2,
-    color: "text-warning bg-warning/10",
-    url: "/configuracoes/bancos",
-    statusKey: "bancos" as const,
-    requiresAdmin: false,
-  },
-  {
-    title: "Tipos de Documento",
-    description: "Configure tipos de documentos",
-    icon: CreditCard,
-    color: "text-success bg-success/10",
-    url: "/configuracoes/tipos-documento",
-    statusKey: "tiposDocumento" as const,
-    requiresAdmin: false,
-  },
-  {
-    title: "Categorias Financeiras",
-    description: "Organize suas finanças por categoria",
-    icon: Tag,
-    color: "text-primary bg-primary/10",
-    url: "/configuracoes/categorias-financeiras",
-    statusKey: null,
-    requiresAdmin: false,
-    readOnlyForNonAdmin: true,
-  },
-  {
-    title: "Planos de Contas",
-    description: "Estrutura contábil do negócio",
-    icon: FileText,
-    color: "text-secondary bg-secondary/10",
-    url: "/configuracoes/plano-contas",
-    statusKey: null,
-    requiresAdmin: false,
-    readOnlyForNonAdmin: true,
   },
 ];
 
@@ -135,7 +97,6 @@ export default function Configuracoes() {
         {opcoes.map((opcao, index) => {
           const Icon = opcao.icon;
           const isRestricted = opcao.requiresAdmin && !isAdmin;
-          const isReadOnly = opcao.readOnlyForNonAdmin && !isAdmin;
           
           return (
             <Card
@@ -175,10 +136,6 @@ export default function Configuracoes() {
                 </CardDescription>
                 <div className="pt-1">
                   {isRestricted ? (
-                    <Badge variant="secondary" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                      👁️ Somente Visualização
-                    </Badge>
-                  ) : isReadOnly ? (
                     <Badge variant="secondary" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
                       👁️ Somente Visualização
                     </Badge>

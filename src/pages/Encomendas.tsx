@@ -20,20 +20,6 @@ import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { useBancos } from "@/hooks/useBancos";
-import { useTiposDocumento } from "@/hooks/useTiposDocumento";
-
-interface TipoDocumento {
-  id: string;
-  codigo: string;
-  descricao: string;
-}
-
-interface Banco {
-  id: string;
-  nome: string;
-  tipo: string;
-}
 
 const statusColors = {
   pendente: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -58,8 +44,6 @@ const Encomendas = () => {
   const { clientes } = useClientes();
   const { receitas } = useReceitas();
   const { unidades } = useUnidadesMedida();
-  const { bancos } = useBancos();
-  const { tiposDocumento } = useTiposDocumento();
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [produtoDialogOpen, setProdutoDialogOpen] = useState(false);
@@ -98,17 +82,9 @@ const Encomendas = () => {
     topo_idade: "",
     topo_obs: "",
     topo_imagens: [] as string[],
-    pagamentos: [] as Array<{ valor: number; data: string; tipo_pagamento: string; banco_id?: string; pago?: boolean }>,
   });
 
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [novoPagamento, setNovoPagamento] = useState({ 
-    valor: 0, 
-    data: new Date().toISOString().split("T")[0],
-    tipo_pagamento: "",
-    banco_id: "",
-    pago: false
-  });
 
   const [produtoForm, setProdutoForm] = useState({
     receita_id: "",
@@ -136,20 +112,6 @@ const Encomendas = () => {
     return valorTotalProdutos - valorDesconto + formData.taxa_entrega + formData.topo_bolo + formData.outros;
   }, [valorTotalProdutos, valorDesconto, formData.taxa_entrega, formData.topo_bolo, formData.outros]);
 
-  const totalPago = useMemo(() => {
-    return formData.pagamentos.reduce((total, pag, index) => {
-      // Para o sinal (index 0), só conta se estiver marcado como pago
-      if (index === 0) {
-        return total + (pag.pago ? pag.valor : 0);
-      }
-      // Para os demais pagamentos, sempre conta
-      return total + pag.valor;
-    }, 0);
-  }, [formData.pagamentos]);
-
-  const saldoRestante = useMemo(() => {
-    return valorFinal - totalPago;
-  }, [valorFinal, totalPago]);
 
   const resetForm = () => {
     setFormData({
@@ -174,11 +136,9 @@ const Encomendas = () => {
       topo_idade: "",
       topo_obs: "",
       topo_imagens: [],
-      pagamentos: [],
     });
     setEditingOrder(null);
     setTempProdutos([]);
-    setNovoPagamento({ valor: 0, data: new Date().toISOString().split("T")[0], tipo_pagamento: "", banco_id: "", pago: false });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -188,8 +148,7 @@ const Encomendas = () => {
       // Preparar os dados com o valor final calculado
       const dadosParaSalvar = {
         ...formData,
-        valor: valorFinal, // Salvar o valor final calculado
-        saldo_restante: saldoRestante // Salvar o saldo restante
+        valor: valorFinal,
       };
       
       if (editingOrder) {
@@ -243,7 +202,6 @@ const Encomendas = () => {
       topo_idade: encomenda.topo_idade || "",
       topo_obs: encomenda.topo_obs || "",
       topo_imagens: Array.isArray(encomenda.topo_imagens) ? encomenda.topo_imagens : [],
-      pagamentos: Array.isArray(encomenda.pagamentos) ? encomenda.pagamentos : [],
     });
     setDialogOpen(true);
   };
@@ -420,67 +378,6 @@ const Encomendas = () => {
       console.error('Erro ao remover imagem:', error);
       toast.error('Erro ao remover imagem');
     }
-  };
-
-  const handleAddPagamento = () => {
-    const isSinal = formData.pagamentos.length === 0;
-    const valorMinimo = valorFinal * 0.5;
-    
-    // Determinar o valor do pagamento
-    let valorPagamento: number;
-    
-    if (isSinal) {
-      // Para o sinal, usar o valor digitado ou 50% se for 0
-      valorPagamento = novoPagamento.valor === 0 ? valorMinimo : novoPagamento.valor;
-      
-      // Validar se está acima do mínimo de 50%
-      if (valorPagamento < valorMinimo) {
-        toast.error(`O valor do sinal deve ser no mínimo R$ ${valorMinimo.toFixed(2)} (50% do valor final)`);
-        return;
-      }
-    } else {
-      // Para pagamentos normais, validar se é maior que zero
-      valorPagamento = novoPagamento.valor;
-      if (valorPagamento <= 0) {
-        toast.error('Informe um valor válido para o pagamento');
-        return;
-      }
-    }
-    
-    if (!novoPagamento.tipo_pagamento) {
-      toast.error('Selecione o tipo de pagamento');
-      return;
-    }
-    
-    const pagamentoParaAdicionar = {
-      valor: valorPagamento,
-      data: novoPagamento.data,
-      tipo_pagamento: novoPagamento.tipo_pagamento,
-      pago: isSinal ? novoPagamento.pago : undefined // Só incluir "pago" para o sinal
-    };
-    
-    // Se for sinal e estiver marcado como pago, alterar status para "confirmado"
-    const novoStatus = (isSinal && novoPagamento.pago) ? 'confirmado' : formData.status;
-    
-    setFormData({
-      ...formData,
-      pagamentos: [...formData.pagamentos, pagamentoParaAdicionar],
-      status: novoStatus
-    });
-    setNovoPagamento({ valor: 0, data: new Date().toISOString().split("T")[0], tipo_pagamento: "", banco_id: "", pago: false });
-    toast.success(isSinal ? 'Sinal adicionado!' : 'Pagamento adicionado!');
-    
-    if (isSinal && novoPagamento.pago) {
-      toast.success('Status alterado para Confirmado');
-    }
-  };
-
-  const handleRemovePagamento = (index: number) => {
-    setFormData({
-      ...formData,
-      pagamentos: formData.pagamentos.filter((_, i) => i !== index)
-    });
-    toast.success('Pagamento removido!');
   };
 
   const handleDelete = async (id: string) => {
@@ -1046,293 +943,10 @@ const Encomendas = () => {
                           </CardContent>
                         </Card>
                       </div>
+                    )}
+                  </div>
 
-                      {/* Sistema de Pagamentos */}
-                      <div className="mt-6 space-y-4">
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-lg font-semibold">Controle de Pagamentos</h3>
-                        </div>
-
-                        {/* Lista de Pagamentos */}
-                        <div className="space-y-3">
-                          {formData.pagamentos.map((pagamento, index) => {
-                            const tipoPagamento = tiposDocumento.find(t => t.id === pagamento.tipo_pagamento);
-                            const isSinal = index === 0;
-                            return (
-                              <Card key={index} className="border-l-4 border-l-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20">
-                                <CardContent className="p-4">
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex-1">
-                                      <div className="flex items-center gap-4">
-                                        <div>
-                                          <Label className="text-xs text-emerald-700 dark:text-emerald-300">
-                                            {isSinal ? 'Sinal (50% Valor Final)' : `Pagamento ${index}`}
-                                          </Label>
-                                          <p className="text-lg font-bold text-emerald-800 dark:text-emerald-200">
-                                            R$ {pagamento.valor.toFixed(2)}
-                                          </p>
-                                          {isSinal && (
-                                            <Badge className={pagamento.pago ? 'bg-green-500' : 'bg-orange-500'}>
-                                              {pagamento.pago ? '✓ Pago' : 'Pendente'}
-                                            </Badge>
-                                          )}
-                                        </div>
-                                        <div>
-                                          <Label className="text-xs text-emerald-700 dark:text-emerald-300">Tipo</Label>
-                                          <p className="text-sm text-emerald-800 dark:text-emerald-200">
-                                            {tipoPagamento?.descricao || 'N/A'}
-                                          </p>
-                                        </div>
-                                        <div>
-                                          <Label className="text-xs text-emerald-700 dark:text-emerald-300">Data</Label>
-                                          <p className="text-sm text-emerald-800 dark:text-emerald-200">
-                                            {new Date(pagamento.data).toLocaleDateString('pt-BR')}
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="icon"
-                                      onClick={() => handleRemovePagamento(index)}
-                                      className="text-destructive hover:text-destructive"
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            );
-                          })}
-
-                          {/* Adicionar Novo Pagamento */}
-                          <Card className="border-l-4 border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20">
-                            <CardContent className="p-4">
-                              <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-3">
-                                {formData.pagamentos.length === 0 ? 'Sinal' : '+ Pagamentos'}
-                              </h4>
-                              <div className="space-y-3">
-                                {formData.pagamentos.length === 0 ? (
-                                  /* Formulário do Sinal - Valor automático de 50% */
-                                  <>
-                                    <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded border border-blue-300">
-                                      <p className="text-xs text-blue-600 dark:text-blue-300 mb-1">
-                                        Valor mínimo: R$ {(valorFinal * 0.5).toFixed(2)} (50% do Valor Final)
-                                      </p>
-                                    </div>
-                                    
-                                    <div className="grid grid-cols-2 gap-3">
-                                      <div>
-                                        <Label className="text-xs text-blue-700 dark:text-blue-300">Valor do Sinal (R$) *</Label>
-                                        <Input
-                                          type="number"
-                                          step="0.01"
-                                          min={(valorFinal * 0.5).toFixed(2)}
-                                          value={novoPagamento.valor === 0 ? (valorFinal * 0.5).toFixed(2) : novoPagamento.valor}
-                                          onChange={(e) => {
-                                            const valor = parseFloat(e.target.value);
-                                            if (!isNaN(valor)) {
-                                              setNovoPagamento({ ...novoPagamento, valor: valor });
-                                            }
-                                          }}
-                                          className="h-9 text-sm mt-1"
-                                          placeholder={(valorFinal * 0.5).toFixed(2)}
-                                        />
-                                      </div>
-                                      <div>
-                                        <Label className="text-xs text-blue-700 dark:text-blue-300">Data</Label>
-                                        <Input
-                                          type="date"
-                                          value={novoPagamento.data}
-                                          onChange={(e) => setNovoPagamento({ ...novoPagamento, data: e.target.value })}
-                                          className="h-9 text-sm mt-1"
-                                        />
-                                      </div>
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-2">
-                                      <input
-                                        type="checkbox"
-                                        id="sinal-pago"
-                                        checked={novoPagamento.pago}
-                                        onChange={(e) => setNovoPagamento({ ...novoPagamento, pago: e.target.checked })}
-                                        className="h-5 w-5"
-                                      />
-                                      <Label htmlFor="sinal-pago" className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                                        Pago
-                                      </Label>
-                                    </div>
-                                    
-                                    <div>
-                                      <Label className="text-xs text-blue-700 dark:text-blue-300">Tipo de Pagamento *</Label>
-                                      <Select
-                                        value={novoPagamento.tipo_pagamento}
-                                        onValueChange={(value) => setNovoPagamento({ ...novoPagamento, tipo_pagamento: value })}
-                                      >
-                                        <SelectTrigger className="h-9 text-sm mt-1 bg-background">
-                                          <SelectValue placeholder="Selecione o tipo..." />
-                                        </SelectTrigger>
-                                        <SelectContent className="bg-popover z-[100]">
-                                          {tiposDocumento.map((tipo) => (
-                                            <SelectItem key={tipo.id} value={tipo.id}>
-                                              {tipo.descricao}
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
-                                    </div>
-                                    
-                                    <div>
-                                      <Label className="text-xs text-blue-700 dark:text-blue-300">Banco *</Label>
-                                      <Select
-                                        value={novoPagamento.banco_id}
-                                        onValueChange={(value) => setNovoPagamento({ ...novoPagamento, banco_id: value })}
-                                      >
-                                        <SelectTrigger className="h-9 text-sm mt-1 bg-background">
-                                          <SelectValue placeholder={bancos.length === 0 ? "Nenhum banco cadastrado" : "Selecione o banco..."} />
-                                        </SelectTrigger>
-                                        <SelectContent className="bg-popover z-[100]">
-                                          {bancos.map((banco) => (
-                                            <SelectItem key={banco.id} value={banco.id}>
-                                              {banco.nome}
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
-                                    </div>
-                                  </>
-                                ) : (
-                                  /* Formulário para Pagamentos normais */
-                                  <>
-                                    <div className="grid grid-cols-2 gap-3">
-                                      <div>
-                                        <Label className="text-xs text-blue-700 dark:text-blue-300">Valor (R$)</Label>
-                                        <Input
-                                          type="number"
-                                          step="0.01"
-                                          min="0"
-                                          value={novoPagamento.valor || ""}
-                                          onChange={(e) => setNovoPagamento({ ...novoPagamento, valor: Number(e.target.value) })}
-                                          className="h-9 text-sm mt-1"
-                                          placeholder="0.00"
-                                        />
-                                      </div>
-                                      <div>
-                                        <Label className="text-xs text-blue-700 dark:text-blue-300">Data</Label>
-                                        <Input
-                                          type="date"
-                                          value={novoPagamento.data}
-                                          onChange={(e) => setNovoPagamento({ ...novoPagamento, data: e.target.value })}
-                                          className="h-9 text-sm mt-1"
-                                        />
-                                      </div>
-                                    </div>
-                                    <div>
-                                      <Label className="text-xs text-blue-700 dark:text-blue-300">Tipo de Pagamento *</Label>
-                                      <Select
-                                        value={novoPagamento.tipo_pagamento}
-                                        onValueChange={(value) => setNovoPagamento({ ...novoPagamento, tipo_pagamento: value })}
-                                      >
-                                        <SelectTrigger className="h-9 text-sm mt-1 bg-background">
-                                          <SelectValue placeholder="Selecione o tipo..." />
-                                        </SelectTrigger>
-                                        <SelectContent className="bg-popover z-[100]">
-                                          {tiposDocumento.map((tipo) => (
-                                            <SelectItem key={tipo.id} value={tipo.id}>
-                                              {tipo.descricao}
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
-                                    </div>
-                                    
-                                    <div>
-                                      <Label className="text-xs text-blue-700 dark:text-blue-300">Banco *</Label>
-                                      <Select
-                                        value={novoPagamento.banco_id}
-                                        onValueChange={(value) => setNovoPagamento({ ...novoPagamento, banco_id: value })}
-                                      >
-                                        <SelectTrigger className="h-9 text-sm mt-1 bg-background">
-                                          <SelectValue placeholder={bancos.length === 0 ? "Nenhum banco cadastrado" : "Selecione o banco..."} />
-                                        </SelectTrigger>
-                                        <SelectContent className="bg-popover z-[100]">
-                                          {bancos.map((banco) => (
-                                            <SelectItem key={banco.id} value={banco.id}>
-                                              {banco.nome}
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
-                                    </div>
-                                  </>
-                                )}
-                              </div>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={handleAddPagamento}
-                                className="mt-3 w-full"
-                              >
-                                <Plus className="h-4 w-4 mr-2" />
-                                Adicionar Pagamento
-                              </Button>
-                            </CardContent>
-                          </Card>
-                        </div>
-
-                        {/* Card de Saldo Restante */}
-                        <Card className={`border-l-4 ${
-                          saldoRestante === 0 
-                            ? 'border-l-green-500 bg-green-50/50 dark:bg-green-950/20' 
-                            : 'border-l-orange-500 bg-orange-50/50 dark:bg-orange-950/20'
-                        }`}>
-                          <CardContent className="p-4">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <Label className={`text-sm font-semibold ${
-                                  saldoRestante === 0 
-                                    ? 'text-green-800 dark:text-green-200' 
-                                    : 'text-orange-800 dark:text-orange-200'
-                                }`}>
-                                  {saldoRestante === 0 ? '✓ PAGO INTEGRALMENTE' : 'SALDO RESTANTE'}
-                                </Label>
-                                <div className="grid grid-cols-3 gap-4 mt-2">
-                                  <div>
-                                    <p className="text-xs text-muted-foreground">Valor Total</p>
-                                    <p className="text-sm font-medium">R$ {valorFinal.toFixed(2)}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs text-muted-foreground">Total Pago</p>
-                                    <p className="text-sm font-medium text-emerald-600">R$ {totalPago.toFixed(2)}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs text-muted-foreground">Restante</p>
-                                    <p className={`text-sm font-medium ${
-                                      saldoRestante === 0 ? 'text-green-600' : 'text-orange-600'
-                                    }`}>
-                                      R$ {saldoRestante.toFixed(2)}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className={`text-4xl font-bold ${
-                                saldoRestante === 0 
-                                  ? 'text-green-600' 
-                                  : 'text-orange-600'
-                              }`}>
-                                R$ {saldoRestante.toFixed(2)}
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-2">
+                  <div className="space-y-2">
                   <Label htmlFor="observacoes">Observações</Label>
                   <Textarea
                     id="observacoes"

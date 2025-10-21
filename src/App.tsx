@@ -32,26 +32,12 @@ import SubReceitaForm from "./pages/SubReceitaForm";
 import Receitas from "./pages/Receitas";
 import ReceitaForm from "./pages/ReceitaForm";
 import ComingSoon from "./pages/ComingSoon";
-import Financeiro from "./pages/Financeiro";
-import ContasReceber from "./pages/financeiro/ContasReceber";
-import ContasPagar from "./pages/financeiro/ContasPagar";
 import Configuracoes from "./pages/Configuracoes";
-import ConfiguracoesFinanceiro from "./pages/financeiro/ConfiguracoesFinanceiro";
-import CategoriasPlanoContas from "./pages/financeiro/CategoriasPlanoContas";
-import CategoriasFinanceiras from "./pages/financeiro/CategoriasFinanceiras";
-import AjudaCategorias from "./pages/financeiro/AjudaCategorias";
-import PlanosContas from "./pages/financeiro/PlanosContas";
-import TiposDocumento from "./pages/financeiro/TiposDocumento";
-import Bancos from "./pages/financeiro/Bancos";
 import TiposInsumos from "./pages/configuracoes/TiposInsumos";
 import Ingredientes from "./pages/precificacao/Ingredientes";
 import Embalagens from "./pages/precificacao/Embalagens";
 import PrePreparos from "./pages/precificacao/PrePreparos";
 import PrePreparoForm from "./pages/precificacao/PrePreparoForm";
-import Relatorios from "./pages/relatorios/Relatorios";
-import FluxoCaixaDiario from "./pages/relatorios/FluxoCaixaDiario";
-import FluxoCaixaMensal from "./pages/relatorios/FluxoCaixaMensal";
-import DRE from "./pages/relatorios/DRE";
 import AuthLogin from "./pages/auth/Login";
 import SignUp from "./pages/auth/SignUp";
 import ForgotPassword from "./pages/auth/ForgotPassword";
@@ -127,21 +113,12 @@ const App = () => (
           <Route path="/precificacao/ficha-tecnica/nova" element={<ProtectedRoute><Layout><ReceitaForm /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/ficha-tecnica/editar/:id" element={<ProtectedRoute><Layout><ReceitaForm /></Layout></ProtectedRoute>} />
           
-          {/* Financeiro - Página Container + Sub-rotas */}
-          <Route path="/financeiro" element={<ProtectedRoute><Layout><Financeiro /></Layout></ProtectedRoute>} />
-          <Route path="/financeiro/contas-receber" element={<ProtectedRoute><Layout><ContasReceber /></Layout></ProtectedRoute>} />
-          <Route path="/financeiro/contas-pagar" element={<ProtectedRoute><Layout><ContasPagar /></Layout></ProtectedRoute>} />
-          
           {/* Configurações - Página Container + Sub-rotas */}
           <Route path="/configuracoes" element={<ProtectedRoute><Layout><Configuracoes /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/tipos-insumos" element={<ProtectedRoute><Layout><TiposInsumos /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/dados-confeitaria" element={<ProtectedRoute><Layout><SeusDados /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/categorias-receitas" element={<ProtectedRoute><Layout><Categorias /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/unidades-medida" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/categorias-financeiras" element={<ProtectedRoute><Layout><CategoriasFinanceiras /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/plano-contas" element={<ProtectedRoute><Layout><PlanosContas /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/tipos-documento" element={<ProtectedRoute><Layout><TiposDocumento /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/bancos" element={<ProtectedRoute><Layout><Bancos /></Layout></ProtectedRoute>} />
           
           {/* Precificação - Ingredientes e Embalagens */}
           <Route path="/precificacao/ingredientes" element={<ProtectedRoute><Layout><Ingredientes /></Layout></ProtectedRoute>} />
