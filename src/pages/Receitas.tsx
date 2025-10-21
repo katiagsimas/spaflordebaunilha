@@ -192,7 +192,7 @@ export default function Receitas() {
     const percentualMargem = calcularPercentualMargem(receita);
     const alertas: string[] = [];
 
-    if (percentualCMV > 35) {
+    if (percentualCMV > 45) {
       alertas.push("CMV muito alto");
     }
     if (percentualMargem < 30) {
@@ -325,7 +325,7 @@ export default function Receitas() {
                     </TableCell>
                     <TableCell className={cn(
                       "text-right",
-                      percentualCMV > 35 && "font-bold text-red-600 dark:text-red-400"
+                      percentualCMV > 45 && "font-bold text-red-600 dark:text-red-400"
                     )}>
                       {percentualCMV.toFixed(1)}%
                     </TableCell>
