@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useReceitas } from '@/hooks/useReceitas';
 import {
   Table,
   TableBody,
@@ -51,6 +52,7 @@ import { PageHeader } from '@/components/PageHeader';
 export default function Ingredientes() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { todasReceitas } = useReceitas();
   const [ingredientes, setIngredientes] = useState<any[]>([]);
   const [tiposDisponiveis, setTiposDisponiveis] = useState<any[]>([]);
   const [unidades, setUnidades] = useState<any[]>([]);
@@ -166,17 +168,47 @@ export default function Ingredientes() {
     }
   };
 
+  // Criar "ingredientes" a partir de receitas do tipo produto_combo
+  const receitasComoIngredientes = useMemo(() => {
+    const receitasCombo = todasReceitas.filter((r) => r.tipo === "produto_combo");
+    
+    return receitasCombo.map((receita) => ({
+      id: receita.id,
+      marca: "Ficha Técnica",
+      preco: receita.custoTotal || 0,
+      data_atualizacao: new Date().toISOString().split('T')[0],
+      tipo_insumo: {
+        descricao: receita.nome,
+        quantidade_embalagem: receita.rendimento || 1,
+        unidade_medida: {
+          nome: receita.unidadeRendimento || "un",
+          sigla: receita.unidadeRendimento || "un"
+        }
+      },
+      e_receita: true, // Flag para identificar que é uma receita
+    }));
+  }, [todasReceitas]);
+
+  // Combinar ingredientes do banco com receitas tipo combo
+  const todosIngredientes = useMemo(() => {
+    return [...ingredientes, ...receitasComoIngredientes].sort((a, b) => {
+      const nomeA = a.tipo_insumo?.descricao?.toLowerCase() || '';
+      const nomeB = b.tipo_insumo?.descricao?.toLowerCase() || '';
+      return nomeA.localeCompare(nomeB, 'pt-BR');
+    });
+  }, [ingredientes, receitasComoIngredientes]);
+
   // Filtrar ingredientes pela busca
   const ingredientesFiltrados = useMemo(() => {
-    if (!termoBusca.trim()) return ingredientes;
+    if (!termoBusca.trim()) return todosIngredientes;
 
     const termo = termoBusca.toLowerCase();
-    return ingredientes.filter((ingrediente: any) => {
+    return todosIngredientes.filter((ingrediente: any) => {
       const nomeIngrediente = ingrediente.tipo_insumo?.descricao?.toLowerCase() || '';
       const marcaIngrediente = ingrediente.marca?.toLowerCase() || '';
       return nomeIngrediente.includes(termo) || marcaIngrediente.includes(termo);
     });
-  }, [ingredientes, termoBusca]);
+  }, [todosIngredientes, termoBusca]);
 
   // Verificar se preço está desatualizado (>30 dias)
   const verificarDesatualizado = (dataAtualizacao: string) => {
@@ -235,6 +267,16 @@ export default function Ingredientes() {
 
   const handleAbrirModal = (ingrediente: any = null) => {
     if (ingrediente) {
+      // Verificar se é receita (produto combo)
+      if (ingrediente.e_receita) {
+        toast({
+          title: 'Não editável',
+          description: 'Receitas do tipo "Produto para combo" só podem ser editadas na página de Ficha Técnica.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      
       // Verificar se é pré-preparo
       const ePrePreparo = ingrediente.e_pre_preparo || ingrediente.tipo_insumo?.pre_preparo_id;
       
