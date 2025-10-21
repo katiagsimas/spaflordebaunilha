@@ -206,6 +206,16 @@ export default function ReceitaForm() {
     { id: 'outros_despesas', nome: 'Outros', percentual: 0, valor: 0 },
   ]);
   const [valorVenda, setValorVenda] = useState(0);
+  const [valorVendaInput, setValorVendaInput] = useState("");
+
+  // Sincronizar valorVendaInput quando valorVenda mudar externamente
+  useEffect(() => {
+    if (valorVenda > 0) {
+      setValorVendaInput(valorVenda.toString().replace('.', ','));
+    } else {
+      setValorVendaInput("");
+    }
+  }, [valorVenda]);
 
   useEffect(() => {
     if (id) {
@@ -1123,14 +1133,25 @@ export default function ReceitaForm() {
                       </span>
                       <Input
                         type="text"
-                        value={valorVenda > 0 ? valorVenda.toFixed(2).replace('.', ',') : ''}
+                        value={valorVendaInput}
                         onChange={(e) => {
-                          const value = e.target.value.replace(/[^\d,]/g, '').replace(',', '.');
-                          setValorVenda(parseFloat(value) || 0);
+                          // Permitir apenas números e vírgula
+                          const value = e.target.value.replace(/[^\d,]/g, '');
+                          // Permitir apenas uma vírgula
+                          const parts = value.split(',');
+                          if (parts.length > 2) return;
+                          setValorVendaInput(value);
                         }}
                         onBlur={(e) => {
-                          const value = parseFloat(e.target.value.replace(',', '.')) || 0;
-                          setValorVenda(value);
+                          const value = e.target.value.replace(',', '.');
+                          const numero = parseFloat(value) || 0;
+                          setValorVenda(numero);
+                          // Revalidar o formato do input
+                          if (numero > 0) {
+                            setValorVendaInput(numero.toString().replace('.', ','));
+                          } else {
+                            setValorVendaInput("");
+                          }
                         }}
                         placeholder="0,00"
                         className="text-xl font-bold pl-12"
