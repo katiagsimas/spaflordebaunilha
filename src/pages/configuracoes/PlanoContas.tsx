@@ -154,12 +154,7 @@ export default function PlanoContas() {
 
   const handleAbrirModal = async (plano = null) => {
     if (plano) {
-      // Editar
-      if (plano.e_padrao) {
-        toast.error('Planos padrão não podem ser editados.');
-        return;
-      }
-
+      // Editar (permite edição de planos padrão)
       setEditando(plano);
       setCategoriaId(plano.categoria_id);
       setDescricao(plano.descricao);
@@ -179,23 +174,26 @@ export default function PlanoContas() {
   const handleCategoriaChange = async (catId) => {
     setCategoriaId(catId);
 
-    if (!editando && catId) {
+    // Gerar códigos tanto para novo quanto para edição (se categoria mudou)
+    if (catId && (!editando || editando.categoria_id !== catId)) {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        // Gerar código simples
-        const { data: codigo } = await supabase.rpc('gerar_proximo_codigo_plano', {
-          p_user_id: user.id
-        });
+        // Gerar código simples (apenas para novos)
+        if (!editando) {
+          const { data: codigo } = await supabase.rpc('gerar_proximo_codigo_plano', {
+            p_user_id: user.id
+          });
+          setCodigoSugerido(codigo?.toString() || '');
+        }
 
-        // Gerar código estruturado
+        // Gerar código estruturado (para novo e edição)
         const { data: codigoEst } = await supabase.rpc('gerar_proximo_codigo_estruturado', {
           p_user_id: user.id,
           p_categoria_id: catId
         });
 
-        setCodigoSugerido(codigo?.toString() || '');
         setCodigoEstruturadoSugerido(codigoEst || '');
       } catch (error) {
         console.error('Erro ao gerar códigos:', error);
@@ -220,18 +218,39 @@ export default function PlanoContas() {
 
       if (editando) {
         // Atualizar
+        const updateData: any = {
+          descricao: descricao.trim(),
+          categoria_id: categoriaId,
+        };
+
+        // Se categoria mudou e há código estruturado sugerido, atualizar também
+        if (editando.categoria_id !== categoriaId && codigoEstruturadoSugerido) {
+          // Verificar se o novo código já existe
+          const { data: existente } = await supabase
+            .from('plano_contas')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('codigo_estruturado', codigoEstruturadoSugerido)
+            .neq('id', editando.id)
+            .maybeSingle();
+
+          if (existente) {
+            throw new Error('O código estruturado gerado já existe. Tente novamente.');
+          }
+
+          updateData.codigo_estruturado = codigoEstruturadoSugerido;
+        }
+
         const { error } = await supabase
           .from('plano_contas')
-          .update({
-            descricao: descricao.trim(),
-            categoria_id: categoriaId,
-          })
-          .eq('id', editando.id)
-          .eq('e_padrao', false);
+          .update(updateData)
+          .eq('id', editando.id);
 
         if (error) throw error;
 
-        toast.success('Plano de contas atualizado!');
+        toast.success(editando.categoria_id !== categoriaId 
+          ? `Plano atualizado! Novo código: ${codigoEstruturadoSugerido}`
+          : 'Plano de contas atualizado!');
       } else {
         // Criar novo
         const { error } = await supabase
@@ -551,25 +570,23 @@ export default function PlanoContas() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleAbrirModal(plano)}
+                        title="Editar"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
                       {!plano.e_padrao && (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleAbrirModal(plano)}
-                            title="Editar"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeletar(plano.id, plano.e_padrao)}
-                            title="Deletar"
-                          >
-                            <Trash2 className="h-4 w-4 text-red-600" />
-                          </Button>
-                        </>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeletar(plano.id, plano.e_padrao)}
+                          title="Deletar"
+                        >
+                          <Trash2 className="h-4 w-4 text-red-600" />
+                        </Button>
                       )}
                       <Button
                         variant="ghost"
@@ -618,8 +635,14 @@ export default function PlanoContas() {
 
             {editando && (
               <div className="p-3 bg-muted rounded-lg">
-                <Label className="text-xs text-muted-foreground">Código Estruturado</Label>
+                <Label className="text-xs text-muted-foreground">Código Estruturado Atual</Label>
                 <p className="font-mono font-bold text-lg">{editando.codigo_estruturado}</p>
+                {codigoEstruturadoSugerido && codigoEstruturadoSugerido !== editando.codigo_estruturado && (
+                  <div className="mt-2 pt-2 border-t">
+                    <Label className="text-xs text-muted-foreground">Novo Código (após mudar categoria)</Label>
+                    <p className="font-mono font-bold text-lg text-blue-600">{codigoEstruturadoSugerido}</p>
+                  </div>
+                )}
               </div>
             )}
 
@@ -628,7 +651,6 @@ export default function PlanoContas() {
               <Select 
                 value={categoriaId} 
                 onValueChange={handleCategoriaChange}
-                disabled={!!editando}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione..." />
@@ -641,6 +663,11 @@ export default function PlanoContas() {
                   ))}
                 </SelectContent>
               </Select>
+              {editando && (
+                <p className="text-xs text-muted-foreground">
+                  💡 Ao alterar a categoria, o código estruturado será recalculado automaticamente
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
