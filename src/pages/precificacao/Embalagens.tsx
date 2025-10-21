@@ -463,7 +463,7 @@ export default function Embalagens() {
           <Alert className="bg-amber-50 border-amber-200 dark:bg-amber-950 dark:border-amber-800">
             <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             <AlertDescription>
-              <strong>{qtdDesatualizados}</strong> embalagem(ns) com preço desatualizado (>30 dias)
+              <strong>{qtdDesatualizados}</strong> embalagem(ns) com preço desatualizado (mais de 30 dias)
             </AlertDescription>
           </Alert>
         )}
