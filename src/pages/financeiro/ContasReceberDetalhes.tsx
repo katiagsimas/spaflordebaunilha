@@ -442,92 +442,58 @@ export default function ContasReceberDetalhes() {
         </CardContent>
       </Card>
 
-      {/* Histórico Detalhado de Pagamentos */}
+      {/* Tabela de Pagamentos Realizados */}
       {pagamentos.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Histórico Detalhado de Pagamentos</CardTitle>
+            <CardTitle>Pagamentos Realizados</CardTitle>
             <CardDescription>
-              Todos os pagamentos realizados para cada parcela
+              Histórico completo de todos os pagamentos efetuados
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {parcelas
-                .filter(parcela => {
-                  const pagamentosDaParcela = pagamentos.filter(p => p.parcela_id === parcela.id);
-                  return pagamentosDaParcela.length > 0;
-                })
-                .map(parcela => {
-                  const pagamentosDaParcela = pagamentos.filter(p => p.parcela_id === parcela.id);
-                  
-                  return (
-                    <div key={parcela.id} className="border rounded-lg p-4 space-y-3">
-                      <div className="flex items-center justify-between pb-2 border-b">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono font-semibold">
-                            Parcela {parcela.numero_parcela} de {conta.numero_parcelas}
-                          </span>
-                          {getBadgeStatus(parcela.status)}
-                        </div>
-                        <span className="text-sm text-muted-foreground">
-                          Vencimento: {formatarData(parcela.data_vencimento)}
-                        </span>
-                      </div>
-
-                      <div className="space-y-2">
-                        {pagamentosDaParcela.map((pagamento, index) => (
-                          <div key={pagamento.id} className="flex items-center justify-between p-3 bg-muted/50 rounded">
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium">
-                                  Pagamento #{index + 1}
-                                </span>
-                                <span className="text-xs text-muted-foreground">
-                                  {formatarData(pagamento.data_pagamento)}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                <span>
-                                  🏦 {pagamento.banco?.codigo} - {pagamento.banco?.nome}
-                                </span>
-                                <span>
-                                  📄 {pagamento.tipo_documento?.descricao}
-                                </span>
-                              </div>
-                              {pagamento.observacao && (
-                                <p className="text-xs text-muted-foreground italic">
-                                  {pagamento.observacao}
-                                </p>
-                              )}
-                            </div>
-                            <div className="text-right">
-                              <div className="font-semibold text-green-600">
-                                {formatarValor(pagamento.valor_pago)}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {new Date(pagamento.created_at).toLocaleString('pt-BR', {
-                                  day: '2-digit',
-                                  month: '2-digit',
-                                  year: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                })}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="flex justify-between pt-2 border-t text-sm">
-                        <span className="text-muted-foreground">Total pago nesta parcela:</span>
-                        <span className="font-semibold text-green-600">
-                          {formatarValor(parcela.valor_pago || 0)} de {formatarValor(parcela.valor_parcela)}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
+            <div className="border rounded-lg overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Parcela</TableHead>
+                    <TableHead>Data Pagamento</TableHead>
+                    <TableHead className="text-right">Valor Pago</TableHead>
+                    <TableHead>Banco</TableHead>
+                    <TableHead>Tipo Documento</TableHead>
+                    <TableHead>Observação</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {pagamentos.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                        Nenhum pagamento registrado.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    pagamentos.map((pagamento) => {
+                      const parcela = parcelas.find(p => p.id === pagamento.parcela_id);
+                      return (
+                        <TableRow key={pagamento.id}>
+                          <TableCell className="font-medium">
+                            {parcela?.numero_parcela}/{conta?.numero_parcelas || 1}
+                          </TableCell>
+                          <TableCell>{formatarData(pagamento.data_pagamento)}</TableCell>
+                          <TableCell className="text-right font-semibold text-primary">
+                            {formatarValor(pagamento.valor_pago)}
+                          </TableCell>
+                          <TableCell>{pagamento.banco?.nome || '-'}</TableCell>
+                          <TableCell>{pagamento.tipo_documento?.descricao || '-'}</TableCell>
+                          <TableCell className="max-w-[200px] truncate">
+                            {pagamento.observacao || '-'}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  )}
+                </TableBody>
+              </Table>
             </div>
           </CardContent>
         </Card>
