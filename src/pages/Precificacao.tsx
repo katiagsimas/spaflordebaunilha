@@ -103,11 +103,23 @@ export default function Precificacao() {
     a.nome.localeCompare(b.nome, 'pt-BR')
   );
 
-  // Calcular custos de produção (insumos + embalagens)
-  const calcularCustosProducao = (receita: Receita) => {
-    const custoIngredientes = receita.ingredientes.reduce((total, ing) => total + ing.custoReceita, 0);
-    const custoEmbalagens = (receita.embalagens || []).reduce((total, emb) => total + emb.custoReceita, 0);
-    return custoIngredientes + custoEmbalagens;
+  // Calcular custo de ingredientes
+  const calcularCustoIngredientes = (receita: Receita) => {
+    return receita.ingredientes.reduce((total, ing) => total + ing.custoReceita, 0);
+  };
+
+  // Calcular custo de embalagens
+  const calcularCustoEmbalagens = (receita: Receita) => {
+    return (receita.embalagens || []).reduce((total, emb) => total + emb.custoReceita, 0);
+  };
+
+  // Calcular outros custos (custos fixos + outros gastos personalizados)
+  const calcularOutrosCustos = (receita: Receita) => {
+    const custoIngredientes = calcularCustoIngredientes(receita);
+    const custoEmbalagens = calcularCustoEmbalagens(receita);
+    const custoTotal = receita.custoTotal || 0;
+    // Outros custos = Custo Total - (Ingredientes + Embalagens)
+    return custoTotal - custoIngredientes - custoEmbalagens;
   };
 
   // Calcular despesas com vendas
@@ -128,6 +140,15 @@ export default function Precificacao() {
     if (valorVenda === 0) return 0;
     const cmv = calcularCMV(receita);
     return (cmv / valorVenda) * 100;
+  };
+
+  // Calcular Margem de Lucro (%)
+  const calcularMargemLucro = (receita: Receita) => {
+    const valorVenda = receita.valorVenda || 0;
+    if (valorVenda === 0) return 0;
+    const cmv = calcularCMV(receita);
+    const lucro = valorVenda - cmv;
+    return (lucro / valorVenda) * 100;
   };
 
   // Verificar alertas
@@ -198,18 +219,28 @@ export default function Precificacao() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Nome da Receita</TableHead>
+                  <TableHead className="text-right">Preço de Venda</TableHead>
                   <TableHead className="text-center">Categoria</TableHead>
+                  <TableHead className="text-right">Quantidade</TableHead>
                   <TableHead className="text-center">Medida</TableHead>
-                  <TableHead className="text-right">Custos de Produção</TableHead>
-                  <TableHead className="text-right">Despesas com Vendas</TableHead>
+                  <TableHead className="text-right">Custo Ingredientes</TableHead>
+                  <TableHead className="text-right">Custo Embalagens</TableHead>
+                  <TableHead className="text-right">Outros Custos</TableHead>
+                  <TableHead className="text-right">Despesas Vendas</TableHead>
+                  <TableHead className="text-right">CMV Real %</TableHead>
+                  <TableHead className="text-right">Margem Lucro %</TableHead>
                   <TableHead className="text-center">Alertas</TableHead>
                   <TableHead className="text-center">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {receitasAtivasOrdenadas.map((receita) => {
-                  const custosProducao = calcularCustosProducao(receita);
+                  const custoIngredientes = calcularCustoIngredientes(receita);
+                  const custoEmbalagens = calcularCustoEmbalagens(receita);
+                  const outrosCustos = calcularOutrosCustos(receita);
                   const despesasVenda = calcularDespesasVenda(receita);
+                  const percentualCMV = calcularPercentualCMV(receita);
+                  const margemLucro = calcularMargemLucro(receita);
                   const alertas = verificarAlertas(receita);
                   const temAlerta = alertas.length > 0;
 
@@ -227,10 +258,22 @@ export default function Precificacao() {
                         {receita.nome}
                       </TableCell>
                       <TableCell className={cn(
+                        "text-right",
+                        temAlerta && "text-red-700 dark:text-red-400"
+                      )}>
+                        R$ {(receita.valorVenda || 0).toFixed(2)}
+                      </TableCell>
+                      <TableCell className={cn(
                         "text-center",
                         temAlerta && "text-red-700 dark:text-red-400"
                       )}>
                         {receita.categoria || "-"}
+                      </TableCell>
+                      <TableCell className={cn(
+                        "text-right",
+                        temAlerta && "text-red-700 dark:text-red-400"
+                      )}>
+                        {receita.rendimento}
                       </TableCell>
                       <TableCell className={cn(
                         "text-center",
@@ -242,13 +285,37 @@ export default function Precificacao() {
                         "text-right",
                         temAlerta && "text-red-700 dark:text-red-400"
                       )}>
-                        R$ {custosProducao.toFixed(2)}
+                        R$ {custoIngredientes.toFixed(2)}
+                      </TableCell>
+                      <TableCell className={cn(
+                        "text-right",
+                        temAlerta && "text-red-700 dark:text-red-400"
+                      )}>
+                        R$ {custoEmbalagens.toFixed(2)}
+                      </TableCell>
+                      <TableCell className={cn(
+                        "text-right",
+                        temAlerta && "text-red-700 dark:text-red-400"
+                      )}>
+                        R$ {outrosCustos.toFixed(2)}
                       </TableCell>
                       <TableCell className={cn(
                         "text-right",
                         temAlerta && "text-red-700 dark:text-red-400"
                       )}>
                         R$ {despesasVenda.toFixed(2)}
+                      </TableCell>
+                      <TableCell className={cn(
+                        "text-right font-semibold",
+                        percentualCMV > 45 && "text-red-600 dark:text-red-400"
+                      )}>
+                        {percentualCMV.toFixed(1)}%
+                      </TableCell>
+                      <TableCell className={cn(
+                        "text-right font-semibold",
+                        temAlerta && "text-red-700 dark:text-red-400"
+                      )}>
+                        {margemLucro.toFixed(1)}%
                       </TableCell>
                       <TableCell className="text-center">
                         {temAlerta && (
