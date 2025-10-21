@@ -474,14 +474,16 @@ export default function ContasReceberDetalhes() {
                   ) : (
                     pagamentos.map((pagamento) => {
                       const parcela = parcelas.find(p => p.id === pagamento.parcela_id);
+                      if (!pagamento || !parcela) return null;
+                      
                       return (
                         <TableRow key={pagamento.id}>
                           <TableCell className="font-medium">
-                            {parcela?.numero_parcela}/{conta?.numero_parcelas || 1}
+                            {parcela.numero_parcela}/{conta.numero_parcelas || 1}
                           </TableCell>
                           <TableCell>{formatarData(pagamento.data_pagamento)}</TableCell>
-                          <TableCell className="text-right font-semibold text-primary">
-                            {formatarValor(pagamento.valor_pago)}
+                          <TableCell className="text-right font-semibold text-green-600">
+                            {formatarValor(Number(pagamento.valor_pago))}
                           </TableCell>
                           <TableCell>{pagamento.banco?.nome || '-'}</TableCell>
                           <TableCell>{pagamento.tipo_documento?.descricao || '-'}</TableCell>
