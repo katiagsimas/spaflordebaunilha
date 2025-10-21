@@ -1348,6 +1348,7 @@ export type Database = {
           id: string | null
           juros: number | null
           numero_parcela: number | null
+          numero_parcelas: number | null
           observacao: string | null
           plano_conta_id: string | null
           plano_contas_codigo: string | null

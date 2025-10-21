@@ -274,6 +274,7 @@ export default function ContasReceber() {
               <TableHead>Cliente</TableHead>
               <TableHead>Vencimento</TableHead>
               <TableHead>Valor Total</TableHead>
+              <TableHead className="w-28">Parcela</TableHead>
               <TableHead>Valor a Pagar</TableHead>
               <TableHead>Valor Pago</TableHead>
               <TableHead>Data Pag.</TableHead>
@@ -284,7 +285,7 @@ export default function ContasReceber() {
           <TableBody>
             {parcelasFiltradas.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={12} className="text-center py-8 text-muted-foreground">
                   Nenhuma parcela encontrada.
                 </TableCell>
               </TableRow>
@@ -300,6 +301,9 @@ export default function ContasReceber() {
                   <TableCell>{formatarData(parcela.data_vencimento)}</TableCell>
                   <TableCell className="text-green-600 font-medium">
                     {formatarValor(parcela.valor_total)}
+                  </TableCell>
+                  <TableCell className="font-mono font-medium">
+                    {parcela.numero_parcela} de {parcela.numero_parcelas}
                   </TableCell>
                   <TableCell className="text-green-600 font-medium">
                     {formatarValor(parcela.valor_parcela)}
