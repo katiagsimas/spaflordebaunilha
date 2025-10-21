@@ -590,8 +590,22 @@ export default function PrePreparoForm() {
         prePreparoId = data.id;
       }
 
-      // Inserir ingredientes
-      const ingredientesParaInserir = ingredientesSelecionados.map((ing, index) => ({
+      // Inserir ingredientes (filtrar apenas ingredientes reais do Supabase, não receitas combo)
+      const ingredientesReais = ingredientesSelecionados.filter(ing => !ing.id.startsWith('receita_'));
+      const receitasCombo = ingredientesSelecionados.filter(ing => ing.id.startsWith('receita_'));
+      
+      // Se houver receitas combo, avisar que elas não serão salvas no banco
+      if (receitasCombo.length > 0 && ingredientesReais.length === 0) {
+        toast({
+          title: 'Aviso',
+          description: 'Pré-preparos precisam ter pelo menos um ingrediente cadastrado. Fichas técnicas são usadas apenas para cálculo de custo.',
+          variant: 'destructive',
+        });
+        setLoading(false);
+        return;
+      }
+      
+      const ingredientesParaInserir = ingredientesReais.map((ing, index) => ({
         pre_preparo_id: prePreparoId,
         ingrediente_id: ing.id,
         quantidade_utilizada: ing.qtdUtilizada,
