@@ -294,7 +294,7 @@ export default function ContasReceberDetalhes() {
 
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">
-                  {conta.numero_parcelas === 1 ? 'Valor a Pagar (Parcela)' : 'Próxima Parcela a Pagar'}
+                  {conta.numero_parcelas === 1 ? 'Valor da Parcela' : 'Valor da Próxima Parcela'}
                 </span>
                 <span className="font-medium text-lg text-red-600">
                   {(() => {
@@ -307,8 +307,7 @@ export default function ContasReceberDetalhes() {
                       })[0];
                     
                     if (proximaParcelaAberta) {
-                      const valorRestante = Number(proximaParcelaAberta.valor_parcela) - Number(proximaParcelaAberta.valor_pago || 0);
-                      return formatarValor(valorRestante);
+                      return formatarValor(Number(proximaParcelaAberta.valor_parcela));
                     }
                     return 'R$ 0,00';
                   })()}
@@ -328,16 +327,47 @@ export default function ContasReceberDetalhes() {
 
             <div className="space-y-2 pt-2 border-t">
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Total Pago</span>
+                <span className="text-sm text-muted-foreground">
+                  {conta.numero_parcelas === 1 ? 'Total Pago (Parcela)' : 'Pago na Próxima Parcela'}
+                </span>
                 <span className="font-medium text-green-600">
-                  {formatarValor(totais.totalPago)}
+                  {(() => {
+                    const proximaParcelaAberta = parcelas
+                      .filter(p => p.status === 'aberto' || p.status === 'atrasado' || p.status === 'pagamento_parcial')
+                      .sort((a, b) => {
+                        const dateA = new Date(a.data_vencimento).getTime();
+                        const dateB = new Date(b.data_vencimento).getTime();
+                        return dateA - dateB;
+                      })[0];
+                    
+                    if (proximaParcelaAberta) {
+                      return formatarValor(Number(proximaParcelaAberta.valor_pago || 0));
+                    }
+                    return formatarValor(totais.totalPago);
+                  })()}
                 </span>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Total em Aberto</span>
+                <span className="text-sm text-muted-foreground">
+                  {conta.numero_parcelas === 1 ? 'Saldo em Aberto (Parcela)' : 'Em Aberto na Próxima Parcela'}
+                </span>
                 <span className="font-medium text-red-600">
-                  {formatarValor(totais.totalAberto)}
+                  {(() => {
+                    const proximaParcelaAberta = parcelas
+                      .filter(p => p.status === 'aberto' || p.status === 'atrasado' || p.status === 'pagamento_parcial')
+                      .sort((a, b) => {
+                        const dateA = new Date(a.data_vencimento).getTime();
+                        const dateB = new Date(b.data_vencimento).getTime();
+                        return dateA - dateB;
+                      })[0];
+                    
+                    if (proximaParcelaAberta) {
+                      const saldoAberto = Number(proximaParcelaAberta.valor_parcela) - Number(proximaParcelaAberta.valor_pago || 0);
+                      return formatarValor(saldoAberto);
+                    }
+                    return formatarValor(totais.totalAberto);
+                  })()}
                 </span>
               </div>
 
