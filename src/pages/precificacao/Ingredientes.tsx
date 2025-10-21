@@ -91,6 +91,7 @@ export default function Ingredientes() {
             id,
             descricao,
             quantidade_embalagem,
+            pre_preparo_id,
             unidade_medida:unidades_medida (
               nome,
               sigla
@@ -232,6 +233,18 @@ export default function Ingredientes() {
 
   const handleAbrirModal = (ingrediente: any = null) => {
     if (ingrediente) {
+      // Verificar se é pré-preparo
+      const ePrePreparo = ingrediente.e_pre_preparo || ingrediente.tipo_insumo?.pre_preparo_id;
+      
+      if (ePrePreparo) {
+        toast({
+          title: 'Não editável',
+          description: 'Pré-preparos só podem ser editados na página de Pré-Preparos.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      
       setEditando(ingrediente);
       setTipoSelecionado(ingrediente.tipo_insumo_id);
       setMarca(ingrediente.marca || '');
@@ -423,10 +436,14 @@ export default function Ingredientes() {
 
   const tipoSelecionadoObj = tiposDisponiveis.find((t: any) => t.id === tipoSelecionado);
   
-  // Filtrar tipos pelo termo de busca
-  const tiposFiltrados = tiposDisponiveis.filter((tipo: any) =>
-    tipo.descricao.toLowerCase().includes(termoBuscaTipo.toLowerCase())
-  );
+  // Filtrar tipos pelo termo de busca (excluindo pré-preparos)
+  const tiposFiltrados = tiposDisponiveis.filter((tipo: any) => {
+    // Não mostrar tipos que são pré-preparos
+    if (tipo.pre_preparo_id) return false;
+    
+    // Filtrar pela busca
+    return tipo.descricao.toLowerCase().includes(termoBuscaTipo.toLowerCase());
+  });
 
   // Contar ingredientes desatualizados
   const qtdDesatualizados = ingredientes.filter((i: any) => 
@@ -513,13 +530,19 @@ export default function Ingredientes() {
             ) : (
               ingredientesFiltrados.map((ingrediente: any) => {
                 const desatualizado = verificarDesatualizado(ingrediente.data_atualizacao);
+                const ePrePreparo = ingrediente.e_pre_preparo || ingrediente.tipo_insumo?.pre_preparo_id;
                 
                 return (
                   <TableRow key={ingrediente.id} className={desatualizado ? 'bg-amber-50/50 dark:bg-amber-950/20' : ''}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
                         {ingrediente.tipo_insumo?.descricao || 'N/A'}
-                        {desatualizado && (
+                        {ePrePreparo && (
+                          <Badge variant="secondary" className="bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-950 dark:text-purple-400 dark:border-purple-800">
+                            Pré-Preparo
+                          </Badge>
+                        )}
+                        {desatualizado && !ePrePreparo && (
                           <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800">
                             <AlertTriangle className="h-3 w-3 mr-1" />
                             Desatualizado
@@ -543,13 +566,19 @@ export default function Ingredientes() {
                       {formatarData(ingrediente.data_atualizacao)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleAbrirModal(ingrediente)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
+                      {ePrePreparo ? (
+                        <div className="text-sm text-muted-foreground italic">
+                          Editar em Pré-Preparos
+                        </div>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleAbrirModal(ingrediente)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 );

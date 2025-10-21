@@ -308,23 +308,37 @@ export default function PrePreparoForm() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Criar tipo de insumo especial para este pré-preparo
-      const nomeTipo = `PRÉ-PREPARO: ${nomePrePreparo}`;
+      console.log('📝 Criando/atualizando pré-preparo como ingrediente...');
+      console.log('Nome:', nomePrePreparo);
+      console.log('Custo por unidade:', custoUnidade);
+
+      // ✅ USAR NOME LIMPO (sem prefixo)
+      const nomeTipo = nomePrePreparo; // Nome limpo!
       
       // Buscar ou criar tipo
       let tipoId;
       const { data: tipoExistente } = await supabase
         .from('tipos_insumos')
         .select('id')
-        .eq('usuario_id', user.id)
-        .eq('descricao', nomeTipo)
-        .eq('tipo', 'ingrediente')
+        .eq('pre_preparo_id', prePreparoId)
         .maybeSingle();
 
       if (tipoExistente) {
         tipoId = tipoExistente.id;
+        
+        // Atualizar tipo existente (caso nome tenha mudado)
+        await supabase
+          .from('tipos_insumos')
+          .update({
+            descricao: nomeTipo,
+            quantidade_embalagem: parseFloat(rendimentoQtd.replace(',', '.')),
+            unidade_medida_id: rendimentoUnidadeId,
+          })
+          .eq('id', tipoId);
+          
+        console.log('✅ Tipo atualizado:', tipoId);
       } else {
-        // Criar novo tipo
+        // Criar novo tipo vinculado ao pré-preparo
         const { data: novoTipo, error: errorTipo } = await supabase
           .from('tipos_insumos')
           .insert({
@@ -333,12 +347,15 @@ export default function PrePreparoForm() {
             descricao: nomeTipo,
             quantidade_embalagem: parseFloat(rendimentoQtd.replace(',', '.')),
             unidade_medida_id: rendimentoUnidadeId,
+            pre_preparo_id: prePreparoId, // Vínculo com pré-preparo
           })
           .select()
           .single();
 
         if (errorTipo) throw errorTipo;
         tipoId = novoTipo.id;
+        
+        console.log('✅ Novo tipo criado:', tipoId);
       }
 
       // Buscar ou criar ingrediente
@@ -350,14 +367,17 @@ export default function PrePreparoForm() {
         .maybeSingle();
 
       if (ingredienteExistente) {
-        // Atualizar preço
+        // Atualizar preço e marcar como pré-preparo
         await supabase
           .from('ingredientes')
           .update({
             preco: custoUnidade,
+            e_pre_preparo: true,
             data_atualizacao: new Date().toISOString().split('T')[0],
           })
           .eq('id', ingredienteExistente.id);
+          
+        console.log('✅ Ingrediente atualizado:', ingredienteExistente.id);
       } else {
         // Criar novo
         await supabase
@@ -367,13 +387,16 @@ export default function PrePreparoForm() {
             tipo_insumo_id: tipoId,
             marca: 'Produção Própria',
             preco: custoUnidade,
+            e_pre_preparo: true,
             data_atualizacao: new Date().toISOString().split('T')[0],
           });
+          
+        console.log('✅ Novo ingrediente criado');
       }
 
-      console.log('✅ Pré-preparo criado como ingrediente!');
+      console.log('✅ Pré-preparo integrado com sucesso!');
     } catch (error) {
-      console.error('Erro ao criar como ingrediente:', error);
+      console.error('❌ Erro ao criar como ingrediente:', error);
     }
   };
 

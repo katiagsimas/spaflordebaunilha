@@ -91,6 +91,7 @@ export default function Embalagens() {
             id,
             descricao,
             quantidade_embalagem,
+            pre_preparo_id,
             unidade_medida:unidades_medida (
               nome,
               sigla
@@ -232,6 +233,18 @@ export default function Embalagens() {
 
   const handleAbrirModal = (embalagem: any = null) => {
     if (embalagem) {
+      // Verificar se é pré-preparo (embalagens não deveriam ter, mas por garantia)
+      const ePrePreparo = embalagem.tipo_insumo?.pre_preparo_id;
+      
+      if (ePrePreparo) {
+        toast({
+          title: 'Não editável',
+          description: 'Este item é vinculado a um pré-preparo.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      
       setEditando(embalagem);
       setTipoSelecionado(embalagem.tipo_insumo_id);
       setMarca(embalagem.marca || '');
@@ -423,10 +436,14 @@ export default function Embalagens() {
 
   const tipoSelecionadoObj = tiposDisponiveis.find((t: any) => t.id === tipoSelecionado);
   
-  // Filtrar tipos pelo termo de busca
-  const tiposFiltrados = tiposDisponiveis.filter((tipo: any) =>
-    tipo.descricao.toLowerCase().includes(termoBuscaTipo.toLowerCase())
-  );
+  // Filtrar tipos pelo termo de busca (excluindo pré-preparos)
+  const tiposFiltrados = tiposDisponiveis.filter((tipo: any) => {
+    // Não mostrar tipos que são pré-preparos
+    if (tipo.pre_preparo_id) return false;
+    
+    // Filtrar pela busca
+    return tipo.descricao.toLowerCase().includes(termoBuscaTipo.toLowerCase());
+  });
 
   // Contar embalagens desatualizadas
   const qtdDesatualizados = embalagens.filter((e: any) => 

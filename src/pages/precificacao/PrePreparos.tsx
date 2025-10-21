@@ -11,9 +11,10 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Clock, Scale } from 'lucide-react';
+import { Plus, Edit, Clock, Scale, Info } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { ChefHat } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function PrePreparos() {
   const navigate = useNavigate();
@@ -83,6 +84,14 @@ export default function PrePreparos() {
           Criar Novo Pré-Preparo
         </Button>
       </div>
+
+      <Alert className="bg-purple-50 border-purple-200 dark:bg-purple-950 dark:border-purple-800">
+        <Info className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+        <AlertDescription>
+          Pré-preparos aparecem automaticamente na lista de Ingredientes e podem ser usados em receitas. 
+          Editações aqui atualizam automaticamente em Ingredientes.
+        </AlertDescription>
+      </Alert>
 
       {preparos.length === 0 ? (
         <EmptyState

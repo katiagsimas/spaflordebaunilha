@@ -670,6 +670,7 @@ export type Database = {
         Row: {
           created_at: string | null
           data_atualizacao: string
+          e_pre_preparo: boolean | null
           id: string
           marca: string | null
           preco: number
@@ -680,6 +681,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           data_atualizacao?: string
+          e_pre_preparo?: boolean | null
           id?: string
           marca?: string | null
           preco: number
@@ -690,6 +692,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           data_atualizacao?: string
+          e_pre_preparo?: boolean | null
           id?: string
           marca?: string | null
           preco?: number
@@ -1022,6 +1025,7 @@ export type Database = {
           created_at: string | null
           descricao: string
           id: string
+          pre_preparo_id: string | null
           quantidade_embalagem: number
           tipo: string
           unidade_medida_id: string
@@ -1032,6 +1036,7 @@ export type Database = {
           created_at?: string | null
           descricao: string
           id?: string
+          pre_preparo_id?: string | null
           quantidade_embalagem: number
           tipo: string
           unidade_medida_id: string
@@ -1042,6 +1047,7 @@ export type Database = {
           created_at?: string | null
           descricao?: string
           id?: string
+          pre_preparo_id?: string | null
           quantidade_embalagem?: number
           tipo?: string
           unidade_medida_id?: string
@@ -1049,6 +1055,13 @@ export type Database = {
           usuario_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tipos_insumos_pre_preparo_id_fkey"
+            columns: ["pre_preparo_id"]
+            isOneToOne: false
+            referencedRelation: "pre_preparos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tipos_insumos_unidade_medida_id_fkey"
             columns: ["unidade_medida_id"]
