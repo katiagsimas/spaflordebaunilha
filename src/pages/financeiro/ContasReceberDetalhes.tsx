@@ -377,6 +377,46 @@ export default function ContasReceberDetalhes() {
                   {totais.parcelasPagas} de {totais.totalParcelasCount}
                 </span>
               </div>
+
+              {/* Histórico de Pagamentos da Parcela Selecionada */}
+              {(() => {
+                const proximaParcelaAberta = parcelas
+                  .filter(p => p.status === 'aberto' || p.status === 'atrasado' || p.status === 'pagamento_parcial')
+                  .sort((a, b) => {
+                    const dateA = new Date(a.data_vencimento).getTime();
+                    const dateB = new Date(b.data_vencimento).getTime();
+                    return dateA - dateB;
+                  })[0];
+
+                if (!proximaParcelaAberta) return null;
+
+                const pagamentosDaParcela = pagamentos.filter(p => p.parcela_id === proximaParcelaAberta.id);
+                
+                if (pagamentosDaParcela.length === 0) return null;
+
+                return (
+                  <div className="pt-3 mt-3 border-t space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase">
+                      Histórico - Parcela {proximaParcelaAberta.numero_parcela}
+                    </p>
+                    {pagamentosDaParcela.map((pagamento, idx) => (
+                      <div key={pagamento.id} className="bg-muted/30 rounded-md p-2 space-y-1">
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-muted-foreground">Pagamento #{idx + 1}</span>
+                          <span className="text-sm font-semibold text-green-600">
+                            {formatarValor(Number(pagamento.valor_pago))}
+                          </span>
+                        </div>
+                        <div className="text-xs text-muted-foreground space-y-0.5">
+                          <div>📅 {formatarData(pagamento.data_pagamento)}</div>
+                          <div>🏦 {pagamento.banco?.nome || '-'}</div>
+                          <div>📄 {pagamento.tipo_documento?.descricao || '-'}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
           </CardContent>
         </Card>
