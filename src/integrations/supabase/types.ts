@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       bancos: {
         Row: {
+          codigo: string
           created_at: string
           id: string
           nome: string
@@ -25,6 +26,7 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
+          codigo: string
           created_at?: string
           id?: string
           nome: string
@@ -34,6 +36,7 @@ export type Database = {
           usuario_id: string
         }
         Update: {
+          codigo?: string
           created_at?: string
           id?: string
           nome?: string

@@ -63,12 +63,22 @@ export default function Bancos() {
       // Buscar bancos
       const { data, error } = await supabase
         .from('bancos')
-        .select('id, codigo, nome, tipo, e_banco_oficial, e_customizado')
+        .select('id, codigo, nome, tipo')
         .eq('usuario_id', user.id)
         .order('codigo');
 
       if (error) throw error;
-      setBancos((data as any) || []);
+      
+      const bancosFormatados = (data || []).map(b => ({
+        id: b.id,
+        codigo: b.codigo,
+        nome: b.nome,
+        tipo: b.tipo,
+        e_banco_oficial: false,
+        e_customizado: false,
+      }));
+      
+      setBancos(bancosFormatados);
     } catch (error) {
       console.error('Erro ao buscar bancos:', error);
       toast({
@@ -147,12 +157,14 @@ export default function Bancos() {
         });
       } else {
         // Verificar se já existe
-        const { data: existe } = await supabase
+        const checkResult = await supabase
           .from('bancos')
           .select('id')
           .eq('usuario_id', user.id)
           .eq('codigo', codigo.trim())
-          .maybeSingle() as any;
+          .limit(1);
+        
+        const existe = checkResult.data && checkResult.data.length > 0;
 
         if (existe) {
           toast({
