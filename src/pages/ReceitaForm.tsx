@@ -108,6 +108,8 @@ export default function ReceitaForm() {
   // Buscar ingredientes do Supabase
   useEffect(() => {
     const fetchIngredientes = async () => {
+      // Aguardar as unidades serem carregadas antes de processar as receitas
+      if (unidades.length === 0) return;
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
@@ -141,22 +143,26 @@ export default function ReceitaForm() {
           const receitas = JSON.parse(receitasStorage);
           receitasCombo = receitas
             .filter((r: any) => r.tipo === 'produto_combo')
-            .map((r: any) => ({
-              id: `receita_${r.id}`,
-              preco: r.custoTotal || 0,
-              marca: 'Receita',
-              tipo_insumo: {
-                id: `tipo_receita_${r.id}`,
-                descricao: r.nome,
-                quantidade_embalagem: r.rendimento || 1,
-                pre_preparo_id: null,
-                unidade_medida: {
-                  nome: r.unidadeRendimento || 'un',
-                  sigla: r.unidadeRendimento || 'un'
-                }
-              },
-              e_receita_combo: true
-            }));
+            .map((r: any) => {
+              // Buscar a sigla da unidade de medida pelo ID
+              const unidade = unidades.find(u => u.id === r.unidadeRendimento);
+              return {
+                id: `receita_${r.id}`,
+                preco: r.custoTotal || 0,
+                marca: 'Receita',
+                tipo_insumo: {
+                  id: `tipo_receita_${r.id}`,
+                  descricao: r.nome,
+                  quantidade_embalagem: r.rendimento || 1,
+                  pre_preparo_id: null,
+                  unidade_medida: {
+                    nome: unidade?.nome || 'un',
+                    sigla: unidade?.sigla || 'un'
+                  }
+                },
+                e_receita_combo: true
+              };
+            });
         }
         
         // Combinar ingredientes e receitas combo
@@ -168,7 +174,7 @@ export default function ReceitaForm() {
     };
 
     fetchIngredientes();
-  }, []);
+  }, [unidades]);
 
   const [formData, setFormData] = useState({
     nome: "",
