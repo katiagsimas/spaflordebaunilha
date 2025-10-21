@@ -963,7 +963,7 @@ export default function ReceitaForm() {
                     <div className="pt-3 mt-3 border-t">
                       <Button 
                         type="button" 
-                        variant="secondary" 
+                        variant="default" 
                         className="w-full font-bold text-base"
                         disabled
                       >
