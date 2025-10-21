@@ -33,11 +33,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
@@ -70,7 +65,6 @@ export default function ContasReceberForm() {
   const [buscaCliente, setBuscaCliente] = useState('');
 
   const [modalClienteAberto, setModalClienteAberto] = useState(false);
-  const [observacoesOpen, setObservacoesOpen] = useState(false);
   const [formDataCliente, setFormDataCliente] = useState({
     nome: '',
     tipo: 'PF',
@@ -295,7 +289,6 @@ export default function ContasReceberForm() {
       setClientes([...clientes, data]);
       setClienteId(data.id);
       setModalClienteAberto(false);
-      setObservacoesOpen(false);
       fetchDados();
     } catch (error) {
       console.error('Erro ao criar cliente:', error);
@@ -894,31 +887,22 @@ export default function ContasReceberForm() {
               </div>
             </div>
 
-            <Collapsible open={observacoesOpen} onOpenChange={setObservacoesOpen}>
-              <CollapsibleTrigger asChild>
-                <Button type="button" variant="outline" className="w-full">
-                  Observações
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="mt-2">
-                <Textarea
-                  id="observacoes"
-                  value={formDataCliente.observacoes}
-                  onChange={(e) => setFormDataCliente({ ...formDataCliente, observacoes: e.target.value })}
-                  placeholder="Digite aqui observações sobre o cliente..."
-                  rows={4}
-                />
-              </CollapsibleContent>
-            </Collapsible>
+            <div className="space-y-2">
+              <Label htmlFor="observacoes">Observações</Label>
+              <Textarea
+                id="observacoes"
+                value={formDataCliente.observacoes}
+                onChange={(e) => setFormDataCliente({ ...formDataCliente, observacoes: e.target.value })}
+                placeholder="Digite aqui observações sobre o cliente..."
+                rows={4}
+              />
+            </div>
           </div>
 
           <DialogFooter>
             <Button 
               variant="outline" 
-              onClick={() => {
-                setModalClienteAberto(false);
-                setObservacoesOpen(false);
-              }}
+              onClick={() => setModalClienteAberto(false)}
             >
               Cancelar
             </Button>
