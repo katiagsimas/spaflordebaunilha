@@ -537,11 +537,6 @@ export default function Ingredientes() {
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
                         {ingrediente.tipo_insumo?.descricao || 'N/A'}
-                        {ePrePreparo && (
-                          <Badge variant="secondary" className="bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-950 dark:text-purple-400 dark:border-purple-800">
-                            Pré-Preparo
-                          </Badge>
-                        )}
                         {desatualizado && !ePrePreparo && (
                           <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800">
                             <AlertTriangle className="h-3 w-3 mr-1" />
