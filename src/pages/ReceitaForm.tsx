@@ -141,22 +141,28 @@ export default function ReceitaForm() {
           const receitas = JSON.parse(receitasStorage);
           receitasCombo = receitas
             .filter((r: any) => r.tipo === 'produto_combo')
-            .map((r: any) => ({
-              id: `receita_${r.id}`,
-              preco: r.custoTotal || 0,
-              marca: 'Receita',
-              tipo_insumo: {
-                id: `tipo_receita_${r.id}`,
-                descricao: r.nome,
-                quantidade_embalagem: r.rendimento || 1,
-                pre_preparo_id: null,
-                unidade_medida: {
-                  nome: r.unidadeRendimento || 'un',
-                  sigla: r.unidadeRendimento || 'un'
-                }
-              },
-              e_receita_combo: true
-            }));
+            .map((r: any) => {
+              // Buscar a sigla correta da unidade de medida
+              const unidade = unidades.find(u => u.id === r.unidadeRendimento);
+              const siglaNome = unidade?.sigla || unidade?.nome || 'un';
+              
+              return {
+                id: `receita_${r.id}`,
+                preco: r.custoTotal || 0,
+                marca: 'Receita',
+                tipo_insumo: {
+                  id: `tipo_receita_${r.id}`,
+                  descricao: r.nome,
+                  quantidade_embalagem: r.rendimento || 1,
+                  pre_preparo_id: null,
+                  unidade_medida: {
+                    nome: siglaNome,
+                    sigla: siglaNome
+                  }
+                },
+                e_receita_combo: true
+              };
+            });
         }
         
         // Combinar ingredientes e receitas combo

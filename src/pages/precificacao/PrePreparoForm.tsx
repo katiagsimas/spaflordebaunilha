@@ -70,8 +70,13 @@ export default function PrePreparoForm() {
   const [custoPorUnidade, setCustoPorUnidade] = useState(0);
 
   useEffect(() => {
-    fetchIngredientes();
-    fetchUnidades();
+    const loadData = async () => {
+      await fetchUnidades();
+      await fetchIngredientes();
+    };
+    
+    loadData();
+    
     if (isEditMode) {
       fetchPrePreparo();
     }
@@ -113,19 +118,31 @@ export default function PrePreparoForm() {
         const receitas = JSON.parse(receitasStorage);
         receitasCombo = receitas
           .filter((r: any) => r.tipo === 'produto_combo')
-          .map((r: any) => ({
-            id: `receita_${r.id}`,
-            preco: r.custoTotal || 0,
-            marca: 'Receita',
-            tipo_insumo: {
-              descricao: r.nome,
-              quantidade_embalagem: r.rendimento || 1,
-              unidade_medida: {
-                sigla: r.unidadeRendimento || 'un'
-              }
-            },
-            e_receita_combo: true
-          }));
+          .map((r: any) => {
+            // Buscar a sigla correta da unidade de medida do estado unidades
+            const unidadesStorage = localStorage.getItem('unidadesMedida');
+            let siglaNome = 'un';
+            
+            if (unidadesStorage) {
+              const unidadesArray = JSON.parse(unidadesStorage);
+              const unidade = unidadesArray.find((u: any) => u.id === r.unidadeRendimento);
+              siglaNome = unidade?.sigla || unidade?.nome || 'un';
+            }
+            
+            return {
+              id: `receita_${r.id}`,
+              preco: r.custoTotal || 0,
+              marca: 'Receita',
+              tipo_insumo: {
+                descricao: r.nome,
+                quantidade_embalagem: r.rendimento || 1,
+                unidade_medida: {
+                  sigla: siglaNome
+                }
+              },
+              e_receita_combo: true
+            };
+          });
       }
       
       // Combinar ingredientes e receitas combo
