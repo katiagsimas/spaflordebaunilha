@@ -1117,15 +1117,25 @@ export default function ReceitaForm() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
                   <div className="space-y-3 p-4 rounded-lg bg-card border-2">
                     <h4 className="font-semibold">🎯 Valor de Venda</h4>
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={valorVenda || ""}
-                      onChange={(e) => setValorVenda(parseFloat(e.target.value) || 0)}
-                      placeholder="0.00"
-                      className="text-xl font-bold"
-                    />
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xl font-bold text-muted-foreground">
+                        R$
+                      </span>
+                      <Input
+                        type="text"
+                        value={valorVenda > 0 ? valorVenda.toFixed(2).replace('.', ',') : ''}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/[^\d,]/g, '').replace(',', '.');
+                          setValorVenda(parseFloat(value) || 0);
+                        }}
+                        onBlur={(e) => {
+                          const value = parseFloat(e.target.value.replace(',', '.')) || 0;
+                          setValorVenda(value);
+                        }}
+                        placeholder="0,00"
+                        className="text-xl font-bold pl-12"
+                      />
+                    </div>
                   </div>
                 </div>
 
