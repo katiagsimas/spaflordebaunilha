@@ -172,22 +172,34 @@ export default function Ingredientes() {
   const receitasComoIngredientes = useMemo(() => {
     const receitasCombo = todasReceitas.filter((r) => r.tipo === "produto_combo");
     
-    return receitasCombo.map((receita) => ({
-      id: receita.id,
-      marca: "Ficha Técnica",
-      preco: receita.custoTotal || 0,
-      data_atualizacao: new Date().toISOString().split('T')[0],
-      tipo_insumo: {
-        descricao: receita.nome,
-        quantidade_embalagem: receita.rendimento || 1,
-        unidade_medida: {
-          nome: receita.unidadeRendimento || "un",
-          sigla: receita.unidadeRendimento || "un"
-        }
-      },
-      e_receita: true, // Flag para identificar que é uma receita
-    }));
-  }, [todasReceitas]);
+    return receitasCombo.map((receita) => {
+      // Buscar a unidade de medida correspondente
+      const unidadeMedida = unidades.find(u => 
+        u.id === receita.unidadeRendimento || 
+        u.nome === receita.unidadeRendimento ||
+        u.sigla === receita.unidadeRendimento
+      );
+      
+      return {
+        id: receita.id,
+        marca: "Ficha Técnica",
+        preco: receita.custoTotal || 0,
+        data_atualizacao: new Date().toISOString().split('T')[0],
+        tipo_insumo: {
+          descricao: receita.nome,
+          quantidade_embalagem: receita.rendimento || 1,
+          unidade_medida: unidadeMedida ? {
+            nome: unidadeMedida.nome,
+            sigla: unidadeMedida.sigla
+          } : {
+            nome: receita.unidadeRendimento || "unidade",
+            sigla: receita.unidadeRendimento || "un"
+          }
+        },
+        e_receita: true, // Flag para identificar que é uma receita
+      };
+    });
+  }, [todasReceitas, unidades]);
 
   // Combinar ingredientes do banco com receitas tipo combo
   const todosIngredientes = useMemo(() => {
