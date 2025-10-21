@@ -2,13 +2,15 @@ import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, CookingPot, Copy } from "lucide-react";
+import { Plus, Pencil, Trash2, CookingPot, Copy, AlertTriangle } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { EmptyState } from "@/components/EmptyState";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 interface Ingrediente {
   id: string;
@@ -183,6 +185,22 @@ export default function Receitas() {
     navigate(`/precificacao/ficha-tecnica/editar/${novaReceita.id}`);
   };
 
+  // Verificar alertas de CMV e Margem
+  const verificarAlertas = (receita: Receita) => {
+    const percentualCMV = calcularPercentualCMV(receita);
+    const percentualMargem = calcularPercentualMargem(receita);
+    const alertas: string[] = [];
+
+    if (percentualCMV > 35) {
+      alertas.push("CMV muito alto");
+    }
+    if (percentualMargem < 30) {
+      alertas.push("Margem muito baixa");
+    }
+
+    return alertas;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -252,6 +270,7 @@ export default function Receitas() {
                 <TableHead className="text-center">Margem %</TableHead>
                 <TableHead className="text-center">Custos c/ Vendas</TableHead>
                 <TableHead className="text-center">Lucro</TableHead>
+                <TableHead className="text-center">Alertas</TableHead>
                 <TableHead className="text-center">Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -263,9 +282,16 @@ export default function Receitas() {
                 const percentualMargem = calcularPercentualMargem(receita);
                 const despesasVenda = calcularDespesasVenda(receita);
                 const lucro = calcularLucro(receita);
+                const alertas = verificarAlertas(receita);
+                const temAlerta = alertas.length > 0;
 
                 return (
-                  <TableRow key={receita.id}>
+                  <TableRow 
+                    key={receita.id}
+                    className={cn(
+                      temAlerta && "bg-red-50/50 dark:bg-red-950/20"
+                    )}
+                  >
                     <TableCell className="font-medium">{receita.nome}</TableCell>
                     <TableCell className="text-center">{receita.categoria || "-"}</TableCell>
                     <TableCell className="text-center">
@@ -277,13 +303,19 @@ export default function Receitas() {
                     <TableCell className="text-right">
                       R$ {custoInsumosEmbalagens.toFixed(2)}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className={cn(
+                      "text-right",
+                      percentualCMV > 35 && "font-semibold text-red-600 dark:text-red-400"
+                    )}>
                       {percentualCMV.toFixed(1)}%
                     </TableCell>
                     <TableCell className="text-right">
                       R$ {margemContribuicao.toFixed(2)}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className={cn(
+                      "text-right",
+                      percentualMargem < 30 && "font-semibold text-red-600 dark:text-red-400"
+                    )}>
                       {percentualMargem.toFixed(1)}%
                     </TableCell>
                     <TableCell className="text-right">
@@ -291,6 +323,22 @@ export default function Receitas() {
                     </TableCell>
                     <TableCell className="text-right font-semibold">
                       R$ {lucro.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {temAlerta && (
+                        <div className="flex flex-col gap-1">
+                          {alertas.map((alerta, index) => (
+                            <Badge 
+                              key={index}
+                              variant="outline" 
+                              className="bg-red-100 text-red-700 border-red-300 dark:bg-red-950 dark:text-red-400 dark:border-red-800"
+                            >
+                              <AlertTriangle className="h-3 w-3 mr-1" />
+                              {alerta}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                     </TableCell>
                      <TableCell>
                        <div className="flex gap-0 justify-center">
