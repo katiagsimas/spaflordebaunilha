@@ -493,13 +493,13 @@ export default function ReceitaForm() {
       toast.success("Produto também adicionado aos ingredientes!");
     }
 
-    navigate("/receitas");
+    navigate("/precificacao/ficha-tecnica");
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <BackButton to="/receitas" />
+        <BackButton to="/precificacao/ficha-tecnica" />
         <div className="flex-1">
           <PageHeader
             title={id ? "Editar Ficha Técnica" : "Nova Ficha Técnica"}
@@ -1196,7 +1196,7 @@ export default function ReceitaForm() {
           )}
 
           <div className="flex gap-2 justify-end pt-4 border-t">
-            <Button variant="outline" onClick={() => navigate("/receitas")}>
+            <Button variant="outline" onClick={() => navigate("/precificacao/ficha-tecnica")}>
               Cancelar
             </Button>
             <Button onClick={handleSave}>
