@@ -191,12 +191,20 @@ export default function Receitas() {
     const percentualMargem = calcularPercentualMargem(receita);
     const alertas: string[] = [];
 
+    console.log('DEBUG - Receita:', receita.nome);
+    console.log('DEBUG - CMV%:', percentualCMV);
+    console.log('DEBUG - Margem%:', percentualMargem);
+
     if (percentualCMV > 35) {
       alertas.push("CMV muito alto");
+      console.log('DEBUG - Adicionado alerta: CMV muito alto');
     }
     if (percentualMargem < 30) {
       alertas.push("Margem muito baixa");
+      console.log('DEBUG - Adicionado alerta: Margem muito baixa');
     }
+
+    console.log('DEBUG - Total de alertas:', alertas.length, alertas);
 
     return alertas;
   };
