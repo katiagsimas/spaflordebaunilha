@@ -530,6 +530,7 @@ export default function Embalagens() {
             ) : (
               embalagensFiltradas.map((embalagem: any) => {
                 const desatualizado = verificarDesatualizado(embalagem.data_atualizacao);
+                const ePrePreparo = embalagem.e_pre_preparo || embalagem.tipo_insumo?.pre_preparo_id;
                 
                 return (
                   <TableRow key={embalagem.id} className={desatualizado ? 'bg-amber-50/50 dark:bg-amber-950/20' : ''}>
@@ -544,9 +545,13 @@ export default function Embalagens() {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>
-                      {embalagem.marca || <span className="text-muted-foreground italic">Sem marca</span>}
-                    </TableCell>
+      <TableCell>
+        {ePrePreparo ? (
+          <span className="font-semibold text-purple-700">Pré-Preparo</span>
+        ) : (
+          embalagem.marca || <span className="text-muted-foreground italic">Sem marca</span>
+        )}
+      </TableCell>
                     <TableCell>
                       {embalagem.tipo_insumo?.quantidade_embalagem?.toLocaleString('pt-BR')}
                     </TableCell>

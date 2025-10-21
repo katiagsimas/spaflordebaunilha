@@ -550,9 +550,13 @@ export default function Ingredientes() {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>
-                      {ingrediente.marca || <span className="text-muted-foreground italic">Sem marca</span>}
-                    </TableCell>
+      <TableCell>
+        {ePrePreparo ? (
+          <span className="font-semibold text-purple-700">Pré-Preparo</span>
+        ) : (
+          ingrediente.marca || <span className="text-muted-foreground italic">Sem marca</span>
+        )}
+      </TableCell>
                     <TableCell>
                       {ingrediente.tipo_insumo?.quantidade_embalagem?.toLocaleString('pt-BR')}
                     </TableCell>

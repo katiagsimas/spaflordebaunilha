@@ -371,6 +371,7 @@ export default function PrePreparoForm() {
         await supabase
           .from('ingredientes')
           .update({
+            marca: 'Pré-Preparo',
             preco: custoUnidade,
             e_pre_preparo: true,
             data_atualizacao: new Date().toISOString().split('T')[0],
@@ -385,7 +386,7 @@ export default function PrePreparoForm() {
           .insert({
             usuario_id: user.id,
             tipo_insumo_id: tipoId,
-            marca: 'Produção Própria',
+            marca: 'Pré-Preparo',
             preco: custoUnidade,
             e_pre_preparo: true,
             data_atualizacao: new Date().toISOString().split('T')[0],
