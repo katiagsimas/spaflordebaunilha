@@ -70,17 +70,12 @@ export default function PrePreparoForm() {
   const [custoPorUnidade, setCustoPorUnidade] = useState(0);
 
   useEffect(() => {
+    fetchIngredientes();
     fetchUnidades();
     if (isEditMode) {
       fetchPrePreparo();
     }
   }, [id]);
-
-  useEffect(() => {
-    if (unidades.length > 0) {
-      fetchIngredientes();
-    }
-  }, [unidades]);
 
   useEffect(() => {
     calcularCustos();
@@ -118,23 +113,19 @@ export default function PrePreparoForm() {
         const receitas = JSON.parse(receitasStorage);
         receitasCombo = receitas
           .filter((r: any) => r.tipo === 'produto_combo')
-          .map((r: any) => {
-            // Buscar a sigla da unidade de medida pelo ID
-            const unidade = unidades.find(u => u.id === r.unidadeRendimento);
-            return {
-              id: `receita_${r.id}`,
-              preco: r.custoTotal || 0,
-              marca: 'Receita',
-              tipo_insumo: {
-                descricao: r.nome,
-                quantidade_embalagem: r.rendimento || 1,
-                unidade_medida: {
-                  sigla: unidade?.sigla || 'un'
-                }
-              },
-              e_receita_combo: true
-            };
-          });
+          .map((r: any) => ({
+            id: `receita_${r.id}`,
+            preco: r.custoTotal || 0,
+            marca: 'Receita',
+            tipo_insumo: {
+              descricao: r.nome,
+              quantidade_embalagem: r.rendimento || 1,
+              unidade_medida: {
+                sigla: r.unidadeRendimento || 'un'
+              }
+            },
+            e_receita_combo: true
+          }));
       }
       
       // Combinar ingredientes e receitas combo
