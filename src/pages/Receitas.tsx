@@ -265,7 +265,7 @@ export default function Receitas() {
                 <TableHead className="text-center">Venda</TableHead>
                 <TableHead className="text-center">Valor de Venda</TableHead>
                 <TableHead className="text-center">Custos de Produção</TableHead>
-                <TableHead className="text-center">% CMV</TableHead>
+                <TableHead className="text-center">% CMV Real</TableHead>
                 <TableHead className="text-center">Margem R$</TableHead>
                 <TableHead className="text-center">Margem %</TableHead>
                 <TableHead className="text-center">Custos c/ Vendas</TableHead>
