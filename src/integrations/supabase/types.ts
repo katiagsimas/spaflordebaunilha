@@ -812,6 +812,53 @@ export type Database = {
         }
         Relationships: []
       }
+      plano_contas: {
+        Row: {
+          ativo: boolean | null
+          categoria_id: string
+          codigo: number
+          codigo_estruturado: string
+          created_at: string | null
+          descricao: string
+          e_padrao: boolean | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ativo?: boolean | null
+          categoria_id: string
+          codigo: number
+          codigo_estruturado: string
+          created_at?: string | null
+          descricao: string
+          e_padrao?: boolean | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ativo?: boolean | null
+          categoria_id?: string
+          codigo?: number
+          codigo_estruturado?: string
+          created_at?: string | null
+          descricao?: string
+          e_padrao?: boolean | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plano_contas_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias_plano_contas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       planos_contas: {
         Row: {
           aceita_lancamento: boolean | null
@@ -1180,9 +1227,21 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
+      criar_planos_contas_padrao: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
       gerar_proximo_codigo_categoria: {
         Args: { p_user_id: string }
         Returns: string
+      }
+      gerar_proximo_codigo_estruturado: {
+        Args: { p_categoria_id: string; p_user_id: string }
+        Returns: string
+      }
+      gerar_proximo_codigo_plano: {
+        Args: { p_user_id: string }
+        Returns: number
       }
       has_role: {
         Args: {

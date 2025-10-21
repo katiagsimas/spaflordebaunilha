@@ -1,4 +1,4 @@
-import { Settings, Tag, UserCircle, Ruler, Lock, Package, Layers } from "lucide-react";
+import { Settings, Tag, UserCircle, Ruler, Lock, Package, Layers, BookOpen } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
@@ -31,6 +31,15 @@ const opcoes = [
     icon: Layers,
     url: "/configuracoes/categorias-plano-contas",
     color: "text-blue-600 bg-blue-50 dark:bg-blue-950",
+    statusKey: null,
+    requiresAdmin: false,
+  },
+  {
+    title: "Plano de Contas",
+    description: "Contas detalhadas para lançamentos financeiros",
+    icon: BookOpen,
+    url: "/configuracoes/plano-contas",
+    color: "text-orange-600 bg-orange-50 dark:bg-orange-950",
     statusKey: null,
     requiresAdmin: false,
   },
