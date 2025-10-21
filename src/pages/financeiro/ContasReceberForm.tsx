@@ -33,6 +33,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
@@ -65,9 +70,21 @@ export default function ContasReceberForm() {
   const [buscaCliente, setBuscaCliente] = useState('');
 
   const [modalClienteAberto, setModalClienteAberto] = useState(false);
-  const [novoClienteNome, setNovoClienteNome] = useState('');
-  const [novoClienteEmail, setNovoClienteEmail] = useState('');
-  const [novoClienteTelefone, setNovoClienteTelefone] = useState('');
+  const [observacoesOpen, setObservacoesOpen] = useState(false);
+  const [formDataCliente, setFormDataCliente] = useState({
+    nome: '',
+    tipo: 'PF',
+    telefone: '',
+    email: '',
+    cpf_cnpj: '',
+    data_aniversario: '',
+    cep: '',
+    endereco: '',
+    numero: '',
+    cidade: '',
+    estado: '',
+    observacoes: '',
+  });
 
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(isEditMode);
@@ -173,19 +190,73 @@ export default function ContasReceberForm() {
   };
 
   const handleAbrirModalCliente = () => {
-    setNovoClienteNome(buscaCliente);
-    setNovoClienteEmail('');
-    setNovoClienteTelefone('');
+    setFormDataCliente({
+      nome: buscaCliente,
+      tipo: 'PF',
+      telefone: '',
+      email: '',
+      cpf_cnpj: '',
+      data_aniversario: '',
+      cep: '',
+      endereco: '',
+      numero: '',
+      cidade: '',
+      estado: '',
+      observacoes: '',
+    });
     setModalClienteAberto(true);
     setPopoverClienteAberto(false);
   };
 
-  const handleCriarCliente = async () => {
+  const handleBuscarCEP = async () => {
+    if (!formDataCliente.cep || formDataCliente.cep.length < 8) {
+      toast({
+        title: 'Erro',
+        description: 'Informe um CEP válido!',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
-      if (!novoClienteNome.trim()) {
+      const response = await fetch(`https://viacep.com.br/ws/${formDataCliente.cep.replace(/\D/g, '')}/json/`);
+      const data = await response.json();
+
+      if (data.erro) {
         toast({
           title: 'Erro',
-          description: 'Informe o nome do cliente!',
+          description: 'CEP não encontrado!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      setFormDataCliente({
+        ...formDataCliente,
+        endereco: data.logradouro || '',
+        cidade: data.localidade || '',
+        estado: data.uf || '',
+      });
+
+      toast({
+        title: '✅ CEP encontrado',
+        description: 'Endereço preenchido automaticamente!',
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Erro ao buscar CEP!',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleCriarCliente = async () => {
+    try {
+      if (!formDataCliente.nome.trim() || !formDataCliente.telefone.trim()) {
+        toast({
+          title: 'Erro',
+          description: 'Nome e telefone são obrigatórios!',
           variant: 'destructive',
         });
         return;
@@ -198,9 +269,18 @@ export default function ContasReceberForm() {
         .from('clientes')
         .insert({
           usuario_id: user.id,
-          nome: novoClienteNome.trim(),
-          email: novoClienteEmail.trim() || null,
-          telefone: novoClienteTelefone.trim() || null,
+          nome: formDataCliente.nome.trim(),
+          tipo: formDataCliente.tipo,
+          telefone: formDataCliente.telefone.trim(),
+          email: formDataCliente.email.trim() || null,
+          cpf_cnpj: formDataCliente.cpf_cnpj.trim() || null,
+          data_aniversario: formDataCliente.data_aniversario || null,
+          cep: formDataCliente.cep.trim() || null,
+          endereco: formDataCliente.endereco.trim() || null,
+          numero: formDataCliente.numero.trim() || null,
+          cidade: formDataCliente.cidade.trim() || null,
+          estado: formDataCliente.estado.trim() || null,
+          observacoes: formDataCliente.observacoes.trim() || null,
         })
         .select()
         .single();
@@ -215,6 +295,7 @@ export default function ContasReceberForm() {
       setClientes([...clientes, data]);
       setClienteId(data.id);
       setModalClienteAberto(false);
+      setObservacoesOpen(false);
       fetchDados();
     } catch (error) {
       console.error('Erro ao criar cliente:', error);
@@ -677,51 +758,172 @@ export default function ContasReceberForm() {
       </div>
 
       <Dialog open={modalClienteAberto} onOpenChange={setModalClienteAberto}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Criar Novo Cliente</DialogTitle>
+            <DialogTitle>Novo Cliente</DialogTitle>
             <DialogDescription>
-              Cadastre rapidamente um novo cliente
+              Preencha os dados do novo cliente
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="novo-cliente-nome">Nome *</Label>
-              <Input
-                id="novo-cliente-nome"
-                value={novoClienteNome}
-                onChange={(e) => setNovoClienteNome(e.target.value)}
-                autoFocus
-              />
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="nome">Nome *</Label>
+                <Input
+                  id="nome"
+                  value={formDataCliente.nome}
+                  onChange={(e) => setFormDataCliente({ ...formDataCliente, nome: e.target.value })}
+                  autoFocus
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="tipo">Tipo</Label>
+                <Select
+                  value={formDataCliente.tipo}
+                  onValueChange={(value) => setFormDataCliente({ ...formDataCliente, tipo: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PF">Pessoa Física</SelectItem>
+                    <SelectItem value="PJ">Pessoa Jurídica</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="telefone">Telefone/WhatsApp *</Label>
+                <Input
+                  id="telefone"
+                  value={formDataCliente.telefone}
+                  onChange={(e) => setFormDataCliente({ ...formDataCliente, telefone: e.target.value })}
+                  placeholder="(00) 00000-0000"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">E-mail</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formDataCliente.email}
+                  onChange={(e) => setFormDataCliente({ ...formDataCliente, email: e.target.value })}
+                  placeholder="email@exemplo.com"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cpf_cnpj">CPF/CNPJ</Label>
+                <Input
+                  id="cpf_cnpj"
+                  value={formDataCliente.cpf_cnpj}
+                  onChange={(e) => setFormDataCliente({ ...formDataCliente, cpf_cnpj: e.target.value })}
+                  placeholder="000.000.000-00"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="data_aniversario">Data de Aniversário</Label>
+                <Input
+                  id="data_aniversario"
+                  type="date"
+                  value={formDataCliente.data_aniversario}
+                  onChange={(e) => setFormDataCliente({ ...formDataCliente, data_aniversario: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cep">CEP</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="cep"
+                    value={formDataCliente.cep}
+                    onChange={(e) => setFormDataCliente({ ...formDataCliente, cep: e.target.value })}
+                    placeholder="00000-000"
+                    maxLength={9}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleBuscarCEP}
+                    disabled={!formDataCliente.cep}
+                  >
+                    Buscar
+                  </Button>
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="novo-cliente-email">E-mail</Label>
-              <Input
-                id="novo-cliente-email"
-                type="email"
-                value={novoClienteEmail}
-                onChange={(e) => setNovoClienteEmail(e.target.value)}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="endereco">Endereço</Label>
+                <Input
+                  id="endereco"
+                  value={formDataCliente.endereco}
+                  onChange={(e) => setFormDataCliente({ ...formDataCliente, endereco: e.target.value })}
+                  placeholder="Rua, Avenida"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="numero">Número</Label>
+                <Input
+                  id="numero"
+                  value={formDataCliente.numero}
+                  onChange={(e) => setFormDataCliente({ ...formDataCliente, numero: e.target.value })}
+                  placeholder="Nº"
+                />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="novo-cliente-telefone">Telefone</Label>
-              <Input
-                id="novo-cliente-telefone"
-                value={novoClienteTelefone}
-                onChange={(e) => setNovoClienteTelefone(e.target.value)}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="cidade">Cidade</Label>
+                <Input
+                  id="cidade"
+                  value={formDataCliente.cidade}
+                  onChange={(e) => setFormDataCliente({ ...formDataCliente, cidade: e.target.value })}
+                  placeholder="Cidade"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="estado">Estado</Label>
+                <Input
+                  id="estado"
+                  value={formDataCliente.estado}
+                  onChange={(e) => setFormDataCliente({ ...formDataCliente, estado: e.target.value })}
+                  placeholder="UF"
+                  maxLength={2}
+                />
+              </div>
             </div>
+
+            <Collapsible open={observacoesOpen} onOpenChange={setObservacoesOpen}>
+              <CollapsibleTrigger asChild>
+                <Button type="button" variant="outline" className="w-full">
+                  Observações
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2">
+                <Textarea
+                  id="observacoes"
+                  value={formDataCliente.observacoes}
+                  onChange={(e) => setFormDataCliente({ ...formDataCliente, observacoes: e.target.value })}
+                  placeholder="Digite aqui observações sobre o cliente..."
+                  rows={4}
+                />
+              </CollapsibleContent>
+            </Collapsible>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setModalClienteAberto(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setModalClienteAberto(false);
+                setObservacoesOpen(false);
+              }}
+            >
               Cancelar
             </Button>
             <Button onClick={handleCriarCliente}>
-              Criar Cliente
+              Cadastrar
             </Button>
           </DialogFooter>
         </DialogContent>
