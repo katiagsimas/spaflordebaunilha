@@ -22,6 +22,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Info } from 'lucide-react';
+import { pagamentoSchema } from '@/schemas/pagamentoSchema';
 
 interface DarBaixaDialogProps {
   open: boolean;
@@ -99,16 +100,28 @@ export default function DarBaixaDialog({
 
   const handleSalvar = async () => {
     try {
-      // Validações
-      if (!dataPagamento) {
+      const valor = parseFloat(valorPago.replace(',', '.'));
+
+      // Validação com Zod
+      const validationResult = pagamentoSchema.safeParse({
+        valor_pago: valor,
+        data_pagamento: dataPagamento,
+        banco_id: bancoId || undefined,
+        tipo_documento_id: tipoDocumentoId || undefined,
+        observacao: observacao.trim() || undefined,
+      });
+
+      if (!validationResult.success) {
+        const firstError = validationResult.error.issues[0];
         toast({
-          title: 'Erro',
-          description: 'Informe a data do pagamento!',
+          title: 'Erro de validação',
+          description: firstError.message,
           variant: 'destructive',
         });
         return;
       }
 
+      // Validações adicionais de negócio
       if (!bancoId) {
         toast({
           title: 'Erro',
@@ -122,16 +135,6 @@ export default function DarBaixaDialog({
         toast({
           title: 'Erro',
           description: 'Selecione o tipo de documento!',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      const valor = parseFloat(valorPago.replace(',', '.'));
-      if (!valor || valor <= 0) {
-        toast({
-          title: 'Erro',
-          description: 'Informe um valor válido!',
           variant: 'destructive',
         });
         return;
