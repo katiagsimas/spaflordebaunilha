@@ -500,7 +500,7 @@ export default function ContasReceberDetalhes() {
       </Card>
 
       {/* Observações */}
-      {parcelas.some(p => p.observacao) && (
+      {parcelas && parcelas.length > 0 && parcelas.some(p => p.observacao) && (
         <Card>
           <CardHeader>
             <CardTitle>Observações das Parcelas</CardTitle>
