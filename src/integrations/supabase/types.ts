@@ -140,6 +140,7 @@ export type Database = {
           codigo: string
           created_at: string | null
           descricao: string
+          e_padrao: boolean | null
           faixa_dre: string
           id: string
           indicador: string
@@ -152,6 +153,7 @@ export type Database = {
           codigo: string
           created_at?: string | null
           descricao: string
+          e_padrao?: boolean | null
           faixa_dre: string
           id?: string
           indicador: string
@@ -164,6 +166,7 @@ export type Database = {
           codigo?: string
           created_at?: string | null
           descricao?: string
+          e_padrao?: boolean | null
           faixa_dre?: string
           id?: string
           indicador?: string
