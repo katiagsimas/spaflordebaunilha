@@ -960,6 +960,16 @@ export default function ReceitaForm() {
                         <span className="font-semibold text-primary">R$ {custoFixoReceita.toFixed(2)}</span>
                       </div>
                     </div>
+                    <div className="pt-3 mt-3 border-t">
+                      <Button 
+                        type="button" 
+                        variant="secondary" 
+                        className="w-full font-bold text-base"
+                        disabled
+                      >
+                        Total: R$ {(custoIngredientes + custoEmbalagens + custoFixoReceita).toFixed(2)}
+                      </Button>
+                    </div>
                   </div>
 
                   {/* Outros Gastos */}
