@@ -321,7 +321,7 @@ export default function ContasReceber() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => {}}>
+                        <DropdownMenuItem onClick={() => navigate(`/financeiro/contas-receber/detalhes/${parcela.conta_receber_id}`)}>
                           <Eye className="mr-2 h-4 w-4" />
                           Detalhes
                         </DropdownMenuItem>

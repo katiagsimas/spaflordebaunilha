@@ -44,6 +44,7 @@ import PrePreparos from "./pages/precificacao/PrePreparos";
 import PrePreparoForm from "./pages/precificacao/PrePreparoForm";
 import ContasReceber from "./pages/financeiro/ContasReceber";
 import ContasReceberForm from "./pages/financeiro/ContasReceberForm";
+import ContasReceberDetalhes from "./pages/financeiro/ContasReceberDetalhes";
 import AuthLogin from "./pages/auth/Login";
 import SignUp from "./pages/auth/SignUp";
 import ForgotPassword from "./pages/auth/ForgotPassword";
@@ -143,6 +144,7 @@ const App = () => (
           <Route path="/financeiro/contas-receber" element={<ProtectedRoute><Layout><ContasReceber /></Layout></ProtectedRoute>} />
           <Route path="/financeiro/contas-receber/nova" element={<ProtectedRoute><Layout><ContasReceberForm /></Layout></ProtectedRoute>} />
           <Route path="/financeiro/contas-receber/editar/:id" element={<ProtectedRoute><Layout><ContasReceberForm /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/contas-receber/detalhes/:id" element={<ProtectedRoute><Layout><ContasReceberDetalhes /></Layout></ProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
           </Routes>
