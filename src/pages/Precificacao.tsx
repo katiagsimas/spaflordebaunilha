@@ -1,11 +1,13 @@
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { ChefHat, CookingPot, DollarSign, Pencil, Package } from "lucide-react";
+import { ChefHat, CookingPot, DollarSign, Pencil, Package, AlertTriangle } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 interface IngredienteReceita {
   id: string;
@@ -113,6 +115,33 @@ export default function Precificacao() {
     return (receita.despesasVenda || []).reduce((acc, despesa) => acc + despesa.valor, 0);
   };
 
+  // Calcular CMV Real
+  const calcularCMV = (receita: Receita) => {
+    const custoTotal = receita.custoTotal || 0;
+    const despesasVenda = calcularDespesasVenda(receita);
+    return custoTotal + despesasVenda;
+  };
+
+  // Calcular percentual CMV Real
+  const calcularPercentualCMV = (receita: Receita) => {
+    const valorVenda = receita.valorVenda || 0;
+    if (valorVenda === 0) return 0;
+    const cmv = calcularCMV(receita);
+    return (cmv / valorVenda) * 100;
+  };
+
+  // Verificar alertas
+  const verificarAlertas = (receita: Receita) => {
+    const percentualCMV = calcularPercentualCMV(receita);
+    const alertas: string[] = [];
+
+    if (percentualCMV > 45) {
+      alertas.push("CMV muito alto");
+    }
+
+    return alertas;
+  };
+
   const getUnidadeMedidaNome = (unidadeId: string) => {
     const unidade = unidades.find(u => u.id === unidadeId);
     return unidade ? unidade.nome : unidadeId;
@@ -173,6 +202,7 @@ export default function Precificacao() {
                   <TableHead className="text-center">Medida</TableHead>
                   <TableHead className="text-right">Custos de Produção</TableHead>
                   <TableHead className="text-right">Despesas com Vendas</TableHead>
+                  <TableHead className="text-center">Alertas</TableHead>
                   <TableHead className="text-center">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -180,17 +210,61 @@ export default function Precificacao() {
                 {receitasAtivasOrdenadas.map((receita) => {
                   const custosProducao = calcularCustosProducao(receita);
                   const despesasVenda = calcularDespesasVenda(receita);
+                  const alertas = verificarAlertas(receita);
+                  const temAlerta = alertas.length > 0;
 
                   return (
-                    <TableRow key={receita.id}>
-                      <TableCell className="font-medium">{receita.nome}</TableCell>
-                      <TableCell className="text-center">{receita.categoria || "-"}</TableCell>
-                      <TableCell className="text-center">{getUnidadeMedidaNome(receita.unidadeRendimento)}</TableCell>
-                      <TableCell className="text-right">
+                    <TableRow 
+                      key={receita.id}
+                      className={cn(
+                        temAlerta && "bg-red-50/50 dark:bg-red-950/20"
+                      )}
+                    >
+                      <TableCell className={cn(
+                        "font-medium",
+                        temAlerta && "text-red-700 dark:text-red-400 font-semibold"
+                      )}>
+                        {receita.nome}
+                      </TableCell>
+                      <TableCell className={cn(
+                        "text-center",
+                        temAlerta && "text-red-700 dark:text-red-400"
+                      )}>
+                        {receita.categoria || "-"}
+                      </TableCell>
+                      <TableCell className={cn(
+                        "text-center",
+                        temAlerta && "text-red-700 dark:text-red-400"
+                      )}>
+                        {getUnidadeMedidaNome(receita.unidadeRendimento)}
+                      </TableCell>
+                      <TableCell className={cn(
+                        "text-right",
+                        temAlerta && "text-red-700 dark:text-red-400"
+                      )}>
                         R$ {custosProducao.toFixed(2)}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className={cn(
+                        "text-right",
+                        temAlerta && "text-red-700 dark:text-red-400"
+                      )}>
                         R$ {despesasVenda.toFixed(2)}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {temAlerta && (
+                          <div className="flex flex-col gap-1">
+                            {alertas.map((alerta, index) => (
+                              <Badge 
+                                key={index}
+                                variant="outline" 
+                                className="bg-red-100 text-red-700 border-red-300 dark:bg-red-950 dark:text-red-400 dark:border-red-800"
+                              >
+                                <AlertTriangle className="h-3 w-3 mr-1" />
+                                {alerta}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-center">
