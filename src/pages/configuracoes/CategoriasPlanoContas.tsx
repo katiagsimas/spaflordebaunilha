@@ -481,10 +481,6 @@ export default function CategoriasPlanoContas() {
             description="Categorias para classificação de receitas e despesas no DRE"
           />
         </div>
-        <Button onClick={() => handleAbrirModal()}>
-          <Plus className="mr-2 h-4 w-4" />
-          Criar Nova Categoria
-        </Button>
       </div>
 
       {/* Alertas */}
@@ -495,6 +491,14 @@ export default function CategoriasPlanoContas() {
           conforme sua necessidade e editar apenas as customizadas.
         </AlertDescription>
       </Alert>
+
+      {/* Botão Criar Nova Categoria */}
+      <div className="flex justify-center">
+        <Button onClick={() => handleAbrirModal()} size="lg">
+          <Plus className="mr-2 h-5 w-5" />
+          Criar Nova Categoria
+        </Button>
+      </div>
 
       {/* Filtros */}
       <div className="border rounded-lg p-4 space-y-4 bg-muted/30">
