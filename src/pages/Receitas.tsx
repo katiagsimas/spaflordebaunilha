@@ -2,15 +2,13 @@ import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, CookingPot, Copy, AlertTriangle } from "lucide-react";
+import { Plus, Pencil, Trash2, CookingPot, Copy } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { EmptyState } from "@/components/EmptyState";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 
 interface Ingrediente {
   id: string;
@@ -132,23 +130,6 @@ export default function Receitas() {
   const calcularLucro = (receita: Receita) => {
     const valorVenda = receita.valorVenda || 0;
     return valorVenda - receita.custoTotal;
-  };
-
-  // Função para verificar alertas
-  const verificarAlertas = (receita: Receita) => {
-    const alertas: string[] = [];
-    const percentualCMV = calcularPercentualCMV(receita);
-    const percentualMargem = calcularPercentualMargem(receita);
-
-    if (percentualCMV > 35) {
-      alertas.push(`CMV alto: ${percentualCMV.toFixed(1)}% (ideal até 35%)`);
-    }
-    
-    if (percentualMargem < 30) {
-      alertas.push(`Margem baixa: ${percentualMargem.toFixed(1)}% (ideal acima de 30%)`);
-    }
-
-    return alertas;
   };
 
   const handleDelete = (id: string) => {
@@ -282,24 +263,10 @@ export default function Receitas() {
                 const percentualMargem = calcularPercentualMargem(receita);
                 const despesasVenda = calcularDespesasVenda(receita);
                 const lucro = calcularLucro(receita);
-                const alertas = verificarAlertas(receita);
-                const temAlerta = alertas.length > 0;
 
                 return (
-                  <TableRow 
-                    key={receita.id}
-                    className={cn(
-                      temAlerta && "bg-amber-50 dark:bg-amber-950/20 hover:bg-amber-100 dark:hover:bg-amber-950/30"
-                    )}
-                  >
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        {temAlerta && (
-                          <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
-                        )}
-                        <span>{receita.nome}</span>
-                      </div>
-                    </TableCell>
+                  <TableRow key={receita.id}>
+                    <TableCell className="font-medium">{receita.nome}</TableCell>
                     <TableCell className="text-center">{receita.categoria || "-"}</TableCell>
                     <TableCell className="text-center">
                       {receita.cardapio === "ativo" ? "Ativo" : "Fora"}
@@ -311,17 +278,13 @@ export default function Receitas() {
                       R$ {custoInsumosEmbalagens.toFixed(2)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <span className={cn(percentualCMV > 35 && "font-semibold text-amber-600 dark:text-amber-400")}>
-                        {percentualCMV.toFixed(1)}%
-                      </span>
+                      {percentualCMV.toFixed(1)}%
                     </TableCell>
                     <TableCell className="text-right">
                       R$ {margemContribuicao.toFixed(2)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <span className={cn(percentualMargem < 30 && "font-semibold text-amber-600 dark:text-amber-400")}>
-                        {percentualMargem.toFixed(1)}%
-                      </span>
+                      {percentualMargem.toFixed(1)}%
                     </TableCell>
                     <TableCell className="text-right">
                       R$ {despesasVenda.toFixed(2)}
@@ -360,45 +323,13 @@ export default function Receitas() {
                          </Button>
                        </div>
                      </TableCell>
-                   </TableRow>
-                 );
-               })}
-             </TableBody>
-           </Table>
-         </div>
-       )}
-
-       {/* Seção de Alertas */}
-       {receitasOrdenadas.some(r => verificarAlertas(r).length > 0) && (
-         <div className="mt-6 space-y-4">
-           <h3 className="text-lg font-semibold flex items-center gap-2">
-             <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-             Alertas de Precificação
-           </h3>
-           <div className="space-y-2">
-             {receitasOrdenadas.map((receita) => {
-               const alertas = verificarAlertas(receita);
-               if (alertas.length === 0) return null;
-
-               return (
-                 <div 
-                   key={receita.id} 
-                   className="p-4 rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/20"
-                 >
-                   <div className="font-medium text-amber-900 dark:text-amber-100 mb-2">
-                     {receita.nome}
-                   </div>
-                   <ul className="list-disc list-inside space-y-1 text-sm text-amber-800 dark:text-amber-200">
-                     {alertas.map((alerta, idx) => (
-                       <li key={idx}>{alerta}</li>
-                     ))}
-                   </ul>
-                 </div>
-               );
-             })}
-           </div>
-         </div>
-       )}
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      )}
 
       <ConfirmDialog
         open={isDeleteDialogOpen}
