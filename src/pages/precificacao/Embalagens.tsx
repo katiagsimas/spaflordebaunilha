@@ -97,11 +97,18 @@ export default function Embalagens() {
             )
           )
         `)
-        .eq('usuario_id', user.id)
-        .order('created_at', { ascending: false });
+        .eq('usuario_id', user.id);
 
       if (error) throw error;
-      setEmbalagens(data || []);
+      
+      // Ordenar alfabeticamente pela descrição do tipo de insumo
+      const sortedData = (data || []).sort((a, b) => {
+        const nomeA = a.tipo_insumo?.descricao?.toLowerCase() || '';
+        const nomeB = b.tipo_insumo?.descricao?.toLowerCase() || '';
+        return nomeA.localeCompare(nomeB, 'pt-BR');
+      });
+      
+      setEmbalagens(sortedData);
     } catch (error) {
       console.error('Erro ao buscar embalagens:', error);
     } finally {
