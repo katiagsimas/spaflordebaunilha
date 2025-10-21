@@ -112,7 +112,8 @@ export default function ReceitaForm() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const { data, error } = await supabase
+        // Buscar ingredientes normais
+        const { data: ingredientesData, error: ingredientesError } = await supabase
           .from('ingredientes')
           .select(`
             *,
@@ -130,8 +131,37 @@ export default function ReceitaForm() {
           .eq('usuario_id', user.id)
           .order('created_at', { ascending: false });
 
-        if (error) throw error;
-        setIngredientesCadastrados(data || []);
+        if (ingredientesError) throw ingredientesError;
+        
+        // Buscar receitas do tipo "Produto para Combo" do localStorage
+        let receitasCombo: any[] = [];
+        const receitasStorage = localStorage.getItem('receitas');
+        
+        if (receitasStorage) {
+          const receitas = JSON.parse(receitasStorage);
+          receitasCombo = receitas
+            .filter((r: any) => r.tipo === 'produto_combo')
+            .map((r: any) => ({
+              id: `receita_${r.id}`,
+              preco: r.custoTotal || 0,
+              marca: 'Receita',
+              tipo_insumo: {
+                id: `tipo_receita_${r.id}`,
+                descricao: r.nome,
+                quantidade_embalagem: r.rendimento || 1,
+                pre_preparo_id: null,
+                unidade_medida: {
+                  nome: r.unidadeRendimento || 'un',
+                  sigla: r.unidadeRendimento || 'un'
+                }
+              },
+              e_receita_combo: true
+            }));
+        }
+        
+        // Combinar ingredientes e receitas combo
+        const todosItens = [...(ingredientesData || []), ...receitasCombo];
+        setIngredientesCadastrados(todosItens);
       } catch (error) {
         console.error('Erro ao buscar ingredientes:', error);
       }
