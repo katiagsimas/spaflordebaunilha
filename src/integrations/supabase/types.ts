@@ -416,6 +416,44 @@ export type Database = {
           },
         ]
       }
+      contas_receber_comprovantes: {
+        Row: {
+          arquivo_nome: string
+          arquivo_tamanho: number | null
+          arquivo_tipo: string | null
+          arquivo_url: string
+          created_at: string | null
+          id: string
+          pagamento_id: string
+        }
+        Insert: {
+          arquivo_nome: string
+          arquivo_tamanho?: number | null
+          arquivo_tipo?: string | null
+          arquivo_url: string
+          created_at?: string | null
+          id?: string
+          pagamento_id: string
+        }
+        Update: {
+          arquivo_nome?: string
+          arquivo_tamanho?: number | null
+          arquivo_tipo?: string | null
+          arquivo_url?: string
+          created_at?: string | null
+          id?: string
+          pagamento_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contas_receber_comprovantes_pagamento_id_fkey"
+            columns: ["pagamento_id"]
+            isOneToOne: false
+            referencedRelation: "contas_receber_pagamentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contas_receber_pagamentos: {
         Row: {
           banco_id: string
