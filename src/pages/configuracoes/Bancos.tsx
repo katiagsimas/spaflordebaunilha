@@ -24,7 +24,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { Info, Search, Download, Plus, Edit, Trash2, Loader2 } from 'lucide-react';
 import * as XLSX from 'xlsx';
-import { PageHeader } from '@/components/PageHeader';
 import { BackButton } from '@/components/BackButton';
 
 interface Banco {
@@ -291,13 +290,11 @@ export default function Bancos() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 mb-6">
         <BackButton to="/configuracoes" />
-        <div className="flex-1">
-          <PageHeader
-            title="Bancos"
-            description="Cadastre os bancos que você utiliza"
-          />
+        <div>
+          <h1 className="text-3xl font-bold">Bancos</h1>
+          <p className="text-muted-foreground">Cadastre os bancos que você utiliza</p>
         </div>
       </div>
 
