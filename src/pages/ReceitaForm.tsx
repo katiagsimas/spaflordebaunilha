@@ -471,6 +471,9 @@ export default function ReceitaForm() {
 
     const unidadeSelecionada = unidades.find(u => u.id === formData.unidadeRendimentoId);
 
+    // Para "Produto para Combo", usar apenas custo de ingredientes
+    const custoParaSalvar = formData.tipo === "produto_combo" ? custoIngredientes : custoTotal;
+
     const receita: Receita = {
       id: id || Date.now().toString(),
       nome: formData.nome,
@@ -484,7 +487,7 @@ export default function ReceitaForm() {
       ingredientes,
       embalagens,
       modoPreparo,
-      custoTotal,
+      custoTotal: custoParaSalvar,
       valorVenda,
       outrosGastosPersonalizados,
       despesasVenda,
@@ -511,7 +514,7 @@ export default function ReceitaForm() {
         marca: "Receita",
         quantidade: Number(formData.rendimento),
         unidadeMedida: unidadeSelecionada?.sigla || "un",
-        preco: custoTotal,
+        preco: custoIngredientes,
         dataAtualizacao: new Date().toISOString().split('T')[0],
       };
 
