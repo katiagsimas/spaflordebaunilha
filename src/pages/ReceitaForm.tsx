@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { EmbalagemAutocomplete } from "@/components/EmbalagemAutocomplete";
 
 interface CustoFixo {
   id: string;
@@ -761,10 +762,28 @@ export default function ReceitaForm() {
                     {embalagens.map((embalagem, index) => (
                       <TableRow key={embalagem.id}>
                         <TableCell className="min-w-[300px]">
-                          <Input
-                            placeholder="Embalagem (a ser implementado)"
-                            disabled
-                            value={embalagem.embalagem}
+                          <EmbalagemAutocomplete
+                            value={embalagem.embalagemId}
+                            onSelect={(selectedEmbalagem) => {
+                              const novosEmbalagens = [...embalagens];
+                              novosEmbalagens[index] = {
+                                ...embalagem,
+                                embalagemId: selectedEmbalagem.embalagemId,
+                                embalagem: selectedEmbalagem.embalagem,
+                                marca: selectedEmbalagem.marca,
+                                qtdeEmbalagem: selectedEmbalagem.qtdeEmbalagem,
+                                unidadeMedida: selectedEmbalagem.unidadeMedida,
+                                precoEmbalagem: selectedEmbalagem.precoEmbalagem,
+                                custoUnitario: selectedEmbalagem.qtdeEmbalagem > 0 
+                                  ? selectedEmbalagem.precoEmbalagem / selectedEmbalagem.qtdeEmbalagem 
+                                  : 0,
+                                custoReceita: embalagem.quantidadeUtilizada && selectedEmbalagem.qtdeEmbalagem > 0
+                                  ? (selectedEmbalagem.precoEmbalagem / selectedEmbalagem.qtdeEmbalagem) * embalagem.quantidadeUtilizada
+                                  : 0,
+                              };
+                              setEmbalagens(novosEmbalagens);
+                            }}
+                            placeholder="Selecione a embalagem"
                           />
                         </TableCell>
                         <TableCell className="text-sm">{embalagem.marca}</TableCell>
