@@ -809,7 +809,7 @@ export default function PrePreparoForm() {
                     {ingredientesDisponiveis.map(ingrediente => (
                       <CommandItem
                         key={ingrediente.id}
-                        value={ingrediente.id}
+                        value={`${ingrediente.tipo_insumo?.descricao} ${ingrediente.marca || ''}`}
                         onSelect={() => handleAdicionarIngrediente(ingrediente)}
                       >
                         <div className="flex flex-col w-full">
