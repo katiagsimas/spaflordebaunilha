@@ -6,8 +6,10 @@ import { toast } from 'sonner';
 interface TipoDocumento {
   id: string;
   usuario_id: string;
-  codigo: string;
+  codigo: number;
   descricao: string;
+  e_padrao?: boolean;
+  ativo?: boolean;
   created_at?: string;
   updated_at?: string;
 }

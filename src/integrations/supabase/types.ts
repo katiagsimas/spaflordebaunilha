@@ -1093,25 +1093,31 @@ export type Database = {
       }
       tipos_documento: {
         Row: {
-          codigo: string
+          ativo: boolean | null
+          codigo: number
           created_at: string
           descricao: string
+          e_padrao: boolean | null
           id: string
           updated_at: string
           usuario_id: string
         }
         Insert: {
-          codigo: string
+          ativo?: boolean | null
+          codigo: number
           created_at?: string
           descricao: string
+          e_padrao?: boolean | null
           id?: string
           updated_at?: string
           usuario_id: string
         }
         Update: {
-          codigo?: string
+          ativo?: boolean | null
+          codigo?: number
           created_at?: string
           descricao?: string
+          e_padrao?: boolean | null
           id?: string
           updated_at?: string
           usuario_id?: string
@@ -1240,6 +1246,10 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
+      criar_tipos_documentos_padrao: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
       gerar_proximo_codigo_categoria: {
         Args: { p_user_id: string }
         Returns: string
@@ -1249,6 +1259,10 @@ export type Database = {
         Returns: string
       }
       gerar_proximo_codigo_plano: {
+        Args: { p_user_id: string }
+        Returns: number
+      }
+      gerar_proximo_codigo_tipo_documento: {
         Args: { p_user_id: string }
         Returns: number
       }
