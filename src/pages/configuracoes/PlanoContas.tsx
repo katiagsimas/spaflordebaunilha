@@ -106,7 +106,7 @@ export default function PlanoContas() {
           )
         `)
         .eq('user_id', user.id)
-        .order('codigo');
+        .order('codigo_estruturado');
 
       if (errorPlanos) throw errorPlanos;
       setPlanos(dataPlanos || []);
