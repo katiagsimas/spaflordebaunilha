@@ -109,8 +109,7 @@ export default function PrePreparos() {
                 <TableHead>Nome</TableHead>
                 <TableHead>Tempo de Preparo</TableHead>
                 <TableHead>Rendimento</TableHead>
-                <TableHead>Custo Total</TableHead>
-                <TableHead>Custo/Unidade</TableHead>
+                <TableHead>Custo</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -133,9 +132,6 @@ export default function PrePreparos() {
                   </TableCell>
                   <TableCell className="font-medium">
                     {formatarPreco(preparo.custo_total || 0)}
-                  </TableCell>
-                  <TableCell className="font-medium text-primary">
-                    {formatarPreco(preparo.custo_por_unidade || 0)}
                   </TableCell>
                   <TableCell className="text-right">
                     <Button
