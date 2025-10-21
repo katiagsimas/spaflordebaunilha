@@ -35,6 +35,7 @@ import ComingSoon from "./pages/ComingSoon";
 import Configuracoes from "./pages/Configuracoes";
 import TiposInsumos from "./pages/configuracoes/TiposInsumos";
 import CategoriasPlanoContas from "./pages/configuracoes/CategoriasPlanoContas";
+import PlanoContas from "./pages/configuracoes/PlanoContas";
 import Ingredientes from "./pages/precificacao/Ingredientes";
 import Embalagens from "./pages/precificacao/Embalagens";
 import PrePreparos from "./pages/precificacao/PrePreparos";
