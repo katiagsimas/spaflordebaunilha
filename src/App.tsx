@@ -43,6 +43,9 @@ import AjudaCategorias from "./pages/financeiro/AjudaCategorias";
 import PlanosContas from "./pages/financeiro/PlanosContas";
 import TiposDocumento from "./pages/financeiro/TiposDocumento";
 import Bancos from "./pages/financeiro/Bancos";
+import TiposInsumos from "./pages/configuracoes/TiposInsumos";
+import Ingredientes from "./pages/precificacao/Ingredientes";
+import Embalagens from "./pages/precificacao/Embalagens";
 import Relatorios from "./pages/relatorios/Relatorios";
 import FluxoCaixaDiario from "./pages/relatorios/FluxoCaixaDiario";
 import FluxoCaixaMensal from "./pages/relatorios/FluxoCaixaMensal";
@@ -129,6 +132,7 @@ const App = () => (
           
           {/* Configurações - Página Container + Sub-rotas */}
           <Route path="/configuracoes" element={<ProtectedRoute><Layout><Configuracoes /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/tipos-insumos" element={<ProtectedRoute><Layout><TiposInsumos /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/dados-confeitaria" element={<ProtectedRoute><Layout><SeusDados /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/categorias-receitas" element={<ProtectedRoute><Layout><Categorias /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/unidades-medida" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
@@ -136,6 +140,10 @@ const App = () => (
           <Route path="/configuracoes/plano-contas" element={<ProtectedRoute><Layout><PlanosContas /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/tipos-documento" element={<ProtectedRoute><Layout><TiposDocumento /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/bancos" element={<ProtectedRoute><Layout><Bancos /></Layout></ProtectedRoute>} />
+          
+          {/* Precificação - Ingredientes e Embalagens */}
+          <Route path="/precificacao/ingredientes" element={<ProtectedRoute><Layout><Ingredientes /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao/embalagens" element={<ProtectedRoute><Layout><Embalagens /></Layout></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -1,7 +1,7 @@
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { ChefHat, CookingPot, DollarSign, Pencil } from "lucide-react";
+import { ChefHat, CookingPot, DollarSign, Pencil, Package } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -51,6 +51,20 @@ interface Receita {
 }
 
 const opcoes = [
+  {
+    title: "Ingredientes",
+    description: "Ingredientes com marca e preço",
+    icon: ChefHat,
+    url: "/precificacao/ingredientes",
+    color: "text-green-600 bg-green-50 dark:bg-green-950",
+  },
+  {
+    title: "Embalagens",
+    description: "Embalagens com marca e preço",
+    icon: Package,
+    url: "/precificacao/embalagens",
+    color: "text-blue-600 bg-blue-50 dark:bg-blue-950",
+  },
   {
     title: "Custos Fixos",
     description: "Despesas mensais fixas",

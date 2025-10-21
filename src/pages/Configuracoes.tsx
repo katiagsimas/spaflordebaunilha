@@ -1,4 +1,4 @@
-import { Settings, Tag, FileText, CreditCard, Building2, UserCircle, Ruler, Lock } from "lucide-react";
+import { Settings, Tag, FileText, CreditCard, Building2, UserCircle, Ruler, Lock, Package } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
@@ -14,6 +14,15 @@ const opcoes = [
     url: "/configuracoes/dados-confeitaria",
     color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-950",
     statusKey: "seusDados" as const,
+    requiresAdmin: false,
+  },
+  {
+    title: "Tipos de Insumos e Embalagens",
+    description: "Cadastre os tipos base de ingredientes e embalagens",
+    icon: Package,
+    url: "/configuracoes/tipos-insumos",
+    color: "text-green-600 bg-green-50 dark:bg-green-950",
+    statusKey: null,
     requiresAdmin: false,
   },
   {
