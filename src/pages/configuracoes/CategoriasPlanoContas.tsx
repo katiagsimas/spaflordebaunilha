@@ -481,16 +481,10 @@ export default function CategoriasPlanoContas() {
             description="Categorias para classificação de receitas e despesas no DRE"
           />
         </div>
-        <div className="flex gap-2">
-          <Button onClick={handleExportarExcel} variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Exportar Excel
-          </Button>
-          <Button onClick={() => handleAbrirModal()}>
-            <Plus className="mr-2 h-4 w-4" />
-            Criar Nova Categoria
-          </Button>
-        </div>
+        <Button onClick={() => handleAbrirModal()}>
+          <Plus className="mr-2 h-4 w-4" />
+          Criar Nova Categoria
+        </Button>
       </div>
 
       {/* Alertas */}
@@ -600,8 +594,14 @@ export default function CategoriasPlanoContas() {
         </div>
 
         {/* Contador de resultados */}
-        <div className="text-sm text-muted-foreground">
-          Mostrando <strong>{categoriasFiltradas.length}</strong> de <strong>{categorias.length}</strong> categoria(s)
+        <div className="flex justify-between items-center">
+          <div className="text-sm text-muted-foreground">
+            Mostrando <strong>{categoriasFiltradas.length}</strong> de <strong>{categorias.length}</strong> categoria(s)
+          </div>
+          <Button onClick={handleExportarExcel} variant="outline" size="sm">
+            <Download className="mr-2 h-4 w-4" />
+            Exportar Excel
+          </Button>
         </div>
       </div>
 
