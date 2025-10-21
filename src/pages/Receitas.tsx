@@ -98,14 +98,15 @@ export default function Receitas() {
     return (receita.despesasVenda || []).reduce((acc, despesa) => acc + despesa.valor, 0);
   };
 
-  // Função para calcular CMV
+  // Função para calcular CMV Real (igual ao formulário)
   const calcularCMV = (receita: Receita) => {
-    const custoInsumosEmbalagens = calcularCustoInsumosEmbalagens(receita);
+    // CMV = Custo Total (já inclui ingredientes + embalagens + custos fixos + outros gastos) + Despesas de Venda
+    const custoTotal = receita.custoTotal || 0;
     const despesasVenda = calcularDespesasVenda(receita);
-    return custoInsumosEmbalagens + despesasVenda;
+    return custoTotal + despesasVenda;
   };
 
-  // Função para calcular percentual CMV
+  // Função para calcular percentual CMV Real
   const calcularPercentualCMV = (receita: Receita) => {
     const valorVenda = receita.valorVenda || 0;
     if (valorVenda === 0) return 0;
