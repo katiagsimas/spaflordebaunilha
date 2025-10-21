@@ -305,16 +305,25 @@ export default function DarBaixaDialog({
               onChange={(e) => setObservacao(e.target.value)}
             />
           </div>
+          {/* Botões de Ação */}
+          <div className="flex gap-2 pt-4 border-t">
+            <Button 
+              variant="outline" 
+              onClick={() => onOpenChange(false)} 
+              disabled={loading}
+              className="flex-1"
+            >
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleSalvar} 
+              disabled={loading}
+              className="flex-1"
+            >
+              {loading ? 'Salvando...' : 'Registrar Pagamento'}
+            </Button>
+          </div>
         </div>
-
-        <DialogFooter className="border-t pt-4 mt-4 sticky bottom-0 bg-background">
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
-            Cancelar
-          </Button>
-          <Button onClick={handleSalvar} disabled={loading}>
-            {loading ? 'Salvando...' : 'Registrar Pagamento'}
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
