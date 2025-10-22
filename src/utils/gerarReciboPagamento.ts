@@ -107,7 +107,8 @@ export async function gerarReciboPagamento(
   // ==========================================
   // TÍTULO DO RECIBO
   // ==========================================
-  doc.setFillColor(59, 130, 246);
+  // Usando a cor primary da paleta: hsl(14 48% 71%) = RGB(221, 162, 137)
+  doc.setFillColor(221, 162, 137);
   doc.rect(0, yPos, pageWidth, 12, 'F');
   
   doc.setTextColor(255, 255, 255);
@@ -131,7 +132,8 @@ export async function gerarReciboPagamento(
   // ==========================================
   // DADOS DO CLIENTE
   // ==========================================
-  doc.setFillColor(240, 240, 240);
+  // Usando a cor secondary da paleta: hsl(20 50% 93%) = RGB(247, 235, 230)
+  doc.setFillColor(247, 235, 230);
   doc.rect(15, yPos, pageWidth - 30, 8, 'F');
   
   doc.setFontSize(11);
@@ -174,7 +176,7 @@ export async function gerarReciboPagamento(
   // ==========================================
   // REFERENTE A
   // ==========================================
-  doc.setFillColor(240, 240, 240);
+  doc.setFillColor(247, 235, 230);
   doc.rect(15, yPos, pageWidth - 30, 8, 'F');
   
   doc.setFont('helvetica', 'bold');
@@ -189,7 +191,7 @@ export async function gerarReciboPagamento(
   // ==========================================
   // DETALHAMENTO DO PAGAMENTO
   // ==========================================
-  doc.setFillColor(240, 240, 240);
+  doc.setFillColor(247, 235, 230);
   doc.rect(15, yPos, pageWidth - 30, 8, 'F');
   
   doc.setFont('helvetica', 'bold');
@@ -220,7 +222,7 @@ export async function gerarReciboPagamento(
     margin: { left: 15, right: 15 },
     theme: 'grid',
     headStyles: {
-      fillColor: [59, 130, 246],
+      fillColor: [221, 162, 137], // primary
       textColor: 255,
       fontStyle: 'bold',
       halign: 'center',
@@ -234,7 +236,7 @@ export async function gerarReciboPagamento(
     },
     didParseCell: function(data: any) {
       if (data.row.index === data.table.body.length - 1) {
-        data.cell.styles.fillColor = [220, 252, 231];
+        data.cell.styles.fillColor = [240, 253, 244]; // success suave
         data.cell.styles.textColor = [22, 101, 52];
         data.cell.styles.fontStyle = 'bold';
       }
