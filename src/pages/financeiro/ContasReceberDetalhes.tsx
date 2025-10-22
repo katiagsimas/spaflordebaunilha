@@ -84,9 +84,12 @@ export default function ContasReceberDetalhes() {
 
   const fetchDetalhes = async () => {
     try {
-      console.log('Buscando detalhes da conta:', id);
+      console.log('🔍 Buscando detalhes da conta:', id);
 
-      // Buscar conta principal
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Buscar conta principal COM TODOS OS DADOS DO CLIENTE
       const { data: dataConta, error: errorConta } = await supabase
         .from('contas_receber')
         .select(`
@@ -103,9 +106,17 @@ export default function ContasReceberDetalhes() {
           e_recorrente,
           created_at,
           cliente:clientes (
+            id,
             nome,
+            cpf_cnpj,
             email,
-            telefone
+            telefone,
+            endereco,
+            numero,
+            bairro,
+            cidade,
+            estado,
+            cep
           ),
           tipo_documento:tipos_documento (
             descricao
@@ -124,7 +135,8 @@ export default function ContasReceberDetalhes() {
 
       if (errorConta) throw errorConta;
       
-      console.log('Conta carregada:', dataConta);
+      console.log('✅ Conta carregada:', dataConta);
+      console.log('👤 Dados do cliente:', dataConta.cliente);
       console.log('Valor total:', dataConta.valor);
       
       setConta(dataConta);
@@ -175,14 +187,16 @@ export default function ContasReceberDetalhes() {
       }
 
       // Buscar dados da empresa/confeitaria
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: dataEmpresa } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
+      const { data: dataEmpresa, error: errorEmpresa } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
 
+      if (errorEmpresa) {
+        console.warn('⚠️ Dados da empresa não encontrados:', errorEmpresa);
+      } else {
+        console.log('✅ Dados da empresa carregados:', dataEmpresa);
         setDadosEmpresa(dataEmpresa);
       }
 
@@ -481,54 +495,87 @@ export default function ContasReceberDetalhes() {
 
   const handleImprimirRecibo = async (pagamento, parcela) => {
     try {
+      console.log('🖨️ Gerando recibo...');
+      console.log('Pagamento:', pagamento);
+      console.log('Parcela:', parcela);
+      console.log('Conta:', conta);
+      console.log('Cliente da conta:', conta?.cliente);
+
+      // Validação: Dados da empresa
       if (!dadosEmpresa) {
         toast({
-          title: 'Erro',
-          description: 'Configure os dados da empresa em Configurações > Seus Dados!',
+          title: '⚠️ Atenção',
+          description: 'Configure os dados da empresa em Configurações → Dados da Confeitaria!',
           variant: 'destructive',
         });
         return;
       }
 
-      if (!conta?.cliente_nome) {
+      // Validação: Cliente
+      if (!conta || !conta.cliente) {
+        console.error('❌ Dados do cliente não encontrados');
+        console.log('Conta completa:', JSON.stringify(conta, null, 2));
+        
         toast({
-          title: 'Erro',
-          description: 'Dados do cliente não encontrados!',
+          title: '❌ Erro',
+          description: 'Dados do cliente não encontrados! Verifique se o cliente está vinculado à conta.',
           variant: 'destructive',
         });
         return;
       }
 
-      // Gerar número do recibo (baseado no ID do pagamento)
-      const numeroRecibo = pagamento.id.split('-')[0].toUpperCase();
+      console.log('✅ Validações OK, preparando dados...');
+
+      // Gerar número do recibo (primeiros 8 caracteres do ID)
+      const numeroRecibo = pagamento.id.substring(0, 8).toUpperCase();
 
       // Preparar dados da empresa
       const dadosEmpresaPDF = {
         nome_fantasia: dadosEmpresa.nome_confeitaria || 'Empresa',
-        razao_social: dadosEmpresa.nome_completo,
-        cnpj: dadosEmpresa.cpf,
-        endereco: dadosEmpresa.endereco,
-        cidade: dadosEmpresa.cidade,
-        estado: dadosEmpresa.estado,
-        cep: dadosEmpresa.cep,
-        telefone: dadosEmpresa.telefone || dadosEmpresa.whatsapp,
-        email: dadosEmpresa.email,
-        logo_url: dadosEmpresa.avatar_url,
+        razao_social: dadosEmpresa.nome_completo || null,
+        cnpj: dadosEmpresa.cpf || null,
+        endereco: dadosEmpresa.endereco || null,
+        cidade: dadosEmpresa.cidade || null,
+        estado: dadosEmpresa.estado || null,
+        cep: dadosEmpresa.cep || null,
+        telefone: dadosEmpresa.telefone || dadosEmpresa.whatsapp || null,
+        email: dadosEmpresa.email || null,
+        logo_url: dadosEmpresa.avatar_url || null,
       };
+
+      console.log('Dados empresa PDF:', dadosEmpresaPDF);
 
       // Preparar dados do cliente
+      const cliente = conta.cliente;
+      
+      // Montar endereço completo
+      let enderecoCompleto = null;
+      if (cliente.endereco) {
+        const partesEndereco = [
+          cliente.endereco,
+          cliente.numero ? `nº ${cliente.numero}` : null,
+          cliente.bairro,
+        ].filter(Boolean);
+        
+        enderecoCompleto = partesEndereco.join(', ');
+      }
+
       const dadosClientePDF = {
-        nome: conta.cliente_nome,
-        cpf_cnpj: conta.cliente_documento,
-        endereco: '',
-        cidade: '',
-        estado: '',
-        telefone: '',
-        email: '',
+        nome: cliente.nome || 'Cliente não identificado',
+        cpf_cnpj: cliente.cpf_cnpj || null,
+        endereco: enderecoCompleto,
+        cidade: cliente.cidade || null,
+        estado: cliente.estado || null,
+        telefone: cliente.telefone || null,
+        email: cliente.email || null,
       };
 
+      console.log('Dados cliente PDF:', dadosClientePDF);
+
+      // Calcular valor líquido
       const valorLiquido = parseFloat(pagamento.valor_pago) + (parseFloat(pagamento.juros) || 0) - (parseFloat(pagamento.desconto) || 0);
 
+      // Preparar dados do pagamento
       const dadosPagamentoPDF = {
         numero_recibo: numeroRecibo,
         data_pagamento: new Date(pagamento.data_pagamento + 'T00:00:00').toLocaleDateString('pt-BR'),
@@ -539,21 +586,29 @@ export default function ContasReceberDetalhes() {
         banco_nome: pagamento.banco?.nome || 'N/A',
         banco_codigo: pagamento.banco?.codigo || '',
         tipo_documento: pagamento.tipo_documento?.descricao || 'N/A',
-        observacao: pagamento.observacao,
-        referente: `Parcela ${parcela.numero_parcela} de ${conta.numero_parcelas} - ${conta.descricao || 'Conta'} - Vencimento: ${formatarData(parcela.data_vencimento)}`,
+        observacao: pagamento.observacao || null,
+        referente: `Parcela ${parcela.numero_parcela} de ${conta.numero_parcelas} - ${conta.tipo_documento?.descricao || 'Conta'} - Vencimento: ${formatarData(parcela.data_vencimento)}`,
       };
 
+      console.log('Dados pagamento PDF:', dadosPagamentoPDF);
+      console.log('🚀 Chamando gerarReciboPagamento...');
+
+      // Gerar o PDF
       await gerarReciboPagamento(dadosEmpresaPDF, dadosClientePDF, dadosPagamentoPDF);
+
+      console.log('✅ Recibo gerado com sucesso!');
 
       toast({
         title: '✅ Recibo gerado',
         description: 'O PDF foi gerado e está sendo baixado!',
       });
     } catch (error) {
-      console.error('Erro ao gerar recibo:', error);
+      console.error('❌ Erro ao gerar recibo:', error);
+      console.error('Stack:', error.stack);
+      
       toast({
-        title: 'Erro ao gerar recibo',
-        description: error.message,
+        title: '❌ Erro ao gerar recibo',
+        description: error.message || 'Erro desconhecido ao gerar o PDF',
         variant: 'destructive',
       });
     }
