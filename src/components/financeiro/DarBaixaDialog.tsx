@@ -53,8 +53,9 @@ export default function DarBaixaDialog({
   const [bancos, setBancos] = useState([]);
   const [tiposDocumento, setTiposDocumento] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [valorPagoPrincipal, setValorPagoPrincipal] = useState(0);
 
-  const valorRestante = parcela ? parcela.valor_parcela - (parcela.valor_pago || 0) : 0;
+  const valorRestante = parcela ? parcela.valor_parcela - valorPagoPrincipal : 0;
 
   // Calcular juros automaticamente com base na configuração do usuário
   const calcularJurosAutomatico = (dataVencimento: string, dataPagamento: string, valorParcela: number) => {
@@ -123,7 +124,12 @@ export default function DarBaixaDialog({
     if (open && parcela) {
       fetchDados();
       fetchConfigJuros();
-      
+      fetchValorPagoPrincipal();
+    }
+  }, [open, parcela]);
+
+  useEffect(() => {
+    if (open && parcela && valorRestante > 0) {
       // Preencher valor restante automaticamente
       setValorPago(valorRestante.toFixed(2).replace('.', ','));
       const hoje = new Date().toISOString().split('T')[0];
@@ -146,7 +152,7 @@ export default function DarBaixaDialog({
       setObservacao('');
       setArquivoComprovante(null);
     }
-  }, [open, parcela]);
+  }, [valorRestante]);
 
   const fetchDados = async () => {
     try {
@@ -173,6 +179,24 @@ export default function DarBaixaDialog({
       setTiposDocumento(dataTipos || []);
     } catch (error) {
       console.error('Erro ao buscar dados:', error);
+    }
+  };
+
+  const fetchValorPagoPrincipal = async () => {
+    try {
+      if (!parcela) return;
+
+      const { data: pagamentos } = await supabase
+        .from('contas_receber_pagamentos')
+        .select('valor_pago')
+        .eq('parcela_id', parcela.id)
+        .eq('estornado', false);
+
+      const total = pagamentos?.reduce((acc, p) => acc + (p.valor_pago || 0), 0) || 0;
+      setValorPagoPrincipal(total);
+    } catch (error) {
+      console.error('Erro ao buscar valor pago:', error);
+      setValorPagoPrincipal(0);
     }
   };
 
@@ -372,9 +396,9 @@ export default function DarBaixaDialog({
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Já Pago:</span>
+              <span className="text-sm text-muted-foreground">Já Pago (Principal):</span>
               <span className="font-medium text-blue-600">
-                {formatarValor(parcela.valor_pago || 0)}
+                {formatarValor(valorPagoPrincipal)}
               </span>
             </div>
             <div className="flex justify-between pt-2 border-t">
