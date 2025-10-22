@@ -302,12 +302,32 @@ export default function ContasReceberFormModal({
 
   const handleEditarParcela = (index: number, field: string, value: any) => {
     const novasParcelas = [...parcelasGeradas];
+    
     if (field === 'valor_parcela') {
-      const valorNumerico = parseFloat(value.replace(',', '.'));
+      const valorNumerico = parseFloat(value.replace(',', '.')) || 0;
       novasParcelas[index][field] = valorNumerico;
+      
+      // Se editou a primeira parcela, recalcular as demais
+      if (index === 0 && novasParcelas.length > 1) {
+        const valorTotalNumerico = parseFloat(valorTotal.replace(',', '.'));
+        const valorPrimeiraParcela = valorNumerico;
+        const valorRestante = valorTotalNumerico - valorPrimeiraParcela;
+        const parcelasRestantes = novasParcelas.length - 1;
+        const valorDemaisParcelas = valorRestante / parcelasRestantes;
+        
+        for (let i = 1; i < novasParcelas.length; i++) {
+          novasParcelas[i].valor_parcela = valorDemaisParcelas;
+        }
+        
+        toast({
+          title: '✅ Parcelas recalculadas',
+          description: `Demais parcelas ajustadas para R$ ${valorDemaisParcelas.toFixed(2).replace('.', ',')}`,
+        });
+      }
     } else {
       novasParcelas[index][field] = value;
     }
+    
     setParcelasGeradas(novasParcelas);
     setParcelasEditadas(true);
   };
@@ -505,7 +525,14 @@ export default function ContasReceberFormModal({
                         placeholder="0,00"
                         value={parcela.valor_parcela.toFixed(2).replace('.', ',')}
                         onChange={(e) => {
-                          const valor = e.target.value.replace(/[^\d,]/g, '');
+                          let valor = e.target.value;
+                          // Permitir apenas números e vírgula
+                          valor = valor.replace(/[^\d,]/g, '');
+                          // Garantir apenas uma vírgula
+                          const partes = valor.split(',');
+                          if (partes.length > 2) {
+                            valor = partes[0] + ',' + partes.slice(1).join('');
+                          }
                           handleEditarParcela(index, 'valor_parcela', valor);
                         }}
                         className="w-32 text-right ml-auto"

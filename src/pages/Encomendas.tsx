@@ -414,6 +414,12 @@ const Encomendas = () => {
   };
 
   const handleAbrirPagamento = () => {
+    // Verificar se já existe conta vinculada
+    if (contaReceberId) {
+      toast.error('Esta encomenda já possui uma conta a receber. Alterações devem ser feitas no Módulo de Contas a Receber.');
+      return;
+    }
+
     // Validar se tem cliente
     if (!formData.cliente) {
       toast.error('Selecione o cliente antes de configurar o pagamento!');
@@ -1029,12 +1035,22 @@ const Encomendas = () => {
                         
                         <Button
                           type="button"
-                          variant="default"
-                          className="h-auto py-4 flex items-center justify-center gap-2"
+                          variant={contaReceberId ? "outline" : "default"}
+                          className={`h-auto py-4 flex flex-col items-center justify-center gap-1 ${
+                            contaReceberId 
+                              ? 'border-2 border-gray-300 bg-gray-100 cursor-not-allowed hover:bg-gray-100' 
+                              : ''
+                          }`}
                           onClick={handleAbrirPagamento}
+                          disabled={contaReceberId ? true : false}
                         >
-                          <DollarSign className="h-5 w-5" />
-                          <span className="text-lg font-semibold">Pagamento</span>
+                          <DollarSign className={`h-5 w-5 ${contaReceberId ? 'text-gray-400' : ''}`} />
+                          <span className={`text-lg font-semibold ${contaReceberId ? 'text-gray-500' : ''}`}>
+                            {contaReceberId ? 'Conta Vinculada' : 'Pagamento'}
+                          </span>
+                          {contaReceberId && (
+                            <span className="text-xs text-gray-500">Editar em Contas a Receber</span>
+                          )}
                         </Button>
                       </div>
 
