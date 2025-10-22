@@ -39,7 +39,9 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, MoreVertical, Eye, DollarSign, Edit, Trash2, Info, Filter, Calendar, ChevronDown, X, Download } from 'lucide-react';
+import { Plus, MoreVertical, Eye, DollarSign, Edit, Trash2, Info, Filter, Calendar, ChevronDown, X, Download, CheckSquare, Square } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Textarea } from '@/components/ui/textarea';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import * as XLSX from 'xlsx';
 
@@ -79,9 +81,20 @@ export default function ContasReceber() {
   const [darBaixaOpen, setDarBaixaOpen] = useState(false);
   const [parcelaSelecionada, setParcelaSelecionada] = useState<any>(null);
 
+  // Estados para seleção múltipla e ações em lote
+  const [parcelasSelecionadas, setParcelasSelecionadas] = useState(new Set<string>());
+  const [modoSelecao, setModoSelecao] = useState(false);
+  const [modalBaixaLote, setModalBaixaLote] = useState(false);
+  const [dataPagamentoLote, setDataPagamentoLote] = useState(new Date().toISOString().split('T')[0]);
+  const [bancoIdLote, setBancoIdLote] = useState('');
+  const [tipoDocumentoIdLote, setTipoDocumentoIdLote] = useState('');
+  const [observacaoLote, setObservacaoLote] = useState('');
+  const [configJuros, setConfigJuros] = useState<any>(null);
+
   useEffect(() => {
     fetchParcelas();
     fetchDadosFiltros();
+    fetchConfigJuros();
   }, []);
 
   const fetchDadosFiltros = async () => {
@@ -141,6 +154,23 @@ export default function ContasReceber() {
     }
   };
 
+  const fetchConfigJuros = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('configuracoes_juros')
+        .select('*')
+        .eq('usuario_id', user.id)
+        .maybeSingle();
+
+      setConfigJuros(data);
+    } catch (error) {
+      console.error('Erro ao buscar config juros:', error);
+    }
+  };
+
   const fetchParcelas = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -163,6 +193,251 @@ export default function ContasReceber() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSelecionarTodos = () => {
+    if (parcelasSelecionadas.size === parcelasFiltradas.length) {
+      setParcelasSelecionadas(new Set());
+    } else {
+      const novoSet = new Set(parcelasFiltradas.map(p => p.id));
+      setParcelasSelecionadas(novoSet);
+    }
+  };
+
+  const handleToggleSelecao = (parcelaId: string) => {
+    const novoSet = new Set(parcelasSelecionadas);
+    if (novoSet.has(parcelaId)) {
+      novoSet.delete(parcelaId);
+    } else {
+      novoSet.add(parcelaId);
+    }
+    setParcelasSelecionadas(novoSet);
+  };
+
+  const handleLimparSelecao = () => {
+    setParcelasSelecionadas(new Set());
+    setModoSelecao(false);
+  };
+
+  const handleAbrirBaixaLote = () => {
+    if (parcelasSelecionadas.size === 0) {
+      toast({
+        title: 'Aviso',
+        description: 'Selecione pelo menos uma parcela!',
+        variant: 'default',
+      });
+      return;
+    }
+
+    const parcelasEmAberto = parcelasFiltradas.filter(
+      p => parcelasSelecionadas.has(p.id) && 
+      (p.status === 'aberto' || p.status === 'atrasado' || p.status === 'pagamento_parcial')
+    );
+
+    if (parcelasEmAberto.length === 0) {
+      toast({
+        title: 'Aviso',
+        description: 'Nenhuma parcela em aberto foi selecionada!',
+        variant: 'default',
+      });
+      return;
+    }
+
+    if (parcelasEmAberto.length < parcelasSelecionadas.size) {
+      toast({
+        title: 'Aviso',
+        description: `${parcelasSelecionadas.size - parcelasEmAberto.length} parcela(s) já está(ão) paga(s) e será(ão) ignorada(s).`,
+        variant: 'default',
+      });
+    }
+
+    setDataPagamentoLote(new Date().toISOString().split('T')[0]);
+    setBancoIdLote('');
+    setTipoDocumentoIdLote('');
+    setObservacaoLote('');
+    setModalBaixaLote(true);
+  };
+
+  const handleConfirmarBaixaLote = async () => {
+    try {
+      if (!bancoIdLote) {
+        toast({
+          title: 'Erro',
+          description: 'Selecione o banco!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!tipoDocumentoIdLote) {
+        toast({
+          title: 'Erro',
+          description: 'Selecione o tipo de documento!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const parcelasParaBaixa = parcelasFiltradas.filter(
+        p => parcelasSelecionadas.has(p.id) && 
+        (p.status === 'aberto' || p.status === 'atrasado' || p.status === 'pagamento_parcial')
+      );
+
+      let sucessos = 0;
+      let erros = 0;
+
+      for (const parcela of parcelasParaBaixa) {
+        try {
+          const valorRestante = parcela.valor_parcela - (parcela.valor_pago || 0);
+
+          let juros = 0;
+          if (configJuros && configJuros.cobrar_juros) {
+            const venc = new Date(parcela.data_vencimento + 'T00:00:00');
+            const pag = new Date(dataPagamentoLote + 'T00:00:00');
+            const diffDays = Math.ceil((pag.getTime() - venc.getTime()) / (1000 * 60 * 60 * 24));
+            
+            if (diffDays > 0) {
+              if (configJuros.tipo_juros === 'mensal') {
+                const taxaDia = configJuros.percentual_juros / 30;
+                juros = valorRestante * (taxaDia / 100) * diffDays;
+              } else {
+                juros = valorRestante * (configJuros.percentual_juros / 100) * diffDays;
+              }
+              
+              if (configJuros.multa_atraso) {
+                juros += valorRestante * (configJuros.percentual_multa / 100);
+              }
+            }
+          }
+
+          const { error } = await supabase
+            .from('contas_receber_pagamentos')
+            .insert({
+              parcela_id: parcela.id,
+              data_pagamento: dataPagamentoLote,
+              valor_pago: valorRestante,
+              juros: juros,
+              desconto: 0,
+              banco_id: bancoIdLote,
+              tipo_documento_id: tipoDocumentoIdLote,
+              observacao: observacaoLote.trim() || null,
+            });
+
+          if (error) throw error;
+          sucessos++;
+        } catch (error) {
+          console.error('Erro ao dar baixa na parcela:', parcela.id, error);
+          erros++;
+        }
+      }
+
+      toast({
+        title: '✅ Baixa em lote concluída',
+        description: `${sucessos} parcela(s) recebida(s) com sucesso${erros > 0 ? `. ${erros} erro(s).` : '!'}`,
+      });
+
+      setModalBaixaLote(false);
+      handleLimparSelecao();
+      fetchParcelas();
+    } catch (error) {
+      console.error('Erro ao processar baixa em lote:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível processar a baixa em lote.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleExcluirLote = async () => {
+    try {
+      if (parcelasSelecionadas.size === 0) {
+        toast({
+          title: 'Aviso',
+          description: 'Selecione pelo menos uma parcela!',
+          variant: 'default',
+        });
+        return;
+      }
+
+      const confirmar = window.confirm(
+        `Tem certeza que deseja excluir ${parcelasSelecionadas.size} parcela(s)?\n\n` +
+        `Esta ação não pode ser desfeita e excluirá todos os pagamentos relacionados.`
+      );
+
+      if (!confirmar) return;
+
+      const ids = Array.from(parcelasSelecionadas);
+      
+      const { error } = await supabase
+        .from('contas_receber_parcelas')
+        .delete()
+        .in('id', ids);
+
+      if (error) throw error;
+
+      toast({
+        title: '✅ Parcelas excluídas',
+        description: `${ids.length} parcela(s) excluída(s) com sucesso!`,
+      });
+
+      handleLimparSelecao();
+      fetchParcelas();
+    } catch (error) {
+      console.error('Erro ao excluir em lote:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível excluir as parcelas.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleExportarSelecionadas = () => {
+    try {
+      if (parcelasSelecionadas.size === 0) {
+        toast({
+          title: 'Aviso',
+          description: 'Selecione pelo menos uma parcela!',
+          variant: 'default',
+        });
+        return;
+      }
+
+      const parcelasExportar = parcelasFiltradas.filter(p => parcelasSelecionadas.has(p.id));
+
+      const dadosExportacao = parcelasExportar.map(p => ({
+        'Documento': p.tipo_documento_descricao || 'N/A',
+        'Emissão': formatarData(p.data_emissao),
+        'Plano Contas': `${p.plano_contas_codigo} - ${p.plano_contas_descricao}`,
+        'Cliente': p.cliente_nome || 'N/A',
+        'Vencimento': formatarData(p.data_vencimento),
+        'Valor Total': p.valor_total,
+        'Parcela': `${p.numero_parcela} de ${p.numero_parcelas}`,
+        'Valor a Pagar': p.valor_parcela,
+        'Valor Pago': p.valor_pago || 0,
+        'Data Pagamento': formatarData(p.data_pagamento),
+        'Status': p.status,
+        'Banco': p.banco_nome || 'N/A',
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(dadosExportacao);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Selecionadas');
+      XLSX.writeFile(wb, `contas_receber_selecionadas_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+      toast({
+        title: '✅ Exportado',
+        description: `${parcelasSelecionadas.size} parcela(s) exportada(s)!`,
+      });
+    } catch (error) {
+      console.error('Erro ao exportar:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível exportar as parcelas.',
+        variant: 'destructive',
+      });
     }
   };
 
