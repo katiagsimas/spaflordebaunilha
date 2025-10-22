@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -53,6 +53,7 @@ const Encomendas = () => {
   const [statusFilter, setStatusFilter] = useState("Todos");
   const [modalPagamentoAberto, setModalPagamentoAberto] = useState(false);
   const [contaReceberId, setContaReceberId] = useState<string | null>(null);
+  const [planoContasVendaId, setPlanoContasVendaId] = useState<string>('');
   const [tempProdutos, setTempProdutos] = useState<Array<{
     id: string;
     receita_id: string;
@@ -115,6 +116,32 @@ const Encomendas = () => {
     return valorTotalProdutos - valorDesconto + formData.taxa_entrega + formData.topo_bolo + formData.outros;
   }, [valorTotalProdutos, valorDesconto, formData.taxa_entrega, formData.topo_bolo, formData.outros]);
 
+  // Buscar o ID do plano de contas "Venda de Produtos" ao carregar
+  useEffect(() => {
+    const fetchPlanoContasVenda = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data, error } = await supabase
+          .from('plano_contas')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('ativo', true)
+          .ilike('descricao', '%venda%produto%')
+          .limit(1)
+          .single();
+
+        if (data && !error) {
+          setPlanoContasVendaId(data.id);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar plano de contas:', error);
+      }
+    };
+
+    fetchPlanoContasVenda();
+  }, []);
 
   const resetForm = () => {
     setFormData({
@@ -1024,6 +1051,7 @@ const Encomendas = () => {
                             clienteNomeInicial={formData.cliente}
                             descricaoInicial={getDescricaoProdutos()}
                             valorTotalInicial={valorFinal}
+                            planoContasIdInicial={planoContasVendaId}
                             onSucesso={handleContaCriada}
                             onCancelar={() => setModalPagamentoAberto(false)}
                           />

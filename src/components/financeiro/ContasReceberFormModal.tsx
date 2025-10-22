@@ -22,6 +22,7 @@ interface ContasReceberFormModalProps {
   clienteNomeInicial: string;
   descricaoInicial: string;
   valorTotalInicial: number;
+  planoContasIdInicial?: string;
   onSucesso: (contaReceberId: string) => void;
   onCancelar: () => void;
 }
@@ -32,6 +33,7 @@ export default function ContasReceberFormModal({
   clienteNomeInicial,
   descricaoInicial,
   valorTotalInicial,
+  planoContasIdInicial,
   onSucesso,
   onCancelar,
 }: ContasReceberFormModalProps) {
@@ -41,7 +43,7 @@ export default function ContasReceberFormModal({
   const [clienteId] = useState(clienteIdInicial);
   const [clienteNome] = useState(clienteNomeInicial);
   const [tipoDocumentoId, setTipoDocumentoId] = useState('');
-  const [planoContasId, setPlanoContasId] = useState('');
+  const [planoContasId, setPlanoContasId] = useState(planoContasIdInicial || '');
   const [bancoId, setBancoId] = useState('');
   const [descricao, setDescricao] = useState(descricaoInicial);
   const [valorTotal, setValorTotal] = useState(valorTotalInicial.toFixed(2).replace('.', ','));
