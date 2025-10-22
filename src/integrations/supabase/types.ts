@@ -288,8 +288,8 @@ export type Database = {
           created_at: string
           data_emissao: string | null
           data_pagamento: string | null
-          data_vencimento: string
-          descricao: string
+          data_vencimento: string | null
+          descricao: string | null
           dia_vencimento_recorrente: number | null
           e_recorrente: boolean | null
           fornecedor_id: string | null
@@ -302,7 +302,7 @@ export type Database = {
           tipo_lancamento: string | null
           updated_at: string
           usuario_id: string
-          valor: number
+          valor: number | null
           valor_total: number | null
         }
         Insert: {
@@ -311,8 +311,8 @@ export type Database = {
           created_at?: string
           data_emissao?: string | null
           data_pagamento?: string | null
-          data_vencimento: string
-          descricao: string
+          data_vencimento?: string | null
+          descricao?: string | null
           dia_vencimento_recorrente?: number | null
           e_recorrente?: boolean | null
           fornecedor_id?: string | null
@@ -325,7 +325,7 @@ export type Database = {
           tipo_lancamento?: string | null
           updated_at?: string
           usuario_id: string
-          valor: number
+          valor?: number | null
           valor_total?: number | null
         }
         Update: {
@@ -334,8 +334,8 @@ export type Database = {
           created_at?: string
           data_emissao?: string | null
           data_pagamento?: string | null
-          data_vencimento?: string
-          descricao?: string
+          data_vencimento?: string | null
+          descricao?: string | null
           dia_vencimento_recorrente?: number | null
           e_recorrente?: boolean | null
           fornecedor_id?: string | null
@@ -348,7 +348,7 @@ export type Database = {
           tipo_lancamento?: string | null
           updated_at?: string
           usuario_id?: string
-          valor?: number
+          valor?: number | null
           valor_total?: number | null
         }
         Relationships: [
