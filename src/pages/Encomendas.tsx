@@ -1421,23 +1421,22 @@ const Encomendas = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Filtros</CardTitle>
-            {(clienteFilter !== "Todos" || statusFilter !== "Todos" || dataEntregaFilter || horaEntregaFilter || tagFilter !== "todos") && (
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => {
-                  setClienteFilter("Todos");
-                  setStatusFilter("Todos");
-                  setDataEntregaFilter("");
-                  setHoraEntregaFilter("");
-                  setTagFilter("todos");
-                }}
-                className="gap-2"
-              >
-                <X className="h-4 w-4" />
-                Limpar Filtros
-              </Button>
-            )}
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => {
+                setClienteFilter("Todos");
+                setStatusFilter("Todos");
+                setDataEntregaFilter("");
+                setHoraEntregaFilter("");
+                setTagFilter("todos");
+              }}
+              disabled={clienteFilter === "Todos" && statusFilter === "Todos" && !dataEntregaFilter && !horaEntregaFilter && tagFilter === "todos"}
+              className="gap-2"
+            >
+              <X className="h-4 w-4" />
+              Limpar Filtros
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
