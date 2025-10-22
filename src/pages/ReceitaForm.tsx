@@ -769,56 +769,66 @@ export default function ReceitaForm() {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[400px] p-0" align="start">
-                  <Command>
+                  <Command shouldFilter={false}>
                     <CommandInput
                       placeholder="Buscar ingrediente..."
                       value={termoBuscaIngrediente}
                       onValueChange={setTermoBuscaIngrediente}
                     />
-                    <CommandEmpty>
-                      <div className="flex flex-col items-center gap-2 py-4">
-                        <p className="text-sm text-muted-foreground">
-                          Nenhum ingrediente encontrado
-                        </p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setNovoTipoIngDescricao(termoBuscaIngrediente);
-                            setNovoTipoIngQuantidade('');
-                            setNovoTipoIngUnidadeId('');
-                            setModalCriarTipoIngAberto(true);
-                            setMostrarPopoverIngrediente(false);
-                          }}
-                          className="gap-2"
-                        >
-                          <Plus className="h-4 w-4" />
-                          Cadastrar novo ingrediente
-                        </Button>
-                      </div>
-                    </CommandEmpty>
-                    <CommandGroup className="max-h-64 overflow-auto">
-                      {ingredientesCadastrados.map((ing) => (
-                        <CommandItem
-                          key={ing.id}
-                          value={`${ing.tipo_insumo?.descricao} ${ing.marca || ''}`}
-                          onSelect={() => {
-                            handleSelectIngrediente(ingredientes.length, ing.id);
-                            setMostrarPopoverIngrediente(false);
-                            setTermoBuscaIngrediente('');
-                          }}
-                        >
-                          <div className="flex flex-col w-full">
-                            <span className="font-medium">
-                              {ing.tipo_insumo?.descricao}
-                            </span>
-                            <span className="text-sm text-muted-foreground">
-                              {ing.marca ? `${ing.marca} - ` : ''}R$ {ing.preco?.toFixed(2)}
-                            </span>
+                    {(() => {
+                      const ingredientesFiltrados = ingredientesCadastrados.filter(ing => {
+                        const texto = `${ing.tipo_insumo?.descricao || ''} ${ing.marca || ''}`.toLowerCase();
+                        return texto.includes(termoBuscaIngrediente.toLowerCase());
+                      });
+                      
+                      return ingredientesFiltrados.length > 0 ? (
+                        <CommandGroup className="max-h-64 overflow-auto">
+                          {ingredientesFiltrados.map((ing) => (
+                            <CommandItem
+                              key={ing.id}
+                              value={ing.id}
+                              onSelect={() => {
+                                handleSelectIngrediente(ingredientes.length, ing.id);
+                                setMostrarPopoverIngrediente(false);
+                                setTermoBuscaIngrediente('');
+                              }}
+                            >
+                              <div className="flex flex-col w-full">
+                                <span className="font-medium">
+                                  {ing.tipo_insumo?.descricao}
+                                </span>
+                                <span className="text-sm text-muted-foreground">
+                                  {ing.marca ? `${ing.marca} - ` : ''}R$ {ing.preco?.toFixed(2)}
+                                </span>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      ) : (
+                        <CommandEmpty>
+                          <div className="flex flex-col items-center gap-2 py-4">
+                            <p className="text-sm text-muted-foreground">
+                              Nenhum ingrediente encontrado
+                            </p>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setNovoTipoIngDescricao(termoBuscaIngrediente);
+                                setNovoTipoIngQuantidade('');
+                                setNovoTipoIngUnidadeId('');
+                                setModalCriarTipoIngAberto(true);
+                                setMostrarPopoverIngrediente(false);
+                              }}
+                              className="gap-2"
+                            >
+                              <Plus className="h-4 w-4" />
+                              Cadastrar novo ingrediente
+                            </Button>
                           </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
+                        </CommandEmpty>
+                      );
+                    })()}
                   </Command>
                 </PopoverContent>
               </Popover>
@@ -915,56 +925,66 @@ export default function ReceitaForm() {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[400px] p-0" align="start">
-                  <Command>
+                  <Command shouldFilter={false}>
                     <CommandInput
                       placeholder="Buscar embalagem..."
                       value={termoBuscaEmbalagem}
                       onValueChange={setTermoBuscaEmbalagem}
                     />
-                    <CommandEmpty>
-                      <div className="flex flex-col items-center gap-2 py-4">
-                        <p className="text-sm text-muted-foreground">
-                          Nenhuma embalagem encontrada
-                        </p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setNovoTipoEmbDescricao(termoBuscaEmbalagem);
-                            setNovoTipoEmbQuantidade('');
-                            setNovoTipoEmbUnidadeId('');
-                            setModalCriarTipoEmbAberto(true);
-                            setMostrarPopoverEmbalagem(false);
-                          }}
-                          className="gap-2"
-                        >
-                          <Plus className="h-4 w-4" />
-                          Cadastrar nova embalagem
-                        </Button>
-                      </div>
-                    </CommandEmpty>
-                    <CommandGroup className="max-h-64 overflow-auto">
-                      {embalagensCadastradas.map((emb) => (
-                        <CommandItem
-                          key={emb.id}
-                          value={`${emb.tipo_insumo?.descricao} ${emb.marca || ''}`}
-                          onSelect={() => {
-                            handleSelectEmbalagem(embalagens.length, emb.id);
-                            setMostrarPopoverEmbalagem(false);
-                            setTermoBuscaEmbalagem('');
-                          }}
-                        >
-                          <div className="flex flex-col w-full">
-                            <span className="font-medium">
-                              {emb.tipo_insumo?.descricao}
-                            </span>
-                            <span className="text-sm text-muted-foreground">
-                              {emb.marca ? `${emb.marca} - ` : ''}R$ {emb.preco?.toFixed(2)}
-                            </span>
+                    {(() => {
+                      const embalagensFiltradas = embalagensCadastradas.filter(emb => {
+                        const texto = `${emb.tipo_insumo?.descricao || ''} ${emb.marca || ''}`.toLowerCase();
+                        return texto.includes(termoBuscaEmbalagem.toLowerCase());
+                      });
+                      
+                      return embalagensFiltradas.length > 0 ? (
+                        <CommandGroup className="max-h-64 overflow-auto">
+                          {embalagensFiltradas.map((emb) => (
+                            <CommandItem
+                              key={emb.id}
+                              value={emb.id}
+                              onSelect={() => {
+                                handleSelectEmbalagem(embalagens.length, emb.id);
+                                setMostrarPopoverEmbalagem(false);
+                                setTermoBuscaEmbalagem('');
+                              }}
+                            >
+                              <div className="flex flex-col w-full">
+                                <span className="font-medium">
+                                  {emb.tipo_insumo?.descricao}
+                                </span>
+                                <span className="text-sm text-muted-foreground">
+                                  {emb.marca ? `${emb.marca} - ` : ''}R$ {emb.preco?.toFixed(2)}
+                                </span>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      ) : (
+                        <CommandEmpty>
+                          <div className="flex flex-col items-center gap-2 py-4">
+                            <p className="text-sm text-muted-foreground">
+                              Nenhuma embalagem encontrada
+                            </p>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setNovoTipoEmbDescricao(termoBuscaEmbalagem);
+                                setNovoTipoEmbQuantidade('');
+                                setNovoTipoEmbUnidadeId('');
+                                setModalCriarTipoEmbAberto(true);
+                                setMostrarPopoverEmbalagem(false);
+                              }}
+                              className="gap-2"
+                            >
+                              <Plus className="h-4 w-4" />
+                              Cadastrar nova embalagem
+                            </Button>
                           </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
+                        </CommandEmpty>
+                      );
+                    })()}
                   </Command>
                 </PopoverContent>
               </Popover>
@@ -1796,6 +1816,9 @@ export default function ReceitaForm() {
 
                 toast.success('Ingrediente cadastrado e adicionado!');
 
+                // Atualizar lista de ingredientes cadastrados
+                setIngredientesCadastrados([...ingredientesCadastrados, data]);
+
                 // Adicionar o novo ingrediente ao estado
                 const novoIngrediente: IngredienteReceita = {
                   id: `ing-${Date.now()}`,
@@ -1914,6 +1937,9 @@ export default function ReceitaForm() {
                 }
 
                 toast.success('Embalagem cadastrada e adicionada!');
+
+                // Atualizar lista de embalagens cadastradas
+                setEmbalagensCadastradas([...embalagensCadastradas, data]);
 
                 // Adicionar a nova embalagem ao estado
                 const novaEmbalagem: EmbalagemReceita = {
