@@ -29,7 +29,6 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Plus, 
@@ -543,193 +542,227 @@ export default function ContasPagar() {
         ))}
       </div>
 
-      {/* Filtros Avançados */}
-      <Collapsible open={mostrarFiltrosAvancados} onOpenChange={setMostrarFiltrosAvancados}>
-        <div className="flex items-center justify-between">
-          <CollapsibleTrigger asChild>
-            <Button variant="outline" size="sm">
-              <ChevronDown className={`h-4 w-4 mr-2 transition-transform ${mostrarFiltrosAvancados ? 'rotate-180' : ''}`} />
-              Mais Opções de Busca
-            </Button>
-          </CollapsibleTrigger>
-          {(dataEmissaoInicio || dataEmissaoFim || dataPagamentoInicio || dataPagamentoFim || 
-            dataVencimentoInicio || dataVencimentoFim || fornecedorFiltro !== 'todos' || 
-            planoContasFiltro !== 'todos' || categoriaFiltro !== 'todos' || 
-            tipoDocumentoFiltro !== 'todos' || bancoFiltro !== 'todos') && (
-            <Button variant="ghost" size="sm" onClick={limparFiltros}>
-              <X className="h-4 w-4 mr-2" />
-              Limpar Filtros
-            </Button>
-          )}
+      {/* Filtros Avançados - Datas */}
+      <div className="grid grid-cols-3 gap-4">
+        {/* Data de Emissão */}
+        <div className="space-y-2">
+          <Label className="text-xs text-muted-foreground">Data de Emissão</Label>
+          <div className="grid grid-cols-2 gap-2">
+            <Input
+              type="date"
+              value={dataEmissaoInicio}
+              onChange={(e) => setDataEmissaoInicio(e.target.value)}
+              placeholder="Inicial"
+              className="text-xs"
+            />
+            <Input
+              type="date"
+              value={dataEmissaoFim}
+              onChange={(e) => setDataEmissaoFim(e.target.value)}
+              placeholder="Final"
+              className="text-xs"
+            />
+          </div>
         </div>
 
-        <CollapsibleContent className="mt-4 space-y-4">
-          <Card>
-            <CardContent className="pt-6 space-y-4">
-              {/* Filtros de Data */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label>Data de Emissão</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      type="date"
-                      value={dataEmissaoInicio}
-                      onChange={(e) => setDataEmissaoInicio(e.target.value)}
-                      placeholder="De"
-                    />
-                    <Input
-                      type="date"
-                      value={dataEmissaoFim}
-                      onChange={(e) => setDataEmissaoFim(e.target.value)}
-                      placeholder="Até"
-                    />
-                  </div>
-                </div>
+        {/* Data de Pagamento */}
+        <div className="space-y-2">
+          <Label className="text-xs text-muted-foreground">Data de Pagamento</Label>
+          <div className="grid grid-cols-2 gap-2">
+            <Input
+              type="date"
+              value={dataPagamentoInicio}
+              onChange={(e) => setDataPagamentoInicio(e.target.value)}
+              placeholder="Inicial"
+              className="text-xs"
+            />
+            <Input
+              type="date"
+              value={dataPagamentoFim}
+              onChange={(e) => setDataPagamentoFim(e.target.value)}
+              placeholder="Final"
+              className="text-xs"
+            />
+          </div>
+        </div>
 
-                <div className="space-y-2">
-                  <Label>Data de Vencimento</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      type="date"
-                      value={dataVencimentoInicio}
-                      onChange={(e) => setDataVencimentoInicio(e.target.value)}
-                      placeholder="De"
-                    />
-                    <Input
-                      type="date"
-                      value={dataVencimentoFim}
-                      onChange={(e) => setDataVencimentoFim(e.target.value)}
-                      placeholder="Até"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Data de Pagamento</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      type="date"
-                      value={dataPagamentoInicio}
-                      onChange={(e) => setDataPagamentoInicio(e.target.value)}
-                      placeholder="De"
-                    />
-                    <Input
-                      type="date"
-                      value={dataPagamentoFim}
-                      onChange={(e) => setDataPagamentoFim(e.target.value)}
-                      placeholder="Até"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Filtros de Dropdown */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label>Fornecedor</Label>
-                  <Select value={fornecedorFiltro} onValueChange={setFornecedorFiltro}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Todos os fornecedores" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todos os fornecedores</SelectItem>
-                      {fornecedores.map((f: any) => (
-                        <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Plano de Contas</Label>
-                  <Select value={planoContasFiltro} onValueChange={setPlanoContasFiltro}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Todos os planos" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todos os planos</SelectItem>
-                      {planosContas.map((p: any) => (
-                        <SelectItem key={p.id} value={p.id}>
-                          {p.codigo_estruturado} - {p.descricao}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Categoria</Label>
-                  <Select value={categoriaFiltro} onValueChange={setCategoriaFiltro}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Todas as categorias" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todas as categorias</SelectItem>
-                      {categorias.map((c: any) => (
-                        <SelectItem key={c.id} value={c.id}>{c.descricao}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Tipo de Documento</Label>
-                  <Select value={tipoDocumentoFiltro} onValueChange={setTipoDocumentoFiltro}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Todos os tipos" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todos os tipos</SelectItem>
-                      {tiposDocumento.map((t: any) => (
-                        <SelectItem key={t.id} value={t.id}>{t.descricao}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Banco</Label>
-                  <Select value={bancoFiltro} onValueChange={setBancoFiltro}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Todos os bancos" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todos os bancos</SelectItem>
-                      {bancos.map((b: any) => (
-                        <SelectItem key={b.id} value={b.id}>
-                          {b.codigo} - {b.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </CollapsibleContent>
-      </Collapsible>
-
-      {/* Contador e ações */}
-      <div className="flex justify-between items-center">
-        <p className="text-sm text-muted-foreground">
-          Mostrando {parcelasFiltradas.length} de {parcelas.length} parcelas
-        </p>
-        <div className="flex gap-2">
-          {parcelasSelecionadas.size > 0 && (
-            <Button variant="outline" size="sm" onClick={handleLimparSelecao}>
-              <X className="h-4 w-4 mr-2" />
-              Limpar Seleção ({parcelasSelecionadas.size})
-            </Button>
-          )}
-          <Button variant="outline" size="sm" onClick={handleExportarExcel}>
-            <FileDown className="h-4 w-4 mr-2" />
-            Exportar CSV
-          </Button>
+        {/* Data de Vencimento */}
+        <div className="space-y-2">
+          <Label className="text-xs text-muted-foreground">Data de Vencimento</Label>
+          <div className="grid grid-cols-2 gap-2">
+            <Input
+              type="date"
+              value={dataVencimentoInicio}
+              onChange={(e) => setDataVencimentoInicio(e.target.value)}
+              placeholder="Inicial"
+              className="text-xs"
+            />
+            <Input
+              type="date"
+              value={dataVencimentoFim}
+              onChange={(e) => setDataVencimentoFim(e.target.value)}
+              placeholder="Final"
+              className="text-xs"
+            />
+          </div>
         </div>
       </div>
 
+      {/* Botão Mais Opções */}
+      <div className="flex gap-2">
+        <Button
+          variant="outline"
+          onClick={() => setMostrarFiltrosAvancados(!mostrarFiltrosAvancados)}
+        >
+          Mais Opções de Busca
+          <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${mostrarFiltrosAvancados ? 'rotate-180' : ''}`} />
+        </Button>
+        <Button variant="outline" onClick={limparFiltros}>
+          Limpar Filtros
+        </Button>
+        <Button variant="outline" onClick={handleExportarExcel}>
+          <Download className="mr-2 h-4 w-4" />
+          Exportar para Excel
+        </Button>
+      </div>
+
+      {/* Filtros Avançados Recolhíveis */}
+      {mostrarFiltrosAvancados && (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 border rounded-lg bg-muted/50">
+          {/* Fornecedor */}
+          <div className="space-y-2">
+            <Label>Fornecedor</Label>
+            <Select value={fornecedorFiltro} onValueChange={setFornecedorFiltro}>
+              <SelectTrigger>
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos</SelectItem>
+                {fornecedores.map((f: any) => (
+                  <SelectItem key={f.id} value={f.id}>
+                    {f.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Plano de Contas */}
+          <div className="space-y-2">
+            <Label>Plano de Contas</Label>
+            <Select value={planoContasFiltro} onValueChange={setPlanoContasFiltro}>
+              <SelectTrigger>
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos</SelectItem>
+                {planosContas.map((p: any) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.codigo_estruturado} - {p.descricao}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Categoria Plano de Contas */}
+          <div className="space-y-2">
+            <Label>Categoria Plano de Contas</Label>
+            <Select value={categoriaFiltro} onValueChange={setCategoriaFiltro}>
+              <SelectTrigger>
+                <SelectValue placeholder="Todas" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todas</SelectItem>
+                {categorias.map((c: any) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.descricao}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Tipo de Documento */}
+          <div className="space-y-2">
+            <Label>Tipo de Documento</Label>
+            <Select value={tipoDocumentoFiltro} onValueChange={setTipoDocumentoFiltro}>
+              <SelectTrigger>
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos</SelectItem>
+                {tiposDocumento.map((t: any) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    {t.descricao}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Banco */}
+          <div className="space-y-2">
+            <Label>Banco</Label>
+            <Select value={bancoFiltro} onValueChange={setBancoFiltro}>
+              <SelectTrigger>
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos</SelectItem>
+                {bancos.map((b: any) => (
+                  <SelectItem key={b.id} value={b.id}>
+                    {b.codigo} - {b.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      )}
+
+      {/* Contador de Resultados */}
+      <div className="text-sm text-muted-foreground">
+        Mostrando <strong>{parcelasFiltradas.length}</strong> de <strong>{parcelas.length}</strong> parcela(s)
+      </div>
+
+      {/* Barra de Ações em Lote */}
+      {modoSelecao && parcelasSelecionadas.size > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-5 w-5 text-blue-600" />
+            <span className="font-medium">
+              {parcelasSelecionadas.size} parcela(s) selecionada(s)
+            </span>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                toast({
+                  title: 'Em desenvolvimento',
+                  description: 'Funcionalidade de baixa em lote será implementada em breve.',
+                });
+              }}
+            >
+              <DollarSign className="mr-2 h-4 w-4" />
+              Dar Baixa em Lote
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLimparSelecao}
+            >
+              <X className="mr-2 h-4 w-4" />
+              Limpar
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Tabela */}
-      <Card>
+      <div className="border rounded-lg overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -740,11 +773,15 @@ export default function ContasPagar() {
                 />
               </TableHead>
               <TableHead>Documento</TableHead>
+              <TableHead>Emissão</TableHead>
+              <TableHead>Plano Contas</TableHead>
               <TableHead>Fornecedor</TableHead>
-              <TableHead>Plano de Contas</TableHead>
               <TableHead>Vencimento</TableHead>
-              <TableHead className="text-right">Valor</TableHead>
-              <TableHead>Parcela</TableHead>
+              <TableHead>Valor Total</TableHead>
+              <TableHead className="w-28">Parcela</TableHead>
+              <TableHead>Valor a Pagar</TableHead>
+              <TableHead>Valor Pago</TableHead>
+              <TableHead>Data Pag.</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
@@ -752,8 +789,8 @@ export default function ContasPagar() {
           <TableBody>
             {parcelasFiltradas.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
-                  Nenhuma parcela encontrada
+                <TableCell colSpan={13} className="text-center py-8 text-muted-foreground">
+                  Nenhuma parcela encontrada.
                 </TableCell>
               </TableRow>
             ) : (
@@ -763,65 +800,61 @@ export default function ContasPagar() {
                     <Checkbox
                       checked={parcelasSelecionadas.has(parcela.id)}
                       onCheckedChange={() => handleToggleSelecao(parcela.id)}
+                      onClick={(e: any) => {
+                        e.stopPropagation();
+                        if (!modoSelecao) setModoSelecao(true);
+                      }}
                     />
                   </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <p className="font-medium">{parcela.tipo_documento_descricao}</p>
-                      {parcela.numero_documento && (
-                        <p className="text-xs text-muted-foreground">Nº {parcela.numero_documento}</p>
-                      )}
-                      <p className="text-xs text-muted-foreground">
-                        Emissão: {formatarData(parcela.data_emissao)}
-                      </p>
-                    </div>
+                  <TableCell>{parcela.tipo_documento_descricao || 'N/A'}</TableCell>
+                  <TableCell>{formatarData(parcela.data_emissao)}</TableCell>
+                  <TableCell className="text-sm">
+                    {parcela.plano_contas_codigo} - {parcela.plano_contas_descricao}
+                  </TableCell>
+                  <TableCell className="font-medium">{parcela.fornecedor_nome || 'N/A'}</TableCell>
+                  <TableCell>{formatarData(parcela.data_vencimento)}</TableCell>
+                  <TableCell className="font-medium text-red-600">
+                    {formatarValor(parcela.valor_total)}
+                  </TableCell>
+                  <TableCell className="font-mono font-medium">
+                    {parcela.numero_parcela} de {parcela.numero_parcelas}
+                  </TableCell>
+                  <TableCell className="font-medium text-red-600">
+                    {formatarValor(parcela.valor_parcela)}
                   </TableCell>
                   <TableCell>
-                    <p className="font-medium">{parcela.fornecedor_nome}</p>
-                    {parcela.descricao_conta && (
-                      <p className="text-xs text-muted-foreground">{parcela.descricao_conta}</p>
-                    )}
+                    {parcela.valor_pago ? formatarValor(parcela.valor_pago) : '-'}
                   </TableCell>
-                  <TableCell>
-                    <p className="text-sm">{parcela.plano_contas_codigo}</p>
-                    <p className="text-xs text-muted-foreground">{parcela.plano_contas_descricao}</p>
-                  </TableCell>
-                  <TableCell>
-                    {formatarData(parcela.data_vencimento)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="space-y-1">
-                      <p className="font-medium">{formatarValor(parcela.valor_parcela)}</p>
-                      {parcela.valor_pago > 0 && (
-                        <p className="text-xs text-green-600">Pago: {formatarValor(parcela.valor_pago)}</p>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {parcela.numero_parcela}/{parcela.numero_parcelas}
-                  </TableCell>
-                  <TableCell>
-                    {getBadgeStatus(parcela.status)}
-                  </TableCell>
+                  <TableCell>{formatarData(parcela.data_pagamento)}</TableCell>
+                  <TableCell>{getBadgeStatus(parcela.status)}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="sm">
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => navigate(`/financeiro/contas-pagar/${parcela.conta_pagar_id}`)}>
+                        <DropdownMenuItem onClick={() => navigate(`/financeiro/contas-pagar/detalhes/${parcela.conta_pagar_id}`)}>
                           <Eye className="mr-2 h-4 w-4" />
-                          Ver Detalhes
+                          Detalhes
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => navigate(`/financeiro/contas-pagar/editar/${parcela.conta_pagar_id}`)}>
                           <Edit className="mr-2 h-4 w-4" />
                           Editar
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-red-600"
+                        <DropdownMenuItem onClick={() => {
+                          toast({
+                            title: 'Em desenvolvimento',
+                            description: 'Funcionalidade será implementada em breve.',
+                          });
+                        }}>
+                          <DollarSign className="mr-2 h-4 w-4 text-green-600" />
+                          Dar Baixa
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
                           onClick={() => handleExcluir(parcela.conta_pagar_id)}
+                          className="text-red-600"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Excluir
@@ -834,7 +867,7 @@ export default function ContasPagar() {
             )}
           </TableBody>
         </Table>
-      </Card>
+      </div>
     </div>
   );
 }
