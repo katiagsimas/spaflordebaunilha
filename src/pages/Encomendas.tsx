@@ -236,6 +236,8 @@ const Encomendas = () => {
       topo_obs: encomenda.topo_obs || "",
       topo_imagens: Array.isArray(encomenda.topo_imagens) ? encomenda.topo_imagens : [],
     });
+    // Carregar o ID da conta a receber vinculada, se existir
+    setContaReceberId(encomenda.conta_receber_id || null);
     setDialogOpen(true);
   };
 
