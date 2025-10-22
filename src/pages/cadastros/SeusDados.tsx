@@ -256,7 +256,7 @@ export default function SeusDados() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="razaoSocial">Razão Social</Label>
+              <Label htmlFor="razaoSocial">Nome Fantasia</Label>
               <Input
                 id="razaoSocial"
                 {...register("razaoSocial")}
