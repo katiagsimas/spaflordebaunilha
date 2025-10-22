@@ -128,28 +128,24 @@ export default function PrePreparoForm() {
 
       if (ingredientesError) throw ingredientesError;
       
-      // Buscar receitas do tipo "Produto para Combo" do localStorage
-      const receitasStorage = localStorage.getItem('receitas');
+      // Buscar receitas do Supabase
+      const { data: receitasData, error: receitasError } = await supabase
+        .from('receitas')
+        .select('id, nome, tipo_receita')
+        .eq('usuario_id', user.id);
       let receitasCombo: any[] = [];
       
-      if (receitasStorage) {
-        const receitas = JSON.parse(receitasStorage);
-        receitasCombo = receitas
-          .filter((r: any) => r.tipo === 'produto_combo')
+      if (!receitasError && receitasData) {
+        receitasCombo = receitasData
+          .filter((r: any) => r.tipo_receita === 'produto_combo')
           .map((r: any) => {
-            // Buscar a sigla correta da unidade de medida do estado unidades
-            const unidadesStorage = localStorage.getItem('unidadesMedida');
-            let siglaNome = 'un';
-            
-            if (unidadesStorage) {
-              const unidadesArray = JSON.parse(unidadesStorage);
-              const unidade = unidadesArray.find((u: any) => u.id === r.unidadeRendimento);
-              siglaNome = unidade?.sigla || unidade?.nome || 'un';
-            }
+            // Buscar a sigla correta da unidade de medida
+            const unidade = unidades.find((u: any) => u.id === r.unidade_rendimento_id);
+            const siglaNome = unidade?.sigla || 'un';
             
             return {
               id: `receita_${r.id}`,
-              preco: r.custoTotal || 0,
+              preco: r.custo_total || 0,
               marca: 'Receita',
               tipo_insumo: {
                 descricao: r.nome,
