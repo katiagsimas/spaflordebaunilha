@@ -399,108 +399,116 @@ export default function Financeiro() {
       <Separator className="my-6" />
 
       {/* Cards de Navegação */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Card Contas a Receber */}
-        <Card 
-          className="group cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-l-4 border-l-green-500"
-          onClick={() => navigate('/financeiro/contas-receber')}
-        >
-          <CardHeader className="p-6 space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-green-100 dark:bg-green-950 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                <TrendingUp className="h-6 w-6 text-green-600 dark:text-green-400" />
+      <div>
+        <h2 className="text-2xl font-bold mb-4">Módulos</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Card Contas a Receber */}
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02] border-2 hover:border-green-500"
+            onClick={() => navigate('/financeiro/contas-receber')}
+          >
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-green-100 dark:bg-green-950 rounded-lg">
+                    <TrendingUp className="h-8 w-8 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl">Contas a Receber</CardTitle>
+                    <CardDescription className="text-base mt-1">
+                      Gerenciar recebimentos de clientes
+                    </CardDescription>
+                  </div>
+                </div>
+                <ArrowRight className="h-6 w-6 text-muted-foreground" />
               </div>
-              <div className="min-w-0 flex-1">
-                <CardTitle className="text-xl font-semibold leading-tight">
-                  Contas a Receber
-                </CardTitle>
-                <CardDescription className="text-sm mt-1">
-                  Gerenciar recebimentos de clientes
-                </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <DollarSign className="h-4 w-4" />
+                  <span>Controle de recebimentos e parcelas</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="h-4 w-4" />
+                  <span>Pagamentos parciais e histórico</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <PieChart className="h-4 w-4" />
+                  <span>Relatórios e exportação</span>
+                </div>
               </div>
-            </div>
-            
-            <div className="space-y-2 pt-2 border-t">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
-                <span>Controle de recebimentos e parcelas</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Calendar className="h-4 w-4 text-green-600 dark:text-green-400" />
-                <span>Pagamentos parciais e histórico</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <PieChart className="h-4 w-4 text-green-600 dark:text-green-400" />
-                <span>Relatórios e exportação</span>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* Card Contas a Pagar */}
-        <Card 
-          className="group cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-l-4 border-l-red-500"
-          onClick={() => navigate('/financeiro/contas-pagar')}
-        >
-          <CardHeader className="p-6 space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-red-100 dark:bg-red-950 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                <TrendingDown className="h-6 w-6 text-red-600 dark:text-red-400" />
+          {/* Card Contas a Pagar */}
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02] border-2 hover:border-red-500"
+            onClick={() => navigate('/financeiro/contas-pagar')}
+          >
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-red-100 dark:bg-red-950 rounded-lg">
+                    <TrendingDown className="h-8 w-8 text-red-600 dark:text-red-400" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl">Contas a Pagar</CardTitle>
+                    <CardDescription className="text-base mt-1">
+                      Gerenciar pagamentos a fornecedores
+                    </CardDescription>
+                  </div>
+                </div>
+                <ArrowRight className="h-6 w-6 text-muted-foreground" />
               </div>
-              <div className="min-w-0 flex-1">
-                <CardTitle className="text-xl font-semibold leading-tight">
-                  Contas a Pagar
-                </CardTitle>
-                <CardDescription className="text-sm mt-1">
-                  Gerenciar pagamentos a fornecedores
-                </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <DollarSign className="h-4 w-4" />
+                  <span>Controle de pagamentos e fornecedores</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="h-4 w-4" />
+                  <span>Parcelamento e pagamentos parciais</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <PieChart className="h-4 w-4" />
+                  <span>Relatórios e exportação</span>
+                </div>
               </div>
-            </div>
-            
-            <div className="space-y-2 pt-2 border-t">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <DollarSign className="h-4 w-4 text-red-600 dark:text-red-400" />
-                <span>Controle de pagamentos e fornecedores</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Calendar className="h-4 w-4 text-red-600 dark:text-red-400" />
-                <span>Parcelamento e pagamentos parciais</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <PieChart className="h-4 w-4 text-red-600 dark:text-red-400" />
-                <span>Relatórios e exportação</span>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
-      {/* Modal Configurar Saldos */}
+      {/* Modal Configuração de Saldos */}
       <Dialog open={modalConfigAberto} onOpenChange={setModalConfigAberto}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Configurar Saldos Iniciais</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              Configurar Saldos Iniciais
+            </DialogTitle>
             <DialogDescription>
-              Defina os saldos iniciais dos seus bancos para o período
+              Defina o saldo inicial de cada banco para calcular o fluxo de caixa do mês atual
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            {/* Formulário Adicionar Saldo */}
+            {/* Formulário para Adicionar Saldo */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Plus className="h-5 w-5" />
-                  Adicionar Saldo Inicial
-                </CardTitle>
+                <CardTitle className="text-lg">Adicionar Novo Saldo</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
+                  {/* Banco */}
                   <div className="space-y-2">
                     <Label>Banco *</Label>
                     <Select value={bancoId} onValueChange={setBancoId}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o banco..." />
+                        <SelectValue placeholder="Selecione..." />
                       </SelectTrigger>
                       <SelectContent>
                         {bancos.map(banco => (
@@ -512,56 +520,92 @@ export default function Financeiro() {
                     </Select>
                   </div>
 
+                  {/* Mês */}
                   <div className="space-y-2">
-                    <Label htmlFor="saldo">Saldo Inicial *</Label>
-                    <Input
-                      id="saldo"
-                      placeholder="0,00"
-                      value={saldoInicial}
-                      onChange={(e) => {
-                        const valor = e.target.value.replace(/[^\d,-]/g, '');
-                        setSaldoInicial(valor);
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="mes">Mês de Referência</Label>
+                    <Label>Mês</Label>
                     <Select 
                       value={mesReferencia.toString()} 
                       onValueChange={(v) => setMesReferencia(parseInt(v))}
                     >
-                      <SelectTrigger id="mes">
+                      <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {Array.from({ length: 12 }, (_, i) => (
-                          <SelectItem key={i + 1} value={(i + 1).toString()}>
-                            {new Date(2000, i, 1).toLocaleDateString('pt-BR', { month: 'long' })}
+                        {[
+                          'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                          'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+                        ].map((mes, index) => (
+                          <SelectItem key={index + 1} value={(index + 1).toString()}>
+                            {mes}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
 
+                  {/* Ano */}
                   <div className="space-y-2">
-                    <Label htmlFor="ano">Ano de Referência</Label>
-                    <Input
-                      id="ano"
-                      type="number"
-                      value={anoReferencia}
-                      onChange={(e) => setAnoReferencia(parseInt(e.target.value))}
-                    />
+                    <Label>Ano</Label>
+                    <Select 
+                      value={anoReferencia.toString()} 
+                      onValueChange={(v) => setAnoReferencia(parseInt(v))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[2024, 2025, 2026].map(ano => (
+                          <SelectItem key={ano} value={ano.toString()}>
+                            {ano}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Saldo Inicial */}
+                  <div className="space-y-2">
+                    <Label htmlFor="saldo-inicial">Saldo Inicial *</Label>
+                    <Input
+                      id="saldo-inicial"
+                      placeholder="Ex: 25000,00"
+                      value={saldoInicial}
+                      onChange={(e) => {
+                        const valor = e.target.value.replace(/[^\d,.-]/g, '');
+                        setSaldoInicial(valor);
+                      }}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Use valores negativos para saldo devedor
+                    </p>
+                  </div>
+
+                  {/* Preview */}
+                  <div className="space-y-2">
+                    <Label>Preview do Saldo</Label>
+                    <div className="p-3 bg-muted rounded-lg">
+                      <p className={`text-2xl font-bold ${
+                        parseFloat(saldoInicial.replace(',', '.') || '0') >= 0 
+                          ? 'text-green-600' 
+                          : 'text-red-600'
+                      }`}>
+                        {saldoInicial 
+                          ? formatarValor(parseFloat(saldoInicial.replace(',', '.') || '0'))
+                          : 'R$ 0,00'
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Observação */}
                 <div className="space-y-2">
-                  <Label htmlFor="obs">Observação</Label>
+                  <Label htmlFor="observacao">Observação</Label>
                   <Textarea
-                    id="obs"
-                    placeholder="Observações sobre este saldo..."
+                    id="observacao"
+                    placeholder="Observações sobre este saldo (opcional)..."
                     rows={2}
                     value={observacao}
                     onChange={(e) => setObservacao(e.target.value)}
@@ -576,27 +620,40 @@ export default function Financeiro() {
             </Card>
 
             {/* Lista de Saldos Configurados */}
-            {saldosConfigurados.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Saldos Configurados</CardTitle>
-                </CardHeader>
-                <CardContent>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Saldos Configurados</CardTitle>
+                <CardDescription>
+                  Saldos do mês atual ({getMesNome()} {new Date().getFullYear()})
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {saldosConfigurados.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Nenhum saldo configurado para este mês.
+                  </div>
+                ) : (
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Banco</TableHead>
+                        <TableHead>Período</TableHead>
                         <TableHead className="text-right">Saldo Inicial</TableHead>
-                        <TableHead className="w-[80px]"></TableHead>
+                        <TableHead className="w-12"></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {saldosConfigurados.map(saldo => (
                         <TableRow key={saldo.id}>
                           <TableCell className="font-medium">
-                            {saldo.bancos.codigo} - {saldo.bancos.nome}
+                            {saldo.bancos?.codigo} - {saldo.bancos?.nome}
                           </TableCell>
-                          <TableCell className="text-right font-bold">
+                          <TableCell>
+                            {saldo.mes_referencia.toString().padStart(2, '0')}/{saldo.ano_referencia}
+                          </TableCell>
+                          <TableCell className={`text-right font-bold ${
+                            saldo.saldo_inicial >= 0 ? 'text-green-600' : 'text-red-600'
+                          }`}>
                             {formatarValor(saldo.saldo_inicial)}
                           </TableCell>
                           <TableCell>
@@ -612,9 +669,9 @@ export default function Financeiro() {
                       ))}
                     </TableBody>
                   </Table>
-                </CardContent>
-              </Card>
-            )}
+                )}
+              </CardContent>
+            </Card>
           </div>
 
           <DialogFooter>
