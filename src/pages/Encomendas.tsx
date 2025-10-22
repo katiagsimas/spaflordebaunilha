@@ -202,6 +202,7 @@ const Encomendas = () => {
       const dadosParaSalvar = {
         ...formData,
         valor: valorFinal,
+        data_entrega: formData.data_entrega || null, // Converte string vazia para null
         hora_entrega: formData.hora_entrega || null, // Converte string vazia para null
         conta_receber_id: contaReceberId || null, // Adiciona o ID da conta a receber
       };
@@ -555,11 +556,13 @@ const Encomendas = () => {
   weekFromNow.setDate(weekFromNow.getDate() + 7);
 
   const todayOrders = encomendas.filter(e => {
+    if (!e.data_entrega) return false; // Ignora encomendas sem data de entrega
     const deliveryDate = new Date(e.data_entrega);
     return deliveryDate.getTime() === today.getTime() && e.status !== "entregue" && e.status !== "cancelado";
   }).length;
 
   const weekOrders = encomendas.filter(e => {
+    if (!e.data_entrega) return false; // Ignora encomendas sem data de entrega
     const deliveryDate = new Date(e.data_entrega);
     return deliveryDate >= today && deliveryDate <= weekFromNow && e.status !== "entregue" && e.status !== "cancelado";
   }).length;
@@ -635,11 +638,10 @@ const Encomendas = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="data_entrega">Data de Entrega *</Label>
+                    <Label htmlFor="data_entrega">Data de Entrega</Label>
                     <Input
                       id="data_entrega"
                       type="date"
-                      required
                       value={formData.data_entrega}
                       onChange={(e) =>
                         setFormData({ ...formData, data_entrega: e.target.value })
@@ -1335,7 +1337,15 @@ const Encomendas = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>{new Date(encomenda.data_pedido).toLocaleDateString("pt-BR")}</TableCell>
-                      <TableCell>{new Date(encomenda.data_entrega).toLocaleDateString("pt-BR")}</TableCell>
+                      <TableCell>
+                        {encomenda.data_entrega ? (
+                          new Date(encomenda.data_entrega).toLocaleDateString("pt-BR")
+                        ) : (
+                          <Badge className="bg-red-100 text-red-800 border-red-200" variant="outline">
+                            Aguardando Agendamento
+                          </Badge>
+                        )}
+                      </TableCell>
                       <TableCell>{encomenda.hora_entrega ? encomenda.hora_entrega.slice(0, 5) : "-"}</TableCell>
                       <TableCell>R$ {encomenda.valor.toFixed(2)}</TableCell>
                       <TableCell className="text-right">
