@@ -1916,6 +1916,50 @@ export type Database = {
           },
         ]
       }
+      saldos_iniciais_bancos: {
+        Row: {
+          ano_referencia: number
+          banco_id: string
+          created_at: string | null
+          id: string
+          mes_referencia: number
+          observacao: string | null
+          saldo_inicial: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ano_referencia: number
+          banco_id: string
+          created_at?: string | null
+          id?: string
+          mes_referencia: number
+          observacao?: string | null
+          saldo_inicial?: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ano_referencia?: number
+          banco_id?: string
+          created_at?: string | null
+          id?: string
+          mes_referencia?: number
+          observacao?: string | null
+          saldo_inicial?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saldos_iniciais_bancos_banco_id_fkey"
+            columns: ["banco_id"]
+            isOneToOne: false
+            referencedRelation: "bancos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sub_receitas: {
         Row: {
           created_at: string
@@ -2331,6 +2375,27 @@ export type Database = {
             columns: ["conta_receber_id"]
             isOneToOne: false
             referencedRelation: "contas_receber"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vw_resumo_financeiro: {
+        Row: {
+          banco_codigo: string | null
+          banco_id: string | null
+          banco_nome: string | null
+          entradas_mes: number | null
+          saidas_mes: number | null
+          saldo_atual: number | null
+          saldo_inicial: number | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saldos_iniciais_bancos_banco_id_fkey"
+            columns: ["banco_id"]
+            isOneToOne: false
+            referencedRelation: "bancos"
             referencedColumns: ["id"]
           },
         ]

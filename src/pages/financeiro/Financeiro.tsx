@@ -1,37 +1,402 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
 import { 
   TrendingUp, 
   TrendingDown, 
   DollarSign,
+  ArrowRight,
   Calendar,
   PieChart,
-  Info
+  Settings,
+  Plus,
+  Trash2,
+  Wallet,
+  ArrowUpCircle,
+  ArrowDownCircle,
+  Building2
 } from 'lucide-react';
 
 export default function Financeiro() {
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  // Estados do banner
+  const [loading, setLoading] = useState(true);
+  const [saldoAnterior, setSaldoAnterior] = useState(0);
+  const [entradas, setEntradas] = useState(0);
+  const [saidas, setSaidas] = useState(0);
+  const [saldoAtual, setSaldoAtual] = useState(0);
+  const [bancosSaldos, setBancosSaldos] = useState([]);
+
+  // Estados do modal
+  const [modalConfigAberto, setModalConfigAberto] = useState(false);
+  const [bancos, setBancos] = useState([]);
+  const [saldosConfigurados, setSaldosConfigurados] = useState([]);
+  
+  // Formulário de novo saldo
+  const [bancoId, setBancoId] = useState('');
+  const [mesReferencia, setMesReferencia] = useState(new Date().getMonth() + 1);
+  const [anoReferencia, setAnoReferencia] = useState(new Date().getFullYear());
+  const [saldoInicial, setSaldoInicial] = useState('');
+  const [observacao, setObservacao] = useState('');
+
+  useEffect(() => {
+    fetchResumo();
+  }, []);
+
+  const fetchResumo = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Buscar resumo financeiro
+      const { data: resumo } = await supabase
+        .from('vw_resumo_financeiro')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (resumo && resumo.length > 0) {
+        const totalSaldoInicial = resumo.reduce((acc, b) => acc + (b.saldo_inicial || 0), 0);
+        const totalEntradas = resumo.reduce((acc, b) => acc + (b.entradas_mes || 0), 0);
+        const totalSaidas = resumo.reduce((acc, b) => acc + (b.saidas_mes || 0), 0);
+        const totalSaldoAtual = resumo.reduce((acc, b) => acc + (b.saldo_atual || 0), 0);
+
+        setSaldoAnterior(totalSaldoInicial);
+        setEntradas(totalEntradas);
+        setSaidas(totalSaidas);
+        setSaldoAtual(totalSaldoAtual);
+        setBancosSaldos(resumo);
+      } else {
+        // Não tem saldos configurados
+        setSaldoAnterior(0);
+        setEntradas(0);
+        setSaidas(0);
+        setSaldoAtual(0);
+        setBancosSaldos([]);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar resumo:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAbrirConfig = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Buscar bancos
+      const { data: dataBancos } = await supabase
+        .from('bancos')
+        .select('id, codigo, nome')
+        .eq('usuario_id', user.id)
+        .order('nome');
+      setBancos(dataBancos || []);
+
+      // Buscar saldos configurados do mês atual
+      const mesAtual = new Date().getMonth() + 1;
+      const anoAtual = new Date().getFullYear();
+
+      const { data: dataSaldos } = await supabase
+        .from('saldos_iniciais_bancos')
+        .select(`
+          id,
+          banco_id,
+          mes_referencia,
+          ano_referencia,
+          saldo_inicial,
+          bancos (
+            codigo,
+            nome
+          )
+        `)
+        .eq('user_id', user.id)
+        .eq('mes_referencia', mesAtual)
+        .eq('ano_referencia', anoAtual)
+        .order('saldo_inicial', { ascending: false });
+
+      setSaldosConfigurados(dataSaldos || []);
+
+      // Resetar formulário
+      setBancoId('');
+      setMesReferencia(mesAtual);
+      setAnoReferencia(anoAtual);
+      setSaldoInicial('');
+      setObservacao('');
+
+      setModalConfigAberto(true);
+    } catch (error) {
+      console.error('Erro ao abrir configuração:', error);
+    }
+  };
+
+  const handleAdicionarSaldo = async () => {
+    try {
+      if (!bancoId) {
+        toast({
+          title: 'Erro',
+          description: 'Selecione o banco!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const valor = parseFloat(saldoInicial.replace(',', '.'));
+      if (isNaN(valor)) {
+        toast({
+          title: 'Erro',
+          description: 'Informe um valor válido!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Não autenticado');
+
+      // Inserir ou atualizar
+      const { error } = await supabase
+        .from('saldos_iniciais_bancos')
+        .upsert({
+          user_id: user.id,
+          banco_id: bancoId,
+          mes_referencia: mesReferencia,
+          ano_referencia: anoReferencia,
+          saldo_inicial: valor,
+          observacao: observacao.trim() || null,
+        }, {
+          onConflict: 'user_id,banco_id,mes_referencia,ano_referencia'
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: '✅ Saldo configurado',
+        description: 'O saldo inicial foi salvo com sucesso!',
+      });
+
+      // Resetar formulário
+      setBancoId('');
+      setSaldoInicial('');
+      setObservacao('');
+
+      // Recarregar saldos
+      handleAbrirConfig();
+      fetchResumo();
+    } catch (error) {
+      console.error('Erro ao adicionar saldo:', error);
+      toast({
+        title: 'Erro',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleExcluirSaldo = async (saldoId) => {
+    try {
+      const confirmar = window.confirm('Tem certeza que deseja excluir este saldo inicial?');
+      if (!confirmar) return;
+
+      const { error } = await supabase
+        .from('saldos_iniciais_bancos')
+        .delete()
+        .eq('id', saldoId);
+
+      if (error) throw error;
+
+      toast({
+        title: '✅ Saldo excluído',
+        description: 'O saldo inicial foi excluído!',
+      });
+
+      handleAbrirConfig();
+      fetchResumo();
+    } catch (error) {
+      console.error('Erro ao excluir saldo:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível excluir o saldo.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const formatarValor = (valor) => {
+    return valor.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    });
+  };
+
+  const getMesNome = () => {
+    const meses = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+    return meses[new Date().getMonth()];
+  };
+
+  if (loading) return <div className="flex justify-center p-8">Carregando...</div>;
+
+  const maxSaldo = Math.max(...bancosSaldos.map(b => b.saldo_atual || 0), 1);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Financeiro</h1>
-        <p className="text-muted-foreground">
-          Gerencie suas receitas e despesas
-        </p>
-      </div>
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Banner de Saldos */}
+      <Card className="border-2">
+        <CardHeader className="pb-3">
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <Wallet className="h-6 w-6 text-primary" />
+                Resumo Financeiro - {getMesNome()} {new Date().getFullYear()}
+              </CardTitle>
+              <CardDescription>Visão geral dos seus saldos e movimentações</CardDescription>
+            </div>
+            <Button variant="outline" onClick={handleAbrirConfig}>
+              <Settings className="mr-2 h-4 w-4" />
+              Configurar Saldos
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Cards de Resumo */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Saldo Anterior</p>
+                    <p className="text-2xl font-bold">
+                      {formatarValor(saldoAnterior)}
+                    </p>
+                  </div>
+                  <Calendar className="h-8 w-8 text-muted-foreground" />
+                </div>
+              </CardContent>
+            </Card>
 
-      {/* Informativo */}
-      <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800">
-        <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-        <AlertDescription className="text-blue-800 dark:text-blue-300">
-          Clique em um dos cards abaixo para acessar o módulo desejado. 
-          Você pode gerenciar tanto suas receitas (Contas a Receber) quanto 
-          suas despesas (Contas a Pagar) de forma completa e detalhada.
-        </AlertDescription>
-      </Alert>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Entradas</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      {formatarValor(entradas)}
+                    </p>
+                  </div>
+                  <ArrowUpCircle className="h-8 w-8 text-green-600" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Saídas</p>
+                    <p className="text-2xl font-bold text-red-600">
+                      {formatarValor(saidas)}
+                    </p>
+                  </div>
+                  <ArrowDownCircle className="h-8 w-8 text-red-600" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-primary">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Saldo Atual</p>
+                    <p className={`text-2xl font-bold ${saldoAtual >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                      {formatarValor(saldoAtual)}
+                    </p>
+                  </div>
+                  <DollarSign className="h-8 w-8 text-primary" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Distribuição por Banco */}
+          {bancosSaldos.length > 0 && (
+            <>
+              <Separator />
+              <div>
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <Building2 className="h-5 w-5" />
+                  Distribuição por Banco
+                </h3>
+                <div className="space-y-3">
+                  {bancosSaldos.map(banco => (
+                    <div key={banco.banco_id} className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="font-medium">
+                          {banco.banco_codigo} - {banco.banco_nome}
+                        </span>
+                        <span className={`font-bold ${banco.saldo_atual >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                          {formatarValor(banco.saldo_atual)}
+                        </span>
+                      </div>
+                      <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
+                        <div
+                          className={`h-full ${banco.saldo_atual >= 0 ? 'bg-blue-500' : 'bg-red-500'}`}
+                          style={{ width: `${(Math.abs(banco.saldo_atual) / maxSaldo) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {bancosSaldos.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              <p>Nenhum saldo configurado para este mês.</p>
+              <Button variant="link" onClick={handleAbrirConfig}>
+                Configurar agora
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Separator className="my-6" />
 
       {/* Cards de Navegação */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -109,6 +474,156 @@ export default function Financeiro() {
           </CardHeader>
         </Card>
       </div>
+
+      {/* Modal Configurar Saldos */}
+      <Dialog open={modalConfigAberto} onOpenChange={setModalConfigAberto}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Configurar Saldos Iniciais</DialogTitle>
+            <DialogDescription>
+              Defina os saldos iniciais dos seus bancos para o período
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            {/* Formulário Adicionar Saldo */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Plus className="h-5 w-5" />
+                  Adicionar Saldo Inicial
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Banco *</Label>
+                    <Select value={bancoId} onValueChange={setBancoId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o banco..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {bancos.map(banco => (
+                          <SelectItem key={banco.id} value={banco.id}>
+                            {banco.codigo} - {banco.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="saldo">Saldo Inicial *</Label>
+                    <Input
+                      id="saldo"
+                      placeholder="0,00"
+                      value={saldoInicial}
+                      onChange={(e) => {
+                        const valor = e.target.value.replace(/[^\d,-]/g, '');
+                        setSaldoInicial(valor);
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="mes">Mês de Referência</Label>
+                    <Select 
+                      value={mesReferencia.toString()} 
+                      onValueChange={(v) => setMesReferencia(parseInt(v))}
+                    >
+                      <SelectTrigger id="mes">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 12 }, (_, i) => (
+                          <SelectItem key={i + 1} value={(i + 1).toString()}>
+                            {new Date(2000, i, 1).toLocaleDateString('pt-BR', { month: 'long' })}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="ano">Ano de Referência</Label>
+                    <Input
+                      id="ano"
+                      type="number"
+                      value={anoReferencia}
+                      onChange={(e) => setAnoReferencia(parseInt(e.target.value))}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="obs">Observação</Label>
+                  <Textarea
+                    id="obs"
+                    placeholder="Observações sobre este saldo..."
+                    rows={2}
+                    value={observacao}
+                    onChange={(e) => setObservacao(e.target.value)}
+                  />
+                </div>
+
+                <Button onClick={handleAdicionarSaldo} className="w-full">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Adicionar Saldo
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Lista de Saldos Configurados */}
+            {saldosConfigurados.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Saldos Configurados</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Banco</TableHead>
+                        <TableHead className="text-right">Saldo Inicial</TableHead>
+                        <TableHead className="w-[80px]"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {saldosConfigurados.map(saldo => (
+                        <TableRow key={saldo.id}>
+                          <TableCell className="font-medium">
+                            {saldo.bancos.codigo} - {saldo.bancos.nome}
+                          </TableCell>
+                          <TableCell className="text-right font-bold">
+                            {formatarValor(saldo.saldo_inicial)}
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleExcluirSaldo(saldo.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-red-600" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setModalConfigAberto(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
