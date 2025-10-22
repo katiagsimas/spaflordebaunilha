@@ -196,6 +196,12 @@ const Encomendas = () => {
       toast.error("Adicione pelo menos um produto à encomenda!");
       return;
     }
+
+    // Verificar se o pagamento foi configurado
+    if (!contaReceberId) {
+      toast.error("Configure o pagamento antes de salvar a encomenda! Clique no botão 'Pagamento' para criar a conta a receber.");
+      return;
+    }
     
     try {
       // Preparar os dados com o valor final calculado
