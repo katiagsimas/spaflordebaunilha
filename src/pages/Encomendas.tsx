@@ -179,6 +179,24 @@ const Encomendas = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validação dos campos obrigatórios
+    if (!formData.data_pedido) {
+      toast.error("A Data do Pedido é obrigatória!");
+      return;
+    }
+
+    if (!formData.cliente || formData.cliente.trim() === "") {
+      toast.error("O Nome do Cliente é obrigatório!");
+      return;
+    }
+
+    // Verificar se tem produtos (para nova encomenda verifica tempProdutos, para edição verifica produtosEncomenda)
+    const temProdutos = editingOrder ? produtosEncomenda.length > 0 : tempProdutos.length > 0;
+    if (!temProdutos) {
+      toast.error("Adicione pelo menos um produto à encomenda!");
+      return;
+    }
+    
     try {
       // Preparar os dados com o valor final calculado
       const dadosParaSalvar = {
