@@ -35,6 +35,8 @@ import {
 import {
   LineChart,
   Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -71,6 +73,12 @@ export default function FluxoCaixa() {
   const [totalSaidas, setTotalSaidas] = useState(0);
   const [saldoFinal, setSaldoFinal] = useState(0);
 
+  // Estados para visão mensal
+  const [dadosMensais, setDadosMensais] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [previsaoSaldo, setPrevisaoSaldo] = useState(0);
+  const [contasAVencer, setContasAVencer] = useState({ receber: 0, pagar: 0 });
+
   useEffect(() => {
     fetchBancos();
   }, []);
@@ -78,6 +86,9 @@ export default function FluxoCaixa() {
   useEffect(() => {
     if (bancos.length > 0) {
       fetchFluxoCaixa();
+      fetchDadosMensais();
+      fetchPrevisoes();
+      fetchAnaliseCategoria();
     }
   }, [dataInicio, dataFim, bancoFiltro, bancos]);
 
@@ -324,6 +335,226 @@ export default function FluxoCaixa() {
     }
   };
 
+  const fetchDadosMensais = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const dataFimObj = new Date(dataFim + 'T00:00:00');
+      const mesAtual = dataFimObj.getMonth();
+      const anoAtual = dataFimObj.getFullYear();
+
+      const mesesData = [];
+      
+      for (let i = 11; i >= 0; i--) {
+        const data = new Date(anoAtual, mesAtual - i, 1);
+        const mes = data.getMonth() + 1;
+        const ano = data.getFullYear();
+        const ultimoDia = new Date(ano, mes, 0).getDate();
+
+        const { data: saldosMes } = await supabase
+          .from('saldos_iniciais_bancos')
+          .select('saldo_inicial')
+          .eq('user_id', user.id)
+          .eq('mes_referencia', mes)
+          .eq('ano_referencia', ano);
+
+        const saldoIni = saldosMes?.reduce((acc, s) => acc + (s.saldo_inicial || 0), 0) || 0;
+
+        const { data: entradasMes } = await supabase
+          .from('contas_receber_pagamentos')
+          .select('valor_pago, juros, desconto')
+          .gte('data_pagamento', `${ano}-${mes.toString().padStart(2, '0')}-01`)
+          .lte('data_pagamento', `${ano}-${mes.toString().padStart(2, '0')}-${ultimoDia}`)
+          .eq('estornado', false);
+
+        const totalEntradasMes = (entradasMes || []).reduce(
+          (acc, e) => acc + e.valor_pago + (e.juros || 0) - (e.desconto || 0),
+          0
+        );
+
+        const { data: saidasMes } = await supabase
+          .from('contas_pagar_pagamentos')
+          .select('valor_pago, juros, desconto')
+          .gte('data_pagamento', `${ano}-${mes.toString().padStart(2, '0')}-01`)
+          .lte('data_pagamento', `${ano}-${mes.toString().padStart(2, '0')}-${ultimoDia}`)
+          .eq('estornado', false);
+
+        const totalSaidasMes = (saidasMes || []).reduce(
+          (acc, s) => acc + s.valor_pago + (s.juros || 0) - (s.desconto || 0),
+          0
+        );
+
+        const saldoFinal = saldoIni + totalEntradasMes - totalSaidasMes;
+
+        mesesData.push({
+          mes: data.toLocaleDateString('pt-BR', { month: 'short' }),
+          mesCompleto: data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }),
+          saldoInicial: saldoIni,
+          entradas: totalEntradasMes,
+          saidas: totalSaidasMes,
+          saldoFinal: saldoFinal,
+          resultado: totalEntradasMes - totalSaidasMes,
+        });
+      }
+
+      setDadosMensais(mesesData);
+    } catch (error) {
+      console.error('Erro ao buscar dados mensais:', error);
+    }
+  };
+
+  const fetchPrevisoes = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const hoje = new Date();
+      const fimMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+
+      const { data: contasReceber } = await supabase
+        .from('contas_receber_parcelas')
+        .select('valor_parcela, valor_pago')
+        .lte('data_vencimento', fimMes.toISOString().split('T')[0])
+        .in('status', ['aberto', 'atrasado', 'pagamento_parcial']);
+
+      const totalAReceber = (contasReceber || []).reduce(
+        (acc, c) => acc + (c.valor_parcela - (c.valor_pago || 0)),
+        0
+      );
+
+      const { data: contasPagar } = await supabase
+        .from('contas_pagar_parcelas')
+        .select('valor_parcela, valor_pago')
+        .lte('data_vencimento', fimMes.toISOString().split('T')[0])
+        .in('status', ['aberto', 'atrasado', 'pagamento_parcial']);
+
+      const totalAPagar = (contasPagar || []).reduce(
+        (acc, c) => acc + (c.valor_parcela - (c.valor_pago || 0)),
+        0
+      );
+
+      setContasAVencer({ receber: totalAReceber, pagar: totalAPagar });
+      setPrevisaoSaldo(saldoFinal + totalAReceber - totalAPagar);
+    } catch (error) {
+      console.error('Erro ao buscar previsões:', error);
+    }
+  };
+
+  const fetchAnaliseCategoria = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: entradas } = await supabase
+        .from('contas_receber_pagamentos')
+        .select('*')
+        .gte('data_pagamento', dataInicio)
+        .lte('data_pagamento', dataFim)
+        .eq('estornado', false);
+
+      const { data: saidas } = await supabase
+        .from('contas_pagar_pagamentos')
+        .select('*')
+        .gte('data_pagamento', dataInicio)
+        .lte('data_pagamento', dataFim)
+        .eq('estornado', false);
+
+      const categoriasMap: Record<string, { entradas: number; saidas: number }> = {};
+
+      for (const e of entradas || []) {
+        const { data: parcela } = await supabase
+          .from('contas_receber_parcelas')
+          .select('conta_receber_id')
+          .eq('id', e.parcela_id)
+          .single();
+
+        if (parcela) {
+          const { data: conta } = await supabase
+            .from('contas_receber')
+            .select('plano_conta_id')
+            .eq('id', parcela.conta_receber_id)
+            .single();
+
+          if (conta?.plano_conta_id) {
+            const { data: plano } = await supabase
+              .from('plano_contas')
+              .select('categoria_id')
+              .eq('id', conta.plano_conta_id)
+              .single();
+
+            if (plano?.categoria_id) {
+              const { data: categoria } = await supabase
+                .from('categorias_plano_contas')
+                .select('descricao')
+                .eq('id', plano.categoria_id)
+                .single();
+
+              const catNome = categoria?.descricao || 'Outros';
+              const valor = e.valor_pago + (e.juros || 0) - (e.desconto || 0);
+              
+              if (!categoriasMap[catNome]) {
+                categoriasMap[catNome] = { entradas: 0, saidas: 0 };
+              }
+              categoriasMap[catNome].entradas += valor;
+            }
+          }
+        }
+      }
+
+      for (const s of saidas || []) {
+        const { data: parcela } = await supabase
+          .from('contas_pagar_parcelas')
+          .select('conta_pagar_id')
+          .eq('id', s.parcela_id)
+          .single();
+
+        if (parcela) {
+          const { data: conta } = await supabase
+            .from('contas_pagar')
+            .select('plano_contas_id')
+            .eq('id', parcela.conta_pagar_id)
+            .single();
+
+          if (conta?.plano_contas_id) {
+            const { data: plano } = await supabase
+              .from('plano_contas')
+              .select('categoria_id')
+              .eq('id', conta.plano_contas_id)
+              .single();
+
+            if (plano?.categoria_id) {
+              const { data: categoria } = await supabase
+                .from('categorias_plano_contas')
+                .select('descricao')
+                .eq('id', plano.categoria_id)
+                .single();
+
+              const catNome = categoria?.descricao || 'Outros';
+              const valor = s.valor_pago + (s.juros || 0) - (s.desconto || 0);
+              
+              if (!categoriasMap[catNome]) {
+                categoriasMap[catNome] = { entradas: 0, saidas: 0 };
+              }
+              categoriasMap[catNome].saidas += valor;
+            }
+          }
+        }
+      }
+
+      const categoriasArray = Object.keys(categoriasMap).map(cat => ({
+        categoria: cat,
+        entradas: categoriasMap[cat].entradas,
+        saidas: categoriasMap[cat].saidas,
+        saldo: categoriasMap[cat].entradas - categoriasMap[cat].saidas,
+      }));
+
+      setCategorias(categoriasArray);
+    } catch (error) {
+      console.error('Erro ao buscar análise por categoria:', error);
+    }
+  };
+
   const handleExportar = () => {
     try {
       // Preparar dados para CSV
@@ -525,8 +756,9 @@ export default function FluxoCaixa() {
 
       {/* Abas */}
       <Tabs value={abaAtiva} onValueChange={setAbaAtiva}>
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="diario">Relatório Diário</TabsTrigger>
+          <TabsTrigger value="mensal">Visão Mensal</TabsTrigger>
           <TabsTrigger value="grafico">Evolução (Gráfico)</TabsTrigger>
         </TabsList>
 
@@ -620,6 +852,198 @@ export default function FluxoCaixa() {
                   </Table>
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Aba: Visão Mensal */}
+        <TabsContent value="mensal" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Comparativo dos Últimos 12 Meses</CardTitle>
+              <CardDescription>
+                Evolução mês a mês das entradas, saídas e saldo
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {dadosMensais.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Carregando dados mensais...
+                </div>
+              ) : (
+                <div className="border rounded-lg overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Mês</TableHead>
+                        <TableHead className="text-right">Saldo Inicial</TableHead>
+                        <TableHead className="text-right">Entradas</TableHead>
+                        <TableHead className="text-right">Saídas</TableHead>
+                        <TableHead className="text-right">Resultado</TableHead>
+                        <TableHead className="text-right">Saldo Final</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {dadosMensais.map((mes, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{mes.mesCompleto}</TableCell>
+                          <TableCell className="text-right">
+                            {formatarValor(mes.saldoInicial)}
+                          </TableCell>
+                          <TableCell className="text-right text-green-600 font-medium">
+                            {formatarValor(mes.entradas)}
+                          </TableCell>
+                          <TableCell className="text-right text-red-600 font-medium">
+                            {formatarValor(mes.saidas)}
+                          </TableCell>
+                          <TableCell className={`text-right font-medium ${
+                            mes.resultado >= 0 ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {formatarValor(mes.resultado)}
+                          </TableCell>
+                          <TableCell className={`text-right font-bold ${
+                            mes.saldoFinal >= 0 ? 'text-blue-600' : 'text-red-600'
+                          }`}>
+                            {formatarValor(mes.saldoFinal)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {dadosMensais.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Entradas x Saídas (Mensal)</CardTitle>
+                <CardDescription>
+                  Comparação visual das movimentações mensais
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[350px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={dadosMensais}
+                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="mes" 
+                        tick={{ fontSize: 12 }}
+                      />
+                      <YAxis 
+                        tick={{ fontSize: 12 }}
+                        tickFormatter={(value) => 
+                          value.toLocaleString('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL',
+                            minimumFractionDigits: 0,
+                          })
+                        }
+                      />
+                      <Tooltip 
+                        formatter={(value) => formatarValor(value as number)}
+                        labelStyle={{ color: '#000' }}
+                      />
+                      <Legend />
+                      <Bar dataKey="entradas" fill="#10b981" name="Entradas" />
+                      <Bar dataKey="saidas" fill="#ef4444" name="Saídas" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {categorias.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Análise por Categoria</CardTitle>
+                <CardDescription>
+                  Distribuição das movimentações por categoria do plano de contas
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="border rounded-lg overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Categoria</TableHead>
+                        <TableHead className="text-right">Entradas</TableHead>
+                        <TableHead className="text-right">Saídas</TableHead>
+                        <TableHead className="text-right">Saldo</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {categorias.map((cat, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{cat.categoria}</TableCell>
+                          <TableCell className="text-right text-green-600">
+                            {formatarValor(cat.entradas)}
+                          </TableCell>
+                          <TableCell className="text-right text-red-600">
+                            {formatarValor(cat.saidas)}
+                          </TableCell>
+                          <TableCell className={`text-right font-bold ${
+                            cat.saldo >= 0 ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {formatarValor(cat.saldo)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          <Card className="border-2 border-blue-500">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Previsão até o Fim do Mês
+              </CardTitle>
+              <CardDescription>
+                Baseado nas contas a receber e pagar ainda em aberto
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="p-4 bg-blue-50 rounded-lg">
+                  <p className="text-sm text-muted-foreground mb-1">Saldo Atual</p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    {formatarValor(saldoFinal)}
+                  </p>
+                </div>
+
+                <div className="p-4 bg-green-50 rounded-lg">
+                  <p className="text-sm text-muted-foreground mb-1">A Receber</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    + {formatarValor(contasAVencer.receber)}
+                  </p>
+                </div>
+
+                <div className="p-4 bg-red-50 rounded-lg">
+                  <p className="text-sm text-muted-foreground mb-1">A Pagar</p>
+                  <p className="text-2xl font-bold text-red-600">
+                    - {formatarValor(contasAVencer.pagar)}
+                  </p>
+                </div>
+
+                <div className="p-4 bg-purple-50 rounded-lg border-2 border-purple-500">
+                  <p className="text-sm text-muted-foreground mb-1">Saldo Previsto</p>
+                  <p className={`text-2xl font-bold ${
+                    previsaoSaldo >= 0 ? 'text-purple-600' : 'text-red-600'
+                  }`}>
+                    {formatarValor(previsaoSaldo)}
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
