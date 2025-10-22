@@ -15,6 +15,7 @@ import { Plus, Edit, Clock, Scale, Info } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { ChefHat } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { BackButton } from '@/components/BackButton';
 
 export default function PrePreparos() {
   const navigate = useNavigate();
@@ -72,6 +73,8 @@ export default function PrePreparos() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      <BackButton to="/precificacao" />
+      
       <div className="flex justify-between items-start mb-6">
         <div>
           <h1 className="text-3xl font-bold">Pré-Preparos</h1>

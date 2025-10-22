@@ -47,6 +47,7 @@ import {
   Download,
   FileDown
 } from 'lucide-react';
+import { BackButton } from '@/components/BackButton';
 
 export default function ContasPagar() {
   const navigate = useNavigate();
@@ -444,6 +445,8 @@ export default function ContasPagar() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      <BackButton to="/financeiro" />
+      
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>

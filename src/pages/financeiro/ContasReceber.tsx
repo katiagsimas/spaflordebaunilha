@@ -44,6 +44,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import * as XLSX from 'xlsx';
+import { BackButton } from '@/components/BackButton';
 
 export default function ContasReceber() {
   const navigate = useNavigate();
@@ -618,6 +619,8 @@ export default function ContasReceber() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      <BackButton to="/financeiro" />
+      
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-3xl font-bold">Contas a Receber</h1>
