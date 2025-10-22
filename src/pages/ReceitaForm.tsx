@@ -119,14 +119,14 @@ export default function ReceitaForm() {
   const { id } = useParams();
   const [receitas, setReceitas] = useLocalStorage<Receita[]>("receitas", []);
   const [ingredientesCadastrados, setIngredientesCadastrados] = useState<any[]>([]);
-  const [embalagensCadastradas] = useLocalStorage<Embalagem[]>("embalagens", []);
+  const [embalagensCadastradas, setEmbalagensCadastradas] = useState<any[]>([]);
   const [custosFixos] = useLocalStorage<CustoFixo[]>("custosFixos", []);
   const { categorias } = useCategorias();
   const { unidades } = useUnidadesMedida();
 
-  // Buscar ingredientes do Supabase
+  // Buscar ingredientes e embalagens do Supabase
   useEffect(() => {
-    const fetchIngredientes = async () => {
+    const fetchDados = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
@@ -187,12 +187,34 @@ export default function ReceitaForm() {
         // Combinar ingredientes e receitas combo
         const todosItens = [...(ingredientesData || []), ...receitasCombo];
         setIngredientesCadastrados(todosItens);
+
+        // Buscar embalagens
+        const { data: embalagensData, error: embalagensError } = await supabase
+          .from('embalagens')
+          .select(`
+            *,
+            tipo_insumo:tipos_insumos (
+              id,
+              descricao,
+              quantidade_embalagem,
+              unidade_medida:unidades_medida (
+                nome,
+                sigla
+              )
+            )
+          `)
+          .eq('usuario_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (embalagensError) throw embalagensError;
+        setEmbalagensCadastradas(embalagensData || []);
+
       } catch (error) {
-        console.error('Erro ao buscar ingredientes:', error);
+        console.error('Erro ao buscar dados:', error);
       }
     };
 
-    fetchIngredientes();
+    fetchDados();
   }, []);
 
   const [formData, setFormData] = useState({
@@ -379,11 +401,11 @@ export default function ReceitaForm() {
       novasEmbalagens[index] = calcularCustosEmbalagem({
         ...novasEmbalagens[index],
         embalagemId: embalagemSelecionada.id,
-        embalagem: embalagemSelecionada.nome,
-        marca: embalagemSelecionada.marca,
-        qtdeEmbalagem: embalagemSelecionada.quantidade,
-        unidadeMedida: embalagemSelecionada.unidadeMedida,
-        precoEmbalagem: embalagemSelecionada.preco,
+        embalagem: embalagemSelecionada.tipo_insumo?.descricao || "",
+        marca: embalagemSelecionada.marca || "",
+        qtdeEmbalagem: embalagemSelecionada.tipo_insumo?.quantidade_embalagem || 0,
+        unidadeMedida: embalagemSelecionada.tipo_insumo?.unidade_medida?.sigla || "",
+        precoEmbalagem: embalagemSelecionada.preco || 0,
       });
       setEmbalagens(novasEmbalagens);
     }
@@ -922,7 +944,26 @@ export default function ReceitaForm() {
                       </div>
                     </CommandEmpty>
                     <CommandGroup className="max-h-64 overflow-auto">
-                      {/* Adicionar lista de embalagens aqui */}
+                      {embalagensCadastradas.map((emb) => (
+                        <CommandItem
+                          key={emb.id}
+                          value={`${emb.tipo_insumo?.descricao} ${emb.marca || ''}`}
+                          onSelect={() => {
+                            handleSelectEmbalagem(embalagens.length, emb.id);
+                            setMostrarPopoverEmbalagem(false);
+                            setTermoBuscaEmbalagem('');
+                          }}
+                        >
+                          <div className="flex flex-col w-full">
+                            <span className="font-medium">
+                              {emb.tipo_insumo?.descricao}
+                            </span>
+                            <span className="text-sm text-muted-foreground">
+                              {emb.marca ? `${emb.marca} - ` : ''}R$ {emb.preco?.toFixed(2)}
+                            </span>
+                          </div>
+                        </CommandItem>
+                      ))}
                     </CommandGroup>
                   </Command>
                 </PopoverContent>
@@ -1662,6 +1703,125 @@ export default function ReceitaForm() {
               }
             }}>
               Próximo: Cadastrar Embalagem
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog - Criar Ingrediente */}
+      <Dialog open={modalCriarIngredienteAberto} onOpenChange={setModalCriarIngredienteAberto}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Novo Ingrediente</DialogTitle>
+            {tipoIngRecemCriado && (
+              <p className="text-sm text-muted-foreground">
+                Tipo: {tipoIngRecemCriado.descricao} - {tipoIngRecemCriado.quantidade_embalagem} {tipoIngRecemCriado.unidade_medida?.sigla}
+              </p>
+            )}
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Marca</Label>
+              <Input
+                value={novoIngMarca}
+                onChange={(e) => setNovoIngMarca(e.target.value)}
+                placeholder="Ex: Marca X"
+                autoFocus
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Preço *</Label>
+              <Input
+                type="text"
+                value={novoIngPreco}
+                onChange={(e) => {
+                  const valor = e.target.value.replace(/[^\d,]/g, '');
+                  setNovoIngPreco(valor);
+                }}
+                placeholder="Ex: 5,00"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setModalCriarIngredienteAberto(false);
+              setTipoIngRecemCriado(null);
+            }}>
+              Cancelar
+            </Button>
+            <Button onClick={async () => {
+              try {
+                if (!tipoIngRecemCriado) {
+                  throw new Error('Tipo não encontrado');
+                }
+
+                const precoNum = parseFloat(novoIngPreco.replace(',', '.'));
+                if (!precoNum || precoNum <= 0) {
+                  toast.error('Informe um preço válido!');
+                  return;
+                }
+
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) throw new Error('Não autenticado');
+
+                const { data, error } = await supabase
+                  .from('ingredientes')
+                  .insert({
+                    usuario_id: user.id,
+                    tipo_insumo_id: tipoIngRecemCriado.id,
+                    marca: novoIngMarca.trim() || null,
+                    preco: precoNum,
+                    data_atualizacao: new Date().toISOString().split('T')[0],
+                  })
+                  .select(`
+                    *,
+                    tipo_insumo:tipos_insumos (
+                      id,
+                      descricao,
+                      quantidade_embalagem,
+                      unidade_medida:unidades_medida (
+                        nome,
+                        sigla
+                      )
+                    )
+                  `)
+                  .single();
+
+                if (error) {
+                  if (error.code === '23505') {
+                    throw new Error('Este ingrediente já foi cadastrado!');
+                  }
+                  throw error;
+                }
+
+                toast.success('Ingrediente cadastrado e adicionado!');
+
+                // Adicionar o novo ingrediente ao estado
+                const novoIngrediente: IngredienteReceita = {
+                  id: `ing-${Date.now()}`,
+                  ingredienteId: data.id,
+                  ingrediente: data.tipo_insumo.descricao,
+                  marca: data.marca || '',
+                  qtdeEmbalagem: data.tipo_insumo.quantidade_embalagem,
+                  unidadeMedida: data.tipo_insumo.unidade_medida.sigla,
+                  precoEmbalagem: data.preco,
+                  quantidadeUtilizada: 0,
+                  custoUnitario: data.preco / data.tipo_insumo.quantidade_embalagem,
+                  custoReceita: 0,
+                };
+
+                setIngredientes([...ingredientes, novoIngrediente]);
+
+                setModalCriarIngredienteAberto(false);
+                setTipoIngRecemCriado(null);
+                setTermoBuscaIngrediente('');
+
+              } catch (error: any) {
+                console.error('Erro ao criar ingrediente:', error);
+                toast.error(error.message);
+              }
+            }}>
+              Cadastrar e Adicionar
             </Button>
           </DialogFooter>
         </DialogContent>
