@@ -15,6 +15,14 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Info } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 interface ContasReceberFormModalProps {
   dataEmissaoInicial: string;
@@ -56,6 +64,8 @@ export default function ContasReceberFormModal({
   const [bancos, setBancos] = useState<any[]>([]);
 
   const [loading, setLoading] = useState(false);
+  const [parcelasGeradas, setParcelasGeradas] = useState<any[]>([]);
+  const [parcelasEditadas, setParcelasEditadas] = useState(false);
 
   useEffect(() => {
     fetchDados();
@@ -109,59 +119,117 @@ export default function ContasReceberFormModal({
     }
   };
 
-  const handleSalvar = async () => {
+  const handleGerarParcelas = () => {
+    // Validações
+    if (!tipoDocumentoId) {
+      toast({
+        title: 'Erro',
+        description: 'Selecione o tipo de documento!',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!planoContasId) {
+      toast({
+        title: 'Erro',
+        description: 'Selecione o plano de contas!',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!bancoId) {
+      toast({
+        title: 'Erro',
+        description: 'Selecione o banco!',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const valor = parseFloat(valorTotal.replace(',', '.'));
+    if (!valor || valor <= 0) {
+      toast({
+        title: 'Erro',
+        description: 'Informe um valor válido!',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const parcelas = parseInt(numeroParcelas);
+    if (!parcelas || parcelas < 1) {
+      toast({
+        title: 'Erro',
+        description: 'Número de parcelas inválido!',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!primeiroVencimento) {
+      toast({
+        title: 'Erro',
+        description: 'Informe a data do primeiro vencimento!',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Gerar parcelas
+    const parcelas_geradas = [];
+    const dataBase = new Date(primeiroVencimento + 'T00:00:00');
+
+    if (tipoLancamento === 'parcelado' || tipoLancamento === 'unico') {
+      const valorParcela = valor / parcelas;
+
+      for (let i = 0; i < parcelas; i++) {
+        const dataVenc = new Date(dataBase);
+        dataVenc.setMonth(dataVenc.getMonth() + i);
+
+        parcelas_geradas.push({
+          numero_parcela: i + 1,
+          data_emissao: dataEmissao,
+          data_vencimento: dataVenc.toISOString().split('T')[0],
+          valor_total: valor,
+          valor_parcela: valorParcela,
+        });
+      }
+    } else {
+      // RECORRENTE
+      for (let i = 0; i < parcelas; i++) {
+        const dataVenc = new Date(dataBase);
+        dataVenc.setMonth(dataVenc.getMonth() + i);
+
+        const dataEmissaoParcela = new Date(dataVenc);
+        dataEmissaoParcela.setDate(1);
+
+        parcelas_geradas.push({
+          numero_parcela: i + 1,
+          data_emissao: dataEmissaoParcela.toISOString().split('T')[0],
+          data_vencimento: dataVenc.toISOString().split('T')[0],
+          valor_total: valor,
+          valor_parcela: valor,
+        });
+      }
+    }
+
+    setParcelasGeradas(parcelas_geradas);
+    setParcelasEditadas(false);
+    
+    toast({
+      title: '✅ Parcelas geradas',
+      description: `${parcelas} parcela(s) gerada(s). Revise e edite se necessário.`,
+    });
+  };
+
+  const handleSalvarParcelamentos = async () => {
     try {
-      if (!tipoDocumentoId) {
+      if (parcelasGeradas.length === 0) {
         toast({
           title: 'Erro',
-          description: 'Selecione o tipo de documento!',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (!planoContasId) {
-        toast({
-          title: 'Erro',
-          description: 'Selecione o plano de contas!',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (!bancoId) {
-        toast({
-          title: 'Erro',
-          description: 'Selecione o banco!',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      const valor = parseFloat(valorTotal.replace(',', '.'));
-      if (!valor || valor <= 0) {
-        toast({
-          title: 'Erro',
-          description: 'Informe um valor válido!',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      const parcelas = parseInt(numeroParcelas);
-      if (!parcelas || parcelas < 1) {
-        toast({
-          title: 'Erro',
-          description: 'Número de parcelas inválido!',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (!primeiroVencimento) {
-        toast({
-          title: 'Erro',
-          description: 'Informe a data do primeiro vencimento!',
+          description: 'Gere as parcelas antes de salvar!',
           variant: 'destructive',
         });
         return;
@@ -171,6 +239,8 @@ export default function ContasReceberFormModal({
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Não autenticado');
+
+      const valor = parseFloat(valorTotal.replace(',', '.'));
 
       // Criar conta a receber
       const { data: conta, error: errorConta } = await supabase
@@ -184,58 +254,27 @@ export default function ContasReceberFormModal({
           banco_id: bancoId,
           descricao: descricao.trim() || null,
           valor: valor,
-          numero_parcelas: parcelas,
+          numero_parcelas: parcelasGeradas.length,
           tipo_lancamento: tipoLancamento,
           e_recorrente: tipoLancamento === 'recorrente',
           status: 'pendente',
-          data_vencimento: primeiroVencimento,
+          data_vencimento: parcelasGeradas[0].data_vencimento,
         })
         .select()
         .single();
 
       if (errorConta) throw errorConta;
 
-      // Gerar parcelas
-      const parcelas_data = [];
-      const dataBase = new Date(primeiroVencimento + 'T00:00:00');
-
-      if (tipoLancamento === 'parcelado' || tipoLancamento === 'unico') {
-        const valorParcela = valor / parcelas;
-
-        for (let i = 0; i < parcelas; i++) {
-          const dataVenc = new Date(dataBase);
-          dataVenc.setMonth(dataVenc.getMonth() + i);
-
-          parcelas_data.push({
-            conta_receber_id: conta.id,
-            numero_parcela: i + 1,
-            data_emissao: dataEmissao,
-            data_vencimento: dataVenc.toISOString().split('T')[0],
-            valor_total: valor,
-            valor_parcela: valorParcela,
-            status: 'aberto',
-          });
-        }
-      } else {
-        // RECORRENTE
-        for (let i = 0; i < parcelas; i++) {
-          const dataVenc = new Date(dataBase);
-          dataVenc.setMonth(dataVenc.getMonth() + i);
-
-          const dataEmissaoParcela = new Date(dataVenc);
-          dataEmissaoParcela.setDate(1);
-
-          parcelas_data.push({
-            conta_receber_id: conta.id,
-            numero_parcela: i + 1,
-            data_emissao: dataEmissaoParcela.toISOString().split('T')[0],
-            data_vencimento: dataVenc.toISOString().split('T')[0],
-            valor_total: valor,
-            valor_parcela: valor,
-            status: 'aberto',
-          });
-        }
-      }
+      // Salvar parcelas editadas
+      const parcelas_data = parcelasGeradas.map(p => ({
+        conta_receber_id: conta.id,
+        numero_parcela: p.numero_parcela,
+        data_emissao: p.data_emissao,
+        data_vencimento: p.data_vencimento,
+        valor_total: p.valor_total,
+        valor_parcela: p.valor_parcela,
+        status: 'aberto',
+      }));
 
       const { error: errorParcelas } = await supabase
         .from('contas_receber_parcelas')
@@ -245,7 +284,7 @@ export default function ContasReceberFormModal({
 
       toast({
         title: '✅ Conta a receber criada',
-        description: `${parcelas} parcela(s) criada(s) com sucesso!`,
+        description: `${parcelasGeradas.length} parcela(s) salva(s) com sucesso!`,
       });
 
       onSucesso(conta.id);
@@ -259,6 +298,18 @@ export default function ContasReceberFormModal({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleEditarParcela = (index: number, field: string, value: any) => {
+    const novasParcelas = [...parcelasGeradas];
+    if (field === 'valor_parcela') {
+      const valorNumerico = parseFloat(value.replace(',', '.'));
+      novasParcelas[index][field] = valorNumerico;
+    } else {
+      novasParcelas[index][field] = value;
+    }
+    setParcelasGeradas(novasParcelas);
+    setParcelasEditadas(true);
   };
 
   return (
@@ -416,6 +467,70 @@ export default function ContasReceberFormModal({
         </div>
       </div>
 
+      {/* Tabela de Parcelas Geradas */}
+      {parcelasGeradas.length > 0 && (
+        <div className="space-y-4 border-t pt-4">
+          <div className="flex items-center justify-between">
+            <Label className="text-lg font-semibold">Parcelas Geradas</Label>
+            {parcelasEditadas && (
+              <span className="text-xs text-orange-600">
+                ⚠️ Parcelas editadas
+              </span>
+            )}
+          </div>
+          
+          <div className="border rounded-lg overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-muted">
+                <tr>
+                  <th className="p-2 text-left">#</th>
+                  <th className="p-2 text-left">Vencimento</th>
+                  <th className="p-2 text-right">Valor</th>
+                </tr>
+              </thead>
+              <tbody>
+                {parcelasGeradas.map((parcela, index) => (
+                  <tr key={index} className="border-t">
+                    <td className="p-2">{parcela.numero_parcela}</td>
+                    <td className="p-2">
+                      <Input
+                        type="date"
+                        value={parcela.data_vencimento}
+                        onChange={(e) => handleEditarParcela(index, 'data_vencimento', e.target.value)}
+                        className="w-40"
+                      />
+                    </td>
+                    <td className="p-2 text-right">
+                      <Input
+                        placeholder="0,00"
+                        value={parcela.valor_parcela.toFixed(2).replace('.', ',')}
+                        onChange={(e) => {
+                          const valor = e.target.value.replace(/[^\d,]/g, '');
+                          handleEditarParcela(index, 'valor_parcela', valor);
+                        }}
+                        className="w-32 text-right ml-auto"
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot className="bg-muted font-semibold">
+                <tr>
+                  <td colSpan={2} className="p-2 text-right">Total:</td>
+                  <td className="p-2 text-right">
+                    {parcelasGeradas.reduce((acc, p) => acc + p.valor_parcela, 0).toLocaleString('pt-BR', {
+                      style: 'currency',
+                      currency: 'BRL'
+                    })}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Botões */}
       <div className="flex gap-4 pt-4 border-t">
         <Button
           variant="outline"
@@ -425,9 +540,16 @@ export default function ContasReceberFormModal({
         >
           Cancelar
         </Button>
-        <Button onClick={handleSalvar} disabled={loading} className="flex-1">
-          {loading ? 'Salvando...' : 'Criar Conta a Receber'}
-        </Button>
+        
+        {parcelasGeradas.length === 0 ? (
+          <Button onClick={handleGerarParcelas} disabled={loading} className="flex-1">
+            Gerar Parcelas
+          </Button>
+        ) : (
+          <Button onClick={handleSalvarParcelamentos} disabled={loading} className="flex-1">
+            {loading ? 'Salvando...' : 'Salvar Parcelamentos'}
+          </Button>
+        )}
       </div>
     </div>
   );
