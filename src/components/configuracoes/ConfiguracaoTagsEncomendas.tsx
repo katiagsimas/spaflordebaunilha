@@ -211,23 +211,27 @@ export default function ConfiguracaoTagsEncomendas() {
   if (loading) return <div className="flex justify-center p-8">Carregando...</div>;
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="border-l-4" style={{ borderLeftColor: 'hsl(var(--primary))' }}>
+      <CardHeader className="p-4 space-y-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Tag className="h-5 w-5 text-primary" />
-            <div>
-              <CardTitle>Tags de Encomendas</CardTitle>
-              <CardDescription>
-                Crie e gerencie tags para categorizar suas encomendas
-              </CardDescription>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <Tag className="h-5 w-5 text-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <CardTitle className="text-base font-semibold leading-tight">
+                Tags de Encomendas
+              </CardTitle>
             </div>
           </div>
-          <Button onClick={() => handleAbrirModal()}>
+          <Button onClick={() => handleAbrirModal()} size="sm">
             <Plus className="mr-2 h-4 w-4" />
             Nova Tag
           </Button>
         </div>
+        <CardDescription className="text-xs">
+          Crie e gerencie tags para categorizar suas encomendas
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
