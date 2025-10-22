@@ -24,6 +24,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { Info, Search, Plus, Edit, Trash2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { BackButton } from '@/components/BackButton';
 
 interface TipoDocumento {
   id: string;
@@ -253,6 +254,8 @@ export default function TiposDocumentos() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      <BackButton to="/configuracoes" />
+      
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>

@@ -31,6 +31,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
 import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2 } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { BackButton } from '@/components/BackButton';
 
 export default function PlanoContas() {
   const [planos, setPlanos] = useState([]);
@@ -402,6 +403,8 @@ export default function PlanoContas() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      <BackButton to="/configuracoes" />
+      
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
