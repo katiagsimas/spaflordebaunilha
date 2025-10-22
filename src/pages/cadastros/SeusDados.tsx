@@ -164,12 +164,14 @@ export default function SeusDados() {
       queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
       toast.success("✅ Dados salvos com sucesso!");
       
-      // Se for primeiro acesso, redirecionar para dashboard
-      if (profile?.primeiro_acesso) {
-        setTimeout(() => {
+      // Redirecionar automaticamente após salvar
+      setTimeout(() => {
+        if (profile?.primeiro_acesso) {
           navigate('/');
-        }, 1500);
-      }
+        } else {
+          navigate('/configuracoes');
+        }
+      }, 1000);
     },
     onError: (error: any) => {
       console.error('Erro ao salvar dados:', error);
