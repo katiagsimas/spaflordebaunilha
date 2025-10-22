@@ -52,57 +52,97 @@ export async function gerarReciboPagamento(
   // CABEÇALHO - LOGO E DADOS DA EMPRESA
   // ==========================================
   
+  const startX = 15;
+  const logoWidth = 35;
+  const logoHeight = 35;
+  const textStartX = dadosEmpresa.logo_url ? startX + logoWidth + 10 : startX;
+  
   // Logo (se existir)
   if (dadosEmpresa.logo_url) {
     try {
+      console.log('📷 Tentando carregar logo:', dadosEmpresa.logo_url);
       const img = new Image();
+      img.crossOrigin = 'anonymous'; // Permite carregar imagens de outros domínios
       img.src = dadosEmpresa.logo_url;
-      await new Promise((resolve) => {
-        img.onload = resolve;
-        img.onerror = resolve;
+      
+      await new Promise((resolve, reject) => {
+        img.onload = () => {
+          console.log('✅ Logo carregada com sucesso');
+          resolve(true);
+        };
+        img.onerror = (error) => {
+          console.error('❌ Erro ao carregar logo:', error);
+          resolve(false); // Não bloqueia se falhar
+        };
+        // Timeout de 5 segundos
+        setTimeout(() => {
+          console.warn('⏱️ Timeout ao carregar logo');
+          resolve(false);
+        }, 5000);
       });
-      doc.addImage(img, 'PNG', 15, yPos, 30, 30);
+      
+      // Tentar adicionar a imagem ao PDF
+      try {
+        doc.addImage(img, 'PNG', startX, yPos, logoWidth, logoHeight);
+        console.log('✅ Logo adicionada ao PDF');
+      } catch (e) {
+        console.error('❌ Erro ao adicionar logo ao PDF:', e);
+      }
     } catch (error) {
-      console.error('Erro ao carregar logo:', error);
+      console.error('❌ Erro geral ao processar logo:', error);
     }
+  } else {
+    console.log('ℹ️ Nenhuma logo fornecida');
   }
 
-  // Dados da empresa (ao lado da logo)
-  doc.setFontSize(16);
+  // Nome da Empresa (Nome Fantasia ou Razão Social)
+  doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
-  doc.text(dadosEmpresa.nome_fantasia, dadosEmpresa.logo_url ? 50 : 15, yPos + 5);
+  const nomeEmpresa = dadosEmpresa.nome_fantasia || dadosEmpresa.razao_social || 'Empresa';
+  doc.text(nomeEmpresa, textStartX, yPos + 6);
   
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
-  yPos += 10;
+  let currentY = yPos + 12;
   
-  if (dadosEmpresa.razao_social) {
-    doc.text(dadosEmpresa.razao_social, dadosEmpresa.logo_url ? 50 : 15, yPos);
-    yPos += 4;
-  }
-  
+  // CNPJ
   if (dadosEmpresa.cnpj) {
-    doc.text(`CNPJ: ${dadosEmpresa.cnpj}`, dadosEmpresa.logo_url ? 50 : 15, yPos);
-    yPos += 4;
+    doc.text(`CNPJ: ${dadosEmpresa.cnpj}`, textStartX, currentY);
+    currentY += 4;
   }
   
-  if (dadosEmpresa.endereco) {
-    const enderecoCompleto = [
+  // Endereço Completo
+  if (dadosEmpresa.endereco || dadosEmpresa.cidade || dadosEmpresa.estado || dadosEmpresa.cep) {
+    const partesEndereco = [
       dadosEmpresa.endereco,
       dadosEmpresa.cidade,
       dadosEmpresa.estado,
       dadosEmpresa.cep
-    ].filter(Boolean).join(', ');
-    doc.text(enderecoCompleto, dadosEmpresa.logo_url ? 50 : 15, yPos);
-    yPos += 4;
+    ].filter(Boolean);
+    
+    if (partesEndereco.length > 0) {
+      const enderecoCompleto = partesEndereco.join(', ');
+      // Quebrar endereço em múltiplas linhas se for muito longo
+      const linhasEndereco = doc.splitTextToSize(enderecoCompleto, pageWidth - textStartX - 15);
+      doc.text(linhasEndereco, textStartX, currentY);
+      currentY += linhasEndereco.length * 4;
+    }
   }
   
-  if (dadosEmpresa.telefone || dadosEmpresa.email) {
-    const contato = [dadosEmpresa.telefone, dadosEmpresa.email].filter(Boolean).join(' | ');
-    doc.text(contato, dadosEmpresa.logo_url ? 50 : 15, yPos);
+  // Telefone
+  if (dadosEmpresa.telefone) {
+    doc.text(`Tel: ${dadosEmpresa.telefone}`, textStartX, currentY);
+    currentY += 4;
+  }
+  
+  // Email
+  if (dadosEmpresa.email) {
+    doc.text(`Email: ${dadosEmpresa.email}`, textStartX, currentY);
+    currentY += 4;
   }
 
-  yPos = 60;
+  // Ajustar posição Y para o próximo bloco
+  yPos = Math.max(currentY, yPos + logoHeight) + 8;
 
   // ==========================================
   // TÍTULO DO RECIBO

@@ -542,7 +542,8 @@ export default function ContasReceberDetalhes() {
         logo_url: dadosEmpresa.avatar_url || null,
       };
 
-      console.log('Dados empresa PDF:', dadosEmpresaPDF);
+      console.log('📄 Dados empresa PDF:', dadosEmpresaPDF);
+      console.log('🖼️ Logo URL:', dadosEmpresaPDF.logo_url);
 
       // Preparar dados do cliente
       const cliente = conta.cliente;
