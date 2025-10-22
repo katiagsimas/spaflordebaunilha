@@ -379,12 +379,15 @@ const Encomendas = () => {
       
       const unidadeTexto = unidade?.sigla || unidadePorSigla?.sigla || receita.unidadeRendimento;
       
+      // Calcular valor unitário: Preço de Venda / Quantidade (rendimento)
+      const valorUnitario = receita.rendimento > 0 ? (receita.valorVenda || 0) / receita.rendimento : (receita.valorVenda || 0);
+      
       setProdutoForm({
         receita_id: receitaId,
         produto: receita.nome,
         quantidade: "",
         unidade_medida: unidadeTexto,
-        valor_unitario: receita.valorVenda || 0,
+        valor_unitario: valorUnitario,
       });
     }
   };
