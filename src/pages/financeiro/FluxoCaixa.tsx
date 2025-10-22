@@ -523,91 +523,217 @@ export default function FluxoCaixa() {
         </Card>
       </div>
 
-      {/* Gráfico */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Evolução do Saldo</CardTitle>
-          <CardDescription>
-            Acompanhamento diário do saldo no período selecionado
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={dadosGrafico}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="data" />
-              <YAxis />
-              <Tooltip 
-                formatter={(value) => formatarValor(value)}
-                labelStyle={{ color: '#000' }}
-              />
-              <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="saldo" 
-                name="Saldo" 
-                stroke="#3b82f6" 
-                strokeWidth={2}
-                dot={{ r: 4 }}
-                activeDot={{ r: 6 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+      {/* Abas */}
+      <Tabs value={abaAtiva} onValueChange={setAbaAtiva}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="diario">Relatório Diário</TabsTrigger>
+          <TabsTrigger value="grafico">Evolução (Gráfico)</TabsTrigger>
+        </TabsList>
 
-      {/* Tabela de Movimentações */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Movimentações Detalhadas</CardTitle>
-          <CardDescription>
-            Histórico completo de entradas e saídas
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {movimentacoes.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <Calendar className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>Nenhuma movimentação encontrada no período.</p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Descrição</TableHead>
-                  <TableHead>Cliente/Fornecedor</TableHead>
-                  <TableHead className="text-right">Entrada</TableHead>
-                  <TableHead className="text-right">Saída</TableHead>
-                  <TableHead className="text-right">Saldo</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {movimentacoes.map((mov) => (
-                  <TableRow key={mov.id}>
-                    <TableCell className="font-medium">
-                      {formatarData(mov.data)}
-                    </TableCell>
-                    <TableCell>{mov.descricao}</TableCell>
-                    <TableCell>{mov.cliente_fornecedor}</TableCell>
-                    <TableCell className="text-right text-green-600 font-medium">
-                      {mov.entrada > 0 ? formatarValor(mov.entrada) : '-'}
-                    </TableCell>
-                    <TableCell className="text-right text-red-600 font-medium">
-                      {mov.saida > 0 ? formatarValor(mov.saida) : '-'}
-                    </TableCell>
-                    <TableCell className={`text-right font-bold ${
-                      mov.saldo >= 0 ? 'text-blue-600' : 'text-red-600'
-                    }`}>
-                      {formatarValor(mov.saldo)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+        {/* Aba: Relatório Diário */}
+        <TabsContent value="diario" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Movimentações Detalhadas</CardTitle>
+              <CardDescription>
+                Todas as entradas e saídas do período com saldo progressivo
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {movimentacoes.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Nenhuma movimentação encontrada no período.
+                </div>
+              ) : (
+                <div className="border rounded-lg overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Data</TableHead>
+                        <TableHead>Descrição</TableHead>
+                        <TableHead>Cliente/Fornecedor</TableHead>
+                        <TableHead className="text-right">Entrada</TableHead>
+                        <TableHead className="text-right">Saída</TableHead>
+                        <TableHead className="text-right">Saldo</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {/* Linha de Saldo Inicial */}
+                      <TableRow className="bg-muted/50">
+                        <TableCell className="font-medium">
+                          {formatarData(dataInicio)}
+                        </TableCell>
+                        <TableCell colSpan={2} className="font-medium">
+                          SALDO INICIAL
+                        </TableCell>
+                        <TableCell className="text-right">-</TableCell>
+                        <TableCell className="text-right">-</TableCell>
+                        <TableCell className="text-right font-bold">
+                          {formatarValor(saldoInicial)}
+                        </TableCell>
+                      </TableRow>
+
+                      {/* Movimentações */}
+                      {movimentacoes.map((mov) => (
+                        <TableRow key={mov.id}>
+                          <TableCell>{formatarData(mov.data)}</TableCell>
+                          <TableCell>{mov.descricao}</TableCell>
+                          <TableCell>{mov.cliente_fornecedor}</TableCell>
+                          <TableCell className="text-right">
+                            {mov.entrada > 0 ? (
+                              <span className="text-green-600 font-medium">
+                                {formatarValor(mov.entrada)}
+                              </span>
+                            ) : (
+                              '-'
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {mov.saida > 0 ? (
+                              <span className="text-red-600 font-medium">
+                                {formatarValor(mov.saida)}
+                              </span>
+                            ) : (
+                              '-'
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right font-medium">
+                            {formatarValor(mov.saldo)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+
+                      {/* Linha de Totais */}
+                      <TableRow className="bg-muted/50 font-bold">
+                        <TableCell colSpan={3}>TOTAIS</TableCell>
+                        <TableCell className="text-right text-green-600">
+                          {formatarValor(totalEntradas)}
+                        </TableCell>
+                        <TableCell className="text-right text-red-600">
+                          {formatarValor(totalSaidas)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {formatarValor(saldoFinal)}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Aba: Gráfico */}
+        <TabsContent value="grafico" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Evolução do Saldo</CardTitle>
+              <CardDescription>
+                Visualização gráfica da evolução do saldo ao longo do período
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {dadosGrafico.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Sem dados para exibir o gráfico.
+                </div>
+              ) : (
+                <div className="h-[400px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                      data={dadosGrafico}
+                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="data" 
+                        tick={{ fontSize: 12 }}
+                        angle={-45}
+                        textAnchor="end"
+                        height={80}
+                      />
+                      <YAxis 
+                        tick={{ fontSize: 12 }}
+                        tickFormatter={(value) => 
+                          value.toLocaleString('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL',
+                            minimumFractionDigits: 0,
+                          })
+                        }
+                      />
+                      <Tooltip 
+                        formatter={(value) => formatarValor(value)}
+                        labelStyle={{ color: '#000' }}
+                      />
+                      <Legend />
+                      <Line 
+                        type="monotone" 
+                        dataKey="saldo" 
+                        stroke="#3b82f6" 
+                        strokeWidth={3}
+                        name="Saldo"
+                        dot={{ r: 4 }}
+                        activeDot={{ r: 6 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Card de Análise */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Variação do Período</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className={`text-3xl font-bold ${
+                  (saldoFinal - saldoInicial) >= 0 ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  {formatarValor(saldoFinal - saldoInicial)}
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  {((saldoFinal - saldoInicial) >= 0 ? 'Aumento' : 'Redução')} no saldo
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Resultado do Período</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className={`text-3xl font-bold ${
+                  (totalEntradas - totalSaidas) >= 0 ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  {formatarValor(totalEntradas - totalSaidas)}
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Entradas - Saídas
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Maior Saldo</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-blue-600">
+                  {formatarValor(Math.max(...movimentacoes.map(m => m.saldo), saldoInicial))}
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Pico do período
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
