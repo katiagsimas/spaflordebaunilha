@@ -1,10 +1,11 @@
-import { Settings, Tag, UserCircle, Ruler, Lock, Package, Layers, BookOpen, Building2, FileText, Percent } from "lucide-react";
+import { Settings, Tag, UserCircle, Ruler, Lock, Package, Layers, BookOpen, Building2, FileText, Percent, Tags } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { useConfigStatus } from "@/hooks/useConfigStatus";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import ConfiguracaoTagsEncomendas from "@/components/configuracoes/ConfiguracaoTagsEncomendas";
 
 const opcoes = [
   {
@@ -137,6 +138,11 @@ export default function Configuracoes() {
         title="Configurações"
         description="Configure categorias, planos de contas e formas de pagamento"
       />
+
+      {/* Configuração de Tags - Destaque */}
+      <div className="mb-6">
+        <ConfiguracaoTagsEncomendas />
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
         {opcoes.map((opcao, index) => {

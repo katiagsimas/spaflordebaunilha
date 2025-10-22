@@ -858,6 +858,49 @@ export type Database = {
           },
         ]
       }
+      encomendas_tags: {
+        Row: {
+          created_at: string | null
+          encomenda_id: string
+          id: string
+          tag_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          encomenda_id: string
+          id?: string
+          tag_id: string
+        }
+        Update: {
+          created_at?: string | null
+          encomenda_id?: string
+          id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "encomendas_tags_encomenda_id_fkey"
+            columns: ["encomenda_id"]
+            isOneToOne: false
+            referencedRelation: "encomendas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "encomendas_tags_encomenda_id_fkey"
+            columns: ["encomenda_id"]
+            isOneToOne: false
+            referencedRelation: "vw_encomendas_com_tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "encomendas_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags_encomendas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       entradas_detalhadas: {
         Row: {
           created_at: string
@@ -1398,6 +1441,39 @@ export type Database = {
           },
         ]
       }
+      tags_encomendas: {
+        Row: {
+          ativo: boolean | null
+          cor: string
+          created_at: string | null
+          descricao: string | null
+          id: string
+          nome: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ativo?: boolean | null
+          cor?: string
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          nome: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ativo?: boolean | null
+          cor?: string
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          nome?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       tipos_documento: {
         Row: {
           ativo: boolean | null
@@ -1621,6 +1697,48 @@ export type Database = {
           },
         ]
       }
+      vw_encomendas_com_tags: {
+        Row: {
+          cep: string | null
+          cliente: string | null
+          conta_receber_id: string | null
+          created_at: string | null
+          data_entrega: string | null
+          data_pedido: string | null
+          desconto_percentual: number | null
+          desconto_valor: number | null
+          endereco: string | null
+          hora_entrega: string | null
+          id: string | null
+          numero: string | null
+          observacoes: string | null
+          outros: number | null
+          pagamentos: Json | null
+          saldo_restante: number | null
+          status: string | null
+          tags: Json | null
+          taxa_entrega: number | null
+          telefone: string | null
+          topo_aniversariante: string | null
+          topo_bolo: number | null
+          topo_idade: string | null
+          topo_imagens: Json | null
+          topo_obs: string | null
+          topo_tema: string | null
+          updated_at: string | null
+          usuario_id: string | null
+          valor: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "encomendas_conta_receber_id_fkey"
+            columns: ["conta_receber_id"]
+            isOneToOne: false
+            referencedRelation: "contas_receber"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       atualizar_status_parcelas_vencidas: { Args: never; Returns: undefined }
@@ -1655,6 +1773,10 @@ export type Database = {
         Returns: undefined
       }
       criar_planos_contas_padrao: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
+      criar_tags_padrao_encomendas: {
         Args: { p_user_id: string }
         Returns: undefined
       }
