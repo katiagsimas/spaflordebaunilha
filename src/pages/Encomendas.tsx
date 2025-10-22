@@ -1419,7 +1419,26 @@ const Encomendas = () => {
       {/* Filtros */}
       <Card className="shadow-soft">
         <CardHeader>
-          <CardTitle>Filtros</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Filtros</CardTitle>
+            {(clienteFilter !== "Todos" || statusFilter !== "Todos" || dataEntregaFilter || horaEntregaFilter || tagFilter !== "todos") && (
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => {
+                  setClienteFilter("Todos");
+                  setStatusFilter("Todos");
+                  setDataEntregaFilter("");
+                  setHoraEntregaFilter("");
+                  setTagFilter("todos");
+                }}
+                className="gap-2"
+              >
+                <X className="h-4 w-4" />
+                Limpar Filtros
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -1513,25 +1532,6 @@ const Encomendas = () => {
           {(clienteFilter !== "Todos" || statusFilter !== "Todos" || dataEntregaFilter || horaEntregaFilter || tagFilter !== "todos") && (
             <div className="mt-4 text-sm text-muted-foreground">
               Mostrando <strong>{filteredOrders.length}</strong> de <strong>{encomendas.length}</strong> encomenda(s)
-            </div>
-          )}
-
-          {/* Botão Limpar Filtros */}
-          {(clienteFilter !== "Todos" || statusFilter !== "Todos" || dataEntregaFilter || horaEntregaFilter || tagFilter !== "todos") && (
-            <div className="mt-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                setClienteFilter("Todos");
-                setStatusFilter("Todos");
-                setDataEntregaFilter("");
-                setHoraEntregaFilter("");
-                setTagFilter("todos");
-              }}
-            >
-                Limpar Filtros
-              </Button>
             </div>
           )}
         </CardContent>
