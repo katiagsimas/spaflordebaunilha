@@ -16,7 +16,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { 
   ArrowLeft, Edit, Calendar, User, FileText, Building2, DollarSign, 
-  Info, AlertTriangle, Edit2, Trash2, Download, MoreVertical 
+  Info, AlertTriangle, Edit2, Trash2, Download, MoreVertical, RefreshCw 
 } from 'lucide-react';
 import {
   Dialog,
@@ -65,6 +65,11 @@ export default function ContasReceberDetalhes() {
   const [tipoDocumentoIdEdit, setTipoDocumentoIdEdit] = useState('');
   const [observacaoEdit, setObservacaoEdit] = useState('');
   const [salvandoEdicao, setSalvandoEdicao] = useState(false);
+  
+  // Estados para estorno
+  const [modalEstorno, setModalEstorno] = useState(false);
+  const [pagamentoEstornando, setPagamentoEstornando] = useState(null);
+  const [motivoEstorno, setMotivoEstorno] = useState('');
   
   // Estados para listas auxiliares
   const [bancos, setBancos] = useState([]);
@@ -364,6 +369,96 @@ export default function ContasReceberDetalhes() {
       console.error('Erro ao excluir pagamento:', error);
       toast({
         title: 'Erro ao excluir',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleAbrirEstorno = (pagamento) => {
+    setPagamentoEstornando(pagamento);
+    setMotivoEstorno('');
+    setModalEstorno(true);
+  };
+
+  const handleConfirmarEstorno = async () => {
+    try {
+      if (!motivoEstorno.trim()) {
+        toast({
+          title: 'Erro',
+          description: 'Informe o motivo do estorno!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (motivoEstorno.trim().length < 10) {
+        toast({
+          title: 'Erro',
+          description: 'O motivo deve ter pelo menos 10 caracteres!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('contas_receber_pagamentos')
+        .update({
+          estornado: true,
+          data_estorno: new Date().toISOString(),
+          motivo_estorno: motivoEstorno.trim(),
+        })
+        .eq('id', pagamentoEstornando.id);
+
+      if (error) throw error;
+
+      toast({
+        title: '✅ Pagamento estornado',
+        description: 'O estorno foi registrado e a parcela foi recalculada.',
+      });
+
+      setModalEstorno(false);
+      fetchDetalhes();
+    } catch (error) {
+      console.error('Erro ao estornar pagamento:', error);
+      toast({
+        title: 'Erro ao estornar',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleReverterEstorno = async (pagamento) => {
+    try {
+      const confirmar = window.confirm(
+        `Tem certeza que deseja REVERTER o estorno deste pagamento de ${formatarValor(parseFloat(pagamento.valor_pago))}?\n\n` +
+        `O pagamento voltará a ser contabilizado na parcela.`
+      );
+
+      if (!confirmar) return;
+
+      const { error } = await supabase
+        .from('contas_receber_pagamentos')
+        .update({
+          estornado: false,
+          data_estorno: null,
+          motivo_estorno: null,
+        })
+        .eq('id', pagamento.id);
+
+      if (error) throw error;
+
+      toast({
+        title: '✅ Estorno revertido',
+        description: 'O pagamento foi reativado com sucesso.',
+      });
+
+      fetchDetalhes();
+    } catch (error) {
+      console.error('Erro ao reverter estorno:', error);
+      toast({
+        title: 'Erro ao reverter',
         description: error.message,
         variant: 'destructive',
       });
@@ -765,14 +860,18 @@ export default function ContasReceberDetalhes() {
           <CardContent>
             <div className="space-y-4">
               {parcelas.map(parcela => {
-                const pagamentosParcela = pagamentos.filter(p => p.parcela_id === parcela.id && !p.estornado);
+                const pagamentosParcela = pagamentos.filter(p => p.parcela_id === parcela.id);
                 
                 if (pagamentosParcela.length === 0) return null;
 
-                // Calcular totais
-                const totalValorPago = pagamentosParcela.reduce((acc, p) => acc + parseFloat(p.valor_pago || 0), 0);
-                const totalJuros = pagamentosParcela.reduce((acc, p) => acc + parseFloat(p.juros || 0), 0);
-                const totalDesconto = pagamentosParcela.reduce((acc, p) => acc + parseFloat(p.desconto || 0), 0);
+                // Separar pagamentos estornados e ativos
+                const pagamentosAtivos = pagamentosParcela.filter(p => !p.estornado);
+                const pagamentosEstornados = pagamentosParcela.filter(p => p.estornado);
+
+                // Calcular totais apenas dos ATIVOS
+                const totalValorPago = pagamentosAtivos.reduce((acc, p) => acc + parseFloat(p.valor_pago || 0), 0);
+                const totalJuros = pagamentosAtivos.reduce((acc, p) => acc + parseFloat(p.juros || 0), 0);
+                const totalDesconto = pagamentosAtivos.reduce((acc, p) => acc + parseFloat(p.desconto || 0), 0);
                 const totalLiquido = totalValorPago + totalJuros - totalDesconto;
 
                 return (
@@ -805,7 +904,8 @@ export default function ContasReceberDetalhes() {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {pagamentosParcela.map((pag) => (
+                          {/* PAGAMENTOS ATIVOS */}
+                          {pagamentosAtivos.map((pag) => (
                             <>
                               {/* Linha do Pagamento Principal */}
                               <TableRow key={`pag-${pag.id}`}>
@@ -858,6 +958,10 @@ export default function ContasReceberDetalhes() {
                                       <DropdownMenuItem onClick={() => handleAbrirEdicaoPagamento(pag)}>
                                         <Edit2 className="mr-2 h-4 w-4" />
                                         Editar
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => handleAbrirEstorno(pag)}>
+                                        <RefreshCw className="mr-2 h-4 w-4" />
+                                        Estornar
                                       </DropdownMenuItem>
                                       <DropdownMenuItem 
                                         onClick={() => handleExcluirPagamento(pag)}
@@ -925,10 +1029,116 @@ export default function ContasReceberDetalhes() {
                             </>
                           ))}
 
+                          {/* SEPARADOR - PAGAMENTOS ESTORNADOS */}
+                          {pagamentosEstornados.length > 0 && (
+                            <TableRow>
+                              <TableCell colSpan={8} className="bg-gray-100 font-medium text-center py-2">
+                                Pagamentos Estornados ({pagamentosEstornados.length})
+                              </TableCell>
+                            </TableRow>
+                          )}
+
+                          {/* PAGAMENTOS ESTORNADOS */}
+                          {pagamentosEstornados.map((pag) => (
+                            <>
+                              {/* Linha do Pagamento Estornado */}
+                              <TableRow key={`pag-est-${pag.id}`} className="bg-gray-50 opacity-60">
+                                <TableCell>
+                                  <Badge variant="outline" className="bg-gray-200 text-gray-700 border-gray-400">
+                                    ESTORNADO
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="line-through">{formatarData(pag.data_pagamento)}</TableCell>
+                                <TableCell className="font-medium text-gray-600 line-through">
+                                  {formatarValor(parseFloat(pag.valor_pago))}
+                                </TableCell>
+                                <TableCell className="text-sm text-gray-600">
+                                  {pag.banco?.codigo} - {pag.banco?.nome}
+                                </TableCell>
+                                <TableCell className="text-sm text-gray-600">
+                                  {pag.tipo_documento?.descricao}
+                                </TableCell>
+                                <TableCell className="text-xs text-gray-600">
+                                  <div>
+                                    <strong>Estornado em:</strong> {new Date(pag.data_estorno).toLocaleDateString('pt-BR')}
+                                  </div>
+                                  <div>
+                                    <strong>Motivo:</strong> {pag.motivo_estorno}
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  {comprovantes[pag.id] && comprovantes[pag.id].length > 0 ? (
+                                    <div className="flex flex-col gap-1">
+                                      {comprovantes[pag.id].map(comp => (
+                                        <a
+                                          key={comp.id}
+                                          href={comp.url_storage}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="flex items-center gap-1 text-xs text-gray-500 hover:underline"
+                                        >
+                                          <FileText className="h-3 w-3" />
+                                          Ver
+                                        </a>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <span className="text-xs text-gray-400">-</span>
+                                  )}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleReverterEstorno(pag)}
+                                    title="Reverter estorno"
+                                  >
+                                    <RefreshCw className="h-4 w-4 text-green-600" />
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+
+                              {/* Juros e Desconto estornados */}
+                              {pag.juros && parseFloat(pag.juros) > 0 && (
+                                <TableRow key={`juros-est-${pag.id}`} className="bg-gray-50 opacity-60">
+                                  <TableCell>
+                                    <Badge variant="outline" className="bg-gray-200 text-gray-600">
+                                      Juros
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell className="line-through">{formatarData(pag.data_pagamento)}</TableCell>
+                                  <TableCell className="text-gray-600 line-through">
+                                    + {formatarValor(parseFloat(pag.juros))}
+                                  </TableCell>
+                                  <TableCell colSpan={5} className="text-xs text-gray-500">
+                                    (Estornado)
+                                  </TableCell>
+                                </TableRow>
+                              )}
+
+                              {pag.desconto && parseFloat(pag.desconto) > 0 && (
+                                <TableRow key={`desc-est-${pag.id}`} className="bg-gray-50 opacity-60">
+                                  <TableCell>
+                                    <Badge variant="outline" className="bg-gray-200 text-gray-600">
+                                      Desconto
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell className="line-through">{formatarData(pag.data_pagamento)}</TableCell>
+                                  <TableCell className="text-gray-600 line-through">
+                                    - {formatarValor(parseFloat(pag.desconto))}
+                                  </TableCell>
+                                  <TableCell colSpan={5} className="text-xs text-gray-500">
+                                    (Estornado)
+                                  </TableCell>
+                                </TableRow>
+                              )}
+                            </>
+                          ))}
+
                           {/* Linha de Totais */}
                           <TableRow className="bg-muted/50 font-medium">
                             <TableCell colSpan={2} className="font-bold">
-                              TOTAIS:
+                              TOTAIS (Ativos):
                             </TableCell>
                             <TableCell className="font-bold">
                               <div className="space-y-1">
@@ -951,7 +1161,10 @@ export default function ContasReceberDetalhes() {
                               </div>
                             </TableCell>
                             <TableCell colSpan={5} className="text-sm text-muted-foreground">
-                              {pagamentosParcela.length} pagamento(s) registrado(s)
+                              {pagamentosAtivos.length} pagamento(s) ativo(s)
+                              {pagamentosEstornados.length > 0 && (
+                                <span className="text-gray-500"> | {pagamentosEstornados.length} estornado(s)</span>
+                              )}
                             </TableCell>
                           </TableRow>
                         </TableBody>
@@ -1102,6 +1315,90 @@ export default function ContasReceberDetalhes() {
               disabled={salvandoEdicao}
             >
               {salvandoEdicao ? 'Salvando...' : 'Salvar Alterações'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Estornar Pagamento */}
+      <Dialog open={modalEstorno} onOpenChange={setModalEstorno}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Estornar Pagamento</DialogTitle>
+            <DialogDescription>
+              O pagamento será marcado como estornado mas permanecerá no histórico
+            </DialogDescription>
+          </DialogHeader>
+
+          {pagamentoEstornando && (
+            <div className="space-y-4 py-4">
+              {/* Info do Pagamento */}
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Data:</span>
+                  <span className="font-medium">{formatarData(pagamentoEstornando.data_pagamento)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Valor:</span>
+                  <span className="font-medium text-green-600">
+                    {formatarValor(parseFloat(pagamentoEstornando.valor_pago))}
+                  </span>
+                </div>
+                {pagamentoEstornando.juros && parseFloat(pagamentoEstornando.juros) > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Juros:</span>
+                    <span className="font-medium text-red-600">
+                      + {formatarValor(parseFloat(pagamentoEstornando.juros))}
+                    </span>
+                  </div>
+                )}
+                {pagamentoEstornando.desconto && parseFloat(pagamentoEstornando.desconto) > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Desconto:</span>
+                    <span className="font-medium text-blue-600">
+                      - {formatarValor(parseFloat(pagamentoEstornando.desconto))}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <Alert className="bg-red-50 border-red-200">
+                <AlertTriangle className="h-4 w-4 text-red-600" />
+                <AlertDescription>
+                  <strong>Atenção:</strong> O estorno recalculará automaticamente o status da parcela.
+                  O pagamento permanecerá no histórico para auditoria.
+                </AlertDescription>
+              </Alert>
+
+              {/* Motivo do Estorno */}
+              <div className="space-y-2">
+                <Label htmlFor="motivo-estorno">Motivo do Estorno *</Label>
+                <Textarea
+                  id="motivo-estorno"
+                  placeholder="Ex: Chargeback do cliente, erro de lançamento, duplicidade..."
+                  rows={4}
+                  value={motivoEstorno}
+                  onChange={(e) => setMotivoEstorno(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  O motivo ficará registrado no histórico (mínimo 10 caracteres)
+                </p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setModalEstorno(false)}
+            >
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleConfirmarEstorno}
+              variant="destructive"
+            >
+              Confirmar Estorno
             </Button>
           </DialogFooter>
         </DialogContent>
