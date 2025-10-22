@@ -283,7 +283,7 @@ export default function ContasPagarForm() {
       if (!user) throw new Error('Não autenticado');
 
       const dadosConta = {
-        user_id: user.id,
+        usuario_id: user.id,
         fornecedor_id: fornecedorId,
         data_emissao: dataEmissao,
         tipo_documento_id: tipoDocumentoId,
