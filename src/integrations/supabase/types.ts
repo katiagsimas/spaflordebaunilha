@@ -1513,6 +1513,236 @@ export type Database = {
         }
         Relationships: []
       }
+      receitas: {
+        Row: {
+          cardapio: string | null
+          categoria: string | null
+          created_at: string
+          custo_total: number
+          id: string
+          modo_preparo: string | null
+          nome: string
+          rendimento: number
+          tempo_preparo: number
+          tipo: string | null
+          unidade_rendimento: string
+          unidade_tempo: string
+          updated_at: string
+          usuario_id: string
+          valor_venda: number | null
+        }
+        Insert: {
+          cardapio?: string | null
+          categoria?: string | null
+          created_at?: string
+          custo_total?: number
+          id?: string
+          modo_preparo?: string | null
+          nome: string
+          rendimento: number
+          tempo_preparo: number
+          tipo?: string | null
+          unidade_rendimento: string
+          unidade_tempo: string
+          updated_at?: string
+          usuario_id: string
+          valor_venda?: number | null
+        }
+        Update: {
+          cardapio?: string | null
+          categoria?: string | null
+          created_at?: string
+          custo_total?: number
+          id?: string
+          modo_preparo?: string | null
+          nome?: string
+          rendimento?: number
+          tempo_preparo?: number
+          tipo?: string | null
+          unidade_rendimento?: string
+          unidade_tempo?: string
+          updated_at?: string
+          usuario_id?: string
+          valor_venda?: number | null
+        }
+        Relationships: []
+      }
+      receitas_despesas_venda: {
+        Row: {
+          created_at: string
+          despesa_id: string
+          id: string
+          nome: string
+          percentual: number
+          receita_id: string
+          valor: number
+        }
+        Insert: {
+          created_at?: string
+          despesa_id: string
+          id?: string
+          nome: string
+          percentual: number
+          receita_id: string
+          valor: number
+        }
+        Update: {
+          created_at?: string
+          despesa_id?: string
+          id?: string
+          nome?: string
+          percentual?: number
+          receita_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receitas_despesas_venda_receita_id_fkey"
+            columns: ["receita_id"]
+            isOneToOne: false
+            referencedRelation: "receitas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      receitas_embalagens: {
+        Row: {
+          created_at: string
+          custo_receita: number
+          custo_unitario: number
+          embalagem: string
+          embalagem_id: string
+          id: string
+          marca: string | null
+          preco_embalagem: number
+          qtde_embalagem: number
+          quantidade_utilizada: number
+          receita_id: string
+          unidade_medida: string
+        }
+        Insert: {
+          created_at?: string
+          custo_receita: number
+          custo_unitario: number
+          embalagem: string
+          embalagem_id: string
+          id?: string
+          marca?: string | null
+          preco_embalagem: number
+          qtde_embalagem: number
+          quantidade_utilizada: number
+          receita_id: string
+          unidade_medida: string
+        }
+        Update: {
+          created_at?: string
+          custo_receita?: number
+          custo_unitario?: number
+          embalagem?: string
+          embalagem_id?: string
+          id?: string
+          marca?: string | null
+          preco_embalagem?: number
+          qtde_embalagem?: number
+          quantidade_utilizada?: number
+          receita_id?: string
+          unidade_medida?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receitas_embalagens_receita_id_fkey"
+            columns: ["receita_id"]
+            isOneToOne: false
+            referencedRelation: "receitas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      receitas_imagens: {
+        Row: {
+          created_at: string
+          id: string
+          ordem: number
+          receita_id: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ordem?: number
+          receita_id: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ordem?: number
+          receita_id?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receitas_imagens_receita_id_fkey"
+            columns: ["receita_id"]
+            isOneToOne: false
+            referencedRelation: "receitas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      receitas_ingredientes: {
+        Row: {
+          created_at: string
+          custo_receita: number
+          custo_unitario: number
+          id: string
+          ingrediente: string
+          ingrediente_id: string
+          marca: string | null
+          preco_embalagem: number
+          qtde_embalagem: number
+          quantidade_utilizada: number
+          receita_id: string
+          unidade_medida: string
+        }
+        Insert: {
+          created_at?: string
+          custo_receita: number
+          custo_unitario: number
+          id?: string
+          ingrediente: string
+          ingrediente_id: string
+          marca?: string | null
+          preco_embalagem: number
+          qtde_embalagem: number
+          quantidade_utilizada: number
+          receita_id: string
+          unidade_medida: string
+        }
+        Update: {
+          created_at?: string
+          custo_receita?: number
+          custo_unitario?: number
+          id?: string
+          ingrediente?: string
+          ingrediente_id?: string
+          marca?: string | null
+          preco_embalagem?: number
+          qtde_embalagem?: number
+          quantidade_utilizada?: number
+          receita_id?: string
+          unidade_medida?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receitas_ingredientes_receita_id_fkey"
+            columns: ["receita_id"]
+            isOneToOne: false
+            referencedRelation: "receitas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tags_contas_receber: {
         Row: {
           cor: string

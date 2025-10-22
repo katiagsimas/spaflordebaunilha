@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, CookingPot, Copy, AlertTriangle } from "lucide-react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useReceitas } from "@/hooks/useReceitas";
 import { EmptyState } from "@/components/EmptyState";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Ingrediente {
   id: string;
@@ -67,9 +68,9 @@ interface Receita {
 
 export default function Receitas() {
   const navigate = useNavigate();
-  const [receitas, setReceitas] = useLocalStorage<Receita[]>("receitas", []);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { todasReceitas: receitas, isLoading, refetch } = useReceitas();
+  const [dialogAberto, setDialogAberto] = useState(false);
+  const [receitaParaDeletar, setReceitaParaDeletar] = useState<string | null>(null);
   const [filtroAtivo, setFiltroAtivo] = useState<"todos" | "ativos" | "combos" | "fora">("todos");
 
   // Filtrar receitas de acordo com o filtro ativo

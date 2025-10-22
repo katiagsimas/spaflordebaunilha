@@ -117,7 +117,6 @@ interface Receita {
 export default function ReceitaForm() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [receitas, setReceitas] = useLocalStorage<Receita[]>("receitas", []);
   const [ingredientesCadastrados, setIngredientesCadastrados] = useState<any[]>([]);
   const [embalagensCadastradas, setEmbalagensCadastradas] = useState<any[]>([]);
   const [custosFixos] = useLocalStorage<CustoFixo[]>("custosFixos", []);
@@ -152,40 +151,40 @@ export default function ReceitaForm() {
 
         if (ingredientesError) throw ingredientesError;
         
-        // Buscar receitas do tipo "Produto para Combo" do localStorage
-        let receitasCombo: any[] = [];
-        const receitasStorage = localStorage.getItem('receitas');
-        
-        if (receitasStorage) {
-          const receitas = JSON.parse(receitasStorage);
-          receitasCombo = receitas
-            .filter((r: any) => r.tipo === 'produto_combo')
-            .map((r: any) => {
-              // Buscar a sigla correta da unidade de medida
-              const unidade = unidades.find(u => u.id === r.unidadeRendimento);
-              const siglaNome = unidade?.sigla || unidade?.nome || 'un';
-              
-              return {
-                id: `receita_${r.id}`,
-                preco: r.custoTotal || 0,
-                marca: 'Receita',
-                tipo_insumo: {
-                  id: `tipo_receita_${r.id}`,
-                  descricao: r.nome,
-                  quantidade_embalagem: r.rendimento || 1,
-                  pre_preparo_id: null,
-                  unidade_medida: {
-                    nome: siglaNome,
-                    sigla: siglaNome
-                  }
-                },
-                e_receita_combo: true
-              };
-            });
-        }
+        // Buscar receitas do tipo "Produto para Combo" do Supabase
+        const { data: receitasCombo, error: receitasError } = await supabase
+          .from('receitas')
+          .select('*')
+          .eq('usuario_id', user.id)
+          .eq('tipo', 'produto_combo');
+
+        if (receitasError) throw receitasError;
+
+        const receitasComboFormatadas = (receitasCombo || []).map((r: any) => {
+          // Buscar a sigla correta da unidade de medida
+          const unidade = unidades.find(u => u.id === r.unidade_rendimento);
+          const siglaNome = unidade?.sigla || unidade?.nome || 'un';
+          
+          return {
+            id: `receita_${r.id}`,
+            preco: r.custo_total || 0,
+            marca: 'Receita',
+            tipo_insumo: {
+              id: `tipo_receita_${r.id}`,
+              descricao: r.nome,
+              quantidade_embalagem: r.rendimento || 1,
+              pre_preparo_id: null,
+              unidade_medida: {
+                nome: siglaNome,
+                sigla: siglaNome
+              }
+            },
+            e_receita_combo: true
+          };
+        });
         
         // Combinar ingredientes e receitas combo
-        const todosItens = [...(ingredientesData || []), ...receitasCombo];
+        const todosItens = [...(ingredientesData || []), ...receitasComboFormatadas];
         setIngredientesCadastrados(todosItens);
 
         // Buscar embalagens
@@ -284,32 +283,93 @@ export default function ReceitaForm() {
 
   useEffect(() => {
     if (id) {
-      const receita = receitas.find(r => r.id === id);
-      if (receita) {
-        setFormData({
-          nome: receita.nome,
-          categoria: receita.categoria || "",
-          tipo: receita.tipo || "produto_avulso",
-          cardapio: receita.cardapio || "ativo",
-          tempoPreparo: receita.tempoPreparo.toString(),
-          unidadeTempo: receita.unidadeTempo,
-          rendimento: receita.rendimento.toString(),
-          unidadeRendimentoId: receita.unidadeRendimento,
-        });
-        setIngredientes(receita.ingredientes);
-        setEmbalagens(receita.embalagens || []);
-        setModoPreparo(receita.modoPreparo || "");
-        setValorVenda(receita.valorVenda || 0);
-        setImagens(receita.imagens || []);
-        if (receita.outrosGastosPersonalizados) {
-          setOutrosGastosPersonalizados(receita.outrosGastosPersonalizados);
+      const fetchReceita = async () => {
+        try {
+          const { data: receitaData, error: receitaError } = await supabase
+            .from('receitas')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+          if (receitaError) throw receitaError;
+          if (!receitaData) return;
+
+          // Buscar ingredientes, embalagens, despesas e imagens
+          const [ingredientesRes, embalagensRes, despesasRes, imagensRes] = await Promise.all([
+            supabase.from('receitas_ingredientes').select('*').eq('receita_id', id),
+            supabase.from('receitas_embalagens').select('*').eq('receita_id', id),
+            supabase.from('receitas_despesas_venda').select('*').eq('receita_id', id),
+            supabase.from('receitas_imagens').select('*').eq('receita_id', id).order('ordem'),
+          ]);
+
+          setFormData({
+            nome: receitaData.nome,
+            categoria: receitaData.categoria || "",
+            tipo: (receitaData.tipo as "produto_avulso" | "produto_combo") || "produto_avulso",
+            cardapio: (receitaData.cardapio as "ativo" | "fora") || "ativo",
+            tempoPreparo: receitaData.tempo_preparo.toString(),
+            unidadeTempo: receitaData.unidade_tempo as "minutos" | "horas",
+            rendimento: receitaData.rendimento.toString(),
+            unidadeRendimentoId: receitaData.unidade_rendimento,
+          });
+
+          // Mapear ingredientes
+          const ingredientesFormatados = (ingredientesRes.data || []).map((ing: any) => ({
+            id: ing.id,
+            ingredienteId: ing.ingrediente_id,
+            ingrediente: ing.ingrediente,
+            marca: ing.marca || "",
+            qtdeEmbalagem: Number(ing.qtde_embalagem),
+            unidadeMedida: ing.unidade_medida,
+            precoEmbalagem: Number(ing.preco_embalagem),
+            quantidadeUtilizada: Number(ing.quantidade_utilizada),
+            custoUnitario: Number(ing.custo_unitario),
+            custoReceita: Number(ing.custo_receita),
+          }));
+
+          // Mapear embalagens
+          const embalagensFormatadas = (embalagensRes.data || []).map((emb: any) => ({
+            id: emb.id,
+            embalagemId: emb.embalagem_id,
+            embalagem: emb.embalagem,
+            marca: emb.marca || "",
+            qtdeEmbalagem: Number(emb.qtde_embalagem),
+            unidadeMedida: emb.unidade_medida,
+            precoEmbalagem: Number(emb.preco_embalagem),
+            quantidadeUtilizada: Number(emb.quantidade_utilizada),
+            custoUnitario: Number(emb.custo_unitario),
+            custoReceita: Number(emb.custo_receita),
+          }));
+
+          // Mapear despesas de venda
+          const despesasFormatadas = (despesasRes.data || []).map((desp: any) => ({
+            id: desp.despesa_id,
+            nome: desp.nome,
+            percentual: Number(desp.percentual),
+            valor: Number(desp.valor),
+          }));
+
+          // Mapear imagens
+          const imagensFormatadas = (imagensRes.data || []).map((img: any) => img.url);
+
+          setIngredientes(ingredientesFormatados);
+          setEmbalagens(embalagensFormatadas);
+          setModoPreparo(receitaData.modo_preparo || "");
+          setValorVenda(receitaData.valor_venda ? Number(receitaData.valor_venda) : 0);
+          setImagens(imagensFormatadas);
+
+          if (despesasFormatadas.length > 0) {
+            setDespesasVenda(despesasFormatadas);
+          }
+        } catch (error) {
+          console.error('Erro ao carregar receita:', error);
+          toast.error('Erro ao carregar receita');
         }
-        if (receita.despesasVenda) {
-          setDespesasVenda(receita.despesasVenda);
-        }
-      }
+      };
+
+      fetchReceita();
     }
-  }, [id, receitas]);
+  }, [id]);
 
   const calcularCustos = (ingrediente: IngredienteReceita): IngredienteReceita => {
     const custoUnitario = ingrediente.precoEmbalagem / ingrediente.qtdeEmbalagem;
@@ -528,7 +588,7 @@ export default function ReceitaForm() {
   const margemContribuicao = valorVenda - cmv;
   const percentualMargemContribuicao = valorVenda > 0 ? (margemContribuicao / valorVenda) * 100 : 0;
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.nome.trim()) {
       toast.error("Por favor, informe o nome da receita");
       return;
@@ -544,71 +604,152 @@ export default function ReceitaForm() {
       return;
     }
 
-    const unidadeSelecionada = unidades.find(u => u.id === formData.unidadeRendimentoId);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Não autenticado');
 
-    // Para "Produto para Combo", usar apenas custo de ingredientes
-    const custoParaSalvar = formData.tipo === "produto_combo" ? custoIngredientes : custoTotal;
+      // Para "Produto para Combo", usar apenas custo de ingredientes
+      const custoParaSalvar = formData.tipo === "produto_combo" ? custoIngredientes : custoTotal;
 
-    const receita: Receita = {
-      id: id || Date.now().toString(),
-      nome: formData.nome,
-      categoria: formData.categoria,
-      tipo: formData.tipo,
-      cardapio: formData.cardapio,
-      tempoPreparo: Number(formData.tempoPreparo),
-      unidadeTempo: formData.unidadeTempo,
-      rendimento: Number(formData.rendimento),
-      unidadeRendimento: formData.unidadeRendimentoId,
-      ingredientes,
-      embalagens,
-      modoPreparo,
-      custoTotal: custoParaSalvar,
-      valorVenda,
-      outrosGastosPersonalizados,
-      despesasVenda,
-      imagens,
-    };
-
-    if (id) {
-      setReceitas(receitas.map(r => r.id === id ? receita : r));
-      toast.success("Receita atualizada com sucesso!");
-    } else {
-      setReceitas([...receitas, receita]);
-      toast.success("Receita criada com sucesso!");
-    }
-
-    // Se for "Produto para Combo", adicionar automaticamente aos ingredientes
-    if (formData.tipo === "produto_combo") {
-      const ingredienteExistente = ingredientesCadastrados.find(
-        ing => ing.nome === formData.nome && ing.marca === "Receita"
-      );
-
-      const novoIngrediente: Ingrediente = {
-        id: ingredienteExistente?.id || Date.now().toString(),
+      // Salvar ou atualizar receita principal
+      const receitaData = {
+        usuario_id: user.id,
         nome: formData.nome,
-        marca: "Receita",
-        quantidade: Number(formData.rendimento),
-        unidadeMedida: unidadeSelecionada?.sigla || "un",
-        preco: custoIngredientes,
-        dataAtualizacao: new Date().toISOString().split('T')[0],
+        categoria: formData.categoria || null,
+        tipo: formData.tipo,
+        cardapio: formData.cardapio,
+        tempo_preparo: Number(formData.tempoPreparo),
+        unidade_tempo: formData.unidadeTempo,
+        rendimento: Number(formData.rendimento),
+        unidade_rendimento: formData.unidadeRendimentoId,
+        custo_total: custoParaSalvar,
+        valor_venda: valorVenda || null,
+        modo_preparo: modoPreparo || null,
       };
 
-      if (ingredienteExistente) {
-        // Atualizar ingrediente existente
-        setIngredientesCadastrados(
-          ingredientesCadastrados.map(ing => 
-            ing.id === ingredienteExistente.id ? novoIngrediente : ing
-          )
-        );
-      } else {
-        // Adicionar novo ingrediente
-        setIngredientesCadastrados([...ingredientesCadastrados, novoIngrediente]);
-      }
-      
-      toast.success("Produto também adicionado aos ingredientes!");
-    }
+      let receitaId: string;
 
-    navigate("/precificacao/ficha-tecnica");
+      if (id) {
+        // Atualizar receita existente
+        const { error: receitaError } = await supabase
+          .from('receitas')
+          .update(receitaData)
+          .eq('id', id);
+
+        if (receitaError) throw receitaError;
+        receitaId = id;
+
+        // Deletar ingredientes, embalagens, despesas e imagens existentes
+        await Promise.all([
+          supabase.from('receitas_ingredientes').delete().eq('receita_id', id),
+          supabase.from('receitas_embalagens').delete().eq('receita_id', id),
+          supabase.from('receitas_despesas_venda').delete().eq('receita_id', id),
+          supabase.from('receitas_imagens').delete().eq('receita_id', id),
+        ]);
+      } else {
+        // Criar nova receita
+        const { data: novaReceita, error: receitaError } = await supabase
+          .from('receitas')
+          .insert(receitaData)
+          .select()
+          .single();
+
+        if (receitaError) throw receitaError;
+        if (!novaReceita) throw new Error('Erro ao criar receita');
+        receitaId = novaReceita.id;
+      }
+
+      // Inserir ingredientes
+      if (ingredientes.length > 0) {
+        const ingredientesData = ingredientes.map(ing => ({
+          receita_id: receitaId,
+          ingrediente_id: ing.ingredienteId,
+          ingrediente: ing.ingrediente,
+          marca: ing.marca || null,
+          qtde_embalagem: ing.qtdeEmbalagem,
+          unidade_medida: ing.unidadeMedida,
+          preco_embalagem: ing.precoEmbalagem,
+          quantidade_utilizada: ing.quantidadeUtilizada,
+          custo_unitario: ing.custoUnitario,
+          custo_receita: ing.custoReceita,
+        }));
+
+        const { error: ingredientesError } = await supabase
+          .from('receitas_ingredientes')
+          .insert(ingredientesData);
+
+        if (ingredientesError) throw ingredientesError;
+      }
+
+      // Inserir embalagens
+      if (embalagens.length > 0) {
+        const embalagensData = embalagens.map(emb => ({
+          receita_id: receitaId,
+          embalagem_id: emb.embalagemId,
+          embalagem: emb.embalagem,
+          marca: emb.marca || null,
+          qtde_embalagem: emb.qtdeEmbalagem,
+          unidade_medida: emb.unidadeMedida,
+          preco_embalagem: emb.precoEmbalagem,
+          quantidade_utilizada: emb.quantidadeUtilizada,
+          custo_unitario: emb.custoUnitario,
+          custo_receita: emb.custoReceita,
+        }));
+
+        const { error: embalagensError } = await supabase
+          .from('receitas_embalagens')
+          .insert(embalagensData);
+
+        if (embalagensError) throw embalagensError;
+      }
+
+      // Inserir despesas de venda
+      if (despesasVenda.length > 0) {
+        const despesasData = despesasVenda
+          .filter(desp => desp.valor > 0 || desp.percentual > 0)
+          .map(desp => ({
+            receita_id: receitaId,
+            despesa_id: desp.id,
+            nome: desp.nome,
+            percentual: desp.percentual,
+            valor: desp.valor,
+          }));
+
+        if (despesasData.length > 0) {
+          const { error: despesasError } = await supabase
+            .from('receitas_despesas_venda')
+            .insert(despesasData);
+
+          if (despesasError) throw despesasError;
+        }
+      }
+
+      // Inserir imagens
+      if (imagens.length > 0) {
+        const imagensData = imagens.map((url, index) => ({
+          receita_id: receitaId,
+          url,
+          ordem: index,
+        }));
+
+        const { error: imagensError } = await supabase
+          .from('receitas_imagens')
+          .insert(imagensData);
+
+        if (imagensError) throw imagensError;
+      }
+
+      if (id) {
+        toast.success("Receita atualizada com sucesso!");
+      } else {
+        toast.success("Receita criada com sucesso!");
+      }
+
+      navigate("/precificacao/ficha-tecnica");
+    } catch (error: any) {
+      console.error('Erro ao salvar receita:', error);
+      toast.error(error.message || 'Erro ao salvar receita');
+    }
   };
 
   return (
