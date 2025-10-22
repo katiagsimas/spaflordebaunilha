@@ -651,7 +651,7 @@ export default function ContasReceber() {
             size="sm"
             onClick={() => setFiltroStatus('todos')}
           >
-            Todos {visualizacao === 'ativas' ? '(A Receber)' : '(Recebidas)'}
+            Todos
           </Button>
           
           {visualizacao === 'ativas' ? (
@@ -676,13 +676,6 @@ export default function ContasReceber() {
                 onClick={() => setFiltroStatus('vencido')}
               >
                 Vencido
-              </Button>
-              <Button
-                variant={filtroStatus === 'atrasado' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFiltroStatus('atrasado')}
-              >
-                Atrasado
               </Button>
             </>
           ) : (
