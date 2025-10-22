@@ -537,7 +537,7 @@ export default function ContasReceberDetalhes() {
         cidade: dadosEmpresa.cidade || null,
         estado: dadosEmpresa.estado || null,
         cep: dadosEmpresa.cep || null,
-        telefone: dadosEmpresa.telefone || dadosEmpresa.whatsapp || null,
+        telefone: dadosEmpresa.whatsapp || dadosEmpresa.telefone || null,
         email: dadosEmpresa.email || null,
         logo_url: dadosEmpresa.avatar_url || null,
       };

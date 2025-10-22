@@ -90,9 +90,13 @@ export default function SeusDados() {
         cidade: profile.cidade || "",
         estado: profile.estado || "",
         cep: profile.cep || "",
+        logomarca: profile.avatar_url || "",
       };
       setDados(initialData);
       reset(initialData);
+      if (profile.avatar_url) {
+        setLogomarca(profile.avatar_url);
+      }
     }
   }, [profile]);
 
@@ -146,6 +150,7 @@ export default function SeusDados() {
           estado: data.estado,
           cep: data.cep,
           whatsapp: data.telefone,
+          avatar_url: logomarca || null,
           primeiro_acesso: false,
         })
         .eq('id', user.id);
