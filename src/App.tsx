@@ -51,6 +51,7 @@ import ContasReceberDetalhes from "./pages/financeiro/ContasReceberDetalhes";
 import ContasPagar from "./pages/financeiro/ContasPagar";
 import ContasPagarForm from "./pages/financeiro/ContasPagarForm";
 import ContasPagarDetalhes from "./pages/financeiro/ContasPagarDetalhes";
+import FluxoCaixa from "./pages/financeiro/FluxoCaixa";
 import AuthLogin from "./pages/auth/Login";
 import SignUp from "./pages/auth/SignUp";
 import ForgotPassword from "./pages/auth/ForgotPassword";
@@ -162,6 +163,9 @@ const App = () => (
           <Route path="/financeiro/contas-pagar/nova" element={<ProtectedRoute><Layout><ContasPagarForm /></Layout></ProtectedRoute>} />
           <Route path="/financeiro/contas-pagar/editar/:id" element={<ProtectedRoute><Layout><ContasPagarForm /></Layout></ProtectedRoute>} />
           <Route path="/financeiro/contas-pagar/detalhes/:id" element={<ProtectedRoute><Layout><ContasPagarDetalhes /></Layout></ProtectedRoute>} />
+          
+          {/* Financeiro - Fluxo de Caixa */}
+          <Route path="/financeiro/fluxo-caixa" element={<ProtectedRoute><Layout><FluxoCaixa /></Layout></ProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
           </Routes>
