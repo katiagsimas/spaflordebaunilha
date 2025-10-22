@@ -5,7 +5,6 @@ import { PageHeader } from "@/components/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { useConfigStatus } from "@/hooks/useConfigStatus";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
-import ConfiguracaoTagsEncomendas from "@/components/configuracoes/ConfiguracaoTagsEncomendas";
 
 const opcoes = [
   {
@@ -15,6 +14,15 @@ const opcoes = [
     url: "/configuracoes/dados-confeitaria",
     color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-950",
     statusKey: "seusDados" as const,
+    requiresAdmin: false,
+  },
+  {
+    title: "Tags de Encomendas",
+    description: "Crie e gerencie tags para categorizar suas encomendas",
+    icon: Tags,
+    url: "/configuracoes/tags-encomendas",
+    color: "text-purple-600 bg-purple-50 dark:bg-purple-950",
+    statusKey: null,
     requiresAdmin: false,
   },
   {
@@ -138,11 +146,6 @@ export default function Configuracoes() {
         title="Configurações"
         description="Configure categorias, planos de contas e formas de pagamento"
       />
-
-      {/* Configuração de Tags - Destaque */}
-      <div className="mb-6">
-        <ConfiguracaoTagsEncomendas />
-      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
         {opcoes.map((opcao, index) => {

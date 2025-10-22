@@ -39,6 +39,7 @@ import PlanoContas from "./pages/configuracoes/PlanoContas";
 import Bancos from "./pages/configuracoes/Bancos";
 import TiposDocumentos from "./pages/configuracoes/TiposDocumentos";
 import ConfiguracaoJurosPage from "./pages/configuracoes/ConfiguracaoJuros";
+import TagsEncomendasPage from "./pages/configuracoes/TagsEncomendas";
 import Ingredientes from "./pages/precificacao/Ingredientes";
 import Embalagens from "./pages/precificacao/Embalagens";
 import PrePreparos from "./pages/precificacao/PrePreparos";
@@ -129,6 +130,7 @@ const App = () => (
           <Route path="/configuracoes/bancos" element={<ProtectedRoute><Layout><Bancos /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/tipos-documentos" element={<ProtectedRoute><Layout><TiposDocumentos /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/juros" element={<ProtectedRoute><Layout><ConfiguracaoJurosPage /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/tags-encomendas" element={<ProtectedRoute><Layout><TagsEncomendasPage /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/dados-confeitaria" element={<ProtectedRoute><Layout><SeusDados /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/categorias-receitas" element={<ProtectedRoute><Layout><Categorias /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/unidades-medida" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
