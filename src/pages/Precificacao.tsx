@@ -154,10 +154,14 @@ export default function Precificacao() {
   // Verificar alertas
   const verificarAlertas = (receita: Receita) => {
     const percentualCMV = calcularPercentualCMV(receita);
+    const margemLucro = calcularMargemLucro(receita);
     const alertas: string[] = [];
 
     if (percentualCMV > 45) {
       alertas.push("CMV muito alto");
+    }
+    if (margemLucro < 30) {
+      alertas.push("Margem muito baixa");
     }
 
     return alertas;
@@ -313,7 +317,7 @@ export default function Precificacao() {
                       </TableCell>
                       <TableCell className={cn(
                         "text-right font-semibold",
-                        temAlerta && "text-red-700 dark:text-red-400"
+                        margemLucro < 30 && "text-red-600 dark:text-red-400"
                       )}>
                         {margemLucro.toFixed(1)}%
                       </TableCell>
