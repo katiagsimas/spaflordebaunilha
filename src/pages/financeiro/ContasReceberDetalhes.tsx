@@ -14,9 +14,10 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
+import { gerarReciboPagamento } from '@/utils/gerarReciboPagamento';
 import { 
   ArrowLeft, Edit, Calendar, User, FileText, Building2, DollarSign, 
-  Info, AlertTriangle, Edit2, Trash2, Download, MoreVertical, RefreshCw 
+  Info, AlertTriangle, Edit2, Trash2, Download, MoreVertical, RefreshCw, Printer 
 } from 'lucide-react';
 import {
   Dialog,
@@ -74,6 +75,7 @@ export default function ContasReceberDetalhes() {
   // Estados para listas auxiliares
   const [bancos, setBancos] = useState([]);
   const [tiposDocumento, setTiposDocumento] = useState([]);
+  const [dadosEmpresa, setDadosEmpresa] = useState(null);
 
   useEffect(() => {
     fetchDetalhes();
@@ -170,6 +172,18 @@ export default function ContasReceberDetalhes() {
           const ids = dataPagamentos.map(p => p.id);
           await fetchComprovantes(ids);
         }
+      }
+
+      // Buscar dados da empresa/confeitaria
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: dataEmpresa } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        setDadosEmpresa(dataEmpresa);
       }
 
     } catch (error) {
@@ -459,6 +473,86 @@ export default function ContasReceberDetalhes() {
       console.error('Erro ao reverter estorno:', error);
       toast({
         title: 'Erro ao reverter',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleImprimirRecibo = async (pagamento, parcela) => {
+    try {
+      if (!dadosEmpresa) {
+        toast({
+          title: 'Erro',
+          description: 'Configure os dados da empresa em Configurações > Seus Dados!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!conta?.cliente_nome) {
+        toast({
+          title: 'Erro',
+          description: 'Dados do cliente não encontrados!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Gerar número do recibo (baseado no ID do pagamento)
+      const numeroRecibo = pagamento.id.split('-')[0].toUpperCase();
+
+      // Preparar dados da empresa
+      const dadosEmpresaPDF = {
+        nome_fantasia: dadosEmpresa.nome_confeitaria || 'Empresa',
+        razao_social: dadosEmpresa.nome_completo,
+        cnpj: dadosEmpresa.cpf,
+        endereco: dadosEmpresa.endereco,
+        cidade: dadosEmpresa.cidade,
+        estado: dadosEmpresa.estado,
+        cep: dadosEmpresa.cep,
+        telefone: dadosEmpresa.telefone || dadosEmpresa.whatsapp,
+        email: dadosEmpresa.email,
+        logo_url: dadosEmpresa.avatar_url,
+      };
+
+      // Preparar dados do cliente
+      const dadosClientePDF = {
+        nome: conta.cliente_nome,
+        cpf_cnpj: conta.cliente_documento,
+        endereco: '',
+        cidade: '',
+        estado: '',
+        telefone: '',
+        email: '',
+      };
+
+      const valorLiquido = parseFloat(pagamento.valor_pago) + (parseFloat(pagamento.juros) || 0) - (parseFloat(pagamento.desconto) || 0);
+
+      const dadosPagamentoPDF = {
+        numero_recibo: numeroRecibo,
+        data_pagamento: new Date(pagamento.data_pagamento + 'T00:00:00').toLocaleDateString('pt-BR'),
+        valor_pago: parseFloat(pagamento.valor_pago),
+        juros: parseFloat(pagamento.juros) || 0,
+        desconto: parseFloat(pagamento.desconto) || 0,
+        valor_liquido: valorLiquido,
+        banco_nome: pagamento.banco?.nome || 'N/A',
+        banco_codigo: pagamento.banco?.codigo || '',
+        tipo_documento: pagamento.tipo_documento?.descricao || 'N/A',
+        observacao: pagamento.observacao,
+        referente: `Parcela ${parcela.numero_parcela} de ${conta.numero_parcelas} - ${conta.descricao || 'Conta'} - Vencimento: ${formatarData(parcela.data_vencimento)}`,
+      };
+
+      await gerarReciboPagamento(dadosEmpresaPDF, dadosClientePDF, dadosPagamentoPDF);
+
+      toast({
+        title: '✅ Recibo gerado',
+        description: 'O PDF foi gerado e está sendo baixado!',
+      });
+    } catch (error) {
+      console.error('Erro ao gerar recibo:', error);
+      toast({
+        title: 'Erro ao gerar recibo',
         description: error.message,
         variant: 'destructive',
       });
@@ -953,24 +1047,28 @@ export default function ContasReceberDetalhes() {
                                       <Button variant="ghost" size="sm">
                                         <MoreVertical className="h-4 w-4" />
                                       </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                      <DropdownMenuItem onClick={() => handleAbrirEdicaoPagamento(pag)}>
-                                        <Edit2 className="mr-2 h-4 w-4" />
-                                        Editar
-                                      </DropdownMenuItem>
-                                      <DropdownMenuItem onClick={() => handleAbrirEstorno(pag)}>
-                                        <RefreshCw className="mr-2 h-4 w-4" />
-                                        Estornar
-                                      </DropdownMenuItem>
-                                      <DropdownMenuItem 
-                                        onClick={() => handleExcluirPagamento(pag)}
-                                        className="text-red-600"
-                                      >
-                                        <Trash2 className="mr-2 h-4 w-4" />
-                                        Excluir
-                                      </DropdownMenuItem>
-                                    </DropdownMenuContent>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleImprimirRecibo(pag, parcela)}>
+                          <Printer className="mr-2 h-4 w-4" />
+                          Imprimir Recibo
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleAbrirEdicaoPagamento(pag)}>
+                          <Edit2 className="mr-2 h-4 w-4" />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleAbrirEstorno(pag)}>
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                          Estornar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleExcluirPagamento(pag)}
+                          className="text-red-600"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Excluir
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
                                   </DropdownMenu>
                                 </TableCell>
                               </TableRow>
