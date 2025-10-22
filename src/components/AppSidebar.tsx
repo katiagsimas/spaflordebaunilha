@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 const menuItems = [
   { title: "Encomendas", url: "/encomendas", icon: ShoppingBag, active: true },

@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useViaCEP } from "@/hooks/useViaCEP";
 import { Save, Upload, X, Search } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -37,22 +36,6 @@ export default function SeusDados() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [dados, setDados] = useLocalStorage<SeusDadosForm>("seusDados", {
-    razaoSocial: "",
-    nomeFantasia: "",
-    cnpjCpf: "",
-    inscricaoEstadual: "",
-    nomeResponsavel: "",
-    telefone: "",
-    email: "",
-    endereco: "",
-    numero: "",
-    bairro: "",
-    cidade: "",
-    estado: "",
-    cep: "",
-    logomarca: "",
-  });
 
   // Buscar perfil do usuário
   const { data: profile, isLoading } = useQuery({
@@ -69,30 +52,30 @@ export default function SeusDados() {
     enabled: !!user,
   });
 
-  const [logomarca, setLogomarca] = useState<string>(dados.logomarca || "");
+  const [logomarca, setLogomarca] = useState<string>("");
   const { buscarCEP, loading } = useViaCEP();
 
-  const { register, handleSubmit, setValue, watch, reset } = useForm<SeusDadosForm>({
-    defaultValues: dados,
-  });
+  const { register, handleSubmit, setValue, watch, reset } = useForm<SeusDadosForm>();
 
   // Pré-preencher com dados do perfil quando disponível
   useEffect(() => {
-    if (profile && !dados.razaoSocial) {
+    if (profile) {
       const initialData = {
-        ...dados,
         razaoSocial: profile.nome_confeitaria || "",
+        nomeFantasia: "",
+        cnpjCpf: profile.cpf || "",
+        inscricaoEstadual: "",
         nomeResponsavel: profile.nome_completo || "",
-        email: profile.email || "",
         telefone: profile.whatsapp || profile.telefone || "",
-        cpfCpf: profile.cpf || "",
+        email: profile.email || "",
         endereco: profile.endereco || "",
+        numero: "",
+        bairro: "",
         cidade: profile.cidade || "",
         estado: profile.estado || "",
         cep: profile.cep || "",
         logomarca: profile.avatar_url || "",
       };
-      setDados(initialData);
       reset(initialData);
       if (profile.avatar_url) {
         setLogomarca(profile.avatar_url);
@@ -190,7 +173,6 @@ export default function SeusDados() {
   });
 
   const onSubmit = (data: SeusDadosForm) => {
-    setDados({ ...data, logomarca });
     updateProfileMutation.mutate(data);
   };
 

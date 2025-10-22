@@ -5,33 +5,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
-
-interface Order {
-  id: string;
-  orderNumber: number;
-  client: string;
-  phone: string;
-  product: string;
-  quantity: number;
-  total: number;
-  downPayment: number;
-  balance: number;
-  status: "Pendente" | "Confirmado" | "Em Produção" | "Pronto" | "Entregue" | "Cancelado";
-  orderDate: string;
-  deliveryDate: string;
-  deliveryTime: string;
-  address: string;
-  notes: string;
-  createdAt: string;
-}
-
-interface ConfiguracaoPlanejamento {
-  metaFaturamentoMensal: number;
-  metaFaturamentoAnual: number;
-  alertaCMV: number;
-  custoFixoMensal: number;
-}
+import { useEncomendas } from "@/hooks/useEncomendas";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 type StatusProjecao = 'vai_bater' | 'quase' | 'precisa_acelerar';
 type Confianca = 'alta' | 'media' | 'baixa';
@@ -52,13 +27,8 @@ interface ProjecaoVendasData {
 
 export function ProjecaoVendasCard() {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [orders] = useLocalStorage<Order[]>("orders", []);
-  const [config] = useLocalStorage<ConfiguracaoPlanejamento>("configuracaoPlanejamento", {
-    metaFaturamentoMensal: 10000,
-    metaFaturamentoAnual: 120000,
-    alertaCMV: 50,
-    custoFixoMensal: 2000,
-  });
+  const { encomendas } = useEncomendas();
+  const { profile } = useUserProfile();
 
   // Calcular projeção do mês atual
   const hoje = new Date();
@@ -75,35 +45,35 @@ export function ProjecaoVendasCard() {
   const diasRestantes = diasNoMes - diasDecorridos;
 
   // Faturamento já realizado
-  const faturamentoAtual = orders
+  const faturamentoAtual = encomendas
     .filter(order => {
-      if (order.status !== "Entregue") return false;
-      const deliveryDate = new Date(order.deliveryDate);
+      if (order.status !== "entregue") return false;
+      const deliveryDate = new Date(order.data_entrega);
       return deliveryDate.getMonth() === mesAtual 
         && deliveryDate.getFullYear() === anoAtual
         && deliveryDate <= hoje;
     })
-    .reduce((acc, o) => acc + o.total, 0);
+    .reduce((acc, o) => acc + o.valor, 0);
 
   // Média dos últimos 7 dias
   const seteDiasAtras = new Date(hoje);
   seteDiasAtras.setDate(hoje.getDate() - 7);
 
-  const faturamentoUltimos7Dias = orders
+  const faturamentoUltimos7Dias = encomendas
     .filter(order => {
-      if (order.status !== "Entregue") return false;
-      const deliveryDate = new Date(order.deliveryDate);
+      if (order.status !== "entregue") return false;
+      const deliveryDate = new Date(order.data_entrega);
       return deliveryDate >= seteDiasAtras 
         && deliveryDate <= hoje;
     })
-    .reduce((acc, o) => acc + o.total, 0);
+    .reduce((acc, o) => acc + o.valor, 0);
 
   const mediaDiaria = faturamentoUltimos7Dias / 7;
 
   // Projeção
   const projecao = faturamentoAtual + (mediaDiaria * diasRestantes);
 
-  const meta = config.metaFaturamentoMensal || 0;
+  const meta = profile?.meta_faturamento_mensal || 0;
   const diferenca = projecao - meta;
 
   const faltaParaMeta = Math.max(0, meta - faturamentoAtual);
@@ -120,9 +90,9 @@ export function ProjecaoVendasCard() {
   }
 
   // Confiança
-  const qtdVendas = orders.filter(order => {
-    if (order.status !== "Entregue") return false;
-    const deliveryDate = new Date(order.deliveryDate);
+  const qtdVendas = encomendas.filter(order => {
+    if (order.status !== "entregue") return false;
+    const deliveryDate = new Date(order.data_entrega);
     return deliveryDate.getMonth() === mesAtual 
       && deliveryDate.getFullYear() === anoAtual;
   }).length;
@@ -203,13 +173,13 @@ export function ProjecaoVendasCard() {
     const dia = new Date(hoje);
     dia.setDate(hoje.getDate() - (6 - i));
     
-    const vendas = orders
+    const vendas = encomendas
       .filter(order => {
-        if (order.status !== "Entregue") return false;
-        const deliveryDate = new Date(order.deliveryDate);
+        if (order.status !== "entregue") return false;
+        const deliveryDate = new Date(order.data_entrega);
         return deliveryDate.toDateString() === dia.toDateString();
       })
-      .reduce((acc, o) => acc + o.total, 0);
+      .reduce((acc, o) => acc + o.valor, 0);
     
     return vendas;
   });

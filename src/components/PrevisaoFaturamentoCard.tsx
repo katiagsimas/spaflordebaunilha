@@ -5,26 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { type PrevisaoFaturamento } from "@/hooks/usePlanejamento";
 import { cn } from "@/lib/utils";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
-
-interface Order {
-  id: string;
-  orderNumber: number;
-  client: string;
-  phone: string;
-  product: string;
-  quantity: number;
-  total: number;
-  downPayment: number;
-  balance: number;
-  status: "Pendente" | "Confirmado" | "Em Produção" | "Pronto" | "Entregue" | "Cancelado";
-  orderDate: string;
-  deliveryDate: string;
-  deliveryTime: string;
-  address: string;
-  notes: string;
-  createdAt: string;
-}
+import { useEncomendas } from "@/hooks/useEncomendas";
 
 interface PrevisaoFaturamentoCardProps {
   dados: PrevisaoFaturamento;
@@ -32,30 +13,30 @@ interface PrevisaoFaturamentoCardProps {
 
 export function PrevisaoFaturamentoCard({ dados }: PrevisaoFaturamentoCardProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [orders] = useLocalStorage<Order[]>("orders", []);
+  const { encomendas } = useEncomendas();
 
   // Calcular breakdown de encomendas do mês atual
   const hoje = new Date();
   const mesAtual = hoje.getMonth();
   const anoAtual = hoje.getFullYear();
 
-  const encomendasDoMes = orders.filter(order => {
-    if (order.status === "Cancelado") return false;
-    const deliveryDate = new Date(order.deliveryDate);
+  const encomendasDoMes = encomendas.filter(order => {
+    if (order.status === "cancelado") return false;
+    const deliveryDate = new Date(order.data_entrega);
     return deliveryDate.getMonth() === mesAtual && deliveryDate.getFullYear() === anoAtual;
   });
 
   const jaEntregues = encomendasDoMes
-    .filter(o => o.status === "Entregue")
-    .reduce((acc, o) => acc + o.total, 0);
+    .filter(o => o.status === "entregue")
+    .reduce((acc, o) => acc + o.valor, 0);
 
   const confirmadas = encomendasDoMes
-    .filter(o => ["Confirmado", "Em Produção", "Pronto"].includes(o.status))
-    .reduce((acc, o) => acc + o.total, 0);
+    .filter(o => ["confirmado", "em_producao", "pronto"].includes(o.status))
+    .reduce((acc, o) => acc + o.valor, 0);
 
   const pendentes = encomendasDoMes
-    .filter(o => o.status === "Pendente")
-    .reduce((acc, o) => acc + o.total, 0);
+    .filter(o => o.status === "pendente")
+    .reduce((acc, o) => acc + o.valor, 0);
 
   // Calcular dias restantes no mês
   const ultimoDiaMes = new Date(anoAtual, mesAtual + 1, 0).getDate();

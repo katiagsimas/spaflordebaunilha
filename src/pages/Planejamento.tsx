@@ -11,7 +11,7 @@ import { CMVGlobalCard } from "@/components/CMVGlobalCard";
 import { ProjecaoVendasCard } from "@/components/ProjecaoVendasCard";
 import { ConfigurarMetasModal } from "@/components/ConfigurarMetasModal";
 import { BannerBoasVindas, EstadoVazioCard } from "@/components/EstadoVazio";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 const opcoes = [
   {
@@ -29,9 +29,9 @@ export default function Planejamento() {
   const [modalOpen, setModalOpen] = useState(false);
   const [insights, setInsights] = useState<Insight[]>([]);
   const [previsaoData, setPrevisaoData] = useState<PrevisaoFaturamento | null>(null);
+  const { profile } = useUserProfile();
 
-  const [hasConfig] = useLocalStorage("configuracaoPlanejamento", null);
-  const temConfiguracao = hasConfig !== null && (hasConfig as any).metaFaturamentoMensal > 0;
+  const temConfiguracao = profile?.meta_faturamento_mensal && profile.meta_faturamento_mensal > 0;
 
   const {
     config,

@@ -43,20 +43,8 @@ export function useConfigStatus() {
         profile?.endereco
       );
 
-      // Verificar categorias no localStorage
-      const categoriasStorage = localStorage.getItem('sugarbox_categorias_receitas');
-      let hasCategorias = true; // Sempre true pois o sistema tem categorias pré-cadastradas
-      
-      // Só verifica se realmente está vazio (usuária deletou todas)
-      if (categoriasStorage) {
-        try {
-          const categorias = JSON.parse(categoriasStorage);
-          // Se existe no storage, verifica se tem pelo menos 1
-          hasCategorias = Array.isArray(categorias) && categorias.length > 0;
-        } catch (e) {
-          hasCategorias = true; // Em caso de erro, assume que tem as padrão
-        }
-      }
+      // Categorias sempre existem (pré-cadastradas no sistema)
+      const hasCategorias = true;
 
       // Verificar unidades de medida no Supabase
       const { count: unidadesCount } = await supabase
@@ -64,37 +52,23 @@ export function useConfigStatus() {
         .select('*', { count: 'exact', head: true })
         .eq('usuario_id', user.id);
 
-      // Verificar bancos no localStorage (igual aos tipos de documento)
-      const bancosStorage = localStorage.getItem('sugarbox_bancos');
-      let hasBancos = false;
+      // Verificar bancos no banco de dados
+      const { data: bancos } = await supabase
+        .from('bancos')
+        .select('id')
+        .eq('usuario_id', user.id)
+        .limit(1);
       
-      if (bancosStorage) {
-        try {
-          const bancos = JSON.parse(bancosStorage);
-          hasBancos = Array.isArray(bancos) && bancos.length > 0;
-        } catch (e) {
-          hasBancos = false;
-        }
-      } else {
-        // Se não existe no localStorage, considera os valores padrão como já configurados
-        hasBancos = true; // Sistema vem com 11 bancos pré-cadastrados
-      }
+      const hasBancos = bancos && bancos.length > 0;
 
-      // Verificar tipos de documento no localStorage
-      const tiposDocumentoStorage = localStorage.getItem('sugarbox_tipos_documento');
-      let hasTiposDocumento = false;
+      // Verificar tipos de documento no banco de dados
+      const { data: tiposDocumento } = await supabase
+        .from('tipos_documento')
+        .select('id')
+        .eq('usuario_id', user.id)
+        .limit(1);
       
-      if (tiposDocumentoStorage) {
-        try {
-          const tipos = JSON.parse(tiposDocumentoStorage);
-          hasTiposDocumento = Array.isArray(tipos) && tipos.length > 0;
-        } catch (e) {
-          hasTiposDocumento = false;
-        }
-      } else {
-        // Se não existe no localStorage, considera os valores padrão como já configurados
-        hasTiposDocumento = true; // Sistema vem com 7 tipos pré-cadastrados
-      }
+      const hasTiposDocumento = tiposDocumento && tiposDocumento.length > 0;
 
       return {
         seusDados,

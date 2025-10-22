@@ -1,4 +1,6 @@
-import { useLocalStorage } from "./useLocalStorage";
+import { useUserProfile } from "./useUserProfile";
+import { useEncomendas } from "./useEncomendas";
+import { useCMVMensal } from "./useCMVMensal";
 
 export type StatusPrevisao = 'sucesso' | 'atencao' | 'critico' | 'sem_meta';
 
@@ -29,64 +31,35 @@ export interface DadosCMV {
   cmvPercentual: number;
 }
 
-interface Order {
-  id: string;
-  orderNumber: number;
-  client: string;
-  phone: string;
-  product: string;
-  quantity: number;
-  total: number;
-  downPayment: number;
-  balance: number;
-  status: "Pendente" | "Confirmado" | "Em Produção" | "Pronto" | "Entregue" | "Cancelado";
-  orderDate: string;
-  deliveryDate: string;
-  deliveryTime: string;
-  address: string;
-  notes: string;
-  createdAt: string;
-}
-
 const meses = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
 ];
 
 export function usePlanejamento() {
-  const [config] = useLocalStorage<ConfiguracaoPlanejamento>("configuracaoPlanejamento", {
-    metaFaturamentoMensal: 10000,
-    metaFaturamentoAnual: 120000,
-    alertaCMV: 50,
-    custoFixoMensal: 2000,
-  });
+  const { profile } = useUserProfile();
+  const { encomendas } = useEncomendas();
+  const { dados: dadosCMV } = useCMVMensal();
 
-  const [dadosCMV] = useLocalStorage<DadosCMV[]>("cmvData", 
-    meses.map(mes => ({
-      mes,
-      estoqueInicial: 0,
-      compras: 0,
-      estoqueFinal: 0,
-      custoMensal: 0,
-      faturamento: 0,
-      cmvPercentual: 0,
-    }))
-  );
-
-  const [orders] = useLocalStorage<Order[]>("orders", []);
+  const config: ConfiguracaoPlanejamento = {
+    metaFaturamentoMensal: profile?.meta_faturamento_mensal || 10000,
+    metaFaturamentoAnual: profile?.meta_faturamento_anual || 120000,
+    alertaCMV: profile?.alerta_cmv || 50,
+    custoFixoMensal: profile?.custo_fixo_mensal || 2000,
+  };
 
   const formatarMesAno = (mes: number, ano: number): string => {
     return `${meses[mes]}/${ano}`;
   };
 
   const calcularFaturamentoMes = (mes: number, ano: number): number => {
-    return orders
+    return encomendas
       .filter(order => {
-        if (order.status === "Cancelado") return false;
-        const deliveryDate = new Date(order.deliveryDate);
+        if (order.status === "cancelado") return false;
+        const deliveryDate = new Date(order.data_entrega);
         return deliveryDate.getMonth() === mes && deliveryDate.getFullYear() === ano;
       })
-      .reduce((acc, order) => acc + order.total, 0);
+      .reduce((acc, order) => acc + order.valor, 0);
   };
 
   const calcularPrevisaoFaturamentoCompleta = (): PrevisaoFaturamento => {
@@ -130,18 +103,26 @@ export function usePlanejamento() {
 
   const calcularPrevisaoFaturamento = (): number => {
     const mesAtual = new Date().getMonth();
-    const dadosMesAtual = dadosCMV[mesAtual];
+    const dadosMesAtual = dadosCMV.find(d => parseInt(d.mes.toString()) === mesAtual + 1);
     return dadosMesAtual?.faturamento || 0;
   };
 
   const calcularCMVGlobal = (): { cmv: number; custoTotal: number; faturamentoTotal: number } => {
     const mesAtual = new Date().getMonth();
-    const dadosMesAtual = dadosCMV[mesAtual];
+    const dadosMesAtual = dadosCMV.find(d => parseInt(d.mes.toString()) === mesAtual + 1);
+    
+    if (!dadosMesAtual) {
+      return { cmv: 0, custoTotal: 0, faturamentoTotal: 0 };
+    }
+    
+    const cmvPercentual = dadosMesAtual.faturamento > 0 
+      ? ((dadosMesAtual.estoque_inicial + dadosMesAtual.compras - dadosMesAtual.estoque_final) / dadosMesAtual.faturamento) * 100
+      : 0;
     
     return {
-      cmv: dadosMesAtual?.cmvPercentual || 0,
-      custoTotal: dadosMesAtual?.custoMensal || 0,
-      faturamentoTotal: dadosMesAtual?.faturamento || 0,
+      cmv: cmvPercentual,
+      custoTotal: dadosMesAtual.estoque_inicial + dadosMesAtual.compras - dadosMesAtual.estoque_final,
+      faturamentoTotal: dadosMesAtual.faturamento,
     };
   };
 
@@ -164,15 +145,17 @@ export function usePlanejamento() {
 
   const calcularFaturamentoMesAnterior = (): number => {
     const mesAtual = new Date().getMonth();
-    const mesAnterior = mesAtual === 0 ? 11 : mesAtual - 1;
-    return dadosCMV[mesAnterior]?.faturamento || 0;
+    const mesAnterior = mesAtual === 0 ? 12 : mesAtual;
+    const dadosMesAnterior = dadosCMV.find(d => parseInt(d.mes.toString()) === mesAnterior);
+    return dadosMesAnterior?.faturamento || 0;
   };
 
   const calcularProjecaoVendas = (): { projecao: number; tendencia: 'crescimento' | 'estavel' | 'queda' } => {
-    const mesAtual = new Date().getMonth();
-    const ultimosTresMeses = [mesAtual - 2, mesAtual - 1, mesAtual].map(i => {
-      const idx = i < 0 ? 12 + i : i;
-      return dadosCMV[idx]?.faturamento || 0;
+    const mesAtual = new Date().getMonth() + 1;
+    const ultimosTresMeses = [mesAtual - 2, mesAtual - 1, mesAtual].map(m => {
+      const mes = m <= 0 ? 12 + m : m;
+      const dadosMes = dadosCMV.find(d => parseInt(d.mes.toString()) === mes);
+      return dadosMes?.faturamento || 0;
     });
     
     const media = ultimosTresMeses.reduce((a, b) => a + b, 0) / 3;

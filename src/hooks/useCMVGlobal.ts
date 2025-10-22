@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { format, startOfMonth, endOfMonth } from "date-fns";
+import { format } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface DadosMes {
   mes: number;
@@ -57,123 +58,155 @@ export interface CMVData {
 }
 
 export const useCMVGlobal = (mesAno: DadosMes) => {
-  const [movimentacoes] = useLocalStorage<any[]>("movimentacoes_estoque", []);
-  const [estoqueAtual] = useLocalStorage<any[]>("estoque_atual", []);
-  const [contasReceber] = useLocalStorage<any[]>("sugarbox_contas_receber", []);
-  const [orders] = useLocalStorage<any[]>("orders", []);
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [cmvData, setCmvData] = useState<CMVData | null>(null);
 
-  const calcularEstoqueInicial = (mesAno: DadosMes): number => {
-    const ultimoDiaMesAnterior = new Date(mesAno.ano, mesAno.mes - 1, 0);
-    const dataLimite = format(ultimoDiaMesAnterior, 'yyyy-MM-dd');
+  const calcularCMV = async () => {
+    if (!user) return;
     
-    let estoqueInicial = 0;
-    movimentacoes.forEach(mov => {
-      if (mov.data <= dataLimite) {
-        if (mov.tipo === 'ENTRADA') {
-          estoqueInicial += mov.custo_total || 0;
-        } else {
-          estoqueInicial -= mov.custo_total || 0;
+    setIsLoading(true);
+    
+    try {
+      const primeiroDia = new Date(mesAno.ano, mesAno.mes - 1, 1);
+      const ultimoDia = new Date(mesAno.ano, mesAno.mes, 0);
+      const ultimoDiaMesAnterior = new Date(mesAno.ano, mesAno.mes - 1, 0);
+      
+      const dataInicio = format(primeiroDia, 'yyyy-MM-dd');
+      const dataFim = format(ultimoDia, 'yyyy-MM-dd');
+      const dataLimiteMesAnterior = format(ultimoDiaMesAnterior, 'yyyy-MM-dd');
+      
+      // Buscar movimentações de estoque
+      const { data: movimentacoes } = await supabase
+        .from('movimentacoes_estoque')
+        .select('*')
+        .eq('usuario_id', user.id);
+      
+      // Buscar estoque atual
+      const { data: estoqueAtual } = await supabase
+        .from('estoque_atual')
+        .select('*')
+        .eq('usuario_id', user.id);
+      
+      // Buscar encomendas
+      const { data: encomendas } = await supabase
+        .from('encomendas')
+        .select('*')
+        .eq('usuario_id', user.id)
+        .gte('data_entrega', dataInicio)
+        .lte('data_entrega', dataFim)
+        .neq('status', 'cancelado');
+
+      // Calcular estoque inicial
+      let estoqueInicial = 0;
+      movimentacoes?.forEach(mov => {
+        if (mov.data <= dataLimiteMesAnterior) {
+          if (mov.tipo === 'ENTRADA') {
+            estoqueInicial += mov.custo_total || 0;
+          } else {
+            estoqueInicial -= mov.custo_total || 0;
+          }
         }
-      }
-    });
-    
-    return Math.max(0, estoqueInicial);
-  };
-
-  const calcularComprasMes = (mesAno: DadosMes): ComprasMes => {
-    const primeiroDia = new Date(mesAno.ano, mesAno.mes - 1, 1);
-    const ultimoDia = new Date(mesAno.ano, mesAno.mes, 0);
-    
-    const dataInicio = format(primeiroDia, 'yyyy-MM-dd');
-    const dataFim = format(ultimoDia, 'yyyy-MM-dd');
-    
-    const entradas = movimentacoes.filter(m => 
-      m.tipo === 'ENTRADA' && 
-      m.data >= dataInicio && 
-      m.data <= dataFim
-    );
-    
-    const totalCompras = entradas.reduce((sum, e) => sum + (e.custo_total || 0), 0);
-    const porCategoria: Record<string, number> = {};
-    
-    entradas.forEach(entrada => {
-      const categoria = entrada.categoria || 'Sem Categoria';
-      if (!porCategoria[categoria]) {
-        porCategoria[categoria] = 0;
-      }
-      porCategoria[categoria] += entrada.custo_total || 0;
-    });
-    
-    const maiorCompra = entradas.length > 0 
-      ? Math.max(...entradas.map(e => e.custo_total || 0))
-      : 0;
-    
-    return {
-      total: totalCompras,
-      quantidade: entradas.length,
-      porCategoria,
-      maiorCompra
-    };
-  };
-
-  const calcularEstoqueFinal = (mesAno: DadosMes): EstoqueFinal => {
-    let valorTotal = 0;
-    let itensAtivos = 0;
-    let itensAbaixoMinimo = 0;
-    
-    estoqueAtual.forEach(item => {
-      const custoMedio = item.custo_medio || item.custo_unitario || 0;
-      valorTotal += (item.quantidade_atual || 0) * custoMedio;
+      });
+      estoqueInicial = Math.max(0, estoqueInicial);
       
-      if ((item.quantidade_atual || 0) > 0) {
-        itensAtivos++;
-      }
+      // Calcular compras do mês
+      const entradas = movimentacoes?.filter(m => 
+        m.tipo === 'ENTRADA' && 
+        m.data >= dataInicio && 
+        m.data <= dataFim
+      ) || [];
       
-      if ((item.quantidade_atual || 0) < (item.estoque_minimo || 0)) {
-        itensAbaixoMinimo++;
-      }
-    });
-    
-    return {
-      valor: valorTotal,
-      detalhes: {
-        totalItens: estoqueAtual.length,
-        itensAtivos,
-        itensAbaixoMinimo,
-        itensVencendo: 0 // TODO: calcular com base nas validades
-      }
-    };
-  };
-
-  const calcularFaturamento = (mesAno: DadosMes): Faturamento => {
-    const primeiroDia = new Date(mesAno.ano, mesAno.mes - 1, 1);
-    const ultimoDia = new Date(mesAno.ano, mesAno.mes, 0);
-    
-    const dataInicio = format(primeiroDia, 'yyyy-MM-dd');
-    const dataFim = format(ultimoDia, 'yyyy-MM-dd');
-    
-    const receitasRecebidas = contasReceber.filter(c => 
-      c.status === 'recebido' && 
-      c.dataRecebimento && 
-      c.dataRecebimento >= dataInicio && 
-      c.dataRecebimento <= dataFim
-    );
-    
-    const faturamentoBruto = receitasRecebidas.reduce((sum, r) => sum + (r.valor || 0), 0);
-    
-    const pedidos = orders.filter(o => {
-      const deliveryDate = o.deliveryDate ? format(new Date(o.deliveryDate), 'yyyy-MM-dd') : '';
-      return deliveryDate >= dataInicio && 
-             deliveryDate <= dataFim && 
-             o.status !== 'Cancelado';
-    }).length;
-    
-    return {
-      valor: faturamentoBruto,
-      pedidos
-    };
+      const totalCompras = entradas.reduce((sum, e) => sum + (e.custo_total || 0), 0);
+      const porCategoria: Record<string, number> = {};
+      
+      entradas.forEach(entrada => {
+        const categoria = 'Sem Categoria'; // TODO: adicionar categoria às movimentações
+        if (!porCategoria[categoria]) {
+          porCategoria[categoria] = 0;
+        }
+        porCategoria[categoria] += entrada.custo_total || 0;
+      });
+      
+      const maiorCompra = entradas.length > 0 
+        ? Math.max(...entradas.map(e => e.custo_total || 0))
+        : 0;
+      
+      const compras: ComprasMes = {
+        total: totalCompras,
+        quantidade: entradas.length,
+        porCategoria,
+        maiorCompra
+      };
+      
+      // Calcular estoque final
+      let valorTotal = 0;
+      let itensAtivos = 0;
+      let itensAbaixoMinimo = 0;
+      
+      estoqueAtual?.forEach(item => {
+        const custoMedio = item.custo_medio || 0;
+        valorTotal += (item.quantidade_atual || 0) * custoMedio;
+        
+        if ((item.quantidade_atual || 0) > 0) {
+          itensAtivos++;
+        }
+        
+        // TODO: implementar estoque mínimo
+        // if ((item.quantidade_atual || 0) < (item.estoque_minimo || 0)) {
+        //   itensAbaixoMinimo++;
+        // }
+      });
+      
+      const estoqueFinal: EstoqueFinal = {
+        valor: valorTotal,
+        detalhes: {
+          totalItens: estoqueAtual?.length || 0,
+          itensAtivos,
+          itensAbaixoMinimo,
+          itensVencendo: 0
+        }
+      };
+      
+      // Calcular faturamento
+      const faturamentoBruto = encomendas?.reduce((sum, e) => sum + (e.valor || 0), 0) || 0;
+      const faturamento: Faturamento = {
+        valor: faturamentoBruto,
+        pedidos: encomendas?.length || 0
+      };
+      
+      // Calcular CMV
+      const cmv = estoqueInicial + compras.total - estoqueFinal.valor;
+      const percentualCMV = faturamento.valor > 0 ? (cmv / faturamento.valor) * 100 : 0;
+      const margemBruta = 100 - percentualCMV;
+      const lucroBruto = faturamento.valor - cmv;
+      
+      // Classificar CMV
+      const classificacao = classificarCMV(percentualCMV);
+      const alertas = gerarAlertas({
+        percentualCMV,
+        estoqueInicial,
+        estoqueFinal: estoqueFinal.valor,
+        compras: compras.total
+      });
+      
+      setCmvData({
+        estoqueInicial,
+        compras,
+        estoqueFinal,
+        cmv,
+        faturamento,
+        percentualCMV,
+        margemBruta,
+        lucroBruto,
+        classificacao,
+        alertas
+      });
+    } catch (error) {
+      console.error('Erro ao calcular CMV:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const classificarCMV = (percentualCMV: number): Classificacao => {
@@ -276,54 +309,9 @@ export const useCMVGlobal = (mesAno: DadosMes) => {
     return alertas;
   };
 
-  const calcularCMV = () => {
-    setIsLoading(true);
-    
-    try {
-      const estoqueInicial = calcularEstoqueInicial(mesAno);
-      const compras = calcularComprasMes(mesAno);
-      const estoqueFinal = calcularEstoqueFinal(mesAno);
-      const faturamento = calcularFaturamento(mesAno);
-      
-      const cmv = estoqueInicial + compras.total - estoqueFinal.valor;
-      
-      const percentualCMV = faturamento.valor > 0 
-        ? (cmv / faturamento.valor) * 100 
-        : 0;
-      
-      const margemBruta = 100 - percentualCMV;
-      const lucroBruto = faturamento.valor - cmv;
-      
-      const classificacao = classificarCMV(percentualCMV);
-      const alertas = gerarAlertas({
-        percentualCMV,
-        estoqueInicial,
-        estoqueFinal: estoqueFinal.valor,
-        compras: compras.total
-      });
-      
-      setCmvData({
-        estoqueInicial,
-        compras,
-        estoqueFinal,
-        cmv,
-        faturamento,
-        percentualCMV,
-        margemBruta,
-        lucroBruto,
-        classificacao,
-        alertas
-      });
-    } catch (error) {
-      console.error('Erro ao calcular CMV:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
     calcularCMV();
-  }, [mesAno.mes, mesAno.ano, movimentacoes, estoqueAtual, contasReceber, orders]);
+  }, [mesAno.mes, mesAno.ano, user]);
 
   return {
     cmvData,
