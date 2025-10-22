@@ -168,23 +168,40 @@ export default function ContasReceberDetalhes() {
   };
 
   const calcularTotais = () => {
-    const totalSomaParcelas = parcelas.reduce((acc, p) => acc + (p.valor_parcela || 0), 0);
+    // Filtrar apenas pagamentos não estornados
+    const pagamentosValidos = pagamentos.filter(p => !p.estornado);
     
-    // Total Pago = soma APENAS dos valores pagos (sem juros/descontos)
-    const totalPago = pagamentos.reduce((acc, p) => {
-      if (p.estornado) return acc; // Ignorar pagamentos estornados
-      return acc + (parseFloat(p.valor_pago) || 0);
-    }, 0);
+    // Total PAGO (apenas valor pago, sem juros/descontos)
+    const totalPago = pagamentosValidos.reduce((acc, p) => acc + (parseFloat(p.valor_pago) || 0), 0);
     
-    const totalAberto = totalSomaParcelas - totalPago;
+    // Total de juros
+    const totalJuros = pagamentosValidos.reduce((acc, p) => acc + (parseFloat(p.juros) || 0), 0);
+    
+    // Total de descontos
+    const totalDescontos = pagamentosValidos.reduce((acc, p) => acc + (parseFloat(p.desconto) || 0), 0);
+    
+    // Total líquido (pago + juros - descontos)
+    const totalLiquido = totalPago + totalJuros - totalDescontos;
+    
+    // Total das parcelas
+    const totalParcelas = parcelas.reduce((acc, p) => acc + (parseFloat(p.valor_parcela) || 0), 0);
+    const totalSomaParcelas = totalParcelas; // Alias para manter compatibilidade
+    
+    // Total em aberto
+    const totalAberto = totalParcelas - totalLiquido;
+    
+    // Contadores
     const parcelasPagas = parcelas.filter(p => p.status === 'pago' || p.status === 'adiantado').length;
-    const parcelasAbertas = parcelas.filter(p => p.status === 'aberto' || p.status === 'atrasado').length;
+    const parcelasAbertas = parcelas.filter(p => p.status === 'aberto' || p.status === 'atrasado' || p.status === 'pagamento_parcial').length;
     const totalParcelasCount = parcelas.length;
 
     return {
-      totalSomaParcelas,
       totalPago,
+      totalJuros,
+      totalDescontos,
+      totalLiquido,
       totalAberto,
+      totalSomaParcelas,
       parcelasPagas,
       parcelasAbertas,
       totalParcelasCount,
@@ -333,47 +350,41 @@ export default function ContasReceberDetalhes() {
 
             <div className="space-y-2 pt-2 border-t">
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">
-                  {conta.numero_parcelas === 1 ? 'Total Pago (Parcela)' : 'Pago na Próxima Parcela'}
-                </span>
+                <span className="text-sm text-muted-foreground">Total Pago (Principal)</span>
                 <span className="font-medium text-green-600">
-                  {(() => {
-                    const proximaParcelaAberta = parcelas
-                      .filter(p => p.status === 'aberto' || p.status === 'atrasado' || p.status === 'pagamento_parcial')
-                      .sort((a, b) => {
-                        const dateA = new Date(a.data_vencimento).getTime();
-                        const dateB = new Date(b.data_vencimento).getTime();
-                        return dateA - dateB;
-                      })[0];
-                    
-                    if (proximaParcelaAberta) {
-                      return formatarValor(Number(proximaParcelaAberta.valor_pago || 0));
-                    }
-                    return formatarValor(totais.totalPago);
-                  })()}
+                  {formatarValor(totais.totalPago)}
+                </span>
+              </div>
+
+              {totais.totalJuros > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">+ Juros</span>
+                  <span className="font-medium text-red-600">
+                    {formatarValor(totais.totalJuros)}
+                  </span>
+                </div>
+              )}
+
+              {totais.totalDescontos > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">- Descontos</span>
+                  <span className="font-medium text-blue-600">
+                    {formatarValor(totais.totalDescontos)}
+                  </span>
+                </div>
+              )}
+
+              <div className="flex justify-between pt-2 border-t">
+                <span className="text-sm font-medium">Total Líquido Recebido</span>
+                <span className="font-bold text-green-700">
+                  {formatarValor(totais.totalLiquido)}
                 </span>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">
-                  {conta.numero_parcelas === 1 ? 'Saldo em Aberto (Parcela)' : 'Em Aberto na Próxima Parcela'}
-                </span>
+                <span className="text-sm text-muted-foreground">Total em Aberto</span>
                 <span className="font-medium text-red-600">
-                  {(() => {
-                    const proximaParcelaAberta = parcelas
-                      .filter(p => p.status === 'aberto' || p.status === 'atrasado' || p.status === 'pagamento_parcial')
-                      .sort((a, b) => {
-                        const dateA = new Date(a.data_vencimento).getTime();
-                        const dateB = new Date(b.data_vencimento).getTime();
-                        return dateA - dateB;
-                      })[0];
-                    
-                    if (proximaParcelaAberta) {
-                      const saldoAberto = Number(proximaParcelaAberta.valor_parcela) - Number(proximaParcelaAberta.valor_pago || 0);
-                      return formatarValor(saldoAberto);
-                    }
-                    return formatarValor(totais.totalAberto);
-                  })()}
+                  {formatarValor(totais.totalAberto)}
                 </span>
               </div>
 
@@ -383,46 +394,6 @@ export default function ContasReceberDetalhes() {
                   {totais.parcelasPagas} de {totais.totalParcelasCount}
                 </span>
               </div>
-
-              {/* Histórico de Pagamentos da Parcela Selecionada */}
-              {(() => {
-                const proximaParcelaAberta = parcelas
-                  .filter(p => p.status === 'aberto' || p.status === 'atrasado' || p.status === 'pagamento_parcial')
-                  .sort((a, b) => {
-                    const dateA = new Date(a.data_vencimento).getTime();
-                    const dateB = new Date(b.data_vencimento).getTime();
-                    return dateA - dateB;
-                  })[0];
-
-                if (!proximaParcelaAberta) return null;
-
-                const pagamentosDaParcela = pagamentos.filter(p => p.parcela_id === proximaParcelaAberta.id);
-                
-                if (pagamentosDaParcela.length === 0) return null;
-
-                return (
-                  <div className="pt-3 mt-3 border-t space-y-2">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase">
-                      Histórico - Parcela {proximaParcelaAberta.numero_parcela}
-                    </p>
-                    {pagamentosDaParcela.map((pagamento, idx) => (
-                      <div key={pagamento.id} className="bg-muted/30 rounded-md p-2 space-y-1">
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-muted-foreground">Pagamento #{idx + 1}</span>
-                          <span className="text-sm font-semibold text-green-600">
-                            {formatarValor(Number(pagamento.valor_pago))}
-                          </span>
-                        </div>
-                        <div className="text-xs text-muted-foreground space-y-0.5">
-                          <div>📅 {formatarData(pagamento.data_pagamento)}</div>
-                          <div>🏦 {pagamento.banco?.nome || '-'}</div>
-                          <div>📄 {pagamento.tipo_documento?.descricao || '-'}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })()}
             </div>
           </CardContent>
         </Card>
@@ -541,159 +512,169 @@ export default function ContasReceberDetalhes() {
         </CardContent>
       </Card>
 
-      {/* Tabela de Pagamentos Realizados */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Pagamentos Realizados</CardTitle>
-          <CardDescription>
-            Histórico completo de todos os pagamentos efetuados
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="border rounded-lg overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Parcela</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Data Pagamento</TableHead>
-                  <TableHead className="text-right">Valor</TableHead>
-                  <TableHead>Banco</TableHead>
-                  <TableHead>Tipo Documento</TableHead>
-                  <TableHead>Observação</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pagamentos.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                      Nenhum pagamento registrado ainda. Use "Dar Baixa" nas parcelas para registrar pagamentos.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  <>
-                    {pagamentos.map((pagamento) => {
-                      const parcela = parcelas.find(p => p.id === pagamento.parcela_id);
-                      if (!pagamento || !parcela) return null;
-                      
-                      const linhas = [];
-                      
-                      // Linha principal - Valor Pago
-                      linhas.push(
-                        <TableRow key={`${pagamento.id}-principal`}>
-                          <TableCell className="font-medium">
-                            {parcela.numero_parcela}/{conta.numero_parcelas || 1}
-                          </TableCell>
-                          <TableCell>
-                            <Badge className="bg-green-100 text-green-700 border-green-300">
-                              Pagamento
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{formatarData(pagamento.data_pagamento)}</TableCell>
-                          <TableCell className="text-right font-semibold text-green-600">
-                            {formatarValor(Number(pagamento.valor_pago))}
-                          </TableCell>
-                          <TableCell>{pagamento.banco?.nome || '-'}</TableCell>
-                          <TableCell>{pagamento.tipo_documento?.descricao || '-'}</TableCell>
-                          <TableCell className="max-w-[200px] truncate">
-                            {pagamento.observacao || '-'}
-                          </TableCell>
-                        </TableRow>
-                      );
-                      
-                      // Linha de Juros (se houver)
-                      if (pagamento.juros && Number(pagamento.juros) > 0) {
-                        linhas.push(
-                          <TableRow key={`${pagamento.id}-juros`} className="bg-red-50/50">
-                            <TableCell className="font-medium text-muted-foreground">
-                              {parcela.numero_parcela}/{conta.numero_parcelas || 1}
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline" className="bg-red-100 text-red-700 border-red-300">
-                                Juros
-                              </Badge>
-                            </TableCell>
-                            <TableCell>{formatarData(pagamento.data_pagamento)}</TableCell>
-                            <TableCell className="text-right font-semibold text-red-600">
-                              + {formatarValor(Number(pagamento.juros))}
-                            </TableCell>
-                            <TableCell>{pagamento.banco?.nome || '-'}</TableCell>
-                            <TableCell>{pagamento.tipo_documento?.descricao || '-'}</TableCell>
-                            <TableCell className="text-xs text-muted-foreground">
-                              Juros por atraso
-                            </TableCell>
-                          </TableRow>
-                        );
-                      }
-                      
-                      // Linha de Desconto (se houver)
-                      if (pagamento.desconto && Number(pagamento.desconto) > 0) {
-                        linhas.push(
-                          <TableRow key={`${pagamento.id}-desconto`} className="bg-blue-50/50">
-                            <TableCell className="font-medium text-muted-foreground">
-                              {parcela.numero_parcela}/{conta.numero_parcelas || 1}
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300">
-                                Desconto
-                              </Badge>
-                            </TableCell>
-                            <TableCell>{formatarData(pagamento.data_pagamento)}</TableCell>
-                            <TableCell className="text-right font-semibold text-blue-600">
-                              - {formatarValor(Number(pagamento.desconto))}
-                            </TableCell>
-                            <TableCell>{pagamento.banco?.nome || '-'}</TableCell>
-                            <TableCell>{pagamento.tipo_documento?.descricao || '-'}</TableCell>
-                            <TableCell className="text-xs text-muted-foreground">
-                              Desconto concedido
-                            </TableCell>
-                          </TableRow>
-                        );
-                      }
-                      
-                      return linhas;
-                    })}
-                  </>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+      {/* Histórico Detalhado de Pagamentos */}
+      {pagamentos.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Histórico Detalhado de Pagamentos</CardTitle>
+            <CardDescription>
+              Todos os pagamentos, juros e descontos registrados em cada parcela
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {parcelas.map(parcela => {
+                const pagamentosParcela = pagamentos.filter(p => p.parcela_id === parcela.id && !p.estornado);
+                
+                if (pagamentosParcela.length === 0) return null;
 
-          {/* Resumo dos Totais */}
-          {pagamentos.length > 0 && (
-            <div className="mt-4 p-4 bg-muted rounded-lg space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Total Pago (sem juros/descontos):</span>
-                <span className="font-bold text-green-600">
-                  {formatarValor(totais.totalPago)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Total de Juros:</span>
-                <span className="font-bold text-red-600">
-                  + {formatarValor(pagamentos.reduce((acc, p) => acc + (Number(p.juros) || 0), 0))}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Total de Descontos:</span>
-                <span className="font-bold text-blue-600">
-                  - {formatarValor(pagamentos.reduce((acc, p) => acc + (Number(p.desconto) || 0), 0))}
-                </span>
-              </div>
-              <div className="flex justify-between items-center pt-2 border-t">
-                <span className="text-sm font-semibold">Valor Líquido Recebido:</span>
-                <span className="font-bold text-lg text-green-600">
-                  {formatarValor(
-                    totais.totalPago + 
-                    pagamentos.reduce((acc, p) => acc + (Number(p.juros) || 0), 0) -
-                    pagamentos.reduce((acc, p) => acc + (Number(p.desconto) || 0), 0)
-                  )}
-                </span>
-              </div>
+                // Calcular totais
+                const totalValorPago = pagamentosParcela.reduce((acc, p) => acc + parseFloat(p.valor_pago || 0), 0);
+                const totalJuros = pagamentosParcela.reduce((acc, p) => acc + parseFloat(p.juros || 0), 0);
+                const totalDesconto = pagamentosParcela.reduce((acc, p) => acc + parseFloat(p.desconto || 0), 0);
+                const totalLiquido = totalValorPago + totalJuros - totalDesconto;
+
+                return (
+                  <div key={parcela.id} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <h4 className="font-medium">
+                          Parcela {parcela.numero_parcela} de {conta.numero_parcelas}
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          Vencimento: {formatarData(parcela.data_vencimento)} | 
+                          Valor: {formatarValor(parcela.valor_parcela)}
+                        </p>
+                      </div>
+                      {getBadgeStatus(parcela.status)}
+                    </div>
+
+                    <div className="border-t pt-3">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-32">Tipo</TableHead>
+                            <TableHead>Data</TableHead>
+                            <TableHead>Valor</TableHead>
+                            <TableHead>Banco</TableHead>
+                            <TableHead>Tipo Doc</TableHead>
+                            <TableHead>Observação</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {pagamentosParcela.map((pag) => (
+                            <>
+                              {/* Linha do Pagamento Principal */}
+                              <TableRow key={`pag-${pag.id}`}>
+                                <TableCell>
+                                  <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
+                                    Pagamento
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>{formatarData(pag.data_pagamento)}</TableCell>
+                                <TableCell className="font-medium text-green-600">
+                                  {formatarValor(parseFloat(pag.valor_pago))}
+                                </TableCell>
+                                <TableCell className="text-sm">
+                                  {pag.banco?.codigo} - {pag.banco?.nome}
+                                </TableCell>
+                                <TableCell className="text-sm">
+                                  {pag.tipo_documento?.descricao}
+                                </TableCell>
+                                <TableCell className="text-sm text-muted-foreground">
+                                  {pag.observacao || '-'}
+                                </TableCell>
+                              </TableRow>
+
+                              {/* Linha de Juros (se houver) */}
+                              {pag.juros && parseFloat(pag.juros) > 0 && (
+                                <TableRow key={`juros-${pag.id}`} className="bg-red-50/50">
+                                  <TableCell>
+                                    <Badge variant="outline" className="bg-red-100 text-red-700 border-red-300">
+                                      Juros
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell>{formatarData(pag.data_pagamento)}</TableCell>
+                                  <TableCell className="font-medium text-red-600">
+                                    + {formatarValor(parseFloat(pag.juros))}
+                                  </TableCell>
+                                  <TableCell className="text-sm">
+                                    {pag.banco?.codigo} - {pag.banco?.nome}
+                                  </TableCell>
+                                  <TableCell className="text-sm">
+                                    {pag.tipo_documento?.descricao}
+                                  </TableCell>
+                                  <TableCell className="text-xs text-red-600">
+                                    Juros por atraso
+                                  </TableCell>
+                                </TableRow>
+                              )}
+
+                              {/* Linha de Desconto (se houver) */}
+                              {pag.desconto && parseFloat(pag.desconto) > 0 && (
+                                <TableRow key={`desc-${pag.id}`} className="bg-blue-50/50">
+                                  <TableCell>
+                                    <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300">
+                                      Desconto
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell>{formatarData(pag.data_pagamento)}</TableCell>
+                                  <TableCell className="font-medium text-blue-600">
+                                    - {formatarValor(parseFloat(pag.desconto))}
+                                  </TableCell>
+                                  <TableCell className="text-sm">
+                                    {pag.banco?.codigo} - {pag.banco?.nome}
+                                  </TableCell>
+                                  <TableCell className="text-sm">
+                                    {pag.tipo_documento?.descricao}
+                                  </TableCell>
+                                  <TableCell className="text-xs text-blue-600">
+                                    Desconto concedido
+                                  </TableCell>
+                                </TableRow>
+                              )}
+                            </>
+                          ))}
+
+                          {/* Linha de Totais */}
+                          <TableRow className="bg-muted/50 font-medium">
+                            <TableCell colSpan={2} className="font-bold">
+                              TOTAIS:
+                            </TableCell>
+                            <TableCell className="font-bold">
+                              <div className="space-y-1">
+                                <div className="text-green-600">
+                                  Pago: {formatarValor(totalValorPago)}
+                                </div>
+                                {totalJuros > 0 && (
+                                  <div className="text-red-600 text-sm">
+                                    + Juros: {formatarValor(totalJuros)}
+                                  </div>
+                                )}
+                                {totalDesconto > 0 && (
+                                  <div className="text-blue-600 text-sm">
+                                    - Desconto: {formatarValor(totalDesconto)}
+                                  </div>
+                                )}
+                                <div className="pt-1 border-t text-primary">
+                                  Líquido: {formatarValor(totalLiquido)}
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell colSpan={3} className="text-sm text-muted-foreground">
+                              {pagamentosParcela.length} pagamento(s) registrado(s)
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Observações */}
       {parcelas && parcelas.length > 0 && parcelas.some(p => p.observacao) && (
