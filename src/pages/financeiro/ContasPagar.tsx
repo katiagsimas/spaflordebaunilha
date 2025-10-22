@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -11,6 +12,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   Table,
   TableBody,
@@ -91,6 +100,13 @@ export default function ContasPagar() {
   // Seleção múltipla
   const [parcelasSelecionadas, setParcelasSelecionadas] = useState<Set<string>>(new Set());
   const [modoSelecao, setModoSelecao] = useState(false);
+
+  // Estados para baixa em lote
+  const [modalBaixaLote, setModalBaixaLote] = useState(false);
+  const [dataPagamentoLote, setDataPagamentoLote] = useState(new Date().toISOString().split('T')[0]);
+  const [bancoIdLote, setBancoIdLote] = useState('');
+  const [tipoDocumentoIdLote, setTipoDocumentoIdLote] = useState('');
+  const [observacaoLote, setObservacaoLote] = useState('');
 
   useEffect(() => {
     fetchDashboard();
@@ -384,6 +400,230 @@ export default function ContasPagar() {
       title: '✅ Exportado',
       description: 'Arquivo CSV gerado com sucesso!',
     });
+  };
+
+  // Ações em lote
+  const handleAbrirBaixaLote = () => {
+    if (parcelasSelecionadas.size === 0) {
+      toast({
+        title: 'Aviso',
+        description: 'Selecione pelo menos uma parcela!',
+        variant: 'default',
+      });
+      return;
+    }
+
+    // Verificar se todas as parcelas selecionadas estão em aberto
+    const parcelasEmAberto = parcelasFiltradas.filter(
+      (p: any) => parcelasSelecionadas.has(p.id) && 
+      (p.status === 'aberto' || p.status === 'atrasado' || p.status === 'pagamento_parcial')
+    );
+
+    if (parcelasEmAberto.length === 0) {
+      toast({
+        title: 'Aviso',
+        description: 'Nenhuma parcela em aberto foi selecionada!',
+        variant: 'default',
+      });
+      return;
+    }
+
+    if (parcelasEmAberto.length < parcelasSelecionadas.size) {
+      toast({
+        title: 'Aviso',
+        description: `${parcelasSelecionadas.size - parcelasEmAberto.length} parcela(s) já está(ão) paga(s) e será(ão) ignorada(s).`,
+        variant: 'default',
+      });
+    }
+
+    setDataPagamentoLote(new Date().toISOString().split('T')[0]);
+    setBancoIdLote('');
+    setTipoDocumentoIdLote('');
+    setObservacaoLote('');
+    setModalBaixaLote(true);
+  };
+
+  const handleConfirmarBaixaLote = async () => {
+    try {
+      if (!bancoIdLote) {
+        toast({
+          title: 'Erro',
+          description: 'Selecione o banco!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!tipoDocumentoIdLote) {
+        toast({
+          title: 'Erro',
+          description: 'Selecione o tipo de documento!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Filtrar apenas parcelas em aberto
+      const parcelasParaBaixa = parcelasFiltradas.filter(
+        (p: any) => parcelasSelecionadas.has(p.id) && 
+        (p.status === 'aberto' || p.status === 'atrasado' || p.status === 'pagamento_parcial')
+      );
+
+      let sucessos = 0;
+      let erros = 0;
+
+      for (const parcela of parcelasParaBaixa) {
+        try {
+          // Calcular valor restante
+          const valorRestante = parcela.valor_parcela - (parcela.valor_pago || 0);
+
+          // Inserir pagamento
+          const { error } = await supabase
+            .from('contas_pagar_pagamentos' as any)
+            .insert({
+              parcela_id: parcela.id,
+              data_pagamento: dataPagamentoLote,
+              valor_pago: valorRestante,
+              juros: 0,
+              desconto: 0,
+              banco_id: bancoIdLote,
+              tipo_documento_id: tipoDocumentoIdLote,
+              observacao: observacaoLote.trim() || null,
+            });
+
+          if (error) throw error;
+          sucessos++;
+        } catch (error) {
+          console.error('Erro ao dar baixa na parcela:', parcela.id, error);
+          erros++;
+        }
+      }
+
+      toast({
+        title: '✅ Baixa em lote concluída',
+        description: `${sucessos} parcela(s) paga(s) com sucesso${erros > 0 ? `. ${erros} erro(s).` : '!'}`,
+      });
+
+      setModalBaixaLote(false);
+      handleLimparSelecao();
+      fetchParcelas();
+      fetchDashboard();
+    } catch (error: any) {
+      console.error('Erro ao processar baixa em lote:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível processar a baixa em lote.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleExcluirLote = async () => {
+    try {
+      if (parcelasSelecionadas.size === 0) {
+        toast({
+          title: 'Aviso',
+          description: 'Selecione pelo menos uma parcela!',
+          variant: 'default',
+        });
+        return;
+      }
+
+      const confirmar = window.confirm(
+        `Tem certeza que deseja excluir ${parcelasSelecionadas.size} parcela(s)?\n\n` +
+        `Esta ação não pode ser desfeita e excluirá todos os pagamentos relacionados.`
+      );
+
+      if (!confirmar) return;
+
+      const ids = Array.from(parcelasSelecionadas);
+      
+      const { error } = await supabase
+        .from('contas_pagar_parcelas' as any)
+        .delete()
+        .in('id', ids);
+
+      if (error) throw error;
+
+      toast({
+        title: '✅ Parcelas excluídas',
+        description: `${ids.length} parcela(s) excluída(s) com sucesso!`,
+      });
+
+      handleLimparSelecao();
+      fetchParcelas();
+      fetchDashboard();
+    } catch (error: any) {
+      console.error('Erro ao excluir em lote:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível excluir as parcelas.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleExportarSelecionadas = () => {
+    try {
+      if (parcelasSelecionadas.size === 0) {
+        toast({
+          title: 'Aviso',
+          description: 'Selecione pelo menos uma parcela!',
+          variant: 'default',
+        });
+        return;
+      }
+
+      const parcelasExportar = parcelasFiltradas.filter((p: any) => parcelasSelecionadas.has(p.id));
+
+      // Preparar dados para CSV
+      const csvData = parcelasExportar.map((p: any) => ({
+        'Documento': p.tipo_documento_descricao || '',
+        'Data Emissão': formatarData(p.data_emissao),
+        'Plano de Contas': `${p.plano_contas_codigo} - ${p.plano_contas_descricao}`,
+        'Fornecedor': p.fornecedor_nome || '',
+        'Data Vencimento': formatarData(p.data_vencimento),
+        'Valor Total': p.valor_total,
+        'Parcela': `${p.numero_parcela} de ${p.numero_parcelas}`,
+        'Valor a Pagar': p.valor_parcela,
+        'Valor Pago': p.valor_pago || 0,
+        'Data Pagamento': p.data_pagamento ? formatarData(p.data_pagamento) : '',
+        'Status': p.status,
+      }));
+
+      // Criar CSV
+      const headers = Object.keys(csvData[0]);
+      const csvContent = [
+        headers.join(','),
+        ...csvData.map(row => 
+          headers.map(header => {
+            const value = row[header as keyof typeof row];
+            return typeof value === 'string' && value.includes(',') 
+              ? `"${value}"` 
+              : value;
+          }).join(',')
+        )
+      ].join('\n');
+
+      // Download
+      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `contas_pagar_selecionadas_${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+
+      toast({
+        title: '✅ Exportado',
+        description: `${parcelasSelecionadas.size} parcela(s) exportada(s)!`,
+      });
+    } catch (error: any) {
+      console.error('Erro ao exportar:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível exportar as parcelas.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleExcluir = async (contaPagarId: string) => {
@@ -746,18 +986,30 @@ export default function ContasPagar() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => {
-                toast({
-                  title: 'Em desenvolvimento',
-                  description: 'Funcionalidade de baixa em lote será implementada em breve.',
-                });
-              }}
+              onClick={handleAbrirBaixaLote}
             >
               <DollarSign className="mr-2 h-4 w-4" />
               Dar Baixa em Lote
             </Button>
             <Button
               variant="outline"
+              size="sm"
+              onClick={handleExportarSelecionadas}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Exportar Selecionadas
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExcluirLote}
+              className="text-red-600 hover:text-red-700"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Excluir Selecionadas
+            </Button>
+            <Button
+              variant="ghost"
               size="sm"
               onClick={handleLimparSelecao}
             >
@@ -875,6 +1127,127 @@ export default function ContasPagar() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Modal Baixa em Lote */}
+      <Dialog open={modalBaixaLote} onOpenChange={setModalBaixaLote}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Dar Baixa em Lote</DialogTitle>
+            <DialogDescription>
+              Registre o pagamento de {parcelasSelecionadas.size} parcela(s) simultaneamente
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {/* Resumo das Parcelas */}
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
+              <h4 className="font-medium">Parcelas Selecionadas:</h4>
+              <div className="text-sm space-y-1 max-h-40 overflow-y-auto">
+                {parcelasFiltradas
+                  .filter((p: any) => parcelasSelecionadas.has(p.id) && 
+                    (p.status === 'aberto' || p.status === 'atrasado' || p.status === 'pagamento_parcial'))
+                  .map((p: any) => (
+                    <div key={p.id} className="flex justify-between py-1 border-b border-blue-200">
+                      <span>
+                        {p.fornecedor_nome} - Parcela {p.numero_parcela}/{p.numero_parcelas}
+                      </span>
+                      <span className="font-medium text-red-600">
+                        {formatarValor(p.valor_parcela - (p.valor_pago || 0))}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+              <div className="flex justify-between pt-2 border-t border-blue-300 font-bold">
+                <span>Total a Pagar:</span>
+                <span className="text-red-700">
+                  {formatarValor(
+                    parcelasFiltradas
+                      .filter((p: any) => parcelasSelecionadas.has(p.id) && 
+                        (p.status === 'aberto' || p.status === 'atrasado' || p.status === 'pagamento_parcial'))
+                      .reduce((acc: number, p: any) => acc + (p.valor_parcela - (p.valor_pago || 0)), 0)
+                  )}
+                </span>
+              </div>
+            </div>
+
+            <Alert className="bg-amber-50 border-amber-200">
+              <Info className="h-4 w-4 text-amber-600" />
+              <AlertDescription>
+                <strong>Importante:</strong> Cada parcela será quitada pelo valor restante.
+                Não serão aplicados juros ou descontos automaticamente.
+              </AlertDescription>
+            </Alert>
+
+            {/* Formulário */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="data-lote">Data do Pagamento *</Label>
+                <Input
+                  id="data-lote"
+                  type="date"
+                  value={dataPagamentoLote}
+                  onChange={(e) => setDataPagamentoLote(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Banco *</Label>
+              <Select value={bancoIdLote} onValueChange={setBancoIdLote}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o banco..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {bancos.map((banco: any) => (
+                    <SelectItem key={banco.id} value={banco.id}>
+                      {banco.codigo} - {banco.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Tipo de Documento *</Label>
+              <Select value={tipoDocumentoIdLote} onValueChange={setTipoDocumentoIdLote}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o tipo..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {tiposDocumento.map((tipo: any) => (
+                    <SelectItem key={tipo.id} value={tipo.id}>
+                      {tipo.descricao}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="obs-lote">Observação</Label>
+              <Textarea
+                id="obs-lote"
+                placeholder="Observação aplicada a todos os pagamentos..."
+                rows={3}
+                value={observacaoLote}
+                onChange={(e) => setObservacaoLote(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setModalBaixaLote(false)}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={handleConfirmarBaixaLote}>
+              Confirmar Pagamento em Lote
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
