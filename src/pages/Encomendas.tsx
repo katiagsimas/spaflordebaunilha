@@ -51,7 +51,6 @@ const Encomendas = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [produtoDialogOpen, setProdutoDialogOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<any | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("Todos");
   const [clienteFilter, setClienteFilter] = useState("Todos");
   const [dataEntregaFilter, setDataEntregaFilter] = useState("");
@@ -520,13 +519,12 @@ const Encomendas = () => {
 
   const filteredOrders = encomendas
     .filter(e => {
-      const matchesSearch = e.cliente.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === "Todos" || e.status === statusFilter.toLowerCase().replace(" ", "_");
       const matchesCliente = clienteFilter === "Todos" || e.cliente === clienteFilter;
       const matchesDataEntrega = !dataEntregaFilter || e.data_entrega === dataEntregaFilter;
       const matchesHoraEntrega = !horaEntregaFilter || (e.hora_entrega && e.hora_entrega.slice(0, 5) === horaEntregaFilter);
       
-      return matchesSearch && matchesStatus && matchesCliente && matchesDataEntrega && matchesHoraEntrega;
+      return matchesStatus && matchesCliente && matchesDataEntrega && matchesHoraEntrega;
     })
     .sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime());
 
@@ -1283,27 +1281,14 @@ const Encomendas = () => {
 
       <Card className="shadow-soft">
         <CardHeader>
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <CardTitle>Lista de Encomendas</CardTitle>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar por cliente..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9 w-full sm:w-64"
-                />
-              </div>
-            </div>
-          </div>
+          <CardTitle>Lista de Encomendas</CardTitle>
         </CardHeader>
         <CardContent>
           {filteredOrders.length === 0 ? (
             <div className="text-center py-12">
               <ShoppingBag className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
               <p className="text-muted-foreground">
-                {searchTerm || statusFilter !== "Todos" 
+                {statusFilter !== "Todos" || clienteFilter !== "Todos" || dataEntregaFilter || horaEntregaFilter
                   ? "Nenhuma encomenda encontrada com os filtros aplicados"
                   : "Nenhuma encomenda cadastrada"}
               </p>
