@@ -664,18 +664,18 @@ export default function ContasReceber() {
                 Em Aberto
               </Button>
               <Button
-                variant={filtroStatus === 'pagamento_parcial' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFiltroStatus('pagamento_parcial')}
-              >
-                Pago Parcialmente
-              </Button>
-              <Button
                 variant={filtroStatus === 'vencido' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setFiltroStatus('vencido')}
               >
                 Vencido
+              </Button>
+              <Button
+                variant={filtroStatus === 'pagamento_parcial' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFiltroStatus('pagamento_parcial')}
+              >
+                Pago Parcialmente
               </Button>
             </>
           ) : (
