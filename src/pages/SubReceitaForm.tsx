@@ -4,8 +4,9 @@ import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, ChefHat, Upload, X } from "lucide-react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
+import { useSubReceitas } from "@/hooks/useSubReceitas";
+import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
@@ -50,11 +51,8 @@ interface SubReceita {
 }
 export default function SubReceitaForm() {
   const navigate = useNavigate();
-  const {
-    id
-  } = useParams();
-  const [subReceitas, setSubReceitas] = useLocalStorage<SubReceita[]>("subReceitas", []);
-  const [ingredientesCadastrados, setIngredientesCadastrados] = useLocalStorage<Ingrediente[]>("ingredientes", []);
+  const { id } = useParams();
+  const { subReceitas, createSubReceita, updateSubReceita } = useSubReceitas();
   const { unidades } = useUnidadesMedida();
   const [formData, setFormData] = useState({
     nome: "",
@@ -66,20 +64,64 @@ export default function SubReceitaForm() {
   const [ingredientes, setIngredientes] = useState<IngredienteReceita[]>([]);
   const [modoPreparo, setModoPreparo] = useState("");
   const [imagens, setImagens] = useState<string[]>([]);
+
+  // Buscar ingredientes do Supabase
+  const [ingredientesCadastrados, setIngredientesCadastrados] = useState<Ingrediente[]>([]);
+  
+  useEffect(() => {
+    const fetchIngredientes = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data, error } = await supabase
+          .from('ingredientes')
+          .select(`
+            *,
+            tipo_insumo:tipos_insumos(
+              descricao,
+              quantidade_embalagem,
+              unidade_medida:unidades_medida(sigla)
+            )
+          `)
+          .eq('usuario_id', user.id);
+
+        if (error) throw error;
+
+        const ingredientesFormatados = data?.map((ing: any) => ({
+          id: ing.id,
+          nome: ing.tipo_insumo?.descricao || '',
+          marca: ing.marca || '',
+          quantidade: ing.tipo_insumo?.quantidade_embalagem || 0,
+          unidadeMedida: ing.tipo_insumo?.unidade_medida?.sigla || '',
+          preco: ing.preco || 0,
+          dataAtualizacao: ing.data_atualizacao || '',
+        })) || [];
+
+        setIngredientesCadastrados(ingredientesFormatados);
+      } catch (error) {
+        console.error('Erro ao buscar ingredientes:', error);
+      }
+    };
+
+    fetchIngredientes();
+  }, []);
+  
   useEffect(() => {
     if (id) {
       const subReceita = subReceitas.find(s => s.id === id);
       if (subReceita) {
         setFormData({
           nome: subReceita.nome,
-          tempoPreparo: subReceita.tempoPreparo.toString(),
-          unidadeTempo: subReceita.unidadeTempo,
+          tempoPreparo: subReceita.tempo_preparo.toString(),
+          unidadeTempo: subReceita.unidade_tempo,
           rendimento: subReceita.rendimento.toString(),
-          unidadeRendimentoId: subReceita.unidadeRendimento
+          unidadeRendimentoId: subReceita.unidade_rendimento_id
         });
-        setIngredientes(subReceita.ingredientes);
-        setModoPreparo(subReceita.modoPreparo || "");
-        setImagens(subReceita.imagens || []);
+        // TODO: carregar ingredientes da sub-receita
+        setIngredientes([]);
+        setModoPreparo(subReceita.modo_preparo || "");
+        setImagens([subReceita.imagem_1_url, subReceita.imagem_2_url].filter(Boolean) as string[]);
       }
     }
   }, [id, subReceitas]);
@@ -156,7 +198,8 @@ export default function SubReceitaForm() {
     setIngredientes(ingredientes.filter((_, i) => i !== index));
   };
   const custoTotal = ingredientes.reduce((total, ing) => total + ing.custoReceita, 0);
-  const handleSave = () => {
+  
+  const handleSave = async () => {
     if (!formData.nome.trim()) {
       toast.error("Por favor, informe o nome da sub-receita");
       return;
@@ -169,44 +212,39 @@ export default function SubReceitaForm() {
       toast.error("Por favor, informe um rendimento válido");
       return;
     }
-    const subReceitaId = id || Date.now().toString();
-    const unidadeSelecionada = unidades.find(u => u.id === formData.unidadeRendimentoId);
-    
-    const subReceita: SubReceita = {
-      id: subReceitaId,
-      nome: formData.nome,
-      tempoPreparo: Number(formData.tempoPreparo),
-      unidadeTempo: formData.unidadeTempo,
-      rendimento: Number(formData.rendimento),
-      unidadeRendimento: formData.unidadeRendimentoId,
-      ingredientes,
-      modoPreparo,
-      custoTotal,
-      imagens
-    };
 
-    // Criar ou atualizar o ingrediente correspondente à sub-receita
-    const ingredienteSubReceita: Ingrediente = {
-      id: `sub-receita-${subReceitaId}`,
-      nome: formData.nome,
-      marca: "Sub-Receita",
-      quantidade: Number(formData.rendimento),
-      unidadeMedida: unidadeSelecionada?.sigla || "un",
-      preco: custoTotal,
-      dataAtualizacao: new Date().toISOString().split('T')[0]
-    };
-    if (id) {
-      setSubReceitas(subReceitas.map(s => s.id === id ? subReceita : s));
-      // Atualizar o ingrediente existente
-      setIngredientesCadastrados(ingredientesCadastrados.map(ing => ing.id === `sub-receita-${id}` ? ingredienteSubReceita : ing));
-      toast.success("Sub-receita atualizada com sucesso!");
-    } else {
-      setSubReceitas([...subReceitas, subReceita]);
-      // Adicionar novo ingrediente
-      setIngredientesCadastrados([...ingredientesCadastrados, ingredienteSubReceita]);
-      toast.success("Sub-receita criada com sucesso!");
+    try {
+      const subReceitaData = {
+        nome: formData.nome,
+        tempo_preparo: Number(formData.tempoPreparo),
+        unidade_tempo: formData.unidadeTempo,
+        rendimento: Number(formData.rendimento),
+        unidade_rendimento_id: formData.unidadeRendimentoId,
+        modo_preparo: modoPreparo,
+        custo_total: custoTotal,
+        imagem_1_url: imagens[0] || null,
+        imagem_2_url: imagens[1] || null,
+        ingredientes: ingredientes.map((ing, idx) => ({
+          ingrediente_id: ing.ingredienteId,
+          quantidade_utilizada: ing.quantidadeUtilizada,
+          custo_ingrediente: ing.custoReceita,
+          ordem: idx,
+        })),
+      };
+
+      if (id) {
+        await updateSubReceita({ id, ...subReceitaData });
+        toast.success("Sub-receita atualizada com sucesso!");
+      } else {
+        await createSubReceita(subReceitaData);
+        toast.success("Sub-receita criada com sucesso!");
+      }
+      
+      navigate("/sub-receitas");
+    } catch (error) {
+      console.error('Erro ao salvar sub-receita:', error);
+      toast.error("Erro ao salvar sub-receita");
     }
-    navigate("/sub-receitas");
   };
   return <div className="space-y-6">
       <div className="flex items-center gap-4">

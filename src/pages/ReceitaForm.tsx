@@ -5,9 +5,9 @@ import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, ChefHat, Upload, X } from "lucide-react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { useCategorias } from "@/hooks/useCategorias";
+import { useCustosFixos } from "@/hooks/useCustosFixos";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
@@ -119,7 +119,7 @@ export default function ReceitaForm() {
   const { id } = useParams();
   const [ingredientesCadastrados, setIngredientesCadastrados] = useState<any[]>([]);
   const [embalagensCadastradas, setEmbalagensCadastradas] = useState<any[]>([]);
-  const [custosFixos] = useLocalStorage<CustoFixo[]>("custosFixos", []);
+  const { custosFixos } = useCustosFixos();
   const { categorias } = useCategorias();
   const { unidades } = useUnidadesMedida();
 

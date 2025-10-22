@@ -19,6 +19,25 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { 
   ArrowLeft, 
@@ -33,7 +52,10 @@ import {
   Eye,
   Download,
   CreditCard,
-  RefreshCw
+  RefreshCw,
+  Upload,
+  X,
+  Info
 } from 'lucide-react';
 
 export default function ContasPagarDetalhes() {
@@ -44,6 +66,22 @@ export default function ContasPagarDetalhes() {
   const [conta, setConta] = useState<any>(null);
   const [parcelas, setParcelas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Estados para modal de baixa
+  const [modalBaixaAberto, setModalBaixaAberto] = useState(false);
+  const [parcelaEmBaixa, setParcelaEmBaixa] = useState<any>(null);
+  const [dataPagamento, setDataPagamento] = useState(new Date().toISOString().split('T')[0]);
+  const [valorPago, setValorPago] = useState('');
+  const [juros, setJuros] = useState('0,00');
+  const [desconto, setDesconto] = useState('0,00');
+  const [bancoIdPagamento, setBancoIdPagamento] = useState('');
+  const [tipoDocumentoIdPagamento, setTipoDocumentoIdPagamento] = useState('');
+  const [observacaoPagamento, setObservacaoPagamento] = useState('');
+  const [comprovantes, setComprovantes] = useState<File[]>([]);
+
+  // Estados para listas
+  const [bancos, setBancos] = useState<any[]>([]);
+  const [tiposDocumento, setTiposDocumento] = useState<any[]>([]);
 
   useEffect(() => {
     fetchDetalhes();
@@ -94,15 +132,40 @@ export default function ContasPagarDetalhes() {
       if (errorConta) throw errorConta;
       setConta(dataConta);
 
-      // Buscar parcelas
+      // Buscar parcelas com pagamentos e comprovantes
       const { data: dataParcelas, error: errorParcelas } = await supabase
         .from('contas_pagar_parcelas' as any)
-        .select('*')
+        .select(`
+          *,
+          pagamentos:contas_pagar_pagamentos(
+            *,
+            banco:bancos(codigo, nome),
+            tipo_documento:tipos_documento(descricao),
+            comprovantes:contas_pagar_comprovantes(*)
+          )
+        `)
         .eq('conta_pagar_id', id)
         .order('numero_parcela', { ascending: true });
 
       if (errorParcelas) throw errorParcelas;
       setParcelas(dataParcelas || []);
+
+      // Buscar bancos para o modal de baixa
+      const { data: dataBancos } = await supabase
+        .from('bancos')
+        .select('id, codigo, nome')
+        .eq('usuario_id', user.id)
+        .order('nome');
+      setBancos(dataBancos || []);
+
+      // Buscar tipos de documento
+      const { data: dataTipos } = await supabase
+        .from('tipos_documento')
+        .select('id, descricao')
+        .eq('usuario_id', user.id)
+        .eq('ativo', true)
+        .order('descricao');
+      setTiposDocumento(dataTipos || []);
     } catch (error) {
       console.error('Erro ao buscar detalhes:', error);
       toast({
@@ -193,6 +256,200 @@ export default function ContasPagarDetalhes() {
       style: 'currency',
       currency: 'BRL',
     });
+  };
+
+  const handleAbrirBaixa = (parcela: any) => {
+    setParcelaEmBaixa(parcela);
+    
+    // Calcular valor restante
+    const valorRestante = parcela.valor_parcela - (parcela.valor_pago || 0);
+    setValorPago(valorRestante.toFixed(2).replace('.', ','));
+    
+    // Resetar campos
+    setDataPagamento(new Date().toISOString().split('T')[0]);
+    setJuros('0,00');
+    setDesconto('0,00');
+    setBancoIdPagamento('');
+    setTipoDocumentoIdPagamento('');
+    setObservacaoPagamento('');
+    setComprovantes([]);
+    
+    setModalBaixaAberto(true);
+  };
+
+  const handleUploadComprovante = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const files = Array.from(event.target.files || []);
+      
+      if (files.length === 0) return;
+
+      // Validar tamanho (máximo 5MB por arquivo)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      for (const file of files) {
+        if (file.size > maxSize) {
+          toast({
+            title: 'Erro',
+            description: `O arquivo ${file.name} é muito grande. Tamanho máximo: 5MB`,
+            variant: 'destructive',
+          });
+          return;
+        }
+      }
+
+      setComprovantes([...comprovantes, ...files]);
+
+      toast({
+        title: '✅ Arquivo(s) adicionado(s)',
+        description: `${files.length} arquivo(s) pronto(s) para upload`,
+      });
+    } catch (error) {
+      console.error('Erro ao adicionar arquivo:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível adicionar o arquivo.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleRemoverComprovante = (index: number) => {
+    const novosComprovantes = comprovantes.filter((_, i) => i !== index);
+    setComprovantes(novosComprovantes);
+  };
+
+  const calcularValorLiquido = () => {
+    const valor = parseFloat(valorPago.replace(',', '.')) || 0;
+    const valorJuros = parseFloat(juros.replace(',', '.')) || 0;
+    const valorDesconto = parseFloat(desconto.replace(',', '.')) || 0;
+    return valor + valorJuros - valorDesconto;
+  };
+
+  const handleConfirmarBaixa = async () => {
+    try {
+      // Validações
+      if (!dataPagamento) {
+        toast({
+          title: 'Erro',
+          description: 'Informe a data do pagamento!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const valor = parseFloat(valorPago.replace(',', '.'));
+      if (!valor || valor <= 0) {
+        toast({
+          title: 'Erro',
+          description: 'Informe um valor válido!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!bancoIdPagamento) {
+        toast({
+          title: 'Erro',
+          description: 'Selecione o banco!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!tipoDocumentoIdPagamento) {
+        toast({
+          title: 'Erro',
+          description: 'Selecione o tipo de documento!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Validar valor máximo
+      const valorRestante = parcelaEmBaixa.valor_parcela - (parcelaEmBaixa.valor_pago || 0);
+      const valorJuros = parseFloat(juros.replace(',', '.')) || 0;
+      const valorDesconto = parseFloat(desconto.replace(',', '.')) || 0;
+
+      if (valor > valorRestante + 0.01) { // +0.01 para tolerância de arredondamento
+        toast({
+          title: 'Erro',
+          description: `O valor pago não pode ser maior que o saldo restante (${formatarValor(valorRestante)})`,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Não autenticado');
+
+      // Inserir pagamento
+      const { data: pagamento, error: errorPagamento } = await supabase
+        .from('contas_pagar_pagamentos' as any)
+        .insert({
+          parcela_id: parcelaEmBaixa.id,
+          data_pagamento: dataPagamento,
+          valor_pago: valor,
+          juros: valorJuros,
+          desconto: valorDesconto,
+          banco_id: bancoIdPagamento,
+          tipo_documento_id: tipoDocumentoIdPagamento,
+          observacao: observacaoPagamento.trim() || null,
+        })
+        .select()
+        .single() as any;
+
+      if (errorPagamento) throw errorPagamento;
+
+      // Upload de comprovantes (se houver)
+      if (comprovantes.length > 0) {
+        for (const file of comprovantes) {
+          try {
+            // Gerar nome único
+            const timestamp = Date.now();
+            const nomeArquivo = `${timestamp}_${file.name}`;
+            const caminhoStorage = `${user.id}/contas-pagar/${pagamento.id}/${nomeArquivo}`;
+
+            // Upload para storage
+            const { error: errorUpload } = await supabase.storage
+              .from('comprovantes-pagar')
+              .upload(caminhoStorage, file);
+
+            if (errorUpload) throw errorUpload;
+
+            // Obter URL pública
+            const { data: urlData } = supabase.storage
+              .from('comprovantes-pagar')
+              .getPublicUrl(caminhoStorage);
+
+            // Salvar referência no banco
+            await supabase.from('contas_pagar_comprovantes' as any).insert({
+              pagamento_id: (pagamento as any).id,
+              nome_arquivo: file.name,
+              tipo_arquivo: file.type,
+              tamanho_bytes: file.size,
+              url_storage: urlData.publicUrl,
+            });
+          } catch (error) {
+            console.error('Erro ao fazer upload do comprovante:', error);
+            // Não bloqueia o pagamento se o upload falhar
+          }
+        }
+      }
+
+      toast({
+        title: '✅ Pagamento registrado',
+        description: `Pagamento de ${formatarValor(calcularValorLiquido())} registrado com sucesso!`,
+      });
+
+      setModalBaixaAberto(false);
+      fetchDetalhes();
+    } catch (error: any) {
+      console.error('Erro ao registrar pagamento:', error);
+      toast({
+        title: 'Erro',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
   };
 
   const getBadgeStatus = (status: string) => {
@@ -419,7 +676,7 @@ export default function ContasPagarDetalhes() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     {parcela.status !== 'pago' && parcela.status !== 'adiantado' && (
-                      <DropdownMenuItem onClick={() => toast({ title: 'Em breve', description: 'Funcionalidade de dar baixa em desenvolvimento' })}>
+                      <DropdownMenuItem onClick={() => handleAbrirBaixa(parcela)}>
                         <DollarSign className="mr-2 h-4 w-4 text-green-600" />
                         Dar Baixa
                       </DropdownMenuItem>
@@ -613,6 +870,242 @@ export default function ContasPagarDetalhes() {
           )}
         </CardContent>
       </Card>
+
+      {/* Modal Dar Baixa */}
+      <Dialog open={modalBaixaAberto} onOpenChange={setModalBaixaAberto}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Registrar Pagamento</DialogTitle>
+            <DialogDescription>
+              {parcelaEmBaixa && (
+                <>
+                  Parcela {parcelaEmBaixa.numero_parcela} de {conta?.numero_parcelas} - 
+                  Vencimento: {formatarData(parcelaEmBaixa.data_vencimento)}
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          {parcelaEmBaixa && (
+            <div className="space-y-4 py-4">
+              {/* Resumo da Parcela */}
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Valor da Parcela:</span>
+                  <span className="font-medium text-red-600">
+                    {formatarValor(parcelaEmBaixa.valor_parcela)}
+                  </span>
+                </div>
+                {parcelaEmBaixa.valor_pago > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Já Pago:</span>
+                    <span className="font-medium text-green-600">
+                      {formatarValor(parcelaEmBaixa.valor_pago)}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm pt-2 border-t border-blue-300">
+                  <span className="font-medium">Saldo Restante:</span>
+                  <span className="font-bold text-red-600">
+                    {formatarValor(parcelaEmBaixa.valor_parcela - (parcelaEmBaixa.valor_pago || 0))}
+                  </span>
+                </div>
+              </div>
+
+              {/* Data do Pagamento */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="data-pagamento">Data do Pagamento *</Label>
+                  <Input
+                    id="data-pagamento"
+                    type="date"
+                    value={dataPagamento}
+                    onChange={(e) => setDataPagamento(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="valor-pago">Valor Pago *</Label>
+                  <Input
+                    id="valor-pago"
+                    placeholder="0,00"
+                    value={valorPago}
+                    onChange={(e) => {
+                      const valor = e.target.value.replace(/[^\d,]/g, '');
+                      setValorPago(valor);
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Juros e Descontos */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="juros">Juros/Multa</Label>
+                  <Input
+                    id="juros"
+                    placeholder="0,00"
+                    value={juros}
+                    onChange={(e) => {
+                      const valor = e.target.value.replace(/[^\d,]/g, '');
+                      setJuros(valor);
+                    }}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="desconto">Desconto</Label>
+                  <Input
+                    id="desconto"
+                    placeholder="0,00"
+                    value={desconto}
+                    onChange={(e) => {
+                      const valor = e.target.value.replace(/[^\d,]/g, '');
+                      setDesconto(valor);
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Valor Líquido */}
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Valor Líquido a Pagar:</span>
+                  <span className="text-xl font-bold text-green-600">
+                    {formatarValor(calcularValorLiquido())}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Valor Pago + Juros - Desconto
+                </p>
+              </div>
+
+              {/* Banco e Tipo de Documento */}
+              <div className="space-y-2">
+                <Label>Banco *</Label>
+                <Select value={bancoIdPagamento} onValueChange={setBancoIdPagamento}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o banco..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {bancos.map(banco => (
+                      <SelectItem key={banco.id} value={banco.id}>
+                        {banco.codigo} - {banco.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Tipo de Documento *</Label>
+                <Select value={tipoDocumentoIdPagamento} onValueChange={setTipoDocumentoIdPagamento}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o tipo..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {tiposDocumento.map(tipo => (
+                      <SelectItem key={tipo.id} value={tipo.id}>
+                        {tipo.descricao}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Observação */}
+              <div className="space-y-2">
+                <Label htmlFor="observacao">Observação</Label>
+                <Textarea
+                  id="observacao"
+                  placeholder="Observações sobre o pagamento..."
+                  rows={3}
+                  value={observacaoPagamento}
+                  onChange={(e) => setObservacaoPagamento(e.target.value)}
+                />
+              </div>
+
+              {/* Upload de Comprovantes */}
+              <div className="space-y-2">
+                <Label>Comprovantes</Label>
+                <div className="border-2 border-dashed rounded-lg p-4 text-center">
+                  <input
+                    type="file"
+                    id="upload-comprovante"
+                    multiple
+                    accept="image/*,.pdf"
+                    onChange={handleUploadComprovante}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="upload-comprovante"
+                    className="cursor-pointer flex flex-col items-center gap-2"
+                  >
+                    <Upload className="h-8 w-8 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">
+                      Clique para fazer upload ou arraste arquivos
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      PNG, JPG ou PDF (máx. 5MB cada)
+                    </p>
+                  </label>
+                </div>
+
+                {/* Lista de Comprovantes */}
+                {comprovantes.length > 0 && (
+                  <div className="space-y-2 mt-3">
+                    {comprovantes.map((file, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-2 bg-muted rounded"
+                      >
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4" />
+                          <span className="text-sm">{file.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            ({(file.size / 1024).toFixed(0)} KB)
+                          </span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoverComprovante(index)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Alerta de Pagamento Parcial */}
+              {parcelaEmBaixa && 
+               calcularValorLiquido() < (parcelaEmBaixa.valor_parcela - (parcelaEmBaixa.valor_pago || 0)) && (
+                <Alert>
+                  <Info className="h-4 w-4" />
+                  <AlertDescription>
+                    <strong>Pagamento Parcial:</strong> O valor informado é menor que o saldo restante. 
+                    A parcela ficará com status "Pago Parcialmente" e poderá receber novos pagamentos.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setModalBaixaAberto(false)}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={handleConfirmarBaixa}>
+              Confirmar Pagamento
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, ArrowLeft, ChefHat, Copy } from "lucide-react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useSubReceitas } from "@/hooks/useSubReceitas";
 import { EmptyState } from "@/components/EmptyState";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Input } from "@/components/ui/input";
@@ -50,51 +50,19 @@ interface SubReceita {
 
 export default function SubReceitas() {
   const navigate = useNavigate();
-  const [subReceitas, setSubReceitas] = useLocalStorage<SubReceita[]>("subReceitas", []);
-  const [ingredientesCadastrados, setIngredientesCadastrados] = useLocalStorage<Ingrediente[]>("ingredientes", []);
+  const { subReceitas, deleteSubReceita, isLoading } = useSubReceitas();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-
-  // Migração automática: converter sub-receitas existentes em ingredientes
-  useEffect(() => {
-    let houveMigracao = false;
-    const novosIngredientes = [...ingredientesCadastrados];
-
-    subReceitas.forEach((subReceita) => {
-      const ingredienteId = `sub-receita-${subReceita.id}`;
-      const ingredienteExiste = ingredientesCadastrados.some(ing => ing.id === ingredienteId);
-
-      if (!ingredienteExiste) {
-        const ingredienteSubReceita: Ingrediente = {
-          id: ingredienteId,
-          nome: subReceita.nome,
-          marca: "Sub-Receita",
-          quantidade: subReceita.rendimento,
-          unidadeMedida: subReceita.unidadeRendimento === "gramas" ? "g" : "un",
-          preco: subReceita.custoTotal,
-          dataAtualizacao: new Date().toISOString().split('T')[0],
-        };
-        novosIngredientes.push(ingredienteSubReceita);
-        houveMigracao = true;
-      }
-    });
-
-    if (houveMigracao) {
-      setIngredientesCadastrados(novosIngredientes);
-      toast.success("Sub-receitas migradas para ingredientes com sucesso!");
-    }
-  }, []); // Executa apenas uma vez ao carregar
 
   const handleDelete = (id: string) => {
     setDeletingId(id);
     setIsDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (deletingId) {
-      setSubReceitas(subReceitas.filter((item) => item.id !== deletingId));
-      toast.success("Sub-receita excluída com sucesso!");
+      await deleteSubReceita(deletingId);
     }
     setIsDeleteDialogOpen(false);
     setDeletingId(null);
