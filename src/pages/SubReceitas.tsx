@@ -1,52 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, ArrowLeft, ChefHat, Copy } from "lucide-react";
+import { Plus, Pencil, Trash2, ChefHat } from "lucide-react";
 import { useSubReceitas } from "@/hooks/useSubReceitas";
 import { EmptyState } from "@/components/EmptyState";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-
-interface Ingrediente {
-  id: string;
-  nome: string;
-  marca: string;
-  quantidade: number;
-  unidadeMedida: string;
-  preco: number;
-  dataAtualizacao: string;
-}
-
-interface IngredienteReceita {
-  id: string;
-  ingredienteId: string;
-  ingrediente: string;
-  marca: string;
-  qtdeEmbalagem: number;
-  unidadeMedida: string;
-  precoEmbalagem: number;
-  quantidadeUtilizada: number;
-  custoUnitario: number;
-  custoReceita: number;
-}
-
-interface SubReceita {
-  id: string;
-  nome: string;
-  tempoPreparo: number;
-  unidadeTempo: "minutos" | "horas";
-  rendimento: number;
-  unidadeRendimento: "gramas" | "unidades";
-  ingredientes: IngredienteReceita[];
-  custoTotal: number;
-}
 
 export default function SubReceitas() {
   const navigate = useNavigate();
@@ -74,27 +37,6 @@ export default function SubReceitas() {
 
   const handleEdit = (id: string) => {
     navigate(`/precificacao/pre-preparo/editar/${id}`);
-  };
-
-  const handleDuplicate = (id: string) => {
-    const subReceitaOriginal = subReceitas.find(sr => sr.id === id);
-    if (!subReceitaOriginal) return;
-
-    const novaSubReceita: SubReceita = {
-      ...subReceitaOriginal,
-      id: `${Date.now()}`,
-      nome: `Cópia de ${subReceitaOriginal.nome}`,
-      ingredientes: subReceitaOriginal.ingredientes.map(ing => ({
-        ...ing,
-        id: `${Date.now()}-${Math.random()}`
-      }))
-    };
-
-    setSubReceitas([...subReceitas, novaSubReceita]);
-    toast.success("Sub-receita duplicada com sucesso!");
-    
-    // Navega para edição da cópia
-    navigate(`/precificacao/pre-preparo/editar/${novaSubReceita.id}`);
   };
 
   return (
@@ -131,11 +73,10 @@ export default function SubReceitas() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-center">Nome</TableHead>
-                    <TableHead className="text-center">Rendimento</TableHead>
-                    <TableHead className="text-center">Unidade</TableHead>
-                    <TableHead className="text-center">Custos de Produção</TableHead>
-                    <TableHead className="text-center">Ações</TableHead>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Rendimento</TableHead>
+                    <TableHead>Custos de Produção</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -145,18 +86,14 @@ export default function SubReceitas() {
                       <TableRow key={subReceita.id}>
                         <TableCell className="font-medium">{subReceita.nome}</TableCell>
                         <TableCell>{subReceita.rendimento}</TableCell>
-                        <TableCell>
-                          {subReceita.unidadeRendimento === "gramas" ? "Gramas" : "Unidades"}
-                        </TableCell>
                         <TableCell className="font-semibold">
-                          R$ {subReceita.custoTotal.toFixed(2)}
+                          R$ {subReceita.custo_total.toFixed(2)}
                         </TableCell>
-                         <TableCell className="text-right">
-                          <div className="flex justify-end gap-0">
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-8 w-8 p-0"
                               onClick={() => handleEdit(subReceita.id)}
                               title="Editar"
                             >
@@ -165,23 +102,13 @@ export default function SubReceitas() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-8 w-8 p-0"
-                              onClick={() => handleDuplicate(subReceita.id)}
-                              title="Duplicar"
-                            >
-                              <Copy className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
                               onClick={() => handleDelete(subReceita.id)}
                               title="Excluir"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                           </div>
-                         </TableCell>
+                        </TableCell>
                       </TableRow>
                     ))}
                 </TableBody>
