@@ -47,6 +47,7 @@ import PrePreparoForm from "./pages/precificacao/PrePreparoForm";
 import ContasReceber from "./pages/financeiro/ContasReceber";
 import ContasReceberForm from "./pages/financeiro/ContasReceberForm";
 import ContasReceberDetalhes from "./pages/financeiro/ContasReceberDetalhes";
+import ContasPagar from "./pages/financeiro/ContasPagar";
 import AuthLogin from "./pages/auth/Login";
 import SignUp from "./pages/auth/SignUp";
 import ForgotPassword from "./pages/auth/ForgotPassword";
@@ -149,6 +150,9 @@ const App = () => (
           <Route path="/financeiro/contas-receber/nova" element={<ProtectedRoute><Layout><ContasReceberForm /></Layout></ProtectedRoute>} />
           <Route path="/financeiro/contas-receber/editar/:id" element={<ProtectedRoute><Layout><ContasReceberForm /></Layout></ProtectedRoute>} />
           <Route path="/financeiro/contas-receber/detalhes/:id" element={<ProtectedRoute><Layout><ContasReceberDetalhes /></Layout></ProtectedRoute>} />
+          
+          {/* Financeiro - Contas a Pagar */}
+          <Route path="/financeiro/contas-pagar" element={<ProtectedRoute><Layout><ContasPagar /></Layout></ProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
           </Routes>
