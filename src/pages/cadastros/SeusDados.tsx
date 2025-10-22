@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 
 interface SeusDadosForm {
   razaoSocial: string;
+  nomeFantasia: string;
   cnpjCpf: string;
   inscricaoEstadual: string;
   nomeResponsavel: string;
@@ -38,6 +39,7 @@ export default function SeusDados() {
   const queryClient = useQueryClient();
   const [dados, setDados] = useLocalStorage<SeusDadosForm>("seusDados", {
     razaoSocial: "",
+    nomeFantasia: "",
     cnpjCpf: "",
     inscricaoEstadual: "",
     nomeResponsavel: "",
@@ -252,6 +254,15 @@ export default function SeusDados() {
                 id="razaoSocial"
                 {...register("razaoSocial")}
                 placeholder="Nome da empresa"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="nomeFantasia">Nome Fantasia</Label>
+              <Input
+                id="nomeFantasia"
+                {...register("nomeFantasia")}
+                placeholder="Nome fantasia da empresa"
               />
             </div>
 
