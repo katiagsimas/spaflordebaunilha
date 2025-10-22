@@ -113,7 +113,6 @@ export default function ContasReceberDetalhes() {
             telefone,
             endereco,
             numero,
-            bairro,
             cidade,
             estado,
             cep
@@ -554,7 +553,6 @@ export default function ContasReceberDetalhes() {
         const partesEndereco = [
           cliente.endereco,
           cliente.numero ? `nº ${cliente.numero}` : null,
-          cliente.bairro,
         ].filter(Boolean);
         
         enderecoCompleto = partesEndereco.join(', ');
