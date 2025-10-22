@@ -529,7 +529,7 @@ const Encomendas = () => {
     .sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime());
 
   // Lista de clientes únicos que possuem encomendas
-  const clientesComEncomendas = Array.from(new Set(encomendas.map(e => e.cliente))).sort();
+  const clientesComEncomendas = Array.from(new Set(encomendas.map(e => e.cliente).filter(c => c && c.trim() !== ""))).sort();
 
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
