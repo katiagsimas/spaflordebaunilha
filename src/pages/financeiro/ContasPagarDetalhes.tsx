@@ -31,7 +31,9 @@ import {
   User,
   TrendingDown,
   Eye,
-  Download
+  Download,
+  CreditCard,
+  RefreshCw
 } from 'lucide-react';
 
 export default function ContasPagarDetalhes() {
@@ -429,6 +431,171 @@ export default function ContasPagarDetalhes() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
+
+              {/* Histórico de Pagamentos da Parcela */}
+              {parcela.pagamentos && parcela.pagamentos.length > 0 ? (
+                <div className="space-y-3">
+                  <Separator />
+                  <h4 className="font-medium text-sm flex items-center gap-2">
+                    <CreditCard className="h-4 w-4" />
+                    Histórico de Pagamentos
+                  </h4>
+                  
+                  {parcela.pagamentos.map((pag: any) => (
+                    <div
+                      key={pag.id}
+                      className={`p-3 rounded-lg border ${
+                        pag.estornado 
+                          ? 'bg-red-50 border-red-200' 
+                          : 'bg-muted'
+                      }`}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-2 flex-1">
+                          {/* Dados do Pagamento */}
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">Data:</span>
+                              <span className="ml-2 font-medium">
+                                {formatarData(pag.data_pagamento)}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Valor Pago:</span>
+                              <span className="ml-2 font-medium text-green-600">
+                                {formatarValor(pag.valor_pago)}
+                              </span>
+                            </div>
+
+                            {pag.juros > 0 && (
+                              <div>
+                                <span className="text-muted-foreground">Juros:</span>
+                                <span className="ml-2 font-medium text-red-600">
+                                  {formatarValor(pag.juros)}
+                                </span>
+                              </div>
+                            )}
+
+                            {pag.desconto > 0 && (
+                              <div>
+                                <span className="text-muted-foreground">Desconto:</span>
+                                <span className="ml-2 font-medium text-blue-600">
+                                  {formatarValor(pag.desconto)}
+                                </span>
+                              </div>
+                            )}
+
+                            <div>
+                              <span className="text-muted-foreground">Banco:</span>
+                              <span className="ml-2 font-medium">
+                                {pag.banco?.codigo} - {pag.banco?.nome}
+                              </span>
+                            </div>
+
+                            <div>
+                              <span className="text-muted-foreground">Tipo Doc:</span>
+                              <span className="ml-2 font-medium">
+                                {pag.tipo_documento?.descricao}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Valor Líquido */}
+                          <div className="pt-2 border-t">
+                            <span className="text-sm text-muted-foreground">Valor Líquido:</span>
+                            <span className="ml-2 font-bold text-green-600">
+                              {formatarValor(pag.valor_pago + (pag.juros || 0) - (pag.desconto || 0))}
+                            </span>
+                          </div>
+
+                          {/* Observação */}
+                          {pag.observacao && (
+                            <div className="pt-2 border-t">
+                              <p className="text-xs text-muted-foreground">Observação:</p>
+                              <p className="text-sm">{pag.observacao}</p>
+                            </div>
+                          )}
+
+                          {/* Comprovantes */}
+                          {pag.comprovantes && pag.comprovantes.length > 0 && (
+                            <div className="pt-2 border-t">
+                              <p className="text-xs text-muted-foreground mb-2">Comprovantes:</p>
+                              <div className="flex flex-wrap gap-2">
+                                {pag.comprovantes.map((comp: any) => (
+                                  <a
+                                    key={comp.id}
+                                    href={comp.url_storage}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs bg-white px-3 py-1.5 rounded border hover:bg-gray-50 flex items-center gap-2"
+                                  >
+                                    <FileText className="h-3 w-3" />
+                                    {comp.nome_arquivo}
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Informação de Estorno */}
+                          {pag.estornado && (
+                            <div className="pt-2 border-t bg-red-100 -m-3 mt-2 p-3 rounded-b-lg">
+                              <div className="flex items-start gap-2">
+                                <RefreshCw className="h-4 w-4 text-red-600 mt-0.5" />
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium text-red-900">
+                                    Pagamento Estornado
+                                  </p>
+                                  <p className="text-xs text-red-700">
+                                    Data do estorno: {new Date(pag.data_estorno).toLocaleString('pt-BR')}
+                                  </p>
+                                  {pag.motivo_estorno && (
+                                    <p className="text-xs text-red-700 mt-1">
+                                      Motivo: {pag.motivo_estorno}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Menu de Ações do Pagamento */}
+                        {!pag.estornado && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => toast({ title: 'Em breve', description: 'Funcionalidade de editar em desenvolvimento' })}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Editar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => toast({ title: 'Em breve', description: 'Funcionalidade de estornar em desenvolvimento' })}>
+                                <RefreshCw className="mr-2 h-4 w-4" />
+                                Estornar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => toast({ title: 'Em breve', description: 'Funcionalidade de excluir em desenvolvimento' })}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Excluir
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-sm text-muted-foreground text-center py-4 bg-muted/50 rounded">
+                  Nenhum pagamento registrado nesta parcela
+                </div>
+              )}
 
               {parcela.observacao && (
                 <div className="pt-2 border-t">
