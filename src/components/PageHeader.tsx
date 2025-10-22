@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 interface PageHeaderProps {
   title: string;
@@ -9,7 +9,8 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({ title, description, actions, showGreeting = false }: PageHeaderProps) {
-  const [nomeNegocio] = useLocalStorage<string>("nomeNegocio", "");
+  const { profile } = useUserProfile();
+  const nomeNegocio = profile?.nome_confeitaria || "";
   
   const getCurrentDate = () => {
     const options: Intl.DateTimeFormatOptions = { 

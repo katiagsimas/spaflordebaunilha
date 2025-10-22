@@ -20,6 +20,11 @@ interface UserProfile {
   dias_trabalho_mes: number;
   horas_diaria_trabalho: number;
   primeiro_acesso?: boolean;
+  meta_faturamento_mensal?: number;
+  meta_faturamento_anual?: number;
+  alerta_cmv?: number;
+  custo_fixo_mensal?: number;
+  planejamento_banner_dismissed?: boolean;
   created_at?: string;
   updated_at?: string;
 }

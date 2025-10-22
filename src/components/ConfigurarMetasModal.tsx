@@ -9,11 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useCustosFixos } from "@/hooks/useCustosFixos";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useEncomendas } from "@/hooks/useEncomendas";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -35,54 +33,25 @@ interface ConfigurarMetasModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-interface CustoFixo {
-  id: string;
-  nome: string;
-  valor: number;
-}
-
-interface Order {
-  id: string;
-  total: number;
-  deliveryDate: string;
-  status: string;
-}
-
 export function ConfigurarMetasModal({ open, onOpenChange }: ConfigurarMetasModalProps) {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { custosFixos } = useCustosFixos();
+  const { encomendas = [] } = useEncomendas();
+  const { profile, updateProfile } = useUserProfile();
   
-  const [config, setConfig] = useLocalStorage("configuracaoPlanejamento", {
-    metaFaturamentoMensal: 10000,
-    metaFaturamentoAnual: 120000,
+  const config = {
+    metaFaturamentoMensal: profile?.meta_faturamento_mensal || 10000,
+    metaFaturamentoAnual: profile?.meta_faturamento_anual || 120000,
     margemLucroAlvo: 60,
     metaEncomendas: 30,
     diasUteisPorMes: 22,
-    alertaCMV: 50,
+    alertaCMV: profile?.alerta_cmv || 50,
     incluirCustosFixos: true,
-    custoFixoMensal: 2000,
-  });
+    custoFixoMensal: profile?.custo_fixo_mensal || 2000,
+  };
 
-  // Buscar encomendas do Supabase
-  const { data: encomendasData = [] } = useQuery({
-    queryKey: ['encomendas-metas', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      const { data, error } = await supabase
-        .from('encomendas')
-        .select('*')
-        .eq('usuario_id', user.id)
-        .order('data_entrega', { ascending: false });
-
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: !!user,
-  });
-
-  // Mapear para o formato esperado
-  const orders = encomendasData.map(e => ({
+  // Mapear encomendas para formato esperado
+  const orders = encomendas.map(e => ({
     id: e.id,
     total: Number(e.valor),
     status: e.status === 'entregue' ? 'Entregue' : 'Pendente',
@@ -138,7 +107,12 @@ export function ConfigurarMetasModal({ open, onOpenChange }: ConfigurarMetasModa
 
   const onSubmit = (data: ConfiguracaoFormData) => {
     try {
-      setConfig(data);
+      updateProfile({
+        meta_faturamento_mensal: data.metaFaturamentoMensal,
+        meta_faturamento_anual: data.metaFaturamentoAnual,
+        alerta_cmv: data.alertaCMV,
+        custo_fixo_mensal: data.custoFixoMensal,
+      });
 
       toast.success("✓ Configurações salvas com sucesso!");
       onOpenChange(false);

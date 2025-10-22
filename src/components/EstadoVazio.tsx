@@ -3,14 +3,19 @@ import { Settings, X } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 interface BannerBoasVindasProps {
   onConfigurar: () => void;
 }
 
 export function BannerBoasVindas({ onConfigurar }: BannerBoasVindasProps) {
-  const [dismissed, setDismissed] = useLocalStorage("planejamento_banner_dismissed", false);
+  const { profile, updateProfile } = useUserProfile();
+  const dismissed = profile?.planejamento_banner_dismissed || false;
+  
+  const setDismissed = (value: boolean) => {
+    updateProfile({ planejamento_banner_dismissed: value });
+  };
 
   if (dismissed) return null;
 

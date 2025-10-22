@@ -242,6 +242,45 @@ export type Database = {
         }
         Relationships: []
       }
+      cmv_mensal: {
+        Row: {
+          ano: number
+          compras: number
+          created_at: string
+          estoque_final: number
+          estoque_inicial: number
+          faturamento: number
+          id: string
+          mes: number
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          ano: number
+          compras?: number
+          created_at?: string
+          estoque_final?: number
+          estoque_inicial?: number
+          faturamento?: number
+          id?: string
+          mes: number
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          ano?: number
+          compras?: number
+          created_at?: string
+          estoque_final?: number
+          estoque_inicial?: number
+          faturamento?: number
+          id?: string
+          mes?: number
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       configuracoes_juros: {
         Row: {
           cobrar_juros: boolean | null
@@ -1450,13 +1489,45 @@ export type Database = {
           },
         ]
       }
+      producao_tarefas: {
+        Row: {
+          concluida: boolean
+          created_at: string
+          data: string
+          descricao: string
+          id: string
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          concluida?: boolean
+          created_at?: string
+          data?: string
+          descricao: string
+          id?: string
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          concluida?: boolean
+          created_at?: string
+          data?: string
+          descricao?: string
+          id?: string
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
+          alerta_cmv: number | null
           avatar_url: string | null
           cep: string | null
           cidade: string | null
           cpf: string | null
           created_at: string | null
+          custo_fixo_mensal: number | null
           dias_trabalho_mes: number | null
           email: string
           endereco: string | null
@@ -1464,19 +1535,24 @@ export type Database = {
           horas_diaria_trabalho: number | null
           id: string
           instagram: string | null
+          meta_faturamento_anual: number | null
+          meta_faturamento_mensal: number | null
           nome_completo: string | null
           nome_confeitaria: string | null
+          planejamento_banner_dismissed: boolean | null
           primeiro_acesso: boolean | null
           telefone: string | null
           updated_at: string | null
           whatsapp: string | null
         }
         Insert: {
+          alerta_cmv?: number | null
           avatar_url?: string | null
           cep?: string | null
           cidade?: string | null
           cpf?: string | null
           created_at?: string | null
+          custo_fixo_mensal?: number | null
           dias_trabalho_mes?: number | null
           email: string
           endereco?: string | null
@@ -1484,19 +1560,24 @@ export type Database = {
           horas_diaria_trabalho?: number | null
           id: string
           instagram?: string | null
+          meta_faturamento_anual?: number | null
+          meta_faturamento_mensal?: number | null
           nome_completo?: string | null
           nome_confeitaria?: string | null
+          planejamento_banner_dismissed?: boolean | null
           primeiro_acesso?: boolean | null
           telefone?: string | null
           updated_at?: string | null
           whatsapp?: string | null
         }
         Update: {
+          alerta_cmv?: number | null
           avatar_url?: string | null
           cep?: string | null
           cidade?: string | null
           cpf?: string | null
           created_at?: string | null
+          custo_fixo_mensal?: number | null
           dias_trabalho_mes?: number | null
           email?: string
           endereco?: string | null
@@ -1504,8 +1585,11 @@ export type Database = {
           horas_diaria_trabalho?: number | null
           id?: string
           instagram?: string | null
+          meta_faturamento_anual?: number | null
+          meta_faturamento_mensal?: number | null
           nome_completo?: string | null
           nome_confeitaria?: string | null
+          planejamento_banner_dismissed?: boolean | null
           primeiro_acesso?: boolean | null
           telefone?: string | null
           updated_at?: string | null

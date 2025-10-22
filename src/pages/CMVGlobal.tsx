@@ -4,55 +4,64 @@ import { BackButton } from "@/components/BackButton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useCMVMensal } from "@/hooks/useCMVMensal";
 import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
 import { toast } from "sonner";
-
-interface DadosMes {
-  mes: string;
-  estoqueInicial: number;
-  compras: number;
-  estoqueFinal: number;
-  faturamento: number;
-}
 
 const meses = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
 ];
 
-const dadosIniciais: DadosMes[] = meses.map(mes => ({
-  mes,
-  estoqueInicial: 0,
-  compras: 0,
-  estoqueFinal: 0,
-  faturamento: 0,
-}));
-
 export default function CMVGlobal() {
-  const [dados, setDados] = useLocalStorage<DadosMes[]>("cmv_global", dadosIniciais);
+  const { dados: dadosBanco, upsertDado, calcularCustoMensal, calcularCMVPercentual } = useCMVMensal();
+  const [dadosLocais, setDadosLocais] = useState<{[key: number]: any}>({});
+  const anoAtual = new Date().getFullYear();
 
-  const handleChange = (index: number, campo: keyof Omit<DadosMes, 'mes'>, valor: string) => {
-    const novosDados = [...dados];
-    novosDados[index] = {
-      ...novosDados[index],
-      [campo]: parseFloat(valor) || 0,
+  // Montar dados combinando banco + locais
+  const dados = meses.map((mes, index) => {
+    const dadoBanco = dadosBanco.find(d => d.mes === (index + 1));
+    const dadoLocal = dadosLocais[index];
+    
+    return {
+      mes,
+      estoqueInicial: dadoLocal?.estoque_inicial ?? dadoBanco?.estoque_inicial ?? 0,
+      compras: dadoLocal?.compras ?? dadoBanco?.compras ?? 0,
+      estoqueFinal: dadoLocal?.estoque_final ?? dadoBanco?.estoque_final ?? 0,
+      faturamento: dadoLocal?.faturamento ?? dadoBanco?.faturamento ?? 0,
     };
-    setDados(novosDados);
-  };
+  });
 
-  const calcularCustoMensal = (linha: DadosMes): number => {
-    return linha.estoqueInicial + linha.compras - linha.estoqueFinal;
-  };
-
-  const calcularCMVGlobal = (linha: DadosMes): number => {
-    const custoMensal = calcularCustoMensal(linha);
-    if (linha.faturamento === 0) return 0;
-    return (custoMensal / linha.faturamento) * 100;
+  const handleChange = (index: number, campo: string, valor: string) => {
+    setDadosLocais(prev => ({
+      ...prev,
+      [index]: {
+        ...(prev[index] || {}),
+        [campo]: parseFloat(valor) || 0,
+      }
+    }));
   };
 
   const handleSave = () => {
+    // Salvar todos os meses que foram alterados
+    Object.keys(dadosLocais).forEach(indexStr => {
+      const index = parseInt(indexStr);
+      const dadoLocal = dadosLocais[index];
+      
+      upsertDado({
+        ano: anoAtual,
+        mes: index + 1,
+        updates: {
+          estoque_inicial: dadoLocal.estoque_inicial ?? 0,
+          compras: dadoLocal.compras ?? 0,
+          estoque_final: dadoLocal.estoque_final ?? 0,
+          faturamento: dadoLocal.faturamento ?? 0,
+        }
+      });
+    });
+    
+    setDadosLocais({});
     toast.success("Dados salvos com sucesso!");
   };
 
@@ -85,8 +94,8 @@ export default function CMVGlobal() {
               </TableHeader>
               <TableBody>
                 {dados.map((linha, index) => {
-                  const custoMensal = calcularCustoMensal(linha);
-                  const cmvGlobal = calcularCMVGlobal(linha);
+                  const custoMensal = linha.estoqueInicial + linha.compras - linha.estoqueFinal;
+                  const cmvGlobal = linha.faturamento === 0 ? 0 : (custoMensal / linha.faturamento) * 100;
 
                   return (
                     <TableRow key={linha.mes}>
@@ -95,7 +104,7 @@ export default function CMVGlobal() {
                         <Input
                           type="number"
                           value={linha.estoqueInicial || ""}
-                          onChange={(e) => handleChange(index, "estoqueInicial", e.target.value)}
+                          onChange={(e) => handleChange(index, "estoque_inicial", e.target.value)}
                           className="text-right"
                           placeholder="0,00"
                           step="0.01"
@@ -115,7 +124,7 @@ export default function CMVGlobal() {
                         <Input
                           type="number"
                           value={linha.estoqueFinal || ""}
-                          onChange={(e) => handleChange(index, "estoqueFinal", e.target.value)}
+                          onChange={(e) => handleChange(index, "estoque_final", e.target.value)}
                           className="text-right"
                           placeholder="0,00"
                           step="0.01"

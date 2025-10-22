@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { MiniCalendar } from "@/components/MiniCalendar";
 import { ProductionCard } from "@/components/ProductionCard";
@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useProducaoTarefas } from "@/hooks/useProducaoTarefas";
+import { useEncomendas } from "@/hooks/useEncomendas";
+import { toast } from "sonner";
 import { 
   CalendarClock, 
   AlertCircle, 
@@ -18,7 +20,6 @@ import {
   CalendarDays,
   ChevronDown
 } from "lucide-react";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 interface Order {
@@ -42,20 +43,28 @@ interface Order {
   };
 }
 
-interface Task {
-  id: string;
-  descricao: string;
-  concluida: boolean;
-  data: string;
-  createdAt: string;
-}
-
 export default function Producao() {
-  const [orders] = useLocalStorage<Order[]>("orders", []);
-  const [tasks, setTasks] = useLocalStorage<Task[]>("producao_tasks", []);
+  const { encomendas = [] } = useEncomendas();
+  const { tarefas, createTarefa, updateTarefa, deleteTarefa, deleteCompletedTarefas } = useProducaoTarefas();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [newTaskText, setNewTaskText] = useState("");
   const [showCompleted, setShowCompleted] = useState(false);
+  
+  // Converter encomendas para formato Order
+  const orders: Order[] = encomendas.map(e => ({
+    id: e.id,
+    orderNumber: 0,
+    client: e.cliente,
+    phone: e.telefone || "",
+    product: "",
+    quantity: 0,
+    status: e.status,
+    deliveryDate: e.data_entrega || "",
+    deliveryTime: e.hora_entrega || "",
+    totalValue: e.valor,
+    remainingBalance: e.saldo_restante,
+    observations: e.observacoes,
+  }));
 
   // Atualizar checklist de uma encomenda
   const updateOrderChecklist = (orderId: string, checklist: any) => {
@@ -72,49 +81,24 @@ export default function Producao() {
   const addTask = () => {
     if (!newTaskText.trim()) return;
     
-    const newTask: Task = {
-      id: Date.now().toString(),
-      descricao: newTaskText,
-      concluida: false,
-      data: new Date().toISOString().split('T')[0],
-      createdAt: new Date().toISOString()
-    };
-    
-    setTasks([...tasks, newTask]);
+    createTarefa({ descricao: newTaskText });
     setNewTaskText("");
-    toast.success("✓ Tarefa adicionada");
   };
 
   const toggleTask = (taskId: string) => {
-    setTasks(tasks.map(t => 
-      t.id === taskId ? { ...t, concluida: !t.concluida } : t
-    ));
+    const tarefa = tarefas.find(t => t.id === taskId);
+    if (tarefa) {
+      updateTarefa({ id: taskId, updates: { concluida: !tarefa.concluida } });
+    }
   };
 
   const removeTask = (taskId: string) => {
-    setTasks(tasks.filter(t => t.id !== taskId));
-    toast.success("Tarefa removida");
+    deleteTarefa(taskId);
   };
 
   const clearCompletedTasks = () => {
-    setTasks(tasks.filter(t => !t.concluida));
-    toast.success("Tarefas concluídas removidas");
+    deleteCompletedTarefas();
   };
-
-  // Limpar tarefas antigas automaticamente (> 7 dias)
-  useEffect(() => {
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const cutoffDate = sevenDaysAgo.toISOString().split('T')[0];
-    
-    const filteredTasks = tasks.filter(t => 
-      !t.concluida || t.data >= cutoffDate
-    );
-    
-    if (filteredTasks.length < tasks.length) {
-      setTasks(filteredTasks);
-    }
-  }, []);
 
   // Filtrar encomendas por data
   const getOrdersForDate = (date: Date) => {
@@ -176,8 +160,8 @@ export default function Producao() {
 
   const pendingSaldos = todayOrders.reduce((acc, o) => acc + (o.remainingBalance || 0), 0);
 
-  const pendingTasks = tasks.filter(t => !t.concluida);
-  const completedTasks = tasks.filter(t => t.concluida);
+  const pendingTasks = tarefas.filter(t => !t.concluida);
+  const completedTasks = tarefas.filter(t => t.concluida);
 
   // Resumo da semana
   const getWeekRange = () => {
@@ -349,7 +333,7 @@ export default function Producao() {
               </div>
 
               {/* Lista de tarefas */}
-              {tasks.length === 0 ? (
+              {tarefas.length === 0 ? (
                 <div className="py-8 text-center">
                   <p className="text-[#9C8B82]">
                     📝 Nenhuma tarefa para hoje
