@@ -748,7 +748,7 @@ const Encomendas = () => {
                                 <SelectValue placeholder="Selecione um produto..." />
                               </SelectTrigger>
                               <SelectContent className="bg-popover z-50">
-                                {receitas.map((receita) => (
+                                {receitas.filter(r => r.id && r.id.trim() !== "").map((receita) => (
                                   <SelectItem key={receita.id} value={receita.id}>
                                     {receita.nome}
                                   </SelectItem>

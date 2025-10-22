@@ -371,7 +371,7 @@ export default function ContasReceberFormModal({
               <SelectValue placeholder="Selecione..." />
             </SelectTrigger>
             <SelectContent>
-              {tiposDocumento.map(tipo => (
+              {tiposDocumento.filter(t => t.id && t.id.trim() !== "").map(tipo => (
                 <SelectItem key={tipo.id} value={tipo.id}>
                   {tipo.descricao}
                 </SelectItem>
@@ -387,7 +387,7 @@ export default function ContasReceberFormModal({
               <SelectValue placeholder="Selecione..." />
             </SelectTrigger>
             <SelectContent>
-              {planosContas.map((plano: any) => (
+              {planosContas.filter((p: any) => p.id && p.id.trim() !== "").map((plano: any) => (
                 <SelectItem key={plano.id} value={plano.id}>
                   {plano.codigo_estruturado} - {plano.descricao}
                 </SelectItem>
@@ -404,7 +404,7 @@ export default function ContasReceberFormModal({
             <SelectValue placeholder="Selecione..." />
           </SelectTrigger>
           <SelectContent>
-            {bancos.map(banco => (
+            {bancos.filter(b => b.id && b.id.trim() !== "").map(banco => (
               <SelectItem key={banco.id} value={banco.id}>
                 {banco.codigo} - {banco.nome}
               </SelectItem>

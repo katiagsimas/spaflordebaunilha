@@ -511,7 +511,7 @@ export default function DarBaixaDialog({
                   <SelectValue placeholder="Selecione..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {bancos.map((banco: any) => (
+                  {bancos.filter((b: any) => b.id && b.id.trim() !== "").map((banco: any) => (
                     <SelectItem key={banco.id} value={banco.id}>
                       {banco.codigo} - {banco.nome}
                     </SelectItem>
@@ -527,7 +527,7 @@ export default function DarBaixaDialog({
                   <SelectValue placeholder="Selecione..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {tiposDocumento.map((tipo: any) => (
+                  {tiposDocumento.filter((t: any) => t.id && t.id.trim() !== "").map((tipo: any) => (
                     <SelectItem key={tipo.id} value={tipo.id}>
                       {tipo.descricao}
                     </SelectItem>
