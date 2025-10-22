@@ -1374,7 +1374,7 @@ const Encomendas = () => {
           <CardTitle>Filtros</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             {/* Filtro de Cliente */}
             <div className="space-y-2">
               <Label htmlFor="filtro-cliente">Cliente</Label>
@@ -1412,6 +1412,30 @@ const Encomendas = () => {
               </Select>
             </div>
 
+            {/* Filtro de Tags */}
+            <div className="space-y-2">
+              <Label htmlFor="filtro-tag">Tag</Label>
+              <Select value={tagFilter} onValueChange={setTagFilter}>
+                <SelectTrigger id="filtro-tag" className="bg-popover">
+                  <SelectValue placeholder="Todas as tags" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  <SelectItem value="todos">Todas as tags</SelectItem>
+                  {tagsDisponiveis.map(tag => (
+                    <SelectItem key={tag.id} value={tag.id}>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: tag.cor }}
+                        />
+                        {tag.nome}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Filtro de Data da Entrega */}
             <div className="space-y-2">
               <Label htmlFor="filtro-data-entrega">Data da Entrega</Label>
@@ -1434,40 +1458,6 @@ const Encomendas = () => {
                 onChange={(e) => setHoraEntregaFilter(e.target.value)}
                 className="bg-popover"
               />
-            </div>
-          </div>
-
-          {/* Filtro de Tags */}
-          <div className="mt-4 space-y-2">
-            <Label>Filtrar por Tag</Label>
-            <div className="flex flex-wrap gap-2">
-              {/* Botão "Todos" */}
-              <Badge
-                className={`cursor-pointer ${
-                  tagFilter === 'todos'
-                    ? 'bg-primary text-white'
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                }`}
-                onClick={() => setTagFilter('todos')}
-              >
-                Todos
-              </Badge>
-
-              {/* Botões de cada tag */}
-              {tagsDisponiveis.map(tag => (
-                <Badge
-                  key={tag.id}
-                  style={{
-                    backgroundColor: tagFilter === tag.id ? tag.cor : 'transparent',
-                    color: tagFilter === tag.id ? '#fff' : tag.cor,
-                    borderColor: tag.cor,
-                  }}
-                  className="cursor-pointer border-2 hover:scale-105 transition-transform"
-                  onClick={() => setTagFilter(tag.id)}
-                >
-                  {tag.nome}
-                </Badge>
-              ))}
             </div>
           </div>
 
