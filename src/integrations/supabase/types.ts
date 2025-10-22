@@ -242,6 +242,45 @@ export type Database = {
         }
         Relationships: []
       }
+      configuracoes_juros: {
+        Row: {
+          cobrar_juros: boolean | null
+          created_at: string | null
+          id: string
+          multa_atraso: boolean | null
+          observacao: string | null
+          percentual_juros: number
+          percentual_multa: number | null
+          tipo_juros: string
+          updated_at: string | null
+          usuario_id: string
+        }
+        Insert: {
+          cobrar_juros?: boolean | null
+          created_at?: string | null
+          id?: string
+          multa_atraso?: boolean | null
+          observacao?: string | null
+          percentual_juros?: number
+          percentual_multa?: number | null
+          tipo_juros?: string
+          updated_at?: string | null
+          usuario_id: string
+        }
+        Update: {
+          cobrar_juros?: boolean | null
+          created_at?: string | null
+          id?: string
+          multa_atraso?: boolean | null
+          observacao?: string | null
+          percentual_juros?: number
+          percentual_multa?: number | null
+          tipo_juros?: string
+          updated_at?: string | null
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       contas_pagar: {
         Row: {
           banco_id: string | null
@@ -1589,6 +1628,19 @@ export type Database = {
           p_valor_parcela: number
         }
         Returns: number
+      }
+      calcular_juros_com_config: {
+        Args: {
+          p_data_pagamento: string
+          p_data_vencimento: string
+          p_user_id: string
+          p_valor_parcela: number
+        }
+        Returns: {
+          juros: number
+          multa: number
+          total: number
+        }[]
       }
       criar_categorias_plano_padrao: {
         Args: { p_user_id: string }

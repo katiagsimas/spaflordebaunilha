@@ -1,4 +1,4 @@
-import { Settings, Tag, UserCircle, Ruler, Lock, Package, Layers, BookOpen, Building2, FileText } from "lucide-react";
+import { Settings, Tag, UserCircle, Ruler, Lock, Package, Layers, BookOpen, Building2, FileText, Percent } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
@@ -58,6 +58,15 @@ const opcoes = [
     icon: FileText,
     url: "/configuracoes/tipos-documentos",
     color: "text-pink-600 bg-pink-50 dark:bg-pink-950",
+    statusKey: null,
+    requiresAdmin: false,
+  },
+  {
+    title: "Juros e Multas",
+    description: "Configure juros e multas para pagamentos em atraso",
+    icon: Percent,
+    url: "/configuracoes/juros",
+    color: "text-red-600 bg-red-50 dark:bg-red-950",
     statusKey: null,
     requiresAdmin: false,
   },

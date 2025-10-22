@@ -48,6 +48,7 @@ export default function DarBaixaDialog({
   const [observacao, setObservacao] = useState('');
   const [arquivoComprovante, setArquivoComprovante] = useState<File | null>(null);
   const [uploadando, setUploadando] = useState(false);
+  const [configJuros, setConfigJuros] = useState<any>(null);
 
   const [bancos, setBancos] = useState([]);
   const [tiposDocumento, setTiposDocumento] = useState([]);
@@ -55,22 +56,40 @@ export default function DarBaixaDialog({
 
   const valorRestante = parcela ? parcela.valor_parcela - (parcela.valor_pago || 0) : 0;
 
-  // Calcular juros automaticamente
+  // Calcular juros automaticamente com base na configuração do usuário
   const calcularJurosAutomatico = (dataVencimento: string, dataPagamento: string, valorParcela: number) => {
+    // Se não deve cobrar juros, retornar 0
+    if (!configJuros || !configJuros.cobrar_juros) {
+      return '0.00';
+    }
+    
     const venc = new Date(dataVencimento + 'T00:00:00');
     const pag = new Date(dataPagamento + 'T00:00:00');
     
     const diffTime = pag.getTime() - venc.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffDays > 0) {
-      // 1% ao mês = 0.033% ao dia
-      const taxaDia = 0.033;
-      const juros = valorParcela * (taxaDia / 100) * diffDays;
-      return juros.toFixed(2);
+    if (diffDays <= 0) return '0.00';
+    
+    let juros = 0;
+    let multa = 0;
+    
+    // Calcular juros
+    if (configJuros.tipo_juros === 'mensal') {
+      // Juros mensal: divide por 30 para taxa diária
+      const taxaDia = configJuros.percentual_juros / 30;
+      juros = valorParcela * (taxaDia / 100) * diffDays;
+    } else {
+      // Juros diário
+      juros = valorParcela * (configJuros.percentual_juros / 100) * diffDays;
     }
     
-    return '0.00';
+    // Calcular multa (uma vez só)
+    if (configJuros.multa_atraso) {
+      multa = valorParcela * (configJuros.percentual_multa / 100);
+    }
+    
+    return (juros + multa).toFixed(2);
   };
 
   // Calcular valor líquido
@@ -82,23 +101,46 @@ export default function DarBaixaDialog({
     return valor + juros - desconto;
   };
 
+  // Buscar configuração de juros
+  const fetchConfigJuros = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('configuracoes_juros')
+        .select('*')
+        .eq('usuario_id', user.id)
+        .maybeSingle();
+
+      setConfigJuros(data);
+    } catch (error) {
+      console.error('Erro ao buscar config juros:', error);
+    }
+  };
+
   useEffect(() => {
     if (open && parcela) {
       fetchDados();
+      fetchConfigJuros();
+      
       // Preencher valor restante automaticamente
       setValorPago(valorRestante.toFixed(2).replace('.', ','));
       const hoje = new Date().toISOString().split('T')[0];
       setDataPagamento(hoje);
       
-      // Calcular juros se estiver em atraso
-      const jurosAuto = calcularJurosAutomatico(
-        parcela.data_vencimento,
-        hoje,
-        valorRestante
-      );
-      setJurosBaixa(jurosAuto.replace('.', ','));
-      setDescontoBaixa('0,00');
+      // Aguardar config de juros carregar antes de calcular
+      setTimeout(() => {
+        // Calcular juros se estiver em atraso
+        const jurosAuto = calcularJurosAutomatico(
+          parcela.data_vencimento,
+          hoje,
+          valorRestante
+        );
+        setJurosBaixa(jurosAuto.replace('.', ','));
+      }, 100);
       
+      setDescontoBaixa('0,00');
       setBancoId('');
       setTipoDocumentoId('');
       setObservacao('');
