@@ -763,7 +763,7 @@ export type Database = {
           cliente: string
           conta_receber_id: string | null
           created_at: string
-          data_entrega: string
+          data_entrega: string | null
           data_pedido: string
           desconto_percentual: number | null
           desconto_valor: number | null
@@ -793,7 +793,7 @@ export type Database = {
           cliente: string
           conta_receber_id?: string | null
           created_at?: string
-          data_entrega: string
+          data_entrega?: string | null
           data_pedido: string
           desconto_percentual?: number | null
           desconto_valor?: number | null
@@ -823,7 +823,7 @@ export type Database = {
           cliente?: string
           conta_receber_id?: string | null
           created_at?: string
-          data_entrega?: string
+          data_entrega?: string | null
           data_pedido?: string
           desconto_percentual?: number | null
           desconto_valor?: number | null
@@ -1623,10 +1623,7 @@ export type Database = {
       }
     }
     Functions: {
-      atualizar_status_parcelas_vencidas: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      atualizar_status_parcelas_vencidas: { Args: never; Returns: undefined }
       calcular_custo_pre_preparo: {
         Args: { preparo_id: string }
         Returns: undefined
