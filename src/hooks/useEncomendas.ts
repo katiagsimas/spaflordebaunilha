@@ -30,6 +30,7 @@ interface Encomenda {
   pagamentos?: Array<{ valor: number; data: string; tipo_pagamento: string; pago?: boolean; banco_id?: string }>;
   saldo_restante?: number;
   conta_receber_id?: string | null;
+  tags?: Array<{ id: string; nome: string; cor: string }>;
   created_at?: string;
   updated_at?: string;
 }
@@ -46,13 +47,22 @@ export function useEncomendas() {
       setLoading(true);
       const { data, error } = await supabase
         .from('encomendas')
-        .select('*')
+        .select(`
+          *,
+          tags:encomendas_tags (
+            tag:tags_encomendas (
+              id,
+              nome,
+              cor
+            )
+          )
+        `)
         .eq('usuario_id', user.id)
         .order('data_entrega', { ascending: false });
 
       if (error) throw error;
       
-      // Converter topo_imagens e pagamentos de JSON para arrays
+      // Converter topo_imagens, pagamentos e tags de JSON para arrays
       const encomendasFormatadas = (data || []).map(encomenda => ({
         ...encomenda,
         topo_imagens: Array.isArray(encomenda.topo_imagens) 
@@ -60,7 +70,8 @@ export function useEncomendas() {
           : [],
         pagamentos: Array.isArray(encomenda.pagamentos)
           ? encomenda.pagamentos
-          : []
+          : [],
+        tags: encomenda.tags?.map((t: any) => t.tag).filter(Boolean) || []
       }));
       
       setEncomendas(encomendasFormatadas as Encomenda[]);

@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck, Package, Upload, X, HandCoins } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck, Package, Upload, X, HandCoins, Tag as TagIcon } from "lucide-react";
 import { useEncomendas } from "@/hooks/useEncomendas";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -55,9 +55,14 @@ const Encomendas = () => {
   const [clienteFilter, setClienteFilter] = useState("Todos");
   const [dataEntregaFilter, setDataEntregaFilter] = useState("");
   const [horaEntregaFilter, setHoraEntregaFilter] = useState("");
+  const [tagFilter, setTagFilter] = useState("todos");
   const [modalPagamentoAberto, setModalPagamentoAberto] = useState(false);
   const [contaReceberId, setContaReceberId] = useState<string | null>(null);
   const [planoContasVendaId, setPlanoContasVendaId] = useState<string>('');
+  
+  // Estados para tags
+  const [tagsDisponiveis, setTagsDisponiveis] = useState<any[]>([]);
+  const [tagsSelecionadas, setTagsSelecionadas] = useState<any[]>([]);
   const [tempProdutos, setTempProdutos] = useState<Array<{
     id: string;
     receita_id: string;
@@ -120,7 +125,7 @@ const Encomendas = () => {
     return valorTotalProdutos - valorDesconto + formData.taxa_entrega + formData.topo_bolo + formData.outros;
   }, [valorTotalProdutos, valorDesconto, formData.taxa_entrega, formData.topo_bolo, formData.outros]);
 
-  // Buscar o ID do plano de contas "Venda de Produtos" ao carregar
+  // Buscar o ID do plano de contas "Venda de Produtos" e tags ao carregar
   useEffect(() => {
     const fetchPlanoContasVenda = async () => {
       try {
@@ -144,7 +149,27 @@ const Encomendas = () => {
       }
     };
 
+    const fetchTags = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data, error } = await supabase
+          .from('tags_encomendas')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('ativo', true)
+          .order('nome');
+
+        if (error) throw error;
+        setTagsDisponiveis(data || []);
+      } catch (error) {
+        console.error('Erro ao buscar tags:', error);
+      }
+    };
+
     fetchPlanoContasVenda();
+    fetchTags();
   }, []);
 
   const resetForm = () => {
@@ -174,6 +199,7 @@ const Encomendas = () => {
     setEditingOrder(null);
     setTempProdutos([]);
     setContaReceberId(null);
+    setTagsSelecionadas([]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -215,6 +241,23 @@ const Encomendas = () => {
       
       if (editingOrder) {
         await updateEncomenda(editingOrder.id, dadosParaSalvar);
+        // Salvar tags ao atualizar
+        if (tagsSelecionadas.length > 0 || editingOrder) {
+          // Deletar tags antigas
+          await supabase
+            .from('encomendas_tags')
+            .delete()
+            .eq('encomenda_id', editingOrder.id);
+
+          // Inserir novas tags
+          if (tagsSelecionadas.length > 0) {
+            const tagsData = tagsSelecionadas.map(tag => ({
+              encomenda_id: editingOrder.id,
+              tag_id: tag.id,
+            }));
+            await supabase.from('encomendas_tags').insert(tagsData);
+          }
+        }
       } else {
         const novaEncomenda = await createEncomenda(dadosParaSalvar);
         
@@ -232,6 +275,21 @@ const Encomendas = () => {
             });
           }
         }
+
+        // Salvar tags da nova encomenda
+        if (tagsSelecionadas.length > 0 && novaEncomenda) {
+          const tagsData = tagsSelecionadas.map(tag => ({
+            encomenda_id: novaEncomenda.id,
+            tag_id: tag.id,
+          }));
+          const { error: errorTags } = await supabase
+            .from('encomendas_tags')
+            .insert(tagsData);
+
+          if (errorTags) {
+            console.error('Erro ao salvar tags:', errorTags);
+          }
+        }
       }
       setDialogOpen(false);
       resetForm();
@@ -240,7 +298,7 @@ const Encomendas = () => {
     }
   };
 
-  const handleEdit = (encomenda: any) => {
+  const handleEdit = async (encomenda: any) => {
     setEditingOrder(encomenda);
     setFormData({
       cliente: encomenda.cliente,
@@ -267,6 +325,29 @@ const Encomendas = () => {
     });
     // Carregar o ID da conta a receber vinculada, se existir
     setContaReceberId(encomenda.conta_receber_id || null);
+    
+    // Buscar tags da encomenda
+    try {
+      const { data: tagsData } = await supabase
+        .from('encomendas_tags')
+        .select(`
+          tag_id,
+          tag:tags_encomendas (
+            id,
+            nome,
+            cor
+          )
+        `)
+        .eq('encomenda_id', encomenda.id);
+
+      if (tagsData) {
+        const tagsEncomenda = tagsData.map(t => t.tag).filter(Boolean);
+        setTagsSelecionadas(tagsEncomenda);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar tags da encomenda:', error);
+    }
+    
     setDialogOpen(true);
   };
 
@@ -549,7 +630,10 @@ const Encomendas = () => {
       const matchesDataEntrega = !dataEntregaFilter || e.data_entrega === dataEntregaFilter;
       const matchesHoraEntrega = !horaEntregaFilter || (e.hora_entrega && e.hora_entrega.slice(0, 5) === horaEntregaFilter);
       
-      return matchesStatus && matchesCliente && matchesDataEntrega && matchesHoraEntrega;
+      // Filtro por tag
+      const matchesTag = tagFilter === "todos" || (e.tags && e.tags.some((t: any) => t.id === tagFilter));
+      
+      return matchesStatus && matchesCliente && matchesDataEntrega && matchesHoraEntrega && matchesTag;
     })
     .sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime());
 
@@ -1160,7 +1244,7 @@ const Encomendas = () => {
                   )}
                 </div>
 
-                <div className="space-y-2">
+                 <div className="space-y-2">
                     <Label htmlFor="observacoes">Observações</Label>
                     <Textarea
                       id="observacoes"
@@ -1171,6 +1255,74 @@ const Encomendas = () => {
                       }
                     />
                   </div>
+
+                  {/* Seção de Tags */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base">Tags</CardTitle>
+                      <CardDescription>
+                        Categorize esta encomenda com tags
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {/* Tags Selecionadas */}
+                      {tagsSelecionadas.length > 0 && (
+                        <div className="flex flex-wrap gap-2 p-3 bg-muted rounded-lg">
+                          {tagsSelecionadas.map(tag => (
+                            <Badge
+                              key={tag.id}
+                              style={{ backgroundColor: tag.cor, color: '#fff' }}
+                              className="flex items-center gap-1 pr-1"
+                            >
+                              {tag.nome}
+                              <button
+                                type="button"
+                                onClick={() => setTagsSelecionadas(tagsSelecionadas.filter(t => t.id !== tag.id))}
+                                className="ml-1 hover:bg-white/20 rounded-full p-0.5"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Tags Disponíveis */}
+                      <div>
+                        <Label className="mb-2 block text-sm">Tags Disponíveis:</Label>
+                        <div className="flex flex-wrap gap-2">
+                          {tagsDisponiveis.map(tag => {
+                            const selecionada = tagsSelecionadas.find(t => t.id === tag.id);
+                            return (
+                              <Badge
+                                key={tag.id}
+                                style={{ 
+                                  backgroundColor: selecionada ? tag.cor : 'transparent',
+                                  color: selecionada ? '#fff' : tag.cor,
+                                  borderColor: tag.cor,
+                                }}
+                                className="cursor-pointer border-2 hover:scale-105 transition-transform"
+                                onClick={() => {
+                                  if (selecionada) {
+                                    setTagsSelecionadas(tagsSelecionadas.filter(t => t.id !== tag.id));
+                                  } else {
+                                    setTagsSelecionadas([...tagsSelecionadas, tag]);
+                                  }
+                                }}
+                              >
+                                {tag.nome}
+                              </Badge>
+                            );
+                          })}
+                        </div>
+                        {tagsDisponiveis.length === 0 && (
+                          <p className="text-sm text-muted-foreground">
+                            Nenhuma tag cadastrada. Crie tags em Configurações.
+                          </p>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
 
                   <div className="flex gap-2 justify-end">
                   <Button
@@ -1285,19 +1437,61 @@ const Encomendas = () => {
             </div>
           </div>
 
+          {/* Filtro de Tags */}
+          <div className="mt-4 space-y-2">
+            <Label>Filtrar por Tag</Label>
+            <div className="flex flex-wrap gap-2">
+              {/* Botão "Todos" */}
+              <Badge
+                className={`cursor-pointer ${
+                  tagFilter === 'todos'
+                    ? 'bg-primary text-white'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                }`}
+                onClick={() => setTagFilter('todos')}
+              >
+                Todos
+              </Badge>
+
+              {/* Botões de cada tag */}
+              {tagsDisponiveis.map(tag => (
+                <Badge
+                  key={tag.id}
+                  style={{
+                    backgroundColor: tagFilter === tag.id ? tag.cor : 'transparent',
+                    color: tagFilter === tag.id ? '#fff' : tag.cor,
+                    borderColor: tag.cor,
+                  }}
+                  className="cursor-pointer border-2 hover:scale-105 transition-transform"
+                  onClick={() => setTagFilter(tag.id)}
+                >
+                  {tag.nome}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          {/* Contador de resultados */}
+          {(clienteFilter !== "Todos" || statusFilter !== "Todos" || dataEntregaFilter || horaEntregaFilter || tagFilter !== "todos") && (
+            <div className="mt-4 text-sm text-muted-foreground">
+              Mostrando <strong>{filteredOrders.length}</strong> de <strong>{encomendas.length}</strong> encomenda(s)
+            </div>
+          )}
+
           {/* Botão Limpar Filtros */}
-          {(clienteFilter !== "Todos" || statusFilter !== "Todos" || dataEntregaFilter || horaEntregaFilter) && (
+          {(clienteFilter !== "Todos" || statusFilter !== "Todos" || dataEntregaFilter || horaEntregaFilter || tagFilter !== "todos") && (
             <div className="mt-4">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setClienteFilter("Todos");
-                  setStatusFilter("Todos");
-                  setDataEntregaFilter("");
-                  setHoraEntregaFilter("");
-                }}
-              >
+                setClienteFilter("Todos");
+                setStatusFilter("Todos");
+                setDataEntregaFilter("");
+                setHoraEntregaFilter("");
+                setTagFilter("todos");
+              }}
+            >
                 Limpar Filtros
               </Button>
             </div>
@@ -1329,6 +1523,7 @@ const Encomendas = () => {
                     <TableHead>Data Pedido</TableHead>
                     <TableHead>Data Entrega</TableHead>
                     <TableHead>Hora da Entrega</TableHead>
+                    <TableHead>Tags</TableHead>
                     <TableHead>Valor</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
@@ -1353,6 +1548,26 @@ const Encomendas = () => {
                         )}
                       </TableCell>
                       <TableCell>{encomenda.hora_entrega ? encomenda.hora_entrega.slice(0, 5) : "-"}</TableCell>
+                      
+                      {/* COLUNA DE TAGS */}
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1 max-w-xs">
+                          {encomenda.tags && encomenda.tags.length > 0 ? (
+                            encomenda.tags.map((tag: any) => (
+                              <Badge
+                                key={tag.id}
+                                style={{ backgroundColor: tag.cor, color: '#fff' }}
+                                className="text-xs"
+                              >
+                                {tag.nome}
+                              </Badge>
+                            ))
+                          ) : (
+                            <span className="text-xs text-muted-foreground">-</span>
+                          )}
+                        </div>
+                      </TableCell>
+                      
                       <TableCell>R$ {encomenda.valor.toFixed(2)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex gap-1 justify-end">
