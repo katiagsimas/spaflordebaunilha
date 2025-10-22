@@ -20,7 +20,6 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 interface FormDataFornecedor {
   nome: string;
   tipo: "PF" | "PJ";
-  tipo_fornecedor: "Insumos" | "Embalagens" | "Diversos" | "Papelaria Personalizada" | "Outros";
   cpf_cnpj: string;
   telefone: string;
   email: string;
@@ -40,7 +39,6 @@ export default function Fornecedores() {
   const [formData, setFormData] = useState<FormDataFornecedor>({
     nome: "",
     tipo: "PF",
-    tipo_fornecedor: "Insumos",
     cpf_cnpj: "",
     telefone: "",
     email: "",
@@ -56,7 +54,6 @@ export default function Fornecedores() {
         setFormData({
           nome: fornecedor.nome,
           tipo: (fornecedor.tipo as "PF" | "PJ") || "PF",
-          tipo_fornecedor: (fornecedor.tipo_fornecedor as "Insumos" | "Embalagens" | "Diversos" | "Papelaria Personalizada" | "Outros") || "Insumos",
           cpf_cnpj: fornecedor.cpf_cnpj || "",
           telefone: fornecedor.telefone || "",
           email: fornecedor.email || "",
@@ -88,7 +85,6 @@ export default function Fornecedores() {
     setFormData({
       nome: "",
       tipo: "PF",
-      tipo_fornecedor: "Insumos",
       cpf_cnpj: "",
       telefone: "",
       email: "",
@@ -225,32 +221,6 @@ export default function Fornecedores() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label>O que Fornece *</Label>
-                  <ToggleGroup 
-                    type="single" 
-                    value={formData.tipo_fornecedor}
-                    onValueChange={(value) => value && setFormData({ ...formData, tipo_fornecedor: value as "Insumos" | "Embalagens" | "Diversos" | "Papelaria Personalizada" | "Outros" })}
-                    className="justify-start flex-wrap"
-                  >
-                    <ToggleGroupItem value="Insumos" aria-label="Insumos">
-                      Insumos
-                    </ToggleGroupItem>
-                    <ToggleGroupItem value="Embalagens" aria-label="Embalagens">
-                      Embalagens
-                    </ToggleGroupItem>
-                    <ToggleGroupItem value="Diversos" aria-label="Diversos">
-                      Diversos
-                    </ToggleGroupItem>
-                    <ToggleGroupItem value="Papelaria Personalizada" aria-label="Papelaria Personalizada">
-                      Papelaria Personalizada
-                    </ToggleGroupItem>
-                    <ToggleGroupItem value="Outros" aria-label="Outros">
-                      Outros
-                    </ToggleGroupItem>
-                  </ToggleGroup>
-                </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="telefone">Telefone/WhatsApp</Label>
@@ -334,7 +304,6 @@ export default function Fornecedores() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nome</TableHead>
-                    <TableHead>O que Fornece</TableHead>
                     <TableHead>Tipo</TableHead>
                     <TableHead>CNPJ/CPF</TableHead>
                     <TableHead>Telefone</TableHead>
@@ -347,7 +316,6 @@ export default function Fornecedores() {
                   {fornecedores.map((fornecedor) => (
                     <TableRow key={fornecedor.id}>
                       <TableCell className="font-medium">{fornecedor.nome}</TableCell>
-                      <TableCell>{fornecedor.tipo_fornecedor || "-"}</TableCell>
                       <TableCell>{fornecedor.tipo || "-"}</TableCell>
                       <TableCell>{fornecedor.cpf_cnpj || "-"}</TableCell>
                       <TableCell>{fornecedor.telefone || "-"}</TableCell>
