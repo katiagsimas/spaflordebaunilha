@@ -10,6 +10,10 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useCustosFixos } from "@/hooks/useCustosFixos";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -46,6 +50,9 @@ interface Order {
 
 export function ConfigurarMetasModal({ open, onOpenChange }: ConfigurarMetasModalProps) {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { custosFixos } = useCustosFixos();
+  
   const [config, setConfig] = useLocalStorage("configuracaoPlanejamento", {
     metaFaturamentoMensal: 10000,
     metaFaturamentoAnual: 120000,
@@ -57,8 +64,30 @@ export function ConfigurarMetasModal({ open, onOpenChange }: ConfigurarMetasModa
     custoFixoMensal: 2000,
   });
 
-  const [custosFixos] = useLocalStorage<CustoFixo[]>("custosFixos", []);
-  const [orders] = useLocalStorage<Order[]>("orders", []);
+  // Buscar encomendas do Supabase
+  const { data: encomendasData = [] } = useQuery({
+    queryKey: ['encomendas-metas', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from('encomendas')
+        .select('*')
+        .eq('usuario_id', user.id)
+        .order('data_entrega', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  // Mapear para o formato esperado
+  const orders = encomendasData.map(e => ({
+    id: e.id,
+    total: Number(e.valor),
+    status: e.status === 'entregue' ? 'Entregue' : 'Pendente',
+    deliveryDate: e.data_entrega || '',
+  }));
 
   // Calcular sugestões baseadas no histórico
   const calcularSugestaoFaturamento = () => {

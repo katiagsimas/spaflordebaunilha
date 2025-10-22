@@ -6,7 +6,6 @@ import {
   ArrowDownRight, TrendingDown, Bell, Cake, MessageSquare,
   ChevronRight, Truck, CookingPot
 } from "lucide-react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -62,9 +61,6 @@ interface ContaPagar {
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [orders] = useLocalStorage<Order[]>("orders", []);
-  const [contasReceber] = useLocalStorage<ContaReceber[]>("sugarbox_contas_receber", []);
-  const [contasPagar] = useLocalStorage<ContaPagar[]>("sugarbox_contas_pagar", []);
 
   // Buscar perfil do usuário
   const { data: profile } = useQuery({
@@ -80,6 +76,102 @@ const Dashboard = () => {
     },
     enabled: !!user,
   });
+
+  // Buscar encomendas do Supabase
+  const { data: orders = [] } = useQuery({
+    queryKey: ['encomendas-dashboard', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from('encomendas')
+        .select('*')
+        .eq('usuario_id', user.id)
+        .order('data_entrega', { ascending: true });
+
+      if (error) throw error;
+      
+      // Mapear para o formato esperado pelo Dashboard
+      return (data || []).map(e => ({
+        id: e.id,
+        orderNumber: parseInt(e.id.substring(0, 8), 16), // Simular número de pedido
+        client: e.cliente,
+        product: 'Encomenda', // Simplificado
+        total: Number(e.valor),
+        status: e.status === 'pendente' ? 'Pendente' : 
+                e.status === 'confirmado' ? 'Confirmado' : 
+                e.status === 'producao' ? 'Em Produção' : 
+                e.status === 'pronto' ? 'Pronto' : 
+                e.status === 'entregue' ? 'Concluído' : 'Cancelado',
+        deliveryDate: e.data_entrega || '',
+        createdAt: e.created_at || '',
+      })) as Order[];
+    },
+    enabled: !!user,
+  });
+
+  // Buscar Contas a Receber (parcelas) do Supabase
+  const { data: contasReceberData = [] } = useQuery({
+    queryKey: ['contas-receber-dashboard', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from('contas_receber_parcelas')
+        .select(`
+          *,
+          conta_receber:contas_receber(descricao, usuario_id)
+        `)
+        .eq('conta_receber.usuario_id', user.id)
+        .order('data_vencimento', { ascending: true });
+
+      if (error) throw error;
+      
+      return (data || []).map(p => ({
+        id: p.id,
+        descricao: p.conta_receber?.descricao || 'Sem descrição',
+        valor: Number(p.valor_parcela),
+        dataVencimento: p.data_vencimento,
+        dataRecebimento: p.data_pagamento || undefined,
+        status: p.status === 'aberto' ? 'pendente' : 
+                p.status === 'pago' || p.status === 'adiantado' ? 'pago' : 
+                p.status === 'atrasado' ? 'vencida' : 'pendente',
+      })) as ContaReceber[];
+    },
+    enabled: !!user,
+  });
+
+  const contasReceber = contasReceberData;
+
+  // Buscar Contas a Pagar (parcelas) do Supabase
+  const { data: contasPagarData = [] } = useQuery({
+    queryKey: ['contas-pagar-dashboard', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from('contas_pagar_parcelas')
+        .select(`
+          *,
+          conta_pagar:contas_pagar(descricao, usuario_id)
+        `)
+        .eq('conta_pagar.usuario_id', user.id)
+        .order('data_vencimento', { ascending: true });
+
+      if (error) throw error;
+      
+      return (data || []).map(p => ({
+        id: p.id,
+        descricao: p.conta_pagar?.descricao || 'Sem descrição',
+        valor: Number(p.valor_parcela),
+        dataVencimento: p.data_vencimento,
+        dataPagamento: p.data_pagamento || undefined,
+        status: p.status === 'aberto' ? 'pendente' : 
+                p.status === 'pago' ? 'pago' : 
+                p.status === 'atrasado' ? 'vencida' : 'pendente',
+      })) as ContaPagar[];
+    },
+    enabled: !!user,
+  });
+
+  const contasPagar = contasPagarData;
 
   // Extrair primeiro nome
   const primeiroNome = profile?.nome_completo?.split(' ')[0] || '';

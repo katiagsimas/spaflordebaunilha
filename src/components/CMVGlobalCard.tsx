@@ -5,7 +5,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useCustosFixos } from "@/hooks/useCustosFixos";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Order {
   id: string;
@@ -51,8 +54,34 @@ interface CMVData {
 
 export function CMVGlobalCard() {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [orders] = useLocalStorage<Order[]>("orders", []);
-  const [custosFixos] = useLocalStorage<CustoFixo[]>("custosFixos", []);
+  const { user } = useAuth();
+  const { custosFixos } = useCustosFixos();
+
+  // Buscar encomendas do Supabase
+  const { data: encomendasData = [] } = useQuery({
+    queryKey: ['encomendas-cmv', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from('encomendas')
+        .select('*')
+        .eq('usuario_id', user.id)
+        .eq('status', 'entregue')
+        .order('data_entrega', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  // Mapear para o formato esperado
+  const orders = encomendasData.map(e => ({
+    id: e.id,
+    total: Number(e.valor),
+    status: "Entregue",
+    deliveryDate: e.data_entrega || '',
+  }));
 
   // Calcular CMV do mês atual
   const hoje = new Date();
