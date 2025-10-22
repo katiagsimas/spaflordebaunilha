@@ -1667,6 +1667,7 @@ export type Database = {
           ativo: boolean | null
           codigo: string | null
           created_at: string
+          e_padrao: boolean | null
           id: string
           nome: string
           sigla: string
@@ -1677,6 +1678,7 @@ export type Database = {
           ativo?: boolean | null
           codigo?: string | null
           created_at?: string
+          e_padrao?: boolean | null
           id?: string
           nome: string
           sigla: string
@@ -1687,6 +1689,7 @@ export type Database = {
           ativo?: boolean | null
           codigo?: string | null
           created_at?: string
+          e_padrao?: boolean | null
           id?: string
           nome?: string
           sigla?: string
@@ -1885,6 +1888,10 @@ export type Database = {
         Returns: undefined
       }
       criar_tipos_documentos_padrao: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
+      criar_unidades_medida_padrao: {
         Args: { p_user_id: string }
         Returns: undefined
       }

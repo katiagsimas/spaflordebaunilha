@@ -10,6 +10,7 @@ export interface UnidadeMedida {
   sigla: string;
   codigo?: string;
   ativo?: boolean;
+  e_padrao?: boolean;
   created_at?: string;
   updated_at?: string;
 }
@@ -79,9 +80,12 @@ export function useUnidadesMedida() {
     if (!user) return;
     
     try {
-      const unidadesComUsuario = UNIDADES_PADRAO.map(u => ({
+      const unidadesComUsuario = UNIDADES_PADRAO.map((u, index) => ({
         ...u,
-        usuario_id: user.id
+        usuario_id: user.id,
+        codigo: (index + 1).toString().padStart(3, '0'),
+        e_padrao: true,
+        ativo: true
       }));
 
       const { data, error } = await supabase
@@ -116,6 +120,12 @@ export function useUnidadesMedida() {
   const toggleAtivo = async (id: string, ativo: boolean) => {
     if (!user) throw new Error('Usuário não autenticado');
 
+    // Verificar se é uma unidade padrão
+    const unidade = unidades.find(u => u.id === id);
+    if (unidade?.e_padrao && !ativo) {
+      throw new Error('Não é possível desabilitar unidades padrão do sistema');
+    }
+
     const { data, error } = await supabase
       .from('unidades_medida')
       .update({ ativo })
@@ -132,6 +142,14 @@ export function useUnidadesMedida() {
 
   const updateUnidade = async (id: string, updates: Partial<UnidadeMedida>) => {
     if (!user) throw new Error('Usuário não autenticado');
+
+    // Verificar se é uma unidade padrão
+    const unidade = unidades.find(u => u.id === id);
+    if (unidade?.e_padrao) {
+      // Permitir apenas atualizar sigla das unidades padrão
+      const { e_padrao, nome, ativo, ...allowedUpdates } = updates;
+      updates = allowedUpdates;
+    }
 
     const { data, error } = await supabase
       .from('unidades_medida')

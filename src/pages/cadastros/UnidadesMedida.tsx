@@ -72,6 +72,12 @@ export default function UnidadesMedida() {
   };
 
   const handleToggleAtivo = async (unidade: UnidadeMedida) => {
+    // Impedir desabilitar unidades padrão
+    if (unidade.e_padrao && unidade.ativo !== false) {
+      toast.error('Não é possível desabilitar unidades padrão do sistema');
+      return;
+    }
+
     const novoStatus = !unidade.ativo;
     
     if (!novoStatus) {
@@ -88,8 +94,8 @@ export default function UnidadesMedida() {
 
     try {
       await toggleAtivo(unidade.id, novoStatus);
-    } catch (error) {
-      console.error('Erro ao alterar status:', error);
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao alterar status');
     }
   };
 
@@ -151,7 +157,13 @@ export default function UnidadesMedida() {
                     onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                     placeholder="Ex: Gramas, Litros, Unidades"
                     required
+                    disabled={editingUnidade?.e_padrao}
                   />
+                  {editingUnidade?.e_padrao && (
+                    <p className="text-xs text-muted-foreground">
+                      ⚠️ O nome de unidades padrão não pode ser alterado
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="sigla">Sigla *</Label>
@@ -200,7 +212,16 @@ export default function UnidadesMedida() {
                       key={unidade.id}
                       className={unidade.ativo === false ? 'opacity-50 bg-muted/30' : ''}
                     >
-                      <TableCell className="font-medium">{unidade.nome}</TableCell>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          {unidade.nome}
+                          {unidade.e_padrao && (
+                            <Badge variant="secondary" className="text-xs">
+                              ⭐ Padrão
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell>{unidade.sigla}</TableCell>
                       <TableCell>
                         {unidade.ativo !== false ? (
@@ -228,7 +249,9 @@ export default function UnidadesMedida() {
                               variant="ghost"
                               size="icon"
                               onClick={() => handleToggleAtivo(unidade)}
-                              title="Desabilitar"
+                              title={unidade.e_padrao ? "Unidades padrão não podem ser desabilitadas" : "Desabilitar"}
+                              disabled={unidade.e_padrao}
+                              className={unidade.e_padrao ? 'opacity-50 cursor-not-allowed' : ''}
                             >
                               <Ban className="h-4 w-4 text-orange-500" />
                             </Button>
