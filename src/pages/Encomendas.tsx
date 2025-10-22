@@ -53,6 +53,9 @@ const Encomendas = () => {
   const [editingOrder, setEditingOrder] = useState<any | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("Todos");
+  const [clienteFilter, setClienteFilter] = useState("Todos");
+  const [dataEntregaFilter, setDataEntregaFilter] = useState("");
+  const [horaEntregaFilter, setHoraEntregaFilter] = useState("");
   const [modalPagamentoAberto, setModalPagamentoAberto] = useState(false);
   const [contaReceberId, setContaReceberId] = useState<string | null>(null);
   const [planoContasVendaId, setPlanoContasVendaId] = useState<string>('');
@@ -519,9 +522,16 @@ const Encomendas = () => {
     .filter(e => {
       const matchesSearch = e.cliente.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === "Todos" || e.status === statusFilter.toLowerCase().replace(" ", "_");
-      return matchesSearch && matchesStatus;
+      const matchesCliente = clienteFilter === "Todos" || e.cliente === clienteFilter;
+      const matchesDataEntrega = !dataEntregaFilter || e.data_entrega === dataEntregaFilter;
+      const matchesHoraEntrega = !horaEntregaFilter || (e.hora_entrega && e.hora_entrega.slice(0, 5) === horaEntregaFilter);
+      
+      return matchesSearch && matchesStatus && matchesCliente && matchesDataEntrega && matchesHoraEntrega;
     })
     .sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime());
+
+  // Lista de clientes únicos que possuem encomendas
+  const clientesComEncomendas = Array.from(new Set(encomendas.map(e => e.cliente))).sort();
 
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -1182,6 +1192,95 @@ const Encomendas = () => {
         })}
       </div>
 
+      {/* Filtros */}
+      <Card className="shadow-soft">
+        <CardHeader>
+          <CardTitle>Filtros</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Filtro de Cliente */}
+            <div className="space-y-2">
+              <Label htmlFor="filtro-cliente">Cliente</Label>
+              <Select value={clienteFilter} onValueChange={setClienteFilter}>
+                <SelectTrigger id="filtro-cliente" className="bg-popover">
+                  <SelectValue placeholder="Todos os clientes" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  <SelectItem value="Todos">Todos os clientes</SelectItem>
+                  {clientesComEncomendas.map((cliente) => (
+                    <SelectItem key={cliente} value={cliente}>
+                      {cliente}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Filtro de Status */}
+            <div className="space-y-2">
+              <Label htmlFor="filtro-status">Status</Label>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger id="filtro-status" className="bg-popover">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  <SelectItem value="Todos">Todos</SelectItem>
+                  <SelectItem value="Pendente">Pendente</SelectItem>
+                  <SelectItem value="Confirmado">Confirmado</SelectItem>
+                  <SelectItem value="Em Produção">Em Produção</SelectItem>
+                  <SelectItem value="Pronto">Pronto</SelectItem>
+                  <SelectItem value="Entregue">Entregue</SelectItem>
+                  <SelectItem value="Cancelado">Cancelado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Filtro de Data da Entrega */}
+            <div className="space-y-2">
+              <Label htmlFor="filtro-data-entrega">Data da Entrega</Label>
+              <Input
+                id="filtro-data-entrega"
+                type="date"
+                value={dataEntregaFilter}
+                onChange={(e) => setDataEntregaFilter(e.target.value)}
+                className="bg-popover"
+              />
+            </div>
+
+            {/* Filtro de Hora da Entrega */}
+            <div className="space-y-2">
+              <Label htmlFor="filtro-hora-entrega">Hora da Entrega</Label>
+              <Input
+                id="filtro-hora-entrega"
+                type="time"
+                value={horaEntregaFilter}
+                onChange={(e) => setHoraEntregaFilter(e.target.value)}
+                className="bg-popover"
+              />
+            </div>
+          </div>
+
+          {/* Botão Limpar Filtros */}
+          {(clienteFilter !== "Todos" || statusFilter !== "Todos" || dataEntregaFilter || horaEntregaFilter) && (
+            <div className="mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setClienteFilter("Todos");
+                  setStatusFilter("Todos");
+                  setDataEntregaFilter("");
+                  setHoraEntregaFilter("");
+                }}
+              >
+                Limpar Filtros
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       <Card className="shadow-soft">
         <CardHeader>
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -1196,20 +1295,6 @@ const Encomendas = () => {
                   className="pl-9 w-full sm:w-64"
                 />
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-40 bg-popover">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-popover z-50">
-                  <SelectItem value="Todos">Todos</SelectItem>
-                  <SelectItem value="Pendente">Pendente</SelectItem>
-                  <SelectItem value="Confirmado">Confirmado</SelectItem>
-                  <SelectItem value="Em Produção">Em Produção</SelectItem>
-                  <SelectItem value="Pronto">Pronto</SelectItem>
-                  <SelectItem value="Entregue">Entregue</SelectItem>
-                  <SelectItem value="Cancelado">Cancelado</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </div>
         </CardHeader>
