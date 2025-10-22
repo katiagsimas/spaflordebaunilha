@@ -522,6 +522,7 @@ export default function ContasReceberFormModal({
                     </td>
                     <td className="p-2 text-right">
                       <Input
+                        type="text"
                         placeholder="0,00"
                         value={parcela.valor_parcela.toFixed(2).replace('.', ',')}
                         onChange={(e) => {
@@ -533,9 +534,13 @@ export default function ContasReceberFormModal({
                           if (partes.length > 2) {
                             valor = partes[0] + ',' + partes.slice(1).join('');
                           }
+                          // Limitar casas decimais a 2
+                          if (partes[1] && partes[1].length > 2) {
+                            valor = partes[0] + ',' + partes[1].substring(0, 2);
+                          }
                           handleEditarParcela(index, 'valor_parcela', valor);
                         }}
-                        className="w-32 text-right ml-auto"
+                        className="w-40 text-right ml-auto"
                       />
                     </td>
                   </tr>
