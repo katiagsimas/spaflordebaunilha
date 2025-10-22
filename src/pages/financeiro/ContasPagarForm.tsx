@@ -13,17 +13,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
+import { FornecedorFormDialog } from '@/components/FornecedorFormDialog';
 import { ArrowLeft, Plus, Info } from 'lucide-react';
 
 export default function ContasPagarForm() {
@@ -53,11 +46,6 @@ export default function ContasPagarForm() {
 
   // Modal cadastro de fornecedor
   const [modalFornecedor, setModalFornecedor] = useState(false);
-  const [novoFornecedorNome, setNovoFornecedorNome] = useState('');
-  const [novoFornecedorCpfCnpj, setNovoFornecedorCpfCnpj] = useState('');
-  const [novoFornecedorEmail, setNovoFornecedorEmail] = useState('');
-  const [novoFornecedorTelefone, setNovoFornecedorTelefone] = useState('');
-
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -166,17 +154,8 @@ export default function ContasPagarForm() {
     }
   };
 
-  const handleCriarFornecedor = async () => {
+  const handleCriarFornecedor = async (formData: any) => {
     try {
-      if (!novoFornecedorNome.trim()) {
-        toast({
-          title: 'Erro',
-          description: 'Informe o nome do fornecedor!',
-          variant: 'destructive',
-        });
-        return;
-      }
-
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Não autenticado');
 
@@ -184,10 +163,15 @@ export default function ContasPagarForm() {
         .from('fornecedores' as any)
         .insert({
           usuario_id: user.id,
-          nome: novoFornecedorNome.trim(),
-          cpf_cnpj: novoFornecedorCpfCnpj.trim() || null,
-          email: novoFornecedorEmail.trim() || null,
-          telefone: novoFornecedorTelefone.trim() || null,
+          nome: formData.nome,
+          tipo: formData.tipo,
+          tipo_fornecedor: formData.tipo_fornecedor,
+          cpf_cnpj: formData.cpf_cnpj || null,
+          telefone: formData.telefone || null,
+          email: formData.email || null,
+          contato: formData.contato || null,
+          data_aniversario_contato: formData.data_aniversario_contato || null,
+          observacoes: formData.observacoes || null,
         })
         .select()
         .single();
@@ -205,12 +189,6 @@ export default function ContasPagarForm() {
       setFornecedores([...fornecedores, { id: fornecedor.id, nome: fornecedor.nome }]);
       setFornecedorId(fornecedor.id);
       setModalFornecedor(false);
-      
-      // Limpar campos
-      setNovoFornecedorNome('');
-      setNovoFornecedorCpfCnpj('');
-      setNovoFornecedorEmail('');
-      setNovoFornecedorTelefone('');
     } catch (error: any) {
       console.error('Erro ao criar fornecedor:', error);
       toast({
@@ -218,6 +196,7 @@ export default function ContasPagarForm() {
         description: error.message,
         variant: 'destructive',
       });
+      throw error;
     }
   };
 
@@ -674,63 +653,12 @@ export default function ContasPagarForm() {
       </div>
 
       {/* Modal Novo Fornecedor */}
-      <Dialog open={modalFornecedor} onOpenChange={setModalFornecedor}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Novo Fornecedor</DialogTitle>
-            <DialogDescription>
-              Cadastre um novo fornecedor rapidamente
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="fornecedor-nome">Nome *</Label>
-              <Input
-                id="fornecedor-nome"
-                placeholder="Nome do fornecedor"
-                value={novoFornecedorNome}
-                onChange={(e) => setNovoFornecedorNome(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="fornecedor-cpfcnpj">CPF/CNPJ</Label>
-              <Input
-                id="fornecedor-cpfcnpj"
-                placeholder="000.000.000-00"
-                value={novoFornecedorCpfCnpj}
-                onChange={(e) => setNovoFornecedorCpfCnpj(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="fornecedor-telefone">Telefone</Label>
-              <Input
-                id="fornecedor-telefone"
-                placeholder="(00) 00000-0000"
-                value={novoFornecedorTelefone}
-                onChange={(e) => setNovoFornecedorTelefone(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="fornecedor-email">E-mail</Label>
-              <Input
-                id="fornecedor-email"
-                type="email"
-                placeholder="fornecedor@email.com"
-                value={novoFornecedorEmail}
-                onChange={(e) => setNovoFornecedorEmail(e.target.value)}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setModalFornecedor(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleCriarFornecedor}>
-              Criar Fornecedor
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <FornecedorFormDialog
+        open={modalFornecedor}
+        onOpenChange={setModalFornecedor}
+        onSubmit={handleCriarFornecedor}
+        loading={loading}
+      />
     </div>
   );
 }
