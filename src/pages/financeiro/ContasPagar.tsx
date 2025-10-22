@@ -102,10 +102,16 @@ export default function ContasPagar() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // Buscar todas as parcelas das contas do usuário
       const { data } = await supabase
         .from('contas_pagar_parcelas' as any)
-        .select('*')
-        .eq('conta_pagar_id', user.id) as any;
+        .select(`
+          *,
+          conta:contas_pagar!inner (
+            usuario_id
+          )
+        `)
+        .eq('conta.usuario_id', user.id) as any;
 
       // Calcular totais manualmente
       let totalAPagar = 0;
@@ -156,12 +162,11 @@ export default function ContasPagar() {
             id,
             fornecedor_id,
             tipo_documento_id,
-            plano_conta_id,
+            plano_contas_id,
             banco_id,
             tipo_lancamento,
             numero_parcelas,
             descricao,
-            numero_documento,
             usuario_id,
             fornecedor:fornecedores (
               nome
@@ -169,7 +174,7 @@ export default function ContasPagar() {
             tipo_documento:tipos_documento (
               descricao
             ),
-            plano_conta:plano_contas (
+            plano_contas:plano_contas (
               codigo_estruturado,
               descricao,
               categoria_id
@@ -190,14 +195,13 @@ export default function ContasPagar() {
         ...p,
         fornecedor_nome: p.conta?.fornecedor?.nome,
         tipo_documento_descricao: p.conta?.tipo_documento?.descricao,
-        plano_contas_codigo: p.conta?.plano_conta?.codigo_estruturado,
-        plano_contas_descricao: p.conta?.plano_conta?.descricao,
-        plano_contas_categoria_id: p.conta?.plano_conta?.categoria_id,
+        plano_contas_codigo: p.conta?.plano_contas?.codigo_estruturado,
+        plano_contas_descricao: p.conta?.plano_contas?.descricao,
+        plano_contas_categoria_id: p.conta?.plano_contas?.categoria_id,
         banco_codigo: p.conta?.banco?.codigo,
         banco_nome: p.conta?.banco?.nome,
         numero_parcelas: p.conta?.numero_parcelas,
         descricao_conta: p.conta?.descricao,
-        numero_documento: p.conta?.numero_documento,
       }));
 
       setParcelas(parcelasProcessadas);
