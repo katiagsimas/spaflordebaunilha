@@ -33,6 +33,13 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Trash2, Upload, X, Info, ArrowLeft } from 'lucide-react';
@@ -55,6 +62,17 @@ export default function PrePreparoForm() {
   const [ingredientesSelecionados, setIngredientesSelecionados] = useState<any[]>([]);
   const [ingredientesDisponiveis, setIngredientesDisponiveis] = useState<any[]>([]);
   const [popoverAberto, setPopoverAberto] = useState(false);
+  const [termoBuscaIngrediente, setTermoBuscaIngrediente] = useState('');
+  
+  // Modais de cadastro em cadeia
+  const [modalCriarTipoAberto, setModalCriarTipoAberto] = useState(false);
+  const [modalCriarIngredienteAberto, setModalCriarIngredienteAberto] = useState(false);
+  const [novoTipoDescricao, setNovoTipoDescricao] = useState('');
+  const [novoTipoQuantidade, setNovoTipoQuantidade] = useState('');
+  const [novoTipoUnidadeId, setNovoTipoUnidadeId] = useState('');
+  const [novoIngredienteMarca, setNovoIngredienteMarca] = useState('');
+  const [novoIngredientePreco, setNovoIngredientePreco] = useState('');
+  const [tipoRecemCriado, setTipoRecemCriado] = useState<any>(null);
 
   // Unidades
   const [unidades, setUnidades] = useState<any[]>([]);
@@ -817,8 +835,33 @@ export default function PrePreparoForm() {
               </PopoverTrigger>
               <PopoverContent className="w-full p-0">
                 <Command>
-                  <CommandInput placeholder="Buscar ingrediente..." />
-                  <CommandEmpty>Nenhum ingrediente encontrado.</CommandEmpty>
+                  <CommandInput 
+                    placeholder="Buscar ingrediente..." 
+                    value={termoBuscaIngrediente}
+                    onValueChange={setTermoBuscaIngrediente}
+                  />
+                  <CommandEmpty>
+                    <div className="flex flex-col items-center gap-2 py-4">
+                      <p className="text-sm text-muted-foreground">
+                        Nenhum ingrediente encontrado
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setNovoTipoDescricao(termoBuscaIngrediente);
+                          setNovoTipoQuantidade('');
+                          setNovoTipoUnidadeId('');
+                          setModalCriarTipoAberto(true);
+                          setPopoverAberto(false);
+                        }}
+                        className="gap-2"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Cadastrar novo ingrediente
+                      </Button>
+                    </div>
+                  </CommandEmpty>
                   <CommandGroup className="max-h-64 overflow-auto">
                     {ingredientesDisponiveis.map(ingrediente => (
                       <CommandItem
@@ -984,6 +1027,255 @@ export default function PrePreparoForm() {
           </Button>
         </div>
       </div>
+
+      {/* Dialog - Criar Tipo de Insumo */}
+      <Dialog open={modalCriarTipoAberto} onOpenChange={setModalCriarTipoAberto}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Novo Tipo de Ingrediente</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Descrição *</Label>
+              <Input
+                value={novoTipoDescricao}
+                onChange={(e) => setNovoTipoDescricao(e.target.value)}
+                placeholder="Ex: Farinha de Trigo"
+                autoFocus
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Quantidade *</Label>
+                <Input
+                  type="text"
+                  value={novoTipoQuantidade}
+                  onChange={(e) => {
+                    const valor = e.target.value.replace(/[^\d,]/g, '');
+                    setNovoTipoQuantidade(valor);
+                  }}
+                  placeholder="Ex: 1"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Unidade *</Label>
+                <Select value={novoTipoUnidadeId} onValueChange={setNovoTipoUnidadeId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {unidades.map(unidade => (
+                      <SelectItem key={unidade.id} value={unidade.id}>
+                        {unidade.nome} ({unidade.sigla})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setModalCriarTipoAberto(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={async () => {
+              try {
+                if (!novoTipoDescricao.trim() || !novoTipoQuantidade || !novoTipoUnidadeId) {
+                  toast({
+                    title: 'Erro',
+                    description: 'Preencha todos os campos!',
+                    variant: 'destructive',
+                  });
+                  return;
+                }
+
+                const qtd = parseFloat(novoTipoQuantidade.replace(',', '.'));
+                if (qtd <= 0) {
+                  toast({
+                    title: 'Erro',
+                    description: 'Quantidade deve ser maior que zero!',
+                    variant: 'destructive',
+                  });
+                  return;
+                }
+
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) throw new Error('Não autenticado');
+
+                const { data, error } = await supabase
+                  .from('tipos_insumos')
+                  .insert({
+                    usuario_id: user.id,
+                    tipo: 'ingrediente',
+                    descricao: novoTipoDescricao.trim(),
+                    quantidade_embalagem: qtd,
+                    unidade_medida_id: novoTipoUnidadeId,
+                  })
+                  .select(`
+                    id,
+                    descricao,
+                    quantidade_embalagem,
+                    unidade_medida:unidades_medida (
+                      id,
+                      nome,
+                      sigla
+                    )
+                  `)
+                  .single();
+
+                if (error) {
+                  if (error.code === '23505') {
+                    throw new Error('Este tipo já foi cadastrado!');
+                  }
+                  throw error;
+                }
+
+                toast({
+                  title: '✅ Tipo cadastrado',
+                  description: 'Agora vamos cadastrar o ingrediente!',
+                });
+
+                // Armazenar tipo recém-criado e abrir modal de ingrediente
+                setTipoRecemCriado(data);
+                setModalCriarTipoAberto(false);
+                setNovoIngredienteMarca('');
+                setNovoIngredientePreco('');
+                setModalCriarIngredienteAberto(true);
+
+              } catch (error: any) {
+                console.error('Erro ao criar tipo:', error);
+                toast({
+                  title: 'Erro ao criar tipo',
+                  description: error.message,
+                  variant: 'destructive',
+                });
+              }
+            }}>
+              Próximo: Cadastrar Ingrediente
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog - Criar Ingrediente */}
+      <Dialog open={modalCriarIngredienteAberto} onOpenChange={setModalCriarIngredienteAberto}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Novo Ingrediente</DialogTitle>
+            {tipoRecemCriado && (
+              <p className="text-sm text-muted-foreground">
+                Tipo: {tipoRecemCriado.descricao} - {tipoRecemCriado.quantidade_embalagem} {tipoRecemCriado.unidade_medida?.sigla}
+              </p>
+            )}
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Marca</Label>
+              <Input
+                value={novoIngredienteMarca}
+                onChange={(e) => setNovoIngredienteMarca(e.target.value)}
+                placeholder="Ex: Dona Benta"
+                autoFocus
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Preço *</Label>
+              <Input
+                type="text"
+                value={novoIngredientePreco}
+                onChange={(e) => {
+                  const valor = e.target.value.replace(/[^\d,]/g, '');
+                  setNovoIngredientePreco(valor);
+                }}
+                placeholder="Ex: 15,90"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setModalCriarIngredienteAberto(false);
+              setTipoRecemCriado(null);
+            }}>
+              Cancelar
+            </Button>
+            <Button onClick={async () => {
+              try {
+                if (!tipoRecemCriado) {
+                  throw new Error('Tipo não encontrado');
+                }
+
+                const precoNum = parseFloat(novoIngredientePreco.replace(',', '.'));
+                if (!precoNum || precoNum <= 0) {
+                  toast({
+                    title: 'Erro',
+                    description: 'Informe um preço válido!',
+                    variant: 'destructive',
+                  });
+                  return;
+                }
+
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) throw new Error('Não autenticado');
+
+                const { data, error } = await supabase
+                  .from('ingredientes')
+                  .insert({
+                    usuario_id: user.id,
+                    tipo_insumo_id: tipoRecemCriado.id,
+                    marca: novoIngredienteMarca.trim() || null,
+                    preco: precoNum,
+                    data_atualizacao: new Date().toISOString().split('T')[0],
+                  })
+                  .select(`
+                    *,
+                    tipo_insumo:tipos_insumos (
+                      descricao,
+                      quantidade_embalagem,
+                      unidade_medida:unidades_medida (
+                        nome,
+                        sigla
+                      )
+                    )
+                  `)
+                  .single();
+
+                if (error) {
+                  if (error.code === '23505') {
+                    throw new Error('Este ingrediente já foi cadastrado!');
+                  }
+                  throw error;
+                }
+
+                toast({
+                  title: '✅ Ingrediente cadastrado',
+                  description: 'Ingrediente adicionado com sucesso!',
+                });
+
+                // Recarregar ingredientes e adicionar automaticamente
+                await fetchIngredientes();
+                if (data) {
+                  handleAdicionarIngrediente(data);
+                }
+
+                // Fechar modal e limpar
+                setModalCriarIngredienteAberto(false);
+                setTipoRecemCriado(null);
+                setTermoBuscaIngrediente('');
+
+              } catch (error: any) {
+                console.error('Erro ao criar ingrediente:', error);
+                toast({
+                  title: 'Erro ao criar ingrediente',
+                  description: error.message,
+                  variant: 'destructive',
+                });
+              }
+            }}>
+              Cadastrar e Adicionar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
