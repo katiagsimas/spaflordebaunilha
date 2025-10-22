@@ -22,7 +22,7 @@ const opcoes = [
     icon: Ruler,
     url: "/configuracoes/unidades-medida",
     color: "text-purple-600 bg-purple-50 dark:bg-purple-950",
-    statusKey: "unidadesMedida" as const,
+    statusKey: null,
     requiresAdmin: false,
   },
   {
@@ -40,7 +40,7 @@ const opcoes = [
     icon: Tag,
     url: "/configuracoes/categorias-receitas",
     color: "text-cyan-600 bg-cyan-50 dark:bg-cyan-950",
-    statusKey: "categorias" as const,
+    statusKey: null,
     requiresAdmin: false,
   },
   {
@@ -189,13 +189,7 @@ export default function Configuracoes() {
                   {opcao.description}
                 </CardDescription>
                 <div className="pt-1">
-                  {isRestricted ? (
-                    <Badge variant="secondary" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                      👁️ Somente Visualização
-                    </Badge>
-                  ) : (
-                    getStatusBadge(opcao)
-                  )}
+                  {opcao.title === "Dados da Confeitaria" && getStatusBadge(opcao)}
                 </div>
               </CardHeader>
             </Card>
