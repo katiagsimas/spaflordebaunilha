@@ -886,7 +886,7 @@ const Encomendas = () => {
                           </CardContent>
                         </Card>
 
-                        {/* Card de Upload de Imagens - Até 3 imagens */}
+                      {/* Card de Upload de Imagens - Até 3 imagens */}
                         <Card className="border-l-4 border-l-pink-500 bg-pink-50/50 dark:bg-pink-950/20">
                           <CardContent className="p-4">
                             <h4 className="text-sm font-semibold text-pink-800 dark:text-pink-200 mb-3">
@@ -943,6 +943,29 @@ const Encomendas = () => {
                             </div>
                           </CardContent>
                         </Card>
+                      </div>
+
+                      {/* Botões de Valor a Pagar e Pagamento */}
+                      <div className="grid grid-cols-2 gap-3 mt-4">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="h-auto py-4 flex-col items-start border-2 border-primary/20 hover:border-primary/40 bg-primary/5 hover:bg-primary/10"
+                        >
+                          <span className="text-xs text-muted-foreground mb-1">Valor a Pagar</span>
+                          <span className="text-2xl font-bold text-primary">
+                            R$ {valorFinal.toFixed(2)}
+                          </span>
+                        </Button>
+                        
+                        <Button
+                          type="button"
+                          variant="default"
+                          className="h-auto py-4 flex items-center justify-center gap-2"
+                        >
+                          <DollarSign className="h-5 w-5" />
+                          <span className="text-lg font-semibold">Pagamento</span>
+                        </Button>
                       </div>
                     </div>
                   )}
