@@ -893,7 +893,7 @@ export default function ContasReceber() {
       </Collapsible>
 
       {/* Contador de Parcelas com Cards de Visualização */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center gap-4">
         <div className="text-sm text-muted-foreground">
           Mostrando <strong>{parcelasFiltradas.length}</strong> de <strong>{parcelas.length}</strong> parcela(s)
         </div>
