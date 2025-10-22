@@ -492,7 +492,7 @@ const Encomendas = () => {
       const primeiraParcela = parcelas[0];
 
       // Navegar para a página de detalhes com a parcela selecionada
-      navigate(`/financeiro/contas-receber/${encomenda.conta_receber_id}`, {
+      navigate(`/financeiro/contas-receber/detalhes/${encomenda.conta_receber_id}`, {
         state: { 
           parcelaId: primeiraParcela.id,
           voltarPara: '/encomendas',
