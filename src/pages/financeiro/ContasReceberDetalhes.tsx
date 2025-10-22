@@ -169,7 +169,13 @@ export default function ContasReceberDetalhes() {
 
   const calcularTotais = () => {
     const totalSomaParcelas = parcelas.reduce((acc, p) => acc + (p.valor_parcela || 0), 0);
-    const totalPago = parcelas.reduce((acc, p) => acc + (p.valor_pago || 0), 0);
+    
+    // Total Pago = soma APENAS dos valores pagos (sem juros/descontos)
+    const totalPago = pagamentos.reduce((acc, p) => {
+      if (p.estornado) return acc; // Ignorar pagamentos estornados
+      return acc + (parseFloat(p.valor_pago) || 0);
+    }, 0);
+    
     const totalAberto = totalSomaParcelas - totalPago;
     const parcelasPagas = parcelas.filter(p => p.status === 'pago' || p.status === 'adiantado').length;
     const parcelasAbertas = parcelas.filter(p => p.status === 'aberto' || p.status === 'atrasado').length;
@@ -549,8 +555,9 @@ export default function ContasReceberDetalhes() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Parcela</TableHead>
+                  <TableHead>Tipo</TableHead>
                   <TableHead>Data Pagamento</TableHead>
-                  <TableHead className="text-right">Valor Pago</TableHead>
+                  <TableHead className="text-right">Valor</TableHead>
                   <TableHead>Banco</TableHead>
                   <TableHead>Tipo Documento</TableHead>
                   <TableHead>Observação</TableHead>
@@ -559,36 +566,132 @@ export default function ContasReceberDetalhes() {
               <TableBody>
                 {pagamentos.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                       Nenhum pagamento registrado ainda. Use "Dar Baixa" nas parcelas para registrar pagamentos.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  pagamentos.map((pagamento) => {
-                    const parcela = parcelas.find(p => p.id === pagamento.parcela_id);
-                    if (!pagamento || !parcela) return null;
-                    
-                    return (
-                      <TableRow key={pagamento.id}>
-                        <TableCell className="font-medium">
-                          {parcela.numero_parcela}/{conta.numero_parcelas || 1}
-                        </TableCell>
-                        <TableCell>{formatarData(pagamento.data_pagamento)}</TableCell>
-                        <TableCell className="text-right font-semibold text-green-600">
-                          {formatarValor(Number(pagamento.valor_pago))}
-                        </TableCell>
-                        <TableCell>{pagamento.banco?.nome || '-'}</TableCell>
-                        <TableCell>{pagamento.tipo_documento?.descricao || '-'}</TableCell>
-                        <TableCell className="max-w-[200px] truncate">
-                          {pagamento.observacao || '-'}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
+                  <>
+                    {pagamentos.map((pagamento) => {
+                      const parcela = parcelas.find(p => p.id === pagamento.parcela_id);
+                      if (!pagamento || !parcela) return null;
+                      
+                      const linhas = [];
+                      
+                      // Linha principal - Valor Pago
+                      linhas.push(
+                        <TableRow key={`${pagamento.id}-principal`}>
+                          <TableCell className="font-medium">
+                            {parcela.numero_parcela}/{conta.numero_parcelas || 1}
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-100 text-green-700 border-green-300">
+                              Pagamento
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{formatarData(pagamento.data_pagamento)}</TableCell>
+                          <TableCell className="text-right font-semibold text-green-600">
+                            {formatarValor(Number(pagamento.valor_pago))}
+                          </TableCell>
+                          <TableCell>{pagamento.banco?.nome || '-'}</TableCell>
+                          <TableCell>{pagamento.tipo_documento?.descricao || '-'}</TableCell>
+                          <TableCell className="max-w-[200px] truncate">
+                            {pagamento.observacao || '-'}
+                          </TableCell>
+                        </TableRow>
+                      );
+                      
+                      // Linha de Juros (se houver)
+                      if (pagamento.juros && Number(pagamento.juros) > 0) {
+                        linhas.push(
+                          <TableRow key={`${pagamento.id}-juros`} className="bg-red-50/50">
+                            <TableCell className="font-medium text-muted-foreground">
+                              {parcela.numero_parcela}/{conta.numero_parcelas || 1}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className="bg-red-100 text-red-700 border-red-300">
+                                Juros
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{formatarData(pagamento.data_pagamento)}</TableCell>
+                            <TableCell className="text-right font-semibold text-red-600">
+                              + {formatarValor(Number(pagamento.juros))}
+                            </TableCell>
+                            <TableCell>{pagamento.banco?.nome || '-'}</TableCell>
+                            <TableCell>{pagamento.tipo_documento?.descricao || '-'}</TableCell>
+                            <TableCell className="text-xs text-muted-foreground">
+                              Juros por atraso
+                            </TableCell>
+                          </TableRow>
+                        );
+                      }
+                      
+                      // Linha de Desconto (se houver)
+                      if (pagamento.desconto && Number(pagamento.desconto) > 0) {
+                        linhas.push(
+                          <TableRow key={`${pagamento.id}-desconto`} className="bg-blue-50/50">
+                            <TableCell className="font-medium text-muted-foreground">
+                              {parcela.numero_parcela}/{conta.numero_parcelas || 1}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300">
+                                Desconto
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{formatarData(pagamento.data_pagamento)}</TableCell>
+                            <TableCell className="text-right font-semibold text-blue-600">
+                              - {formatarValor(Number(pagamento.desconto))}
+                            </TableCell>
+                            <TableCell>{pagamento.banco?.nome || '-'}</TableCell>
+                            <TableCell>{pagamento.tipo_documento?.descricao || '-'}</TableCell>
+                            <TableCell className="text-xs text-muted-foreground">
+                              Desconto concedido
+                            </TableCell>
+                          </TableRow>
+                        );
+                      }
+                      
+                      return linhas;
+                    })}
+                  </>
                 )}
               </TableBody>
             </Table>
           </div>
+
+          {/* Resumo dos Totais */}
+          {pagamentos.length > 0 && (
+            <div className="mt-4 p-4 bg-muted rounded-lg space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Total Pago (sem juros/descontos):</span>
+                <span className="font-bold text-green-600">
+                  {formatarValor(totais.totalPago)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Total de Juros:</span>
+                <span className="font-bold text-red-600">
+                  + {formatarValor(pagamentos.reduce((acc, p) => acc + (Number(p.juros) || 0), 0))}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Total de Descontos:</span>
+                <span className="font-bold text-blue-600">
+                  - {formatarValor(pagamentos.reduce((acc, p) => acc + (Number(p.desconto) || 0), 0))}
+                </span>
+              </div>
+              <div className="flex justify-between items-center pt-2 border-t">
+                <span className="text-sm font-semibold">Valor Líquido Recebido:</span>
+                <span className="font-bold text-lg text-green-600">
+                  {formatarValor(
+                    totais.totalPago + 
+                    pagamentos.reduce((acc, p) => acc + (Number(p.juros) || 0), 0) -
+                    pagamentos.reduce((acc, p) => acc + (Number(p.desconto) || 0), 0)
+                  )}
+                </span>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
