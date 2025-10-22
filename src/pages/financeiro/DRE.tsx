@@ -139,27 +139,27 @@ export default function DRE() {
         : { data: [] };
 
       // Mapear dados
-      const parcelasRecMap = new Map(parcelasRecData?.map((p: any) => [p.id, p]) || []);
-      const contasRecMap = new Map(contasRecData?.map((c: any) => [c.id, c]) || []);
-      const planosRecMap = new Map(planosRecData?.map((p: any) => [p.id, p]) || []);
-      const catRecMap = new Map(catRecData?.map((c: any) => [c.id, c]) || []);
+      const parcelasRecMap = new Map((parcelasRecData || []).map((p: any) => [p.id, p] as [string, any]));
+      const contasRecMap = new Map((contasRecData || []).map((c: any) => [c.id, c] as [string, any]));
+      const planosRecMap = new Map((planosRecData || []).map((p: any) => [p.id, p] as [string, any]));
+      const catRecMap = new Map((catRecData || []).map((c: any) => [c.id, c] as [string, any]));
 
       // Processar RECEITAS por conta contábil
-      const receitasMap = {};
+      const receitasMap: any = {};
       (receitasPagamentosData || []).forEach((r: any) => {
-        const parcela = parcelasRecMap.get(r.parcela_id);
+        const parcela: any = parcelasRecMap.get(r.parcela_id);
         if (!parcela) return;
         
-        const conta = contasRecMap.get(parcela.conta_receber_id);
+        const conta: any = contasRecMap.get(parcela.conta_receber_id);
         if (!conta || !conta.plano_conta_id) return;
         
-        const plano = planosRecMap.get(conta.plano_conta_id);
+        const plano: any = planosRecMap.get(conta.plano_conta_id);
         if (!plano) return;
 
         const valor = r.valor_pago + (r.juros || 0) - (r.desconto || 0);
         const chave = plano.id;
 
-        const categoria = catRecMap.get(plano.categoria_id);
+        const categoria: any = catRecMap.get(plano.categoria_id);
 
         if (!receitasMap[chave]) {
           receitasMap[chave] = {
@@ -227,28 +227,28 @@ export default function DRE() {
         : { data: [] };
 
       // Mapear dados
-      const parcelasPagMap = new Map(parcelasPagData?.map((p: any) => [p.id, p]) || []);
-      const contasPagMap = new Map(contasPagData?.map((c: any) => [c.id, c]) || []);
-      const planosPagMap = new Map(planosPagData?.map((p: any) => [p.id, p]) || []);
-      const catPagMap = new Map(catPagData?.map((c: any) => [c.id, c]) || []);
+      const parcelasPagMap = new Map((parcelasPagData || []).map((p: any) => [p.id, p] as [string, any]));
+      const contasPagMap = new Map((contasPagData || []).map((c: any) => [c.id, c] as [string, any]));
+      const planosPagMap = new Map((planosPagData || []).map((p: any) => [p.id, p] as [string, any]));
+      const catPagMap = new Map((catPagData || []).map((c: any) => [c.id, c] as [string, any]));
 
       // Processar CUSTOS E DESPESAS por conta contábil
-      const custosMap = {};
-      const despesasMap = {};
+      const custosMap: any = {};
+      const despesasMap: any = {};
 
       (custosPagamentosData || []).forEach((c: any) => {
-        const parcela = parcelasPagMap.get(c.parcela_id);
+        const parcela: any = parcelasPagMap.get(c.parcela_id);
         if (!parcela) return;
         
-        const conta = contasPagMap.get(parcela.conta_pagar_id);
+        const conta: any = contasPagMap.get(parcela.conta_pagar_id);
         if (!conta || !conta.plano_contas_id) return;
         
-        const plano = planosPagMap.get(conta.plano_contas_id);
+        const plano: any = planosPagMap.get(conta.plano_contas_id);
         if (!plano) return;
 
         const valor = c.valor_pago + (c.juros || 0) - (c.desconto || 0);
         const chave = plano.id;
-        const categoria = catPagMap.get(plano.categoria_id);
+        const categoria: any = catPagMap.get(plano.categoria_id);
         const categoriaDescricao = categoria?.descricao || 'Outras';
 
         // Separar entre custos e despesas baseado na categoria ou código
