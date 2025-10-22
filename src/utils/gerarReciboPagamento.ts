@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 interface DadosEmpresa {
   nome_fantasia: string;
@@ -213,7 +213,7 @@ export async function gerarReciboPagamento(
 
   dadosTabela.push(['VALOR LÍQUIDO RECEBIDO', `R$ ${dadosPagamento.valor_liquido.toFixed(2).replace('.', ',')}`]);
 
-  (doc as any).autoTable({
+  autoTable(doc, {
     startY: yPos,
     head: [dadosTabela[0]],
     body: dadosTabela.slice(1),
