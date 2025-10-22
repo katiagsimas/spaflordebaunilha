@@ -286,43 +286,70 @@ export type Database = {
           banco_id: string | null
           categoria_id: string | null
           created_at: string
+          data_emissao: string | null
           data_pagamento: string | null
           data_vencimento: string
           descricao: string
+          dia_vencimento_recorrente: number | null
+          e_recorrente: boolean | null
+          fornecedor_id: string | null
           id: string
+          numero_parcelas: number | null
           observacoes: string | null
+          plano_contas_id: string | null
           status: string
+          tipo_documento_id: string | null
+          tipo_lancamento: string | null
           updated_at: string
           usuario_id: string
           valor: number
+          valor_total: number | null
         }
         Insert: {
           banco_id?: string | null
           categoria_id?: string | null
           created_at?: string
+          data_emissao?: string | null
           data_pagamento?: string | null
           data_vencimento: string
           descricao: string
+          dia_vencimento_recorrente?: number | null
+          e_recorrente?: boolean | null
+          fornecedor_id?: string | null
           id?: string
+          numero_parcelas?: number | null
           observacoes?: string | null
+          plano_contas_id?: string | null
           status?: string
+          tipo_documento_id?: string | null
+          tipo_lancamento?: string | null
           updated_at?: string
           usuario_id: string
           valor: number
+          valor_total?: number | null
         }
         Update: {
           banco_id?: string | null
           categoria_id?: string | null
           created_at?: string
+          data_emissao?: string | null
           data_pagamento?: string | null
           data_vencimento?: string
           descricao?: string
+          dia_vencimento_recorrente?: number | null
+          e_recorrente?: boolean | null
+          fornecedor_id?: string | null
           id?: string
+          numero_parcelas?: number | null
           observacoes?: string | null
+          plano_contas_id?: string | null
           status?: string
+          tipo_documento_id?: string | null
+          tipo_lancamento?: string | null
           updated_at?: string
           usuario_id?: string
           valor?: number
+          valor_total?: number | null
         }
         Relationships: [
           {
@@ -337,6 +364,83 @@ export type Database = {
             columns: ["categoria_id"]
             isOneToOne: false
             referencedRelation: "categorias_financeiras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contas_pagar_fornecedor_id_fkey"
+            columns: ["fornecedor_id"]
+            isOneToOne: false
+            referencedRelation: "fornecedores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contas_pagar_plano_contas_id_fkey"
+            columns: ["plano_contas_id"]
+            isOneToOne: false
+            referencedRelation: "plano_contas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contas_pagar_tipo_documento_id_fkey"
+            columns: ["tipo_documento_id"]
+            isOneToOne: false
+            referencedRelation: "tipos_documento"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contas_pagar_parcelas: {
+        Row: {
+          conta_pagar_id: string
+          created_at: string | null
+          data_emissao: string
+          data_pagamento: string | null
+          data_vencimento: string
+          id: string
+          numero_parcela: number
+          observacao: string | null
+          status: string
+          updated_at: string | null
+          valor_pago: number | null
+          valor_parcela: number
+          valor_total: number
+        }
+        Insert: {
+          conta_pagar_id: string
+          created_at?: string | null
+          data_emissao?: string
+          data_pagamento?: string | null
+          data_vencimento: string
+          id?: string
+          numero_parcela: number
+          observacao?: string | null
+          status?: string
+          updated_at?: string | null
+          valor_pago?: number | null
+          valor_parcela?: number
+          valor_total?: number
+        }
+        Update: {
+          conta_pagar_id?: string
+          created_at?: string | null
+          data_emissao?: string
+          data_pagamento?: string | null
+          data_vencimento?: string
+          id?: string
+          numero_parcela?: number
+          observacao?: string | null
+          status?: string
+          updated_at?: string | null
+          valor_pago?: number | null
+          valor_parcela?: number
+          valor_total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contas_pagar_parcelas_conta_pagar_id_fkey"
+            columns: ["conta_pagar_id"]
+            isOneToOne: false
+            referencedRelation: "contas_pagar"
             referencedColumns: ["id"]
           },
         ]
