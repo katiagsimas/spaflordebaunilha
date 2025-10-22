@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -43,11 +43,18 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import DarBaixaDialog from '@/components/financeiro/DarBaixaDialog';
 
 export default function ContasReceberDetalhes() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams();
   const { toast } = useToast();
+  
+  // Verificar se veio de encomenda
+  const voltarPara = location.state?.voltarPara;
+  const encomendaId = location.state?.encomendaId;
+  const parcelaIdInicial = location.state?.parcelaId;
 
   const [conta, setConta] = useState(null);
   const [parcelas, setParcelas] = useState([]);
@@ -76,11 +83,26 @@ export default function ContasReceberDetalhes() {
   const [bancos, setBancos] = useState([]);
   const [tiposDocumento, setTiposDocumento] = useState([]);
   const [dadosEmpresa, setDadosEmpresa] = useState(null);
+  
+  // Estado para modal de dar baixa
+  const [modalDarBaixa, setModalDarBaixa] = useState(false);
+  const [parcelaSelecionada, setParcelaSelecionada] = useState(null);
 
   useEffect(() => {
     fetchDetalhes();
     fetchDadosAdicionais();
   }, [id]);
+
+  // Abrir modal de dar baixa automaticamente se veio de encomenda
+  useEffect(() => {
+    if (parcelaIdInicial && parcelas.length > 0) {
+      const parcela = parcelas.find(p => p.id === parcelaIdInicial);
+      if (parcela) {
+        setParcelaSelecionada(parcela);
+        setModalDarBaixa(true);
+      }
+    }
+  }, [parcelaIdInicial, parcelas]);
 
   const fetchDetalhes = async () => {
     try {
@@ -492,6 +514,40 @@ export default function ContasReceberDetalhes() {
     }
   };
 
+  const handleSucessoDarBaixa = async () => {
+    // Atualizar lista de parcelas
+    await fetchDetalhes();
+    
+    // Se veio de encomenda, atualizar status e voltar
+    if (encomendaId && voltarPara) {
+      try {
+        const { error } = await supabase
+          .from('encomendas')
+          .update({ status: 'confirmado' })
+          .eq('id', encomendaId);
+
+        if (error) throw error;
+
+        toast({
+          title: '✅ Pagamento registrado',
+          description: 'O status da encomenda foi atualizado para Confirmado.',
+        });
+
+        // Voltar para a lista de encomendas
+        navigate(voltarPara);
+      } catch (error) {
+        console.error('Erro ao atualizar encomenda:', error);
+        toast({
+          title: 'Aviso',
+          description: 'Pagamento registrado, mas houve erro ao atualizar status da encomenda.',
+          variant: 'destructive',
+        });
+      }
+    } else {
+      setModalDarBaixa(false);
+    }
+  };
+
   const handleImprimirRecibo = async (pagamento, parcela) => {
     try {
       console.log('🖨️ Gerando recibo...');
@@ -702,7 +758,7 @@ export default function ContasReceberDetalhes() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/financeiro/contas-receber')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate(voltarPara || '/financeiro/contas-receber')}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
@@ -1582,6 +1638,16 @@ export default function ContasReceberDetalhes() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Modal Dar Baixa */}
+      {parcelaSelecionada && (
+        <DarBaixaDialog
+          open={modalDarBaixa}
+          onOpenChange={setModalDarBaixa}
+          parcela={parcelaSelecionada}
+          onSuccess={handleSucessoDarBaixa}
+        />
       )}
     </div>
   );

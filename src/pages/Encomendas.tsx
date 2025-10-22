@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck, Package, Upload, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck, Package, Upload, X, HandCoins } from "lucide-react";
 import { useEncomendas } from "@/hooks/useEncomendas";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -18,6 +18,7 @@ import { useReceitas } from "@/hooks/useReceitas";
 import { useEncomendaItens } from "@/hooks/useEncomendaItens";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import ContasReceberFormModal from "@/components/financeiro/ContasReceberFormModal";
+import { useNavigate } from "react-router-dom";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
@@ -41,6 +42,7 @@ const statusLabels = {
 };
 
 const Encomendas = () => {
+  const navigate = useNavigate();
   const { encomendas, loading, createEncomenda, updateEncomenda, deleteEncomenda } = useEncomendas();
   const { clientes } = useClientes();
   const { receitas } = useReceitas();
@@ -456,6 +458,51 @@ const Encomendas = () => {
   const getDescricaoProdutos = () => {
     if (produtosExibidos.length === 0) return 'Encomenda';
     return `Encomenda: ${produtosExibidos.map(p => p.produto).join(', ')}`;
+  };
+
+  const handleDarBaixa = async (encomenda: any) => {
+    // Verificar se tem conta a receber vinculada
+    if (!encomenda.conta_receber_id) {
+      toast.error('Esta encomenda não possui conta a receber vinculada. Configure o pagamento primeiro.');
+      return;
+    }
+
+    // Verificar se já foi confirmado
+    if (encomenda.status === 'confirmado' || encomenda.status === 'em_producao' || encomenda.status === 'pronto' || encomenda.status === 'entregue') {
+      toast.error('Esta encomenda já teve pagamento registrado.');
+      return;
+    }
+
+    try {
+      // Buscar a primeira parcela da conta a receber
+      const { data: parcelas, error } = await supabase
+        .from('contas_receber_parcelas')
+        .select('*')
+        .eq('conta_receber_id', encomenda.conta_receber_id)
+        .order('numero_parcela', { ascending: true })
+        .limit(1);
+
+      if (error) throw error;
+
+      if (!parcelas || parcelas.length === 0) {
+        toast.error('Nenhuma parcela encontrada para esta conta.');
+        return;
+      }
+
+      const primeiraParcela = parcelas[0];
+
+      // Navegar para a página de detalhes com a parcela selecionada
+      navigate(`/financeiro/contas-receber/${encomenda.conta_receber_id}`, {
+        state: { 
+          parcelaId: primeiraParcela.id,
+          voltarPara: '/encomendas',
+          encomendaId: encomenda.id
+        }
+      });
+    } catch (error: any) {
+      console.error('Erro ao buscar parcela:', error);
+      toast.error('Erro ao buscar parcela da conta a receber');
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -1205,6 +1252,17 @@ const Encomendas = () => {
                       <TableCell>R$ {encomenda.valor.toFixed(2)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex gap-1 justify-end">
+                          {encomenda.conta_receber_id && 
+                           encomenda.status === 'pendente' && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDarBaixa(encomenda)}
+                              title="Dar Baixa"
+                            >
+                              <HandCoins className="h-4 w-4 text-success" />
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="icon"
