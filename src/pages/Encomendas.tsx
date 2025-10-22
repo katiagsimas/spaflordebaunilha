@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck, Package, Upload, X, HandCoins, Tag as TagIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck, Package, Upload, X, HandCoins, Tag as TagIcon, FileDown } from "lucide-react";
 import { useEncomendas } from "@/hooks/useEncomendas";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import * as XLSX from 'xlsx';
 
 const statusColors = {
   pendente: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -620,6 +621,53 @@ const Encomendas = () => {
       } catch (error: any) {
         toast.error(error.message || "Erro ao excluir encomenda");
       }
+    }
+  };
+
+  const handleExportarExcel = () => {
+    try {
+      // Preparar dados para exportação
+      const dadosExportar = filteredOrders.map(encomenda => ({
+        'Cliente': encomenda.cliente,
+        'Status': statusLabels[encomenda.status as keyof typeof statusLabels],
+        'Data Pedido': new Date(encomenda.data_pedido).toLocaleDateString("pt-BR"),
+        'Data Entrega': encomenda.data_entrega ? new Date(encomenda.data_entrega).toLocaleDateString("pt-BR") : 'Aguardando Agendamento',
+        'Hora Entrega': encomenda.hora_entrega ? encomenda.hora_entrega.slice(0, 5) : '-',
+        'Tags': encomenda.tags && encomenda.tags.length > 0 ? encomenda.tags.map((t: any) => t.nome).join(', ') : '-',
+        'Valor': `R$ ${encomenda.valor.toFixed(2)}`,
+        'Telefone': encomenda.telefone || '-',
+        'Endereço': encomenda.endereco || '-',
+        'Observações': encomenda.observacoes || '-',
+      }));
+
+      // Criar planilha
+      const ws = XLSX.utils.json_to_sheet(dadosExportar);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Encomendas");
+
+      // Definir largura das colunas
+      const columnWidths = [
+        { wch: 25 }, // Cliente
+        { wch: 15 }, // Status
+        { wch: 15 }, // Data Pedido
+        { wch: 15 }, // Data Entrega
+        { wch: 12 }, // Hora Entrega
+        { wch: 20 }, // Tags
+        { wch: 15 }, // Valor
+        { wch: 15 }, // Telefone
+        { wch: 30 }, // Endereço
+        { wch: 40 }, // Observações
+      ];
+      ws['!cols'] = columnWidths;
+
+      // Gerar arquivo
+      const nomeArquivo = `encomendas_${new Date().toLocaleDateString("pt-BR").replace(/\//g, '-')}.xlsx`;
+      XLSX.writeFile(wb, nomeArquivo);
+
+      toast.success('Planilha exportada com sucesso!');
+    } catch (error: any) {
+      console.error('Erro ao exportar:', error);
+      toast.error('Erro ao exportar planilha: ' + error.message);
     }
   };
 
@@ -1491,7 +1539,18 @@ const Encomendas = () => {
 
       <Card className="shadow-soft">
         <CardHeader>
-          <CardTitle>Lista de Encomendas</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Lista de Encomendas</CardTitle>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleExportarExcel}
+              className="gap-2"
+            >
+              <FileDown className="h-4 w-4" />
+              Exportar para Excel
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {filteredOrders.length === 0 ? (
