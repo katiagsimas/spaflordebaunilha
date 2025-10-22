@@ -29,6 +29,7 @@ interface Encomenda {
   topo_imagens?: string[];
   pagamentos?: Array<{ valor: number; data: string; tipo_pagamento: string; pago?: boolean; banco_id?: string }>;
   saldo_restante?: number;
+  conta_receber_id?: string | null;
   created_at?: string;
   updated_at?: string;
 }

@@ -761,6 +761,7 @@ export type Database = {
         Row: {
           cep: string | null
           cliente: string
+          conta_receber_id: string | null
           created_at: string
           data_entrega: string
           data_pedido: string
@@ -790,6 +791,7 @@ export type Database = {
         Insert: {
           cep?: string | null
           cliente: string
+          conta_receber_id?: string | null
           created_at?: string
           data_entrega: string
           data_pedido: string
@@ -819,6 +821,7 @@ export type Database = {
         Update: {
           cep?: string | null
           cliente?: string
+          conta_receber_id?: string | null
           created_at?: string
           data_entrega?: string
           data_pedido?: string
@@ -845,7 +848,15 @@ export type Database = {
           usuario_id?: string
           valor?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "encomendas_conta_receber_id_fkey"
+            columns: ["conta_receber_id"]
+            isOneToOne: false
+            referencedRelation: "contas_receber"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       entradas_detalhadas: {
         Row: {

@@ -1,0 +1,432 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Info } from 'lucide-react';
+
+interface ContasReceberFormModalProps {
+  dataEmissaoInicial: string;
+  clienteIdInicial: string;
+  clienteNomeInicial: string;
+  descricaoInicial: string;
+  valorTotalInicial: number;
+  onSucesso: (contaReceberId: string) => void;
+  onCancelar: () => void;
+}
+
+export default function ContasReceberFormModal({
+  dataEmissaoInicial,
+  clienteIdInicial,
+  clienteNomeInicial,
+  descricaoInicial,
+  valorTotalInicial,
+  onSucesso,
+  onCancelar,
+}: ContasReceberFormModalProps) {
+  const { toast } = useToast();
+
+  const [dataEmissao, setDataEmissao] = useState(dataEmissaoInicial);
+  const [clienteId] = useState(clienteIdInicial);
+  const [clienteNome] = useState(clienteNomeInicial);
+  const [tipoDocumentoId, setTipoDocumentoId] = useState('');
+  const [planoContasId, setPlanoContasId] = useState('');
+  const [bancoId, setBancoId] = useState('');
+  const [descricao, setDescricao] = useState(descricaoInicial);
+  const [valorTotal, setValorTotal] = useState(valorTotalInicial.toFixed(2).replace('.', ','));
+  const [numeroParcelas, setNumeroParcelas] = useState('1');
+  const [primeiroVencimento, setPrimeiroVencimento] = useState('');
+  const [tipoLancamento, setTipoLancamento] = useState('unico');
+
+  const [tiposDocumento, setTiposDocumento] = useState<any[]>([]);
+  const [planosContas, setPlanosContas] = useState<any[]>([]);
+  const [bancos, setBancos] = useState<any[]>([]);
+
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchDados();
+  }, []);
+
+  const fetchDados = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Buscar tipos de documentos
+      const { data: dataTipos } = await supabase
+        .from('tipos_documento')
+        .select('id, descricao')
+        .eq('usuario_id', user.id)
+        .eq('ativo', true)
+        .order('descricao');
+
+      setTiposDocumento(dataTipos || []);
+
+      // Buscar planos de contas (apenas crédito)
+      const { data: dataPlanos } = await supabase
+        .from('plano_contas')
+        .select(`
+          id,
+          codigo_estruturado,
+          descricao,
+          categoria:categorias_plano_contas (
+            indicador
+          )
+        `)
+        .eq('user_id', user.id)
+        .eq('ativo', true)
+        .order('codigo_estruturado');
+
+      const planosCredito = (dataPlanos || []).filter(
+        (p: any) => p.categoria?.indicador === 'Credito'
+      );
+      setPlanosContas(planosCredito);
+
+      // Buscar bancos
+      const { data: dataBancos } = await supabase
+        .from('bancos')
+        .select('id, codigo, nome')
+        .eq('usuario_id', user.id)
+        .order('nome');
+
+      setBancos(dataBancos || []);
+    } catch (error) {
+      console.error('Erro ao buscar dados:', error);
+    }
+  };
+
+  const handleSalvar = async () => {
+    try {
+      if (!tipoDocumentoId) {
+        toast({
+          title: 'Erro',
+          description: 'Selecione o tipo de documento!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!planoContasId) {
+        toast({
+          title: 'Erro',
+          description: 'Selecione o plano de contas!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!bancoId) {
+        toast({
+          title: 'Erro',
+          description: 'Selecione o banco!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const valor = parseFloat(valorTotal.replace(',', '.'));
+      if (!valor || valor <= 0) {
+        toast({
+          title: 'Erro',
+          description: 'Informe um valor válido!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const parcelas = parseInt(numeroParcelas);
+      if (!parcelas || parcelas < 1) {
+        toast({
+          title: 'Erro',
+          description: 'Número de parcelas inválido!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!primeiroVencimento) {
+        toast({
+          title: 'Erro',
+          description: 'Informe a data do primeiro vencimento!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      setLoading(true);
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Não autenticado');
+
+      // Criar conta a receber
+      const { data: conta, error: errorConta } = await supabase
+        .from('contas_receber')
+        .insert({
+          usuario_id: user.id,
+          cliente_id: clienteId,
+          data_emissao: dataEmissao,
+          tipo_documento_id: tipoDocumentoId,
+          plano_conta_id: planoContasId,
+          banco_id: bancoId,
+          descricao: descricao.trim() || null,
+          valor: valor,
+          numero_parcelas: parcelas,
+          tipo_lancamento: tipoLancamento,
+          e_recorrente: tipoLancamento === 'recorrente',
+          status: 'pendente',
+          data_vencimento: primeiroVencimento,
+        })
+        .select()
+        .single();
+
+      if (errorConta) throw errorConta;
+
+      // Gerar parcelas
+      const parcelas_data = [];
+      const dataBase = new Date(primeiroVencimento + 'T00:00:00');
+
+      if (tipoLancamento === 'parcelado' || tipoLancamento === 'unico') {
+        const valorParcela = valor / parcelas;
+
+        for (let i = 0; i < parcelas; i++) {
+          const dataVenc = new Date(dataBase);
+          dataVenc.setMonth(dataVenc.getMonth() + i);
+
+          parcelas_data.push({
+            conta_receber_id: conta.id,
+            numero_parcela: i + 1,
+            data_emissao: dataEmissao,
+            data_vencimento: dataVenc.toISOString().split('T')[0],
+            valor_total: valor,
+            valor_parcela: valorParcela,
+            status: 'aberto',
+          });
+        }
+      } else {
+        // RECORRENTE
+        for (let i = 0; i < parcelas; i++) {
+          const dataVenc = new Date(dataBase);
+          dataVenc.setMonth(dataVenc.getMonth() + i);
+
+          const dataEmissaoParcela = new Date(dataVenc);
+          dataEmissaoParcela.setDate(1);
+
+          parcelas_data.push({
+            conta_receber_id: conta.id,
+            numero_parcela: i + 1,
+            data_emissao: dataEmissaoParcela.toISOString().split('T')[0],
+            data_vencimento: dataVenc.toISOString().split('T')[0],
+            valor_total: valor,
+            valor_parcela: valor,
+            status: 'aberto',
+          });
+        }
+      }
+
+      const { error: errorParcelas } = await supabase
+        .from('contas_receber_parcelas')
+        .insert(parcelas_data);
+
+      if (errorParcelas) throw errorParcelas;
+
+      toast({
+        title: '✅ Conta a receber criada',
+        description: `${parcelas} parcela(s) criada(s) com sucesso!`,
+      });
+
+      onSucesso(conta.id);
+    } catch (error: any) {
+      console.error('Erro ao salvar:', error);
+      toast({
+        title: 'Erro ao salvar',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6 max-h-[70vh] overflow-y-auto p-6">
+      <Alert className="bg-blue-50 border-blue-200">
+        <Info className="h-4 w-4 text-blue-600" />
+        <AlertDescription>
+          <strong>Dados da Encomenda:</strong><br />
+          Cliente: <strong>{clienteNome}</strong><br />
+          Valor: <strong>{valorTotalInicial.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong>
+        </AlertDescription>
+      </Alert>
+
+      <div className="space-y-2">
+        <Label htmlFor="data-emissao">Data de Emissão *</Label>
+        <Input
+          id="data-emissao"
+          type="date"
+          value={dataEmissao}
+          onChange={(e) => setDataEmissao(e.target.value)}
+          className="max-w-xs"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Cliente *</Label>
+        <Input
+          value={clienteNome}
+          disabled
+          className="bg-muted"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Tipo de Documento *</Label>
+          <Select value={tipoDocumentoId} onValueChange={setTipoDocumentoId}>
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+            <SelectContent>
+              {tiposDocumento.map(tipo => (
+                <SelectItem key={tipo.id} value={tipo.id}>
+                  {tipo.descricao}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Plano de Contas *</Label>
+          <Select value={planoContasId} onValueChange={setPlanoContasId}>
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+            <SelectContent>
+              {planosContas.map((plano: any) => (
+                <SelectItem key={plano.id} value={plano.id}>
+                  {plano.codigo_estruturado} - {plano.descricao}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Banco *</Label>
+        <Select value={bancoId} onValueChange={setBancoId}>
+          <SelectTrigger>
+            <SelectValue placeholder="Selecione..." />
+          </SelectTrigger>
+          <SelectContent>
+            {bancos.map(banco => (
+              <SelectItem key={banco.id} value={banco.id}>
+                {banco.codigo} - {banco.nome}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="descricao">Descrição</Label>
+        <Textarea
+          id="descricao"
+          rows={3}
+          value={descricao}
+          onChange={(e) => setDescricao(e.target.value)}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="valor">Valor Total *</Label>
+        <Input
+          id="valor"
+          placeholder="Ex: 1000,00"
+          value={valorTotal}
+          onChange={(e) => {
+            const valor = e.target.value.replace(/[^\d,]/g, '');
+            setValorTotal(valor);
+          }}
+          className="max-w-xs"
+        />
+      </div>
+
+      <div className="space-y-3">
+        <Label>Tipo de Lançamento *</Label>
+        <RadioGroup value={tipoLancamento} onValueChange={setTipoLancamento}>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="unico" id="unico" />
+            <Label htmlFor="unico" className="cursor-pointer">
+              Único (1 parcela)
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="parcelado" id="parcelado" />
+            <Label htmlFor="parcelado" className="cursor-pointer">
+              Parcelado (divide valor total)
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="recorrente" id="recorrente" />
+            <Label htmlFor="recorrente" className="cursor-pointer">
+              Recorrente (repete valor total)
+            </Label>
+          </div>
+        </RadioGroup>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="parcelas">
+            {tipoLancamento === 'unico' ? 'Parcelas (fixo)' : 'Número de Parcelas *'}
+          </Label>
+          <Input
+            id="parcelas"
+            type="number"
+            min="1"
+            value={numeroParcelas}
+            onChange={(e) => setNumeroParcelas(e.target.value)}
+            disabled={tipoLancamento === 'unico'}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="vencimento">Primeiro Vencimento *</Label>
+          <Input
+            id="vencimento"
+            type="date"
+            value={primeiroVencimento}
+            onChange={(e) => setPrimeiroVencimento(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="flex gap-4 pt-4 border-t">
+        <Button
+          variant="outline"
+          onClick={onCancelar}
+          disabled={loading}
+          className="flex-1"
+        >
+          Cancelar
+        </Button>
+        <Button onClick={handleSalvar} disabled={loading} className="flex-1">
+          {loading ? 'Salvando...' : 'Criar Conta a Receber'}
+        </Button>
+      </div>
+    </div>
+  );
+}

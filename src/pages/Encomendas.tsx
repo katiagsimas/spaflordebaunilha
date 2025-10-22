@@ -17,6 +17,7 @@ import { useClientes } from "@/hooks/useClientes";
 import { useReceitas } from "@/hooks/useReceitas";
 import { useEncomendaItens } from "@/hooks/useEncomendaItens";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
+import ContasReceberFormModal from "@/components/financeiro/ContasReceberFormModal";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
@@ -50,6 +51,8 @@ const Encomendas = () => {
   const [editingOrder, setEditingOrder] = useState<any | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("Todos");
+  const [modalPagamentoAberto, setModalPagamentoAberto] = useState(false);
+  const [contaReceberId, setContaReceberId] = useState<string | null>(null);
   const [tempProdutos, setTempProdutos] = useState<Array<{
     id: string;
     receita_id: string;
@@ -139,6 +142,7 @@ const Encomendas = () => {
     });
     setEditingOrder(null);
     setTempProdutos([]);
+    setContaReceberId(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -150,6 +154,7 @@ const Encomendas = () => {
         ...formData,
         valor: valorFinal,
         hora_entrega: formData.hora_entrega || null, // Converte string vazia para null
+        conta_receber_id: contaReceberId || null, // Adiciona o ID da conta a receber
       };
       
       if (editingOrder) {
@@ -379,6 +384,43 @@ const Encomendas = () => {
       console.error('Erro ao remover imagem:', error);
       toast.error('Erro ao remover imagem');
     }
+  };
+
+  const handleAbrirPagamento = () => {
+    // Validar se tem cliente
+    if (!formData.cliente) {
+      toast.error('Selecione o cliente antes de configurar o pagamento!');
+      return;
+    }
+
+    // Validar se tem produtos
+    if (produtosExibidos.length === 0) {
+      toast.error('Adicione produtos antes de configurar o pagamento!');
+      return;
+    }
+
+    // Abrir modal
+    setModalPagamentoAberto(true);
+  };
+
+  const handleContaCriada = (contaId: string) => {
+    console.log('✅ Conta a receber criada:', contaId);
+    setContaReceberId(contaId);
+    setModalPagamentoAberto(false);
+    
+    toast.success('Conta a receber criada e vinculada à encomenda!');
+  };
+
+  // Buscar ID do cliente selecionado
+  const getClienteId = () => {
+    const cliente = clientes.find(c => c.nome === formData.cliente);
+    return cliente?.id || '';
+  };
+
+  // Gerar descrição dos produtos
+  const getDescricaoProdutos = () => {
+    if (produtosExibidos.length === 0) return 'Encomenda';
+    return `Encomenda: ${produtosExibidos.map(p => p.produto).join(', ')}`;
   };
 
   const handleDelete = async (id: string) => {
@@ -962,11 +1004,31 @@ const Encomendas = () => {
                           type="button"
                           variant="default"
                           className="h-auto py-4 flex items-center justify-center gap-2"
+                          onClick={handleAbrirPagamento}
                         >
                           <DollarSign className="h-5 w-5" />
                           <span className="text-lg font-semibold">Pagamento</span>
                         </Button>
                       </div>
+
+                      {/* Modal de Pagamento - Contas a Receber */}
+                      <Dialog open={modalPagamentoAberto} onOpenChange={setModalPagamentoAberto}>
+                        <DialogContent className="max-w-3xl">
+                          <DialogHeader>
+                            <DialogTitle>Criar Conta a Receber</DialogTitle>
+                          </DialogHeader>
+                          
+                          <ContasReceberFormModal
+                            dataEmissaoInicial={formData.data_pedido}
+                            clienteIdInicial={getClienteId()}
+                            clienteNomeInicial={formData.cliente}
+                            descricaoInicial={getDescricaoProdutos()}
+                            valorTotalInicial={valorFinal}
+                            onSucesso={handleContaCriada}
+                            onCancelar={() => setModalPagamentoAberto(false)}
+                          />
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   )}
                 </div>
