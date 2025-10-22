@@ -59,6 +59,7 @@ export default function ContasReceber() {
   const [bancos, setBancos] = useState<any[]>([]);
 
   // Filtros
+  const [visualizacao, setVisualizacao] = useState<'ativas' | 'pagas'>('ativas'); // Novo filtro principal
   const [filtroStatus, setFiltroStatus] = useState('todos');
   
   // Filtros de Data
@@ -442,7 +443,20 @@ export default function ContasReceber() {
   };
 
   const parcelasFiltradas = parcelas.filter(p => {
-    // Filtro de status
+    // Filtro principal: Ativas (não pagas) vs Pagas
+    if (visualizacao === 'ativas') {
+      // Mostrar apenas parcelas que NÃO estão pagas ou adiantadas
+      if (p.status === 'pago' || p.status === 'adiantado') {
+        return false;
+      }
+    } else if (visualizacao === 'pagas') {
+      // Mostrar apenas parcelas pagas ou adiantadas
+      if (p.status !== 'pago' && p.status !== 'adiantado') {
+        return false;
+      }
+    }
+    
+    // Filtro de status (secundário)
     if (filtroStatus !== 'todos') {
       // Tratar "vencido" como sinônimo de "atrasado"
       if (filtroStatus === 'vencido' && p.status !== 'atrasado') {
@@ -624,11 +638,44 @@ export default function ContasReceber() {
         </AlertDescription>
       </Alert>
 
+      {/* Filtro Principal - Visualização */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Filter className="h-4 w-4 text-muted-foreground" />
+          <Label className="font-semibold">Visualização</Label>
+        </div>
+        
+        <div className="flex gap-3">
+          <Button
+            variant={visualizacao === 'ativas' ? 'default' : 'outline'}
+            size="lg"
+            onClick={() => {
+              setVisualizacao('ativas');
+              setFiltroStatus('todos');
+            }}
+            className="flex-1"
+          >
+            📋 Contas Ativas
+          </Button>
+          <Button
+            variant={visualizacao === 'pagas' ? 'default' : 'outline'}
+            size="lg"
+            onClick={() => {
+              setVisualizacao('pagas');
+              setFiltroStatus('todos');
+            }}
+            className="flex-1"
+          >
+            ✅ Contas Pagas
+          </Button>
+        </div>
+      </div>
+
       {/* Filtros Pré-Definidos */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-muted-foreground" />
-          <Label>Filtros Pré-Definidos</Label>
+          <Label>Filtros de Status</Label>
         </div>
         
         <div className="flex flex-wrap gap-2">
@@ -637,50 +684,58 @@ export default function ContasReceber() {
             size="sm"
             onClick={() => setFiltroStatus('todos')}
           >
-            Todos
+            Todos {visualizacao === 'ativas' ? '(Ativas)' : '(Pagas)'}
           </Button>
-          <Button
-            variant={filtroStatus === 'aberto' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFiltroStatus('aberto')}
-          >
-            Em Aberto
-          </Button>
-          <Button
-            variant={filtroStatus === 'pagamento_parcial' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFiltroStatus('pagamento_parcial')}
-          >
-            Pago Parcialmente
-          </Button>
-          <Button
-            variant={filtroStatus === 'pago' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFiltroStatus('pago')}
-          >
-            Pago
-          </Button>
-          <Button
-            variant={filtroStatus === 'vencido' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFiltroStatus('vencido')}
-          >
-            Vencido
-          </Button>
-          <Button
-            variant={filtroStatus === 'adiantado' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFiltroStatus('adiantado')}
-          >
-            Adiantado
-          </Button>
-          <Button
-            variant={filtroStatus === 'atrasado' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFiltroStatus('atrasado')}
-          >
-            Atrasado
-          </Button>
+          
+          {visualizacao === 'ativas' ? (
+            <>
+              <Button
+                variant={filtroStatus === 'aberto' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFiltroStatus('aberto')}
+              >
+                Em Aberto
+              </Button>
+              <Button
+                variant={filtroStatus === 'pagamento_parcial' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFiltroStatus('pagamento_parcial')}
+              >
+                Pago Parcialmente
+              </Button>
+              <Button
+                variant={filtroStatus === 'vencido' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFiltroStatus('vencido')}
+              >
+                Vencido
+              </Button>
+              <Button
+                variant={filtroStatus === 'atrasado' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFiltroStatus('atrasado')}
+              >
+                Atrasado
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant={filtroStatus === 'pago' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFiltroStatus('pago')}
+              >
+                Pago
+              </Button>
+              <Button
+                variant={filtroStatus === 'adiantado' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFiltroStatus('adiantado')}
+              >
+                Adiantado
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
