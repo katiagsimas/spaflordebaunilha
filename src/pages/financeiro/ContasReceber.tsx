@@ -638,40 +638,7 @@ export default function ContasReceber() {
         </AlertDescription>
       </Alert>
 
-      {/* Filtro Principal - Visualização */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-muted-foreground" />
-          <Label className="font-semibold">Visualização</Label>
-        </div>
-        
-        <div className="flex gap-3">
-          <Button
-            variant={visualizacao === 'ativas' ? 'default' : 'outline'}
-            size="lg"
-            onClick={() => {
-              setVisualizacao('ativas');
-              setFiltroStatus('todos');
-            }}
-            className="flex-1"
-          >
-            📋 Contas Ativas
-          </Button>
-          <Button
-            variant={visualizacao === 'pagas' ? 'default' : 'outline'}
-            size="lg"
-            onClick={() => {
-              setVisualizacao('pagas');
-              setFiltroStatus('todos');
-            }}
-            className="flex-1"
-          >
-            ✅ Contas Pagas
-          </Button>
-        </div>
-      </div>
-
-      {/* Filtros Pré-Definidos */}
+      {/* Filtros de Status Dinâmicos */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-muted-foreground" />
@@ -684,7 +651,7 @@ export default function ContasReceber() {
             size="sm"
             onClick={() => setFiltroStatus('todos')}
           >
-            Todos {visualizacao === 'ativas' ? '(Ativas)' : '(Pagas)'}
+            Todos {visualizacao === 'ativas' ? '(A Receber)' : '(Recebidas)'}
           </Button>
           
           {visualizacao === 'ativas' ? (
@@ -925,8 +892,37 @@ export default function ContasReceber() {
         </CollapsibleContent>
       </Collapsible>
 
-      <div className="text-sm text-muted-foreground">
-        Mostrando <strong>{parcelasFiltradas.length}</strong> de <strong>{parcelas.length}</strong> parcela(s)
+      {/* Contador de Parcelas com Cards de Visualização */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="text-sm text-muted-foreground">
+          Mostrando <strong>{parcelasFiltradas.length}</strong> de <strong>{parcelas.length}</strong> parcela(s)
+        </div>
+        
+        {/* Cards de Visualização */}
+        <div className="flex gap-2">
+          <Button
+            variant={visualizacao === 'ativas' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => {
+              setVisualizacao('ativas');
+              setFiltroStatus('todos');
+            }}
+            className={visualizacao === 'ativas' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-blue-600 text-blue-600 hover:bg-blue-50'}
+          >
+            Contas a Receber
+          </Button>
+          <Button
+            variant={visualizacao === 'pagas' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => {
+              setVisualizacao('pagas');
+              setFiltroStatus('todos');
+            }}
+            className={visualizacao === 'pagas' ? 'bg-green-600 hover:bg-green-700 text-white' : 'border-green-600 text-green-600 hover:bg-green-50'}
+          >
+            Contas Recebidas
+          </Button>
+        </div>
       </div>
 
       {/* Tabela */}
