@@ -2,7 +2,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { ChefHat, CookingPot, DollarSign, Pencil, Package, AlertTriangle } from "lucide-react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useReceitas } from "@/hooks/useReceitas";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -44,7 +44,7 @@ interface Receita {
   tempoPreparo: number;
   unidadeTempo: "minutos" | "horas";
   rendimento: number;
-  unidadeRendimento: "gramas" | "unidades";
+  unidadeRendimento: string;
   ingredientes: IngredienteReceita[];
   embalagens?: EmbalagemReceita[];
   custoTotal: number;
@@ -92,7 +92,7 @@ const opcoes = [
 
 export default function Precificacao() {
   const navigate = useNavigate();
-  const [receitas] = useLocalStorage<Receita[]>("receitas", []);
+  const { receitas, isLoading } = useReceitas();
   const { unidades } = useUnidadesMedida();
 
   // Filtrar apenas receitas ativas

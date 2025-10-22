@@ -58,7 +58,7 @@ interface Receita {
   tempoPreparo: number;
   unidadeTempo: "minutos" | "horas";
   rendimento: number;
-  unidadeRendimento: "gramas" | "unidades";
+  unidadeRendimento: string;
   ingredientes: IngredienteReceita[];
   embalagens?: EmbalagemReceita[];
   custoTotal: number;
@@ -137,17 +137,29 @@ export default function Receitas() {
   };
 
   const handleDelete = (id: string) => {
-    setDeletingId(id);
-    setIsDeleteDialogOpen(true);
+    setReceitaParaDeletar(id);
+    setDialogAberto(true);
   };
 
-  const confirmDelete = () => {
-    if (deletingId) {
-      setReceitas(receitas.filter((item) => item.id !== deletingId));
-      toast.success("Receita excluída com sucesso!");
+  const confirmDelete = async () => {
+    if (receitaParaDeletar) {
+      try {
+        const { error } = await supabase
+          .from('receitas')
+          .delete()
+          .eq('id', receitaParaDeletar);
+
+        if (error) throw error;
+        
+        toast.success("Receita excluída com sucesso!");
+        refetch();
+      } catch (error) {
+        console.error('Erro ao deletar receita:', error);
+        toast.error('Erro ao excluir receita');
+      }
     }
-    setIsDeleteDialogOpen(false);
-    setDeletingId(null);
+    setDialogAberto(false);
+    setReceitaParaDeletar(null);
   };
 
   const handleCreateNew = () => {
@@ -158,33 +170,95 @@ export default function Receitas() {
     navigate(`/precificacao/ficha-tecnica/editar/${id}`);
   };
 
-  const handleDuplicate = (id: string) => {
+  const handleDuplicate = async (id: string) => {
     const receitaOriginal = receitas.find(r => r.id === id);
     if (!receitaOriginal) return;
 
-    const novaReceita: Receita = {
-      ...receitaOriginal,
-      id: `${Date.now()}`,
-      nome: `Cópia de ${receitaOriginal.nome}`,
-      ingredientes: receitaOriginal.ingredientes.map(ing => ({
-        ...ing,
-        id: `${Date.now()}-${Math.random()}`
-      })),
-      embalagens: (receitaOriginal.embalagens || []).map(emb => ({
-        ...emb,
-        id: `${Date.now()}-${Math.random()}`
-      })),
-      despesasVenda: (receitaOriginal.despesasVenda || []).map(desp => ({
-        ...desp,
-        id: `${Date.now()}-${Math.random()}`
-      }))
-    };
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Não autenticado');
 
-    setReceitas([...receitas, novaReceita]);
-    toast.success("Receita duplicada com sucesso!");
-    
-    // Navega para edição da cópia
-    navigate(`/precificacao/ficha-tecnica/editar/${novaReceita.id}`);
+      // Criar nova receita no banco
+      const { data: novaReceita, error: receitaError } = await supabase
+        .from('receitas')
+        .insert({
+          usuario_id: user.id,
+          nome: `Cópia de ${receitaOriginal.nome}`,
+          categoria: receitaOriginal.categoria || null,
+          tipo: receitaOriginal.tipo,
+          cardapio: receitaOriginal.cardapio,
+          tempo_preparo: receitaOriginal.tempoPreparo,
+          unidade_tempo: receitaOriginal.unidadeTempo,
+          rendimento: receitaOriginal.rendimento,
+          unidade_rendimento: receitaOriginal.unidadeRendimento,
+          custo_total: receitaOriginal.custoTotal,
+          valor_venda: receitaOriginal.valorVenda || null,
+          modo_preparo: null,
+        })
+        .select()
+        .single();
+
+      if (receitaError) throw receitaError;
+      if (!novaReceita) throw new Error('Erro ao duplicar receita');
+
+      // Duplicar ingredientes
+      if (receitaOriginal.ingredientes.length > 0) {
+        const ingredientesData = receitaOriginal.ingredientes.map(ing => ({
+          receita_id: novaReceita.id,
+          ingrediente_id: ing.ingredienteId,
+          ingrediente: ing.ingrediente,
+          marca: ing.marca || null,
+          qtde_embalagem: ing.qtdeEmbalagem,
+          unidade_medida: ing.unidadeMedida,
+          preco_embalagem: ing.precoEmbalagem,
+          quantidade_utilizada: ing.quantidadeUtilizada,
+          custo_unitario: ing.custoUnitario,
+          custo_receita: ing.custoReceita,
+        }));
+
+        await supabase.from('receitas_ingredientes').insert(ingredientesData);
+      }
+
+      // Duplicar embalagens
+      if (receitaOriginal.embalagens && receitaOriginal.embalagens.length > 0) {
+        const embalagensData = receitaOriginal.embalagens.map(emb => ({
+          receita_id: novaReceita.id,
+          embalagem_id: emb.embalagemId,
+          embalagem: emb.embalagem,
+          marca: emb.marca || null,
+          qtde_embalagem: emb.qtdeEmbalagem,
+          unidade_medida: emb.unidadeMedida,
+          preco_embalagem: emb.precoEmbalagem,
+          quantidade_utilizada: emb.quantidadeUtilizada,
+          custo_unitario: emb.custoUnitario,
+          custo_receita: emb.custoReceita,
+        }));
+
+        await supabase.from('receitas_embalagens').insert(embalagensData);
+      }
+
+      // Duplicar despesas de venda
+      if (receitaOriginal.despesasVenda && receitaOriginal.despesasVenda.length > 0) {
+        const despesasData = receitaOriginal.despesasVenda.map(desp => ({
+          receita_id: novaReceita.id,
+          despesa_id: desp.id,
+          nome: desp.nome,
+          percentual: desp.percentual,
+          valor: desp.valor,
+        }));
+
+        await supabase.from('receitas_despesas_venda').insert(despesasData);
+      }
+
+      toast.success("Receita duplicada com sucesso!");
+      refetch();
+      
+      // Navega para edição da cópia
+      navigate(`/precificacao/ficha-tecnica/editar/${novaReceita.id}`);
+    } catch (error: any) {
+      console.error('Erro ao duplicar receita:', error);
+      toast.error('Erro ao duplicar receita');
+    }
   };
 
   // Verificar alertas de CMV e Margem
@@ -410,8 +484,8 @@ export default function Receitas() {
       )}
 
       <ConfirmDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
+        open={dialogAberto}
+        onOpenChange={setDialogAberto}
         onConfirm={confirmDelete}
         title="Excluir receita"
         description="Tem certeza que deseja excluir esta receita? Esta ação não pode ser desfeita."
