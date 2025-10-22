@@ -428,6 +428,95 @@ export type Database = {
           },
         ]
       }
+      contas_pagar_comprovantes: {
+        Row: {
+          created_at: string | null
+          id: string
+          nome_arquivo: string
+          pagamento_id: string
+          tamanho_bytes: number | null
+          tipo_arquivo: string | null
+          url_storage: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          nome_arquivo: string
+          pagamento_id: string
+          tamanho_bytes?: number | null
+          tipo_arquivo?: string | null
+          url_storage: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          nome_arquivo?: string
+          pagamento_id?: string
+          tamanho_bytes?: number | null
+          tipo_arquivo?: string | null
+          url_storage?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contas_pagar_comprovantes_pagamento_id_fkey"
+            columns: ["pagamento_id"]
+            isOneToOne: false
+            referencedRelation: "contas_pagar_pagamentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contas_pagar_pagamentos: {
+        Row: {
+          banco_id: string
+          created_at: string | null
+          data_estorno: string | null
+          data_pagamento: string
+          desconto: number | null
+          estornado: boolean | null
+          id: string
+          juros: number | null
+          motivo_estorno: string | null
+          observacao: string | null
+          parcela_id: string
+          tipo_documento_id: string
+          updated_at: string | null
+          valor_pago: number
+        }
+        Insert: {
+          banco_id: string
+          created_at?: string | null
+          data_estorno?: string | null
+          data_pagamento: string
+          desconto?: number | null
+          estornado?: boolean | null
+          id?: string
+          juros?: number | null
+          motivo_estorno?: string | null
+          observacao?: string | null
+          parcela_id: string
+          tipo_documento_id: string
+          updated_at?: string | null
+          valor_pago?: number
+        }
+        Update: {
+          banco_id?: string
+          created_at?: string | null
+          data_estorno?: string | null
+          data_pagamento?: string
+          desconto?: number | null
+          estornado?: boolean | null
+          id?: string
+          juros?: number | null
+          motivo_estorno?: string | null
+          observacao?: string | null
+          parcela_id?: string
+          tipo_documento_id?: string
+          updated_at?: string | null
+          valor_pago?: number
+        }
+        Relationships: []
+      }
       contas_pagar_parcelas: {
         Row: {
           conta_pagar_id: string

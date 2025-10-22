@@ -83,6 +83,22 @@ export default function ContasPagarDetalhes() {
   const [bancos, setBancos] = useState<any[]>([]);
   const [tiposDocumento, setTiposDocumento] = useState<any[]>([]);
 
+  // Estados para edição de pagamento
+  const [modalEditarPagamento, setModalEditarPagamento] = useState(false);
+  const [pagamentoEditando, setPagamentoEditando] = useState<any>(null);
+  const [dataEditando, setDataEditando] = useState('');
+  const [valorEditando, setValorEditando] = useState('');
+  const [jurosEditando, setJurosEditando] = useState('');
+  const [descontoEditando, setDescontoEditando] = useState('');
+  const [bancoEditando, setBancoEditando] = useState('');
+  const [tipoDocEditando, setTipoDocEditando] = useState('');
+  const [obsEditando, setObsEditando] = useState('');
+
+  // Estados para estorno
+  const [modalEstornar, setModalEstornar] = useState(false);
+  const [pagamentoEstornando, setPagamentoEstornando] = useState<any>(null);
+  const [motivoEstorno, setMotivoEstorno] = useState('');
+
   useEffect(() => {
     fetchDetalhes();
   }, [id]);
@@ -322,6 +338,192 @@ export default function ContasPagarDetalhes() {
     const valorJuros = parseFloat(juros.replace(',', '.')) || 0;
     const valorDesconto = parseFloat(desconto.replace(',', '.')) || 0;
     return valor + valorJuros - valorDesconto;
+  };
+
+  // Funções para edição de pagamento
+  const handleAbrirEdicaoPagamento = (pagamento: any) => {
+    setPagamentoEditando(pagamento);
+    setDataEditando(pagamento.data_pagamento);
+    setValorEditando(pagamento.valor_pago.toFixed(2).replace('.', ','));
+    setJurosEditando((pagamento.juros || 0).toFixed(2).replace('.', ','));
+    setDescontoEditando((pagamento.desconto || 0).toFixed(2).replace('.', ','));
+    setBancoEditando(pagamento.banco_id);
+    setTipoDocEditando(pagamento.tipo_documento_id);
+    setObsEditando(pagamento.observacao || '');
+    setModalEditarPagamento(true);
+  };
+
+  const handleSalvarEdicaoPagamento = async () => {
+    try {
+      if (!dataEditando) {
+        toast({
+          title: 'Erro',
+          description: 'Informe a data do pagamento!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const valor = parseFloat(valorEditando.replace(',', '.'));
+      if (!valor || valor <= 0) {
+        toast({
+          title: 'Erro',
+          description: 'Informe um valor válido!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!bancoEditando) {
+        toast({
+          title: 'Erro',
+          description: 'Selecione o banco!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!tipoDocEditando) {
+        toast({
+          title: 'Erro',
+          description: 'Selecione o tipo de documento!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const valorJuros = parseFloat(jurosEditando.replace(',', '.')) || 0;
+      const valorDesconto = parseFloat(descontoEditando.replace(',', '.')) || 0;
+
+      const { error } = await supabase
+        .from('contas_pagar_pagamentos' as any)
+        .update({
+          data_pagamento: dataEditando,
+          valor_pago: valor,
+          juros: valorJuros,
+          desconto: valorDesconto,
+          banco_id: bancoEditando,
+          tipo_documento_id: tipoDocEditando,
+          observacao: obsEditando.trim() || null,
+        })
+        .eq('id', pagamentoEditando.id);
+
+      if (error) throw error;
+
+      toast({
+        title: '✅ Pagamento atualizado',
+        description: 'As alterações foram salvas com sucesso!',
+      });
+
+      setModalEditarPagamento(false);
+      fetchDetalhes();
+    } catch (error: any) {
+      console.error('Erro ao atualizar pagamento:', error);
+      toast({
+        title: 'Erro',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Funções para excluir pagamento
+  const handleExcluirPagamento = async (pagamento: any) => {
+    try {
+      const confirmar = window.confirm(
+        'Tem certeza que deseja excluir este pagamento?\n\n' +
+        `Valor: ${formatarValor(pagamento.valor_pago)}\n` +
+        `Data: ${formatarData(pagamento.data_pagamento)}\n\n` +
+        'Esta ação não pode ser desfeita!'
+      );
+
+      if (!confirmar) return;
+
+      // Excluir comprovantes do storage primeiro
+      if (pagamento.comprovantes && pagamento.comprovantes.length > 0) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          for (const comp of pagamento.comprovantes) {
+            try {
+              const caminho = comp.url_storage.split('/comprovantes-pagar/')[1];
+              await supabase.storage
+                .from('comprovantes-pagar')
+                .remove([caminho]);
+            } catch (error) {
+              console.error('Erro ao excluir comprovante:', error);
+            }
+          }
+        }
+      }
+
+      // Excluir pagamento (cascade deleta comprovantes da tabela)
+      const { error } = await supabase
+        .from('contas_pagar_pagamentos' as any)
+        .delete()
+        .eq('id', pagamento.id);
+
+      if (error) throw error;
+
+      toast({
+        title: '✅ Pagamento excluído',
+        description: 'O pagamento foi excluído com sucesso!',
+      });
+
+      fetchDetalhes();
+    } catch (error: any) {
+      console.error('Erro ao excluir pagamento:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível excluir o pagamento.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Funções para estorno
+  const handleAbrirEstorno = (pagamento: any) => {
+    setPagamentoEstornando(pagamento);
+    setMotivoEstorno('');
+    setModalEstornar(true);
+  };
+
+  const handleConfirmarEstorno = async () => {
+    try {
+      if (!motivoEstorno.trim()) {
+        toast({
+          title: 'Erro',
+          description: 'Informe o motivo do estorno!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('contas_pagar_pagamentos' as any)
+        .update({
+          estornado: true,
+          data_estorno: new Date().toISOString(),
+          motivo_estorno: motivoEstorno.trim(),
+        })
+        .eq('id', pagamentoEstornando.id);
+
+      if (error) throw error;
+
+      toast({
+        title: '✅ Pagamento estornado',
+        description: 'O pagamento foi estornado com sucesso!',
+      });
+
+      setModalEstornar(false);
+      fetchDetalhes();
+    } catch (error: any) {
+      console.error('Erro ao estornar pagamento:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível estornar o pagamento.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleConfirmarBaixa = async () => {
@@ -826,16 +1028,16 @@ export default function ContasPagarDetalhes() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => toast({ title: 'Em breve', description: 'Funcionalidade de editar em desenvolvimento' })}>
+                              <DropdownMenuItem onClick={() => handleAbrirEdicaoPagamento(pag)}>
                                 <Edit className="mr-2 h-4 w-4" />
                                 Editar
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => toast({ title: 'Em breve', description: 'Funcionalidade de estornar em desenvolvimento' })}>
+                              <DropdownMenuItem onClick={() => handleAbrirEstorno(pag)}>
                                 <RefreshCw className="mr-2 h-4 w-4" />
                                 Estornar
                               </DropdownMenuItem>
                               <DropdownMenuItem 
-                                onClick={() => toast({ title: 'Em breve', description: 'Funcionalidade de excluir em desenvolvimento' })}
+                                onClick={() => handleExcluirPagamento(pag)}
                                 className="text-red-600"
                               >
                                 <Trash2 className="mr-2 h-4 w-4" />
@@ -1102,6 +1304,228 @@ export default function ContasPagarDetalhes() {
             </Button>
             <Button onClick={handleConfirmarBaixa}>
               Confirmar Pagamento
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Editar Pagamento */}
+      <Dialog open={modalEditarPagamento} onOpenChange={setModalEditarPagamento}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Editar Pagamento</DialogTitle>
+            <DialogDescription>
+              Atualize as informações do pagamento
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {/* Data e Valor */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="data-edit">Data do Pagamento *</Label>
+                <Input
+                  id="data-edit"
+                  type="date"
+                  value={dataEditando}
+                  onChange={(e) => setDataEditando(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="valor-edit">Valor Pago *</Label>
+                <Input
+                  id="valor-edit"
+                  placeholder="0,00"
+                  value={valorEditando}
+                  onChange={(e) => {
+                    const valor = e.target.value.replace(/[^\d,]/g, '');
+                    setValorEditando(valor);
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Juros e Descontos */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="juros-edit">Juros/Multa</Label>
+                <Input
+                  id="juros-edit"
+                  placeholder="0,00"
+                  value={jurosEditando}
+                  onChange={(e) => {
+                    const valor = e.target.value.replace(/[^\d,]/g, '');
+                    setJurosEditando(valor);
+                  }}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="desconto-edit">Desconto</Label>
+                <Input
+                  id="desconto-edit"
+                  placeholder="0,00"
+                  value={descontoEditando}
+                  onChange={(e) => {
+                    const valor = e.target.value.replace(/[^\d,]/g, '');
+                    setDescontoEditando(valor);
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Valor Líquido */}
+            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+              <div className="flex justify-between items-center">
+                <span className="font-medium">Valor Líquido:</span>
+                <span className="text-xl font-bold text-green-600">
+                  {formatarValor(
+                    (parseFloat(valorEditando.replace(',', '.')) || 0) +
+                    (parseFloat(jurosEditando.replace(',', '.')) || 0) -
+                    (parseFloat(descontoEditando.replace(',', '.')) || 0)
+                  )}
+                </span>
+              </div>
+            </div>
+
+            {/* Banco */}
+            <div className="space-y-2">
+              <Label>Banco *</Label>
+              <Select value={bancoEditando} onValueChange={setBancoEditando}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o banco..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {bancos.map(banco => (
+                    <SelectItem key={banco.id} value={banco.id}>
+                      {banco.codigo} - {banco.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Tipo de Documento */}
+            <div className="space-y-2">
+              <Label>Tipo de Documento *</Label>
+              <Select value={tipoDocEditando} onValueChange={setTipoDocEditando}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o tipo..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {tiposDocumento.map(tipo => (
+                    <SelectItem key={tipo.id} value={tipo.id}>
+                      {tipo.descricao}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Observação */}
+            <div className="space-y-2">
+              <Label htmlFor="obs-edit">Observação</Label>
+              <Textarea
+                id="obs-edit"
+                placeholder="Observações sobre o pagamento..."
+                rows={3}
+                value={obsEditando}
+                onChange={(e) => setObsEditando(e.target.value)}
+              />
+            </div>
+
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Atenção:</strong> A edição não permite alterar ou adicionar comprovantes. 
+                Para isso, exclua o pagamento e crie um novo.
+              </AlertDescription>
+            </Alert>
+          </div>
+
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setModalEditarPagamento(false)}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={handleSalvarEdicaoPagamento}>
+              Salvar Alterações
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Estornar Pagamento */}
+      <Dialog open={modalEstornar} onOpenChange={setModalEstornar}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Estornar Pagamento</DialogTitle>
+            <DialogDescription>
+              O pagamento será marcado como estornado e não contabilizado
+            </DialogDescription>
+          </DialogHeader>
+
+          {pagamentoEstornando && (
+            <div className="space-y-4 py-4">
+              {/* Informações do Pagamento */}
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Data:</span>
+                  <span className="font-medium">
+                    {formatarData(pagamentoEstornando.data_pagamento)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Valor:</span>
+                  <span className="font-medium text-red-600">
+                    {formatarValor(pagamentoEstornando.valor_pago)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Banco:</span>
+                  <span className="font-medium">
+                    {pagamentoEstornando.banco?.nome}
+                  </span>
+                </div>
+              </div>
+
+              <Alert className="bg-amber-50 border-amber-200">
+                <Info className="h-4 w-4 text-amber-600" />
+                <AlertDescription>
+                  <strong>Importante:</strong> O estorno não exclui o pagamento, apenas o marca 
+                  como inválido. O histórico será mantido para auditoria.
+                </AlertDescription>
+              </Alert>
+
+              {/* Motivo do Estorno */}
+              <div className="space-y-2">
+                <Label htmlFor="motivo-estorno">Motivo do Estorno *</Label>
+                <Textarea
+                  id="motivo-estorno"
+                  placeholder="Descreva o motivo do estorno..."
+                  rows={4}
+                  value={motivoEstorno}
+                  onChange={(e) => setMotivoEstorno(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setModalEstornar(false)}
+            >
+              Cancelar
+            </Button>
+            <Button 
+              variant="destructive"
+              onClick={handleConfirmarEstorno}
+            >
+              Confirmar Estorno
             </Button>
           </DialogFooter>
         </DialogContent>
