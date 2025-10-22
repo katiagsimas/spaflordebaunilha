@@ -21,7 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Plus, Info } from 'lucide-react';
@@ -428,343 +428,249 @@ export default function ContasPagarForm() {
     if (error) throw error;
   };
 
-  const calcularPreview = () => {
-    const valor = parseFloat(valorTotal.replace(',', '.'));
-    const parcelas = parseInt(numeroParcelas);
-
-    if (!valor || !parcelas || parcelas < 1) return [];
-
-    const preview = [];
-    const dataBase = primeiroVencimento ? new Date(primeiroVencimento + 'T00:00:00') : new Date();
-
-    if (tipoLancamento === 'parcelado' || tipoLancamento === 'unico') {
-      const valorParcela = valor / parcelas;
-      
-      for (let i = 0; i < Math.min(parcelas, 5); i++) {
-        const dataVenc = new Date(dataBase);
-        dataVenc.setMonth(dataVenc.getMonth() + i);
-        
-        preview.push({
-          numero: i + 1,
-          vencimento: dataVenc.toLocaleDateString('pt-BR'),
-          valor: valorParcela,
-        });
-      }
-    } else if (tipoLancamento === 'recorrente' && diaVencimentoRecorrente) {
-      const dia = parseInt(diaVencimentoRecorrente);
-      
-      for (let i = 0; i < Math.min(parcelas, 5); i++) {
-        const dataVenc = new Date(dataBase);
-        dataVenc.setMonth(dataVenc.getMonth() + i);
-        dataVenc.setDate(dia);
-        
-        preview.push({
-          numero: i + 1,
-          vencimento: dataVenc.toLocaleDateString('pt-BR'),
-          valor: valor,
-        });
-      }
-    }
-
-    return preview;
-  };
-
-  const previewParcelas = calcularPreview();
-
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-6 space-y-6 max-w-4xl">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate('/financeiro/contas-pagar')}>
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
           <h1 className="text-3xl font-bold">
-            {isEdicao ? 'Editar' : 'Nova'} Conta a Pagar
+            {isEdicao ? 'Editar Conta a Pagar' : 'Nova Conta a Pagar'}
           </h1>
           <p className="text-muted-foreground">
-            {isEdicao ? 'Atualize' : 'Cadastre'} uma conta a pagar
+            {isEdicao ? 'Edite a conta e as parcelas serão recalculadas' : 'Cadastre uma nova conta a pagar'}
           </p>
         </div>
       </div>
 
-      {/* Formulário */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Coluna Principal */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Dados Principais */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Dados Principais</CardTitle>
-              <CardDescription>Informações básicas da conta</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Data de Emissão */}
-              <div className="space-y-2">
-                <Label htmlFor="data-emissao">Data de Emissão *</Label>
-                <Input
-                  id="data-emissao"
-                  type="date"
-                  value={dataEmissao}
-                  onChange={(e) => setDataEmissao(e.target.value)}
-                />
-              </div>
-
-              {/* Fornecedor */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <Label>Fornecedor *</Label>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setModalFornecedor(true)}
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Novo Fornecedor
-                  </Button>
-                </div>
-                <Select value={fornecedorId} onValueChange={setFornecedorId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o fornecedor..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {fornecedores.map(f => (
-                      <SelectItem key={f.id} value={f.id}>
-                        {f.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Tipo Documento e Plano Contas */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Tipo de Documento *</Label>
-                  <Select value={tipoDocumentoId} onValueChange={setTipoDocumentoId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {tiposDocumento.map(tipo => (
-                        <SelectItem key={tipo.id} value={tipo.id}>
-                          {tipo.descricao}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Plano de Contas *</Label>
-                  <Select value={planoContasId} onValueChange={setPlanoContasId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {planosContas.map((plano: any) => (
-                        <SelectItem key={plano.id} value={plano.id}>
-                          {plano.codigo_estruturado} - {plano.descricao}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Banco */}
-              <div className="space-y-2">
-                <Label>Banco *</Label>
-                <Select value={bancoId} onValueChange={setBancoId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {bancos.map(banco => (
-                      <SelectItem key={banco.id} value={banco.id}>
-                        {banco.codigo} - {banco.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Descrição */}
-              <div className="space-y-2">
-                <Label htmlFor="descricao">Descrição</Label>
-                <Textarea
-                  id="descricao"
-                  placeholder="Observações sobre a conta..."
-                  rows={3}
-                  value={descricao}
-                  onChange={(e) => setDescricao(e.target.value)}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Valores e Parcelamento */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Valores e Parcelamento</CardTitle>
-              <CardDescription>Configure o valor e forma de pagamento</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Valor Total */}
-              <div className="space-y-2">
-                <Label htmlFor="valor-total">Valor Total *</Label>
-                <Input
-                  id="valor-total"
-                  type="text"
-                  placeholder="0,00"
-                  value={valorTotal}
-                  onChange={(e) => {
-                    const valor = e.target.value.replace(/[^\d,]/g, '');
-                    setValorTotal(valor);
-                  }}
-                />
-              </div>
-
-              {/* Tipo de Lançamento */}
-              <div className="space-y-3">
-                <Label>Tipo de Lançamento *</Label>
-                <RadioGroup value={tipoLancamento} onValueChange={setTipoLancamento}>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="unico" id="tipo-unico" />
-                    <Label htmlFor="tipo-unico" className="font-normal cursor-pointer">
-                      Único (À vista)
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="parcelado" id="tipo-parcelado" />
-                    <Label htmlFor="tipo-parcelado" className="font-normal cursor-pointer">
-                      Parcelado (Divide o valor)
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="recorrente" id="tipo-recorrente" />
-                    <Label htmlFor="tipo-recorrente" className="font-normal cursor-pointer">
-                      Recorrente (Repete o valor total)
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              {/* Número de Parcelas e Primeiro Vencimento */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="numero-parcelas">
-                    {tipoLancamento === 'recorrente' ? 'Repetições' : 'Número de Parcelas'} *
-                  </Label>
-                  <Input
-                    id="numero-parcelas"
-                    type="number"
-                    min="1"
-                    value={numeroParcelas}
-                    onChange={(e) => setNumeroParcelas(e.target.value)}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="primeiro-vencimento">
-                    {tipoLancamento === 'recorrente' ? 'Primeira Competência' : 'Primeiro Vencimento'} *
-                  </Label>
-                  <Input
-                    id="primeiro-vencimento"
-                    type="date"
-                    value={primeiroVencimento}
-                    onChange={(e) => setPrimeiroVencimento(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* Dia do Vencimento (apenas recorrente) */}
-              {tipoLancamento === 'recorrente' && (
-                <div className="space-y-2">
-                  <Label htmlFor="dia-vencimento">Dia do Vencimento *</Label>
-                  <Select value={diaVencimentoRecorrente} onValueChange={setDiaVencimentoRecorrente}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o dia..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({ length: 31 }, (_, i) => i + 1).map(dia => (
-                        <SelectItem key={dia} value={dia.toString()}>
-                          Dia {dia}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Coluna Lateral - Preview */}
-        <div className="space-y-6">
-          {/* Preview das Parcelas */}
-          {previewParcelas.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Preview das Parcelas</CardTitle>
-                <CardDescription>
-                  {previewParcelas.length < parseInt(numeroParcelas)
-                    ? `Primeiras ${previewParcelas.length} de ${numeroParcelas} parcelas`
-                    : `${previewParcelas.length} parcela(s)`}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {previewParcelas.map((parcela) => (
-                  <div key={parcela.numero} className="flex justify-between items-center py-2 border-b last:border-0">
-                    <div>
-                      <p className="font-medium text-sm">Parcela {parcela.numero}</p>
-                      <p className="text-xs text-muted-foreground">{parcela.vencimento}</p>
-                    </div>
-                    <p className="font-semibold text-red-600">
-                      {parcela.valor.toLocaleString('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL',
-                      })}
-                    </p>
-                  </div>
-                ))}
-                {parseInt(numeroParcelas) > 5 && (
-                  <p className="text-xs text-muted-foreground text-center pt-2">
-                    + {parseInt(numeroParcelas) - 5} parcelas
-                  </p>
-                )}
-              </CardContent>
-            </Card>
+      {/* Alert Informativo */}
+      <Alert className={isEdicao ? "bg-amber-50 border-amber-200" : "bg-blue-50 border-blue-200"}>
+        <Info className={isEdicao ? "h-4 w-4 text-amber-600" : "h-4 w-4 text-blue-600"} />
+        <AlertDescription>
+          {isEdicao ? (
+            <>
+              <strong>Atenção:</strong> Ao salvar, todas as parcelas serão recalculadas com base nos novos valores.
+            </>
+          ) : (
+            <>
+              <strong>Parcelado:</strong> Divide o valor total em X parcelas. Emissão = mesma data.<br />
+              <strong>Recorrente:</strong> Repete o valor total em cada parcela. Emissão = dia 01 de cada mês.
+            </>
           )}
+        </AlertDescription>
+      </Alert>
 
-          {/* Informações */}
-          <Alert>
-            <Info className="h-4 w-4" />
-            <AlertDescription className="text-sm">
-              <strong>Dica:</strong> Em lançamentos recorrentes, cada parcela repete o valor total.
-              Em parcelados, o valor é dividido entre as parcelas.
-            </AlertDescription>
-          </Alert>
-
-          {/* Botões de Ação */}
+      {/* Card Principal */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Informações da Conta</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Data de Emissão */}
           <div className="space-y-2">
-            <Button
-              className="w-full"
-              onClick={handleSalvar}
-              disabled={loading}
-            >
-              {loading ? 'Salvando...' : isEdicao ? 'Atualizar Conta' : 'Criar Conta'}
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => navigate('/financeiro/contas-pagar')}
-              disabled={loading}
-            >
-              Cancelar
-            </Button>
+            <Label htmlFor="data-emissao">Data de Emissão *</Label>
+            <Input
+              id="data-emissao"
+              type="date"
+              value={dataEmissao}
+              onChange={(e) => setDataEmissao(e.target.value)}
+              className="max-w-xs"
+            />
           </div>
-        </div>
+
+          {/* Fornecedor */}
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <Label>Fornecedor *</Label>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setModalFornecedor(true)}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Novo Fornecedor
+              </Button>
+            </div>
+            <Select value={fornecedorId} onValueChange={setFornecedorId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o fornecedor..." />
+              </SelectTrigger>
+              <SelectContent>
+                {fornecedores.map(f => (
+                  <SelectItem key={f.id} value={f.id}>
+                    {f.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Tipo Documento e Plano Contas */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Tipo de Documento *</Label>
+              <Select value={tipoDocumentoId} onValueChange={setTipoDocumentoId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {tiposDocumento.map(tipo => (
+                    <SelectItem key={tipo.id} value={tipo.id}>
+                      {tipo.descricao}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Plano de Contas *</Label>
+              <Select value={planoContasId} onValueChange={setPlanoContasId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {planosContas.map((plano: any) => (
+                    <SelectItem key={plano.id} value={plano.id}>
+                      {plano.codigo_estruturado} - {plano.descricao}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Banco */}
+          <div className="space-y-2">
+            <Label>Banco *</Label>
+            <Select value={bancoId} onValueChange={setBancoId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione..." />
+              </SelectTrigger>
+              <SelectContent>
+                {bancos.map(banco => (
+                  <SelectItem key={banco.id} value={banco.id}>
+                    {banco.codigo} - {banco.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Descrição */}
+          <div className="space-y-2">
+            <Label htmlFor="descricao">Descrição</Label>
+            <Textarea
+              id="descricao"
+              placeholder="Informações adicionais..."
+              rows={3}
+              value={descricao}
+              onChange={(e) => setDescricao(e.target.value)}
+            />
+          </div>
+
+          {/* Valor Total */}
+          <div className="space-y-2">
+            <Label htmlFor="valor">Valor Total *</Label>
+            <Input
+              id="valor"
+              placeholder="Ex: 1000,00"
+              value={valorTotal}
+              onChange={(e) => {
+                const valor = e.target.value.replace(/[^\d,]/g, '');
+                setValorTotal(valor);
+              }}
+              className="max-w-xs"
+            />
+          </div>
+
+          {/* Tipo de Lançamento */}
+          <div className="space-y-3">
+            <Label>Tipo de Lançamento *</Label>
+            <RadioGroup value={tipoLancamento} onValueChange={setTipoLancamento}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="unico" id="unico" />
+                <Label htmlFor="unico" className="cursor-pointer">
+                  Único (1 parcela)
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="parcelado" id="parcelado" />
+                <Label htmlFor="parcelado" className="cursor-pointer">
+                  Parcelado (divide valor total)
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="recorrente" id="recorrente" />
+                <Label htmlFor="recorrente" className="cursor-pointer">
+                  Recorrente (repete valor total)
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          {/* Número de Parcelas e Vencimento */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="parcelas">
+                {tipoLancamento === 'unico' ? 'Parcelas (fixo)' : 'Número de Parcelas *'}
+              </Label>
+              <Input
+                id="parcelas"
+                type="number"
+                min="1"
+                value={numeroParcelas}
+                onChange={(e) => setNumeroParcelas(e.target.value)}
+                disabled={tipoLancamento === 'unico'}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="vencimento">Primeiro Vencimento *</Label>
+              <Input
+                id="vencimento"
+                type="date"
+                value={primeiroVencimento}
+                onChange={(e) => setPrimeiroVencimento(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Dia Vencimento Recorrente */}
+          {tipoLancamento === 'recorrente' && (
+            <div className="space-y-2">
+              <Label htmlFor="dia-vencimento">Dia do Vencimento *</Label>
+              <Select value={diaVencimentoRecorrente} onValueChange={setDiaVencimentoRecorrente}>
+                <SelectTrigger className="max-w-xs">
+                  <SelectValue placeholder="Selecione o dia..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 31 }, (_, i) => i + 1).map(dia => (
+                    <SelectItem key={dia} value={dia.toString()}>
+                      Dia {dia}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Botões de Ação */}
+      <div className="flex gap-4">
+        <Button
+          variant="outline"
+          onClick={() => navigate('/financeiro/contas-pagar')}
+          disabled={loading}
+        >
+          Cancelar
+        </Button>
+        <Button onClick={handleSalvar} disabled={loading} className="flex-1">
+          {loading ? 'Salvando...' : (isEdicao ? 'Atualizar Conta' : 'Cadastrar Conta a Pagar')}
+        </Button>
       </div>
 
       {/* Modal Novo Fornecedor */}
