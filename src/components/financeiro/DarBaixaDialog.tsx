@@ -135,17 +135,6 @@ export default function DarBaixaDialog({
       const hoje = new Date().toISOString().split('T')[0];
       setDataPagamento(hoje);
       
-      // Aguardar config de juros carregar antes de calcular
-      setTimeout(() => {
-        // Calcular juros se estiver em atraso
-        const jurosAuto = calcularJurosAutomatico(
-          parcela.data_vencimento,
-          hoje,
-          valorRestante
-        );
-        setJurosBaixa(jurosAuto.replace('.', ','));
-      }, 100);
-      
       setDescontoBaixa('0,00');
       setBancoId('');
       setTipoDocumentoId('');
@@ -153,6 +142,21 @@ export default function DarBaixaDialog({
       setArquivoComprovante(null);
     }
   }, [valorRestante]);
+
+  // Recalcular juros quando valorPago ou dataPagamento mudar
+  useEffect(() => {
+    if (parcela && dataPagamento && valorPago && configJuros) {
+      const valorNumerico = parseFloat(valorPago.replace(',', '.'));
+      if (!isNaN(valorNumerico) && valorNumerico > 0) {
+        const jurosAuto = calcularJurosAutomatico(
+          parcela.data_vencimento,
+          dataPagamento,
+          valorNumerico
+        );
+        setJurosBaixa(jurosAuto.replace('.', ','));
+      }
+    }
+  }, [valorPago, dataPagamento, configJuros, parcela]);
 
   const fetchDados = async () => {
     try {
@@ -426,16 +430,7 @@ export default function DarBaixaDialog({
                 id="data-pag"
                 type="date"
                 value={dataPagamento}
-                onChange={(e) => {
-                  setDataPagamento(e.target.value);
-                  // Recalcular juros ao mudar data
-                  const jurosAuto = calcularJurosAutomatico(
-                    parcela.data_vencimento,
-                    e.target.value,
-                    valorRestante
-                  );
-                  setJurosBaixa(jurosAuto.replace('.', ','));
-                }}
+                onChange={(e) => setDataPagamento(e.target.value)}
               />
             </div>
 
@@ -450,6 +445,9 @@ export default function DarBaixaDialog({
                   setValorPago(valor);
                 }}
               />
+              <p className="text-xs text-muted-foreground">
+                Os juros serão calculados sobre este valor
+              </p>
             </div>
           </div>
 
