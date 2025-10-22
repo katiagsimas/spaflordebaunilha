@@ -488,8 +488,8 @@ export default function DRE() {
         </CardContent>
       </Card>
 
-      {/* Cards de Resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      {/* Cards de Indicadores */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -508,26 +508,12 @@ export default function DRE() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Custos</p>
+                <p className="text-sm text-muted-foreground">Custos + Despesas</p>
                 <p className="text-2xl font-bold text-red-600">
-                  {formatarValor(totalCustos)}
+                  {formatarValor(totalCustos + totalDespesas)}
                 </p>
               </div>
               <TrendingDown className="h-8 w-8 text-red-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Despesas</p>
-                <p className="text-2xl font-bold text-orange-600">
-                  {formatarValor(totalDespesas)}
-                </p>
-              </div>
-              <TrendingDown className="h-8 w-8 text-orange-600" />
             </div>
           </CardContent>
         </Card>
@@ -551,8 +537,8 @@ export default function DRE() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Margem Líquida</p>
-                <p className={`text-2xl font-bold ${margemLiquida >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
-                  {margemLiquida.toFixed(1)}%
+                <p className={`text-2xl font-bold ${margemLiquida >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {margemLiquida.toFixed(2)}%
                 </p>
               </div>
               <Percent className="h-8 w-8 text-muted-foreground" />
@@ -562,233 +548,296 @@ export default function DRE() {
       </div>
 
       {/* Abas */}
-      <Tabs defaultValue="dre" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="dre">DRE Detalhado</TabsTrigger>
+      <Tabs defaultValue="estruturado">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="estruturado">DRE Estruturado</TabsTrigger>
+          <TabsTrigger value="categorias">Por Categorias</TabsTrigger>
           <TabsTrigger value="comparativo">Comparativo</TabsTrigger>
         </TabsList>
 
-        {/* Aba: DRE Detalhado */}
-        <TabsContent value="dre" className="space-y-4">
+        {/* Aba: DRE Estruturado */}
+        <TabsContent value="estruturado" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Demonstração do Resultado do Exercício</CardTitle>
+              <CardTitle>Demonstração do Resultado - Estrutura Completa</CardTitle>
               <CardDescription>
-                Estrutura completa do DRE com todas as contas
+                Relatório detalhado seguindo a estrutura contábil do DRE
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {/* RECEITAS */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-bold">RECEITAS OPERACIONAIS</h3>
-                </div>
-                {receitas.length === 0 ? (
-                  <p className="text-sm text-muted-foreground pl-4">Nenhuma receita no período</p>
-                ) : (
-                  <div className="border rounded-lg overflow-x-auto">
-                    <Table>
-                      <TableHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {/* RECEITAS */}
+                <div>
+                  <h3 className="font-bold text-lg mb-3 text-green-700">RECEITAS OPERACIONAIS</h3>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-32">Código</TableHead>
+                        <TableHead>Descrição</TableHead>
+                        <TableHead>Categoria</TableHead>
+                        <TableHead className="text-right">Valor</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {receitas.length === 0 ? (
                         <TableRow>
-                          <TableHead>Código</TableHead>
-                          <TableHead>Descrição</TableHead>
-                          <TableHead>Categoria</TableHead>
-                          <TableHead className="text-right">Valor</TableHead>
+                          <TableCell colSpan={4} className="text-center text-muted-foreground">
+                            Nenhuma receita no período
+                          </TableCell>
                         </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {receitas.map((r: any, idx) => (
-                          <TableRow key={idx}>
+                      ) : (
+                        receitas.map((r: any, index: number) => (
+                          <TableRow key={index}>
                             <TableCell className="font-mono">{r.codigo}</TableCell>
                             <TableCell>{r.descricao}</TableCell>
-                            <TableCell>{r.categoria}</TableCell>
-                            <TableCell className="text-right font-medium text-green-600">
+                            <TableCell className="text-sm text-muted-foreground">{r.categoria}</TableCell>
+                            <TableCell className="text-right text-green-600 font-medium">
                               {formatarValor(r.valor)}
                             </TableCell>
                           </TableRow>
-                        ))}
-                        <TableRow className="bg-muted/50">
-                          <TableCell colSpan={3} className="font-bold">
-                            TOTAL RECEITAS
-                          </TableCell>
-                          <TableCell className="text-right font-bold text-green-600">
-                            {formatarValor(totalReceitas)}
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
-                  </div>
-                )}
-              </div>
-
-              <Separator />
-
-              {/* CUSTOS */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-bold">(-) CUSTOS OPERACIONAIS</h3>
+                        ))
+                      )}
+                      <TableRow className="bg-green-50 font-bold">
+                        <TableCell colSpan={3}>TOTAL DE RECEITAS</TableCell>
+                        <TableCell className="text-right text-green-700">
+                          {formatarValor(totalReceitas)}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
                 </div>
-                {custos.length === 0 ? (
-                  <p className="text-sm text-muted-foreground pl-4">Nenhum custo no período</p>
-                ) : (
-                  <div className="border rounded-lg overflow-x-auto">
-                    <Table>
-                      <TableHeader>
+
+                <Separator />
+
+                {/* CUSTOS */}
+                <div>
+                  <h3 className="font-bold text-lg mb-3 text-orange-700">(-) CUSTOS</h3>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-32">Código</TableHead>
+                        <TableHead>Descrição</TableHead>
+                        <TableHead>Categoria</TableHead>
+                        <TableHead className="text-right">Valor</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {custos.length === 0 ? (
                         <TableRow>
-                          <TableHead>Código</TableHead>
-                          <TableHead>Descrição</TableHead>
-                          <TableHead>Categoria</TableHead>
-                          <TableHead className="text-right">Valor</TableHead>
+                          <TableCell colSpan={4} className="text-center text-muted-foreground">
+                            Nenhum custo no período
+                          </TableCell>
                         </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {custos.map((c: any, idx) => (
-                          <TableRow key={idx}>
+                      ) : (
+                        custos.map((c: any, index: number) => (
+                          <TableRow key={index}>
                             <TableCell className="font-mono">{c.codigo}</TableCell>
                             <TableCell>{c.descricao}</TableCell>
-                            <TableCell>{c.categoria}</TableCell>
-                            <TableCell className="text-right font-medium text-red-600">
+                            <TableCell className="text-sm text-muted-foreground">{c.categoria}</TableCell>
+                            <TableCell className="text-right text-orange-600 font-medium">
                               {formatarValor(c.valor)}
                             </TableCell>
                           </TableRow>
-                        ))}
-                        <TableRow className="bg-muted/50">
-                          <TableCell colSpan={3} className="font-bold">
-                            TOTAL CUSTOS
-                          </TableCell>
-                          <TableCell className="text-right font-bold text-red-600">
-                            {formatarValor(totalCustos)}
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
+                        ))
+                      )}
+                      <TableRow className="bg-orange-50 font-bold">
+                        <TableCell colSpan={3}>TOTAL DE CUSTOS</TableCell>
+                        <TableCell className="text-right text-orange-700">
+                          {formatarValor(totalCustos)}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* LUCRO BRUTO */}
+                <div className="p-4 bg-blue-50 border-2 border-blue-500 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold">= LUCRO BRUTO</span>
+                    <span className={`text-2xl font-bold ${lucroOperacional >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                      {formatarValor(lucroOperacional)}
+                    </span>
                   </div>
-                )}
-              </div>
-
-              <Separator className="border-2" />
-
-              {/* LUCRO BRUTO */}
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-xl font-bold">LUCRO BRUTO</h3>
-                  <p className={`text-2xl font-bold ${lucroOperacional >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
-                    {formatarValor(lucroOperacional)}
-                  </p>
+                  {totalReceitas > 0 && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Margem Bruta: {((lucroOperacional / totalReceitas) * 100).toFixed(2)}%
+                    </p>
+                  )}
                 </div>
-              </div>
 
-              <Separator />
+                <Separator />
 
-              {/* DESPESAS */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-bold">(-) DESPESAS OPERACIONAIS</h3>
-                </div>
-                {despesas.length === 0 ? (
-                  <p className="text-sm text-muted-foreground pl-4">Nenhuma despesa no período</p>
-                ) : (
-                  <div className="border rounded-lg overflow-x-auto">
-                    <Table>
-                      <TableHeader>
+                {/* DESPESAS */}
+                <div>
+                  <h3 className="font-bold text-lg mb-3 text-red-700">(-) DESPESAS OPERACIONAIS</h3>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-32">Código</TableHead>
+                        <TableHead>Descrição</TableHead>
+                        <TableHead>Categoria</TableHead>
+                        <TableHead className="text-right">Valor</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {despesas.length === 0 ? (
                         <TableRow>
-                          <TableHead>Código</TableHead>
-                          <TableHead>Descrição</TableHead>
-                          <TableHead>Categoria</TableHead>
-                          <TableHead className="text-right">Valor</TableHead>
+                          <TableCell colSpan={4} className="text-center text-muted-foreground">
+                            Nenhuma despesa no período
+                          </TableCell>
                         </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {despesas.map((d: any, idx) => (
-                          <TableRow key={idx}>
+                      ) : (
+                        despesas.map((d: any, index: number) => (
+                          <TableRow key={index}>
                             <TableCell className="font-mono">{d.codigo}</TableCell>
                             <TableCell>{d.descricao}</TableCell>
-                            <TableCell>{d.categoria}</TableCell>
-                            <TableCell className="text-right font-medium text-orange-600">
+                            <TableCell className="text-sm text-muted-foreground">{d.categoria}</TableCell>
+                            <TableCell className="text-right text-red-600 font-medium">
                               {formatarValor(d.valor)}
                             </TableCell>
                           </TableRow>
-                        ))}
-                        <TableRow className="bg-muted/50">
-                          <TableCell colSpan={3} className="font-bold">
-                            TOTAL DESPESAS
-                          </TableCell>
-                          <TableCell className="text-right font-bold text-orange-600">
-                            {formatarValor(totalDespesas)}
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
-                  </div>
-                )}
-              </div>
+                        ))
+                      )}
+                      <TableRow className="bg-red-50 font-bold">
+                        <TableCell colSpan={3}>TOTAL DE DESPESAS</TableCell>
+                        <TableCell className="text-right text-red-700">
+                          {formatarValor(totalDespesas)}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
 
-              <Separator className="border-2" />
-
-              {/* RESULTADO FINAL */}
-              <div className="bg-purple-50 border-2 border-purple-500 p-6 rounded-lg">
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-2xl font-bold">LUCRO LÍQUIDO</h3>
-                    <p className={`text-3xl font-bold ${lucroLiquido >= 0 ? 'text-purple-600' : 'text-red-600'}`}>
+                {/* RESULTADO FINAL */}
+                <div className={`p-6 border-2 rounded-lg ${
+                  lucroLiquido >= 0 
+                    ? 'bg-green-50 border-green-500' 
+                    : 'bg-red-50 border-red-500'
+                }`}>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xl font-bold">= LUCRO/PREJUÍZO LÍQUIDO</span>
+                    <span className={`text-3xl font-bold ${
+                      lucroLiquido >= 0 ? 'text-green-600' : 'text-red-600'
+                    }`}>
                       {formatarValor(lucroLiquido)}
-                    </p>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-muted-foreground">Margem Líquida</span>
-                    <span className={`font-bold ${margemLiquida >= 0 ? 'text-purple-600' : 'text-red-600'}`}>
-                      {margemLiquida.toFixed(2)}%
                     </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Margem Líquida</p>
+                      <p className="text-lg font-bold">
+                        {margemLiquida.toFixed(2)}%
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Custos/Receitas</p>
+                      <p className="text-lg font-bold">
+                        {totalReceitas > 0 ? ((totalCustos / totalReceitas) * 100).toFixed(2) : 0}%
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Despesas/Receitas</p>
+                      <p className="text-lg font-bold">
+                        {totalReceitas > 0 ? ((totalDespesas / totalReceitas) * 100).toFixed(2) : 0}%
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
 
-          {/* Gráfico Pizza */}
-          {dadosPizza.length > 0 && (
+        {/* Aba: Por Categorias */}
+        <TabsContent value="categorias" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Gráfico de Pizza - Receitas */}
             <Card>
               <CardHeader>
-                <CardTitle>Distribuição de Valores</CardTitle>
-                <CardDescription>
-                  Composição percentual das movimentações
-                </CardDescription>
+                <CardTitle>Receitas por Categoria</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RechartsPieChart>
-                      <Pie
-                        data={dadosPizza}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={(entry) => `${entry.name}: ${formatarValor(entry.value)}`}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {dadosPizza.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip formatter={(value) => formatarValor(Number(value))} />
-                      <Legend />
-                    </RechartsPieChart>
-                  </ResponsiveContainer>
-                </div>
+                {receitas.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Sem dados de receitas
+                  </div>
+                ) : (
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsPieChart>
+                        <Pie
+                          data={receitas.map((r: any) => ({
+                            name: r.descricao.substring(0, 20),
+                            value: r.valor
+                          }))}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={(entry: any) => `${entry.name}: ${((entry.value / totalReceitas) * 100).toFixed(1)}%`}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {receitas.map((entry: any, index: number) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value: any) => formatarValor(value)} />
+                      </RechartsPieChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
               </CardContent>
             </Card>
-          )}
+
+            {/* Gráfico de Pizza - Despesas */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Custos + Despesas por Categoria</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {(custos.length + despesas.length) === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Sem dados de custos/despesas
+                  </div>
+                ) : (
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsPieChart>
+                        <Pie
+                          data={[...custos, ...despesas].map((d: any) => ({
+                            name: d.descricao.substring(0, 20),
+                            value: d.valor
+                          }))}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={(entry: any) => `${entry.name}: ${((entry.value / (totalCustos + totalDespesas)) * 100).toFixed(1)}%`}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {[...custos, ...despesas].map((entry: any, index: number) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value: any) => formatarValor(value)} />
+                      </RechartsPieChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         {/* Aba: Comparativo */}
         <TabsContent value="comparativo" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Comparativo dos Últimos 6 Meses</CardTitle>
+              <CardTitle>Evolução dos Últimos 6 Meses</CardTitle>
               <CardDescription>
-                Evolução das receitas, custos e resultado
+                Comparativo de receitas, custos/despesas e resultado
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -798,51 +847,14 @@ export default function DRE() {
                 </div>
               ) : (
                 <>
-                  <div className="border rounded-lg overflow-x-auto mb-6">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Mês</TableHead>
-                          <TableHead className="text-right">Receitas</TableHead>
-                          <TableHead className="text-right">Custos/Despesas</TableHead>
-                          <TableHead className="text-right">Resultado</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {dadosComparativos.map((mes: any, idx) => (
-                          <TableRow key={idx}>
-                            <TableCell className="font-medium">{mes.mesCompleto}</TableCell>
-                            <TableCell className="text-right text-green-600 font-medium">
-                              {formatarValor(mes.receitas)}
-                            </TableCell>
-                            <TableCell className="text-right text-red-600 font-medium">
-                              {formatarValor(mes.custos)}
-                            </TableCell>
-                            <TableCell className={`text-right font-bold ${
-                              mes.resultado >= 0 ? 'text-blue-600' : 'text-red-600'
-                            }`}>
-                              {formatarValor(mes.resultado)}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-
-                  <div className="h-[350px]">
+                  {/* Gráfico */}
+                  <div className="h-[350px] mb-6">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart
-                        data={dadosComparativos}
-                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                      >
+                      <BarChart data={dadosComparativos}>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis 
-                          dataKey="mes" 
-                          tick={{ fontSize: 12 }}
-                        />
-                        <YAxis 
-                          tick={{ fontSize: 12 }}
-                          tickFormatter={(value) => 
+                        <XAxis dataKey="mes" />
+                        <YAxis
+                          tickFormatter={(value) =>
                             value.toLocaleString('pt-BR', {
                               style: 'currency',
                               currency: 'BRL',
@@ -850,17 +862,48 @@ export default function DRE() {
                             })
                           }
                         />
-                        <Tooltip 
-                          formatter={(value) => formatarValor(Number(value))}
-                          labelStyle={{ color: '#000' }}
-                        />
+                        <Tooltip formatter={(value: any) => formatarValor(value)} />
                         <Legend />
                         <Bar dataKey="receitas" fill="#10b981" name="Receitas" />
-                        <Bar dataKey="custos" fill="#ef4444" name="Custos/Despesas" />
+                        <Bar dataKey="custos" fill="#ef4444" name="Custos + Despesas" />
                         <Bar dataKey="resultado" fill="#3b82f6" name="Resultado" />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
+
+                  {/* Tabela */}
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Mês</TableHead>
+                        <TableHead className="text-right">Receitas</TableHead>
+                        <TableHead className="text-right">Custos + Despesas</TableHead>
+                        <TableHead className="text-right">Resultado</TableHead>
+                        <TableHead className="text-right">Margem</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {dadosComparativos.map((d: any, index: number) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{d.mesCompleto}</TableCell>
+                          <TableCell className="text-right text-green-600">
+                            {formatarValor(d.receitas)}
+                          </TableCell>
+                          <TableCell className="text-right text-red-600">
+                            {formatarValor(d.custos)}
+                          </TableCell>
+                          <TableCell className={`text-right font-bold ${
+                            d.resultado >= 0 ? 'text-blue-600' : 'text-red-600'
+                          }`}>
+                            {formatarValor(d.resultado)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {d.receitas > 0 ? ((d.resultado / d.receitas) * 100).toFixed(2) : 0}%
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </>
               )}
             </CardContent>
