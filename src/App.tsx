@@ -44,6 +44,7 @@ import Ingredientes from "./pages/precificacao/Ingredientes";
 import Embalagens from "./pages/precificacao/Embalagens";
 import PrePreparos from "./pages/precificacao/PrePreparos";
 import PrePreparoForm from "./pages/precificacao/PrePreparoForm";
+import Financeiro from "./pages/financeiro/Financeiro";
 import ContasReceber from "./pages/financeiro/ContasReceber";
 import ContasReceberForm from "./pages/financeiro/ContasReceberForm";
 import ContasReceberDetalhes from "./pages/financeiro/ContasReceberDetalhes";
@@ -144,6 +145,9 @@ const App = () => (
           <Route path="/precificacao/pre-preparos" element={<ProtectedRoute><Layout><PrePreparos /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/pre-preparos/novo" element={<ProtectedRoute><Layout><PrePreparoForm /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/pre-preparos/:id" element={<ProtectedRoute><Layout><PrePreparoForm /></Layout></ProtectedRoute>} />
+          
+          {/* Financeiro - Página Principal */}
+          <Route path="/financeiro" element={<ProtectedRoute><Layout><Financeiro /></Layout></ProtectedRoute>} />
           
           {/* Financeiro - Contas a Receber */}
           <Route path="/financeiro/contas-receber" element={<ProtectedRoute><Layout><ContasReceber /></Layout></ProtectedRoute>} />
