@@ -14,7 +14,34 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Edit, Calendar, User, FileText, Building2, DollarSign, Info, AlertTriangle } from 'lucide-react';
+import { 
+  ArrowLeft, Edit, Calendar, User, FileText, Building2, DollarSign, 
+  Info, AlertTriangle, Edit2, Trash2, Download, MoreVertical 
+} from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function ContasReceberDetalhes() {
   const navigate = useNavigate();
@@ -25,9 +52,27 @@ export default function ContasReceberDetalhes() {
   const [parcelas, setParcelas] = useState([]);
   const [pagamentos, setPagamentos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [comprovantes, setComprovantes] = useState({});
+  
+  // Estados para modal de edição
+  const [modalEditarPagamento, setModalEditarPagamento] = useState(false);
+  const [pagamentoEditando, setPagamentoEditando] = useState(null);
+  const [dataPagamentoEdit, setDataPagamentoEdit] = useState('');
+  const [valorPagoEdit, setValorPagoEdit] = useState('');
+  const [jurosEdit, setJurosEdit] = useState('');
+  const [descontoEdit, setDescontoEdit] = useState('');
+  const [bancoIdEdit, setBancoIdEdit] = useState('');
+  const [tipoDocumentoIdEdit, setTipoDocumentoIdEdit] = useState('');
+  const [observacaoEdit, setObservacaoEdit] = useState('');
+  const [salvandoEdicao, setSalvandoEdicao] = useState(false);
+  
+  // Estados para listas auxiliares
+  const [bancos, setBancos] = useState([]);
+  const [tiposDocumento, setTiposDocumento] = useState([]);
 
   useEffect(() => {
     fetchDetalhes();
+    fetchDadosAdicionais();
   }, [id]);
 
   const fetchDetalhes = async () => {
@@ -114,6 +159,12 @@ export default function ContasReceberDetalhes() {
         console.log('Pagamentos carregados:', dataPagamentos?.length);
         
         setPagamentos(dataPagamentos || []);
+        
+        // Buscar comprovantes
+        if (dataPagamentos && dataPagamentos.length > 0) {
+          const ids = dataPagamentos.map(p => p.id);
+          await fetchComprovantes(ids);
+        }
       }
 
     } catch (error) {
@@ -126,6 +177,196 @@ export default function ContasReceberDetalhes() {
       navigate('/financeiro/contas-receber');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchDadosAdicionais = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Buscar bancos
+      const { data: dataBancos } = await supabase
+        .from('bancos')
+        .select('id, codigo, nome')
+        .eq('usuario_id', user.id)
+        .order('nome');
+
+      setBancos(dataBancos || []);
+
+      // Buscar tipos de documentos
+      const { data: dataTipos } = await supabase
+        .from('tipos_documento')
+        .select('id, descricao')
+        .eq('usuario_id', user.id)
+        .eq('ativo', true)
+        .order('descricao');
+
+      setTiposDocumento(dataTipos || []);
+    } catch (error) {
+      console.error('Erro ao buscar dados:', error);
+    }
+  };
+
+  const fetchComprovantes = async (pagamentosIds) => {
+    try {
+      const { data } = await supabase
+        .from('contas_receber_comprovantes')
+        .select('*')
+        .in('pagamento_id', pagamentosIds);
+
+      if (data) {
+        const comprovantesMap = {};
+        data.forEach(comp => {
+          if (!comprovantesMap[comp.pagamento_id]) {
+            comprovantesMap[comp.pagamento_id] = [];
+          }
+          comprovantesMap[comp.pagamento_id].push(comp);
+        });
+        setComprovantes(comprovantesMap);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar comprovantes:', error);
+    }
+  };
+
+  const handleAbrirEdicaoPagamento = (pagamento) => {
+    setPagamentoEditando(pagamento);
+    setDataPagamentoEdit(pagamento.data_pagamento);
+    setValorPagoEdit(pagamento.valor_pago.toString().replace('.', ','));
+    setJurosEdit((pagamento.juros || 0).toString().replace('.', ','));
+    setDescontoEdit((pagamento.desconto || 0).toString().replace('.', ','));
+    setBancoIdEdit(pagamento.banco_id);
+    setTipoDocumentoIdEdit(pagamento.tipo_documento_id);
+    setObservacaoEdit(pagamento.observacao || '');
+    setModalEditarPagamento(true);
+  };
+
+  const handleSalvarEdicaoPagamento = async () => {
+    try {
+      if (!bancoIdEdit) {
+        toast({
+          title: 'Erro',
+          description: 'Selecione o banco!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!tipoDocumentoIdEdit) {
+        toast({
+          title: 'Erro',
+          description: 'Selecione o tipo de documento!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const valor = parseFloat(valorPagoEdit.replace(',', '.'));
+      if (!valor || valor <= 0) {
+        toast({
+          title: 'Erro',
+          description: 'Informe um valor válido!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      setSalvandoEdicao(true);
+
+      const juros = parseFloat(jurosEdit.replace(',', '.')) || 0;
+      const desconto = parseFloat(descontoEdit.replace(',', '.')) || 0;
+
+      const { error } = await supabase
+        .from('contas_receber_pagamentos')
+        .update({
+          data_pagamento: dataPagamentoEdit,
+          valor_pago: valor,
+          juros: juros,
+          desconto: desconto,
+          banco_id: bancoIdEdit,
+          tipo_documento_id: tipoDocumentoIdEdit,
+          observacao: observacaoEdit.trim() || null,
+        })
+        .eq('id', pagamentoEditando.id);
+
+      if (error) throw error;
+
+      toast({
+        title: '✅ Pagamento atualizado',
+        description: 'As alterações foram salvas com sucesso!',
+      });
+
+      setModalEditarPagamento(false);
+      fetchDetalhes();
+    } catch (error) {
+      console.error('Erro ao editar pagamento:', error);
+      toast({
+        title: 'Erro ao editar',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setSalvandoEdicao(false);
+    }
+  };
+
+  const handleExcluirPagamento = async (pagamento) => {
+    try {
+      const confirmar = window.confirm(
+        `Tem certeza que deseja excluir este pagamento de ${formatarValor(parseFloat(pagamento.valor_pago))}?\n\n` +
+        `Esta ação não pode ser desfeita e o status da parcela será recalculado.`
+      );
+
+      if (!confirmar) return;
+
+      // 1. Buscar e deletar comprovantes do storage
+      const { data: comprovantes } = await supabase
+        .from('contas_receber_comprovantes')
+        .select('*')
+        .eq('pagamento_id', pagamento.id);
+
+      if (comprovantes && comprovantes.length > 0) {
+        for (const comp of comprovantes) {
+          // Extrair caminho do arquivo da URL
+          const url = new URL(comp.url_storage);
+          const path = url.pathname.split('/storage/v1/object/public/comprovantes-receber/')[1];
+          
+          if (path) {
+            await supabase.storage
+              .from('comprovantes-receber')
+              .remove([path]);
+          }
+        }
+
+        // Deletar registros de comprovantes
+        await supabase
+          .from('contas_receber_comprovantes')
+          .delete()
+          .eq('pagamento_id', pagamento.id);
+      }
+
+      // 2. Deletar o pagamento (trigger atualiza a parcela automaticamente)
+      const { error } = await supabase
+        .from('contas_receber_pagamentos')
+        .delete()
+        .eq('id', pagamento.id);
+
+      if (error) throw error;
+
+      toast({
+        title: '✅ Pagamento excluído',
+        description: 'O pagamento foi removido e a parcela foi recalculada.',
+      });
+
+      fetchDetalhes();
+    } catch (error) {
+      console.error('Erro ao excluir pagamento:', error);
+      toast({
+        title: 'Erro ao excluir',
+        description: error.message,
+        variant: 'destructive',
+      });
     }
   };
 
@@ -559,6 +800,8 @@ export default function ContasReceberDetalhes() {
                             <TableHead>Banco</TableHead>
                             <TableHead>Tipo Doc</TableHead>
                             <TableHead>Observação</TableHead>
+                            <TableHead className="w-24">Comprovante</TableHead>
+                            <TableHead className="w-20 text-right">Ações</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -584,6 +827,48 @@ export default function ContasReceberDetalhes() {
                                 <TableCell className="text-sm text-muted-foreground">
                                   {pag.observacao || '-'}
                                 </TableCell>
+                                <TableCell>
+                                  {comprovantes[pag.id] && comprovantes[pag.id].length > 0 ? (
+                                    <div className="flex flex-col gap-1">
+                                      {comprovantes[pag.id].map(comp => (
+                                        <a
+                                          key={comp.id}
+                                          href={comp.url_storage}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="flex items-center gap-1 text-xs text-blue-600 hover:underline"
+                                        >
+                                          <FileText className="h-3 w-3" />
+                                          Ver
+                                        </a>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <span className="text-xs text-muted-foreground">-</span>
+                                  )}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button variant="ghost" size="sm">
+                                        <MoreVertical className="h-4 w-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                      <DropdownMenuItem onClick={() => handleAbrirEdicaoPagamento(pag)}>
+                                        <Edit2 className="mr-2 h-4 w-4" />
+                                        Editar
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem 
+                                        onClick={() => handleExcluirPagamento(pag)}
+                                        className="text-red-600"
+                                      >
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        Excluir
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </TableCell>
                               </TableRow>
 
                               {/* Linha de Juros (se houver) */}
@@ -607,6 +892,8 @@ export default function ContasReceberDetalhes() {
                                   <TableCell className="text-xs text-red-600">
                                     Juros por atraso
                                   </TableCell>
+                                  <TableCell>-</TableCell>
+                                  <TableCell>-</TableCell>
                                 </TableRow>
                               )}
 
@@ -631,6 +918,8 @@ export default function ContasReceberDetalhes() {
                                   <TableCell className="text-xs text-blue-600">
                                     Desconto concedido
                                   </TableCell>
+                                  <TableCell>-</TableCell>
+                                  <TableCell>-</TableCell>
                                 </TableRow>
                               )}
                             </>
@@ -661,7 +950,7 @@ export default function ContasReceberDetalhes() {
                                 </div>
                               </div>
                             </TableCell>
-                            <TableCell colSpan={3} className="text-sm text-muted-foreground">
+                            <TableCell colSpan={5} className="text-sm text-muted-foreground">
                               {pagamentosParcela.length} pagamento(s) registrado(s)
                             </TableCell>
                           </TableRow>
@@ -675,6 +964,148 @@ export default function ContasReceberDetalhes() {
           </CardContent>
         </Card>
       )}
+
+      {/* Modal Editar Pagamento */}
+      <Dialog open={modalEditarPagamento} onOpenChange={setModalEditarPagamento}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Editar Pagamento</DialogTitle>
+            <DialogDescription>
+              Altere as informações do pagamento
+            </DialogDescription>
+          </DialogHeader>
+
+          {pagamentoEditando && (
+            <div className="space-y-4 py-4">
+              {/* Info do Pagamento */}
+              <Alert className="bg-blue-50 border-blue-200">
+                <Info className="h-4 w-4 text-blue-600" />
+                <AlertDescription>
+                  <strong>Atenção:</strong> Ao editar, a parcela será recalculada automaticamente.
+                </AlertDescription>
+              </Alert>
+
+              {/* Data e Valor */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="data-edit">Data do Pagamento *</Label>
+                  <Input
+                    id="data-edit"
+                    type="date"
+                    value={dataPagamentoEdit}
+                    onChange={(e) => setDataPagamentoEdit(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="valor-edit">Valor Pago *</Label>
+                  <Input
+                    id="valor-edit"
+                    placeholder="Ex: 100,00"
+                    value={valorPagoEdit}
+                    onChange={(e) => {
+                      const valor = e.target.value.replace(/[^\d,]/g, '');
+                      setValorPagoEdit(valor);
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Juros e Descontos */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="juros-edit">Juros</Label>
+                  <Input
+                    id="juros-edit"
+                    placeholder="0,00"
+                    value={jurosEdit}
+                    onChange={(e) => {
+                      const valor = e.target.value.replace(/[^\d,]/g, '');
+                      setJurosEdit(valor);
+                    }}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="desconto-edit">Desconto</Label>
+                  <Input
+                    id="desconto-edit"
+                    placeholder="0,00"
+                    value={descontoEdit}
+                    onChange={(e) => {
+                      const valor = e.target.value.replace(/[^\d,]/g, '');
+                      setDescontoEdit(valor);
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Banco e Tipo Doc */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Banco *</Label>
+                  <Select value={bancoIdEdit} onValueChange={setBancoIdEdit}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {bancos.map(banco => (
+                        <SelectItem key={banco.id} value={banco.id}>
+                          {banco.codigo} - {banco.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Tipo de Documento *</Label>
+                  <Select value={tipoDocumentoIdEdit} onValueChange={setTipoDocumentoIdEdit}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {tiposDocumento.map(tipo => (
+                        <SelectItem key={tipo.id} value={tipo.id}>
+                          {tipo.descricao}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Observação */}
+              <div className="space-y-2">
+                <Label htmlFor="obs-edit">Observação</Label>
+                <Textarea
+                  id="obs-edit"
+                  placeholder="Informações adicionais..."
+                  rows={3}
+                  value={observacaoEdit}
+                  onChange={(e) => setObservacaoEdit(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setModalEditarPagamento(false)}
+              disabled={salvandoEdicao}
+            >
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleSalvarEdicaoPagamento}
+              disabled={salvandoEdicao}
+            >
+              {salvandoEdicao ? 'Salvando...' : 'Salvar Alterações'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Observações */}
       {parcelas && parcelas.length > 0 && parcelas.some(p => p.observacao) && (
