@@ -77,8 +77,8 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border bg-card shadow-[2px_0_12px_rgba(107,80,71,0.06)]" style={{ width: open ? '280px' : undefined }}>
-      <SidebarHeader className="border-b border-border p-8">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar shadow-xl" style={{ width: open ? '280px' : undefined }}>
+      <SidebarHeader className="border-b border-sidebar-border p-8 bg-sidebar">
         {open && (
           <div className="flex justify-center">
             <img 
@@ -90,9 +90,9 @@ export function AppSidebar() {
         )}
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="bg-sidebar">
         <SidebarGroup>
-          <SidebarGroupLabel>Menu Principal</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-sidebar-foreground/60 uppercase text-xs font-semibold px-5 py-2">Menu Principal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => {
@@ -104,25 +104,25 @@ export function AppSidebar() {
                         to={item.url}
                         end
                         className={({ isActive }) =>
-                          `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
+                          `flex items-center gap-3 px-5 py-3 transition-all duration-200 ${
                             isActive && item.active
-                              ? "bg-secondary text-primary font-semibold border-l-4 border-primary"
-                              : "text-foreground hover:bg-secondary hover:text-primary"
+                              ? "bg-sidebar-accent text-white font-medium border-l-4 border-gold"
+                              : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-white"
                           } ${!item.active ? "opacity-60 cursor-not-allowed" : ""}`
                         }
                         onClick={(e) => !item.active && e.preventDefault()}
                       >
                         {({ isActive }) => (
                           <>
-                            <Icon className={`h-5 w-5 ${isActive && item.active ? 'text-primary' : 'text-muted-foreground'}`} />
+                            <Icon className={`h-5 w-5 ${isActive && item.active ? 'text-white' : 'text-sidebar-foreground/80'}`} />
                             {open && (
                               <>
                                 <span className="flex-1">{item.title}</span>
                                 {item.title === "Fornecedores" && aniversariantesDoMes.length > 0 && (
-                                  <Cake className="h-4 w-4 text-purple-500 animate-bounce" />
+                                  <Cake className="h-4 w-4 text-gold animate-bounce" />
                                 )}
                                 {!item.active && (
-                                  <Badge className="bg-warning text-foreground text-xs px-2 py-0.5 rounded-full font-medium">
+                                  <Badge className="bg-warning text-terracotta text-xs px-2 py-0.5 rounded-full font-medium">
                                     Em breve
                                   </Badge>
                                 )}
@@ -141,21 +141,21 @@ export function AppSidebar() {
       </SidebarContent>
 
       {open && profile && (
-        <SidebarFooter className="border-t border-border p-6">
+        <SidebarFooter className="border-t border-sidebar-border p-6 bg-sidebar">
           <div className="space-y-2">
             <div>
-              <p className="text-sm font-semibold text-foreground truncate">
+              <p className="text-sm font-semibold text-sidebar-foreground truncate">
                 {profile.nome_confeitaria || profile.nome_completo}
               </p>
-              <p className="text-xs text-muted-foreground truncate">
+              <p className="text-xs text-sidebar-foreground/60 truncate">
                 {user?.email}
               </p>
             </div>
             <Button 
               onClick={handleLogout}
-              variant="outline" 
+              variant="ghost" 
               size="sm" 
-              className="w-full"
+              className="w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-white justify-start"
             >
               <LogOut className="h-4 w-4 mr-2" />
               Sair
