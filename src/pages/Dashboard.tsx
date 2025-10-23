@@ -383,6 +383,59 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* FINANCEIRO DO MÊS */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {/* A Receber */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-green-600" />
+              A Receber - {meses[mesSelecionado]}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div>
+              <div className="text-2xl font-bold text-green-700">
+                R$ {financeiro.receberAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </div>
+              <p className="text-sm text-muted-foreground">Em aberto</p>
+              <Button 
+                variant="link" 
+                className="p-0 h-auto text-green-600 hover:text-green-700"
+                onClick={() => navigate("/financeiro/contas-receber")}
+              >
+                Ver Detalhes →
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* A Pagar */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <TrendingDown className="h-5 w-5 text-red-600" />
+              A Pagar - {meses[mesSelecionado]}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div>
+              <div className="text-2xl font-bold text-red-700">
+                R$ {financeiro.pagarAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </div>
+              <p className="text-sm text-muted-foreground">Em aberto</p>
+              <Button 
+                variant="link" 
+                className="p-0 h-auto text-red-600 hover:text-red-700"
+                onClick={() => navigate("/financeiro/contas-pagar")}
+              >
+                Ver Detalhes →
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* ALERTAS CRÍTICOS */}
       <div className="grid gap-4 md:grid-cols-3">
         {/* Contas a Receber Atrasado */}
@@ -607,59 +660,6 @@ export default function Dashboard() {
           </div>
         </CardContent>
       </Card>
-
-      {/* FINANCEIRO DO MÊS */}
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* A Receber */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-green-600" />
-              A Receber - {meses[mesSelecionado]}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div>
-              <div className="text-2xl font-bold text-green-700">
-                R$ {financeiro.receberAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </div>
-              <p className="text-sm text-muted-foreground">Em aberto</p>
-              <Button 
-                variant="link" 
-                className="p-0 h-auto text-green-600 hover:text-green-700"
-                onClick={() => navigate("/financeiro/contas-receber")}
-              >
-                Ver Detalhes →
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* A Pagar */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <TrendingDown className="h-5 w-5 text-red-600" />
-              A Pagar - {meses[mesSelecionado]}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div>
-              <div className="text-2xl font-bold text-red-700">
-                R$ {financeiro.pagarAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </div>
-              <p className="text-sm text-muted-foreground">Em aberto</p>
-              <Button 
-                variant="link" 
-                className="p-0 h-auto text-red-600 hover:text-red-700"
-                onClick={() => navigate("/financeiro/contas-pagar")}
-              >
-                Ver Detalhes →
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* VISÃO ECONÔMICA */}
       <Card>
