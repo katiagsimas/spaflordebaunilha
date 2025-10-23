@@ -24,8 +24,6 @@ export default {
         foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
-          dark: "hsl(var(--primary-dark))",
-          light: "hsl(var(--primary-light))",
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
@@ -52,18 +50,6 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        gold: {
-          DEFAULT: "hsl(var(--gold))",
-          dark: "hsl(var(--gold-dark))",
-          light: "hsl(var(--gold-light))",
-        },
-        terracotta: {
-          DEFAULT: "hsl(var(--terracotta))",
-          dark: "hsl(var(--terracotta-dark))",
-          light: "hsl(var(--terracotta-light))",
-        },
-        cream: "hsl(var(--cream))",
-        'brown-light': "hsl(var(--brown-light))",
         success: {
           DEFAULT: "hsl(var(--success))",
         },
@@ -86,10 +72,6 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-      },
-      backgroundImage: {
-        'gradient-primary': 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--gold)))',
-        'gradient-soft': 'linear-gradient(180deg, hsl(var(--cream)), hsl(0 0% 100%))',
       },
       borderRadius: {
         lg: "var(--radius)",

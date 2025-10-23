@@ -1,5 +1,5 @@
 import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake } from "lucide-react";
-import donnasBoxLogo from "@/assets/donnas-box-new.png";
+import sugarboxSidebar from "@/assets/sugarbox-sidebar.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
@@ -77,22 +77,18 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-gray-200 bg-white shadow-xl" style={{ width: open ? '280px' : undefined }}>
-      <SidebarHeader className="border-b border-gray-200 p-8 bg-white">
+    <Sidebar collapsible="icon" className="border-r border-border bg-card shadow-[2px_0_12px_rgba(107,80,71,0.06)]" style={{ width: open ? '280px' : undefined }}>
+      <SidebarHeader className="border-b border-border p-6">
         {open && (
           <div className="flex justify-center">
-            <img 
-              src={profile?.logo_url || donnasBoxLogo} 
-              alt="Donna's Box - O Sistema Completo da Confeiteira" 
-              className="w-full h-auto object-contain max-w-[480px]" 
-            />
+            <img src={sugarboxSidebar} alt="Sugar Box - O Sistema Completo da Confeiteira" className="w-full h-auto object-contain" />
           </div>
         )}
       </SidebarHeader>
 
-      <SidebarContent className="bg-white">
+      <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-gray-500 uppercase text-xs font-semibold px-5 py-2">Menu Principal</SidebarGroupLabel>
+          <SidebarGroupLabel>Menu Principal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => {
@@ -104,25 +100,25 @@ export function AppSidebar() {
                         to={item.url}
                         end
                         className={({ isActive }) =>
-                          `flex items-center gap-3 px-5 py-3 transition-all duration-200 ${
+                          `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
                             isActive && item.active
-                              ? "bg-primary/10 text-primary font-medium border-l-4 border-primary"
-                              : "text-gray-700 hover:bg-gray-100"
+                              ? "bg-secondary text-primary font-semibold border-l-4 border-primary"
+                              : "text-foreground hover:bg-secondary hover:text-primary"
                           } ${!item.active ? "opacity-60 cursor-not-allowed" : ""}`
                         }
                         onClick={(e) => !item.active && e.preventDefault()}
                       >
                         {({ isActive }) => (
                           <>
-                            <Icon className={`h-5 w-5 ${isActive && item.active ? 'text-primary' : 'text-gray-600'}`} />
+                            <Icon className={`h-5 w-5 ${isActive && item.active ? 'text-primary' : 'text-muted-foreground'}`} />
                             {open && (
                               <>
                                 <span className="flex-1">{item.title}</span>
                                 {item.title === "Fornecedores" && aniversariantesDoMes.length > 0 && (
-                                  <Cake className="h-4 w-4 text-gold animate-bounce" />
+                                  <Cake className="h-4 w-4 text-purple-500 animate-bounce" />
                                 )}
                                 {!item.active && (
-                                  <Badge className="bg-warning text-terracotta text-xs px-2 py-0.5 rounded-full font-medium">
+                                  <Badge className="bg-warning text-foreground text-xs px-2 py-0.5 rounded-full font-medium">
                                     Em breve
                                   </Badge>
                                 )}
@@ -141,21 +137,21 @@ export function AppSidebar() {
       </SidebarContent>
 
       {open && profile && (
-        <SidebarFooter className="border-t border-gray-200 p-6 bg-white">
+        <SidebarFooter className="border-t border-border p-6">
           <div className="space-y-2">
             <div>
-              <p className="text-sm font-semibold text-gray-900 truncate">
+              <p className="text-sm font-semibold text-foreground truncate">
                 {profile.nome_confeitaria || profile.nome_completo}
               </p>
-              <p className="text-xs text-gray-500 truncate">
+              <p className="text-xs text-muted-foreground truncate">
                 {user?.email}
               </p>
             </div>
             <Button 
               onClick={handleLogout}
-              variant="ghost" 
+              variant="outline" 
               size="sm" 
-              className="w-full text-gray-700 hover:bg-gray-100 justify-start"
+              className="w-full"
             >
               <LogOut className="h-4 w-4 mr-2" />
               Sair

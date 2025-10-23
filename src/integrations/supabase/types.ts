@@ -1624,7 +1624,6 @@ export type Database = {
           horas_diaria_trabalho: number | null
           id: string
           instagram: string | null
-          logo_url: string | null
           meta_faturamento_anual: number | null
           meta_faturamento_mensal: number | null
           nome_completo: string | null
@@ -1650,7 +1649,6 @@ export type Database = {
           horas_diaria_trabalho?: number | null
           id: string
           instagram?: string | null
-          logo_url?: string | null
           meta_faturamento_anual?: number | null
           meta_faturamento_mensal?: number | null
           nome_completo?: string | null
@@ -1676,7 +1674,6 @@ export type Database = {
           horas_diaria_trabalho?: number | null
           id?: string
           instagram?: string | null
-          logo_url?: string | null
           meta_faturamento_anual?: number | null
           meta_faturamento_mensal?: number | null
           nome_completo?: string | null
