@@ -59,6 +59,8 @@ const Encomendas = () => {
   const [modalPagamentoAberto, setModalPagamentoAberto] = useState(false);
   const [contaReceberId, setContaReceberId] = useState<string | null>(null);
   const [planoContasVendaId, setPlanoContasVendaId] = useState<string>('');
+  const [porPagina, setPorPagina] = useState(10);
+  const [buscaNome, setBuscaNome] = useState("");
   
   // Estados para tags
   const [tagsDisponiveis, setTagsDisponiveis] = useState<any[]>([]);
@@ -683,9 +685,15 @@ const Encomendas = () => {
       // Filtro por tag
       const matchesTag = tagFilter === "todos" || (e.tags && e.tags.some((t: any) => t.id === tagFilter));
       
-      return matchesStatus && matchesCliente && matchesDataEntrega && matchesHoraEntrega && matchesTag;
+      // Filtro por busca de nome
+      const matchesBusca = !buscaNome || e.cliente.toLowerCase().includes(buscaNome.toLowerCase());
+      
+      return matchesStatus && matchesCliente && matchesDataEntrega && matchesHoraEntrega && matchesTag && matchesBusca;
     })
     .sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime());
+
+  // Paginação
+  const paginatedOrders = filteredOrders.slice(0, porPagina);
 
   // Lista de clientes únicos que possuem encomendas
   const clientesComEncomendas = Array.from(new Set(encomendas.map(e => e.cliente).filter(c => c && c.trim() !== ""))).sort();
@@ -1538,10 +1546,27 @@ const Encomendas = () => {
         </CardContent>
       </Card>
 
+      {/* Card de Controles */}
       <Card className="shadow-soft">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Lista de Encomendas</CardTitle>
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between gap-4">
+            {/* Resultados por Página - Esquerda */}
+            <div className="flex items-center gap-2">
+              <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
+                <SelectTrigger className="w-20 bg-popover">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+              <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
+            </div>
+
+            {/* Botão Exportar - Centro */}
             <Button 
               variant="outline" 
               size="sm"
@@ -1551,10 +1576,27 @@ const Encomendas = () => {
               <FileDown className="h-4 w-4" />
               Exportar para Excel
             </Button>
+
+            {/* Campo de Busca - Direita */}
+            <div className="relative flex-1 max-w-xs">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nome..."
+                value={buscaNome}
+                onChange={(e) => setBuscaNome(e.target.value)}
+                className="pl-9 bg-popover"
+              />
+            </div>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-soft">
+        <CardHeader>
+          <CardTitle>Lista de Encomendas</CardTitle>
         </CardHeader>
         <CardContent>
-          {filteredOrders.length === 0 ? (
+          {paginatedOrders.length === 0 ? (
             <div className="text-center py-12">
               <ShoppingBag className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
               <p className="text-muted-foreground">
@@ -1579,7 +1621,7 @@ const Encomendas = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredOrders.map((encomenda) => (
+                  {paginatedOrders.map((encomenda) => (
                     <TableRow key={encomenda.id}>
                       <TableCell className="font-medium">{encomenda.cliente}</TableCell>
                       <TableCell>
