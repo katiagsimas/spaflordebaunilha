@@ -1,5 +1,5 @@
 import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake } from "lucide-react";
-import sugarboxSidebar from "@/assets/sugarbox-sidebar.png";
+import donnasBoxLogo from "@/assets/donnas-box-logo.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
@@ -81,7 +81,11 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-border p-6">
         {open && (
           <div className="flex justify-center">
-            <img src={sugarboxSidebar} alt="Sugar Box - O Sistema Completo da Confeiteira" className="w-full h-auto object-contain" />
+            <img 
+              src={profile?.logo_url || donnasBoxLogo} 
+              alt="Donna's Box - O Sistema Completo da Confeiteira" 
+              className="w-full h-auto object-contain" 
+            />
           </div>
         )}
       </SidebarHeader>
