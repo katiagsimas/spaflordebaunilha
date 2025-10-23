@@ -417,9 +417,13 @@ export default function Financeiro() {
               </CardTitle>
               <CardDescription>Visão geral dos seus saldos e movimentações</CardDescription>
             </div>
-            <Button variant="outline" onClick={handleAbrirConfig}>
+            <Button 
+              variant="outline" 
+              onClick={handleAbrirConfig}
+              className={`font-bold bg-primary text-primary-foreground hover:bg-primary/90 ${bancosSaldos.length === 0 ? 'animate-pulse' : ''}`}
+            >
               <Settings className="mr-2 h-4 w-4" />
-              Configurar Saldos
+              Configure Saldos Iniciais
             </Button>
           </div>
         </CardHeader>
