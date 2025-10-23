@@ -1,5 +1,5 @@
 import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake } from "lucide-react";
-import donnasBoxLogo from "@/assets/donnas-box-logo.png";
+import donnasBoxLogo from "@/assets/donnas-box-new.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
