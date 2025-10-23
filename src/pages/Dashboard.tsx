@@ -465,9 +465,6 @@ export default function Dashboard() {
             <p className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
               {alertas.pagarAtrasado.quantidade}
             </p>
-            <p className="text-[10px] text-muted-foreground">
-              conta(s) em atraso
-            </p>
             <Button 
               variant="link" 
               className="p-0 h-auto mt-1 text-xs text-yellow-600 hover:text-yellow-700 dark:text-yellow-400 dark:hover:text-yellow-300"
