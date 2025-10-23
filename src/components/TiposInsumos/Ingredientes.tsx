@@ -28,13 +28,14 @@ import {
 } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, Info } from 'lucide-react';
+import { Plus, Edit, Trash2, Info, Search } from 'lucide-react';
 
 export default function TiposInsumosIngredientes() {
   const { toast } = useToast();
   const [tipos, setTipos] = useState<any[]>([]);
   const [unidades, setUnidades] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [busca, setBusca] = useState('');
   
   const [modalAberto, setModalAberto] = useState(false);
   const [editando, setEditando] = useState<any>(null);
@@ -239,6 +240,10 @@ export default function TiposInsumosIngredientes() {
 
   if (loading) return <div>Carregando...</div>;
 
+  const tiposFiltrados = tipos.filter((tipo) =>
+    tipo.descricao.toLowerCase().includes(busca.toLowerCase())
+  );
+
   return (
     <div className="space-y-4">
       <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800">
@@ -250,7 +255,16 @@ export default function TiposInsumosIngredientes() {
         </AlertDescription>
       </Alert>
 
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between gap-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por nome..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            className="pl-9"
+          />
+        </div>
         <Button onClick={() => handleAbrirModal()}>
           <Plus className="mr-2 h-4 w-4" />
           Novo Tipo
@@ -268,14 +282,14 @@ export default function TiposInsumosIngredientes() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {tipos.length === 0 ? (
+            {tiposFiltrados.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                  Nenhum tipo cadastrado. Clique em "Novo Tipo" para começar.
+                  {busca ? 'Nenhum tipo encontrado.' : 'Nenhum tipo cadastrado. Clique em "Novo Tipo" para começar.'}
                 </TableCell>
               </TableRow>
             ) : (
-              tipos.map((tipo) => (
+              tiposFiltrados.map((tipo) => (
                 <TableRow key={tipo.id}>
                   <TableCell className="font-medium">{tipo.descricao}</TableCell>
                   <TableCell>{tipo.quantidade_embalagem.toLocaleString('pt-BR')}</TableCell>
