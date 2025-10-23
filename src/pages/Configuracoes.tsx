@@ -42,64 +42,28 @@ export default function Configuracoes() {
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
         
         {/* Card 1: CADASTROS BASE */}
-        <Card className="hover:shadow-lg transition-all border-2 hover:border-primary">
+        <Card 
+          className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-primary"
+          onClick={() => navigate("/configuracoes/cadastros-base")}
+        >
           <CardHeader>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 rounded-lg bg-pink-50 text-pink-600 dark:bg-pink-950 dark:text-pink-300 flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-lg bg-pink-50 text-pink-600 dark:bg-pink-950 dark:text-pink-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <Package className="h-6 w-6" />
               </div>
             </div>
-            <CardTitle className="text-lg">Cadastros Base</CardTitle>
+            <CardTitle className="text-lg">
+              Cadastros Base
+              <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </CardTitle>
             <CardDescription>
               Gerencie categorias, tipos de insumos e dados da confeitaria
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              <button
-                onClick={() => navigate("/configuracoes/dados-confeitaria")}
-                className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 transition-all group text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <UserCircle className="h-4 w-4 text-indigo-600" />
-                  <span className="text-sm font-medium">Dados da Confeitaria</span>
-                </div>
-                <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </button>
-
-              <button
-                onClick={() => navigate("/configuracoes/categorias-receitas")}
-                className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 transition-all group text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <Tag className="h-4 w-4 text-pink-600" />
-                  <span className="text-sm font-medium">Categorias de Receitas</span>
-                </div>
-                <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </button>
-
-              <button
-                onClick={() => navigate("/configuracoes/tipos-insumos")}
-                className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 transition-all group text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <Package className="h-4 w-4 text-green-600" />
-                  <span className="text-sm font-medium">Tipos de Insumos</span>
-                </div>
-                <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </button>
-
-              <button
-                onClick={() => navigate("/configuracoes/tags-encomendas")}
-                className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 transition-all group text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <Tags className="h-4 w-4 text-purple-600" />
-                  <span className="text-sm font-medium">Tags de Encomendas</span>
-                </div>
-                <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </button>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              4 configurações disponíveis
+            </p>
           </CardContent>
         </Card>
 

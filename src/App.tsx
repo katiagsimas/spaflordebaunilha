@@ -24,6 +24,7 @@ import ClientesFornecedores from "./pages/ClientesFornecedores";
 import SeusDados from "./pages/cadastros/SeusDados";
 import CustosFixos from "./pages/configuracoes/precificacao/CustosFixos";
 import MaoDeObra from "./pages/configuracoes/precificacao/MaoDeObra";
+import CadastrosBase from "./pages/configuracoes/CadastrosBase";
 import Clientes from "./pages/cadastros/Clientes";
 import Fornecedores from "./pages/cadastros/Fornecedores";
 import UnidadesMedida from "./pages/cadastros/UnidadesMedida";
@@ -132,6 +133,7 @@ const App = () => (
           
           {/* Configurações - Página Container + Sub-rotas */}
           <Route path="/configuracoes" element={<ProtectedRoute><Layout><Configuracoes /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/cadastros-base" element={<ProtectedRoute><Layout><CadastrosBase /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/precificacao/mao-obra" element={<ProtectedRoute><Layout><MaoDeObra /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/precificacao/custos-fixos" element={<ProtectedRoute><Layout><CustosFixos /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/tipos-insumos" element={<ProtectedRoute><Layout><TiposInsumos /></Layout></ProtectedRoute>} />
