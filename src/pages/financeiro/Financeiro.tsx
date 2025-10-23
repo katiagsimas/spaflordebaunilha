@@ -35,7 +35,6 @@ import {
   TrendingUp, 
   TrendingDown, 
   DollarSign,
-  ArrowRight,
   Calendar,
   PieChart,
   Settings,
@@ -401,161 +400,93 @@ export default function Financeiro() {
       {/* Cards de Navegação */}
       <div>
         <h2 className="text-2xl font-bold mb-4">Módulos</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
           {/* Card Contas a Receber */}
           <Card 
-            className="cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02] border-2 hover:border-green-500"
+            className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-green-500"
             onClick={() => navigate('/financeiro/contas-receber')}
           >
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-green-100 dark:bg-green-950 rounded-lg">
-                    <TrendingUp className="h-8 w-8 text-green-600 dark:text-green-400" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-2xl">Contas a Receber</CardTitle>
-                    <CardDescription className="text-base mt-1">
-                      Gerenciar recebimentos de clientes
-                    </CardDescription>
-                  </div>
+            <CardHeader className="p-4 space-y-2">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-green-50 dark:bg-green-950 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <TrendingUp className="h-5 w-5" />
                 </div>
-                <ArrowRight className="h-6 w-6 text-muted-foreground" />
+                <div className="min-w-0 flex-1">
+                  <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                    Contas a Receber
+                  </CardTitle>
+                </div>
               </div>
+              <CardDescription className="text-xs line-clamp-2">
+                Gerenciar recebimentos de clientes
+              </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <DollarSign className="h-4 w-4" />
-                  <span>Controle de recebimentos e parcelas</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4" />
-                  <span>Pagamentos parciais e histórico</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <PieChart className="h-4 w-4" />
-                  <span>Relatórios e exportação</span>
-                </div>
-              </div>
-            </CardContent>
           </Card>
 
           {/* Card Contas a Pagar */}
           <Card 
-            className="cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02] border-2 hover:border-red-500"
+            className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-red-500"
             onClick={() => navigate('/financeiro/contas-pagar')}
           >
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-red-100 dark:bg-red-950 rounded-lg">
-                    <TrendingDown className="h-8 w-8 text-red-600 dark:text-red-400" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-2xl">Contas a Pagar</CardTitle>
-                    <CardDescription className="text-base mt-1">
-                      Gerenciar pagamentos a fornecedores
-                    </CardDescription>
-                  </div>
+            <CardHeader className="p-4 space-y-2">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <TrendingDown className="h-5 w-5" />
                 </div>
-                <ArrowRight className="h-6 w-6 text-muted-foreground" />
+                <div className="min-w-0 flex-1">
+                  <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                    Contas a Pagar
+                  </CardTitle>
+                </div>
               </div>
+              <CardDescription className="text-xs line-clamp-2">
+                Gerenciar pagamentos a fornecedores
+              </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <DollarSign className="h-4 w-4" />
-                  <span>Controle de pagamentos e fornecedores</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4" />
-                  <span>Parcelamento e pagamentos parciais</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <PieChart className="h-4 w-4" />
-                  <span>Relatórios e exportação</span>
-                </div>
-              </div>
-            </CardContent>
           </Card>
 
           {/* Card Fluxo de Caixa */}
           <Card 
-            className="cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02] border-2 hover:border-blue-500"
+            className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-blue-500"
             onClick={() => navigate('/financeiro/fluxo-caixa')}
           >
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-blue-100 rounded-lg">
-                    <PieChart className="h-8 w-8 text-blue-600" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-2xl">Fluxo de Caixa</CardTitle>
-                    <CardDescription className="text-base mt-1">
-                      Análise financeira detalhada
-                    </CardDescription>
-                  </div>
+            <CardHeader className="p-4 space-y-2">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Wallet className="h-5 w-5" />
                 </div>
-                <ArrowRight className="h-6 w-6 text-muted-foreground" />
+                <div className="min-w-0 flex-1">
+                  <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                    Fluxo de Caixa
+                  </CardTitle>
+                </div>
               </div>
+              <CardDescription className="text-xs line-clamp-2">
+                Análise financeira detalhada
+              </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4" />
-                  <span>Relatórios diários e mensais</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <PieChart className="h-4 w-4" />
-                  <span>Gráficos de evolução</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <DollarSign className="h-4 w-4" />
-                  <span>Previsão de saldos</span>
-                </div>
-              </div>
-            </CardContent>
           </Card>
 
           {/* Card DRE */}
           <Card 
-            className="cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02] border-2 hover:border-purple-500"
+            className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-purple-500"
             onClick={() => navigate('/financeiro/dre')}
           >
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-purple-100 rounded-lg">
-                    <PieChart className="h-8 w-8 text-purple-600" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-2xl">DRE</CardTitle>
-                    <CardDescription className="text-base mt-1">
-                      Demonstração do Resultado
-                    </CardDescription>
-                  </div>
+            <CardHeader className="p-4 space-y-2">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-purple-50 dark:bg-purple-950 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <PieChart className="h-5 w-5" />
                 </div>
-                <ArrowRight className="h-6 w-6 text-muted-foreground" />
+                <div className="min-w-0 flex-1">
+                  <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                    DRE
+                  </CardTitle>
+                </div>
               </div>
+              <CardDescription className="text-xs line-clamp-2">
+                Demonstração do Resultado
+              </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <TrendingUp className="h-4 w-4" />
-                  <span>Receitas vs Despesas</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <PieChart className="h-4 w-4" />
-                  <span>Análise de resultado</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4" />
-                  <span>Comparativos mensais</span>
-                </div>
-              </div>
-            </CardContent>
           </Card>
         </div>
       </div>
