@@ -1495,25 +1495,24 @@ const Encomendas = () => {
 
       {/* DASHBOARD DE ENCOMENDAS */}
       
-      {/* Filtro Mês/Ano */}
-      <Card className="shadow-soft">
-        <CardHeader>
-          <div className="flex items-center gap-4">
-            <Calendar className="h-5 w-5 text-primary" />
-            <div>
-              <CardTitle className="text-lg">Período de Entrega:</CardTitle>
+      {/* Filtro Mês/Ano + Cards de Visão Geral */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-3">
+        {/* Card de Filtro */}
+        <Card className="shadow-soft lg:col-span-1">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-primary" />
+              <CardTitle className="text-sm">Período</CardTitle>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-end gap-4">
-            <div className="space-y-2 w-32">
-              <Label>Ano</Label>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="space-y-2">
+              <Label className="text-xs">Ano</Label>
               <Select
                 value={anoSelecionado.toString()}
                 onValueChange={(value) => setAnoSelecionado(parseInt(value))}
               >
-                <SelectTrigger className="bg-popover">
+                <SelectTrigger className="bg-popover h-9">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-popover z-50">
@@ -1526,13 +1525,13 @@ const Encomendas = () => {
               </Select>
             </div>
 
-            <div className="space-y-2 w-40">
-              <Label>Mês</Label>
+            <div className="space-y-2">
+              <Label className="text-xs">Mês</Label>
               <Select
                 value={mesSelecionado.toString()}
                 onValueChange={(value) => setMesSelecionado(parseInt(value))}
               >
-                <SelectTrigger className="bg-popover">
+                <SelectTrigger className="bg-popover h-9">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-popover z-50">
@@ -1544,12 +1543,9 @@ const Encomendas = () => {
                 </SelectContent>
               </Select>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Cards de Visão Geral */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Total */}
         <Card className="border-blue-200 bg-blue-50 shadow-soft">
           <CardHeader className="pb-2">
