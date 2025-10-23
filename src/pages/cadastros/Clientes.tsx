@@ -152,9 +152,9 @@ export default function Clientes() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <PageHeader title="Clientes" />
-        <Badge variant="secondary" className="text-sm px-3 py-1 mt-2">
+      <div className="space-y-1">
+        <h1 className="text-3xl font-bold tracking-tight">Clientes</h1>
+        <Badge variant="secondary" className="text-sm px-3 py-1">
           {clientes.length} {clientes.length === 1 ? 'cliente cadastrado' : 'clientes cadastrados'}
         </Badge>
       </div>
