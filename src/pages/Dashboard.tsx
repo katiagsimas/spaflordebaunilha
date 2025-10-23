@@ -74,7 +74,13 @@ export default function Dashboard() {
   });
 
   const [calendarioDados, setCalendarioDados] = useState<DadosDia[]>([]);
+  const [calendarioAnteriorDados, setCalendarioAnteriorDados] = useState<DadosDia[]>([]);
+  const [calendarioSeguinteDados, setCalendarioSeguinteDados] = useState<DadosDia[]>([]);
   const [encomendasDia, setEncomendasDia] = useState<Encomenda[]>([]);
+  
+  // Estados para navegação dos 3 calendários
+  const [mesAnterior, setMesAnterior] = useState({ mes: mesSelecionado - 1 < 0 ? 11 : mesSelecionado - 1, ano: mesSelecionado - 1 < 0 ? anoSelecionado - 1 : anoSelecionado });
+  const [mesSeguinte, setMesSeguinte] = useState({ mes: mesSelecionado + 1 > 11 ? 0 : mesSelecionado + 1, ano: mesSelecionado + 1 > 11 ? anoSelecionado + 1 : anoSelecionado });
 
   const [financeiro, setFinanceiro] = useState({
     receberAberto: 0,
@@ -98,8 +104,27 @@ export default function Dashboard() {
   useEffect(() => {
     if (user) {
       carregarDados();
+      carregarCalendarioAnterior();
+      carregarCalendarioSeguinte();
     }
   }, [mesSelecionado, anoSelecionado, user]);
+
+  useEffect(() => {
+    setMesAnterior({ mes: mesSelecionado - 1 < 0 ? 11 : mesSelecionado - 1, ano: mesSelecionado - 1 < 0 ? anoSelecionado - 1 : anoSelecionado });
+    setMesSeguinte({ mes: mesSelecionado + 1 > 11 ? 0 : mesSelecionado + 1, ano: mesSelecionado + 1 > 11 ? anoSelecionado + 1 : anoSelecionado });
+  }, [mesSelecionado, anoSelecionado]);
+
+  useEffect(() => {
+    if (user) {
+      carregarCalendarioAnterior();
+    }
+  }, [mesAnterior, user]);
+
+  useEffect(() => {
+    if (user) {
+      carregarCalendarioSeguinte();
+    }
+  }, [mesSeguinte, user]);
 
   async function carregarDados() {
     setLoading(true);
@@ -212,6 +237,94 @@ export default function Dashboard() {
     }
   }
 
+  async function carregarCalendarioAnterior() {
+    if (!user) return;
+    const dataAnterior = new Date(mesAnterior.ano, mesAnterior.mes, 1);
+    const inicio = startOfMonth(dataAnterior);
+    const fim = endOfMonth(dataAnterior);
+    
+    const inicioStr = format(inicio, "yyyy-MM-dd");
+    const fimStr = format(fim, "yyyy-MM-dd");
+
+    const { data: encomendas } = await supabase
+      .from("encomendas")
+      .select("id, data_entrega, hora_entrega, valor, status, cliente")
+      .eq("usuario_id", user.id)
+      .gte("data_entrega", inicioStr)
+      .lte("data_entrega", fimStr)
+      .neq("status", "cancelada")
+      .order("data_entrega", { ascending: true });
+
+    const dias = eachDayOfInterval({ start: inicio, end: fim });
+    
+    const dadosCalendario = dias.map(dia => {
+      const encomendasDia = encomendas?.filter(enc => 
+        isSameDay(new Date(enc.data_entrega!), dia)
+      ).map(enc => ({
+        id: enc.id,
+        cliente: enc.cliente || "Cliente",
+        data_entrega: enc.data_entrega || "",
+        hora_entrega: enc.hora_entrega || "",
+        valor: enc.valor || 0,
+        status: enc.status || "pendente"
+      })) || [];
+
+      return {
+        dia,
+        encomendas: encomendasDia,
+        quantidade: encomendasDia.length,
+        isHoje: isToday(dia),
+        isAmanha: isTomorrow(dia)
+      };
+    });
+
+    setCalendarioAnteriorDados(dadosCalendario);
+  }
+
+  async function carregarCalendarioSeguinte() {
+    if (!user) return;
+    const dataSeguinte = new Date(mesSeguinte.ano, mesSeguinte.mes, 1);
+    const inicio = startOfMonth(dataSeguinte);
+    const fim = endOfMonth(dataSeguinte);
+    
+    const inicioStr = format(inicio, "yyyy-MM-dd");
+    const fimStr = format(fim, "yyyy-MM-dd");
+
+    const { data: encomendas } = await supabase
+      .from("encomendas")
+      .select("id, data_entrega, hora_entrega, valor, status, cliente")
+      .eq("usuario_id", user.id)
+      .gte("data_entrega", inicioStr)
+      .lte("data_entrega", fimStr)
+      .neq("status", "cancelada")
+      .order("data_entrega", { ascending: true });
+
+    const dias = eachDayOfInterval({ start: inicio, end: fim });
+    
+    const dadosCalendario = dias.map(dia => {
+      const encomendasDia = encomendas?.filter(enc => 
+        isSameDay(new Date(enc.data_entrega!), dia)
+      ).map(enc => ({
+        id: enc.id,
+        cliente: enc.cliente || "Cliente",
+        data_entrega: enc.data_entrega || "",
+        hora_entrega: enc.hora_entrega || "",
+        valor: enc.valor || 0,
+        status: enc.status || "pendente"
+      })) || [];
+
+      return {
+        dia,
+        encomendas: encomendasDia,
+        quantidade: encomendasDia.length,
+        isHoje: isToday(dia),
+        isAmanha: isTomorrow(dia)
+      };
+    });
+
+    setCalendarioSeguinteDados(dadosCalendario);
+  }
+
   async function carregarFinanceiro() {
     if (!user) return;
     const inicioMes = new Date(anoSelecionado, mesSelecionado, 1).toISOString().split('T')[0];
@@ -308,17 +421,39 @@ export default function Dashboard() {
     setEncomendasDia(dados.encomendas);
   }
 
-  function navegarMes(direcao: "prev" | "next") {
-    if (direcao === "prev") {
-      const novaMes = mesSelecionado === 0 ? 11 : mesSelecionado - 1;
-      const novoAno = mesSelecionado === 0 ? anoSelecionado - 1 : anoSelecionado;
-      setMesSelecionado(novaMes);
-      setAnoSelecionado(novoAno);
-    } else {
-      const novaMes = mesSelecionado === 11 ? 0 : mesSelecionado + 1;
-      const novoAno = mesSelecionado === 11 ? anoSelecionado + 1 : anoSelecionado;
-      setMesSelecionado(novaMes);
-      setAnoSelecionado(novoAno);
+  function navegarMes(direcao: "prev" | "next", calendario: "anterior" | "atual" | "seguinte") {
+    if (calendario === "atual") {
+      if (direcao === "prev") {
+        const novaMes = mesSelecionado === 0 ? 11 : mesSelecionado - 1;
+        const novoAno = mesSelecionado === 0 ? anoSelecionado - 1 : anoSelecionado;
+        setMesSelecionado(novaMes);
+        setAnoSelecionado(novoAno);
+      } else {
+        const novaMes = mesSelecionado === 11 ? 0 : mesSelecionado + 1;
+        const novoAno = mesSelecionado === 11 ? anoSelecionado + 1 : anoSelecionado;
+        setMesSelecionado(novaMes);
+        setAnoSelecionado(novoAno);
+      }
+    } else if (calendario === "anterior") {
+      if (direcao === "prev") {
+        const novaMes = mesAnterior.mes === 0 ? 11 : mesAnterior.mes - 1;
+        const novoAno = mesAnterior.mes === 0 ? mesAnterior.ano - 1 : mesAnterior.ano;
+        setMesAnterior({ mes: novaMes, ano: novoAno });
+      } else {
+        const novaMes = mesAnterior.mes === 11 ? 0 : mesAnterior.mes + 1;
+        const novoAno = mesAnterior.mes === 11 ? mesAnterior.ano + 1 : mesAnterior.ano;
+        setMesAnterior({ mes: novaMes, ano: novoAno });
+      }
+    } else if (calendario === "seguinte") {
+      if (direcao === "prev") {
+        const novaMes = mesSeguinte.mes === 0 ? 11 : mesSeguinte.mes - 1;
+        const novoAno = mesSeguinte.mes === 0 ? mesSeguinte.ano - 1 : mesSeguinte.ano;
+        setMesSeguinte({ mes: novaMes, ano: novoAno });
+      } else {
+        const novaMes = mesSeguinte.mes === 11 ? 0 : mesSeguinte.mes + 1;
+        const novoAno = mesSeguinte.mes === 11 ? mesSeguinte.ano + 1 : mesSeguinte.ano;
+        setMesSeguinte({ mes: novaMes, ano: novoAno });
+      }
     }
   }
 
@@ -476,109 +611,263 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* CALENDÁRIO DE ENCOMENDAS */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-xl">Calendário de Encomendas</CardTitle>
-              <CardDescription>Clique em um dia para ver os detalhes</CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => navegarMes("prev")}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <span className="text-sm font-medium px-4">
-                {meses[mesSelecionado]} de {anoSelecionado}
-              </span>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => navegarMes("next")}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-7 gap-2">
-            {/* Cabeçalho dos dias da semana */}
-            {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((dia) => (
-              <div key={dia} className="text-center text-sm font-semibold text-muted-foreground p-2">
-                {dia}
+      {/* CALENDÁRIOS DE ENCOMENDAS */}
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Calendários de Encomendas</h2>
+          <p className="text-muted-foreground mb-4">Visualize suas encomendas em 3 meses consecutivos</p>
+        </div>
+        
+        <div className="grid gap-4 md:grid-cols-3">
+          {/* CALENDÁRIO MÊS ANTERIOR */}
+          <Card className="border-blue-200 bg-blue-50/30 dark:bg-blue-950/20">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base">
+                  {meses[mesAnterior.mes]} {mesAnterior.ano}
+                </CardTitle>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={() => navegarMes("prev", "anterior")}
+                  >
+                    <ChevronLeft className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={() => navegarMes("next", "anterior")}
+                  >
+                    <ChevronRight className="h-3 w-3" />
+                  </Button>
+                </div>
               </div>
-            ))}
-
-            {/* Dias do calendário */}
-            {diasCalendario.map((dados, index) => {
-              if (!dados) {
-                return <div key={`empty-${index}`} className="aspect-square" />;
-              }
-
-              const isSelected = isSameDay(dados.dia, diaSelecionado);
-              const temEncomendas = dados.quantidade > 0;
-
-              let bgColor = "bg-background";
-              let borderColor = "border-border";
-              let textColor = "text-foreground";
-
-              if (dados.isHoje && temEncomendas) {
-                bgColor = "bg-red-100";
-                borderColor = "border-red-500";
-                textColor = "text-red-700";
-              } else if (dados.isAmanha && temEncomendas) {
-                bgColor = "bg-orange-100";
-                borderColor = "border-orange-500";
-                textColor = "text-orange-700";
-              } else if (temEncomendas) {
-                bgColor = "bg-green-50";
-                borderColor = "border-green-300";
-                textColor = "text-green-700";
-              }
-
-              if (isSelected) {
-                borderColor = "border-primary border-2";
-              }
-
-              return (
-                <button
-                  key={index}
-                  onClick={() => selecionarDia(dados)}
-                  className={`
-                    aspect-square p-2 rounded-lg border-2 transition-all
-                    hover:shadow-md hover:scale-105
-                    ${bgColor} ${borderColor}
-                  `}
-                >
-                  <div className="flex flex-col items-center justify-center h-full">
-                    <span className={`text-sm font-medium ${textColor}`}>
-                      {format(dados.dia, "d")}
-                    </span>
-                    {temEncomendas && (
-                      <Badge variant="secondary" className="mt-1 text-xs h-5 px-1.5">
-                        {dados.quantidade}
-                      </Badge>
-                    )}
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-7 gap-1">
+                {["D", "S", "T", "Q", "Q", "S", "S"].map((dia, i) => (
+                  <div key={i} className="text-center text-[10px] font-medium text-muted-foreground py-1">
+                    {dia}
                   </div>
-                </button>
-              );
-            })}
-          </div>
+                ))}
+                {(() => {
+                  const dataAnterior = new Date(mesAnterior.ano, mesAnterior.mes, 1);
+                  const primeiroDia = getDay(startOfMonth(dataAnterior));
+                  const diasVazios = Array(primeiroDia).fill(null);
+                  const diasCalendario = [...diasVazios, ...calendarioAnteriorDados];
+                  
+                  return diasCalendario.map((dados, index) => {
+                    if (!dados) {
+                      return <div key={`empty-${index}`} className="aspect-square" />;
+                    }
+                    
+                    const temEncomendas = dados.quantidade > 0;
+                    let bgColor = "bg-background";
+                    let textColor = "text-foreground";
+                    
+                    if (dados.isHoje && temEncomendas) {
+                      bgColor = "bg-red-200";
+                      textColor = "text-red-700";
+                    } else if (temEncomendas) {
+                      bgColor = "bg-blue-200";
+                      textColor = "text-blue-700";
+                    }
+                    
+                    return (
+                      <div
+                        key={index}
+                        className={`aspect-square flex items-center justify-center rounded text-[10px] ${bgColor} ${textColor}`}
+                      >
+                        <div className="flex flex-col items-center">
+                          <span>{format(dados.dia, "d")}</span>
+                          {temEncomendas && (
+                            <span className="text-[8px] font-bold">{dados.quantidade}</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+            </CardContent>
+          </Card>
 
-          {/* Detalhes do Dia Selecionado */}
-          <div className="border-t pt-4">
-            <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-              {format(diaSelecionado, "dd 'de' MMMM", { locale: ptBR })}
+          {/* CALENDÁRIO MÊS ATUAL */}
+          <Card className="border-green-200 bg-green-50/30 dark:bg-green-950/20">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base">
+                  {meses[mesSelecionado]} {anoSelecionado}
+                </CardTitle>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={() => navegarMes("prev", "atual")}
+                  >
+                    <ChevronLeft className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={() => navegarMes("next", "atual")}
+                  >
+                    <ChevronRight className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-7 gap-1">
+                {["D", "S", "T", "Q", "Q", "S", "S"].map((dia, i) => (
+                  <div key={i} className="text-center text-[10px] font-medium text-muted-foreground py-1">
+                    {dia}
+                  </div>
+                ))}
+                {(() => {
+                  const primeiroDia = getDay(startOfMonth(dataAtual));
+                  const diasVazios = Array(primeiroDia).fill(null);
+                  const diasCalendario = [...diasVazios, ...calendarioDados];
+                  
+                  return diasCalendario.map((dados, index) => {
+                    if (!dados) {
+                      return <div key={`empty-${index}`} className="aspect-square" />;
+                    }
+                    
+                    const isSelected = isSameDay(dados.dia, diaSelecionado);
+                    const temEncomendas = dados.quantidade > 0;
+                    let bgColor = "bg-background";
+                    let textColor = "text-foreground";
+                    let borderColor = "";
+                    
+                    if (dados.isHoje && temEncomendas) {
+                      bgColor = "bg-red-200";
+                      textColor = "text-red-700";
+                    } else if (dados.isAmanha && temEncomendas) {
+                      bgColor = "bg-orange-200";
+                      textColor = "text-orange-700";
+                    } else if (temEncomendas) {
+                      bgColor = "bg-green-200";
+                      textColor = "text-green-700";
+                    }
+                    
+                    if (isSelected) {
+                      borderColor = "ring-2 ring-primary";
+                    }
+                    
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => selecionarDia(dados)}
+                        className={`aspect-square flex items-center justify-center rounded text-[10px] hover:scale-110 transition-transform ${bgColor} ${textColor} ${borderColor}`}
+                      >
+                        <div className="flex flex-col items-center">
+                          <span>{format(dados.dia, "d")}</span>
+                          {temEncomendas && (
+                            <span className="text-[8px] font-bold">{dados.quantidade}</span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  });
+                })()}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* CALENDÁRIO MÊS SEGUINTE */}
+          <Card className="border-purple-200 bg-purple-50/30 dark:bg-purple-950/20">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base">
+                  {meses[mesSeguinte.mes]} {mesSeguinte.ano}
+                </CardTitle>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={() => navegarMes("prev", "seguinte")}
+                  >
+                    <ChevronLeft className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={() => navegarMes("next", "seguinte")}
+                  >
+                    <ChevronRight className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-7 gap-1">
+                {["D", "S", "T", "Q", "Q", "S", "S"].map((dia, i) => (
+                  <div key={i} className="text-center text-[10px] font-medium text-muted-foreground py-1">
+                    {dia}
+                  </div>
+                ))}
+                {(() => {
+                  const dataSeguinte = new Date(mesSeguinte.ano, mesSeguinte.mes, 1);
+                  const primeiroDia = getDay(startOfMonth(dataSeguinte));
+                  const diasVazios = Array(primeiroDia).fill(null);
+                  const diasCalendario = [...diasVazios, ...calendarioSeguinteDados];
+                  
+                  return diasCalendario.map((dados, index) => {
+                    if (!dados) {
+                      return <div key={`empty-${index}`} className="aspect-square" />;
+                    }
+                    
+                    const temEncomendas = dados.quantidade > 0;
+                    let bgColor = "bg-background";
+                    let textColor = "text-foreground";
+                    
+                    if (dados.isHoje && temEncomendas) {
+                      bgColor = "bg-red-200";
+                      textColor = "text-red-700";
+                    } else if (temEncomendas) {
+                      bgColor = "bg-purple-200";
+                      textColor = "text-purple-700";
+                    }
+                    
+                    return (
+                      <div
+                        key={index}
+                        className={`aspect-square flex items-center justify-center rounded text-[10px] ${bgColor} ${textColor}`}
+                      >
+                        <div className="flex flex-col items-center">
+                          <span>{format(dados.dia, "d")}</span>
+                          {temEncomendas && (
+                            <span className="text-[8px] font-bold">{dados.quantidade}</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Detalhes do Dia Selecionado */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              Encomendas - {format(diaSelecionado, "dd 'de' MMMM", { locale: ptBR })}
               {isToday(diaSelecionado) && (
                 <Badge variant="default" className="bg-red-500">HOJE</Badge>
               )}
-            </h3>
-
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
             {encomendasDia.length === 0 ? (
               <p className="text-muted-foreground text-center py-8">
                 Nenhuma encomenda para este dia
@@ -613,9 +902,9 @@ export default function Dashboard() {
                 ))}
               </div>
             )}
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* VISÃO ECONÔMICA */}
       <Card>
