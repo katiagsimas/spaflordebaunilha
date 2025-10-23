@@ -72,6 +72,7 @@ const Encomendas = () => {
     entregues: 0,
     canceladas: 0,
     pendentes: 0,
+    confirmadas: 0,
     paraHoje: 0,
     paraAmanha: 0,
     paraEstaSemana: 0,
@@ -175,6 +176,7 @@ const Encomendas = () => {
     const entregues = encomendasMes.filter((e) => e.status === "entregue").length;
     const canceladas = encomendasMes.filter((e) => e.status === "cancelado").length;
     const pendentes = encomendasMes.filter((e) => e.status === "pendente").length;
+    const confirmadas = encomendasMes.filter((e) => e.status === "confirmado").length;
 
     // CARDS DE URGÊNCIA (apenas status pendente)
     const encomendasPendentes = encomendasMes.filter(
@@ -208,6 +210,7 @@ const Encomendas = () => {
       entregues,
       canceladas,
       pendentes,
+      confirmadas,
       paraHoje,
       paraAmanha,
       paraEstaSemana,
@@ -1595,6 +1598,24 @@ const Encomendas = () => {
             </div>
             <p className="text-xs text-red-600 mt-1">
               Não realizadas
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Confirmadas */}
+        <Card className="border-blue-200 bg-blue-50 shadow-soft">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-blue-700" />
+              <CardTitle className="text-sm text-blue-700">Confirmadas</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-blue-700">
+              {indicadores.confirmadas}
+            </div>
+            <p className="text-xs text-blue-600 mt-1">
+              Pagamento confirmado
             </p>
           </CardContent>
         </Card>
