@@ -174,13 +174,11 @@ const Encomendas = () => {
     const total = encomendasMes.length;
     const entregues = encomendasMes.filter((e) => e.status === "entregue").length;
     const canceladas = encomendasMes.filter((e) => e.status === "cancelado").length;
-    const pendentes = encomendasMes.filter(
-      (e) => e.status !== "entregue" && e.status !== "cancelado"
-    ).length;
+    const pendentes = encomendasMes.filter((e) => e.status === "pendente").length;
 
-    // CARDS DE URGÊNCIA (apenas não entregues)
+    // CARDS DE URGÊNCIA (apenas status pendente)
     const encomendasPendentes = encomendasMes.filter(
-      (e) => e.status !== "entregue" && e.status !== "cancelado"
+      (e) => e.status === "pendente"
     );
 
     const paraHoje = encomendasPendentes.filter((e) => {
