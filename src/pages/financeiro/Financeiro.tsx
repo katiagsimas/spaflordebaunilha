@@ -43,7 +43,8 @@ import {
   Wallet,
   ArrowUpCircle,
   ArrowDownCircle,
-  Building2
+  Building2,
+  LayoutDashboard
 } from 'lucide-react';
 
 export default function Financeiro() {
@@ -302,7 +303,24 @@ export default function Financeiro() {
       </div>
 
       {/* Cards de Navegação */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {/* Card Dashboard Financeiro */}
+        <Card 
+          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-cyan-500"
+          onClick={() => navigate('/financeiro/dashboard')}
+        >
+          <CardHeader className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-cyan-50 dark:bg-cyan-950 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0">
+                <LayoutDashboard className="h-4 w-4" />
+              </div>
+              <CardTitle className="text-sm font-semibold">
+                Dashboard
+              </CardTitle>
+            </div>
+          </CardHeader>
+        </Card>
+
         {/* Card Contas a Receber */}
         <Card 
           className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-green-500"

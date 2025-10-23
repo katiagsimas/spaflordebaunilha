@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 const menuItems = [
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, active: true },
   { title: "Encomendas", url: "/encomendas", icon: ShoppingBag, active: true },
   { title: "Clientes", url: "/clientes", icon: User, active: true },
   { title: "Fornecedores", url: "/fornecedores", icon: Truck, active: true },
