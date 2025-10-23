@@ -1544,12 +1544,6 @@ const Encomendas = () => {
                 </SelectContent>
               </Select>
             </div>
-
-            <div className="flex-1">
-              <p className="text-xl font-semibold text-primary">
-                {meses[mesSelecionado]} de {anoSelecionado}
-              </p>
-            </div>
           </div>
         </CardContent>
       </Card>
