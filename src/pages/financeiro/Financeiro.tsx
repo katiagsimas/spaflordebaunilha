@@ -362,6 +362,40 @@ export default function Financeiro() {
             </div>
           </CardHeader>
         </Card>
+
+        {/* Card Fluxo Diário */}
+        <Card 
+          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-cyan-500"
+          onClick={() => navigate('/financeiro/fluxo-caixa/diario')}
+        >
+          <CardHeader className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-cyan-50 dark:bg-cyan-950 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0">
+                <Calendar className="h-4 w-4" />
+              </div>
+              <CardTitle className="text-sm font-semibold">
+                Fluxo Diário
+              </CardTitle>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Card Fluxo Mensal */}
+        <Card 
+          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-amber-500"
+          onClick={() => navigate('/financeiro/fluxo-caixa/mensal')}
+        >
+          <CardHeader className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                <DollarSign className="h-4 w-4" />
+              </div>
+              <CardTitle className="text-sm font-semibold">
+                Fluxo Mensal
+              </CardTitle>
+            </div>
+          </CardHeader>
+        </Card>
       </div>
 
       {/* Banner de Saldos */}
