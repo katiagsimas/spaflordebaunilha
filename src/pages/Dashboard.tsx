@@ -679,6 +679,7 @@ export default function Dashboard() {
                     return (
                       <button
                         key={index}
+                        onClick={() => selecionarDia(dados)}
                         className={`aspect-square flex items-center justify-center rounded text-[10px] hover:scale-110 hover:shadow-sm transition-transform ${bgColor} ${textColor}`}
                       >
                         <div className="flex flex-col items-center">
@@ -840,6 +841,7 @@ export default function Dashboard() {
                     return (
                       <button
                         key={index}
+                        onClick={() => selecionarDia(dados)}
                         className={`aspect-square flex items-center justify-center rounded text-[10px] hover:scale-110 hover:shadow-sm transition-transform ${bgColor} ${textColor}`}
                       >
                         <div className="flex flex-col items-center">
