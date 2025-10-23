@@ -1,303 +1,258 @@
 import React from "react";
-import { Settings, Tag, UserCircle, Ruler, Lock, Package, Layers, BookOpen, Building2, FileText, Percent, Tags } from "lucide-react";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Settings, DollarSign, Clock, Home, Ruler, Tag, Package, ChefHat, ArrowRight, Info } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { PageHeader } from "@/components/PageHeader";
 import { Badge } from "@/components/ui/badge";
-import { useConfigStatus } from "@/hooks/useConfigStatus";
-import { useIsAdmin } from "@/hooks/useIsAdmin";
-
-const opcoes = [
-  {
-    title: "Precificação",
-    description: "Configure valores e custos",
-    icon: Percent,
-    color: "text-amber-600 bg-amber-50 dark:bg-amber-950",
-    subItems: [
-      {
-        title: "Valores de Mão de Obra",
-        description: "Defina quanto vale sua hora",
-        icon: Tag,
-        url: "/configuracoes/precificacao/mao-obra",
-        color: "text-blue-600 bg-blue-50 dark:bg-blue-950",
-      },
-      {
-        title: "Custos Fixos",
-        description: "Despesas mensais do negócio",
-        icon: Building2,
-        url: "/configuracoes/precificacao/custos-fixos",
-        color: "text-purple-600 bg-purple-50 dark:bg-purple-950",
-      },
-    ],
-    statusKey: null,
-    requiresAdmin: false,
-  },
-  {
-    title: "Dados da Confeitaria",
-    description: "Informações básicas do negócio",
-    icon: UserCircle,
-    url: "/configuracoes/dados-confeitaria",
-    color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-950",
-    statusKey: "seusDados" as const,
-    requiresAdmin: false,
-  },
-  {
-    title: "Unidades de Medidas",
-    description: "Configure unidades de medida",
-    icon: Ruler,
-    url: "/configuracoes/unidades-medida",
-    color: "text-purple-600 bg-purple-50 dark:bg-purple-950",
-    statusKey: null,
-    requiresAdmin: false,
-  },
-  {
-    title: "Tipos de Insumos e Embalagens",
-    description: "Cadastre os tipos base de ingredientes e embalagens",
-    icon: Package,
-    url: "/configuracoes/tipos-insumos",
-    color: "text-green-600 bg-green-50 dark:bg-green-950",
-    statusKey: null,
-    requiresAdmin: false,
-  },
-  {
-    title: "Categorias de Receitas",
-    description: "Organize suas receitas por categorias",
-    icon: Tag,
-    url: "/configuracoes/categorias-receitas",
-    color: "text-cyan-600 bg-cyan-50 dark:bg-cyan-950",
-    statusKey: null,
-    requiresAdmin: false,
-  },
-  {
-    title: "Tags de Encomendas",
-    description: "Crie e gerencie tags para categorizar suas encomendas",
-    icon: Tags,
-    url: "/configuracoes/tags-encomendas",
-    color: "text-purple-600 bg-purple-50 dark:bg-purple-950",
-    statusKey: null,
-    requiresAdmin: false,
-  },
-  {
-    title: "Bancos",
-    description: "Cadastre os bancos que você utiliza",
-    icon: Building2,
-    url: "/configuracoes/bancos",
-    color: "text-teal-600 bg-teal-50 dark:bg-teal-950",
-    statusKey: null,
-    requiresAdmin: false,
-  },
-  {
-    title: "Tipos de Documentos",
-    description: "Tipos de documentos para lançamentos financeiros",
-    icon: FileText,
-    url: "/configuracoes/tipos-documentos",
-    color: "text-pink-600 bg-pink-50 dark:bg-pink-950",
-    statusKey: null,
-    requiresAdmin: false,
-  },
-  {
-    title: "Categorias Plano de Contas",
-    description: "Categorias para classificação de receitas e despesas no DRE",
-    icon: Layers,
-    url: "/configuracoes/categorias-plano-contas",
-    color: "text-blue-600 bg-blue-50 dark:bg-blue-950",
-    statusKey: null,
-    requiresAdmin: false,
-  },
-  {
-    title: "Plano de Contas",
-    description: "Contas detalhadas para lançamentos financeiros",
-    icon: BookOpen,
-    url: "/configuracoes/plano-contas",
-    color: "text-orange-600 bg-orange-50 dark:bg-orange-950",
-    statusKey: null,
-    requiresAdmin: false,
-  },
-  {
-    title: "Juros e Multas",
-    description: "Configure juros e multas para pagamentos em atraso",
-    icon: Percent,
-    url: "/configuracoes/juros",
-    color: "text-red-600 bg-red-50 dark:bg-red-950",
-    statusKey: null,
-    requiresAdmin: false,
-  },
-];
-
-interface OpcaoItem {
-  title: string;
-  description: string;
-  icon: any;
-  url: string;
-  color: string;
-}
-
-interface Opcao {
-  title: string;
-  description: string;
-  icon: any;
-  url?: string;
-  color: string;
-  statusKey: "seusDados" | null;
-  requiresAdmin: boolean;
-  subItems?: OpcaoItem[];
-}
 
 export default function Configuracoes() {
   const navigate = useNavigate();
-  const { status, isLoading } = useConfigStatus();
-  const { isAdmin, isLoading: isLoadingAdmin } = useIsAdmin();
-  const [expandedSection, setExpandedSection] = React.useState<string | null>(null);
 
-  const getStatusBadge = (opcao: typeof opcoes[0]) => {
-    if (!opcao.statusKey || !status) return null;
-    
-    const isCompleted = status[opcao.statusKey];
-    
-    if (isCompleted) {
-      return (
-        <Badge variant="secondary" className="bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300">
-          ✓ Concluído
-        </Badge>
-      );
-    }
-    
-    return (
-      <Badge variant="secondary" className="bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
-        ⏱ Pendente
-      </Badge>
-    );
-  };
-
-  const handleCardClick = (opcao: Opcao) => {
-    // Se requer admin e não é admin, bloqueia navegação
-    if (opcao.requiresAdmin && !isAdmin) {
-      return;
-    }
-    
-    // Se tem subItems, expande/colapsa
-    if (opcao.subItems) {
-      setExpandedSection(expandedSection === opcao.title ? null : opcao.title);
-      return;
-    }
-    
-    // Senão, navega
-    if (opcao.url) {
-      navigate(opcao.url);
-    }
-  };
-
-  if (isLoading || isLoadingAdmin) {
-    return (
-      <div className="min-h-screen bg-background p-4 md:p-6 flex items-center justify-center">
-        <div className="text-muted-foreground">Carregando...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
-      <PageHeader
-        title="Configurações"
-        description="Configure categorias, planos de contas e formas de pagamento"
-      />
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-        {opcoes.map((opcao, index) => {
-          const Icon = opcao.icon;
-          const isRestricted = opcao.requiresAdmin && !isAdmin;
-          const isExpanded = expandedSection === opcao.title;
-          
-          return (
-            <React.Fragment key={opcao.title}>
-              <Card
-                className={`group transition-all duration-200 animate-fade-in border-l-4 ${
-                  isRestricted 
-                    ? 'opacity-75 cursor-not-allowed' 
-                    : 'cursor-pointer hover:shadow-lg hover:scale-[1.02]'
-                } ${isExpanded ? 'ring-2 ring-primary' : ''}`}
-                style={{ 
-                  animationDelay: `${index * 0.05}s`,
-                  borderLeftColor: opcao.color.includes('indigo') ? 'hsl(var(--primary))' :
-                                  opcao.color.includes('cyan') ? 'hsl(var(--accent))' :
-                                  opcao.color.includes('purple') ? 'hsl(var(--secondary))' :
-                                  opcao.color.includes('blue') ? 'hsl(217, 91%, 60%)' :
-                                  'hsl(var(--muted-foreground))'
-                }}
-                onClick={() => handleCardClick(opcao)}
-              >
-                <CardHeader className="p-4 space-y-2">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-10 h-10 rounded-lg ${opcao.color} flex items-center justify-center shrink-0 ${
-                        !isRestricted ? 'group-hover:scale-110' : ''
-                      } transition-transform`}
-                    >
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <CardTitle className="text-base font-semibold leading-tight line-clamp-2 flex items-center gap-2">
-                        {opcao.title}
-                        {isRestricted && <Lock className="h-3 w-3 text-muted-foreground" />}
-                        {opcao.subItems && (
-                          <Badge variant="secondary" className="ml-auto">
-                            {opcao.subItems.length}
-                          </Badge>
-                        )}
-                      </CardTitle>
-                    </div>
-                  </div>
-                  <CardDescription className="text-xs line-clamp-2">
-                    {opcao.description}
-                  </CardDescription>
-                  <div className="pt-1">
-                    {opcao.statusKey === "seusDados" && getStatusBadge(opcao)}
-                  </div>
-                </CardHeader>
-              </Card>
-
-              {isExpanded && opcao.subItems && (
-                <>
-                  {opcao.subItems.map((subItem, subIndex) => {
-                    const SubIcon = subItem.icon;
-                    return (
-                      <Card
-                        key={`${opcao.title}-${subItem.title}`}
-                        className="group transition-all duration-200 animate-fade-in border-l-4 cursor-pointer hover:shadow-lg hover:scale-[1.02] ml-4"
-                        style={{ 
-                          animationDelay: `${(index + subIndex + 1) * 0.05}s`,
-                          borderLeftColor: subItem.color.includes('blue') ? 'hsl(217, 91%, 60%)' :
-                                          subItem.color.includes('purple') ? 'hsl(var(--secondary))' :
-                                          'hsl(var(--muted-foreground))'
-                        }}
-                        onClick={() => navigate(subItem.url)}
-                      >
-                        <CardHeader className="p-4 space-y-2">
-                          <div className="flex items-center gap-3">
-                            <div
-                              className={`w-10 h-10 rounded-lg ${subItem.color} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}
-                            >
-                              <SubIcon className="h-5 w-5" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
-                                {subItem.title}
-                              </CardTitle>
-                            </div>
-                          </div>
-                          <CardDescription className="text-xs line-clamp-2">
-                            {subItem.description}
-                          </CardDescription>
-                        </CardHeader>
-                      </Card>
-                    );
-                  })}
-                </>
-              )}
-            </React.Fragment>
-          );
-        })}
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-2">
+          <Settings className="h-8 w-8 text-primary" />
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Configurações</h1>
+            <p className="text-muted-foreground">Configure o sistema de acordo com suas necessidades</p>
+          </div>
+        </div>
       </div>
+
+      {/* Seção 1: PRECIFICAÇÃO */}
+      <div className="mb-12">
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-1">
+            <DollarSign className="h-5 w-5 text-primary" />
+            <h2 className="text-2xl font-bold">💼 Precificação</h2>
+          </div>
+          <p className="text-muted-foreground">Configure valores e custos para cálculo automático</p>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {/* Card: Valores de Mão de Obra */}
+          <Card 
+            className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-blue-300"
+            onClick={() => navigate("/configuracoes/precificacao/mao-obra")}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Clock className="h-6 w-6" />
+                </div>
+                <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                  Novo
+                </Badge>
+              </div>
+              <CardTitle className="text-lg">
+                Valores de Mão de Obra
+                <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </CardTitle>
+              <CardDescription>
+                Defina quanto vale sua hora de trabalho para cálculo automático
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  📊 Configure valores diferentes por tipo
+                </p>
+                <p className="text-xs text-primary font-medium">
+                  Gerenciar Valores →
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card: Custos Fixos */}
+          <Card 
+            className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-purple-300"
+            onClick={() => navigate("/configuracoes/precificacao/custos-fixos")}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-lg bg-purple-50 text-purple-600 dark:bg-purple-950 dark:text-purple-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Home className="h-6 w-6" />
+                </div>
+              </div>
+              <CardTitle className="text-lg">
+                Custos Fixos
+                <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </CardTitle>
+              <CardDescription>
+                Configure despesas mensais do negócio para rateio automático
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  💰 Despesas fixas mensais
+                </p>
+                <p className="text-xs text-primary font-medium">
+                  Gerenciar Custos →
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card: Unidades de Medidas */}
+          <Card 
+            className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-amber-300"
+            onClick={() => navigate("/configuracoes/unidades-medida")}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Ruler className="h-6 w-6" />
+                </div>
+              </div>
+              <CardTitle className="text-lg">
+                Unidades de Medidas
+                <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </CardTitle>
+              <CardDescription>
+                Kg, litros, unidades e outras medidas usadas nas receitas
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  📊 Unidades de medida
+                </p>
+                <p className="text-xs text-primary font-medium">
+                  Gerenciar Unidades →
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Seção 2: CADASTROS BASE */}
+      <div className="mb-12">
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-1">
+            <Package className="h-5 w-5 text-primary" />
+            <h2 className="text-2xl font-bold">📦 Cadastros Base</h2>
+          </div>
+          <p className="text-muted-foreground">Gerencie elementos usados nas fichas técnicas</p>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {/* Card: Categorias */}
+          <Card 
+            className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-pink-300"
+            onClick={() => navigate("/configuracoes/categorias-receitas")}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-lg bg-pink-50 text-pink-600 dark:bg-pink-950 dark:text-pink-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Tag className="h-6 w-6" />
+                </div>
+              </div>
+              <CardTitle className="text-lg">
+                Categorias de Receitas
+                <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </CardTitle>
+              <CardDescription>
+                Organize seus produtos por categorias (Bolos, Doces, Salgados...)
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  📊 Organize suas receitas
+                </p>
+                <p className="text-xs text-primary font-medium">
+                  Gerenciar Categorias →
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card: Tipos de Ingredientes */}
+          <Card 
+            className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-orange-300"
+            onClick={() => navigate("/configuracoes/tipos-insumos")}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-lg bg-orange-50 text-orange-600 dark:bg-orange-950 dark:text-orange-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <ChefHat className="h-6 w-6" />
+                </div>
+              </div>
+              <CardTitle className="text-lg">
+                Tipos de Ingredientes
+                <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </CardTitle>
+              <CardDescription>
+                Gerencie tipos de ingredientes usados nas suas receitas
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  📊 Ingredientes base
+                </p>
+                <p className="text-xs text-primary font-medium">
+                  Gerenciar Tipos →
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card: Tipos de Embalagens */}
+          <Card 
+            className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-green-300"
+            onClick={() => navigate("/configuracoes/tipos-insumos")}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-lg bg-green-50 text-green-600 dark:bg-green-950 dark:text-green-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Package className="h-6 w-6" />
+                </div>
+              </div>
+              <CardTitle className="text-lg">
+                Tipos de Embalagens
+                <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </CardTitle>
+              <CardDescription>
+                Gerencie tipos de embalagens disponíveis para seus produtos
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  📊 Embalagens disponíveis
+                </p>
+                <p className="text-xs text-primary font-medium">
+                  Gerenciar Tipos →
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Card Informativo */}
+      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border-blue-200 dark:border-blue-800">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3">
+            <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+            <div className="space-y-2">
+              <h3 className="font-semibold text-blue-900 dark:text-blue-100">
+                💡 Dica: Configure uma vez, use sempre!
+              </h3>
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                Configure estes valores agora e eles serão aplicados automaticamente em todas as suas 
+                fichas técnicas. Você sempre pode voltar aqui para ajustar conforme seu negócio cresce.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
