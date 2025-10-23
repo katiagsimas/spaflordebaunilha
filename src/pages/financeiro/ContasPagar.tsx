@@ -706,14 +706,6 @@ export default function ContasPagar() {
         backButton={<BackButton to="/financeiro" />}
       />
 
-      {/* Alert informativo */}
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertDescription>
-          Gerencie todas as suas obrigações financeiras com fornecedores em um só lugar.
-        </AlertDescription>
-      </Alert>
-
       {/* Dashboard */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
