@@ -1583,24 +1583,6 @@ const Encomendas = () => {
           </CardContent>
         </Card>
 
-        {/* Entregues */}
-        <Card className="border-green-200 bg-green-50 shadow-soft">
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-green-700" />
-              <CardTitle className="text-sm text-green-700">Entregues</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-700">
-              {indicadores.entregues}
-            </div>
-            <p className="text-xs text-green-600 mt-1">
-              Concluídas
-            </p>
-          </CardContent>
-        </Card>
-
         {/* Canceladas */}
         <Card className="border-red-200 bg-red-50 shadow-soft">
           <CardHeader className="pb-2">
@@ -1615,6 +1597,24 @@ const Encomendas = () => {
             </div>
             <p className="text-xs text-red-600 mt-1">
               Não realizadas
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Entregues */}
+        <Card className="border-green-200 bg-green-50 shadow-soft">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-green-700" />
+              <CardTitle className="text-sm text-green-700">Entregues</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-green-700">
+              {indicadores.entregues}
+            </div>
+            <p className="text-xs text-green-600 mt-1">
+              Concluídas
             </p>
           </CardContent>
         </Card>
