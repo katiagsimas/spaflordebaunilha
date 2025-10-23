@@ -56,7 +56,7 @@ import ContasReceberDetalhes from "./pages/financeiro/ContasReceberDetalhes";
 import ContasPagar from "./pages/financeiro/ContasPagar";
 import ContasPagarForm from "./pages/financeiro/ContasPagarForm";
 import ContasPagarDetalhes from "./pages/financeiro/ContasPagarDetalhes";
-import FluxoCaixa from "./pages/financeiro/FluxoCaixa";
+import FluxoCaixaHub from "./pages/financeiro/FluxoCaixaHub";
 import FluxoCaixaDiario from "./pages/financeiro/FluxoCaixaDiario";
 import FluxoCaixaMensal from "./pages/financeiro/FluxoCaixaMensal";
 import DRE from "./pages/financeiro/DRE";
@@ -179,8 +179,7 @@ const App = () => (
           <Route path="/financeiro/contas-pagar/detalhes/:id" element={<ProtectedRoute><Layout><ContasPagarDetalhes /></Layout></ProtectedRoute>} />
           
           {/* Financeiro - Fluxo de Caixa */}
-          {/* Temporariamente desabilitado - usar rotas /diario e /mensal */}
-          {/* <Route path="/financeiro/fluxo-caixa" element={<ProtectedRoute><Layout><FluxoCaixa /></Layout></ProtectedRoute>} /> */}
+          <Route path="/financeiro/fluxo-caixa" element={<ProtectedRoute><Layout><FluxoCaixaHub /></Layout></ProtectedRoute>} />
           <Route path="/financeiro/fluxo-caixa/diario" element={<ProtectedRoute><Layout><FluxoCaixaDiario /></Layout></ProtectedRoute>} />
           <Route path="/financeiro/fluxo-caixa/mensal" element={<ProtectedRoute><Layout><FluxoCaixaMensal /></Layout></ProtectedRoute>} />
           
