@@ -32,6 +32,7 @@ import { toast } from 'sonner';
 import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { BackButton } from '@/components/BackButton';
+import { PageHeader } from '@/components/PageHeader';
 
 export default function PlanoContas() {
   const [planos, setPlanos] = useState([]);
@@ -403,17 +404,11 @@ export default function PlanoContas() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <BackButton to="/configuracoes" />
-      
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold">Plano de Contas</h1>
-          <p className="text-muted-foreground">
-            Contas detalhadas para classificação de lançamentos financeiros
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Plano de Contas"
+        description="Contas detalhadas para classificação de lançamentos financeiros"
+        backButton={<BackButton to="/configuracoes" />}
+      />
 
       {/* Alert */}
       <Alert className="bg-blue-50 border-blue-200">

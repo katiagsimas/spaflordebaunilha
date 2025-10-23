@@ -25,6 +25,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Info, Search, Plus, Edit, Trash2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { BackButton } from '@/components/BackButton';
+import { PageHeader } from '@/components/PageHeader';
 
 interface TipoDocumento {
   id: string;
@@ -254,21 +255,17 @@ export default function TiposDocumentos() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <BackButton to="/configuracoes" />
-      
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold">Tipos de Documentos</h1>
-          <p className="text-muted-foreground">
-            Tipos de documentos para lançamentos financeiros
-          </p>
-        </div>
-        <Button onClick={() => handleAbrirModal()}>
-          <Plus className="mr-2 h-4 w-4" />
-          Criar Novo Tipo
-        </Button>
-      </div>
+      <PageHeader
+        title="Tipos de Documentos"
+        description="Tipos de documentos para lançamentos financeiros"
+        backButton={<BackButton to="/configuracoes" />}
+        actions={
+          <Button onClick={() => handleAbrirModal()}>
+            <Plus className="mr-2 h-4 w-4" />
+            Criar Novo Tipo
+          </Button>
+        }
+      />
 
       {/* Alert */}
       <Alert className="bg-blue-50 border-blue-200">

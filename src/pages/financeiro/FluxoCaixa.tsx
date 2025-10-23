@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,7 +22,6 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  ArrowLeft,
   TrendingUp,
   TrendingDown,
   Calendar,
@@ -32,6 +30,8 @@ import {
   Filter,
   Wallet
 } from 'lucide-react';
+import { BackButton } from '@/components/BackButton';
+import { PageHeader } from '@/components/PageHeader';
 import {
   LineChart,
   Line,
@@ -46,7 +46,6 @@ import {
 } from 'recharts';
 
 export default function FluxoCaixa() {
-  const navigate = useNavigate();
   const { toast } = useToast();
 
   // Estados
@@ -621,24 +620,17 @@ export default function FluxoCaixa() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/financeiro')}>
-            <ArrowLeft className="h-5 w-5" />
+      <PageHeader
+        title="Fluxo de Caixa"
+        description="Análise detalhada das movimentações financeiras"
+        backButton={<BackButton to="/financeiro" />}
+        actions={
+          <Button onClick={handleExportar}>
+            <Download className="mr-2 h-4 w-4" />
+            Exportar Excel
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold">Fluxo de Caixa</h1>
-            <p className="text-muted-foreground">
-              Análise detalhada das movimentações financeiras
-            </p>
-          </div>
-        </div>
-        <Button onClick={handleExportar}>
-          <Download className="mr-2 h-4 w-4" />
-          Exportar Excel
-        </Button>
-      </div>
+        }
+      />
 
       {/* Filtros */}
       <Card>

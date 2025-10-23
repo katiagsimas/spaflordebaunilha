@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,7 +16,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  ArrowLeft,
   Download,
   Filter,
   TrendingUp,
@@ -25,6 +23,8 @@ import {
   DollarSign,
   Percent
 } from 'lucide-react';
+import { BackButton } from '@/components/BackButton';
+import { PageHeader } from '@/components/PageHeader';
 import {
   BarChart,
   Bar,
@@ -40,7 +40,6 @@ import {
 } from 'recharts';
 
 export default function DRE() {
-  const navigate = useNavigate();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -431,24 +430,17 @@ export default function DRE() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/financeiro')}>
-            <ArrowLeft className="h-5 w-5" />
+      <PageHeader
+        title="DRE - Demonstração do Resultado"
+        description="Análise completa de receitas, custos e resultado"
+        backButton={<BackButton to="/financeiro" />}
+        actions={
+          <Button onClick={handleExportar}>
+            <Download className="mr-2 h-4 w-4" />
+            Exportar DRE
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold">DRE - Demonstração do Resultado</h1>
-            <p className="text-muted-foreground">
-              Análise completa de receitas, custos e resultado
-            </p>
-          </div>
-        </div>
-        <Button onClick={handleExportar}>
-          <Download className="mr-2 h-4 w-4" />
-          Exportar DRE
-        </Button>
-      </div>
+        }
+      />
 
       {/* Filtros */}
       <Card>

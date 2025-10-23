@@ -29,9 +29,9 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Info, Power, PowerOff, Search, Download, Filter, ArrowLeft, Plus, Edit, Trash2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2 } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
+import { BackButton } from '@/components/BackButton';
 import * as XLSX from 'xlsx';
 
 interface Categoria {
@@ -47,7 +47,6 @@ interface Categoria {
 
 export default function CategoriasPlanoContas() {
   const { toast } = useToast();
-  const navigate = useNavigate();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -466,22 +465,11 @@ export default function CategoriasPlanoContas() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate('/configuracoes')}
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div className="flex-1">
-          <PageHeader
-            title="Categorias do Plano de Contas"
-            description="Categorias para classificação de receitas e despesas no DRE"
-          />
-        </div>
-      </div>
+      <PageHeader
+        title="Categorias do Plano de Contas"
+        description="Categorias para classificação de receitas e despesas no DRE"
+        backButton={<BackButton to="/configuracoes" />}
+      />
 
       {/* Alertas */}
       <Alert className="bg-blue-50 border-blue-200">
