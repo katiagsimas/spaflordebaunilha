@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
@@ -15,7 +15,7 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useClientes } from "@/hooks/useClientes";
 import { useViaCEP } from "@/hooks/useViaCEP";
-import { Plus, Pencil, Trash2, Users, Search, ChevronDown, Download } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, Search, ChevronDown, Download, Cake } from "lucide-react";
 import { toast } from "sonner";
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -119,6 +119,20 @@ export default function Clientes() {
     setEditingCliente(cliente);
   };
 
+  // Filtrar aniversariantes do mês
+  const aniversariantesDoMes = useMemo(() => {
+    const mesAtual = new Date().getMonth();
+    return clientes.filter(cliente => {
+      if (!cliente.data_aniversario) return false;
+      const dataAniversario = new Date(cliente.data_aniversario + 'T00:00:00');
+      return dataAniversario.getMonth() === mesAtual;
+    }).sort((a, b) => {
+      const dataA = new Date(a.data_aniversario! + 'T00:00:00').getDate();
+      const dataB = new Date(b.data_aniversario! + 'T00:00:00').getDate();
+      return dataA - dataB;
+    });
+  }, [clientes]);
+
   // Filtrar clientes por busca
   const clientesFiltrados = clientes.filter(cliente =>
     cliente.nome.toLowerCase().includes(busca.toLowerCase())
@@ -162,6 +176,46 @@ export default function Clientes() {
           {clientes.length} {clientes.length === 1 ? 'cliente cadastrado' : 'clientes cadastrados'}
         </Badge>
       </div>
+
+      {aniversariantesDoMes.length > 0 && (
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <Cake className="h-5 w-5 animate-bounce" />
+            🎉 Aniversariantes do Mês
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {aniversariantesDoMes.map((cliente) => (
+              <Card 
+                key={cliente.id}
+                className="bg-gradient-to-r from-blue-500/10 via-cyan-500/10 to-teal-500/10 dark:from-blue-500/20 dark:via-cyan-500/20 dark:to-teal-500/20 border-2 border-blue-300/50 dark:border-blue-500/50 hover:shadow-lg transition-all duration-300"
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                        <Cake className="h-6 w-6 text-white animate-bounce" />
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm truncate">
+                        {cliente.nome}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(cliente.data_aniversario! + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })}
+                      </p>
+                      {cliente.telefone && (
+                        <p className="text-xs text-muted-foreground truncate">
+                          {cliente.telefone}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
 
       <Card>
         <CardHeader>
