@@ -112,6 +112,7 @@ export default function ContasPagar() {
   // Estados para paginação e busca
   const [porPagina, setPorPagina] = useState(10);
   const [buscaNome, setBuscaNome] = useState('');
+  const [buscaFornecedor, setBuscaFornecedor] = useState('');
 
   useEffect(() => {
     fetchDashboard();
@@ -884,17 +885,46 @@ export default function ContasPagar() {
           {/* Fornecedor */}
           <div className="space-y-2">
             <Label>Fornecedor</Label>
-            <Select value={fornecedorFiltro} onValueChange={setFornecedorFiltro}>
+            <Select 
+              value={fornecedorFiltro} 
+              onValueChange={(value) => {
+                setFornecedorFiltro(value);
+                setBuscaFornecedor('');
+              }}
+              onOpenChange={(open) => {
+                if (!open) setBuscaFornecedor('');
+              }}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Todos" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[300px]">
+                <div className="sticky top-0 bg-popover p-2 border-b z-50">
+                  <Input
+                    placeholder="Buscar fornecedor..."
+                    value={buscaFornecedor}
+                    onChange={(e) => setBuscaFornecedor(e.target.value)}
+                    className="h-8"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
                 <SelectItem value="todos">Todos</SelectItem>
-                {fornecedores.map((f: any) => (
-                  <SelectItem key={f.id} value={f.id}>
-                    {f.nome}
-                  </SelectItem>
-                ))}
+                {fornecedores
+                  .filter((f: any) => 
+                    !buscaFornecedor || f.nome.toLowerCase().includes(buscaFornecedor.toLowerCase())
+                  )
+                  .map((f: any) => (
+                    <SelectItem key={f.id} value={f.id}>
+                      {f.nome}
+                    </SelectItem>
+                  ))}
+                {fornecedores.filter((f: any) => 
+                  !buscaFornecedor || f.nome.toLowerCase().includes(buscaFornecedor.toLowerCase())
+                ).length === 0 && buscaFornecedor && (
+                  <div className="p-2 text-sm text-muted-foreground text-center">
+                    Nenhum fornecedor encontrado
+                  </div>
+                )}
               </SelectContent>
             </Select>
           </div>
