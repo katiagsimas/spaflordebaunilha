@@ -104,7 +104,7 @@ export default function Categorias() {
       <PageHeader
         title="Categorias de Receitas"
         description="Gerencie as categorias de receitas"
-        backButton={<BackButton to="/configuracoes" />}
+        backButton={<BackButton to="/configuracoes/cadastros-base" />}
       />
 
       <div className="flex justify-end">

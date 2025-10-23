@@ -12,7 +12,7 @@ export default function TagsEncomendasPage() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => navigate('/configuracoes')}
+          onClick={() => navigate('/configuracoes/cadastros-base')}
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>

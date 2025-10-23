@@ -12,7 +12,7 @@ export default function TiposInsumos() {
       <PageHeader
         title="Tipos de Insumos e Embalagens"
         description="Cadastre os tipos base de ingredientes e embalagens"
-        backButton={<BackButton to="/configuracoes" />}
+        backButton={<BackButton to="/configuracoes/cadastros-base" />}
       />
 
       <Tabs defaultValue="ingredientes" className="w-full">

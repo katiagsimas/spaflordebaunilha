@@ -152,7 +152,7 @@ export default function SeusDados() {
         if (profile?.primeiro_acesso) {
           navigate('/');
         } else {
-          navigate('/configuracoes');
+          navigate('/configuracoes/cadastros-base');
         }
       }, 1000);
     },
@@ -189,7 +189,7 @@ export default function SeusDados() {
       <PageHeader
         title={profile?.primeiro_acesso ? "Bem-vinda! Complete seus dados" : "Dados da Sua Confeitaria"}
         description={profile?.primeiro_acesso ? "Por favor, complete as informações da sua confeitaria para começar" : "Informações da sua empresa"}
-        backButton={!profile?.primeiro_acesso ? <BackButton to="/configuracoes" /> : undefined}
+        backButton={!profile?.primeiro_acesso ? <BackButton to="/configuracoes/cadastros-base" /> : undefined}
       />
 
       <Card>
