@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   Table, 
   TableBody, 
@@ -13,7 +18,6 @@ import {
   TableFooter 
 } from "@/components/ui/table";
 import { 
-  Calendar as CalendarIcon, 
   TrendingUp, 
   TrendingDown,
   DollarSign,
@@ -36,14 +40,23 @@ interface FluxoDiario {
 
 export default function FluxoCaixaDiario() {
   const navigate = useNavigate();
-  const [mesAno, setMesAno] = useState(new Date());
+  const anoAtual = new Date().getFullYear();
+  const mesAtual = new Date().getMonth();
+  
+  const [ano, setAno] = useState(anoAtual);
+  const [mes, setMes] = useState(mesAtual);
   const [fluxo, setFluxo] = useState<FluxoDiario[]>([]);
   const [loading, setLoading] = useState(true);
   const [saldoInicial, setSaldoInicial] = useState(0);
 
   useEffect(() => {
     carregarFluxo();
-  }, [mesAno]);
+  }, [ano, mes]);
+
+  const mesesNomes = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+  ];
 
   async function carregarFluxo() {
     setLoading(true);
@@ -51,6 +64,7 @@ export default function FluxoCaixaDiario() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      const mesAno = new Date(ano, mes, 1);
       const inicio = startOfMonth(mesAno);
       const fim = endOfMonth(mesAno);
       
@@ -172,9 +186,12 @@ export default function FluxoCaixaDiario() {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `fluxo-caixa-diario-${format(mesAno, 'MM-yyyy')}.csv`;
+    link.download = `fluxo-caixa-diario-${String(mes + 1).padStart(2, '0')}-${ano}.csv`;
     link.click();
   };
+
+  // Gerar lista de anos (2025 em diante)
+  const anos = Array.from({ length: anoAtual - 2024 + 5 }, (_, i) => 2025 + i);
 
   return (
     <div className="space-y-6">
@@ -203,26 +220,41 @@ export default function FluxoCaixaDiario() {
         </div>
       </div>
 
-      {/* Filtro de Mês */}
+      {/* Filtro de Ano e Mês */}
       <Card>
         <CardContent className="pt-6">
           <div className="flex items-center gap-4">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="w-64 justify-start">
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {format(mesAno, "MMMM 'de' yyyy", { locale: ptBR })}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={mesAno}
-                  onSelect={(date) => date && setMesAno(date)}
-                  locale={ptBR}
-                />
-              </PopoverContent>
-            </Popover>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium">Ano</label>
+              <Select value={ano.toString()} onValueChange={(value) => setAno(parseInt(value))}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {anos.map((a) => (
+                    <SelectItem key={a} value={a.toString()}>
+                      {a}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium">Mês</label>
+              <Select value={mes.toString()} onValueChange={(value) => setMes(parseInt(value))}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {mesesNomes.map((nome, index) => (
+                    <SelectItem key={index} value={index.toString()}>
+                      {nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -289,7 +321,7 @@ export default function FluxoCaixaDiario() {
         <CardHeader>
           <CardTitle>Movimentações Diárias</CardTitle>
           <CardDescription>
-            {format(mesAno, "MMMM 'de' yyyy", { locale: ptBR })}
+            {mesesNomes[mes]} de {ano}
           </CardDescription>
         </CardHeader>
         <CardContent>
