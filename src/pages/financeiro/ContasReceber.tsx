@@ -39,19 +39,28 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, MoreVertical, Eye, DollarSign, Edit, Trash2, Info, Filter, Calendar, ChevronDown, X, Download, CheckSquare, Square } from 'lucide-react';
+import { Plus, MoreVertical, Eye, DollarSign, Edit, Trash2, Info, Filter, Calendar, ChevronDown, X, Download, CheckSquare, Square, TrendingUp, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import * as XLSX from 'xlsx';
 import { BackButton } from '@/components/BackButton';
 import { PageHeader } from '@/components/PageHeader';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function ContasReceber() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [parcelas, setParcelas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Dashboard
+  const [dashboard, setDashboard] = useState({
+    total_a_receber: 0,
+    total_recebido: 0,
+    total_atrasado: 0,
+    vencendo_hoje: 0,
+  });
 
   // Dados para os filtros
   const [planoContas, setPlanoContas] = useState<any[]>([]);
@@ -99,10 +108,56 @@ export default function ContasReceber() {
   const [buscaNome, setBuscaNome] = useState('');
 
   useEffect(() => {
+    fetchDashboard();
     fetchParcelas();
     fetchDadosFiltros();
     fetchConfigJuros();
   }, []);
+
+  const fetchDashboard = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('vw_contas_receber_parcelas')
+        .select('*')
+        .eq('user_id', user.id);
+
+      let totalAReceber = 0;
+      let totalRecebido = 0;
+      let totalAtrasado = 0;
+      let vencendoHoje = 0;
+      const hoje = new Date().toISOString().split('T')[0];
+
+      data?.forEach((p: any) => {
+        if (p.status === 'aberto' || p.status === 'atrasado' || p.status === 'pagamento_parcial') {
+          totalAReceber += (p.valor_parcela - (p.valor_pago || 0));
+        }
+        if (p.status === 'pago' || p.status === 'adiantado') {
+          totalRecebido += p.valor_pago || 0;
+        }
+        if (p.status === 'pagamento_parcial') {
+          totalRecebido += p.valor_pago || 0;
+        }
+        if (p.status === 'atrasado') {
+          totalAtrasado += (p.valor_parcela - (p.valor_pago || 0));
+        }
+        if (p.data_vencimento === hoje && (p.status === 'aberto' || p.status === 'pagamento_parcial')) {
+          vencendoHoje += (p.valor_parcela - (p.valor_pago || 0));
+        }
+      });
+
+      setDashboard({
+        total_a_receber: totalAReceber,
+        total_recebido: totalRecebido,
+        total_atrasado: totalAtrasado,
+        vencendo_hoje: vencendoHoje,
+      });
+    } catch (error) {
+      console.error('Erro ao buscar dashboard:', error);
+    }
+  };
 
   const fetchDadosFiltros = async () => {
     try {
@@ -347,6 +402,7 @@ export default function ContasReceber() {
       setModalBaixaLote(false);
       handleLimparSelecao();
       fetchParcelas();
+      fetchDashboard();
     } catch (error) {
       console.error('Erro ao processar baixa em lote:', error);
       toast({
@@ -391,6 +447,7 @@ export default function ContasReceber() {
 
       handleLimparSelecao();
       fetchParcelas();
+      fetchDashboard();
     } catch (error) {
       console.error('Erro ao excluir em lote:', error);
       toast({
@@ -594,6 +651,7 @@ export default function ContasReceber() {
       });
 
       fetchParcelas();
+      fetchDashboard();
     } catch (error) {
       console.error('Erro ao excluir:', error);
       toast({
@@ -636,22 +694,76 @@ export default function ContasReceber() {
     <div className="container mx-auto p-6 space-y-6">
       <PageHeader
         title="Contas a Receber"
-        description="Gerencie suas contas a receber por parcela"
+        description="Gerencie seus recebimentos aqui"
         backButton={<BackButton to="/financeiro" />}
-        actions={
-          <Button onClick={() => navigate('/financeiro/contas-receber/nova')}>
-            <Plus className="mr-2 h-4 w-4" />
-            Adicionar Conta a Receber
-          </Button>
-        }
       />
 
-      <Alert className="bg-blue-50 border-blue-200">
-        <Info className="h-4 w-4 text-blue-600" />
-        <AlertDescription>
-          Cada linha representa uma parcela individual. Use os filtros para encontrar parcelas específicas.
-        </AlertDescription>
-      </Alert>
+      {/* Dashboard */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        <Card className="border-l-4 border-l-green-500">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <TrendingUp className="h-4 w-4 text-green-600" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">A Receber</p>
+                <p className="text-lg font-bold text-green-600">
+                  {formatarValor(dashboard.total_a_receber)}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-blue-500">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <CheckCircle2 className="h-4 w-4 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">Recebido</p>
+                <p className="text-lg font-bold text-blue-600">
+                  {formatarValor(dashboard.total_recebido)}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-orange-500">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <AlertTriangle className="h-4 w-4 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">Em Atraso</p>
+                <p className="text-lg font-bold text-orange-600">
+                  {formatarValor(dashboard.total_atrasado)}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-purple-500">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <Calendar className="h-4 w-4 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">Vence Hoje</p>
+                <p className="text-lg font-bold text-purple-600">
+                  {formatarValor(dashboard.vencendo_hoje)}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Filtros de Status Dinâmicos */}
       <div className="space-y-4">
@@ -901,19 +1013,31 @@ export default function ContasReceber() {
       </Collapsible>
 
       {/* Card de Controles */}
-      <div className="border rounded-lg p-4">
-        <div className="flex items-center justify-between gap-4 mb-4">
-          {/* Botão Exportar - Esquerda */}
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={exportarParaExcel}
-            className="gap-2"
-          >
-            <Download className="h-4 w-4" />
-            Exportar para Excel
+      <div className="border rounded-lg p-4 space-y-4">
+        {/* Primeira linha: Controles */}
+        <div className="flex items-center justify-between gap-4">
+          {/* Resultados por Página - Esquerda */}
+          <div className="flex items-center gap-2">
+            <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
+              <SelectTrigger className="w-20 bg-popover">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
+            <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
+          </div>
+          
+          {/* Botão Adicionar - Centro */}
+          <Button onClick={() => navigate('/financeiro/contas-receber/nova')}>
+            <Plus className="mr-2 h-4 w-4" />
+            Adicionar Conta a Receber
           </Button>
-
+          
           {/* Campo de Busca - Direita */}
           <div className="relative flex-1 max-w-xs">
             <Input
@@ -925,25 +1049,7 @@ export default function ContasReceber() {
           </div>
         </div>
 
-      {/* Segunda linha: Paginação e Cards de Visualização */}
-      <div className="flex items-center gap-4">
-        {/* Resultados por Página - Esquerda */}
-        <div className="flex items-center gap-2">
-          <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
-            <SelectTrigger className="w-20 bg-popover">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-popover z-50">
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="25">25</SelectItem>
-              <SelectItem value="50">50</SelectItem>
-              <SelectItem value="100">100</SelectItem>
-            </SelectContent>
-          </Select>
-          <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
-        </div>
-        
-        {/* Cards de Visualização */}
+        {/* Segunda linha: Cards de Visualização */}
         <div className="flex gap-2">
           <Button
             variant={visualizacao === 'ativas' ? 'default' : 'outline'}
@@ -968,7 +1074,6 @@ export default function ContasReceber() {
             Contas Recebidas
           </Button>
         </div>
-      </div>
       </div>
 
       {/* Tabela */}
