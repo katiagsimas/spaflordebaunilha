@@ -78,7 +78,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar shadow-xl" style={{ width: open ? '280px' : undefined }}>
-      <SidebarHeader className="border-b border-sidebar-border p-8 bg-sidebar">
+      <SidebarHeader className="border-b border-gray-200 p-8 bg-white">
         {open && (
           <div className="flex justify-center">
             <img 
