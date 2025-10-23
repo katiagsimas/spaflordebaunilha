@@ -1,8 +1,7 @@
 import React from "react";
-import { Clock, Home, Ruler, ArrowRight } from "lucide-react";
+import { Clock, Home, Ruler } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 
@@ -21,25 +20,23 @@ export default function PrecificacaoPage() {
         {/* Grid com 3 Cards */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         
-        {/* Card: Mão de Obra */}
+          {/* Card: Mão de Obra */}
         <Card 
-          className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-blue-300"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-blue-500"
           onClick={() => navigate("/configuracoes/precificacao/mao-obra")}
         >
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                <Clock className="h-6 w-6" />
+          <CardHeader className="p-4 space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <Clock className="h-5 w-5" />
               </div>
-              <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                Novo
-              </Badge>
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                  Valores de Mão de Obra
+                </CardTitle>
+              </div>
             </div>
-            <CardTitle className="text-lg">
-              Valores de Mão de Obra
-              <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs line-clamp-2">
               Defina quanto vale sua hora de trabalho para cálculo automático
             </CardDescription>
           </CardHeader>
@@ -47,20 +44,21 @@ export default function PrecificacaoPage() {
 
         {/* Card: Custos Fixos */}
         <Card 
-          className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-purple-300"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-purple-500"
           onClick={() => navigate("/configuracoes/precificacao/custos-fixos")}
         >
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 rounded-lg bg-purple-50 text-purple-600 dark:bg-purple-950 dark:text-purple-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                <Home className="h-6 w-6" />
+          <CardHeader className="p-4 space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-purple-50 dark:bg-purple-950 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <Home className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                  Custos Fixos
+                </CardTitle>
               </div>
             </div>
-            <CardTitle className="text-lg">
-              Custos Fixos
-              <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs line-clamp-2">
               Configure despesas mensais do negócio para rateio automático
             </CardDescription>
           </CardHeader>
@@ -68,20 +66,21 @@ export default function PrecificacaoPage() {
 
         {/* Card: Unidades de Medidas */}
         <Card 
-          className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-amber-300"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-amber-500"
           onClick={() => navigate("/configuracoes/unidades-medida")}
         >
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                <Ruler className="h-6 w-6" />
+          <CardHeader className="p-4 space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <Ruler className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                  Unidades de Medidas
+                </CardTitle>
               </div>
             </div>
-            <CardTitle className="text-lg">
-              Unidades de Medidas
-              <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs line-clamp-2">
               Kg, litros, unidades e outras medidas usadas nas receitas
             </CardDescription>
           </CardHeader>

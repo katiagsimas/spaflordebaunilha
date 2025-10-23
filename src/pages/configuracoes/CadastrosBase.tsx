@@ -1,5 +1,5 @@
 import React from "react";
-import { Package, UserCircle, Tag, Tags, ArrowRight } from "lucide-react";
+import { Package, UserCircle, Tag, Tags } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
@@ -23,20 +23,21 @@ export default function CadastrosBase() {
         
         {/* Card: Dados da Confeitaria */}
         <Card 
-          className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-indigo-300"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-indigo-500"
           onClick={() => navigate("/configuracoes/dados-confeitaria")}
         >
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                <UserCircle className="h-6 w-6" />
+          <CardHeader className="p-4 space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <UserCircle className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                  Dados da Confeitaria
+                </CardTitle>
               </div>
             </div>
-            <CardTitle className="text-lg">
-              Dados da Confeitaria
-              <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs line-clamp-2">
               Informações básicas do negócio
             </CardDescription>
           </CardHeader>
@@ -44,20 +45,21 @@ export default function CadastrosBase() {
 
         {/* Card: Categorias de Receitas */}
         <Card 
-          className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-pink-300"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-pink-500"
           onClick={() => navigate("/configuracoes/categorias-receitas")}
         >
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 rounded-lg bg-pink-50 text-pink-600 dark:bg-pink-950 dark:text-pink-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                <Tag className="h-6 w-6" />
+          <CardHeader className="p-4 space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-pink-50 dark:bg-pink-950 text-pink-600 dark:text-pink-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <Tag className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                  Categorias de Receitas
+                </CardTitle>
               </div>
             </div>
-            <CardTitle className="text-lg">
-              Categorias de Receitas
-              <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs line-clamp-2">
               Organize seus produtos por categorias
             </CardDescription>
           </CardHeader>
@@ -65,20 +67,21 @@ export default function CadastrosBase() {
 
         {/* Card: Tipos de Insumos */}
         <Card 
-          className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-green-300"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-green-500"
           onClick={() => navigate("/configuracoes/tipos-insumos")}
         >
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 rounded-lg bg-green-50 text-green-600 dark:bg-green-950 dark:text-green-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                <Package className="h-6 w-6" />
+          <CardHeader className="p-4 space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-green-50 dark:bg-green-950 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <Package className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                  Tipos de Insumos
+                </CardTitle>
               </div>
             </div>
-            <CardTitle className="text-lg">
-              Tipos de Insumos
-              <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs line-clamp-2">
               Tipos de ingredientes e embalagens
             </CardDescription>
           </CardHeader>
@@ -86,20 +89,21 @@ export default function CadastrosBase() {
 
         {/* Card: Tags de Encomendas */}
         <Card 
-          className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-purple-300"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-purple-500"
           onClick={() => navigate("/configuracoes/tags-encomendas")}
         >
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 rounded-lg bg-purple-50 text-purple-600 dark:bg-purple-950 dark:text-purple-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                <Tags className="h-6 w-6" />
+          <CardHeader className="p-4 space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-purple-50 dark:bg-purple-950 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <Tags className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                  Tags de Encomendas
+                </CardTitle>
               </div>
             </div>
-            <CardTitle className="text-lg">
-              Tags de Encomendas
-              <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs line-clamp-2">
               Crie e gerencie tags para categorizar encomendas
             </CardDescription>
           </CardHeader>
