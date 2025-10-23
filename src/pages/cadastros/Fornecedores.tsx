@@ -13,9 +13,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useFornecedores } from "@/hooks/useFornecedores";
-import { Plus, Pencil, Trash2, Truck, ChevronDown, Cake } from "lucide-react";
+import { Plus, Pencil, Trash2, Truck, ChevronDown, Cake, Search, Download } from "lucide-react";
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import * as XLSX from 'xlsx';
 
 interface FormDataFornecedor {
   nome: string;
@@ -35,6 +36,7 @@ export default function Fornecedores() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [observacoesOpen, setObservacoesOpen] = useState(false);
+  const [busca, setBusca] = useState("");
 
   const [formData, setFormData] = useState<FormDataFornecedor>({
     nome: "",
@@ -124,6 +126,36 @@ export default function Fornecedores() {
     });
   }, [fornecedores]);
 
+  // Filtrar fornecedores por busca
+  const fornecedoresFiltrados = useMemo(() => {
+    return fornecedores.filter(fornecedor =>
+      fornecedor.nome.toLowerCase().includes(busca.toLowerCase())
+    );
+  }, [fornecedores, busca]);
+
+  const handleExportarExcel = () => {
+    if (fornecedoresFiltrados.length === 0) {
+      return;
+    }
+
+    const dadosExport = fornecedoresFiltrados.map((fornecedor) => ({
+      'Nome': fornecedor.nome,
+      'Tipo': fornecedor.tipo || '-',
+      'CPF/CNPJ': fornecedor.cpf_cnpj || '-',
+      'Telefone': fornecedor.telefone || '-',
+      'E-mail': fornecedor.email || '-',
+      'Contato': fornecedor.contato || '-',
+      'Aniversário': fornecedor.data_aniversario_contato 
+        ? new Date(fornecedor.data_aniversario_contato + 'T00:00:00').toLocaleDateString('pt-BR')
+        : '-',
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(dadosExport);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Fornecedores');
+    XLSX.writeFile(wb, `fornecedores_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -174,16 +206,28 @@ export default function Fornecedores() {
       )}
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader>
           <CardTitle>Lista de Fornecedores</CardTitle>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => setEditingId(null)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Novo Fornecedor
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex-1 flex items-center gap-2">
+              <Search className="h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nome..."
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                className="max-w-sm"
+              />
+            </div>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => setEditingId(null)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Novo Fornecedor
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingId ? "Editar Fornecedor" : "Novo Fornecedor"}</DialogTitle>
               </DialogHeader>
@@ -291,17 +335,29 @@ export default function Fornecedores() {
                     {editingId ? "Atualizar" : "Cadastrar"}
                   </Button>
                 </div>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </CardHeader>
-        <CardContent>
-          {fornecedores.length === 0 ? (
+                </form>
+              </DialogContent>
+            </Dialog>
+            <Button variant="outline" onClick={handleExportarExcel}>
+              <Download className="h-4 w-4 mr-2" />
+              Exportar para Excel
+            </Button>
+          </div>
+
+          {fornecedoresFiltrados.length === 0 ? (
+            busca ? (
+              <EmptyState
+                icon={Search}
+                title="Nenhum fornecedor encontrado"
+                description="Não encontramos fornecedores com esse nome"
+              />
+            ) : (
             <EmptyState
               icon={Truck}
-              title="Nenhum fornecedor cadastrado"
-              description="Comece adicionando seu primeiro fornecedor"
-            />
+                title="Nenhum fornecedor cadastrado"
+                description="Comece adicionando seu primeiro fornecedor"
+              />
+            )
           ) : (
             <div className="overflow-x-auto">
               <Table>
@@ -317,7 +373,7 @@ export default function Fornecedores() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {fornecedores.map((fornecedor) => (
+                  {fornecedoresFiltrados.map((fornecedor) => (
                     <TableRow key={fornecedor.id}>
                       <TableCell className="font-medium">{fornecedor.nome}</TableCell>
                       <TableCell>{fornecedor.tipo || "-"}</TableCell>

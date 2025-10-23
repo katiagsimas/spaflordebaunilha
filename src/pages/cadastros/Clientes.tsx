@@ -15,9 +15,10 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useClientes } from "@/hooks/useClientes";
 import { useViaCEP } from "@/hooks/useViaCEP";
-import { Plus, Pencil, Trash2, Users, Search, ChevronDown } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, Search, ChevronDown, Download } from "lucide-react";
 import { toast } from "sonner";
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
+import * as XLSX from 'xlsx';
 
 export default function Clientes() {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ export default function Clientes() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [observacoesOpen, setObservacoesOpen] = useState(false);
   const { buscarCEP, loading: loadingCEP } = useViaCEP();
+  const [busca, setBusca] = useState("");
 
   const [formData, setFormData] = useState({
     nome: "",
@@ -115,6 +117,38 @@ export default function Clientes() {
     setEditingCliente(cliente);
   };
 
+  // Filtrar clientes por busca
+  const clientesFiltrados = clientes.filter(cliente =>
+    cliente.nome.toLowerCase().includes(busca.toLowerCase())
+  );
+
+  const handleExportarExcel = () => {
+    if (clientesFiltrados.length === 0) {
+      return;
+    }
+
+    const dadosExport = clientesFiltrados.map((cliente) => ({
+      'Nome': cliente.nome,
+      'Tipo': cliente.tipo || 'PF',
+      'Telefone': cliente.telefone,
+      'E-mail': cliente.email || '-',
+      'CPF/CNPJ': cliente.cpf_cnpj || '-',
+      'Aniversário': cliente.data_aniversario 
+        ? new Date(cliente.data_aniversario + 'T00:00:00').toLocaleDateString('pt-BR')
+        : '-',
+      'CEP': cliente.cep || '-',
+      'Endereço': cliente.endereco || '-',
+      'Número': cliente.numero || '-',
+      'Cidade': cliente.cidade || '-',
+      'Estado': cliente.estado || '-',
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(dadosExport);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Clientes');
+    XLSX.writeFile(wb, `clientes_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -127,16 +161,28 @@ export default function Clientes() {
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader>
           <CardTitle>Lista de Clientes</CardTitle>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => setEditingCliente(null)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Novo Cliente
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex-1 flex items-center gap-2">
+              <Search className="h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nome..."
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                className="max-w-sm"
+              />
+            </div>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => setEditingCliente(null)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Novo Cliente
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingCliente ? "Editar Cliente" : "Novo Cliente"}</DialogTitle>
               </DialogHeader>
@@ -297,17 +343,29 @@ export default function Clientes() {
                     {editingCliente ? "Atualizar" : "Cadastrar"}
                   </Button>
                 </div>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </CardHeader>
-        <CardContent>
-          {clientes.length === 0 ? (
+                </form>
+              </DialogContent>
+            </Dialog>
+            <Button variant="outline" onClick={handleExportarExcel}>
+              <Download className="h-4 w-4 mr-2" />
+              Exportar para Excel
+            </Button>
+          </div>
+
+          {clientesFiltrados.length === 0 ? (
+            busca ? (
+              <EmptyState
+                icon={Search}
+                title="Nenhum cliente encontrado"
+                description="Não encontramos clientes com esse nome"
+              />
+            ) : (
             <EmptyState
               icon={Users}
-              title="Nenhum cliente cadastrado"
-              description="Comece adicionando seu primeiro cliente"
-            />
+                title="Nenhum cliente cadastrado"
+                description="Comece adicionando seu primeiro cliente"
+              />
+            )
           ) : (
             <div className="overflow-x-auto">
               <Table>
@@ -322,7 +380,7 @@ export default function Clientes() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {clientes.map((cliente) => (
+                  {clientesFiltrados.map((cliente) => (
                     <TableRow key={cliente.id}>
                       <TableCell className="font-medium">{cliente.nome}</TableCell>
                       <TableCell>{cliente.tipo || "PF"}</TableCell>
