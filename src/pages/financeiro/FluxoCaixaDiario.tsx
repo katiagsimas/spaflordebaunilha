@@ -211,7 +211,7 @@ export default function FluxoCaixaDiario() {
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={handleExportar}>
             <Download className="w-4 h-4 mr-2" />
-            Exportar
+            Exportar para Excel
           </Button>
           <Button variant="outline" size="sm" onClick={() => window.print()}>
             <Printer className="w-4 h-4 mr-2" />
