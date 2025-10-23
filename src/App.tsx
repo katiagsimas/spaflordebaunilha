@@ -50,6 +50,7 @@ import Embalagens from "./pages/precificacao/Embalagens";
 import PrePreparos from "./pages/precificacao/PrePreparos";
 import PrePreparoForm from "./pages/precificacao/PrePreparoForm";
 import Financeiro from "./pages/financeiro/Financeiro";
+import DashboardFinanceiro from "./pages/financeiro/DashboardFinanceiro";
 import ContasReceber from "./pages/financeiro/ContasReceber";
 import ContasReceberForm from "./pages/financeiro/ContasReceberForm";
 import ContasReceberDetalhes from "./pages/financeiro/ContasReceberDetalhes";
@@ -118,8 +119,11 @@ const App = () => (
             <Route path="/auth/login" element={<AuthLogin />} />
             <Route path="/auth/signup" element={<SignUp />} />
             <Route path="/auth/forgot-password" element={<ForgotPassword />} />
-          {/* Redirecionar raiz para Encomendas */}
-          <Route path="/" element={<Navigate to="/encomendas" replace />} />
+          {/* Redirecionar raiz para Dashboard */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          
+          {/* Dashboard Principal */}
+          <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
           
           {/* Páginas Diretas */}
           <Route path="/encomendas" element={<ProtectedRoute><Layout><Encomendas /></Layout></ProtectedRoute>} />
@@ -165,6 +169,7 @@ const App = () => (
           
           {/* Financeiro - Página Principal */}
           <Route path="/financeiro" element={<ProtectedRoute><Layout><Financeiro /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/dashboard" element={<ProtectedRoute><Layout><DashboardFinanceiro /></Layout></ProtectedRoute>} />
           
           {/* Financeiro - Contas a Receber */}
           <Route path="/financeiro/contas-receber" element={<ProtectedRoute><Layout><ContasReceber /></Layout></ProtectedRoute>} />

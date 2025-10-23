@@ -1,999 +1,769 @@
-import { useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  ShoppingBag, TrendingUp, DollarSign, Package, Clock, 
-  AlertCircle, Calendar, Users, Target, ArrowUpRight, 
-  ArrowDownRight, TrendingDown, Bell, Cake, MessageSquare,
-  ChevronRight, Truck, CookingPot
-} from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { format, isToday, isTomorrow, parseISO, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameDay } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { cn } from "@/lib/utils";
-import { useAuth } from "@/contexts/AuthContext";
-import { useQuery } from "@tanstack/react-query";
+import {
+  AlertCircle,
+  TrendingUp,
+  TrendingDown,
+  ChevronLeft,
+  ChevronRight
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  isSameDay,
+  isToday,
+  isTomorrow,
+  getDay
+} from "date-fns";
+import { ptBR } from "date-fns/locale";
 import {
   LineChart,
   Line,
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
-  Legend
+  Legend,
+  ResponsiveContainer
 } from "recharts";
 
-interface Order {
+interface Encomenda {
   id: string;
-  orderNumber: number;
-  client: string;
-  product: string;
-  total: number;
-  status: string;
-  deliveryDate: string;
-  createdAt: string;
-}
-
-interface ContaReceber {
-  id: string;
-  descricao: string;
+  cliente: string;
+  data_entrega: string;
+  hora_entrega: string;
   valor: number;
-  dataVencimento: string;
-  dataRecebimento?: string;
   status: string;
 }
 
-interface ContaPagar {
-  id: string;
-  descricao: string;
-  valor: number;
-  dataVencimento: string;
-  dataPagamento?: string;
-  status: string;
+interface DadosDia {
+  dia: Date;
+  encomendas: Encomenda[];
+  quantidade: number;
+  isHoje: boolean;
+  isAmanha: boolean;
 }
 
-const Dashboard = () => {
-  const navigate = useNavigate();
+export default function Dashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [mesSelecionado, setMesSelecionado] = useState(new Date().getMonth());
+  const [anoSelecionado, setAnoSelecionado] = useState(new Date().getFullYear());
+  const [diaSelecionado, setDiaSelecionado] = useState(new Date());
+  const [loading, setLoading] = useState(true);
 
-  // Buscar perfil do usuário
-  const { data: profile } = useQuery({
-    queryKey: ['profile', user?.id],
-    queryFn: async () => {
-      if (!user) return null;
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-      return data;
-    },
-    enabled: !!user,
+  const [alertas, setAlertas] = useState({
+    receberAtrasado: { quantidade: 0, valor: 0 },
+    pagarAtrasado: { quantidade: 0, valor: 0 },
+    inadimplenciaTotal: 0
   });
 
-  // Buscar encomendas do Supabase
-  const { data: orders = [] } = useQuery({
-    queryKey: ['encomendas-dashboard', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      const { data, error } = await supabase
-        .from('encomendas')
-        .select('*')
-        .eq('usuario_id', user.id)
-        .order('data_entrega', { ascending: true });
+  const [calendarioDados, setCalendarioDados] = useState<DadosDia[]>([]);
+  const [encomendasDia, setEncomendasDia] = useState<Encomenda[]>([]);
 
-      if (error) throw error;
-      
-      // Mapear para o formato esperado pelo Dashboard
-      return (data || []).map(e => ({
-        id: e.id,
-        orderNumber: parseInt(e.id.substring(0, 8), 16), // Simular número de pedido
-        client: e.cliente,
-        product: 'Encomenda', // Simplificado
-        total: Number(e.valor),
-        status: e.status === 'pendente' ? 'Pendente' : 
-                e.status === 'confirmado' ? 'Confirmado' : 
-                e.status === 'producao' ? 'Em Produção' : 
-                e.status === 'pronto' ? 'Pronto' : 
-                e.status === 'entregue' ? 'Concluído' : 'Cancelado',
-        deliveryDate: e.data_entrega || '',
-        createdAt: e.created_at || '',
-      })) as Order[];
-    },
-    enabled: !!user,
+  const [financeiro, setFinanceiro] = useState({
+    receberAberto: 0,
+    pagarAberto: 0
   });
 
-  // Buscar Contas a Receber (parcelas) do Supabase
-  const { data: contasReceberData = [] } = useQuery({
-    queryKey: ['contas-receber-dashboard', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      const { data, error } = await supabase
-        .from('contas_receber_parcelas')
-        .select(`
-          *,
-          conta_receber:contas_receber(descricao, usuario_id)
-        `)
-        .eq('conta_receber.usuario_id', user.id)
-        .order('data_vencimento', { ascending: true });
-
-      if (error) throw error;
-      
-      return (data || []).map(p => ({
-        id: p.id,
-        descricao: p.conta_receber?.descricao || 'Sem descrição',
-        valor: Number(p.valor_parcela),
-        dataVencimento: p.data_vencimento,
-        dataRecebimento: p.data_pagamento || undefined,
-        status: p.status === 'aberto' ? 'pendente' : 
-                p.status === 'pago' || p.status === 'adiantado' ? 'pago' : 
-                p.status === 'atrasado' ? 'vencida' : 'pendente',
-      })) as ContaReceber[];
-    },
-    enabled: !!user,
+  const [visaoEconomica, setVisaoEconomica] = useState({
+    mensal: { receitas: 0, custos: 0, lucro: 0 },
+    anual: [] as { mes: string; receitas: number; custos: number; lucro: number }[]
   });
 
-  const contasReceber = contasReceberData;
+  const [tabEconomica, setTabEconomica] = useState("mensal");
 
-  // Buscar Contas a Pagar (parcelas) do Supabase
-  const { data: contasPagarData = [] } = useQuery({
-    queryKey: ['contas-pagar-dashboard', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      const { data, error } = await supabase
-        .from('contas_pagar_parcelas')
-        .select(`
-          *,
-          conta_pagar:contas_pagar(descricao, usuario_id)
-        `)
-        .eq('conta_pagar.usuario_id', user.id)
-        .order('data_vencimento', { ascending: true });
+  const meses = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+  ];
 
-      if (error) throw error;
-      
-      return (data || []).map(p => ({
-        id: p.id,
-        descricao: p.conta_pagar?.descricao || 'Sem descrição',
-        valor: Number(p.valor_parcela),
-        dataVencimento: p.data_vencimento,
-        dataPagamento: p.data_pagamento || undefined,
-        status: p.status === 'aberto' ? 'pendente' : 
-                p.status === 'pago' ? 'pago' : 
-                p.status === 'atrasado' ? 'vencida' : 'pendente',
-      })) as ContaPagar[];
-    },
-    enabled: !!user,
-  });
+  const dataAtual = new Date(anoSelecionado, mesSelecionado, 1);
 
-  const contasPagar = contasPagarData;
+  useEffect(() => {
+    if (user) {
+      carregarDados();
+    }
+  }, [mesSelecionado, anoSelecionado, user]);
 
-  // Extrair primeiro nome
-  const primeiroNome = profile?.nome_completo?.split(' ')[0] || '';
+  async function carregarDados() {
+    setLoading(true);
+    try {
+      await Promise.all([
+        carregarAlertas(),
+        carregarCalendario(),
+        carregarFinanceiro(),
+        carregarVisaoEconomica()
+      ]);
+    } catch (error) {
+      console.error("Erro ao carregar dashboard:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  const now = new Date();
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
-  const today = format(now, 'yyyy-MM-dd');
+  async function carregarAlertas() {
+    if (!user) return;
+    const hoje = new Date().toISOString().split('T')[0];
 
-  // SEÇÃO 1: VISÃO DO DIA
-  const encomendasHoje = useMemo(() => {
-    return orders.filter(o => {
-      const deliveryDate = format(parseISO(o.deliveryDate), 'yyyy-MM-dd');
-      return deliveryDate === today && o.status !== "Cancelado" && o.status !== "Concluído";
+    const { data: receberAtrasado } = await supabase
+      .from("contas_receber")
+      .select("valor")
+      .eq("usuario_id", user.id)
+      .lt("data_vencimento", hoje)
+      .neq("status", "pago");
+
+    const { data: pagarAtrasado } = await supabase
+      .from("contas_pagar")
+      .select("valor_total")
+      .eq("usuario_id", user.id)
+      .lt("data_vencimento", hoje)
+      .neq("status", "pago");
+
+    const { data: inadimplenciaClientes } = await supabase
+      .from("contas_receber")
+      .select("valor")
+      .eq("usuario_id", user.id)
+      .lt("data_vencimento", hoje)
+      .eq("status", "pendente");
+
+    const { data: inadimplenciaFornecedores } = await supabase
+      .from("contas_pagar")
+      .select("valor_total")
+      .eq("usuario_id", user.id)
+      .lt("data_vencimento", hoje)
+      .eq("status", "pendente");
+
+    setAlertas({
+      receberAtrasado: {
+        quantidade: receberAtrasado?.length || 0,
+        valor: receberAtrasado?.reduce((sum, c) => sum + (c.valor || 0), 0) || 0
+      },
+      pagarAtrasado: {
+        quantidade: pagarAtrasado?.length || 0,
+        valor: pagarAtrasado?.reduce((sum, c) => sum + (c.valor_total || 0), 0) || 0
+      },
+      inadimplenciaTotal: 
+        (inadimplenciaClientes?.reduce((sum, c) => sum + (c.valor || 0), 0) || 0) +
+        (inadimplenciaFornecedores?.reduce((sum, c) => sum + (c.valor_total || 0), 0) || 0)
     });
-  }, [orders, today]);
+  }
 
-  const encomendasPendentes = useMemo(() => {
-    return encomendasHoje.filter(o => o.status === "Pendente").length;
-  }, [encomendasHoje]);
-
-  const encomendasAtrasadas = useMemo(() => {
-    const ontem = new Date(now);
-    ontem.setDate(ontem.getDate() - 1);
-    return orders.filter(o => {
-      const deliveryDate = new Date(o.deliveryDate);
-      return deliveryDate < now && o.status !== "Concluído" && o.status !== "Cancelado";
-    }).length;
-  }, [orders, now]);
-
-  const emProducao = useMemo(() => {
-    return orders.filter(o => o.status === "Em Produção" || o.status === "Produzindo").length;
-  }, [orders]);
-
-  const pedidosUrgentes = useMemo(() => {
-    return orders
-      .filter(o => {
-        const deliveryDate = new Date(o.deliveryDate);
-        const amanha = new Date(now);
-        amanha.setDate(amanha.getDate() + 1);
-        return deliveryDate <= amanha && o.status !== "Concluído" && o.status !== "Cancelado";
-      })
-      .sort((a, b) => new Date(a.deliveryDate).getTime() - new Date(b.deliveryDate).getTime())
-      .slice(0, 5);
-  }, [orders, now]);
-
-  // SEÇÃO 2: FINANCEIRO RÁPIDO
-  const aReceberHoje = useMemo(() => {
-    const valores = contasReceber.filter(c => 
-      c.dataVencimento === today && c.status !== 'recebido'
-    );
-    return {
-      valor: valores.reduce((acc, c) => acc + c.valor, 0),
-      quantidade: valores.length
-    };
-  }, [contasReceber, today]);
-
-  const aPagarHoje = useMemo(() => {
-    const valores = contasPagar.filter(c => 
-      c.dataVencimento === today && c.status !== 'pago'
-    );
-    return {
-      valor: valores.reduce((acc, c) => acc + c.valor, 0),
-      quantidade: valores.length
-    };
-  }, [contasPagar, today]);
-
-  const faturamentoMes = useMemo(() => {
-    const inicio = format(startOfMonth(now), 'yyyy-MM-dd');
-    const fim = format(endOfMonth(now), 'yyyy-MM-dd');
+  async function carregarCalendario() {
+    if (!user) return;
+    const inicio = startOfMonth(dataAtual);
+    const fim = endOfMonth(dataAtual);
     
-    const faturamentoAtual = contasReceber
-      .filter(c => c.status === 'recebido' && c.dataRecebimento && c.dataRecebimento >= inicio && c.dataRecebimento <= fim)
-      .reduce((acc, c) => acc + c.valor, 0);
+    const inicioStr = format(inicio, "yyyy-MM-dd");
+    const fimStr = format(fim, "yyyy-MM-dd");
 
-    // Mês anterior
-    const mesAnterior = new Date(now);
-    mesAnterior.setMonth(mesAnterior.getMonth() - 1);
-    const inicioAnterior = format(startOfMonth(mesAnterior), 'yyyy-MM-dd');
-    const fimAnterior = format(endOfMonth(mesAnterior), 'yyyy-MM-dd');
+    const { data: encomendas } = await supabase
+      .from("encomendas")
+      .select("id, data_entrega, hora_entrega, valor, status, cliente")
+      .eq("usuario_id", user.id)
+      .gte("data_entrega", inicioStr)
+      .lte("data_entrega", fimStr)
+      .neq("status", "cancelada")
+      .order("data_entrega", { ascending: true });
+
+    const dias = eachDayOfInterval({ start: inicio, end: fim });
     
-    const faturamentoAnterior = contasReceber
-      .filter(c => c.status === 'recebido' && c.dataRecebimento && c.dataRecebimento >= inicioAnterior && c.dataRecebimento <= fimAnterior)
-      .reduce((acc, c) => acc + c.valor, 0);
-
-    const variacao = faturamentoAnterior > 0 
-      ? ((faturamentoAtual - faturamentoAnterior) / faturamentoAnterior) * 100 
-      : 0;
-
-    return {
-      valor: faturamentoAtual,
-      variacao,
-      crescimento: variacao >= 0
-    };
-  }, [contasReceber, now]);
-
-  const metaMensal = useMemo(() => {
-    const meta = 30000; // TODO: buscar de configuração
-    const percentual = (faturamentoMes.valor / meta) * 100;
-    const faltam = meta - faturamentoMes.valor;
-
-    return {
-      meta,
-      realizado: faturamentoMes.valor,
-      percentual: Math.min(percentual, 100),
-      faltam: faltam > 0 ? faltam : 0
-    };
-  }, [faturamentoMes]);
-
-  // SEÇÃO 4: INDICADORES
-  const vendasSemana = useMemo(() => {
-    const inicioSemana = format(startOfWeek(now, { weekStartsOn: 1 }), 'yyyy-MM-dd');
-    const fimSemana = format(endOfWeek(now, { weekStartsOn: 1 }), 'yyyy-MM-dd');
-    
-    const vendasAtual = contasReceber
-      .filter(c => c.status === 'recebido' && c.dataRecebimento && c.dataRecebimento >= inicioSemana && c.dataRecebimento <= fimSemana)
-      .reduce((acc, c) => acc + c.valor, 0);
-
-    // Semana anterior
-    const semanaAnterior = new Date(now);
-    semanaAnterior.setDate(semanaAnterior.getDate() - 7);
-    const inicioAnterior = format(startOfWeek(semanaAnterior, { weekStartsOn: 1 }), 'yyyy-MM-dd');
-    const fimAnterior = format(endOfWeek(semanaAnterior, { weekStartsOn: 1 }), 'yyyy-MM-dd');
-    
-    const vendasAnterior = contasReceber
-      .filter(c => c.status === 'recebido' && c.dataRecebimento && c.dataRecebimento >= inicioAnterior && c.dataRecebimento <= fimAnterior)
-      .reduce((acc, c) => acc + c.valor, 0);
-
-    const variacao = vendasAnterior > 0 
-      ? ((vendasAtual - vendasAnterior) / vendasAnterior) * 100 
-      : 0;
-
-    return {
-      valor: vendasAtual,
-      variacao,
-      crescimento: variacao >= 0
-    };
-  }, [contasReceber, now]);
-
-  const produtoMaisVendido = useMemo(() => {
-    const productCount: Record<string, { count: number; valor: number }> = {};
-    orders.forEach(order => {
-      if (!productCount[order.product]) {
-        productCount[order.product] = { count: 0, valor: 0 };
-      }
-      productCount[order.product].count += 1;
-      productCount[order.product].valor += order.total;
-    });
-    
-    const topProduct = Object.entries(productCount)
-      .sort((a, b) => b[1].count - a[1].count)[0];
-
-    return topProduct ? {
-      nome: topProduct[0],
-      quantidade: topProduct[1].count,
-      valor: topProduct[1].valor
-    } : null;
-  }, [orders]);
-
-  const ticketMedio = useMemo(() => {
-    const pedidosMes = orders.filter(o => {
-      const orderDate = new Date(o.createdAt);
-      return orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear;
-    });
-
-    const totalMes = pedidosMes.reduce((acc, o) => acc + o.total, 0);
-    const ticketAtual = pedidosMes.length > 0 ? totalMes / pedidosMes.length : 0;
-
-    // Mês anterior
-    const mesAnterior = currentMonth === 0 ? 11 : currentMonth - 1;
-    const anoAnterior = currentMonth === 0 ? currentYear - 1 : currentYear;
-    
-    const pedidosAnterior = orders.filter(o => {
-      const orderDate = new Date(o.createdAt);
-      return orderDate.getMonth() === mesAnterior && orderDate.getFullYear() === anoAnterior;
-    });
-
-    const totalAnterior = pedidosAnterior.reduce((acc, o) => acc + o.total, 0);
-    const ticketAnterior = pedidosAnterior.length > 0 ? totalAnterior / pedidosAnterior.length : 0;
-
-    const variacao = ticketAnterior > 0 
-      ? ((ticketAtual - ticketAnterior) / ticketAnterior) * 100 
-      : 0;
-
-    return {
-      valor: ticketAtual,
-      variacao,
-      crescimento: variacao >= 0
-    };
-  }, [orders, currentMonth, currentYear]);
-
-  // SEÇÃO 5: AGENDA SEMANAL
-  const agendaSemanal = useMemo(() => {
-    const dias = Array.from({ length: 7 }, (_, i) => {
-      const dia = addDays(startOfWeek(now, { weekStartsOn: 1 }), i);
-      const diaStr = format(dia, 'yyyy-MM-dd');
-      
-      const entregas = orders.filter(o => {
-        const deliveryDate = format(parseISO(o.deliveryDate), 'yyyy-MM-dd');
-        return deliveryDate === diaStr && o.status !== "Cancelado";
-      }).length;
-
-      const producoes = orders.filter(o => {
-        const deliveryDate = format(parseISO(o.deliveryDate), 'yyyy-MM-dd');
-        return deliveryDate === diaStr && (o.status === "Em Produção" || o.status === "Produzindo");
-      }).length;
-
-      // Definir nível de carga
-      let nivelCarga: 'leve' | 'medio' | 'pesado' = 'leve';
-      if (entregas >= 9) nivelCarga = 'pesado';
-      else if (entregas >= 5) nivelCarga = 'medio';
+    const dadosCalendario = dias.map(dia => {
+      const encomendasDia = encomendas?.filter(enc => 
+        isSameDay(new Date(enc.data_entrega!), dia)
+      ).map(enc => ({
+        id: enc.id,
+        cliente: enc.cliente || "Cliente",
+        data_entrega: enc.data_entrega || "",
+        hora_entrega: enc.hora_entrega || "",
+        valor: enc.valor || 0,
+        status: enc.status || "pendente"
+      })) || [];
 
       return {
         dia,
-        diaStr,
-        nome: format(dia, 'EEE', { locale: ptBR }),
-        nomeLongo: format(dia, 'EEEE', { locale: ptBR }),
-        numero: format(dia, 'd'),
-        mesAno: format(dia, 'dd/MM'),
-        entregas,
-        producoes,
-        nivelCarga,
-        isHoje: isSameDay(dia, now)
+        encomendas: encomendasDia,
+        quantidade: encomendasDia.length,
+        isHoje: isToday(dia),
+        isAmanha: isTomorrow(dia)
       };
     });
 
-    return dias;
-  }, [orders, now]);
-
-  // SEÇÃO 6: GRÁFICOS
-  const faturamentoUltimos30Dias = useMemo(() => {
-    const dias = Array.from({ length: 30 }, (_, i) => {
-      const dia = new Date(now);
-      dia.setDate(dia.getDate() - (29 - i));
-      const diaStr = format(dia, 'yyyy-MM-dd');
-      
-      const faturamento = contasReceber
-        .filter(c => c.status === 'recebido' && c.dataRecebimento === diaStr)
-        .reduce((acc, c) => acc + c.valor, 0);
-
-      return {
-        data: format(dia, 'dd/MM'),
-        valor: faturamento
-      };
-    });
-
-    return dias;
-  }, [contasReceber, now]);
-
-  const top5Produtos = useMemo(() => {
-    const productCount: Record<string, { count: number; valor: number }> = {};
+    setCalendarioDados(dadosCalendario);
     
-    const pedidosMes = orders.filter(o => {
-      const orderDate = new Date(o.createdAt);
-      return orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear;
+    const dadosHoje = dadosCalendario.find(d => isToday(d.dia));
+    if (dadosHoje) {
+      setEncomendasDia(dadosHoje.encomendas);
+    }
+  }
+
+  async function carregarFinanceiro() {
+    if (!user) return;
+    const inicioMes = new Date(anoSelecionado, mesSelecionado, 1).toISOString().split('T')[0];
+    const fimMes = new Date(anoSelecionado, mesSelecionado + 1, 0).toISOString().split('T')[0];
+
+    const { data: receberAberto } = await supabase
+      .from("contas_receber")
+      .select("valor")
+      .eq("usuario_id", user.id)
+      .gte("data_vencimento", inicioMes)
+      .lte("data_vencimento", fimMes)
+      .neq("status", "pago");
+
+    const { data: pagarAberto } = await supabase
+      .from("contas_pagar")
+      .select("valor_total")
+      .eq("usuario_id", user.id)
+      .gte("data_vencimento", inicioMes)
+      .lte("data_vencimento", fimMes)
+      .neq("status", "pago");
+
+    setFinanceiro({
+      receberAberto: receberAberto?.reduce((sum, c) => sum + (c.valor || 0), 0) || 0,
+      pagarAberto: pagarAberto?.reduce((sum, c) => sum + (c.valor_total || 0), 0) || 0
     });
+  }
 
-    pedidosMes.forEach(order => {
-      if (!productCount[order.product]) {
-        productCount[order.product] = { count: 0, valor: 0 };
-      }
-      productCount[order.product].count += 1;
-      productCount[order.product].valor += order.total;
+  async function carregarVisaoEconomica() {
+    if (!user) return;
+    const inicioMes = new Date(anoSelecionado, mesSelecionado, 1).toISOString().split('T')[0];
+    const fimMes = new Date(anoSelecionado, mesSelecionado + 1, 0).toISOString().split('T')[0];
+
+    const { data: receitasMes } = await supabase
+      .from("contas_receber")
+      .select("valor")
+      .eq("usuario_id", user.id)
+      .gte("data_vencimento", inicioMes)
+      .lte("data_vencimento", fimMes);
+
+    const { data: custosMes } = await supabase
+      .from("contas_pagar")
+      .select("valor_total")
+      .eq("usuario_id", user.id)
+      .gte("data_vencimento", inicioMes)
+      .lte("data_vencimento", fimMes);
+
+    const receitasMensal = receitasMes?.reduce((sum, r) => sum + (r.valor || 0), 0) || 0;
+    const custosMensal = custosMes?.reduce((sum, c) => sum + (c.valor_total || 0), 0) || 0;
+    const lucroMensal = receitasMensal - custosMensal;
+
+    const dadosAnuais = [];
+    for (let i = 0; i < 12; i++) {
+      const mesAtual = new Date(anoSelecionado, i, 1);
+      const inicioMesAnual = format(mesAtual, "yyyy-MM-dd");
+      const fimMesAnual = format(new Date(anoSelecionado, i + 1, 0), "yyyy-MM-dd");
+
+      const { data: receitasAnual } = await supabase
+        .from("contas_receber")
+        .select("valor")
+        .eq("usuario_id", user.id)
+        .gte("data_vencimento", inicioMesAnual)
+        .lte("data_vencimento", fimMesAnual);
+
+      const { data: custosAnual } = await supabase
+        .from("contas_pagar")
+        .select("valor_total")
+        .eq("usuario_id", user.id)
+        .gte("data_vencimento", inicioMesAnual)
+        .lte("data_vencimento", fimMesAnual);
+
+      const receitas = receitasAnual?.reduce((sum, r) => sum + (r.valor || 0), 0) || 0;
+      const custos = custosAnual?.reduce((sum, c) => sum + (c.valor_total || 0), 0) || 0;
+
+      dadosAnuais.push({
+        mes: meses[i].substring(0, 3),
+        receitas,
+        custos,
+        lucro: receitas - custos
+      });
+    }
+
+    setVisaoEconomica({
+      mensal: {
+        receitas: receitasMensal,
+        custos: custosMensal,
+        lucro: lucroMensal
+      },
+      anual: dadosAnuais
     });
-    
-    return Object.entries(productCount)
-      .map(([nome, dados]) => ({
-        nome,
-        quantidade: dados.count,
-        valor: dados.valor
-      }))
-      .sort((a, b) => b.quantidade - a.quantidade)
-      .slice(0, 5);
-  }, [orders, currentMonth, currentYear]);
+  }
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
-  };
+  function selecionarDia(dados: DadosDia) {
+    setDiaSelecionado(dados.dia);
+    setEncomendasDia(dados.encomendas);
+  }
 
-  const greeting = () => {
-    const hour = now.getHours();
-    if (hour < 12) return "Bom dia";
-    if (hour < 18) return "Boa tarde";
-    return "Boa noite";
-  };
+  function navegarMes(direcao: "prev" | "next") {
+    if (direcao === "prev") {
+      const novaMes = mesSelecionado === 0 ? 11 : mesSelecionado - 1;
+      const novoAno = mesSelecionado === 0 ? anoSelecionado - 1 : anoSelecionado;
+      setMesSelecionado(novaMes);
+      setAnoSelecionado(novoAno);
+    } else {
+      const novaMes = mesSelecionado === 11 ? 0 : mesSelecionado + 1;
+      const novoAno = mesSelecionado === 11 ? anoSelecionado + 1 : anoSelecionado;
+      setMesSelecionado(novaMes);
+      setAnoSelecionado(novoAno);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const primeiroDia = getDay(startOfMonth(dataAtual));
+  const diasVaziosInicio = Array(primeiroDia).fill(null);
+  const diasCalendario = [...diasVaziosInicio, ...calendarioDados];
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-4xl font-bold text-foreground">
-          {greeting()}{primeiroNome && `, ${primeiroNome}`}! 👋
-        </h1>
-        <p className="text-muted-foreground text-lg">
-          {format(now, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
-        </p>
-      </div>
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground">Visão geral do seu negócio</p>
+        </div>
 
-      {/* SEÇÃO 1: VISÃO DO DIA */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Encomendas do Dia */}
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-all border-l-4 border-l-primary"
-          onClick={() => navigate('/encomendas')}
-        >
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                <ShoppingBag className="h-5 w-5 text-primary" />
-                Encomendas Hoje
-              </CardTitle>
-              {encomendasAtrasadas > 0 && (
-                <Badge variant="destructive" className="animate-pulse">
-                  {encomendasAtrasadas} atrasadas
-                </Badge>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div>
-                <p className="text-4xl font-bold text-primary">{encomendasHoje.length}</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {encomendasPendentes} pendentes
-                </p>
-              </div>
-              
-              {encomendasHoje.slice(0, 3).map((order) => (
-                <div key={order.id} className="flex items-center justify-between text-sm border-t pt-2">
-                  <span className="text-foreground truncate">{order.client}</span>
-                  <span className="text-muted-foreground">{order.product}</span>
-                </div>
+        {/* Filtro Mês/Ano */}
+        <div className="flex items-center gap-2">
+          <Label className="text-sm font-medium">Período:</Label>
+          <Select
+            value={anoSelecionado.toString()}
+            onValueChange={(value) => setAnoSelecionado(parseInt(value))}
+          >
+            <SelectTrigger className="w-[100px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i).map((year) => (
+                <SelectItem key={year} value={year.toString()}>
+                  {year}
+                </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
 
-              <Button variant="ghost" size="sm" className="w-full mt-2">
-                Ver todas as encomendas
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Em Produção */}
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-all border-l-4 border-l-warning"
-          onClick={() => navigate('/producao')}
-        >
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <CookingPot className="h-5 w-5 text-warning" />
-              Em Produção Agora
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div>
-                <p className="text-4xl font-bold text-warning">{emProducao}</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  produtos sendo produzidos
-                </p>
-              </div>
-
-              <Button variant="ghost" size="sm" className="w-full mt-2">
-                Ir para Produção
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Entregas de Hoje */}
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-all border-l-4 border-l-info"
-          onClick={() => navigate('/encomendas')}
-        >
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <Truck className="h-5 w-5 text-info" />
-              Entregas Hoje
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div>
-                <p className="text-4xl font-bold text-info">{encomendasHoje.length}</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  programadas para hoje
-                </p>
-              </div>
-
-              {encomendasHoje.slice(0, 2).map((order) => (
-                <div key={order.id} className="flex items-center justify-between text-sm border-t pt-2">
-                  <span className="text-foreground truncate">{order.client}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {format(parseISO(order.deliveryDate), 'HH:mm')}
-                  </span>
-                </div>
+          <Select
+            value={mesSelecionado.toString()}
+            onValueChange={(value) => setMesSelecionado(parseInt(value))}
+          >
+            <SelectTrigger className="w-[130px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {meses.map((mes, index) => (
+                <SelectItem key={index} value={index.toString()}>
+                  {mes}
+                </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-              <Button variant="ghost" size="sm" className="w-full mt-2">
-                Ver agenda de entregas
-                <ChevronRight className="h-4 w-4 ml-1" />
+      {/* ALERTAS CRÍTICOS */}
+      <div className="grid gap-4 md:grid-cols-3">
+        {/* Contas a Receber Atrasado */}
+        <Card className="border-red-200 bg-red-50/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-red-600 animate-pulse" />
+              Contas a Receber Atrasadas
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div>
+              <div className="text-2xl font-bold text-red-700">
+                R$ {alertas.receberAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </div>
+              <p className="text-sm text-red-600">
+                {alertas.receberAtrasado.quantidade} conta(s) em atraso
+              </p>
+              <Button 
+                variant="link" 
+                className="p-0 h-auto text-red-600 hover:text-red-700"
+                onClick={() => navigate("/financeiro/contas-receber")}
+              >
+                Ver Detalhes →
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Contas a Pagar Atrasado */}
+        <Card className="border-orange-200 bg-orange-50/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-orange-600 animate-pulse" />
+              Contas a Pagar Atrasadas
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div>
+              <div className="text-2xl font-bold text-orange-700">
+                R$ {alertas.pagarAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </div>
+              <p className="text-sm text-orange-600">
+                {alertas.pagarAtrasado.quantidade} conta(s) em atraso
+              </p>
+              <Button 
+                variant="link" 
+                className="p-0 h-auto text-orange-600 hover:text-orange-700"
+                onClick={() => navigate("/financeiro/contas-pagar")}
+              >
+                Ver Detalhes →
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Inadimplência Total */}
+        <Card className="border-yellow-200 bg-yellow-50/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-yellow-600 animate-pulse" />
+              Inadimplência Total
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div>
+              <div className="text-2xl font-bold text-yellow-700">
+                R$ {alertas.inadimplenciaTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </div>
+              <p className="text-sm text-yellow-600">
+                Clientes + Fornecedores
+              </p>
+              <Button 
+                variant="link" 
+                className="p-0 h-auto text-yellow-600 hover:text-yellow-700"
+                onClick={() => navigate("/financeiro/dashboard")}
+              >
+                Ver Detalhes →
               </Button>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* SEÇÃO 2: FINANCEIRO RÁPIDO */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* A Receber Hoje */}
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-all"
-          onClick={() => navigate('/financeiro/contas-receber')}
-        >
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              💵 A Receber Hoje
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-success">{formatCurrency(aReceberHoje.valor)}</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              {aReceberHoje.quantidade} conta{aReceberHoje.quantidade !== 1 ? 's' : ''}
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* A Pagar Hoje */}
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-all"
-          onClick={() => navigate('/financeiro/contas-pagar')}
-        >
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              💳 A Pagar Hoje
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-destructive">{formatCurrency(aPagarHoje.valor)}</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              {aPagarHoje.quantidade} conta{aPagarHoje.quantidade !== 1 ? 's' : ''}
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Faturamento do Mês */}
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-all"
-          onClick={() => navigate('/relatorios/dre')}
-        >
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              📊 Faturamento do Mês
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-primary">{formatCurrency(faturamentoMes.valor)}</p>
-            <div className="flex items-center gap-1 mt-1">
-              {faturamentoMes.crescimento ? (
-                <ArrowUpRight className="h-3 w-3 text-success" />
-              ) : (
-                <ArrowDownRight className="h-3 w-3 text-destructive" />
-              )}
-              <p className={cn(
-                "text-xs font-medium",
-                faturamentoMes.crescimento ? "text-success" : "text-destructive"
-              )}>
-                {Math.abs(faturamentoMes.variacao).toFixed(1)}% vs mês anterior
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Meta Mensal */}
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-all"
-          onClick={() => navigate('/planejamento')}
-        >
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              🎯 Meta Mensal
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-primary">{metaMensal.percentual.toFixed(0)}%</p>
-            <Progress value={metaMensal.percentual} className="h-2 mt-2" />
-            <p className="text-xs text-muted-foreground mt-1">
-              Faltam {formatCurrency(metaMensal.faltam)}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* SEÇÃO 3: PEDIDOS URGENTES */}
-      {pedidosUrgentes.length > 0 && (
-        <Card className="border-l-4 border-l-warning">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-warning" />
-                Pedidos Urgentes/Prioritários
-              </CardTitle>
-              <Badge variant="outline">{pedidosUrgentes.length} pedidos</Badge>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {pedidosUrgentes.map((order) => {
-                const deliveryDate = parseISO(order.deliveryDate);
-                const isHoje = isToday(deliveryDate);
-                const isAmanha = isTomorrow(deliveryDate);
-                
-                return (
-                  <div 
-                    key={order.id} 
-                    className={cn(
-                      "flex items-center justify-between p-3 rounded-lg border",
-                      isHoje && "bg-destructive/5 border-destructive",
-                      isAmanha && "bg-warning/5 border-warning"
-                    )}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={cn(
-                        "w-2 h-2 rounded-full",
-                        isHoje && "bg-destructive",
-                        isAmanha && "bg-warning"
-                      )} />
-                      <div>
-                        <p className="font-semibold">{order.product} - {order.client}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {isHoje ? 'Hoje' : isAmanha ? 'Amanhã' : format(deliveryDate, "dd/MM")} às {format(deliveryDate, 'HH:mm')} • {order.status}
-                        </p>
-                      </div>
-                    </div>
-                    <p className="font-semibold text-primary">{formatCurrency(order.total)}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* SEÇÃO 4: INDICADORES DE DESEMPENHO */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Vendas da Semana */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              📈 Vendas da Semana
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-foreground">{formatCurrency(vendasSemana.valor)}</p>
-            <div className="flex items-center gap-1 mt-1">
-              {vendasSemana.crescimento ? (
-                <ArrowUpRight className="h-3 w-3 text-success" />
-              ) : (
-                <ArrowDownRight className="h-3 w-3 text-destructive" />
-              )}
-              <p className={cn(
-                "text-xs font-medium",
-                vendasSemana.crescimento ? "text-success" : "text-destructive"
-              )}>
-                {Math.abs(vendasSemana.variacao).toFixed(1)}% vs semana anterior
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Produto Mais Vendido */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              ⭐ Produto Mais Vendido
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {produtoMaisVendido ? (
-              <>
-                <p className="text-xl font-bold text-foreground truncate">{produtoMaisVendido.nome}</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {produtoMaisVendido.quantidade} unidades • {formatCurrency(produtoMaisVendido.valor)}
-                </p>
-              </>
-            ) : (
-              <p className="text-muted-foreground">Sem dados</p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Ticket Médio */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              💰 Ticket Médio
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-foreground">{formatCurrency(ticketMedio.valor)}</p>
-            <div className="flex items-center gap-1 mt-1">
-              {ticketMedio.crescimento ? (
-                <ArrowUpRight className="h-3 w-3 text-success" />
-              ) : (
-                <ArrowDownRight className="h-3 w-3 text-destructive" />
-              )}
-              <p className={cn(
-                "text-xs font-medium",
-                ticketMedio.crescimento ? "text-success" : "text-destructive"
-              )}>
-                {Math.abs(ticketMedio.variacao).toFixed(1)}% vs mês anterior
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Encomendas do Mês */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              📦 Encomendas do Mês
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-foreground">
-              {orders.filter(o => {
-                const orderDate = new Date(o.createdAt);
-                return orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear;
-              }).length}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              pedidos recebidos
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* SEÇÃO 5: AGENDA SEMANAL */}
+      {/* CALENDÁRIO DE ENCOMENDAS */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Agenda da Semana
-            </CardTitle>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/encomendas')}>
-              Ver planejamento completo
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
+            <div>
+              <CardTitle className="text-xl">Calendário de Encomendas</CardTitle>
+              <CardDescription>Clique em um dia para ver os detalhes</CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => navegarMes("prev")}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <span className="text-sm font-medium px-4">
+                {meses[mesSelecionado]} de {anoSelecionado}
+              </span>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => navegarMes("next")}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {agendaSemanal.map((dia) => {
-              const cargaTotal = dia.entregas + dia.producoes;
-              const maxCarga = Math.max(...agendaSemanal.map(d => d.entregas + d.producoes), 15);
-              const porcentagemBarra = (cargaTotal / maxCarga) * 100;
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-7 gap-2">
+            {/* Cabeçalho dos dias da semana */}
+            {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((dia) => (
+              <div key={dia} className="text-center text-sm font-semibold text-muted-foreground p-2">
+                {dia}
+              </div>
+            ))}
+
+            {/* Dias do calendário */}
+            {diasCalendario.map((dados, index) => {
+              if (!dados) {
+                return <div key={`empty-${index}`} className="aspect-square" />;
+              }
+
+              const isSelected = isSameDay(dados.dia, diaSelecionado);
+              const temEncomendas = dados.quantidade > 0;
+
+              let bgColor = "bg-background";
+              let borderColor = "border-border";
+              let textColor = "text-foreground";
+
+              if (dados.isHoje && temEncomendas) {
+                bgColor = "bg-red-100";
+                borderColor = "border-red-500";
+                textColor = "text-red-700";
+              } else if (dados.isAmanha && temEncomendas) {
+                bgColor = "bg-orange-100";
+                borderColor = "border-orange-500";
+                textColor = "text-orange-700";
+              } else if (temEncomendas) {
+                bgColor = "bg-green-50";
+                borderColor = "border-green-300";
+                textColor = "text-green-700";
+              }
+
+              if (isSelected) {
+                borderColor = "border-primary border-2";
+              }
 
               return (
-                <div
-                  key={dia.diaStr}
-                  className={cn(
-                    "p-4 rounded-lg border transition-all cursor-pointer hover:shadow-md",
-                    dia.isHoje && "bg-primary/5 border-primary ring-2 ring-primary/20"
-                  )}
-                  onClick={() => navigate('/encomendas')}
+                <button
+                  key={index}
+                  onClick={() => selecionarDia(dados)}
+                  className={`
+                    aspect-square p-2 rounded-lg border-2 transition-all
+                    hover:shadow-md hover:scale-105
+                    ${bgColor} ${borderColor}
+                  `}
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
-                      <div className="text-center min-w-[60px]">
-                        <p className={cn(
-                          "text-xs font-medium uppercase",
-                          dia.isHoje ? "text-primary" : "text-muted-foreground"
-                        )}>
-                          {dia.nome}
-                        </p>
-                        <p className={cn(
-                          "text-xl font-bold",
-                          dia.isHoje ? "text-primary" : "text-foreground"
-                        )}>
-                          {dia.numero}
-                        </p>
-                      </div>
-
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="text-sm font-semibold capitalize">{dia.nomeLongo}</p>
-                          {dia.nivelCarga === 'pesado' && (
-                            <Badge variant="destructive" className="text-xs">
-                              ⚠️ SOBRECARREGADO
-                            </Badge>
-                          )}
-                        </div>
-                        
-                        {/* Barra de carga */}
-                        <div className="h-6 bg-muted rounded-full overflow-hidden">
-                          <div
-                            className={cn(
-                              "h-full transition-all duration-300 flex items-center px-2",
-                              dia.nivelCarga === 'leve' && "bg-success",
-                              dia.nivelCarga === 'medio' && "bg-warning",
-                              dia.nivelCarga === 'pesado' && "bg-destructive"
-                            )}
-                            style={{ width: `${Math.max(porcentagemBarra, 5)}%` }}
-                          >
-                            <span className="text-xs font-medium text-white whitespace-nowrap">
-                              {dia.entregas > 0 && `${dia.entregas} entregas`}
-                              {dia.entregas > 0 && dia.producoes > 0 && ' | '}
-                              {dia.producoes > 0 && `${dia.producoes} produções`}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="text-right ml-4">
-                      <p className="text-2xl font-bold text-foreground">{cargaTotal}</p>
-                      <p className="text-xs text-muted-foreground">tarefas</p>
-                    </div>
+                  <div className="flex flex-col items-center justify-center h-full">
+                    <span className={`text-sm font-medium ${textColor}`}>
+                      {format(dados.dia, "d")}
+                    </span>
+                    {temEncomendas && (
+                      <Badge variant="secondary" className="mt-1 text-xs h-5 px-1.5">
+                        {dados.quantidade}
+                      </Badge>
+                    )}
                   </div>
-                </div>
+                </button>
               );
             })}
+          </div>
+
+          {/* Detalhes do Dia Selecionado */}
+          <div className="border-t pt-4">
+            <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+              {format(diaSelecionado, "dd 'de' MMMM", { locale: ptBR })}
+              {isToday(diaSelecionado) && (
+                <Badge variant="default" className="bg-red-500">HOJE</Badge>
+              )}
+            </h3>
+
+            {encomendasDia.length === 0 ? (
+              <p className="text-muted-foreground text-center py-8">
+                Nenhuma encomenda para este dia
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {encomendasDia.map((encomenda) => (
+                  <Card key={encomenda.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold">{encomenda.cliente}</p>
+                            <Badge variant="outline" className="text-xs">
+                              {encomenda.hora_entrega || "Sem horário"}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            R$ {encomenda.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </p>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => navigate("/encomendas")}
+                        >
+                          Ver Detalhes
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
 
-      {/* SEÇÃO 6: GRÁFICOS ANALÍTICOS */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Gráfico 1: Faturamento dos Últimos 30 Dias */}
+      {/* FINANCEIRO DO MÊS */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {/* A Receber */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              📊 Faturamento dos Últimos 30 Dias
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-green-600" />
+              A Receber - {meses[mesSelecionado]}
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={faturamentoUltimos30Dias}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis 
-                  dataKey="data" 
-                  stroke="hsl(var(--muted-foreground))"
-                  tick={{ fontSize: 11 }}
-                  interval="preserveStartEnd"
-                />
-                <YAxis 
-                  stroke="hsl(var(--muted-foreground))"
-                  tick={{ fontSize: 11 }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "0.5rem",
-                  }}
-                  formatter={(value: number) => formatCurrency(value)}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="valor"
-                  stroke="hsl(var(--primary))"
-                  strokeWidth={3}
-                  dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 3 }}
-                  activeDot={{ r: 5 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+          <CardContent className="space-y-2">
+            <div>
+              <div className="text-2xl font-bold text-green-700">
+                R$ {financeiro.receberAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </div>
+              <p className="text-sm text-muted-foreground">Em aberto</p>
+              <Button 
+                variant="link" 
+                className="p-0 h-auto text-green-600 hover:text-green-700"
+                onClick={() => navigate("/financeiro/contas-receber")}
+              >
+                Ver Detalhes →
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Gráfico 2: Top 5 Produtos do Mês */}
+        {/* A Pagar */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              🥧 Top 5 Produtos do Mês
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <TrendingDown className="h-5 w-5 text-red-600" />
+              A Pagar - {meses[mesSelecionado]}
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            {top5Produtos.length === 0 ? (
-              <div className="flex items-center justify-center h-[250px] text-muted-foreground">
-                Nenhum produto vendido este mês
+          <CardContent className="space-y-2">
+            <div>
+              <div className="text-2xl font-bold text-red-700">
+                R$ {financeiro.pagarAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={top5Produtos} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis type="number" stroke="hsl(var(--muted-foreground))" />
-                  <YAxis 
-                    dataKey="nome" 
-                    type="category" 
-                    stroke="hsl(var(--muted-foreground))"
-                    width={100}
-                    tick={{ fontSize: 11 }}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "0.5rem",
-                    }}
-                    formatter={(value: number, name: string) => {
-                      if (name === 'quantidade') return [value, 'Vendidos'];
-                      if (name === 'valor') return [formatCurrency(value), 'Faturamento'];
-                      return value;
-                    }}
-                  />
-                  <Legend />
-                  <Bar dataKey="quantidade" fill="hsl(var(--primary))" name="Quantidade" />
-                  <Bar dataKey="valor" fill="hsl(var(--success))" name="Faturamento (R$)" />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
+              <p className="text-sm text-muted-foreground">Em aberto</p>
+              <Button 
+                variant="link" 
+                className="p-0 h-auto text-red-600 hover:text-red-700"
+                onClick={() => navigate("/financeiro/contas-pagar")}
+              >
+                Ver Detalhes →
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* VISÃO ECONÔMICA */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xl">Visão Econômica - Regime de Competência</CardTitle>
+            <div className="flex gap-2">
+              <Button
+                variant={tabEconomica === "mensal" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setTabEconomica("mensal")}
+              >
+                Mensal
+              </Button>
+              <Button
+                variant={tabEconomica === "anual" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setTabEconomica("anual")}
+              >
+                Anual
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {tabEconomica === "mensal" ? (
+            <div className="grid gap-4 md:grid-cols-3">
+              {/* Receitas */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Total de Receitas
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold text-green-600">
+                    R$ {visaoEconomica.mensal.receitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Custos */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Custos Totais
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold text-red-600">
+                    R$ {visaoEconomica.mensal.custos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Lucro */}
+              <Card className={`${
+                visaoEconomica.mensal.lucro >= 0
+                  ? "bg-primary/10 border-primary"
+                  : "bg-red-50 border-red-300"
+              }`}>
+                <CardHeader className="pb-2">
+                  <CardTitle className={`text-sm font-medium ${
+                    visaoEconomica.mensal.lucro >= 0 ? "text-primary" : "text-red-700"
+                  }`}>
+                    Lucro Líquido
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className={`text-2xl font-bold ${
+                    visaoEconomica.mensal.lucro >= 0 ? "text-primary" : "text-red-700"
+                  }`}>
+                    R$ {visaoEconomica.mensal.lucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Margem: {visaoEconomica.mensal.receitas > 0
+                      ? ((visaoEconomica.mensal.lucro / visaoEconomica.mensal.receitas) * 100).toFixed(1)
+                      : 0}%
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={visaoEconomica.anual}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="mes" />
+                  <YAxis />
+                  <Tooltip
+                    formatter={(value: number) =>
+                      `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                    }
+                  />
+                  <Legend />
+                  <Line type="monotone" dataKey="receitas" stroke="#10b981" name="Receitas" strokeWidth={2} />
+                  <Line type="monotone" dataKey="custos" stroke="#ef4444" name="Custos" strokeWidth={2} />
+                  <Line type="monotone" dataKey="lucro" stroke="#8b5cf6" name="Lucro" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
-};
-
-export default Dashboard;
+}
