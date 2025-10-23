@@ -30,6 +30,7 @@ export default function Clientes() {
   const [observacoesOpen, setObservacoesOpen] = useState(false);
   const { buscarCEP, loading: loadingCEP } = useViaCEP();
   const [busca, setBusca] = useState("");
+  const [porPagina, setPorPagina] = useState(10);
 
   const [formData, setFormData] = useState({
     nome: "",
@@ -123,6 +124,9 @@ export default function Clientes() {
     cliente.nome.toLowerCase().includes(busca.toLowerCase())
   );
 
+  // Paginação
+  const clientesPaginados = clientesFiltrados.slice(0, porPagina);
+
   const handleExportarExcel = () => {
     if (clientesFiltrados.length === 0) {
       return;
@@ -163,17 +167,52 @@ export default function Clientes() {
         <CardHeader>
           <CardTitle>Lista de Clientes</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-4 mb-6">
-            <div className="flex-1 flex items-center gap-2">
-              <Search className="h-4 w-4 text-muted-foreground" />
+        
+        {/* Card de Controles */}
+        <div className="px-6 pb-4">
+          <div className="flex items-center justify-between gap-4 p-4 bg-muted/30 rounded-lg">
+            {/* Resultados por Página - Esquerda */}
+            <div className="flex items-center gap-2">
+              <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
+                <SelectTrigger className="w-20 bg-popover">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+              <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
+            </div>
+
+            {/* Botão Exportar - Centro */}
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleExportarExcel}
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Exportar para Excel
+            </Button>
+
+            {/* Campo de Busca - Direita */}
+            <div className="relative flex-1 max-w-xs">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar por nome..."
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
-                className="max-w-sm"
+                className="pl-9 bg-popover"
               />
             </div>
+          </div>
+        </div>
+
+        <CardContent>
+          <div className="flex justify-end mb-4">
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button onClick={() => setEditingCliente(null)}>
@@ -345,13 +384,9 @@ export default function Clientes() {
                 </form>
               </DialogContent>
             </Dialog>
-            <Button variant="outline" onClick={handleExportarExcel}>
-              <Download className="h-4 w-4 mr-2" />
-              Exportar para Excel
-            </Button>
           </div>
 
-          {clientesFiltrados.length === 0 ? (
+          {clientesPaginados.length === 0 ? (
             busca ? (
               <EmptyState
                 icon={Search}
@@ -379,7 +414,7 @@ export default function Clientes() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {clientesFiltrados.map((cliente) => (
+                  {clientesPaginados.map((cliente) => (
                     <TableRow key={cliente.id}>
                       <TableCell className="font-medium">{cliente.nome}</TableCell>
                       <TableCell>{cliente.tipo || "PF"}</TableCell>
