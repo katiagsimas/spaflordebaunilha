@@ -387,51 +387,47 @@ export default function Dashboard() {
       <div className="grid gap-4 md:grid-cols-2">
         {/* A Receber */}
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-green-600" />
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-green-600" />
               A Receber - {meses[mesSelecionado]}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <div>
-              <div className="text-2xl font-bold text-green-700">
-                R$ {financeiro.receberAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </div>
-              <p className="text-sm text-muted-foreground">Em aberto</p>
-              <Button 
-                variant="link" 
-                className="p-0 h-auto text-green-600 hover:text-green-700"
-                onClick={() => navigate("/financeiro/contas-receber")}
-              >
-                Ver Detalhes →
-              </Button>
-            </div>
+          <CardContent>
+            <p className="text-2xl font-bold text-green-600">
+              R$ {financeiro.receberAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </p>
+            <p className="text-xs text-muted-foreground">Em aberto</p>
+            <Button 
+              variant="link" 
+              className="p-0 h-auto mt-2 text-green-600 hover:text-green-700"
+              onClick={() => navigate("/financeiro/contas-receber")}
+            >
+              Ver Detalhes →
+            </Button>
           </CardContent>
         </Card>
 
         {/* A Pagar */}
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <TrendingDown className="h-5 w-5 text-red-600" />
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <TrendingDown className="h-4 w-4 text-red-600" />
               A Pagar - {meses[mesSelecionado]}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <div>
-              <div className="text-2xl font-bold text-red-700">
-                R$ {financeiro.pagarAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </div>
-              <p className="text-sm text-muted-foreground">Em aberto</p>
-              <Button 
-                variant="link" 
-                className="p-0 h-auto text-red-600 hover:text-red-700"
-                onClick={() => navigate("/financeiro/contas-pagar")}
-              >
-                Ver Detalhes →
-              </Button>
-            </div>
+          <CardContent>
+            <p className="text-2xl font-bold text-red-600">
+              R$ {financeiro.pagarAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </p>
+            <p className="text-xs text-muted-foreground">Em aberto</p>
+            <Button 
+              variant="link" 
+              className="p-0 h-auto mt-2 text-red-600 hover:text-red-700"
+              onClick={() => navigate("/financeiro/contas-pagar")}
+            >
+              Ver Detalhes →
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -439,56 +435,52 @@ export default function Dashboard() {
       {/* ALERTAS CRÍTICOS */}
       <div className="grid gap-4 md:grid-cols-2">
         {/* Contas a Receber Atrasado */}
-        <Card className="border-red-200 bg-red-50/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-red-600 animate-pulse" />
+        <Card className="border-red-500 bg-red-50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 text-red-600 animate-pulse" />
               Contas a Receber Atrasadas
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <div>
-              <div className="text-2xl font-bold text-red-700">
-                R$ {alertas.receberAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </div>
-              <p className="text-sm text-red-600">
-                {alertas.receberAtrasado.quantidade} conta(s) em atraso
-              </p>
-              <Button 
-                variant="link" 
-                className="p-0 h-auto text-red-600 hover:text-red-700"
-                onClick={() => navigate("/financeiro/contas-receber")}
-              >
-                Ver Detalhes →
-              </Button>
-            </div>
+          <CardContent>
+            <p className="text-2xl font-bold text-red-600">
+              R$ {alertas.receberAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {alertas.receberAtrasado.quantidade} conta(s) em atraso
+            </p>
+            <Button 
+              variant="link" 
+              className="p-0 h-auto mt-2 text-red-600 hover:text-red-700"
+              onClick={() => navigate("/financeiro/contas-receber")}
+            >
+              Ver Detalhes →
+            </Button>
           </CardContent>
         </Card>
 
         {/* Contas a Pagar Atrasado */}
-        <Card className="border-orange-200 bg-orange-50/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-orange-600 animate-pulse" />
+        <Card className="border-orange-500 bg-orange-50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 text-orange-600 animate-pulse" />
               Contas a Pagar Atrasadas
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <div>
-              <div className="text-2xl font-bold text-orange-700">
-                R$ {alertas.pagarAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </div>
-              <p className="text-sm text-orange-600">
-                {alertas.pagarAtrasado.quantidade} conta(s) em atraso
-              </p>
-              <Button 
-                variant="link" 
-                className="p-0 h-auto text-orange-600 hover:text-orange-700"
-                onClick={() => navigate("/financeiro/contas-pagar")}
-              >
-                Ver Detalhes →
-              </Button>
-            </div>
+          <CardContent>
+            <p className="text-2xl font-bold text-orange-600">
+              R$ {alertas.pagarAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {alertas.pagarAtrasado.quantidade} conta(s) em atraso
+            </p>
+            <Button 
+              variant="link" 
+              className="p-0 h-auto mt-2 text-orange-600 hover:text-orange-700"
+              onClick={() => navigate("/financeiro/contas-pagar")}
+            >
+              Ver Detalhes →
+            </Button>
           </CardContent>
         </Card>
 
@@ -708,7 +700,7 @@ export default function Dashboard() {
                   }`}>
                     R$ {visaoEconomica.mensal.lucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     Margem: {visaoEconomica.mensal.receitas > 0
                       ? ((visaoEconomica.mensal.lucro / visaoEconomica.mensal.receitas) * 100).toFixed(1)
                       : 0}%
