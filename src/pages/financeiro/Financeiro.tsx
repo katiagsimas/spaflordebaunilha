@@ -295,8 +295,8 @@ export default function Financeiro() {
     <div className="container mx-auto p-6 space-y-6">
       {/* Título da Página */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-          <DollarSign className="w-8 h-8 text-primary" />
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
+          <DollarSign className="w-7 h-7 text-primary" />
           MOVIMENTAÇÕES E RELATÓRIOS FINANCEIROS
         </h1>
       </div>
