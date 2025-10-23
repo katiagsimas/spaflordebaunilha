@@ -84,12 +84,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => (
     <div className="flex min-h-screen w-full">
       <AppSidebar />
       <div className="flex-1 flex flex-col">
-        <header className="sticky top-0 z-10 h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex h-full items-center px-4">
-            <SidebarTrigger />
+        <header className="sticky top-0 z-10 h-14 border-b bg-background/80 backdrop-blur-md shadow-sm supports-[backdrop-filter]:bg-background/70">
+          <div className="flex h-full items-center px-6 gap-3">
+            <SidebarTrigger className="hover:bg-accent/50 transition-colors" />
+            <div className="h-6 w-px bg-border" />
           </div>
         </header>
-        <main className="flex-1 p-6 md:p-8">
+        <main className="flex-1 p-6 md:p-8 bg-muted/20">
           <FirstAccessRedirect />
           {children}
         </main>
