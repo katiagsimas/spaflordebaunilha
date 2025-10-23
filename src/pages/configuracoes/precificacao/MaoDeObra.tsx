@@ -270,7 +270,7 @@ export default function MaoDeObra() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2">
           {valores.map((valor) => {
             const corClass = coresDisponiveis.find(c => c.value === valor.cor)?.class || "bg-blue-100 text-blue-600";
             
