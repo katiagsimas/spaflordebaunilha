@@ -38,6 +38,18 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Plus, 
@@ -54,7 +66,9 @@ import {
   ChevronDown,
   X,
   Download,
-  FileDown
+  FileDown,
+  Check,
+  ChevronsUpDown
 } from 'lucide-react';
 import { BackButton } from '@/components/BackButton';
 import { PageHeader } from '@/components/PageHeader';
@@ -112,6 +126,8 @@ export default function ContasPagar() {
   // Estados para paginação e busca
   const [porPagina, setPorPagina] = useState(10);
   const [buscaNome, setBuscaNome] = useState('');
+  const [openFornecedor, setOpenFornecedor] = useState(false);
+  const [searchFornecedor, setSearchFornecedor] = useState('');
 
   useEffect(() => {
     fetchDashboard();
@@ -884,19 +900,68 @@ export default function ContasPagar() {
           {/* Fornecedor */}
           <div className="space-y-2">
             <Label>Fornecedor</Label>
-            <Select value={fornecedorFiltro} onValueChange={setFornecedorFiltro}>
-              <SelectTrigger>
-                <SelectValue placeholder="Todos" />
-              </SelectTrigger>
-              <SelectContent className="max-h-[300px] bg-popover z-50">
-                <SelectItem value="todos">Todos</SelectItem>
-                {fornecedores.map((f: any) => (
-                  <SelectItem key={f.id} value={f.id}>
-                    {f.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={openFornecedor} onOpenChange={setOpenFornecedor}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={openFornecedor}
+                  className="w-full justify-between bg-popover"
+                >
+                  {fornecedorFiltro && fornecedorFiltro !== 'todos'
+                    ? fornecedores.find((f: any) => f.id === fornecedorFiltro)?.nome || 'Selecione...'
+                    : 'Todos'}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0 bg-popover z-50" align="start">
+                <Command className="bg-popover">
+                  <CommandInput
+                    placeholder="Buscar fornecedor..."
+                    value={searchFornecedor}
+                    onValueChange={setSearchFornecedor}
+                  />
+                  <CommandEmpty>
+                    Nenhum fornecedor encontrado.
+                  </CommandEmpty>
+                  <CommandGroup className="max-h-64 overflow-auto">
+                    <CommandItem
+                      value="todos"
+                      onSelect={() => {
+                        setFornecedorFiltro('todos');
+                        setOpenFornecedor(false);
+                        setSearchFornecedor('');
+                      }}
+                    >
+                      <Check
+                        className={`mr-2 h-4 w-4 ${fornecedorFiltro === 'todos' ? 'opacity-100' : 'opacity-0'}`}
+                      />
+                      Todos
+                    </CommandItem>
+                    {fornecedores
+                      .filter((f: any) =>
+                        f.nome.toLowerCase().includes(searchFornecedor.toLowerCase())
+                      )
+                      .map((f: any) => (
+                        <CommandItem
+                          key={f.id}
+                          value={f.nome}
+                          onSelect={() => {
+                            setFornecedorFiltro(f.id);
+                            setOpenFornecedor(false);
+                            setSearchFornecedor('');
+                          }}
+                        >
+                          <Check
+                            className={`mr-2 h-4 w-4 ${fornecedorFiltro === f.id ? 'opacity-100' : 'opacity-0'}`}
+                          />
+                          {f.nome}
+                        </CommandItem>
+                      ))}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Plano de Contas */}
