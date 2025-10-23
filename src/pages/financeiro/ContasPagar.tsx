@@ -981,7 +981,23 @@ export default function ContasPagar() {
 
       {/* Card de Controles */}
       <div className="border rounded-lg p-4">
-        <div className="flex items-center justify-end gap-4 mb-4">
+        <div className="flex items-center justify-between gap-4">
+          {/* Resultados por Página - Esquerda */}
+          <div className="flex items-center gap-2">
+            <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
+              <SelectTrigger className="w-20 bg-popover">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
+            <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
+          </div>
+          
           {/* Campo de Busca - Direita */}
           <div className="relative flex-1 max-w-xs">
             <Input
@@ -991,22 +1007,6 @@ export default function ContasPagar() {
               className="bg-popover"
             />
           </div>
-        </div>
-        
-        {/* Segunda linha: Paginação */}
-        <div className="flex items-center gap-2">
-          <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
-            <SelectTrigger className="w-20 bg-popover">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-popover z-50">
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="25">25</SelectItem>
-              <SelectItem value="50">50</SelectItem>
-              <SelectItem value="100">100</SelectItem>
-            </SelectContent>
-          </Select>
-          <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
         </div>
       </div>
 
