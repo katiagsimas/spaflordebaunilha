@@ -39,10 +39,13 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, MoreVertical, Eye, DollarSign, Edit, Trash2, Info, Filter, Calendar, ChevronDown, X, Download, CheckSquare, Square, TrendingUp, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Plus, MoreVertical, Eye, DollarSign, Edit, Trash2, Info, Filter, Calendar, ChevronDown, X, Download, CheckSquare, Square, TrendingUp, CheckCircle2, AlertTriangle, ChevronsUpDown, Check } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
+import { cn } from '@/lib/utils';
 import * as XLSX from 'xlsx';
 import { BackButton } from '@/components/BackButton';
 import { PageHeader } from '@/components/PageHeader';
@@ -88,6 +91,10 @@ export default function ContasReceber() {
   const [filtroCategoriaId, setFiltroCategoriaId] = useState('');
   const [filtroTipoDocId, setFiltroTipoDocId] = useState('');
   const [filtroBancoId, setFiltroBancoId] = useState('');
+  
+  // Estados para combobox de cliente
+  const [openCliente, setOpenCliente] = useState(false);
+  const [searchCliente, setSearchCliente] = useState('');
 
   // Modal de baixa
   const [darBaixaOpen, setDarBaixaOpen] = useState(false);
@@ -943,19 +950,74 @@ export default function ContasReceber() {
             
             <div className="space-y-2">
               <Label className="text-sm">Cliente</Label>
-              <Select value={filtroClienteId} onValueChange={setFiltroClienteId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos</SelectItem>
-                  {clientes.map((cliente) => (
-                    <SelectItem key={cliente.id} value={cliente.id}>
-                      {cliente.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={openCliente} onOpenChange={setOpenCliente}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={openCliente}
+                    className="w-full justify-between"
+                  >
+                    {filtroClienteId && filtroClienteId !== 'todos'
+                      ? clientes.find((c) => c.id === filtroClienteId)?.nome || "Selecione..."
+                      : filtroClienteId === 'todos'
+                      ? "Todos"
+                      : "Selecione..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0 bg-background" align="start">
+                  <Command>
+                    <CommandInput 
+                      placeholder="Digite para buscar..." 
+                      value={searchCliente}
+                      onValueChange={setSearchCliente}
+                    />
+                    <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
+                    <CommandGroup className="max-h-64 overflow-auto">
+                      <CommandItem
+                        value="todos"
+                        onSelect={() => {
+                          setFiltroClienteId('todos');
+                          setOpenCliente(false);
+                          setSearchCliente('');
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            filtroClienteId === 'todos' ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Todos
+                      </CommandItem>
+                      {clientes
+                        .filter((cliente) =>
+                          cliente.nome.toLowerCase().includes(searchCliente.toLowerCase())
+                        )
+                        .map((cliente) => (
+                          <CommandItem
+                            key={cliente.id}
+                            value={cliente.id}
+                            onSelect={(currentValue) => {
+                              setFiltroClienteId(currentValue);
+                              setOpenCliente(false);
+                              setSearchCliente('');
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                filtroClienteId === cliente.id ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {cliente.nome}
+                          </CommandItem>
+                        ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
             
             <div className="space-y-2">
