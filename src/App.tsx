@@ -179,7 +179,8 @@ const App = () => (
           <Route path="/financeiro/contas-pagar/detalhes/:id" element={<ProtectedRoute><Layout><ContasPagarDetalhes /></Layout></ProtectedRoute>} />
           
           {/* Financeiro - Fluxo de Caixa */}
-          <Route path="/financeiro/fluxo-caixa" element={<ProtectedRoute><Layout><FluxoCaixa /></Layout></ProtectedRoute>} />
+          {/* Temporariamente desabilitado - usar rotas /diario e /mensal */}
+          {/* <Route path="/financeiro/fluxo-caixa" element={<ProtectedRoute><Layout><FluxoCaixa /></Layout></ProtectedRoute>} /> */}
           <Route path="/financeiro/fluxo-caixa/diario" element={<ProtectedRoute><Layout><FluxoCaixaDiario /></Layout></ProtectedRoute>} />
           <Route path="/financeiro/fluxo-caixa/mensal" element={<ProtectedRoute><Layout><FluxoCaixaMensal /></Layout></ProtectedRoute>} />
           

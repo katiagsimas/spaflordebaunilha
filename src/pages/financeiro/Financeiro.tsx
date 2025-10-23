@@ -329,8 +329,8 @@ export default function Financeiro() {
           </CardHeader>
         </Card>
 
-        {/* Card Fluxo de Caixa */}
-        <Card 
+        {/* Card Fluxo de Caixa - DESABILITADO */}
+        {/* <Card 
           className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500"
           onClick={() => navigate('/financeiro/fluxo-caixa')}
         >
@@ -344,7 +344,7 @@ export default function Financeiro() {
               </CardTitle>
             </div>
           </CardHeader>
-        </Card>
+        </Card> */}
 
         {/* Card DRE */}
         <Card 
