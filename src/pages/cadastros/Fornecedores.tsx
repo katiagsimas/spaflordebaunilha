@@ -183,7 +183,7 @@ export default function Fornecedores() {
                   <div className="flex items-center gap-3">
                     <div className="flex-shrink-0">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                        <Cake className="h-6 w-6 text-white" />
+                        <Cake className="h-6 w-6 text-white animate-bounce" />
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
