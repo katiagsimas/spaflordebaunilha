@@ -104,19 +104,23 @@ export default function Financeiro() {
       if (resumo && resumo.length > 0) {
         const totalSaldoInicial = resumo.reduce((acc, b) => acc + (b.saldo_inicial || 0), 0);
         const totalSaidas = resumo.reduce((acc, b) => acc + (b.saidas_mes || 0), 0);
-        const totalSaldoAtual = resumo.reduce((acc, b) => acc + (b.saldo_atual || 0), 0);
+        
+        // Calcular saldo atual: (Saldo Anterior + Entradas) - Saídas
+        const saldoCalculado = (totalSaldoInicial + totalRecebido) - totalSaidas;
 
         setSaldoAnterior(totalSaldoInicial);
         setEntradas(totalRecebido);
         setSaidas(totalSaidas);
-        setSaldoAtual(totalSaldoAtual);
+        setSaldoAtual(saldoCalculado);
         setBancosSaldos(resumo);
       } else {
         // Não tem saldos configurados
+        const saldoCalculado = (0 + totalRecebido) - 0;
+        
         setSaldoAnterior(0);
         setEntradas(totalRecebido);
         setSaidas(0);
-        setSaldoAtual(0);
+        setSaldoAtual(saldoCalculado);
         setBancosSaldos([]);
       }
     } catch (error) {
