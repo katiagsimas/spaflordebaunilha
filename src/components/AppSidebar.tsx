@@ -84,7 +84,7 @@ export function AppSidebar() {
             <img 
               src={profile?.logo_url || donnasBoxLogo} 
               alt="Donna's Box - O Sistema Completo da Confeiteira" 
-              className="w-full h-auto object-contain max-w-[240px]" 
+              className="w-full h-auto object-contain max-w-[360px]" 
             />
           </div>
         )}
