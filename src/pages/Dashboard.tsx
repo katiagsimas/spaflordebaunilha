@@ -437,7 +437,7 @@ export default function Dashboard() {
       </div>
 
       {/* ALERTAS CRÍTICOS */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         {/* Contas a Receber Atrasado */}
         <Card className="border-red-200 bg-red-50/50">
           <CardHeader className="pb-3">
@@ -492,32 +492,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Inadimplência Total */}
-        <Card className="border-yellow-200 bg-yellow-50/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-yellow-600 animate-pulse" />
-              Inadimplência Total
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div>
-              <div className="text-2xl font-bold text-yellow-700">
-                R$ {alertas.inadimplenciaTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </div>
-              <p className="text-sm text-yellow-600">
-                Clientes + Fornecedores
-              </p>
-              <Button 
-                variant="link" 
-                className="p-0 h-auto text-yellow-600 hover:text-yellow-700"
-                onClick={() => navigate("/financeiro/dashboard")}
-              >
-                Ver Detalhes →
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* CALENDÁRIO DE ENCOMENDAS */}
