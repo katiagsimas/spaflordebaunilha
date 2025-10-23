@@ -270,37 +270,39 @@ export default function MaoDeObra() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {valores.map((valor) => {
             const corClass = coresDisponiveis.find(c => c.value === valor.cor)?.class || "bg-blue-100 text-blue-600";
             
             return (
-              <Card key={valor.id} className="relative">
+              <Card key={valor.id} className="group relative hover:shadow-lg hover:scale-[1.02] transition-all duration-200">
                 {valor.padrao && (
                   <div className="absolute -top-2 -right-2">
-                    <Star className="h-6 w-6 text-amber-500 fill-amber-500" />
+                    <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
                   </div>
                 )}
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className={`w-12 h-12 rounded-lg ${corClass} flex items-center justify-center shrink-0`}>
-                      <Clock className="h-6 w-6" />
+                <CardHeader className="p-4 space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-lg ${corClass} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
+                      <Clock className="h-5 w-5" />
                     </div>
-                    {!valor.ativo && (
-                      <Badge variant="secondary" className="bg-gray-100 text-gray-600 dark:bg-gray-800">
-                        Inativo
-                      </Badge>
-                    )}
+                    <div className="min-w-0 flex-1 flex items-center gap-2">
+                      <CardTitle className="text-base font-semibold leading-tight line-clamp-1">
+                        {valor.nome}
+                      </CardTitle>
+                      {valor.padrao && (
+                        <Badge variant="secondary" className="bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 text-xs shrink-0">
+                          Padrão
+                        </Badge>
+                      )}
+                      {!valor.ativo && (
+                        <Badge variant="secondary" className="bg-gray-100 text-gray-600 dark:bg-gray-800 text-xs shrink-0">
+                          Inativo
+                        </Badge>
+                      )}
+                    </div>
                   </div>
-                  <CardTitle className="flex items-center gap-2">
-                    {valor.nome}
-                    {valor.padrao && (
-                      <Badge variant="secondary" className="bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
-                        Padrão
-                      </Badge>
-                    )}
-                  </CardTitle>
-                  <CardDescription className="line-clamp-2">
+                  <CardDescription className="text-xs line-clamp-2">
                     {valor.descricao || "Sem descrição"}
                   </CardDescription>
                 </CardHeader>
