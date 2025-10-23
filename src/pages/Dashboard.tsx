@@ -463,7 +463,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent className="px-3 pb-3">
             <p className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
-              {alertas.pagarAtrasado.quantidade}
+              R$ {alertas.pagarAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </p>
             <Button 
               variant="link" 
