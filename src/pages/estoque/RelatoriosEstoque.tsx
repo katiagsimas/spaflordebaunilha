@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, TrendingUp, DollarSign, ArrowLeft } from "lucide-react";
+import { FileText, TrendingUp, DollarSign } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { BackButton } from "@/components/BackButton";
 
 export default function RelatoriosEstoque() {
   const navigate = useNavigate();
@@ -39,12 +40,7 @@ export default function RelatoriosEstoque() {
       <PageHeader
         title="Relatórios de Estoque"
         description="Selecione o relatório que deseja visualizar"
-        actions={
-          <Button variant="outline" onClick={() => navigate("/estoque")}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar para Estoque
-          </Button>
-        }
+        actions={<BackButton to="/estoque" label="Voltar para Estoque" />}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

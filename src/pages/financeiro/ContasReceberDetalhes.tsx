@@ -16,8 +16,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { gerarReciboPagamento } from '@/utils/gerarReciboPagamento';
 import { 
-  ArrowLeft, Edit, Calendar, User, FileText, Building2, DollarSign, 
-  Info, AlertTriangle, Edit2, Trash2, Download, MoreVertical, RefreshCw, Printer 
+  Edit, Calendar, User, FileText, Building2, DollarSign, 
+  Info, AlertTriangle, Edit2, Trash2, Download, MoreVertical, RefreshCw, Printer
 } from 'lucide-react';
 import {
   Dialog,
@@ -44,6 +44,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import DarBaixaDialog from '@/components/financeiro/DarBaixaDialog';
+import { BackButton } from '@/components/BackButton';
 
 export default function ContasReceberDetalhes() {
   const navigate = useNavigate();
@@ -758,9 +759,7 @@ export default function ContasReceberDetalhes() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(voltarPara || '/financeiro/contas-receber')}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
+          <BackButton to={voltarPara || '/financeiro/contas-receber'} label="" />
           <div>
             <h1 className="text-3xl font-bold">Detalhes da Conta a Receber</h1>
             <p className="text-muted-foreground">

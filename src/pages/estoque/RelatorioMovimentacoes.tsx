@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { ArrowLeft, Download, Printer, ChevronDown, ChevronUp } from "lucide-react";
+import { Download, Printer, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/PageHeader";
+import { BackButton } from "@/components/BackButton";
 import {
   Table,
   TableBody,
@@ -19,7 +19,6 @@ import { Badge } from "@/components/ui/badge";
 import * as XLSX from 'xlsx';
 
 export default function RelatorioMovimentacoes() {
-  const navigate = useNavigate();
   const [dataInicio, setDataInicio] = useState(() => {
     const date = new Date();
     date.setDate(1); // Primeiro dia do mês
@@ -67,12 +66,7 @@ export default function RelatorioMovimentacoes() {
       <PageHeader
         title="Relatório de Movimentações"
         description="Entradas e saídas de estoque por período"
-        actions={
-          <Button variant="outline" onClick={() => navigate("/estoque/relatorios")}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar
-          </Button>
-        }
+        actions={<BackButton to="/estoque/relatorios" />}
       />
 
       {/* Cards de Resumo */}

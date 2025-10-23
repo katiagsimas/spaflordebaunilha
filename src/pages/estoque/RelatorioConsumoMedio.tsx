@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Download, Printer, Copy, Send } from "lucide-react";
+import { Download, Printer, Copy, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/PageHeader";
+import { BackButton } from "@/components/BackButton";
 import {
   Table,
   TableBody,
@@ -26,7 +26,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 
 export default function RelatorioConsumoMedio() {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [dias, setDias] = useState(30);
   const [mostrar, setMostrar] = useState<'todos' | 'com_consumo' | 'ativos'>('todos');
@@ -86,12 +85,7 @@ export default function RelatorioConsumoMedio() {
       <PageHeader
         title="Análise de Consumo Médio"
         description="Consumo, previsões e sugestões de compra"
-        actions={
-          <Button variant="outline" onClick={() => navigate("/estoque/relatorios")}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar
-          </Button>
-        }
+        actions={<BackButton to="/estoque/relatorios" />}
       />
 
       {/* Configuração */}

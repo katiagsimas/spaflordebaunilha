@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Mail, ArrowLeft } from 'lucide-react';
+import { Loader2, Mail } from 'lucide-react';
 import sugarboxAuthLogo from '@/assets/sugarbox-auth-logo.png';
 import authBackground from '@/assets/auth-background.jpg';
+import { BackButton } from '@/components/BackButton';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -60,12 +61,7 @@ export default function ForgotPassword() {
             </p>
           </CardContent>
           <CardFooter className="flex justify-center">
-            <Link to="/auth/login">
-              <Button variant="outline">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Voltar para o login
-              </Button>
-            </Link>
+            <BackButton to="/auth/login" label="Voltar para o login" />
           </CardFooter>
         </Card>
       </div>
@@ -133,12 +129,9 @@ export default function ForgotPassword() {
               )}
             </Button>
 
-            <Link to="/auth/login" className="w-full">
-              <Button variant="ghost" className="w-full">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Voltar para o login
-              </Button>
-            </Link>
+            <div className="w-full flex justify-center">
+              <BackButton to="/auth/login" label="Voltar para o login" />
+            </div>
           </CardFooter>
         </form>
       </Card>
