@@ -1014,24 +1014,8 @@ export default function ContasReceber() {
 
       {/* Card de Controles */}
       <div className="border rounded-lg p-4 space-y-4">
-        {/* Primeira linha: Controles */}
+        {/* Primeira linha: Botão Adicionar e Busca */}
         <div className="flex items-center justify-between gap-4">
-          {/* Resultados por Página - Esquerda */}
-          <div className="flex items-center gap-2">
-            <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
-              <SelectTrigger className="w-20 bg-popover">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-popover z-50">
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-                <SelectItem value="100">100</SelectItem>
-              </SelectContent>
-            </Select>
-            <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
-          </div>
-          
           {/* Botão Adicionar - Centro */}
           <Button onClick={() => navigate('/financeiro/contas-receber/nova')}>
             <Plus className="mr-2 h-4 w-4" />
@@ -1049,30 +1033,49 @@ export default function ContasReceber() {
           </div>
         </div>
 
-        {/* Segunda linha: Cards de Visualização */}
-        <div className="flex gap-2">
-          <Button
-            variant={visualizacao === 'ativas' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => {
-              setVisualizacao('ativas');
-              setFiltroStatus('todos');
-            }}
-            className={visualizacao === 'ativas' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-blue-600 text-blue-600 hover:bg-blue-50'}
-          >
-            Contas a Receber
-          </Button>
-          <Button
-            variant={visualizacao === 'pagas' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => {
-              setVisualizacao('pagas');
-              setFiltroStatus('todos');
-            }}
-            className={visualizacao === 'pagas' ? 'bg-green-600 hover:bg-green-700 text-white' : 'border-green-600 text-green-600 hover:bg-green-50'}
-          >
-            Contas Recebidas
-          </Button>
+        {/* Segunda linha: Contador e Cards de Visualização */}
+        <div className="flex items-center gap-4">
+          {/* Resultados por Página - Esquerda */}
+          <div className="flex items-center gap-2">
+            <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
+              <SelectTrigger className="w-20 bg-popover">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
+            <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
+          </div>
+          
+          {/* Cards de Visualização */}
+          <div className="flex gap-2">
+            <Button
+              variant={visualizacao === 'ativas' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => {
+                setVisualizacao('ativas');
+                setFiltroStatus('todos');
+              }}
+              className={visualizacao === 'ativas' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-blue-600 text-blue-600 hover:bg-blue-50'}
+            >
+              Contas a Receber
+            </Button>
+            <Button
+              variant={visualizacao === 'pagas' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => {
+                setVisualizacao('pagas');
+                setFiltroStatus('todos');
+              }}
+              className={visualizacao === 'pagas' ? 'bg-green-600 hover:bg-green-700 text-white' : 'border-green-600 text-green-600 hover:bg-green-50'}
+            >
+              Contas Recebidas
+            </Button>
+          </div>
         </div>
       </div>
 
