@@ -205,3 +205,23 @@ All colors MUST be HSL.
     animation-delay: 0.4s;
   }
 }
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  
+  table {
+    page-break-inside: avoid;
+  }
+  
+  @page {
+    size: landscape;
+    margin: 1cm;
+  }
+}

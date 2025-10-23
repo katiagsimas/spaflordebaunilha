@@ -1,30 +1,36 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
-import { useToast } from '@/hooks/use-toast';
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
-  Download,
-  Filter,
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import { 
+  ArrowLeft, 
+  Download, 
+  Printer,
+  FileText,
   TrendingUp,
   TrendingDown,
-  DollarSign,
-  Percent
-} from 'lucide-react';
-import { BackButton } from '@/components/BackButton';
-import { PageHeader } from '@/components/PageHeader';
+  DollarSign
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import * as XLSX from "xlsx";
 import {
   BarChart,
   Bar,
@@ -33,875 +39,901 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
-  PieChart as RechartsPieChart,
-  Pie,
-  Cell
-} from 'recharts';
+  ResponsiveContainer
+} from "recharts";
+
+interface LinhasDRE {
+  receitaBruta: number[];
+  receitaVendas: number[];
+  impostosSobreVendas: number[];
+  outrasDeducoes: number[];
+  totalDeducoes: number[];
+  receitaLiquida: number[];
+  cmv: number[];
+  despesasComerciais: number[];
+  despesaOperacionalVariavel: number[];
+  campanhasSazonais: number[];
+  totalCustosVariaveis: number[];
+  margemContribuicao: number[];
+  margemContribuicaoPerc: number[];
+  despesasPessoal: number[];
+  despesasOcupacao: number[];
+  despesasAdministrativas: number[];
+  totalCustosFixos: number[];
+  resultadoOperacional: number[];
+  receitasFinanceiras: number[];
+  despesasFinanceiras: number[];
+  receitasNaoOperacionais: number[];
+  gastosNaoOperacionais: number[];
+  resultadoNaoOperacional: number[];
+  lair: number[];
+  impostoRenda: number[];
+  lucroLiquido: number[];
+  margemLiquidaPerc: number[];
+}
 
 export default function DRE() {
+  const navigate = useNavigate();
   const { toast } = useToast();
-
+  const [ano, setAno] = useState(new Date().getFullYear());
+  const [dados, setDados] = useState<LinhasDRE | null>(null);
   const [loading, setLoading] = useState(true);
   
-  // Filtros
-  const [mesInicio, setMesInicio] = useState(() => {
-    const hoje = new Date();
-    return `${hoje.getFullYear()}-${(hoje.getMonth() + 1).toString().padStart(2, '0')}`;
-  });
-  const [mesFim, setMesFim] = useState(() => {
-    const hoje = new Date();
-    return `${hoje.getFullYear()}-${(hoje.getMonth() + 1).toString().padStart(2, '0')}`;
-  });
+  const [mesSelecionado, setMesSelecionado] = useState(new Date().getMonth());
+  const [anoMensal, setAnoMensal] = useState(new Date().getFullYear());
 
-  // Dados DRE
-  const [receitas, setReceitas] = useState([]);
-  const [custos, setCustos] = useState([]);
-  const [despesas, setDespesas] = useState([]);
-  
-  // Totalizadores
-  const [totalReceitas, setTotalReceitas] = useState(0);
-  const [totalCustos, setTotalCustos] = useState(0);
-  const [totalDespesas, setTotalDespesas] = useState(0);
-  const [lucroOperacional, setLucroOperacional] = useState(0);
-  const [lucroLiquido, setLucroLiquido] = useState(0);
-  const [margemLiquida, setMargemLiquida] = useState(0);
-
-  // Dados comparativos
-  const [dadosComparativos, setDadosComparativos] = useState([]);
+  const meses = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+  ];
 
   useEffect(() => {
-    fetchDRE();
-  }, [mesInicio, mesFim]);
+    carregarDRE();
+  }, [ano]);
 
-  const fetchDRE = async () => {
+  async function carregarDRE() {
+    setLoading(true);
     try {
-      setLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Calcular datas do período
-      const [anoIni, mesIni] = mesInicio.split('-').map(Number);
-      const [anoFimCalc, mesFimCalc] = mesFim.split('-').map(Number);
-      
-      const dataInicio = `${anoIni}-${mesIni.toString().padStart(2, '0')}-01`;
-      const ultimoDia = new Date(anoFimCalc, mesFimCalc, 0).getDate();
-      const dataFimCalc2 = `${anoFimCalc}-${mesFimCalc.toString().padStart(2, '0')}-${ultimoDia}`;
+      const linhas: LinhasDRE = {
+        receitaBruta: Array(12).fill(0),
+        receitaVendas: Array(12).fill(0),
+        impostosSobreVendas: Array(12).fill(0),
+        outrasDeducoes: Array(12).fill(0),
+        totalDeducoes: Array(12).fill(0),
+        receitaLiquida: Array(12).fill(0),
+        cmv: Array(12).fill(0),
+        despesasComerciais: Array(12).fill(0),
+        despesaOperacionalVariavel: Array(12).fill(0),
+        campanhasSazonais: Array(12).fill(0),
+        totalCustosVariaveis: Array(12).fill(0),
+        margemContribuicao: Array(12).fill(0),
+        margemContribuicaoPerc: Array(12).fill(0),
+        despesasPessoal: Array(12).fill(0),
+        despesasOcupacao: Array(12).fill(0),
+        despesasAdministrativas: Array(12).fill(0),
+        totalCustosFixos: Array(12).fill(0),
+        resultadoOperacional: Array(12).fill(0),
+        receitasFinanceiras: Array(12).fill(0),
+        despesasFinanceiras: Array(12).fill(0),
+        receitasNaoOperacionais: Array(12).fill(0),
+        gastosNaoOperacionais: Array(12).fill(0),
+        resultadoNaoOperacional: Array(12).fill(0),
+        lair: Array(12).fill(0),
+        impostoRenda: Array(12).fill(0),
+        lucroLiquido: Array(12).fill(0),
+        margemLiquidaPerc: Array(12).fill(0),
+      };
 
-      // Buscar RECEITAS (Contas a Receber pagas)
-      const { data: receitasPagamentosData } = await supabase
-        .from('contas_receber_pagamentos')
-        .select('id, valor_pago, juros, desconto, parcela_id')
-        .gte('data_pagamento', dataInicio)
-        .lte('data_pagamento', dataFimCalc2)
-        .eq('estornado', false);
+      // Buscar todos os planos de contas e suas categorias
+      const { data: planosContas } = await supabase
+        .from("plano_contas")
+        .select(`
+          id,
+          codigo_estruturado,
+          categoria_id,
+          categorias_plano_contas (
+            codigo
+          )
+        `)
+        .eq("user_id", user.id);
 
-      // Buscar parcelas relacionadas
-      const parcelasRecIds = receitasPagamentosData?.map(p => p.parcela_id) || [];
-      const { data: parcelasRecData } = parcelasRecIds.length > 0 
-        ? await supabase
-            .from('contas_receber_parcelas')
-            .select('id, conta_receber_id')
-            .in('id', parcelasRecIds)
-        : { data: [] };
-
-      // Buscar contas relacionadas
-      const contasRecIds = parcelasRecData?.map((p: any) => p.conta_receber_id) || [];
-      const { data: contasRecData } = contasRecIds.length > 0
-        ? await supabase
-            .from('contas_receber')
-            .select('id, plano_conta_id')
-            .in('id', contasRecIds)
-        : { data: [] };
-
-      // Buscar planos de contas
-      const planosRecIds = contasRecData?.map((c: any) => c.plano_conta_id).filter(Boolean) || [];
-      const { data: planosRecData } = planosRecIds.length > 0
-        ? await supabase
-            .from('plano_contas')
-            .select(`
-              id,
-              codigo_estruturado,
-              descricao,
-              categoria_id
-            `)
-            .in('id', planosRecIds)
-        : { data: [] };
-
-      // Buscar categorias
-      const catRecIds = planosRecData?.map((p: any) => p.categoria_id).filter(Boolean) || [];
-      const { data: catRecData } = catRecIds.length > 0
-        ? await supabase
-            .from('categorias_plano_contas')
-            .select('id, descricao')
-            .in('id', catRecIds)
-        : { data: [] };
-
-      // Mapear dados
-      const parcelasRecMap = new Map((parcelasRecData || []).map((p: any) => [p.id, p] as [string, any]));
-      const contasRecMap = new Map((contasRecData || []).map((c: any) => [c.id, c] as [string, any]));
-      const planosRecMap = new Map((planosRecData || []).map((p: any) => [p.id, p] as [string, any]));
-      const catRecMap = new Map((catRecData || []).map((c: any) => [c.id, c] as [string, any]));
-
-      // Processar RECEITAS por conta contábil
-      const receitasMap: any = {};
-      (receitasPagamentosData || []).forEach((r: any) => {
-        const parcela: any = parcelasRecMap.get(r.parcela_id);
-        if (!parcela) return;
-        
-        const conta: any = contasRecMap.get(parcela.conta_receber_id);
-        if (!conta || !conta.plano_conta_id) return;
-        
-        const plano: any = planosRecMap.get(conta.plano_conta_id);
-        if (!plano) return;
-
-        const valor = r.valor_pago + (r.juros || 0) - (r.desconto || 0);
-        const chave = plano.id;
-
-        const categoria: any = catRecMap.get(plano.categoria_id);
-
-        if (!receitasMap[chave]) {
-          receitasMap[chave] = {
-            codigo: plano.codigo_estruturado,
-            descricao: plano.descricao,
-            categoria: categoria?.descricao || 'Outras',
-            valor: 0,
-          };
-        }
-        receitasMap[chave].valor += valor;
+      const planosMap = new Map();
+      planosContas?.forEach((plano: any) => {
+        const codigoCategoria = plano.categorias_plano_contas?.codigo;
+        planosMap.set(plano.id, codigoCategoria);
       });
 
-      const receitasArray = Object.values(receitasMap).sort(
-        (a: any, b: any) => a.codigo.localeCompare(b.codigo)
-      ) as any[];
-      setReceitas(receitasArray);
-
-      // Buscar CUSTOS E DESPESAS (Contas a Pagar pagas)
-      const { data: custosPagamentosData } = await supabase
-        .from('contas_pagar_pagamentos')
-        .select('id, valor_pago, juros, desconto, parcela_id')
-        .gte('data_pagamento', dataInicio)
-        .lte('data_pagamento', dataFimCalc2)
-        .eq('estornado', false);
-
-      // Buscar parcelas relacionadas
-      const parcelasPagIds = custosPagamentosData?.map(p => p.parcela_id) || [];
-      const { data: parcelasPagData } = parcelasPagIds.length > 0
-        ? await supabase
-            .from('contas_pagar_parcelas')
-            .select('id, conta_pagar_id')
-            .in('id', parcelasPagIds)
-        : { data: [] };
-
-      // Buscar contas relacionadas
-      const contasPagIds = parcelasPagData?.map((p: any) => p.conta_pagar_id) || [];
-      const { data: contasPagData } = contasPagIds.length > 0
-        ? await supabase
-            .from('contas_pagar')
-            .select('id, plano_contas_id')
-            .in('id', contasPagIds)
-        : { data: [] };
-
-      // Buscar planos de contas
-      const planosPagIds = contasPagData?.map((c: any) => c.plano_contas_id).filter(Boolean) || [];
-      const { data: planosPagData } = planosPagIds.length > 0
-        ? await supabase
-            .from('plano_contas')
-            .select(`
-              id,
-              codigo_estruturado,
-              descricao,
-              categoria_id
-            `)
-            .in('id', planosPagIds)
-        : { data: [] };
-
-      // Buscar categorias
-      const catPagIds = planosPagData?.map((p: any) => p.categoria_id).filter(Boolean) || [];
-      const { data: catPagData } = catPagIds.length > 0
-        ? await supabase
-            .from('categorias_plano_contas')
-            .select('id, descricao')
-            .in('id', catPagIds)
-        : { data: [] };
-
-      // Mapear dados
-      const parcelasPagMap = new Map((parcelasPagData || []).map((p: any) => [p.id, p] as [string, any]));
-      const contasPagMap = new Map((contasPagData || []).map((c: any) => [c.id, c] as [string, any]));
-      const planosPagMap = new Map((planosPagData || []).map((p: any) => [p.id, p] as [string, any]));
-      const catPagMap = new Map((catPagData || []).map((c: any) => [c.id, c] as [string, any]));
-
-      // Processar CUSTOS E DESPESAS por conta contábil
-      const custosMap: any = {};
-      const despesasMap: any = {};
-
-      (custosPagamentosData || []).forEach((c: any) => {
-        const parcela: any = parcelasPagMap.get(c.parcela_id);
-        if (!parcela) return;
+      for (let mes = 0; mes < 12; mes++) {
+        const dataInicio = new Date(ano, mes, 1);
+        const dataFim = new Date(ano, mes + 1, 0);
         
-        const conta: any = contasPagMap.get(parcela.conta_pagar_id);
-        if (!conta || !conta.plano_contas_id) return;
-        
-        const plano: any = planosPagMap.get(conta.plano_contas_id);
-        if (!plano) return;
+        const inicioStr = dataInicio.toISOString().split('T')[0];
+        const fimStr = dataFim.toISOString().split('T')[0];
 
-        const valor = c.valor_pago + (c.juros || 0) - (c.desconto || 0);
-        const chave = plano.id;
-        const categoria: any = catPagMap.get(plano.categoria_id);
-        const categoriaDescricao = categoria?.descricao || 'Outras';
+        // Buscar receitas (pagamentos de contas a receber)
+        const { data: pagamentosReceber } = await supabase
+          .from("contas_receber_pagamentos")
+          .select(`
+            valor_pago,
+            juros,
+            desconto,
+            parcela_id
+          `)
+          .gte("data_pagamento", inicioStr)
+          .lte("data_pagamento", fimStr)
+          .eq("estornado", false);
 
-        // Separar entre custos e despesas baseado na categoria ou código
-        const ehCusto = categoriaDescricao.toLowerCase().includes('custo') || 
-                        plano.descricao.toLowerCase().includes('custo') ||
-                        plano.codigo_estruturado.startsWith('3.1');
+        if (pagamentosReceber && pagamentosReceber.length > 0) {
+          const parcelasIds = pagamentosReceber.map(p => p.parcela_id);
+          
+          const { data: parcelas } = await supabase
+            .from("contas_receber_parcelas")
+            .select("conta_receber_id")
+            .in("id", parcelasIds);
 
-        const map = ehCusto ? custosMap : despesasMap;
+          if (parcelas && parcelas.length > 0) {
+            const contasIds = parcelas.map(p => p.conta_receber_id);
+            
+            const { data: contas } = await supabase
+              .from("contas_receber")
+              .select("plano_conta_id")
+              .in("id", contasIds);
 
-        if (!map[chave]) {
-          map[chave] = {
-            codigo: plano.codigo_estruturado,
-            descricao: plano.descricao,
-            categoria: categoriaDescricao,
-            valor: 0,
-          };
+            const planosReceita: any = {};
+            pagamentosReceber.forEach((pag, idx) => {
+              const conta = contas?.find((c, i) => parcelas[i].conta_receber_id === contasIds[i]);
+              if (conta && conta.plano_conta_id) {
+                const codigoCategoria = planosMap.get(conta.plano_conta_id);
+                const valor = pag.valor_pago + (pag.juros || 0) - (pag.desconto || 0);
+                
+                if (!planosReceita[codigoCategoria]) {
+                  planosReceita[codigoCategoria] = 0;
+                }
+                planosReceita[codigoCategoria] += valor;
+              }
+            });
+
+            linhas.receitaVendas[mes] = planosReceita['1'] || 0;
+            linhas.receitasFinanceiras[mes] = planosReceita['106'] || 0;
+            linhas.receitasNaoOperacionais[mes] = planosReceita['9'] || 0;
+          }
         }
-        map[chave].valor += valor;
-      });
 
-      const custosArray = Object.values(custosMap).sort(
-        (a: any, b: any) => a.codigo.localeCompare(b.codigo)
-      ) as any[];
-      const despesasArray = Object.values(despesasMap).sort(
-        (a: any, b: any) => a.codigo.localeCompare(b.codigo)
-      ) as any[];
+        // Buscar despesas (pagamentos de contas a pagar)
+        const { data: pagamentosPagar } = await supabase
+          .from("contas_pagar_pagamentos")
+          .select(`
+            valor_pago,
+            juros,
+            desconto,
+            parcela_id
+          `)
+          .gte("data_pagamento", inicioStr)
+          .lte("data_pagamento", fimStr)
+          .eq("estornado", false);
 
-      setCustos(custosArray);
-      setDespesas(despesasArray);
+        if (pagamentosPagar && pagamentosPagar.length > 0) {
+          const parcelasIds = pagamentosPagar.map(p => p.parcela_id);
+          
+          const { data: parcelas } = await supabase
+            .from("contas_pagar_parcelas")
+            .select("conta_pagar_id")
+            .in("id", parcelasIds);
 
-      // Calcular totalizadores
-      const totReceitas: number = receitasArray.reduce((acc: number, r: any) => acc + r.valor, 0);
-      const totCustos: number = custosArray.reduce((acc: number, c: any) => acc + c.valor, 0);
-      const totDespesas: number = despesasArray.reduce((acc: number, d: any) => acc + d.valor, 0);
-      const lucroOp: number = totReceitas - totCustos;
-      const lucroLiq: number = totReceitas - totCustos - totDespesas;
-      const margem: number = totReceitas > 0 ? (lucroLiq / totReceitas) * 100 : 0;
+          if (parcelas && parcelas.length > 0) {
+            const contasIds = parcelas.map(p => p.conta_pagar_id);
+            
+            const { data: contas } = await supabase
+              .from("contas_pagar")
+              .select("plano_contas_id")
+              .in("id", contasIds);
 
-      setTotalReceitas(totReceitas);
-      setTotalCustos(totCustos);
-      setTotalDespesas(totDespesas);
-      setLucroOperacional(lucroOp);
-      setLucroLiquido(lucroLiq);
-      setMargemLiquida(margem);
+            const planosDespesa: any = {};
+            pagamentosPagar.forEach((pag, idx) => {
+              const conta = contas?.find((c, i) => parcelas[i].conta_pagar_id === contasIds[i]);
+              if (conta && conta.plano_contas_id) {
+                const codigoCategoria = planosMap.get(conta.plano_contas_id);
+                const valor = pag.valor_pago + (pag.juros || 0) - (pag.desconto || 0);
+                
+                if (!planosDespesa[codigoCategoria]) {
+                  planosDespesa[codigoCategoria] = 0;
+                }
+                planosDespesa[codigoCategoria] += valor;
+              }
+            });
 
-      // Buscar dados comparativos (últimos 6 meses)
-      await fetchComparativo(user.id);
+            linhas.impostosSobreVendas[mes] = planosDespesa['2'] || 0;
+            linhas.outrasDeducoes[mes] = planosDespesa['99'] || 0;
+            linhas.cmv[mes] = planosDespesa['3'] || 0;
+            linhas.despesasComerciais[mes] = planosDespesa['8'] || 0;
+            linhas.despesaOperacionalVariavel[mes] = planosDespesa['103'] || 0;
+            linhas.campanhasSazonais[mes] = planosDespesa['112'] || 0;
+            linhas.despesasPessoal[mes] = planosDespesa['5'] || 0;
+            linhas.despesasOcupacao[mes] = planosDespesa['6'] || 0;
+            linhas.despesasAdministrativas[mes] = planosDespesa['7'] || 0;
+            linhas.despesasFinanceiras[mes] = planosDespesa['107'] || 0;
+            linhas.gastosNaoOperacionais[mes] = planosDespesa['10'] || 0;
+          }
+        }
+
+        // Calcular totais e indicadores
+        linhas.receitaBruta[mes] = linhas.receitaVendas[mes];
+        linhas.totalDeducoes[mes] = linhas.impostosSobreVendas[mes] + linhas.outrasDeducoes[mes];
+        linhas.receitaLiquida[mes] = linhas.receitaBruta[mes] - linhas.totalDeducoes[mes];
+        
+        linhas.totalCustosVariaveis[mes] = linhas.cmv[mes] + linhas.despesasComerciais[mes] + 
+                                           linhas.despesaOperacionalVariavel[mes] + linhas.campanhasSazonais[mes];
+        
+        linhas.margemContribuicao[mes] = linhas.receitaLiquida[mes] - linhas.totalCustosVariaveis[mes];
+        linhas.margemContribuicaoPerc[mes] = linhas.receitaBruta[mes] !== 0 
+          ? (linhas.margemContribuicao[mes] / linhas.receitaBruta[mes]) * 100 
+          : 0;
+
+        linhas.totalCustosFixos[mes] = linhas.despesasPessoal[mes] + linhas.despesasOcupacao[mes] + 
+                                       linhas.despesasAdministrativas[mes];
+        
+        linhas.resultadoOperacional[mes] = linhas.margemContribuicao[mes] - linhas.totalCustosFixos[mes];
+        
+        linhas.resultadoNaoOperacional[mes] = linhas.receitasNaoOperacionais[mes] - linhas.gastosNaoOperacionais[mes];
+        
+        linhas.lair[mes] = linhas.resultadoOperacional[mes] + linhas.receitasFinanceiras[mes] - 
+                           linhas.despesasFinanceiras[mes] + linhas.resultadoNaoOperacional[mes];
+        
+        linhas.impostoRenda[mes] = 0;
+        linhas.lucroLiquido[mes] = linhas.lair[mes] - linhas.impostoRenda[mes];
+        
+        linhas.margemLiquidaPerc[mes] = linhas.receitaBruta[mes] !== 0 
+          ? (linhas.lucroLiquido[mes] / linhas.receitaBruta[mes]) * 100 
+          : 0;
+      }
+
+      setDados(linhas);
     } catch (error) {
-      console.error('Erro ao buscar DRE:', error);
+      console.error("Erro ao carregar DRE:", error);
       toast({
-        title: 'Erro',
-        description: 'Não foi possível carregar o DRE.',
-        variant: 'destructive',
+        title: "Erro",
+        description: "Não foi possível carregar o DRE.",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
+  }
+
+  const calcularTotal = (valores: number[]) => {
+    return valores.reduce((sum, val) => sum + val, 0);
   };
 
-  const fetchComparativo = async (userId: string) => {
-    try {
-      const dataRef = new Date(mesFim + '-01');
-      const comparativos = [];
-
-      for (let i = 5; i >= 0; i--) {
-        const mes = new Date(dataRef.getFullYear(), dataRef.getMonth() - i, 1);
-        const ano = mes.getFullYear();
-        const mesNum = mes.getMonth() + 1;
-        const dataIni = `${ano}-${mesNum.toString().padStart(2, '0')}-01`;
-        const ultimoDia = new Date(ano, mesNum, 0).getDate();
-        const dataFim = `${ano}-${mesNum.toString().padStart(2, '0')}-${ultimoDia}`;
-
-        // Receitas do mês
-        const { data: recMes } = await supabase
-          .from('contas_receber_pagamentos')
-          .select('valor_pago, juros, desconto')
-          .gte('data_pagamento', dataIni)
-          .lte('data_pagamento', dataFim)
-          .eq('estornado', false);
-
-        const receitasMes = (recMes || []).reduce(
-          (acc, r) => acc + r.valor_pago + (r.juros || 0) - (r.desconto || 0),
-          0
-        );
-
-        // Custos/Despesas do mês
-        const { data: custMes } = await supabase
-          .from('contas_pagar_pagamentos')
-          .select('valor_pago, juros, desconto')
-          .gte('data_pagamento', dataIni)
-          .lte('data_pagamento', dataFim)
-          .eq('estornado', false);
-
-        const custosMes = (custMes || []).reduce(
-          (acc, c) => acc + c.valor_pago + (c.juros || 0) - (c.desconto || 0),
-          0
-        );
-
-        comparativos.push({
-          mes: mes.toLocaleDateString('pt-BR', { month: 'short' }),
-          mesCompleto: mes.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }),
-          receitas: receitasMes,
-          custos: custosMes,
-          resultado: receitasMes - custosMes,
-        });
-      }
-
-      setDadosComparativos(comparativos);
-    } catch (error) {
-      console.error('Erro ao buscar comparativos:', error);
-    }
+  const calcularAV = (valor: number, receitaBrutaTotal: number) => {
+    if (receitaBrutaTotal === 0) return 0;
+    return (valor / receitaBrutaTotal) * 100;
   };
 
-  const handleExportar = () => {
-    try {
-      const csvData = [
-        ['DEMONSTRAÇÃO DO RESULTADO DO EXERCÍCIO (DRE)'],
-        [`Período: ${mesInicio} a ${mesFim}`],
-        [''],
-        ['RECEITAS'],
-        ['Código', 'Descrição', 'Categoria', 'Valor'],
-        ...receitas.map((r: any) => [r.codigo, r.descricao, r.categoria, formatarValor(r.valor)]),
-        ['', '', 'TOTAL RECEITAS', formatarValor(totalReceitas)],
-        [''],
-        ['CUSTOS'],
-        ['Código', 'Descrição', 'Categoria', 'Valor'],
-        ...custos.map((c: any) => [c.codigo, c.descricao, c.categoria, formatarValor(c.valor)]),
-        ['', '', 'TOTAL CUSTOS', formatarValor(totalCustos)],
-        [''],
-        ['', '', 'LUCRO BRUTO', formatarValor(lucroOperacional)],
-        [''],
-        ['DESPESAS OPERACIONAIS'],
-        ['Código', 'Descrição', 'Categoria', 'Valor'],
-        ...despesas.map((d: any) => [d.codigo, d.descricao, d.categoria, formatarValor(d.valor)]),
-        ['', '', 'TOTAL DESPESAS', formatarValor(totalDespesas)],
-        [''],
-        ['', '', 'LUCRO LÍQUIDO', formatarValor(lucroLiquido)],
-        ['', '', 'MARGEM LÍQUIDA', `${margemLiquida.toFixed(2)}%`],
-      ];
+  const exportarExcel = () => {
+    if (!dados) return;
 
-      const csvContent = csvData.map(row => row.join(',')).join('\n');
-      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `DRE_${mesInicio}_${mesFim}.csv`;
-      link.click();
+    const receitaBrutaTotal = calcularTotal(dados.receitaBruta);
 
-      toast({
-        title: '✅ Exportado',
-        description: 'DRE exportado com sucesso!',
-      });
-    } catch (error) {
-      console.error('Erro ao exportar:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível exportar o DRE.',
-        variant: 'destructive',
-      });
-    }
-  };
+    const worksheet_data = [
+      ["Demonstrativo de Resultado", "", "", "", "", "", "", "", "", "", "", "", "", ano, "AV%"],
+      ["Descrição", ...meses, ano.toString(), "AV%"],
+      ["(+) Receita Bruta", ...dados.receitaBruta.map(v => v.toFixed(2)), receitaBrutaTotal.toFixed(2), "100%"],
+      ["1 - Receita com Vendas", ...dados.receitaVendas.map(v => v.toFixed(2)), calcularTotal(dados.receitaVendas).toFixed(2), calcularAV(calcularTotal(dados.receitaVendas), receitaBrutaTotal).toFixed(0) + "%"],
+      ["(-) Deduções Sobre Vendas", ...dados.totalDeducoes.map(v => v.toFixed(2)), calcularTotal(dados.totalDeducoes).toFixed(2), calcularAV(calcularTotal(dados.totalDeducoes), receitaBrutaTotal).toFixed(0) + "%"],
+      ["(=) Receita Líquida", ...dados.receitaLiquida.map(v => v.toFixed(2)), calcularTotal(dados.receitaLiquida).toFixed(2), calcularAV(calcularTotal(dados.receitaLiquida), receitaBrutaTotal).toFixed(0) + "%"],
+      ["(=) Lucro Líquido", ...dados.lucroLiquido.map(v => v.toFixed(2)), calcularTotal(dados.lucroLiquido).toFixed(2), calcularAV(calcularTotal(dados.lucroLiquido), receitaBrutaTotal).toFixed(0) + "%"],
+    ];
 
-  const formatarValor = (valor: number) => {
-    if (valor === undefined || valor === null) return 'R$ 0,00';
-    return valor.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheet_data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "DRE");
+    
+    XLSX.writeFile(workbook, `DRE_${ano}.xlsx`);
+
+    toast({
+      title: "✅ Exportado",
+      description: "DRE exportado com sucesso!",
     });
   };
 
-  const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
+  const imprimir = () => {
+    window.print();
+  };
 
-  // Preparar dados para gráficos
-  const dadosPizza = [
-    { name: 'Receitas', value: totalReceitas, color: '#10b981' },
-    { name: 'Custos', value: totalCustos, color: '#ef4444' },
-    { name: 'Despesas', value: totalDespesas, color: '#f59e0b' },
-  ].filter(d => d.value > 0);
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center p-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Carregando DRE...</p>
+        </div>
+      </div>
+    );
+  }
 
-  if (loading) return <div className="flex justify-center p-8">Carregando...</div>;
+  if (!dados) return null;
+
+  const receitaBrutaTotal = calcularTotal(dados.receitaBruta);
+  const receitaTotalAnual = calcularTotal(dados.receitaBruta);
+  const custosTotaisAnual = calcularTotal(dados.totalDeducoes) + calcularTotal(dados.totalCustosVariaveis) + 
+                            calcularTotal(dados.totalCustosFixos) + calcularTotal(dados.despesasFinanceiras);
+  const lucroLiquidoAnual = calcularTotal(dados.lucroLiquido);
+
+  const dadosGraficoAnual = meses.map((mes, i) => ({
+    mes: mes.substring(0, 3),
+    receitas: dados.receitaBruta[i],
+    custos: dados.totalDeducoes[i] + dados.totalCustosVariaveis[i] + dados.totalCustosFixos[i] + dados.despesasFinanceiras[i],
+    lucro: dados.lucroLiquido[i]
+  }));
+
+  const indexMesSelecionado = anoMensal === ano ? mesSelecionado : -1;
+  const dadosMensal = indexMesSelecionado >= 0 ? {
+    margemContribuicao: dados.margemContribuicao[indexMesSelecionado],
+    margemContribuicaoPerc: dados.margemContribuicaoPerc[indexMesSelecionado],
+    resultadoOperacional: dados.resultadoOperacional[indexMesSelecionado],
+    margemLiquidaPerc: dados.margemLiquidaPerc[indexMesSelecionado]
+  } : null;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <PageHeader
-        title="DRE - Demonstração do Resultado"
-        description="Análise completa de receitas, custos e resultado"
-        backButton={<BackButton to="/financeiro" />}
-        actions={
-          <Button onClick={handleExportar}>
-            <Download className="mr-2 h-4 w-4" />
-            Exportar DRE
+    <div className="container mx-auto p-6 space-y-6 no-print">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/financeiro")}
+          >
+            <ArrowLeft className="h-5 w-5" />
           </Button>
-        }
-      />
+          
+          <div>
+            <div className="flex items-center gap-2">
+              <FileText className="h-6 w-6 text-primary" />
+              <h1 className="text-3xl font-bold">Demonstrativo de Resultado</h1>
+            </div>
+            <p className="text-muted-foreground mt-1">
+              DRE - Análise completa do exercício
+            </p>
+          </div>
+        </div>
 
-      {/* Filtros */}
+        <div className="flex gap-2">
+          <Button onClick={imprimir} variant="outline">
+            <Printer className="mr-2 h-4 w-4" />
+            Imprimir
+          </Button>
+          <Button onClick={exportarExcel}>
+            <Download className="mr-2 h-4 w-4" />
+            Exportar
+          </Button>
+        </div>
+      </div>
+
+      {/* Filtro de Ano */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Período
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-4">
             <div className="space-y-2">
-              <Label>Mês Início</Label>
+              <Label>Ano de Exercício</Label>
               <Input
-                type="month"
-                value={mesInicio}
-                onChange={(e) => setMesInicio(e.target.value)}
+                type="number"
+                value={ano}
+                onChange={(e) => setAno(parseInt(e.target.value))}
+                min="2020"
+                max="2030"
+                className="w-32"
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Mês Fim</Label>
-              <Input
-                type="month"
-                value={mesFim}
-                onChange={(e) => setMesFim(e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>&nbsp;</Label>
-              <Button onClick={fetchDRE} className="w-full">
-                Atualizar
-              </Button>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Cards de Indicadores */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Receitas</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {formatarValor(totalReceitas)}
-                </p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
+      {/* Tabela DRE */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Demonstrativo de Resultado - {ano}</CardTitle>
+          <CardDescription>
+            Análise vertical e comparativo mensal
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="font-bold">Descrição</TableHead>
+                  {meses.map((mes) => (
+                    <TableHead key={mes} className="text-right">{mes.substring(0, 3)}</TableHead>
+                  ))}
+                  <TableHead className="text-right font-bold">{ano}</TableHead>
+                  <TableHead className="text-right font-bold">AV%</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {/* RECEITA BRUTA */}
+                <TableRow className="bg-green-50">
+                  <TableCell className="font-semibold">(+) Receita Bruta</TableCell>
+                  {dados.receitaBruta.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                  ))}
+                  <TableCell className="text-right font-bold">{receitaBrutaTotal.toFixed(2)}</TableCell>
+                  <TableCell className="text-right font-bold">100%</TableCell>
+                </TableRow>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Custos + Despesas</p>
-                <p className="text-2xl font-bold text-red-600">
-                  {formatarValor(totalCustos + totalDespesas)}
-                </p>
-              </div>
-              <TrendingDown className="h-8 w-8 text-red-600" />
-            </div>
-          </CardContent>
-        </Card>
+                <TableRow>
+                  <TableCell className="pl-8">1 - Receita com Vendas</TableCell>
+                  {dados.receitaVendas.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                  ))}
+                  <TableCell className="text-right">{calcularTotal(dados.receitaVendas).toFixed(2)}</TableCell>
+                  <TableCell className="text-right">{calcularAV(calcularTotal(dados.receitaVendas), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
 
-        <Card className="border-2 border-primary">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Lucro Líquido</p>
-                <p className={`text-2xl font-bold ${lucroLiquido >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
-                  {formatarValor(lucroLiquido)}
-                </p>
-              </div>
-              <DollarSign className="h-8 w-8 text-primary" />
-            </div>
-          </CardContent>
-        </Card>
+                {/* DEDUÇÕES */}
+                <TableRow className="bg-red-50">
+                  <TableCell className="font-semibold">(-) Deduções Sobre Vendas</TableCell>
+                  {dados.totalDeducoes.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                  ))}
+                  <TableCell className="text-right font-bold">{calcularTotal(dados.totalDeducoes).toFixed(2)}</TableCell>
+                  <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.totalDeducoes), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Margem Líquida</p>
-                <p className={`text-2xl font-bold ${margemLiquida >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {margemLiquida.toFixed(2)}%
-                </p>
-              </div>
-              <Percent className="h-8 w-8 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                <TableRow>
+                  <TableCell className="pl-8">2 - Impostos Sobre Vendas</TableCell>
+                  {dados.impostosSobreVendas.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                  ))}
+                  <TableCell className="text-right">{calcularTotal(dados.impostosSobreVendas).toFixed(2)}</TableCell>
+                  <TableCell className="text-right">{calcularAV(calcularTotal(dados.impostosSobreVendas), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
 
-      {/* Abas */}
-      <Tabs defaultValue="estruturado">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="estruturado">DRE Estruturado</TabsTrigger>
-          <TabsTrigger value="categorias">Por Categorias</TabsTrigger>
-          <TabsTrigger value="comparativo">Comparativo</TabsTrigger>
-        </TabsList>
+                <TableRow>
+                  <TableCell className="pl-8">99 - Outras Deduções sobre Vendas</TableCell>
+                  {dados.outrasDeducoes.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                  ))}
+                  <TableCell className="text-right">{calcularTotal(dados.outrasDeducoes).toFixed(2)}</TableCell>
+                  <TableCell className="text-right">{calcularAV(calcularTotal(dados.outrasDeducoes), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
 
-        {/* Aba: DRE Estruturado */}
-        <TabsContent value="estruturado" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Demonstração do Resultado - Estrutura Completa</CardTitle>
-              <CardDescription>
-                Relatório detalhado seguindo a estrutura contábil do DRE
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {/* RECEITAS */}
-                <div>
-                  <h3 className="font-bold text-lg mb-3 text-green-700">RECEITAS OPERACIONAIS</h3>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-32">Código</TableHead>
-                        <TableHead>Descrição</TableHead>
-                        <TableHead>Categoria</TableHead>
-                        <TableHead className="text-right">Valor</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {receitas.length === 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={4} className="text-center text-muted-foreground">
-                            Nenhuma receita no período
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        receitas.map((r: any, index: number) => (
-                          <TableRow key={index}>
-                            <TableCell className="font-mono">{r.codigo}</TableCell>
-                            <TableCell>{r.descricao}</TableCell>
-                            <TableCell className="text-sm text-muted-foreground">{r.categoria}</TableCell>
-                            <TableCell className="text-right text-green-600 font-medium">
-                              {formatarValor(r.valor)}
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      )}
-                      <TableRow className="bg-green-50 font-bold">
-                        <TableCell colSpan={3}>TOTAL DE RECEITAS</TableCell>
-                        <TableCell className="text-right text-green-700">
-                          {formatarValor(totalReceitas)}
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </div>
+                {/* RECEITA LÍQUIDA */}
+                <TableRow className="bg-blue-50">
+                  <TableCell className="font-semibold">(=) Receita Líquida</TableCell>
+                  {dados.receitaLiquida.map((val, i) => (
+                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                      {val.toFixed(2)}
+                    </TableCell>
+                  ))}
+                  <TableCell className={`text-right font-bold ${calcularTotal(dados.receitaLiquida) >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                    {calcularTotal(dados.receitaLiquida).toFixed(2)}
+                  </TableCell>
+                  <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.receitaLiquida), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
 
-                <Separator />
+                {/* CUSTOS VARIÁVEIS */}
+                <TableRow className="bg-orange-50">
+                  <TableCell className="font-semibold">(-) Custos Variáveis</TableCell>
+                  {dados.totalCustosVariaveis.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                  ))}
+                  <TableCell className="text-right font-bold">{calcularTotal(dados.totalCustosVariaveis).toFixed(2)}</TableCell>
+                  <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.totalCustosVariaveis), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
 
-                {/* CUSTOS */}
-                <div>
-                  <h3 className="font-bold text-lg mb-3 text-orange-700">(-) CUSTOS</h3>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-32">Código</TableHead>
-                        <TableHead>Descrição</TableHead>
-                        <TableHead>Categoria</TableHead>
-                        <TableHead className="text-right">Valor</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {custos.length === 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={4} className="text-center text-muted-foreground">
-                            Nenhum custo no período
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        custos.map((c: any, index: number) => (
-                          <TableRow key={index}>
-                            <TableCell className="font-mono">{c.codigo}</TableCell>
-                            <TableCell>{c.descricao}</TableCell>
-                            <TableCell className="text-sm text-muted-foreground">{c.categoria}</TableCell>
-                            <TableCell className="text-right text-orange-600 font-medium">
-                              {formatarValor(c.valor)}
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      )}
-                      <TableRow className="bg-orange-50 font-bold">
-                        <TableCell colSpan={3}>TOTAL DE CUSTOS</TableCell>
-                        <TableCell className="text-right text-orange-700">
-                          {formatarValor(totalCustos)}
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </div>
+                <TableRow>
+                  <TableCell className="pl-8">3 - CMV - Custo de Mercadoria Vendida</TableCell>
+                  {dados.cmv.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                  ))}
+                  <TableCell className="text-right">{calcularTotal(dados.cmv).toFixed(2)}</TableCell>
+                  <TableCell className="text-right">{calcularAV(calcularTotal(dados.cmv), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
 
-                {/* LUCRO BRUTO */}
-                <div className="p-4 bg-blue-50 border-2 border-blue-500 rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold">= LUCRO BRUTO</span>
-                    <span className={`text-2xl font-bold ${lucroOperacional >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
-                      {formatarValor(lucroOperacional)}
-                    </span>
-                  </div>
-                  {totalReceitas > 0 && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Margem Bruta: {((lucroOperacional / totalReceitas) * 100).toFixed(2)}%
+                <TableRow>
+                  <TableCell className="pl-8">8 - Despesas Comerciais</TableCell>
+                  {dados.despesasComerciais.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                  ))}
+                  <TableCell className="text-right">{calcularTotal(dados.despesasComerciais).toFixed(2)}</TableCell>
+                  <TableCell className="text-right">{calcularAV(calcularTotal(dados.despesasComerciais), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
+
+                <TableRow>
+                  <TableCell className="pl-8">103 - Despesa Operacional Variável</TableCell>
+                  {dados.despesaOperacionalVariavel.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                  ))}
+                  <TableCell className="text-right">{calcularTotal(dados.despesaOperacionalVariavel).toFixed(2)}</TableCell>
+                  <TableCell className="text-right">{calcularAV(calcularTotal(dados.despesaOperacionalVariavel), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
+
+                <TableRow>
+                  <TableCell className="pl-8">112 - Campanhas Sazonais</TableCell>
+                  {dados.campanhasSazonais.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                  ))}
+                  <TableCell className="text-right">{calcularTotal(dados.campanhasSazonais).toFixed(2)}</TableCell>
+                  <TableCell className="text-right">{calcularAV(calcularTotal(dados.campanhasSazonais), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
+
+                {/* MARGEM DE CONTRIBUIÇÃO */}
+                <TableRow className="bg-purple-50">
+                  <TableCell className="font-semibold">(=) Margem de Contribuição</TableCell>
+                  {dados.margemContribuicao.map((val, i) => (
+                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-purple-700' : 'text-red-700'}`}>
+                      {val.toFixed(2)}
+                    </TableCell>
+                  ))}
+                  <TableCell className={`text-right font-bold ${calcularTotal(dados.margemContribuicao) >= 0 ? 'text-purple-700' : 'text-red-700'}`}>
+                    {calcularTotal(dados.margemContribuicao).toFixed(2)}
+                  </TableCell>
+                  <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.margemContribuicao), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
+
+                <TableRow>
+                  <TableCell className="font-semibold">(=) % Margem de Contribuição</TableCell>
+                  {dados.margemContribuicaoPerc.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val.toFixed(0)}%</TableCell>
+                  ))}
+                  <TableCell className="text-right font-bold">
+                    {receitaBrutaTotal !== 0 
+                      ? ((calcularTotal(dados.margemContribuicao) / receitaBrutaTotal) * 100).toFixed(0) 
+                      : 0}%
+                  </TableCell>
+                  <TableCell className="text-right">-</TableCell>
+                </TableRow>
+
+                {/* CUSTOS FIXOS */}
+                <TableRow className="bg-yellow-50">
+                  <TableCell className="font-semibold">(-) Custos Fixos</TableCell>
+                  {dados.totalCustosFixos.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                  ))}
+                  <TableCell className="text-right font-bold">{calcularTotal(dados.totalCustosFixos).toFixed(2)}</TableCell>
+                  <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.totalCustosFixos), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
+
+                <TableRow>
+                  <TableCell className="pl-8">5 - Despesas com Pessoal</TableCell>
+                  {dados.despesasPessoal.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                  ))}
+                  <TableCell className="text-right">{calcularTotal(dados.despesasPessoal).toFixed(2)}</TableCell>
+                  <TableCell className="text-right">{calcularAV(calcularTotal(dados.despesasPessoal), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
+
+                <TableRow>
+                  <TableCell className="pl-8">6 - Despesas com Ocupação</TableCell>
+                  {dados.despesasOcupacao.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                  ))}
+                  <TableCell className="text-right">{calcularTotal(dados.despesasOcupacao).toFixed(2)}</TableCell>
+                  <TableCell className="text-right">{calcularAV(calcularTotal(dados.despesasOcupacao), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
+
+                <TableRow>
+                  <TableCell className="pl-8">7 - Despesas Administrativas</TableCell>
+                  {dados.despesasAdministrativas.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                  ))}
+                  <TableCell className="text-right">{calcularTotal(dados.despesasAdministrativas).toFixed(2)}</TableCell>
+                  <TableCell className="text-right">{calcularAV(calcularTotal(dados.despesasAdministrativas), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
+
+                {/* RESULTADO OPERACIONAL */}
+                <TableRow className="bg-blue-100">
+                  <TableCell className="font-semibold">(=) Resultado Operacional</TableCell>
+                  {dados.resultadoOperacional.map((val, i) => (
+                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-blue-700' : 'text-red-700'}`}>
+                      {val.toFixed(2)}
+                    </TableCell>
+                  ))}
+                  <TableCell className={`text-right font-bold ${calcularTotal(dados.resultadoOperacional) >= 0 ? 'text-blue-700' : 'text-red-700'}`}>
+                    {calcularTotal(dados.resultadoOperacional).toFixed(2)}
+                  </TableCell>
+                  <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.resultadoOperacional), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
+
+                {/* FINANCEIRO */}
+                <TableRow>
+                  <TableCell className="pl-4">106 - Receitas Financeiras</TableCell>
+                  {dados.receitasFinanceiras.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                  ))}
+                  <TableCell className="text-right">{calcularTotal(dados.receitasFinanceiras).toFixed(2)}</TableCell>
+                  <TableCell className="text-right">{calcularAV(calcularTotal(dados.receitasFinanceiras), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
+
+                <TableRow>
+                  <TableCell className="pl-4">107 - Despesas Financeiras</TableCell>
+                  {dados.despesasFinanceiras.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                  ))}
+                  <TableCell className="text-right">{calcularTotal(dados.despesasFinanceiras).toFixed(2)}</TableCell>
+                  <TableCell className="text-right">{calcularAV(calcularTotal(dados.despesasFinanceiras), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
+
+                {/* NÃO OPERACIONAL */}
+                <TableRow className="bg-gray-50">
+                  <TableCell className="font-semibold">Resultado Não Operacional</TableCell>
+                  {dados.resultadoNaoOperacional.map((val, i) => (
+                    <TableCell key={i} className={`text-right ${val >= 0 ? '' : 'text-red-600'}`}>
+                      {val.toFixed(2)}
+                    </TableCell>
+                  ))}
+                  <TableCell className="text-right font-bold">{calcularTotal(dados.resultadoNaoOperacional).toFixed(2)}</TableCell>
+                  <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.resultadoNaoOperacional), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
+
+                <TableRow>
+                  <TableCell className="pl-8">9 - Receitas não Operacionais</TableCell>
+                  {dados.receitasNaoOperacionais.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                  ))}
+                  <TableCell className="text-right">{calcularTotal(dados.receitasNaoOperacionais).toFixed(2)}</TableCell>
+                  <TableCell className="text-right">{calcularAV(calcularTotal(dados.receitasNaoOperacionais), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
+
+                <TableRow>
+                  <TableCell className="pl-8">10 - Gastos não Operacionais</TableCell>
+                  {dados.gastosNaoOperacionais.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                  ))}
+                  <TableCell className="text-right">{calcularTotal(dados.gastosNaoOperacionais).toFixed(2)}</TableCell>
+                  <TableCell className="text-right">{calcularAV(calcularTotal(dados.gastosNaoOperacionais), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
+
+                {/* LAIR */}
+                <TableRow className="bg-yellow-100">
+                  <TableCell className="font-semibold">(=) Lucro Antes do Imposto de Renda (LAIR)</TableCell>
+                  {dados.lair.map((val, i) => (
+                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-yellow-700' : 'text-red-700'}`}>
+                      {val.toFixed(2)}
+                    </TableCell>
+                  ))}
+                  <TableCell className={`text-right font-bold ${calcularTotal(dados.lair) >= 0 ? 'text-yellow-700' : 'text-red-700'}`}>
+                    {calcularTotal(dados.lair).toFixed(2)}
+                  </TableCell>
+                  <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.lair), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
+
+                {/* IMPOSTO */}
+                <TableRow>
+                  <TableCell>(-) Imposto de Renda e CSLL</TableCell>
+                  {dados.impostoRenda.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                  ))}
+                  <TableCell className="text-right">{calcularTotal(dados.impostoRenda).toFixed(2)}</TableCell>
+                  <TableCell className="text-right">{calcularAV(calcularTotal(dados.impostoRenda), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
+
+                {/* LUCRO LÍQUIDO */}
+                <TableRow className="bg-primary/10">
+                  <TableCell className="font-bold">(=) Lucro Líquido</TableCell>
+                  {dados.lucroLiquido.map((val, i) => (
+                    <TableCell key={i} className={`text-right font-semibold ${val >= 0 ? 'text-primary' : 'text-red-700'}`}>
+                      {val.toFixed(2)}
+                    </TableCell>
+                  ))}
+                  <TableCell className={`text-right font-bold ${calcularTotal(dados.lucroLiquido) >= 0 ? 'text-primary' : 'text-red-700'}`}>
+                    {calcularTotal(dados.lucroLiquido).toFixed(2)}
+                  </TableCell>
+                  <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.lucroLiquido), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                </TableRow>
+
+                {/* MARGEM LÍQUIDA */}
+                <TableRow>
+                  <TableCell className="font-semibold">(=) % Margem Líquida</TableCell>
+                  {dados.margemLiquidaPerc.map((val, i) => (
+                    <TableCell key={i} className="text-right">{val.toFixed(0)}%</TableCell>
+                  ))}
+                  <TableCell className="text-right font-bold">
+                    {receitaBrutaTotal !== 0 
+                      ? ((calcularTotal(dados.lucroLiquido) / receitaBrutaTotal) * 100).toFixed(0) 
+                      : 0}%
+                  </TableCell>
+                  <TableCell className="text-right">-</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* VISÃO ECONÔMICA ANUAL */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-primary" />
+            Visão Econômica Anual - {ano}
+          </CardTitle>
+          <CardDescription>
+            Resumo dos principais indicadores do ano
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* Cards de Indicadores */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <Card className="border-green-200 bg-green-50">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <DollarSign className="h-8 w-8 text-green-600" />
+                  <div className="text-right">
+                    <p className="text-sm text-muted-foreground">Receitas Totais</p>
+                    <p className="text-2xl font-bold text-green-700">
+                      R$ {receitaTotalAnual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </p>
-                  )}
-                </div>
-
-                <Separator />
-
-                {/* DESPESAS */}
-                <div>
-                  <h3 className="font-bold text-lg mb-3 text-red-700">(-) DESPESAS OPERACIONAIS</h3>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-32">Código</TableHead>
-                        <TableHead>Descrição</TableHead>
-                        <TableHead>Categoria</TableHead>
-                        <TableHead className="text-right">Valor</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {despesas.length === 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={4} className="text-center text-muted-foreground">
-                            Nenhuma despesa no período
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        despesas.map((d: any, index: number) => (
-                          <TableRow key={index}>
-                            <TableCell className="font-mono">{d.codigo}</TableCell>
-                            <TableCell>{d.descricao}</TableCell>
-                            <TableCell className="text-sm text-muted-foreground">{d.categoria}</TableCell>
-                            <TableCell className="text-right text-red-600 font-medium">
-                              {formatarValor(d.valor)}
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      )}
-                      <TableRow className="bg-red-50 font-bold">
-                        <TableCell colSpan={3}>TOTAL DE DESPESAS</TableCell>
-                        <TableCell className="text-right text-red-700">
-                          {formatarValor(totalDespesas)}
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </div>
-
-                {/* RESULTADO FINAL */}
-                <div className={`p-6 border-2 rounded-lg ${
-                  lucroLiquido >= 0 
-                    ? 'bg-green-50 border-green-500' 
-                    : 'bg-red-50 border-red-500'
-                }`}>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xl font-bold">= LUCRO/PREJUÍZO LÍQUIDO</span>
-                    <span className={`text-3xl font-bold ${
-                      lucroLiquido >= 0 ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {formatarValor(lucroLiquido)}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Margem Líquida</p>
-                      <p className="text-lg font-bold">
-                        {margemLiquida.toFixed(2)}%
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Custos/Receitas</p>
-                      <p className="text-lg font-bold">
-                        {totalReceitas > 0 ? ((totalCustos / totalReceitas) * 100).toFixed(2) : 0}%
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Despesas/Receitas</p>
-                      <p className="text-lg font-bold">
-                        {totalReceitas > 0 ? ((totalDespesas / totalReceitas) * 100).toFixed(2) : 0}%
-                      </p>
-                    </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Aba: Por Categorias */}
-        <TabsContent value="categorias" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Gráfico de Pizza - Receitas */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Receitas por Categoria</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {receitas.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    Sem dados de receitas
-                  </div>
-                ) : (
-                  <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RechartsPieChart>
-                        <Pie
-                          data={receitas.map((r: any) => ({
-                            name: r.descricao.substring(0, 20),
-                            value: r.valor
-                          }))}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={(entry: any) => `${entry.name}: ${((entry.value / totalReceitas) * 100).toFixed(1)}%`}
-                          outerRadius={80}
-                          fill="#8884d8"
-                          dataKey="value"
-                        >
-                          {receitas.map((entry: any, index: number) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip formatter={(value: any) => formatarValor(value)} />
-                      </RechartsPieChart>
-                    </ResponsiveContainer>
-                  </div>
-                )}
               </CardContent>
             </Card>
 
-            {/* Gráfico de Pizza - Despesas */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Custos + Despesas por Categoria</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {(custos.length + despesas.length) === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    Sem dados de custos/despesas
+            <Card className="border-red-200 bg-red-50">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <TrendingDown className="h-8 w-8 text-red-600" />
+                  <div className="text-right">
+                    <p className="text-sm text-muted-foreground">Custos Totais</p>
+                    <p className="text-2xl font-bold text-red-700">
+                      R$ {custosTotaisAnual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
                   </div>
-                ) : (
-                  <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RechartsPieChart>
-                        <Pie
-                          data={[...custos, ...despesas].map((d: any) => ({
-                            name: d.descricao.substring(0, 20),
-                            value: d.valor
-                          }))}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={(entry: any) => `${entry.name}: ${((entry.value / (totalCustos + totalDespesas)) * 100).toFixed(1)}%`}
-                          outerRadius={80}
-                          fill="#8884d8"
-                          dataKey="value"
-                        >
-                          {[...custos, ...despesas].map((entry: any, index: number) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip formatter={(value: any) => formatarValor(value)} />
-                      </RechartsPieChart>
-                    </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className={`${lucroLiquidoAnual >= 0 ? 'border-primary bg-primary/10' : 'border-red-500 bg-red-50'}`}>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <TrendingUp className={`h-8 w-8 ${lucroLiquidoAnual >= 0 ? 'text-primary' : 'text-red-600'}`} />
+                  <div className="text-right">
+                    <p className={`text-sm ${lucroLiquidoAnual >= 0 ? 'text-primary' : 'text-red-700'}`}>
+                      Lucro Líquido
+                    </p>
+                    <p className={`text-2xl font-bold ${lucroLiquidoAnual >= 0 ? 'text-primary' : 'text-red-700'}`}>
+                      R$ {lucroLiquidoAnual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
                   </div>
-                )}
+                </div>
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
 
-        {/* Aba: Comparativo */}
-        <TabsContent value="comparativo" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Evolução dos Últimos 6 Meses</CardTitle>
-              <CardDescription>
-                Comparativo de receitas, custos/despesas e resultado
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {dadosComparativos.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  Carregando dados comparativos...
-                </div>
-              ) : (
-                <>
-                  {/* Gráfico */}
-                  <div className="h-[350px] mb-6">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={dadosComparativos}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="mes" />
-                        <YAxis
-                          tickFormatter={(value) =>
-                            value.toLocaleString('pt-BR', {
-                              style: 'currency',
-                              currency: 'BRL',
-                              minimumFractionDigits: 0,
-                            })
-                          }
-                        />
-                        <Tooltip formatter={(value: any) => formatarValor(value)} />
-                        <Legend />
-                        <Bar dataKey="receitas" fill="#10b981" name="Receitas" />
-                        <Bar dataKey="custos" fill="#ef4444" name="Custos + Despesas" />
-                        <Bar dataKey="resultado" fill="#3b82f6" name="Resultado" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
+          {/* Gráfico */}
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold mb-4">Evolução Mensal</h3>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={dadosGraficoAnual}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="mes" />
+                  <YAxis />
+                  <Tooltip 
+                    formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                  />
+                  <Legend />
+                  <Bar dataKey="receitas" fill="#10b981" name="Receitas" />
+                  <Bar dataKey="custos" fill="#ef4444" name="Custos" />
+                  <Bar dataKey="lucro" fill="#3b82f6" name="Lucro" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-                  {/* Tabela */}
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Mês</TableHead>
-                        <TableHead className="text-right">Receitas</TableHead>
-                        <TableHead className="text-right">Custos + Despesas</TableHead>
-                        <TableHead className="text-right">Resultado</TableHead>
-                        <TableHead className="text-right">Margem</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {dadosComparativos.map((d: any, index: number) => (
-                        <TableRow key={index}>
-                          <TableCell className="font-medium">{d.mesCompleto}</TableCell>
-                          <TableCell className="text-right text-green-600">
-                            {formatarValor(d.receitas)}
-                          </TableCell>
-                          <TableCell className="text-right text-red-600">
-                            {formatarValor(d.custos)}
-                          </TableCell>
-                          <TableCell className={`text-right font-bold ${
-                            d.resultado >= 0 ? 'text-blue-600' : 'text-red-600'
-                          }`}>
-                            {formatarValor(d.resultado)}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {d.receitas > 0 ? ((d.resultado / d.receitas) * 100).toFixed(2) : 0}%
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      {/* VISÃO ECONÔMICA MENSAL */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <DollarSign className="h-5 w-5 text-primary" />
+            Visão Econômica Mensal
+          </CardTitle>
+          <CardDescription>
+            Indicadores detalhados do mês selecionado
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* Filtros */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="space-y-2">
+              <Label>Ano</Label>
+              <Select
+                value={anoMensal.toString()}
+                onValueChange={(value) => setAnoMensal(parseInt(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i).map((year) => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Mês</Label>
+              <Select
+                value={mesSelecionado.toString()}
+                onValueChange={(value) => setMesSelecionado(parseInt(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {meses.map((mes, index) => (
+                    <SelectItem key={index} value={index.toString()}>
+                      {mes}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Indicadores do Mês */}
+          {anoMensal === ano && dadosMensal ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card className="border-purple-200 bg-purple-50">
+                <CardContent className="pt-6">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Margem de Contribuição (R$)
+                  </p>
+                  <p className={`text-2xl font-bold ${dadosMensal.margemContribuicao >= 0 ? 'text-purple-700' : 'text-red-700'}`}>
+                    R$ {dadosMensal.margemContribuicao.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-blue-200 bg-blue-50">
+                <CardContent className="pt-6">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Margem de Contribuição (%)
+                  </p>
+                  <p className="text-2xl font-bold text-blue-700">
+                    {dadosMensal.margemContribuicaoPerc.toFixed(1)}%
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-indigo-200 bg-indigo-50">
+                <CardContent className="pt-6">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Resultado Operacional (R$)
+                  </p>
+                  <p className={`text-2xl font-bold ${dadosMensal.resultadoOperacional >= 0 ? 'text-blue-700' : 'text-red-700'}`}>
+                    R$ {dadosMensal.resultadoOperacional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-primary/50 bg-primary/10">
+                <CardContent className="pt-6">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Margem Líquida (%)
+                  </p>
+                  <p className={`text-2xl font-bold ${dadosMensal.margemLiquidaPerc >= 0 ? 'text-primary' : 'text-red-700'}`}>
+                    {dadosMensal.margemLiquidaPerc.toFixed(1)}%
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              Selecione o ano {ano} para visualizar os indicadores mensais
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
