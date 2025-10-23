@@ -115,7 +115,9 @@ export function AppSidebar() {
                               <>
                                 <span className="flex-1">{item.title}</span>
                                 {item.title === "Fornecedores" && aniversariantesDoMes.length > 0 && (
-                                  <Cake className="h-4 w-4 text-purple-500 animate-bounce" />
+                                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center animate-bounce ml-1">
+                                    <Cake className="h-3.5 w-3.5 text-white" />
+                                  </div>
                                 )}
                                 {!item.active && (
                                   <Badge className="bg-warning text-foreground text-xs px-2 py-0.5 rounded-full font-medium">
