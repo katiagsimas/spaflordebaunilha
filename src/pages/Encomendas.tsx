@@ -25,6 +25,7 @@ import { useNavigate } from "react-router-dom";
 
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from 'xlsx';
+import { z } from 'zod';
 
 const statusColors = {
   pendente: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -300,17 +301,6 @@ const Encomendas = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validação dos campos obrigatórios
-    if (!formData.data_pedido) {
-      toast.error("A Data do Pedido é obrigatória!");
-      return;
-    }
-
-    if (!formData.cliente || formData.cliente.trim() === "") {
-      toast.error("O Nome do Cliente é obrigatório!");
-      return;
-    }
-
     // Verificar se tem produtos (para nova encomenda verifica tempProdutos, para edição verifica produtosEncomenda)
     const temProdutos = editingOrder ? produtosEncomenda.length > 0 : tempProdutos.length > 0;
     if (!temProdutos) {
@@ -333,6 +323,21 @@ const Encomendas = () => {
         hora_entrega: formData.hora_entrega || null, // Converte string vazia para null
         conta_receber_id: contaReceberId || null, // Adiciona o ID da conta a receber
       };
+
+      // Validação básica dos campos essenciais com Zod
+      const basicSchema = z.object({
+        cliente: z.string().trim().min(1, 'Nome do cliente é obrigatório'),
+        data_pedido: z.string().min(1, 'Data do pedido é obrigatória'),
+        status: z.enum(['pendente', 'confirmado', 'em_producao', 'pronto', 'entregue', 'cancelado']),
+        valor: z.number().nonnegative('Valor não pode ser negativo'),
+      });
+
+      basicSchema.parse({
+        cliente: dadosParaSalvar.cliente,
+        data_pedido: dadosParaSalvar.data_pedido,
+        status: dadosParaSalvar.status,
+        valor: dadosParaSalvar.valor,
+      });
       
       if (editingOrder) {
         await updateEncomenda(editingOrder.id, dadosParaSalvar);
@@ -389,7 +394,12 @@ const Encomendas = () => {
       setDialogOpen(false);
       resetForm();
     } catch (error: any) {
-      toast.error(error.message || "Erro ao salvar encomenda");
+      if (error instanceof z.ZodError) {
+        const zodError = error as z.ZodError;
+        toast.error(zodError.issues[0].message);
+      } else {
+        toast.error(error.message || "Erro ao salvar encomenda");
+      }
     }
   };
 
