@@ -85,21 +85,36 @@ export default function Financeiro() {
         .select('*')
         .eq('user_id', user.id);
 
+      // Buscar total recebido do Contas a Receber
+      const { data: parcelasReceber } = await supabase
+        .from('vw_contas_receber_parcelas')
+        .select('*')
+        .eq('user_id', user.id);
+
+      let totalRecebido = 0;
+      parcelasReceber?.forEach((p: any) => {
+        if (p.status === 'pago' || p.status === 'adiantado') {
+          totalRecebido += p.valor_pago || 0;
+        }
+        if (p.status === 'pagamento_parcial') {
+          totalRecebido += p.valor_pago || 0;
+        }
+      });
+
       if (resumo && resumo.length > 0) {
         const totalSaldoInicial = resumo.reduce((acc, b) => acc + (b.saldo_inicial || 0), 0);
-        const totalEntradas = resumo.reduce((acc, b) => acc + (b.entradas_mes || 0), 0);
         const totalSaidas = resumo.reduce((acc, b) => acc + (b.saidas_mes || 0), 0);
         const totalSaldoAtual = resumo.reduce((acc, b) => acc + (b.saldo_atual || 0), 0);
 
         setSaldoAnterior(totalSaldoInicial);
-        setEntradas(totalEntradas);
+        setEntradas(totalRecebido);
         setSaidas(totalSaidas);
         setSaldoAtual(totalSaldoAtual);
         setBancosSaldos(resumo);
       } else {
         // Não tem saldos configurados
         setSaldoAnterior(0);
-        setEntradas(0);
+        setEntradas(totalRecebido);
         setSaidas(0);
         setSaldoAtual(0);
         setBancosSaldos([]);
