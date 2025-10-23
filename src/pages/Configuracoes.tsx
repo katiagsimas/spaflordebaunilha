@@ -38,63 +38,48 @@ export default function Configuracoes() {
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
         
         {/* Card 1: CADASTROS BASE */}
-        <Card className="hover:shadow-lg transition-all border-2">
-          <CardHeader className="pb-4">
+        <Card className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-primary">
+          <CardHeader>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 rounded-lg bg-pink-50 text-pink-600 dark:bg-pink-950 dark:text-pink-300 flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-lg bg-pink-50 text-pink-600 dark:bg-pink-950 dark:text-pink-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <Package className="h-6 w-6" />
               </div>
             </div>
-            <CardTitle className="text-xl">📦 Cadastros Base</CardTitle>
+            <CardTitle className="text-lg">Cadastros Base</CardTitle>
             <CardDescription>
-              Gerencie elementos usados nas fichas técnicas e organize suas receitas
+              Gerencie categorias, tipos de insumos e dados da confeitaria
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Configure categorias, tipos de insumos, embalagens e dados da confeitaria
-            </p>
-          </CardContent>
         </Card>
 
         {/* Card 2: PRECIFICAÇÃO */}
-        <Card className="hover:shadow-lg transition-all border-2">
-          <CardHeader className="pb-4">
+        <Card className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-primary">
+          <CardHeader>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300 flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <DollarSign className="h-6 w-6" />
               </div>
             </div>
-            <CardTitle className="text-xl">💼 Precificação</CardTitle>
+            <CardTitle className="text-lg">Precificação</CardTitle>
             <CardDescription>
-              Configure valores e custos para cálculo automático de preços
+              Configure custos fixos, mão de obra e unidades de medida
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Defina custos fixos, valores de mão de obra e unidades de medida
-            </p>
-          </CardContent>
         </Card>
 
         {/* Card 3: FINANCEIRO */}
-        <Card className="hover:shadow-lg transition-all border-2">
-          <CardHeader className="pb-4">
+        <Card className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-primary">
+          <CardHeader>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 rounded-lg bg-teal-50 text-teal-600 dark:bg-teal-950 dark:text-teal-300 flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-lg bg-teal-50 text-teal-600 dark:bg-teal-950 dark:text-teal-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <Building2 className="h-6 w-6" />
               </div>
             </div>
-            <CardTitle className="text-xl">💰 Financeiro</CardTitle>
+            <CardTitle className="text-lg">Financeiro</CardTitle>
             <CardDescription>
-              Configure contas, documentos e planos para gestão financeira
+              Gerencie bancos, documentos e plano de contas
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Gerencie bancos, tipos de documentos, plano de contas e juros
-            </p>
-          </CardContent>
         </Card>
       </div>
     </div>
