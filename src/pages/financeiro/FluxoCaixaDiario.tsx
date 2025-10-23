@@ -300,7 +300,7 @@ export default function FluxoCaixaDiario() {
                       className={item.entradas > 0 || item.saidas > 0 ? "bg-blue-50/30" : ""}
                     >
                       <TableCell className="font-medium">
-                        {format(item.dia, "dd/MM (EEEE)", { locale: ptBR })}
+                        {format(item.dia, "dd", { locale: ptBR })}
                       </TableCell>
                       <TableCell className="text-right text-green-600">
                         {item.entradas > 0 ? `R$ ${item.entradas.toFixed(2)}` : "-"}
