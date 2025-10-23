@@ -981,18 +981,7 @@ export default function ContasPagar() {
 
       {/* Card de Controles */}
       <div className="border rounded-lg p-4">
-        <div className="flex items-center justify-between gap-4 mb-4">
-          {/* Botão Exportar - Esquerda */}
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={handleExportarExcel}
-            className="gap-2"
-          >
-            <Download className="h-4 w-4" />
-            Exportar para Excel
-          </Button>
-
+        <div className="flex items-center justify-end gap-4 mb-4">
           {/* Campo de Busca - Direita */}
           <div className="relative flex-1 max-w-xs">
             <Input
