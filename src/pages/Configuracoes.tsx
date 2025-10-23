@@ -1,11 +1,41 @@
 import React from "react";
-import { Settings, DollarSign, Clock, Home, Ruler, Tag, Package, ChefHat, ArrowRight, Info } from "lucide-react";
+import { Settings, DollarSign, Clock, Home, Ruler, Tag, Package, ChefHat, ArrowRight, Info, UserCircle, Tags, Building2, FileText, Layers, BookOpen, Percent } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { useConfigStatus } from "@/hooks/useConfigStatus";
 
 export default function Configuracoes() {
   const navigate = useNavigate();
+  const { status, isLoading } = useConfigStatus();
+
+  const getStatusBadge = (statusKey: "seusDados" | null) => {
+    if (!statusKey || !status) return null;
+    
+    const isCompleted = status[statusKey];
+    
+    if (isCompleted) {
+      return (
+        <Badge variant="secondary" className="bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300">
+          ✓ Concluído
+        </Badge>
+      );
+    }
+    
+    return (
+      <Badge variant="secondary" className="bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+        ⏱ Pendente
+      </Badge>
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background p-4 md:p-6 flex items-center justify-center">
+        <div className="text-muted-foreground">Carregando...</div>
+      </div>
+    );
+  }
 
 
   return (
@@ -141,6 +171,38 @@ export default function Configuracoes() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {/* Card: Dados da Confeitaria */}
+          <Card 
+            className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-indigo-300"
+            onClick={() => navigate("/configuracoes/dados-confeitaria")}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <UserCircle className="h-6 w-6" />
+                </div>
+                {getStatusBadge("seusDados")}
+              </div>
+              <CardTitle className="text-lg">
+                Dados da Confeitaria
+                <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </CardTitle>
+              <CardDescription>
+                Informações básicas do negócio
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  📊 Configure seus dados
+                </p>
+                <p className="text-xs text-primary font-medium">
+                  Gerenciar →
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Card: Categorias */}
           <Card 
             className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-pink-300"
@@ -157,7 +219,7 @@ export default function Configuracoes() {
                 <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
               </CardTitle>
               <CardDescription>
-                Organize seus produtos por categorias (Bolos, Doces, Salgados...)
+                Organize seus produtos por categorias
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -172,38 +234,7 @@ export default function Configuracoes() {
             </CardContent>
           </Card>
 
-          {/* Card: Tipos de Ingredientes */}
-          <Card 
-            className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-orange-300"
-            onClick={() => navigate("/configuracoes/tipos-insumos")}
-          >
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-12 h-12 rounded-lg bg-orange-50 text-orange-600 dark:bg-orange-950 dark:text-orange-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                  <ChefHat className="h-6 w-6" />
-                </div>
-              </div>
-              <CardTitle className="text-lg">
-                Tipos de Ingredientes
-                <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </CardTitle>
-              <CardDescription>
-                Gerencie tipos de ingredientes usados nas suas receitas
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">
-                  📊 Ingredientes base
-                </p>
-                <p className="text-xs text-primary font-medium">
-                  Gerenciar Tipos →
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Card: Tipos de Embalagens */}
+          {/* Card: Tipos de Insumos */}
           <Card 
             className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-green-300"
             onClick={() => navigate("/configuracoes/tipos-insumos")}
@@ -215,20 +246,219 @@ export default function Configuracoes() {
                 </div>
               </div>
               <CardTitle className="text-lg">
-                Tipos de Embalagens
+                Tipos de Insumos e Embalagens
                 <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
               </CardTitle>
               <CardDescription>
-                Gerencie tipos de embalagens disponíveis para seus produtos
+                Tipos de ingredientes e embalagens
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">
-                  📊 Embalagens disponíveis
+                  📊 Cadastre os tipos base
                 </p>
                 <p className="text-xs text-primary font-medium">
                   Gerenciar Tipos →
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card: Tags de Encomendas */}
+          <Card 
+            className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-purple-300"
+            onClick={() => navigate("/configuracoes/tags-encomendas")}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-lg bg-purple-50 text-purple-600 dark:bg-purple-950 dark:text-purple-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Tags className="h-6 w-6" />
+                </div>
+              </div>
+              <CardTitle className="text-lg">
+                Tags de Encomendas
+                <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </CardTitle>
+              <CardDescription>
+                Crie e gerencie tags para categorizar suas encomendas
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  📊 Organize suas encomendas
+                </p>
+                <p className="text-xs text-primary font-medium">
+                  Gerenciar Tags →
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Seção 3: FINANCEIRO */}
+      <div className="mb-12">
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-1">
+            <Building2 className="h-5 w-5 text-primary" />
+            <h2 className="text-2xl font-bold">💰 Financeiro</h2>
+          </div>
+          <p className="text-muted-foreground">Configure contas, documentos e planos financeiros</p>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {/* Card: Bancos */}
+          <Card 
+            className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-teal-300"
+            onClick={() => navigate("/configuracoes/bancos")}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-lg bg-teal-50 text-teal-600 dark:bg-teal-950 dark:text-teal-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Building2 className="h-6 w-6" />
+                </div>
+              </div>
+              <CardTitle className="text-lg">
+                Bancos
+                <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </CardTitle>
+              <CardDescription>
+                Cadastre os bancos que você utiliza
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  📊 Gerencie contas bancárias
+                </p>
+                <p className="text-xs text-primary font-medium">
+                  Gerenciar Bancos →
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card: Tipos de Documentos */}
+          <Card 
+            className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-pink-300"
+            onClick={() => navigate("/configuracoes/tipos-documentos")}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-lg bg-pink-50 text-pink-600 dark:bg-pink-950 dark:text-pink-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <FileText className="h-6 w-6" />
+                </div>
+              </div>
+              <CardTitle className="text-lg">
+                Tipos de Documentos
+                <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </CardTitle>
+              <CardDescription>
+                Tipos de documentos para lançamentos financeiros
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  📊 Configure tipos de documento
+                </p>
+                <p className="text-xs text-primary font-medium">
+                  Gerenciar Tipos →
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card: Categorias Plano de Contas */}
+          <Card 
+            className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-blue-300"
+            onClick={() => navigate("/configuracoes/categorias-plano-contas")}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Layers className="h-6 w-6" />
+                </div>
+              </div>
+              <CardTitle className="text-lg">
+                Categorias Plano de Contas
+                <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </CardTitle>
+              <CardDescription>
+                Categorias para classificação de receitas e despesas no DRE
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  📊 Categorias do DRE
+                </p>
+                <p className="text-xs text-primary font-medium">
+                  Gerenciar Categorias →
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card: Plano de Contas */}
+          <Card 
+            className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-orange-300"
+            onClick={() => navigate("/configuracoes/plano-contas")}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-lg bg-orange-50 text-orange-600 dark:bg-orange-950 dark:text-orange-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <BookOpen className="h-6 w-6" />
+                </div>
+              </div>
+              <CardTitle className="text-lg">
+                Plano de Contas
+                <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </CardTitle>
+              <CardDescription>
+                Contas detalhadas para lançamentos financeiros
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  📊 Contas financeiras
+                </p>
+                <p className="text-xs text-primary font-medium">
+                  Gerenciar Contas →
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card: Juros e Multas */}
+          <Card 
+            className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-red-300"
+            onClick={() => navigate("/configuracoes/juros")}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-lg bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Percent className="h-6 w-6" />
+                </div>
+              </div>
+              <CardTitle className="text-lg">
+                Juros e Multas
+                <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </CardTitle>
+              <CardDescription>
+                Configure juros e multas para pagamentos em atraso
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  📊 Configure taxas
+                </p>
+                <p className="text-xs text-primary font-medium">
+                  Gerenciar →
                 </p>
               </div>
             </CardContent>
