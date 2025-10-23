@@ -677,9 +677,9 @@ export default function Dashboard() {
                     }
                     
                     return (
-                      <div
+                      <button
                         key={index}
-                        className={`aspect-square flex items-center justify-center rounded text-[10px] ${bgColor} ${textColor}`}
+                        className={`aspect-square flex items-center justify-center rounded text-[10px] hover:scale-110 hover:shadow-sm transition-transform ${bgColor} ${textColor}`}
                       >
                         <div className="flex flex-col items-center">
                           <span>{format(dados.dia, "d")}</span>
@@ -687,7 +687,7 @@ export default function Dashboard() {
                             <span className="text-[8px] font-bold">{dados.quantidade}</span>
                           )}
                         </div>
-                      </div>
+                      </button>
                     );
                   });
                 })()}
@@ -838,9 +838,9 @@ export default function Dashboard() {
                     }
                     
                     return (
-                      <div
+                      <button
                         key={index}
-                        className={`aspect-square flex items-center justify-center rounded text-[10px] ${bgColor} ${textColor}`}
+                        className={`aspect-square flex items-center justify-center rounded text-[10px] hover:scale-110 hover:shadow-sm transition-transform ${bgColor} ${textColor}`}
                       >
                         <div className="flex flex-col items-center">
                           <span>{format(dados.dia, "d")}</span>
@@ -848,7 +848,7 @@ export default function Dashboard() {
                             <span className="text-[8px] font-bold">{dados.quantidade}</span>
                           )}
                         </div>
-                      </div>
+                      </button>
                     );
                   });
                 })()}
