@@ -707,60 +707,60 @@ export default function ContasPagar() {
       />
 
       {/* Dashboard */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">A Pagar</p>
-                <p className="text-2xl font-bold text-red-600">
-                  {formatarValor(dashboard.total_a_pagar)}
-                </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="border-l-4 border-l-red-500">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-2">
+              <div className="p-2 bg-red-100 rounded-lg">
+                <TrendingDown className="h-5 w-5 text-red-600" />
               </div>
-              <TrendingDown className="h-8 w-8 text-red-600" />
             </div>
+            <p className="text-sm font-medium text-muted-foreground mb-1">A Pagar</p>
+            <p className="text-2xl font-bold text-red-600">
+              {formatarValor(dashboard.total_a_pagar)}
+            </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Pago</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {formatarValor(dashboard.total_pago)}
-                </p>
+        <Card className="border-l-4 border-l-green-500">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-2">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <CheckCircle2 className="h-5 w-5 text-green-600" />
               </div>
-              <CheckCircle2 className="h-8 w-8 text-green-600" />
             </div>
+            <p className="text-sm font-medium text-muted-foreground mb-1">Pago</p>
+            <p className="text-2xl font-bold text-green-600">
+              {formatarValor(dashboard.total_pago)}
+            </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Em Atraso</p>
-                <p className="text-2xl font-bold text-orange-600">
-                  {formatarValor(dashboard.total_atrasado)}
-                </p>
+        <Card className="border-l-4 border-l-orange-500">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-2">
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <AlertTriangle className="h-5 w-5 text-orange-600" />
               </div>
-              <AlertTriangle className="h-8 w-8 text-orange-600" />
             </div>
+            <p className="text-sm font-medium text-muted-foreground mb-1">Em Atraso</p>
+            <p className="text-2xl font-bold text-orange-600">
+              {formatarValor(dashboard.total_atrasado)}
+            </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Vence Hoje</p>
-                <p className="text-2xl font-bold text-blue-600">
-                  {formatarValor(dashboard.vencendo_hoje)}
-                </p>
+        <Card className="border-l-4 border-l-blue-500">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-2">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Calendar className="h-5 w-5 text-blue-600" />
               </div>
-              <Calendar className="h-8 w-8 text-blue-600" />
             </div>
+            <p className="text-sm font-medium text-muted-foreground mb-1">Vence Hoje</p>
+            <p className="text-2xl font-bold text-blue-600">
+              {formatarValor(dashboard.vencendo_hoje)}
+            </p>
           </CardContent>
         </Card>
       </div>
