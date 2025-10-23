@@ -8,12 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck, Package, Upload, X, HandCoins, Tag as TagIcon, FileDown, Calendar, ClipboardList, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck, Package, Upload, X, HandCoins, Tag as TagIcon, FileDown, Calendar, ClipboardList, CheckCircle2, XCircle, AlertCircle, ChevronDown } from "lucide-react";
 import { format, isToday, isTomorrow, isWithinInterval, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useEncomendas } from "@/hooks/useEncomendas";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ClienteAutocomplete } from "@/components/ClienteAutocomplete";
 import { useClientes } from "@/hooks/useClientes";
 import { useReceitas } from "@/hooks/useReceitas";
@@ -63,6 +64,7 @@ const Encomendas = () => {
   const [planoContasVendaId, setPlanoContasVendaId] = useState<string>('');
   const [porPagina, setPorPagina] = useState(10);
   const [buscaNome, setBuscaNome] = useState("");
+  const [filtrosAbertos, setFiltrosAbertos] = useState(true);
   
   // Estados para Dashboard
   const [mesSelecionado, setMesSelecionado] = useState(new Date().getMonth());
@@ -1589,124 +1591,124 @@ const Encomendas = () => {
       </div>
 
       {/* Filtros */}
-      <Card className="shadow-soft">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Filtros</CardTitle>
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => {
-                setClienteFilter("Todos");
-                setStatusFilter("Todos");
-                setDataEntregaFilter("");
-                setHoraEntregaFilter("");
-                setTagFilter("todos");
-              }}
-              disabled={clienteFilter === "Todos" && statusFilter === "Todos" && !dataEntregaFilter && !horaEntregaFilter && tagFilter === "todos"}
-              className="gap-2"
-            >
-              <X className="h-4 w-4" />
-              Limpar Filtros
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            {/* Filtro de Cliente */}
-            <div className="space-y-2">
-              <Label htmlFor="filtro-cliente">Cliente</Label>
-              <Select value={clienteFilter} onValueChange={setClienteFilter}>
-                <SelectTrigger id="filtro-cliente" className="bg-popover">
-                  <SelectValue placeholder="Todos os clientes" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover z-50">
-                  <SelectItem value="Todos">Todos os clientes</SelectItem>
-                  {clientesComEncomendas.map((cliente) => (
-                    <SelectItem key={cliente} value={cliente}>
-                      {cliente}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+      <Collapsible open={filtrosAbertos} onOpenChange={setFiltrosAbertos}>
+        <Card className="shadow-soft">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CollapsibleTrigger className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <CardTitle>Filtros</CardTitle>
+                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${filtrosAbertos ? '' : '-rotate-90'}`} />
+              </CollapsibleTrigger>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => {
+                  setClienteFilter("Todos");
+                  setStatusFilter("Todos");
+                  setDataEntregaFilter("");
+                  setHoraEntregaFilter("");
+                  setTagFilter("todos");
+                }}
+                disabled={clienteFilter === "Todos" && statusFilter === "Todos" && !dataEntregaFilter && !horaEntregaFilter && tagFilter === "todos"}
+                className="gap-2"
+              >
+                <X className="h-4 w-4" />
+                Limpar Filtros
+              </Button>
             </div>
+          </CardHeader>
+          <CollapsibleContent>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                {/* Filtro de Cliente */}
+                <div className="space-y-2">
+                  <Label htmlFor="filtro-cliente">Cliente</Label>
+                  <Select value={clienteFilter} onValueChange={setClienteFilter}>
+                    <SelectTrigger id="filtro-cliente" className="bg-popover">
+                      <SelectValue placeholder="Todos os clientes" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover z-50">
+                      <SelectItem value="Todos">Todos os clientes</SelectItem>
+                      {clientesComEncomendas.map((cliente) => (
+                        <SelectItem key={cliente} value={cliente}>
+                          {cliente}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            {/* Filtro de Status */}
-            <div className="space-y-2">
-              <Label htmlFor="filtro-status">Status</Label>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger id="filtro-status" className="bg-popover">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-popover z-50">
-                  <SelectItem value="Todos">Todos</SelectItem>
-                  <SelectItem value="Pendente">Pendente</SelectItem>
-                  <SelectItem value="Confirmado">Confirmado</SelectItem>
-                  <SelectItem value="Em Produção">Em Produção</SelectItem>
-                  <SelectItem value="Pronto">Pronto</SelectItem>
-                  <SelectItem value="Entregue">Entregue</SelectItem>
-                  <SelectItem value="Cancelado">Cancelado</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+                {/* Filtro de Status */}
+                <div className="space-y-2">
+                  <Label htmlFor="filtro-status">Status</Label>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger id="filtro-status" className="bg-popover">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover z-50">
+                      <SelectItem value="Todos">Todos</SelectItem>
+                      <SelectItem value="Pendente">Pendente</SelectItem>
+                      <SelectItem value="Confirmado">Confirmado</SelectItem>
+                      <SelectItem value="Em Produção">Em Produção</SelectItem>
+                      <SelectItem value="Pronto">Pronto</SelectItem>
+                      <SelectItem value="Entregue">Entregue</SelectItem>
+                      <SelectItem value="Cancelado">Cancelado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            {/* Filtro de Tags */}
-            <div className="space-y-2">
-              <Label htmlFor="filtro-tag">Tag</Label>
-              <Select value={tagFilter} onValueChange={setTagFilter}>
-                <SelectTrigger id="filtro-tag" className="bg-popover">
-                  <SelectValue placeholder="Todas as tags" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover z-50">
-                  <SelectItem value="todos">Todas as tags</SelectItem>
-                  {tagsDisponiveis.map(tag => (
-                    <SelectItem key={tag.id} value={tag.id}>
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: tag.cor }}
-                        />
-                        {tag.nome}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+                {/* Filtro de Tags */}
+                <div className="space-y-2">
+                  <Label htmlFor="filtro-tag">Tag</Label>
+                  <Select value={tagFilter} onValueChange={setTagFilter}>
+                    <SelectTrigger id="filtro-tag" className="bg-popover">
+                      <SelectValue placeholder="Todas as tags" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover z-50">
+                      <SelectItem value="todos">Todas as tags</SelectItem>
+                      {tagsDisponiveis.map(tag => (
+                        <SelectItem key={tag.id} value={tag.id}>
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: tag.cor }}
+                            />
+                            {tag.nome}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            {/* Filtro de Data da Entrega */}
-            <div className="space-y-2">
-              <Label htmlFor="filtro-data-entrega">Data da Entrega</Label>
-              <Input
-                id="filtro-data-entrega"
-                type="date"
-                value={dataEntregaFilter}
-                onChange={(e) => setDataEntregaFilter(e.target.value)}
-                className="bg-popover"
-              />
-            </div>
+                {/* Filtro de Data da Entrega */}
+                <div className="space-y-2">
+                  <Label htmlFor="filtro-data-entrega">Data da Entrega</Label>
+                  <Input
+                    id="filtro-data-entrega"
+                    type="date"
+                    value={dataEntregaFilter}
+                    onChange={(e) => setDataEntregaFilter(e.target.value)}
+                    className="bg-popover"
+                  />
+                </div>
 
-            {/* Filtro de Hora da Entrega */}
-            <div className="space-y-2">
-              <Label htmlFor="filtro-hora-entrega">Hora da Entrega</Label>
-              <Input
-                id="filtro-hora-entrega"
-                type="time"
-                value={horaEntregaFilter}
-                onChange={(e) => setHoraEntregaFilter(e.target.value)}
-                className="bg-popover"
-              />
-            </div>
-          </div>
-
-          {/* Contador de resultados */}
-          {(clienteFilter !== "Todos" || statusFilter !== "Todos" || dataEntregaFilter || horaEntregaFilter || tagFilter !== "todos") && (
-            <div className="mt-4 text-sm text-muted-foreground">
-              Mostrando <strong>{filteredOrders.length}</strong> de <strong>{encomendas.length}</strong> encomenda(s)
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                {/* Filtro de Hora da Entrega */}
+                <div className="space-y-2">
+                  <Label htmlFor="filtro-hora-entrega">Hora da Entrega</Label>
+                  <Input
+                    id="filtro-hora-entrega"
+                    type="time"
+                    value={horaEntregaFilter}
+                    onChange={(e) => setHoraEntregaFilter(e.target.value)}
+                    className="bg-popover"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       <Card className="shadow-soft">
         <CardHeader>
