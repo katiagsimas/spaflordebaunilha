@@ -1,3 +1,4 @@
+import React from "react";
 import { Settings, Tag, UserCircle, Ruler, Lock, Package, Layers, BookOpen, Building2, FileText, Percent, Tags } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +8,30 @@ import { useConfigStatus } from "@/hooks/useConfigStatus";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 const opcoes = [
+  {
+    title: "Precificação",
+    description: "Configure valores e custos",
+    icon: Percent,
+    color: "text-amber-600 bg-amber-50 dark:bg-amber-950",
+    subItems: [
+      {
+        title: "Valores de Mão de Obra",
+        description: "Defina quanto vale sua hora",
+        icon: Tag,
+        url: "/configuracoes/precificacao/mao-obra",
+        color: "text-blue-600 bg-blue-50 dark:bg-blue-950",
+      },
+      {
+        title: "Custos Fixos",
+        description: "Despesas mensais do negócio",
+        icon: Building2,
+        url: "/configuracoes/precificacao/custos-fixos",
+        color: "text-purple-600 bg-purple-50 dark:bg-purple-950",
+      },
+    ],
+    statusKey: null,
+    requiresAdmin: false,
+  },
   {
     title: "Dados da Confeitaria",
     description: "Informações básicas do negócio",
@@ -99,10 +124,30 @@ const opcoes = [
   },
 ];
 
+interface OpcaoItem {
+  title: string;
+  description: string;
+  icon: any;
+  url: string;
+  color: string;
+}
+
+interface Opcao {
+  title: string;
+  description: string;
+  icon: any;
+  url?: string;
+  color: string;
+  statusKey: "seusDados" | null;
+  requiresAdmin: boolean;
+  subItems?: OpcaoItem[];
+}
+
 export default function Configuracoes() {
   const navigate = useNavigate();
   const { status, isLoading } = useConfigStatus();
   const { isAdmin, isLoading: isLoadingAdmin } = useIsAdmin();
+  const [expandedSection, setExpandedSection] = React.useState<string | null>(null);
 
   const getStatusBadge = (opcao: typeof opcoes[0]) => {
     if (!opcao.statusKey || !status) return null;
@@ -124,12 +169,22 @@ export default function Configuracoes() {
     );
   };
 
-  const handleCardClick = (opcao: typeof opcoes[0]) => {
+  const handleCardClick = (opcao: Opcao) => {
     // Se requer admin e não é admin, bloqueia navegação
     if (opcao.requiresAdmin && !isAdmin) {
-      return; // Não navega
+      return;
     }
-    navigate(opcao.url);
+    
+    // Se tem subItems, expande/colapsa
+    if (opcao.subItems) {
+      setExpandedSection(expandedSection === opcao.title ? null : opcao.title);
+      return;
+    }
+    
+    // Senão, navega
+    if (opcao.url) {
+      navigate(opcao.url);
+    }
   };
 
   if (isLoading || isLoadingAdmin) {
@@ -151,48 +206,95 @@ export default function Configuracoes() {
         {opcoes.map((opcao, index) => {
           const Icon = opcao.icon;
           const isRestricted = opcao.requiresAdmin && !isAdmin;
+          const isExpanded = expandedSection === opcao.title;
           
           return (
-            <Card
-              key={opcao.title}
-              className={`group transition-all duration-200 animate-fade-in border-l-4 ${
-                isRestricted 
-                  ? 'opacity-75 cursor-not-allowed' 
-                  : 'cursor-pointer hover:shadow-lg hover:scale-[1.02]'
-              }`}
-              style={{ 
-                animationDelay: `${index * 0.05}s`,
-                borderLeftColor: opcao.color.includes('indigo') ? 'hsl(var(--primary))' :
-                                opcao.color.includes('cyan') ? 'hsl(var(--accent))' :
-                                opcao.color.includes('purple') ? 'hsl(var(--secondary))' :
-                                'hsl(var(--muted-foreground))'
-              }}
-              onClick={() => handleCardClick(opcao)}
-            >
-              <CardHeader className="p-4 space-y-2">
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`w-10 h-10 rounded-lg ${opcao.color} flex items-center justify-center shrink-0 ${
-                      !isRestricted ? 'group-hover:scale-110' : ''
-                    } transition-transform`}
-                  >
-                    <Icon className="h-5 w-5" />
+            <React.Fragment key={opcao.title}>
+              <Card
+                className={`group transition-all duration-200 animate-fade-in border-l-4 ${
+                  isRestricted 
+                    ? 'opacity-75 cursor-not-allowed' 
+                    : 'cursor-pointer hover:shadow-lg hover:scale-[1.02]'
+                } ${isExpanded ? 'ring-2 ring-primary' : ''}`}
+                style={{ 
+                  animationDelay: `${index * 0.05}s`,
+                  borderLeftColor: opcao.color.includes('indigo') ? 'hsl(var(--primary))' :
+                                  opcao.color.includes('cyan') ? 'hsl(var(--accent))' :
+                                  opcao.color.includes('purple') ? 'hsl(var(--secondary))' :
+                                  opcao.color.includes('blue') ? 'hsl(217, 91%, 60%)' :
+                                  'hsl(var(--muted-foreground))'
+                }}
+                onClick={() => handleCardClick(opcao)}
+              >
+                <CardHeader className="p-4 space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-10 h-10 rounded-lg ${opcao.color} flex items-center justify-center shrink-0 ${
+                        !isRestricted ? 'group-hover:scale-110' : ''
+                      } transition-transform`}
+                    >
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <CardTitle className="text-base font-semibold leading-tight line-clamp-2 flex items-center gap-2">
+                        {opcao.title}
+                        {isRestricted && <Lock className="h-3 w-3 text-muted-foreground" />}
+                        {opcao.subItems && (
+                          <Badge variant="secondary" className="ml-auto">
+                            {opcao.subItems.length}
+                          </Badge>
+                        )}
+                      </CardTitle>
+                    </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <CardTitle className="text-base font-semibold leading-tight line-clamp-2 flex items-center gap-2">
-                      {opcao.title}
-                      {isRestricted && <Lock className="h-3 w-3 text-muted-foreground" />}
-                    </CardTitle>
+                  <CardDescription className="text-xs line-clamp-2">
+                    {opcao.description}
+                  </CardDescription>
+                  <div className="pt-1">
+                    {opcao.statusKey === "seusDados" && getStatusBadge(opcao)}
                   </div>
-                </div>
-                <CardDescription className="text-xs line-clamp-2">
-                  {opcao.description}
-                </CardDescription>
-                <div className="pt-1">
-                  {opcao.title === "Dados da Confeitaria" && getStatusBadge(opcao)}
-                </div>
-              </CardHeader>
-            </Card>
+                </CardHeader>
+              </Card>
+
+              {isExpanded && opcao.subItems && (
+                <>
+                  {opcao.subItems.map((subItem, subIndex) => {
+                    const SubIcon = subItem.icon;
+                    return (
+                      <Card
+                        key={`${opcao.title}-${subItem.title}`}
+                        className="group transition-all duration-200 animate-fade-in border-l-4 cursor-pointer hover:shadow-lg hover:scale-[1.02] ml-4"
+                        style={{ 
+                          animationDelay: `${(index + subIndex + 1) * 0.05}s`,
+                          borderLeftColor: subItem.color.includes('blue') ? 'hsl(217, 91%, 60%)' :
+                                          subItem.color.includes('purple') ? 'hsl(var(--secondary))' :
+                                          'hsl(var(--muted-foreground))'
+                        }}
+                        onClick={() => navigate(subItem.url)}
+                      >
+                        <CardHeader className="p-4 space-y-2">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`w-10 h-10 rounded-lg ${subItem.color} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}
+                            >
+                              <SubIcon className="h-5 w-5" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                                {subItem.title}
+                              </CardTitle>
+                            </div>
+                          </div>
+                          <CardDescription className="text-xs line-clamp-2">
+                            {subItem.description}
+                          </CardDescription>
+                        </CardHeader>
+                      </Card>
+                    );
+                  })}
+                </>
+              )}
+            </React.Fragment>
           );
         })}
       </div>

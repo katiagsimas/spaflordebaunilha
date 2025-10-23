@@ -281,6 +281,45 @@ export type Database = {
         }
         Relationships: []
       }
+      configuracao_mao_obra: {
+        Row: {
+          ativo: boolean | null
+          cor: string | null
+          created_at: string | null
+          descricao: string | null
+          id: string
+          nome: string
+          padrao: boolean | null
+          updated_at: string | null
+          user_id: string
+          valor_hora: number
+        }
+        Insert: {
+          ativo?: boolean | null
+          cor?: string | null
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          nome: string
+          padrao?: boolean | null
+          updated_at?: string | null
+          user_id: string
+          valor_hora: number
+        }
+        Update: {
+          ativo?: boolean | null
+          cor?: string | null
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          nome?: string
+          padrao?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+          valor_hora?: number
+        }
+        Relationships: []
+      }
       configuracoes_juros: {
         Row: {
           cobrar_juros: boolean | null
@@ -1694,6 +1733,7 @@ export type Database = {
           cardapio: string | null
           categoria: string | null
           created_at: string
+          custo_mao_obra: number | null
           custo_total: number
           id: string
           modo_preparo: string | null
@@ -1701,6 +1741,7 @@ export type Database = {
           rendimento: number
           tempo_preparo: number
           tipo: string | null
+          tipo_mao_obra_id: string | null
           unidade_rendimento: string
           unidade_tempo: string
           updated_at: string
@@ -1711,6 +1752,7 @@ export type Database = {
           cardapio?: string | null
           categoria?: string | null
           created_at?: string
+          custo_mao_obra?: number | null
           custo_total?: number
           id?: string
           modo_preparo?: string | null
@@ -1718,6 +1760,7 @@ export type Database = {
           rendimento: number
           tempo_preparo: number
           tipo?: string | null
+          tipo_mao_obra_id?: string | null
           unidade_rendimento: string
           unidade_tempo: string
           updated_at?: string
@@ -1728,6 +1771,7 @@ export type Database = {
           cardapio?: string | null
           categoria?: string | null
           created_at?: string
+          custo_mao_obra?: number | null
           custo_total?: number
           id?: string
           modo_preparo?: string | null
@@ -1735,13 +1779,22 @@ export type Database = {
           rendimento?: number
           tempo_preparo?: number
           tipo?: string | null
+          tipo_mao_obra_id?: string | null
           unidade_rendimento?: string
           unidade_tempo?: string
           updated_at?: string
           usuario_id?: string
           valor_venda?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "receitas_tipo_mao_obra_id_fkey"
+            columns: ["tipo_mao_obra_id"]
+            isOneToOne: false
+            referencedRelation: "configuracao_mao_obra"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       receitas_despesas_venda: {
         Row: {
