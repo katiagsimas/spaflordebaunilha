@@ -196,27 +196,14 @@ export default function FluxoCaixaDiario() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <BackButton to="/financeiro" />
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              <DollarSign className="inline-block w-8 h-8 mr-2 text-primary" />
-              Fluxo de Caixa Diário
-            </h1>
-            <p className="text-muted-foreground">Movimentações do mês dia a dia</p>
-          </div>
-        </div>
-
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleExportar}>
-            <Download className="w-4 h-4 mr-2" />
-            Exportar para Excel
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => window.print()}>
-            <Printer className="w-4 h-4 mr-2" />
-            Imprimir
-          </Button>
+      <div className="flex items-center gap-4">
+        <BackButton to="/financeiro" />
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+            <DollarSign className="w-7 h-7 text-primary" />
+            Fluxo de Caixa Diário
+          </h1>
+          <p className="text-muted-foreground">Movimentações do mês dia a dia</p>
         </div>
       </div>
 
@@ -319,10 +306,24 @@ export default function FluxoCaixaDiario() {
       {/* Tabela de Fluxo Diário */}
       <Card>
         <CardHeader>
-          <CardTitle>Movimentações Diárias</CardTitle>
-          <CardDescription>
-            {mesesNomes[mes]} de {ano}
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Movimentações Diárias</CardTitle>
+              <CardDescription>
+                {mesesNomes[mes]} de {ano}
+              </CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={handleExportar}>
+                <Download className="w-4 h-4 mr-2" />
+                Exportar para Excel
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => window.print()}>
+                <Printer className="w-4 h-4 mr-2" />
+                Imprimir
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="rounded-md border">
