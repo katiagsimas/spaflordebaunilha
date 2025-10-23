@@ -76,6 +76,14 @@ export default function FluxoCaixaMensal() {
       const fluxoCalculado: FluxoMensal[] = [];
       let saldoAnterior = 0;
 
+      // Buscar saldo inicial dos bancos (Saldo Anterior do Dashboard) para o primeiro mês
+      const { data: saldosBancos } = await supabase
+        .from('bancos')
+        .select('saldo_inicial')
+        .eq('usuario_id', user.id);
+
+      const saldoInicialBancos = saldosBancos?.reduce((acc, s) => acc + (s.saldo_inicial || 0), 0) || 0;
+
       // Buscar categorias do plano de contas
       const { data: categorias } = await supabase
         .from('categorias_plano_contas')
@@ -93,15 +101,46 @@ export default function FluxoCaixaMensal() {
         const inicioStr = dataInicio.toISOString().split('T')[0];
         const fimStr = dataFim.toISOString().split('T')[0];
 
-        // Buscar saldo inicial
-        const { data: saldos } = await supabase
-          .from('saldos_iniciais_bancos')
-          .select('saldo_inicial')
-          .eq('user_id', user.id)
-          .eq('mes_referencia', mes + 1)
-          .eq('ano_referencia', ano);
+        // Para o primeiro mês do ano, verificar se há movimentações anteriores
+        if (mes === 0) {
+          // Verificar se há alguma movimentação antes de janeiro do ano atual
+          const anoAnterior = ano - 1;
+          const dataLimite = new Date(anoAnterior, 11, 31).toISOString().split('T')[0];
 
-        saldoAnterior = saldos?.reduce((acc, s) => acc + (s.saldo_inicial || 0), 0) || saldoAnterior;
+          const { data: movimentacoesAnteriores } = await supabase
+            .from("contas_receber_pagamentos")
+            .select("id")
+            .lte("data_pagamento", dataLimite)
+            .eq("estornado", false)
+            .limit(1);
+
+          // Se não há movimentações anteriores (primeiro mês de movimentações),
+          // usar o Saldo Anterior do Dashboard
+          if (!movimentacoesAnteriores || movimentacoesAnteriores.length === 0) {
+            saldoAnterior = saldoInicialBancos;
+          } else {
+            // Se há movimentações anteriores, calcular o saldo final do ano anterior
+            const { data: entradasAnteriores } = await supabase
+              .from("contas_receber_pagamentos")
+              .select("valor_pago, juros, desconto")
+              .lte("data_pagamento", dataLimite)
+              .eq("estornado", false);
+
+            const { data: saidasAnteriores } = await supabase
+              .from("contas_pagar_pagamentos")
+              .select("valor_pago, juros, desconto")
+              .lte("data_pagamento", dataLimite)
+              .eq("estornado", false);
+
+            const totalEntradasAnt = entradasAnteriores
+              ?.reduce((sum, e) => sum + (e.valor_pago || 0) + (e.juros || 0) - (e.desconto || 0), 0) || 0;
+
+            const totalSaidasAnt = saidasAnteriores
+              ?.reduce((sum, s) => sum + (s.valor_pago || 0) + (s.juros || 0) - (s.desconto || 0), 0) || 0;
+
+            saldoAnterior = saldoInicialBancos + totalEntradasAnt - totalSaidasAnt;
+          }
+        }
 
         // Buscar entradas (Contas a Receber pagas)
         const { data: pagamentosReceber } = await supabase
