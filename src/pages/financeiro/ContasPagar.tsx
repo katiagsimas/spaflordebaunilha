@@ -702,7 +702,7 @@ export default function ContasPagar() {
     <div className="container mx-auto p-6 space-y-6">
       <PageHeader
         title="Contas a Pagar"
-        description="Gerencie seus pagamentos a fornecedores"
+        description="Gerencie seus pagamentos aqui"
         backButton={<BackButton to="/financeiro" />}
       />
 
