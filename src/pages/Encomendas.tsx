@@ -1546,10 +1546,14 @@ const Encomendas = () => {
         </CardContent>
       </Card>
 
-      {/* Card de Controles */}
       <Card className="shadow-soft">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between gap-4">
+        <CardHeader>
+          <CardTitle>Lista de Encomendas</CardTitle>
+        </CardHeader>
+        
+        {/* Card de Controles */}
+        <div className="px-6 pb-4">
+          <div className="flex items-center justify-between gap-4 p-4 bg-muted/30 rounded-lg">
             {/* Resultados por Página - Esquerda */}
             <div className="flex items-center gap-2">
               <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
@@ -1588,13 +1592,7 @@ const Encomendas = () => {
               />
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      <Card className="shadow-soft">
-        <CardHeader>
-          <CardTitle>Lista de Encomendas</CardTitle>
-        </CardHeader>
+        </div>
         <CardContent>
           {paginatedOrders.length === 0 ? (
             <div className="text-center py-12">
