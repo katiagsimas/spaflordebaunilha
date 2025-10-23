@@ -1578,7 +1578,7 @@ const Encomendas = () => {
               {indicadores.pendentes}
             </div>
             <p className="text-xs text-yellow-600 mt-1">
-              Aguardando entrega
+              Aguardando pagamento
             </p>
           </CardContent>
         </Card>
