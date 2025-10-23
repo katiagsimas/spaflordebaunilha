@@ -28,7 +28,8 @@ import {
 } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, Info, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, Info, Search, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 export default function TiposInsumosIngredientes() {
   const { toast } = useToast();
@@ -238,6 +239,33 @@ export default function TiposInsumosIngredientes() {
     }
   };
 
+  const handleExportarExcel = () => {
+    if (tiposFiltrados.length === 0) {
+      toast({
+        title: 'Aviso',
+        description: 'Não há dados para exportar.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const dadosExport = tiposFiltrados.map((tipo) => ({
+      'Descrição': tipo.descricao,
+      'Quantidade': tipo.quantidade_embalagem,
+      'Unidade': tipo.unidade_medida?.nome,
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(dadosExport);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Ingredientes');
+    XLSX.writeFile(wb, `tipos_ingredientes_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+    toast({
+      title: '✅ Exportado',
+      description: 'Dados exportados com sucesso!',
+    });
+  };
+
   if (loading) return <div>Carregando...</div>;
 
   const tiposFiltrados = tipos.filter((tipo) =>
@@ -268,6 +296,10 @@ export default function TiposInsumosIngredientes() {
         <Button onClick={() => handleAbrirModal()}>
           <Plus className="mr-2 h-4 w-4" />
           Novo Tipo
+        </Button>
+        <Button variant="outline" onClick={handleExportarExcel}>
+          <Download className="mr-2 h-4 w-4" />
+          Exportar para Excel
         </Button>
       </div>
 
