@@ -8,7 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck, Package, Upload, X, HandCoins, Tag as TagIcon, FileDown } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck, Package, Upload, X, HandCoins, Tag as TagIcon, FileDown, Calendar, ClipboardList, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { format, isToday, isTomorrow, isWithinInterval, addDays } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { useEncomendas } from "@/hooks/useEncomendas";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -61,6 +63,25 @@ const Encomendas = () => {
   const [planoContasVendaId, setPlanoContasVendaId] = useState<string>('');
   const [porPagina, setPorPagina] = useState(10);
   const [buscaNome, setBuscaNome] = useState("");
+  
+  // Estados para Dashboard
+  const [mesSelecionado, setMesSelecionado] = useState(new Date().getMonth());
+  const [anoSelecionado, setAnoSelecionado] = useState(new Date().getFullYear());
+  const [indicadores, setIndicadores] = useState({
+    total: 0,
+    entregues: 0,
+    canceladas: 0,
+    pendentes: 0,
+    paraHoje: 0,
+    paraAmanha: 0,
+    paraEstaSemana: 0,
+    paraMes: 0,
+  });
+
+  const meses = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+  ];
   
   // Estados para tags
   const [tagsDisponiveis, setTagsDisponiveis] = useState<any[]>([]);
@@ -126,6 +147,75 @@ const Encomendas = () => {
   const valorFinal = useMemo(() => {
     return valorTotalProdutos - valorDesconto + formData.taxa_entrega + formData.topo_bolo + formData.outros;
   }, [valorTotalProdutos, valorDesconto, formData.taxa_entrega, formData.topo_bolo, formData.outros]);
+
+  // Calcular indicadores do dashboard
+  useEffect(() => {
+    calcularIndicadores();
+  }, [mesSelecionado, anoSelecionado, encomendas]);
+
+  function calcularIndicadores() {
+    if (!encomendas) return;
+
+    const hoje = new Date();
+    const amanha = addDays(hoje, 1);
+    const fimSemana = addDays(hoje, 7);
+
+    // Filtrar encomendas do mês selecionado pela DATA DE ENTREGA
+    const encomendasMes = encomendas.filter((enc) => {
+      if (!enc.data_entrega) return false;
+      const dataEntrega = new Date(enc.data_entrega);
+      return (
+        dataEntrega.getMonth() === mesSelecionado &&
+        dataEntrega.getFullYear() === anoSelecionado
+      );
+    });
+
+    // CARDS DE VISÃO GERAL
+    const total = encomendasMes.length;
+    const entregues = encomendasMes.filter((e) => e.status === "entregue").length;
+    const canceladas = encomendasMes.filter((e) => e.status === "cancelado").length;
+    const pendentes = encomendasMes.filter(
+      (e) => e.status !== "entregue" && e.status !== "cancelado"
+    ).length;
+
+    // CARDS DE URGÊNCIA (apenas não entregues)
+    const encomendasPendentes = encomendasMes.filter(
+      (e) => e.status !== "entregue" && e.status !== "cancelado"
+    );
+
+    const paraHoje = encomendasPendentes.filter((e) => {
+      if (!e.data_entrega) return false;
+      return isToday(new Date(e.data_entrega));
+    }).length;
+
+    const paraAmanha = encomendasPendentes.filter((e) => {
+      if (!e.data_entrega) return false;
+      return isTomorrow(new Date(e.data_entrega));
+    }).length;
+
+    const paraEstaSemana = encomendasPendentes.filter((e) => {
+      if (!e.data_entrega) return false;
+      const dataEntrega = new Date(e.data_entrega);
+      return (
+        !isToday(dataEntrega) &&
+        !isTomorrow(dataEntrega) &&
+        isWithinInterval(dataEntrega, { start: addDays(hoje, 2), end: fimSemana })
+      );
+    }).length;
+
+    const paraMes = pendentes;
+
+    setIndicadores({
+      total,
+      entregues,
+      canceladas,
+      pendentes,
+      paraHoje,
+      paraAmanha,
+      paraEstaSemana,
+      paraMes,
+    });
+  }
 
   // Buscar o ID do plano de contas "Venda de Produtos" e tags ao carregar
   useEffect(() => {
@@ -1402,6 +1492,227 @@ const Encomendas = () => {
           </Dialog>
         }
       />
+
+      {/* DASHBOARD DE ENCOMENDAS */}
+      
+      {/* Filtro Mês/Ano */}
+      <Card className="shadow-soft">
+        <CardHeader>
+          <div className="flex items-center gap-4">
+            <Calendar className="h-5 w-5 text-primary" />
+            <div>
+              <CardTitle className="text-lg">Período de Entrega:</CardTitle>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-end gap-4">
+            <div className="space-y-2 w-32">
+              <Label>Ano</Label>
+              <Select
+                value={anoSelecionado.toString()}
+                onValueChange={(value) => setAnoSelecionado(parseInt(value))}
+              >
+                <SelectTrigger className="bg-popover">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  {Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i).map((year) => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2 w-40">
+              <Label>Mês</Label>
+              <Select
+                value={mesSelecionado.toString()}
+                onValueChange={(value) => setMesSelecionado(parseInt(value))}
+              >
+                <SelectTrigger className="bg-popover">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  {meses.map((mes, index) => (
+                    <SelectItem key={index} value={index.toString()}>
+                      {mes}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex-1">
+              <p className="text-xl font-semibold text-primary">
+                {meses[mesSelecionado]} de {anoSelecionado}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Cards de Visão Geral */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {/* Total */}
+        <Card className="border-blue-200 bg-blue-50 shadow-soft">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-2">
+              <ClipboardList className="h-5 w-5 text-blue-700" />
+              <CardTitle className="text-sm text-blue-700">Total de Encomendas</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-blue-700">
+              {indicadores.total}
+            </div>
+            <p className="text-xs text-blue-600 mt-1">
+              {meses[mesSelecionado]}/{anoSelecionado}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Pendentes */}
+        <Card className="border-yellow-200 bg-yellow-50 shadow-soft">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-yellow-700" />
+              <CardTitle className="text-sm text-yellow-700">Pendentes</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-yellow-700">
+              {indicadores.pendentes}
+            </div>
+            <p className="text-xs text-yellow-600 mt-1">
+              Aguardando entrega
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Entregues */}
+        <Card className="border-green-200 bg-green-50 shadow-soft">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-green-700" />
+              <CardTitle className="text-sm text-green-700">Entregues</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-green-700">
+              {indicadores.entregues}
+            </div>
+            <p className="text-xs text-green-600 mt-1">
+              Concluídas
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Canceladas */}
+        <Card className="border-red-200 bg-red-50 shadow-soft">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-2">
+              <XCircle className="h-5 w-5 text-red-700" />
+              <CardTitle className="text-sm text-red-700">Canceladas</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-red-700">
+              {indicadores.canceladas}
+            </div>
+            <p className="text-xs text-red-600 mt-1">
+              Não realizadas
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Cards de Urgência */}
+      <Card className="shadow-soft">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-orange-600" />
+            <CardTitle>Urgências - Encomendas Pendentes</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* Hoje */}
+            <Card className="border-red-300 bg-red-50">
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🔴</span>
+                  <CardTitle className="text-sm text-red-700 font-bold">HOJE</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-red-700">
+                  {indicadores.paraHoje}
+                </div>
+                <p className="text-xs text-red-600 mt-1">
+                  Entregar hoje
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Amanhã */}
+            <Card className="border-orange-300 bg-orange-50">
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🟡</span>
+                  <CardTitle className="text-sm text-orange-700 font-bold">AMANHÃ</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-orange-700">
+                  {indicadores.paraAmanha}
+                </div>
+                <p className="text-xs text-orange-600 mt-1">
+                  Entregar amanhã
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Esta Semana */}
+            <Card className="border-green-300 bg-green-50">
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🟢</span>
+                  <CardTitle className="text-sm text-green-700 font-bold">ESTA SEMANA</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-green-700">
+                  {indicadores.paraEstaSemana}
+                </div>
+                <p className="text-xs text-green-600 mt-1">
+                  Próximos 7 dias
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Este Mês */}
+            <Card className="border-blue-300 bg-blue-50">
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🔵</span>
+                  <CardTitle className="text-sm text-blue-700 font-bold">ESTE MÊS</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-blue-700">
+                  {indicadores.paraMes}
+                </div>
+                <p className="text-xs text-blue-600 mt-1">
+                  Total pendentes
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map((stat, index) => {
