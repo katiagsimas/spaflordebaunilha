@@ -212,54 +212,8 @@ export default function Fornecedores() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Lista de Fornecedores</CardTitle>
-        </CardHeader>
-        
-        {/* Card de Controles */}
-        <div className="px-6 pb-4">
-          <div className="flex items-center justify-between gap-4 p-4 bg-muted/30 rounded-lg">
-            {/* Resultados por Página - Esquerda */}
-            <div className="flex items-center gap-2">
-              <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
-                <SelectTrigger className="w-20 bg-popover">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-popover z-50">
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="25">25</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                  <SelectItem value="100">100</SelectItem>
-                </SelectContent>
-              </Select>
-              <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
-            </div>
-
-            {/* Botão Exportar - Centro */}
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleExportarExcel}
-              className="gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Exportar para Excel
-            </Button>
-
-            {/* Campo de Busca - Direita */}
-            <div className="relative flex-1 max-w-xs">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por nome..."
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-                className="pl-9 bg-popover"
-              />
-            </div>
-          </div>
-        </div>
-
-        <CardContent>
-          <div className="flex justify-end mb-4">
+          <div className="flex items-center justify-between">
+            <CardTitle>Lista de Fornecedores</CardTitle>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button onClick={() => setEditingId(null)}>
@@ -379,7 +333,52 @@ export default function Fornecedores() {
               </DialogContent>
             </Dialog>
           </div>
+        </CardHeader>
+        
+        {/* Card de Controles */}
+        <div className="px-6 pb-4">
+          <div className="flex items-center justify-between gap-4 p-4 bg-muted/30 rounded-lg">
+            {/* Resultados por Página - Esquerda */}
+            <div className="flex items-center gap-2">
+              <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
+                <SelectTrigger className="w-20 bg-popover">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+              <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
+            </div>
 
+            {/* Botão Exportar - Centro */}
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleExportarExcel}
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Exportar para Excel
+            </Button>
+
+            {/* Campo de Busca - Direita */}
+            <div className="relative flex-1 max-w-xs">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nome..."
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                className="pl-9 bg-popover"
+              />
+            </div>
+          </div>
+        </div>
+
+        <CardContent>
           {fornecedoresPaginados.length === 0 ? (
             busca ? (
               <EmptyState
