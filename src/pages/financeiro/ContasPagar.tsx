@@ -268,7 +268,7 @@ export default function ContasPagar() {
       // Fornecedores
       const { data: dataFornecedores, error: errorFornecedores } = await supabase
         .from('fornecedores' as any)
-        .select('id, nome, ativo')
+        .select('id, nome')
         .eq('usuario_id', user.id)
         .order('nome') as any;
       
