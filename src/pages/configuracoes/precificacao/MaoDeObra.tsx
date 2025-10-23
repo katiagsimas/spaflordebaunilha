@@ -26,6 +26,7 @@ import { Clock, Plus, Pencil, Trash2, Star, ArrowLeft, Info } from "lucide-react
 import { useNavigate } from "react-router-dom";
 import { useMaoObra, type MaoDeObra } from "@/hooks/useMaoObra";
 import { PageHeader } from "@/components/PageHeader";
+import { BackButton } from "@/components/BackButton";
 import { Badge } from "@/components/ui/badge";
 
 const coresDisponiveis = [
@@ -128,16 +129,17 @@ export default function MaoDeObra() {
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Valores de Mão de Obra</h1>
-          <p className="text-muted-foreground">Defina quanto vale sua hora de trabalho</p>
-        </div>
-        <Button onClick={() => setDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Adicionar Valor
-        </Button>
-      </div>
+      <PageHeader
+        title="Valores de Mão de Obra"
+        description="Defina quanto vale sua hora de trabalho"
+        backButton={<BackButton to="/configuracoes/precificacao" />}
+        actions={
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Adicionar Valor
+          </Button>
+        }
+      />
 
       <Dialog open={dialogOpen} onOpenChange={handleDialogClose}>
         <DialogContent className="sm:max-w-[500px]">

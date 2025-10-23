@@ -219,7 +219,7 @@ export default function CustosFixos() {
       <PageHeader
         title="Custos Fixos"
         description="Gerencie suas despesas mensais fixas"
-        backButton={<BackButton to="/precificacao" />}
+        backButton={<BackButton to="/configuracoes/precificacao" />}
       />
 
       <Alert>

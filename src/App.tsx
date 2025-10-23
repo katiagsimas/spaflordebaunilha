@@ -25,6 +25,8 @@ import SeusDados from "./pages/cadastros/SeusDados";
 import CustosFixos from "./pages/configuracoes/precificacao/CustosFixos";
 import MaoDeObra from "./pages/configuracoes/precificacao/MaoDeObra";
 import CadastrosBase from "./pages/configuracoes/CadastrosBase";
+import PrecificacaoPage from "./pages/configuracoes/PrecificacaoPage";
+import FinanceiroPage from "./pages/configuracoes/FinanceiroPage";
 import Clientes from "./pages/cadastros/Clientes";
 import Fornecedores from "./pages/cadastros/Fornecedores";
 import UnidadesMedida from "./pages/cadastros/UnidadesMedida";
@@ -134,6 +136,8 @@ const App = () => (
           {/* Configurações - Página Container + Sub-rotas */}
           <Route path="/configuracoes" element={<ProtectedRoute><Layout><Configuracoes /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/cadastros-base" element={<ProtectedRoute><Layout><CadastrosBase /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/precificacao" element={<ProtectedRoute><Layout><PrecificacaoPage /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/financeiro" element={<ProtectedRoute><Layout><FinanceiroPage /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/precificacao/mao-obra" element={<ProtectedRoute><Layout><MaoDeObra /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/precificacao/custos-fixos" element={<ProtectedRoute><Layout><CustosFixos /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/tipos-insumos" element={<ProtectedRoute><Layout><TiposInsumos /></Layout></ProtectedRoute>} />

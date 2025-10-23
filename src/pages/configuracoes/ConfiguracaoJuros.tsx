@@ -8,7 +8,7 @@ export default function ConfiguracaoJurosPage() {
       <PageHeader
         title="Configuração de Juros e Multas"
         description="Defina como calcular juros para pagamentos em atraso"
-        backButton={<BackButton to="/configuracoes" />}
+        backButton={<BackButton to="/configuracoes/financeiro" />}
       />
 
       <ConfiguracaoJuros />

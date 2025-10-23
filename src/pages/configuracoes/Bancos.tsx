@@ -413,7 +413,7 @@ export default function Bancos() {
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
-        <BackButton to="/configuracoes" />
+        <BackButton to="/configuracoes/financeiro" />
         <div>
           <h1 className="text-3xl font-bold">Bancos</h1>
           <p className="text-muted-foreground">Cadastre os bancos que você utiliza</p>

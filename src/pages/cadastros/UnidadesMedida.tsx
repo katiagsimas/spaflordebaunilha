@@ -114,7 +114,7 @@ export default function UnidadesMedida() {
       <PageHeader
         title="Unidades de Medidas"
         description="Gerencie as unidades de medida"
-        backButton={<BackButton to="/configuracoes" />}
+        backButton={<BackButton to="/configuracoes/precificacao" />}
       />
 
       <Card>
