@@ -327,7 +327,7 @@ export default function FluxoCaixaMensal() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <BackButton to="/financeiro" />
+        <BackButton to="/financeiro/fluxo-caixa" />
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
             <DollarSign className="w-7 h-7 text-primary" />
