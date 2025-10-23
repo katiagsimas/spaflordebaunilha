@@ -293,6 +293,14 @@ export default function Financeiro() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      {/* Título da Página */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+          <DollarSign className="w-8 h-8 text-primary" />
+          MOVIMENTAÇÕES E RELATÓRIOS FINANCEIROS
+        </h1>
+      </div>
+
       {/* Cards de Navegação */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {/* Card Contas a Receber */}
