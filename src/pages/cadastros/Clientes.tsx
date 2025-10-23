@@ -18,6 +18,7 @@ import { useViaCEP } from "@/hooks/useViaCEP";
 import { Plus, Pencil, Trash2, Users, Search, ChevronDown, Download } from "lucide-react";
 import { toast } from "sonner";
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import * as XLSX from 'xlsx';
 
 export default function Clientes() {
@@ -155,9 +156,11 @@ export default function Clientes() {
         <div className="flex-1">
           <PageHeader
             title="Clientes"
-            description={`Gerencie seus clientes - ${clientes.length} ${clientes.length === 1 ? 'cliente cadastrado' : 'clientes cadastrados'}`}
           />
         </div>
+        <Badge variant="secondary" className="text-lg px-4 py-2">
+          {clientes.length} {clientes.length === 1 ? 'cliente cadastrado' : 'clientes cadastrados'}
+        </Badge>
       </div>
 
       <Card>

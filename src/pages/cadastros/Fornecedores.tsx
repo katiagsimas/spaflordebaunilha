@@ -16,6 +16,7 @@ import { useFornecedores } from "@/hooks/useFornecedores";
 import { Plus, Pencil, Trash2, Truck, ChevronDown, Cake, Search, Download } from "lucide-react";
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Badge } from "@/components/ui/badge";
 import * as XLSX from 'xlsx';
 
 interface FormDataFornecedor {
@@ -162,9 +163,11 @@ export default function Fornecedores() {
         <div className="flex-1">
           <PageHeader
             title="Fornecedores"
-            description="Gerencie seus fornecedores"
           />
         </div>
+        <Badge variant="secondary" className="text-lg px-4 py-2">
+          {fornecedores.length} {fornecedores.length === 1 ? 'fornecedor cadastrado' : 'fornecedores cadastrados'}
+        </Badge>
       </div>
 
       {aniversariantesDoMes.length > 0 && (
