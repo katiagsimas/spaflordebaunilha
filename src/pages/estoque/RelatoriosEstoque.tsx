@@ -40,7 +40,7 @@ export default function RelatoriosEstoque() {
       <PageHeader
         title="Relatórios de Estoque"
         description="Selecione o relatório que deseja visualizar"
-        actions={<BackButton to="/estoque" label="Voltar para Estoque" />}
+        backButton={<BackButton to="/estoque" label="Voltar para Estoque" />}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

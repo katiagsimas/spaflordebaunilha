@@ -247,12 +247,11 @@ export default function SubReceitaForm() {
     }
   };
   return <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <BackButton to="/sub-receitas" />
-        <div className="flex-1">
-          <PageHeader title={id ? "Editar Pré-Preparo" : "Novo Pré-Preparo"} description="Preencha dos dados da sua Sub-Receita" />
-        </div>
-      </div>
+      <PageHeader 
+        title={id ? "Editar Pré-Preparo" : "Novo Pré-Preparo"} 
+        description="Preencha dos dados da sua Sub-Receita"
+        backButton={<BackButton to="/sub-receitas" />}
+      />
 
       <Card>
         <CardContent className="pt-6 space-y-6">

@@ -67,15 +67,11 @@ export default function CMVGlobal() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <BackButton to="/planejamento" />
-        <div className="flex-1">
-          <PageHeader
-            title="CMV Global"
-            description="Custo de Mercadoria Vendida por mês"
-          />
-        </div>
-      </div>
+      <PageHeader
+        title="CMV Global"
+        description="Custo de Mercadoria Vendida por mês"
+        backButton={<BackButton to="/planejamento" />}
+      />
 
       <Card>
         <CardContent className="pt-6">

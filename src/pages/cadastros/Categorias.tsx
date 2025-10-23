@@ -101,15 +101,11 @@ export default function Categorias() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <BackButton to="/configuracoes" />
-        <div className="flex-1">
-          <PageHeader
-            title="Categorias de Receitas"
-            description="Gerencie as categorias de receitas"
-          />
-        </div>
-      </div>
+      <PageHeader
+        title="Categorias de Receitas"
+        description="Gerencie as categorias de receitas"
+        backButton={<BackButton to="/configuracoes" />}
+      />
 
       <div className="flex justify-end">
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

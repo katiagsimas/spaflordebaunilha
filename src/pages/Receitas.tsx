@@ -279,15 +279,11 @@ export default function Receitas() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <BackButton to="/precificacao" />
-        <div className="flex-1">
-          <PageHeader
-            title="Ficha Técnica"
-            description="Calcule Custos e Preços de Venda"
-          />
-        </div>
-      </div>
+      <PageHeader
+        title="Ficha Técnica"
+        description="Calcule Custos e Preços de Venda"
+        backButton={<BackButton to="/precificacao" />}
+      />
 
       <div className="flex justify-center">
         <Button onClick={handleCreateNew}>

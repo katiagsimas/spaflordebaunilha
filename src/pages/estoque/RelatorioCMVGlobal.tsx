@@ -57,15 +57,11 @@ export default function RelatorioCMVGlobal() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <BackButton to="/estoque/relatorios" />
-          <div className="flex-1">
-            <PageHeader
-              title="Relatório de CMV Global"
-              description="Custo de Mercadoria Vendida"
-            />
-          </div>
-        </div>
+        <PageHeader
+          title="Relatório de CMV Global"
+          description="Custo de Mercadoria Vendida"
+          backButton={<BackButton to="/estoque/relatorios" />}
+        />
         <Skeleton className="h-96 w-full" />
       </div>
     );
@@ -74,15 +70,11 @@ export default function RelatorioCMVGlobal() {
   if (!cmvData) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <BackButton to="/estoque/relatorios" />
-          <div className="flex-1">
-            <PageHeader
-              title="Relatório de CMV Global"
-              description="Custo de Mercadoria Vendida"
-            />
-          </div>
-        </div>
+        <PageHeader
+          title="Relatório de CMV Global"
+          description="Custo de Mercadoria Vendida"
+          backButton={<BackButton to="/estoque/relatorios" />}
+        />
         <Card>
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">
@@ -96,16 +88,11 @@ export default function RelatorioCMVGlobal() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <BackButton to="/estoque/relatorios" />
-        <div className="flex-1">
-          <PageHeader
-            title="Relatório de CMV Global"
-            description="Custo de Mercadoria Vendida"
-          />
-        </div>
-      </div>
+      <PageHeader
+        title="Relatório de CMV Global"
+        description="Custo de Mercadoria Vendida"
+        backButton={<BackButton to="/estoque/relatorios" />}
+      />
 
       {/* Seleção de Período */}
       <Card>

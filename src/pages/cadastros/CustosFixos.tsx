@@ -216,15 +216,11 @@ export default function CustosFixos() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <BackButton to="/precificacao" />
-        <div className="flex-1">
-          <PageHeader
-            title="Custos Fixos"
-            description="Gerencie suas despesas mensais fixas"
-          />
-        </div>
-      </div>
+      <PageHeader
+        title="Custos Fixos"
+        description="Gerencie suas despesas mensais fixas"
+        backButton={<BackButton to="/precificacao" />}
+      />
 
       <Alert>
         <AlertCircle className="h-4 w-4" />

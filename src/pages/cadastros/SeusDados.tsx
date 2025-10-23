@@ -186,15 +186,11 @@ export default function SeusDados() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        {!profile?.primeiro_acesso && <BackButton to="/configuracoes" />}
-        <div className="flex-1">
-          <PageHeader
-            title={profile?.primeiro_acesso ? "Bem-vinda! Complete seus dados" : "Dados da Sua Confeitaria"}
-            description={profile?.primeiro_acesso ? "Por favor, complete as informações da sua confeitaria para começar" : "Informações da sua empresa"}
-          />
-        </div>
-      </div>
+      <PageHeader
+        title={profile?.primeiro_acesso ? "Bem-vinda! Complete seus dados" : "Dados da Sua Confeitaria"}
+        description={profile?.primeiro_acesso ? "Por favor, complete as informações da sua confeitaria para começar" : "Informações da sua empresa"}
+        backButton={!profile?.primeiro_acesso ? <BackButton to="/configuracoes" /> : undefined}
+      />
 
       <Card>
         <CardContent className="pt-6">

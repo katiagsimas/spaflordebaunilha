@@ -9,10 +9,10 @@ import TiposInsumosEmbalagens from '@/components/TiposInsumos/Embalagens';
 export default function TiposInsumos() {
   return (
     <div className="space-y-6">
-      <BackButton to="/configuracoes" />
       <PageHeader
         title="Tipos de Insumos e Embalagens"
         description="Cadastre os tipos base de ingredientes e embalagens"
+        backButton={<BackButton to="/configuracoes" />}
       />
 
       <Tabs defaultValue="ingredientes" className="w-full">

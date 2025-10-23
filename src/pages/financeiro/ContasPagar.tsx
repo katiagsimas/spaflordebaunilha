@@ -57,6 +57,7 @@ import {
   FileDown
 } from 'lucide-react';
 import { BackButton } from '@/components/BackButton';
+import { PageHeader } from '@/components/PageHeader';
 
 export default function ContasPagar() {
   const navigate = useNavigate();
@@ -685,21 +686,17 @@ export default function ContasPagar() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <BackButton to="/financeiro" />
-      
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold">Contas a Pagar</h1>
-          <p className="text-muted-foreground">
-            Gerencie seus pagamentos a fornecedores
-          </p>
-        </div>
-        <Button onClick={() => navigate('/financeiro/contas-pagar/nova')}>
-          <Plus className="mr-2 h-4 w-4" />
-          Adicionar Conta a Pagar
-        </Button>
-      </div>
+      <PageHeader
+        title="Contas a Pagar"
+        description="Gerencie seus pagamentos a fornecedores"
+        backButton={<BackButton to="/financeiro" />}
+        actions={
+          <Button onClick={() => navigate('/financeiro/contas-pagar/nova')}>
+            <Plus className="mr-2 h-4 w-4" />
+            Adicionar Conta a Pagar
+          </Button>
+        }
+      />
 
       {/* Alert informativo */}
       <Alert>

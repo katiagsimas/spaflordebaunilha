@@ -454,25 +454,23 @@ export default function Embalagens() {
 
   return (
     <div className="space-y-6">
-      <BackButton to="/precificacao" />
-      
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <PageHeader
-          title="Embalagens"
-          description="Cadastre embalagens com marca e preço para usar em receitas"
-        />
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleExportarExcel}>
-            <Download className="mr-2 h-4 w-4" />
-            Exportar Excel
-          </Button>
-          <Button onClick={() => handleAbrirModal()}>
-            <Plus className="mr-2 h-4 w-4" />
-            Nova Embalagem
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Embalagens"
+        description="Cadastre embalagens com marca e preço para usar em receitas"
+        backButton={<BackButton to="/precificacao" />}
+        actions={
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleExportarExcel}>
+              <Download className="mr-2 h-4 w-4" />
+              Exportar Excel
+            </Button>
+            <Button onClick={() => handleAbrirModal()}>
+              <Plus className="mr-2 h-4 w-4" />
+              Nova Embalagem
+            </Button>
+          </div>
+        }
+      />
 
       {/* Alertas */}
       <div className="grid gap-4 md:grid-cols-2">

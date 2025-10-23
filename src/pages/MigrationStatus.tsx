@@ -134,10 +134,10 @@ export default function MigrationStatus() {
   
   return (
     <div className="container mx-auto py-8 space-y-6">
-      <BackButton to="/configuracoes" />
       <PageHeader 
         title="Status da Migração para Nuvem"
         description="Visualize o status da migração de dados do localStorage para o Supabase"
+        backButton={<BackButton to="/configuracoes" />}
       />
       
       <Alert>

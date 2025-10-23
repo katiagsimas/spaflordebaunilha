@@ -111,15 +111,11 @@ export default function UnidadesMedida() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <BackButton to="/configuracoes" />
-        <div className="flex-1">
-          <PageHeader
-            title="Unidades de Medidas"
-            description="Gerencie as unidades de medida"
-          />
-        </div>
-      </div>
+      <PageHeader
+        title="Unidades de Medidas"
+        description="Gerencie as unidades de medida"
+        backButton={<BackButton to="/configuracoes" />}
+      />
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">

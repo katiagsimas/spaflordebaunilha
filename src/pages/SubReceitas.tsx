@@ -41,15 +41,11 @@ export default function SubReceitas() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <BackButton to="/precificacao" />
-        <div className="flex-1">
-          <PageHeader
-            title="Pré-Preparo"
-            description="Gerencie suas sub-receitas e pré-preparações"
-          />
-        </div>
-      </div>
+      <PageHeader
+        title="Pré-Preparo"
+        description="Gerencie suas sub-receitas e pré-preparações"
+        backButton={<BackButton to="/precificacao" />}
+      />
 
       <div className="flex justify-end">
         <Button onClick={handleCreateNew}>

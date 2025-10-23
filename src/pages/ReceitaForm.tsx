@@ -754,15 +754,11 @@ export default function ReceitaForm() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <BackButton to="/precificacao/ficha-tecnica" />
-        <div className="flex-1">
-          <PageHeader
-            title={id ? "Editar Ficha Técnica" : "Nova Ficha Técnica"}
-            description="Calcule Custos e Preços de Venda"
-          />
-        </div>
-      </div>
+      <PageHeader
+        title={id ? "Editar Ficha Técnica" : "Nova Ficha Técnica"}
+        description="Calcule Custos e Preços de Venda"
+        backButton={<BackButton to="/precificacao/ficha-tecnica" />}
+      />
 
       <Card>
         <CardContent className="pt-6 space-y-6">

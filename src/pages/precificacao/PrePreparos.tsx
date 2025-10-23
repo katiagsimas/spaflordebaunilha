@@ -16,6 +16,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { ChefHat } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { BackButton } from '@/components/BackButton';
+import { PageHeader } from '@/components/PageHeader';
 
 export default function PrePreparos() {
   const navigate = useNavigate();
@@ -73,20 +74,17 @@ export default function PrePreparos() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <BackButton to="/precificacao" />
-      
-      <div className="flex justify-between items-start mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Pré-Preparos</h1>
-          <p className="text-muted-foreground">
-            Cadastre preparos intermediários para usar em receitas
-          </p>
-        </div>
-        <Button onClick={() => navigate('/precificacao/pre-preparos/novo')}>
-          <Plus className="mr-2 h-4 w-4" />
-          Criar Novo Pré-Preparo
-        </Button>
-      </div>
+      <PageHeader
+        title="Pré-Preparos"
+        description="Cadastre preparos intermediários para usar em receitas"
+        backButton={<BackButton to="/precificacao" />}
+        actions={
+          <Button onClick={() => navigate('/precificacao/pre-preparos/novo')}>
+            <Plus className="mr-2 h-4 w-4" />
+            Criar Novo Pré-Preparo
+          </Button>
+        }
+      />
 
       <Alert className="bg-purple-50 border-purple-200 dark:bg-purple-950 dark:border-purple-800">
         <Info className="h-4 w-4 text-purple-600 dark:text-purple-400" />

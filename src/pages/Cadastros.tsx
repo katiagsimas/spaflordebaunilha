@@ -19,15 +19,11 @@ export default function Cadastros() {
 
   return (
     <div className="space-y-6 p-4 md:p-6">
-      <div className="flex items-center gap-4">
-        <BackButton to="/precificacao" />
-        <div className="flex-1">
-          <PageHeader
-            title="Cadastros"
-            description="Realize todos os cadastros e mantenha-os sempre atualizados para garantir o correto funcionamento do sistema"
-          />
-        </div>
-      </div>
+      <PageHeader
+        title="Cadastros"
+        description="Realize todos os cadastros e mantenha-os sempre atualizados para garantir o correto funcionamento do sistema"
+        backButton={<BackButton to="/precificacao" />}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
         {cadastros.map((cadastro, index) => {
