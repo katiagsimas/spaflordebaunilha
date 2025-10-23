@@ -1,35 +1,25 @@
 import React from "react";
-import { Package, UserCircle, Tag, Tags, ArrowRight, ArrowLeft } from "lucide-react";
+import { Package, UserCircle, Tag, Tags, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/PageHeader";
+import { BackButton } from "@/components/BackButton";
 
 export default function CadastrosBase() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/configuracoes")}
-          className="gap-2 text-muted-foreground hover:text-foreground mb-4"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Voltar
-        </Button>
-        <div className="flex items-center gap-3 mb-2">
-          <Package className="h-8 w-8 text-primary" />
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Cadastros Base</h1>
-            <p className="text-muted-foreground">Gerencie categorias, tipos de insumos e dados da confeitaria</p>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-background">
+      <PageHeader
+        title="Cadastros Base"
+        description="Gerencie categorias, tipos de insumos e dados da confeitaria"
+        backButton={<BackButton to="/configuracoes" />}
+      />
+      
+      <div className="p-4 md:p-6">
 
-      {/* Grid com 4 Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {/* Grid com 4 Cards */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         
         {/* Card: Dados da Confeitaria */}
         <Card 
@@ -114,6 +104,7 @@ export default function CadastrosBase() {
             </CardDescription>
           </CardHeader>
         </Card>
+        </div>
       </div>
     </div>
   );
