@@ -94,7 +94,6 @@ export default function ContasReceber() {
   
   // Estados para combobox de cliente
   const [openCliente, setOpenCliente] = useState(false);
-  const [searchCliente, setSearchCliente] = useState('');
 
   // Modal de baixa
   const [darBaixaOpen, setDarBaixaOpen] = useState(false);
@@ -968,11 +967,7 @@ export default function ContasReceber() {
                 </PopoverTrigger>
                 <PopoverContent className="w-full p-0 bg-background" align="start">
                   <Command>
-                    <CommandInput 
-                      placeholder="Digite para buscar..." 
-                      value={searchCliente}
-                      onValueChange={setSearchCliente}
-                    />
+                    <CommandInput placeholder="Digite para buscar..." />
                     <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
                     <CommandGroup className="max-h-64 overflow-auto">
                       <CommandItem
@@ -980,7 +975,6 @@ export default function ContasReceber() {
                         onSelect={() => {
                           setFiltroClienteId('todos');
                           setOpenCliente(false);
-                          setSearchCliente('');
                         }}
                       >
                         <Check
@@ -991,29 +985,24 @@ export default function ContasReceber() {
                         />
                         Todos
                       </CommandItem>
-                      {clientes
-                        .filter((cliente) =>
-                          cliente.nome.toLowerCase().includes(searchCliente.toLowerCase())
-                        )
-                        .map((cliente) => (
-                          <CommandItem
-                            key={cliente.id}
-                            value={cliente.id}
-                            onSelect={(currentValue) => {
-                              setFiltroClienteId(currentValue);
-                              setOpenCliente(false);
-                              setSearchCliente('');
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                filtroClienteId === cliente.id ? "opacity-100" : "opacity-0"
-                              )}
-                            />
-                            {cliente.nome}
-                          </CommandItem>
-                        ))}
+                      {clientes.map((cliente) => (
+                        <CommandItem
+                          key={cliente.id}
+                          value={cliente.nome}
+                          onSelect={() => {
+                            setFiltroClienteId(cliente.id);
+                            setOpenCliente(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              filtroClienteId === cliente.id ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {cliente.nome}
+                        </CommandItem>
+                      ))}
                     </CommandGroup>
                   </Command>
                 </PopoverContent>
