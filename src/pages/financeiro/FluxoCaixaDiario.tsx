@@ -54,18 +54,38 @@ export default function FluxoCaixaDiario() {
       const inicio = startOfMonth(mesAno);
       const fim = endOfMonth(mesAno);
       
-      // Buscar saldo inicial do mês
-      const mes = mesAno.getMonth() + 1;
-      const ano = mesAno.getFullYear();
-
+      // Calcular saldo inicial: buscar saldo inicial dos bancos + movimentações até o final do mês anterior
+      const fimMesAnterior = new Date(mesAno.getFullYear(), mesAno.getMonth(), 0);
+      
+      // Buscar saldo inicial dos bancos (configuração inicial do sistema)
       const { data: saldos } = await supabase
-        .from('saldos_iniciais_bancos')
+        .from('bancos')
         .select('saldo_inicial')
-        .eq('user_id', user.id)
-        .eq('mes_referencia', mes)
-        .eq('ano_referencia', ano);
+        .eq('usuario_id', user.id);
 
-      const saldoIni = saldos?.reduce((acc, s) => acc + (s.saldo_inicial || 0), 0) || 0;
+      const saldoInicialBancos = saldos?.reduce((acc, s) => acc + (s.saldo_inicial || 0), 0) || 0;
+
+      // Buscar todas as entradas até o final do mês anterior
+      const { data: entradasAnteriores } = await supabase
+        .from("contas_receber_pagamentos")
+        .select("valor_pago, juros, desconto")
+        .lte("data_pagamento", format(fimMesAnterior, "yyyy-MM-dd"))
+        .eq("estornado", false);
+
+      const totalEntradasAnteriores = entradasAnteriores
+        ?.reduce((sum, e) => sum + (e.valor_pago || 0) + (e.juros || 0) - (e.desconto || 0), 0) || 0;
+
+      // Buscar todas as saídas até o final do mês anterior
+      const { data: saidasAnteriores } = await supabase
+        .from("contas_pagar_pagamentos")
+        .select("valor_pago, juros, desconto")
+        .lte("data_pagamento", format(fimMesAnterior, "yyyy-MM-dd"))
+        .eq("estornado", false);
+
+      const totalSaidasAnteriores = saidasAnteriores
+        ?.reduce((sum, s) => sum + (s.valor_pago || 0) + (s.juros || 0) - (s.desconto || 0), 0) || 0;
+
+      const saldoIni = saldoInicialBancos + totalEntradasAnteriores - totalSaidasAnteriores;
       setSaldoInicial(saldoIni);
       
       // Buscar todas as entradas do mês
