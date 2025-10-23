@@ -840,8 +840,8 @@ export default function DRE() {
         </CardHeader>
         <CardContent>
           {/* Filtros */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="space-y-2">
+          <div className="flex items-end gap-4 mb-6">
+            <div className="space-y-2 w-32">
               <Label>Ano</Label>
               <Select
                 value={anoMensal.toString()}
@@ -860,7 +860,7 @@ export default function DRE() {
               </Select>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 w-40">
               <Label>Mês</Label>
               <Select
                 value={mesSelecionado.toString()}
