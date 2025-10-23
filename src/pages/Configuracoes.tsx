@@ -30,8 +30,8 @@ export default function Configuracoes() {
                 💡 Dica: Configure uma vez, use sempre!
               </h3>
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                Configure estes valores agora e eles serão aplicados automaticamente em todas as suas 
-                fichas técnicas. Você sempre pode voltar aqui para ajustar conforme seu negócio cresce.
+                Configure todos os valores agora e eles serão aplicados automaticamente em todas as suas 
+                fichas técnicas e controles financeiros. Você sempre pode voltar aqui para ajustar conforme seu negócio cresce.
               </p>
             </div>
           </div>
