@@ -975,14 +975,7 @@ export default function ContasPagar() {
 
       {/* Card de Controles */}
       <div className="border rounded-lg p-4">
-        <div className="flex items-center justify-center gap-4">
-          <Button onClick={() => navigate('/financeiro/contas-pagar/nova')}>
-            <Plus className="mr-2 h-4 w-4" />
-            Adicionar Conta a Pagar
-          </Button>
-        </div>
-        
-        <div className="flex items-center justify-between gap-4 mt-4">
+        <div className="flex items-center justify-between gap-4">
           {/* Resultados por Página - Esquerda */}
           <div className="flex items-center gap-2">
             <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
@@ -998,6 +991,12 @@ export default function ContasPagar() {
             </Select>
             <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
           </div>
+          
+          {/* Botão Adicionar - Centro */}
+          <Button onClick={() => navigate('/financeiro/contas-pagar/nova')}>
+            <Plus className="mr-2 h-4 w-4" />
+            Adicionar Conta a Pagar
+          </Button>
           
           {/* Campo de Busca - Direita */}
           <div className="relative flex-1 max-w-xs">
