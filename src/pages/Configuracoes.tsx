@@ -37,50 +37,62 @@ export default function Configuracoes() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              <button
+            <div className="grid gap-3 grid-cols-2">
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-all group border hover:border-indigo-300"
                 onClick={() => navigate("/configuracoes/dados-confeitaria")}
-                className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 transition-all group text-left"
               >
-                <div className="flex items-center gap-3">
-                  <UserCircle className="h-5 w-5 text-indigo-600" />
-                  <span className="text-sm font-medium">Dados da Confeitaria</span>
-                </div>
-                <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </button>
+                <CardContent className="p-4">
+                  <div className="flex flex-col items-center text-center gap-2">
+                    <div className="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <UserCircle className="h-5 w-5" />
+                    </div>
+                    <span className="text-xs font-medium">Dados da Confeitaria</span>
+                  </div>
+                </CardContent>
+              </Card>
 
-              <button
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-all group border hover:border-pink-300"
                 onClick={() => navigate("/configuracoes/categorias-receitas")}
-                className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 transition-all group text-left"
               >
-                <div className="flex items-center gap-3">
-                  <Tag className="h-5 w-5 text-pink-600" />
-                  <span className="text-sm font-medium">Categorias de Receitas</span>
-                </div>
-                <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </button>
+                <CardContent className="p-4">
+                  <div className="flex flex-col items-center text-center gap-2">
+                    <div className="w-10 h-10 rounded-lg bg-pink-50 text-pink-600 dark:bg-pink-950 dark:text-pink-300 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Tag className="h-5 w-5" />
+                    </div>
+                    <span className="text-xs font-medium">Categorias de Receitas</span>
+                  </div>
+                </CardContent>
+              </Card>
 
-              <button
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-all group border hover:border-green-300"
                 onClick={() => navigate("/configuracoes/tipos-insumos")}
-                className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 transition-all group text-left"
               >
-                <div className="flex items-center gap-3">
-                  <Package className="h-5 w-5 text-green-600" />
-                  <span className="text-sm font-medium">Tipos de Insumos</span>
-                </div>
-                <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </button>
+                <CardContent className="p-4">
+                  <div className="flex flex-col items-center text-center gap-2">
+                    <div className="w-10 h-10 rounded-lg bg-green-50 text-green-600 dark:bg-green-950 dark:text-green-300 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Package className="h-5 w-5" />
+                    </div>
+                    <span className="text-xs font-medium">Tipos de Insumos</span>
+                  </div>
+                </CardContent>
+              </Card>
 
-              <button
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-all group border hover:border-purple-300"
                 onClick={() => navigate("/configuracoes/tags-encomendas")}
-                className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 transition-all group text-left"
               >
-                <div className="flex items-center gap-3">
-                  <Tags className="h-5 w-5 text-purple-600" />
-                  <span className="text-sm font-medium">Tags de Encomendas</span>
-                </div>
-                <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </button>
+                <CardContent className="p-4">
+                  <div className="flex flex-col items-center text-center gap-2">
+                    <div className="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 dark:bg-purple-950 dark:text-purple-300 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Tags className="h-5 w-5" />
+                    </div>
+                    <span className="text-xs font-medium">Tags de Encomendas</span>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </CardContent>
         </Card>
