@@ -159,13 +159,9 @@ export default function Fornecedores() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <div className="flex-1">
-          <PageHeader
-            title="Fornecedores"
-          />
-        </div>
-        <Badge variant="secondary" className="text-lg px-4 py-2">
+      <div>
+        <PageHeader title="Fornecedores" />
+        <Badge variant="secondary" className="text-sm px-3 py-1 mt-2">
           {fornecedores.length} {fornecedores.length === 1 ? 'fornecedor cadastrado' : 'fornecedores cadastrados'}
         </Badge>
       </div>
