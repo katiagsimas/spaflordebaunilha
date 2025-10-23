@@ -108,6 +108,10 @@ export default function ContasPagar() {
   const [bancoIdLote, setBancoIdLote] = useState('');
   const [tipoDocumentoIdLote, setTipoDocumentoIdLote] = useState('');
   const [observacaoLote, setObservacaoLote] = useState('');
+  
+  // Estados para paginação e busca
+  const [porPagina, setPorPagina] = useState(10);
+  const [buscaNome, setBuscaNome] = useState('');
 
   useEffect(() => {
     fetchDashboard();
@@ -317,9 +321,19 @@ export default function ContasPagar() {
     if (categoriaFiltro !== 'todos' && p.plano_contas_categoria_id !== categoriaFiltro) return false;
     if (tipoDocumentoFiltro !== 'todos' && p.conta?.tipo_documento_id !== tipoDocumentoFiltro) return false;
     if (bancoFiltro !== 'todos' && p.conta?.banco_id !== bancoFiltro) return false;
+    
+    // Filtro de busca por nome do fornecedor
+    if (buscaNome && p.fornecedor_nome) {
+      if (!p.fornecedor_nome.toLowerCase().includes(buscaNome.toLowerCase())) {
+        return false;
+      }
+    }
 
     return true;
   });
+  
+  // Paginação
+  const parcelasPaginadas = parcelasFiltradas.slice(0, porPagina);
 
   const limparFiltros = () => {
     setFiltroStatus('todos');
@@ -965,9 +979,46 @@ export default function ContasPagar() {
         </div>
       )}
 
-      {/* Contador de Resultados */}
-      <div className="text-sm text-muted-foreground">
-        Mostrando <strong>{parcelasFiltradas.length}</strong> de <strong>{parcelas.length}</strong> parcela(s)
+      {/* Card de Controles */}
+      <div className="border rounded-lg p-4">
+        <div className="flex items-center justify-between gap-4">
+          {/* Resultados por Página - Esquerda */}
+          <div className="flex items-center gap-2">
+            <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
+              <SelectTrigger className="w-20 bg-popover">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
+            <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
+          </div>
+
+          {/* Botão Exportar - Centro */}
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleExportarExcel}
+            className="gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Exportar para Excel
+          </Button>
+
+          {/* Campo de Busca - Direita */}
+          <div className="relative flex-1 max-w-xs">
+            <Input
+              placeholder="Buscar por nome do fornecedor..."
+              value={buscaNome}
+              onChange={(e) => setBuscaNome(e.target.value)}
+              className="bg-popover"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Barra de Ações em Lote */}
@@ -1043,14 +1094,14 @@ export default function ContasPagar() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {parcelasFiltradas.length === 0 ? (
+            {parcelasPaginadas.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={13} className="text-center py-8 text-muted-foreground">
                   Nenhuma parcela encontrada.
                 </TableCell>
               </TableRow>
             ) : (
-              parcelasFiltradas.map((parcela: any) => (
+              parcelasPaginadas.map((parcela: any) => (
                 <TableRow key={parcela.id}>
                   <TableCell>
                     <Checkbox

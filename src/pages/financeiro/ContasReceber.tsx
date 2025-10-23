@@ -93,6 +93,10 @@ export default function ContasReceber() {
   const [tipoDocumentoIdLote, setTipoDocumentoIdLote] = useState('');
   const [observacaoLote, setObservacaoLote] = useState('');
   const [configJuros, setConfigJuros] = useState<any>(null);
+  
+  // Estados para paginação e busca
+  const [porPagina, setPorPagina] = useState(10);
+  const [buscaNome, setBuscaNome] = useState('');
 
   useEffect(() => {
     fetchParcelas();
@@ -517,9 +521,19 @@ export default function ContasReceber() {
     if (filtroBancoId && p.banco_id !== filtroBancoId) {
       return false;
     }
+    
+    // Filtro de busca por nome do cliente
+    if (buscaNome && p.cliente_nome) {
+      if (!p.cliente_nome.toLowerCase().includes(buscaNome.toLowerCase())) {
+        return false;
+      }
+    }
 
     return true;
   });
+  
+  // Paginação
+  const parcelasPaginadas = parcelasFiltradas.slice(0, porPagina);
 
   const limparFiltros = () => {
     setFiltroStatus('todos');
@@ -886,13 +900,49 @@ export default function ContasReceber() {
         </CollapsibleContent>
       </Collapsible>
 
-      {/* Contador de Parcelas com Cards de Visualização */}
-      <div className="flex items-center gap-4">
-        <div className="text-sm text-muted-foreground">
-          Mostrando <strong>{parcelasFiltradas.length}</strong> de <strong>{parcelas.length}</strong> parcela(s)
+      {/* Card de Controles */}
+      <div className="border rounded-lg p-4">
+        <div className="flex items-center justify-between gap-4 mb-4">
+          {/* Resultados por Página - Esquerda */}
+          <div className="flex items-center gap-2">
+            <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
+              <SelectTrigger className="w-20 bg-popover">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
+            <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
+          </div>
+
+          {/* Botão Exportar - Centro */}
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={exportarParaExcel}
+            className="gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Exportar para Excel
+          </Button>
+
+          {/* Campo de Busca - Direita */}
+          <div className="relative flex-1 max-w-xs">
+            <Input
+              placeholder="Buscar por nome do cliente..."
+              value={buscaNome}
+              onChange={(e) => setBuscaNome(e.target.value)}
+              className="bg-popover"
+            />
+          </div>
         </div>
-        
-        {/* Cards de Visualização */}
+
+      {/* Cards de Visualização */}
+      <div className="flex items-center gap-4">
         <div className="flex gap-2">
           <Button
             variant={visualizacao === 'ativas' ? 'default' : 'outline'}
@@ -918,6 +968,7 @@ export default function ContasReceber() {
           </Button>
         </div>
       </div>
+      </div>
 
       {/* Tabela */}
       <div className="border rounded-lg overflow-x-auto">
@@ -939,14 +990,14 @@ export default function ContasReceber() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {parcelasFiltradas.length === 0 ? (
+            {parcelasPaginadas.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={12} className="text-center py-8 text-muted-foreground">
                   Nenhuma parcela encontrada.
                 </TableCell>
               </TableRow>
             ) : (
-              parcelasFiltradas.map(parcela => (
+              parcelasPaginadas.map(parcela => (
                 <TableRow key={parcela.id}>
                   <TableCell>{parcela.tipo_documento_descricao || 'N/A'}</TableCell>
                   <TableCell>{formatarData(parcela.data_emissao)}</TableCell>
