@@ -39,84 +39,72 @@ export default function Configuracoes() {
       </Card>
 
       {/* Grid Principal com 3 Cards */}
-      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
         
         {/* Card 1: CADASTROS BASE */}
         <Card 
-          className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-primary"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-pink-500"
           onClick={() => navigate("/configuracoes/cadastros-base")}
         >
-          <CardHeader>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 rounded-lg bg-pink-50 text-pink-600 dark:bg-pink-950 dark:text-pink-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                <Package className="h-6 w-6" />
+          <CardHeader className="p-4 space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-pink-50 dark:bg-pink-950 text-pink-600 dark:text-pink-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <Package className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                  Cadastros Base
+                </CardTitle>
               </div>
             </div>
-            <CardTitle className="text-lg">
-              Cadastros Base
-              <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs line-clamp-2">
               Gerencie categorias, tipos de insumos e dados da confeitaria
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              4 configurações disponíveis
-            </p>
-          </CardContent>
         </Card>
 
         {/* Card 2: PRECIFICAÇÃO */}
         <Card 
-          className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-primary"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-blue-500"
           onClick={() => navigate("/configuracoes/precificacao")}
         >
-          <CardHeader>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                <DollarSign className="h-6 w-6" />
+          <CardHeader className="p-4 space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <DollarSign className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                  Precificação
+                </CardTitle>
               </div>
             </div>
-            <CardTitle className="text-lg">
-              Precificação
-              <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs line-clamp-2">
               Configure custos fixos, mão de obra e unidades de medida
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              3 configurações disponíveis
-            </p>
-          </CardContent>
         </Card>
 
         {/* Card 3: FINANCEIRO */}
         <Card 
-          className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-primary"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-teal-500"
           onClick={() => navigate("/configuracoes/financeiro")}
         >
-          <CardHeader>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 rounded-lg bg-teal-50 text-teal-600 dark:bg-teal-950 dark:text-teal-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                <Building2 className="h-6 w-6" />
+          <CardHeader className="p-4 space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-teal-50 dark:bg-teal-950 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <Building2 className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                  Financeiro
+                </CardTitle>
               </div>
             </div>
-            <CardTitle className="text-lg">
-              Financeiro
-              <ArrowRight className="inline-block ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs line-clamp-2">
               Gerencie bancos, documentos e plano de contas
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              5 configurações disponíveis
-            </p>
-          </CardContent>
         </Card>
       </div>
     </div>
