@@ -1,36 +1,25 @@
 import React from "react";
-import { DollarSign, Clock, Home, Ruler, ArrowRight, ArrowLeft } from "lucide-react";
+import { Clock, Home, Ruler, ArrowRight } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/PageHeader";
+import { BackButton } from "@/components/BackButton";
 
 export default function PrecificacaoPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/configuracoes")}
-          className="gap-2 text-muted-foreground hover:text-foreground mb-4"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Voltar
-        </Button>
-        <div className="flex items-center gap-3 mb-2">
-          <DollarSign className="h-8 w-8 text-primary" />
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Precificação</h1>
-            <p className="text-muted-foreground">Configure custos fixos, mão de obra e unidades de medida</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Grid com 3 Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="min-h-screen bg-background">
+      <PageHeader
+        title="Precificação"
+        description="Configure custos fixos, mão de obra e unidades de medida"
+        backButton={<BackButton to="/configuracoes" />}
+      />
+      
+      <div className="p-4 md:p-6">
+        {/* Grid com 3 Cards */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         
         {/* Card: Mão de Obra */}
         <Card 
@@ -97,6 +86,7 @@ export default function PrecificacaoPage() {
             </CardDescription>
           </CardHeader>
         </Card>
+        </div>
       </div>
     </div>
   );
