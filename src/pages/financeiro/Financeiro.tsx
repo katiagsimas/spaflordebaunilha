@@ -274,6 +274,77 @@ export default function Financeiro() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      {/* Cards de Navegação */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {/* Card Contas a Receber */}
+        <Card 
+          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-green-500"
+          onClick={() => navigate('/financeiro/contas-receber')}
+        >
+          <CardHeader className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-950 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0">
+                <TrendingUp className="h-4 w-4" />
+              </div>
+              <CardTitle className="text-sm font-semibold">
+                Contas a Receber
+              </CardTitle>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Card Contas a Pagar */}
+        <Card 
+          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-red-500"
+          onClick={() => navigate('/financeiro/contas-pagar')}
+        >
+          <CardHeader className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
+                <TrendingDown className="h-4 w-4" />
+              </div>
+              <CardTitle className="text-sm font-semibold">
+                Contas a Pagar
+              </CardTitle>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Card Fluxo de Caixa */}
+        <Card 
+          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500"
+          onClick={() => navigate('/financeiro/fluxo-caixa')}
+        >
+          <CardHeader className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                <Wallet className="h-4 w-4" />
+              </div>
+              <CardTitle className="text-sm font-semibold">
+                Fluxo de Caixa
+              </CardTitle>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Card DRE */}
+        <Card 
+          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-purple-500"
+          onClick={() => navigate('/financeiro/dre')}
+        >
+          <CardHeader className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-950 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
+                <PieChart className="h-4 w-4" />
+              </div>
+              <CardTitle className="text-sm font-semibold">
+                DRE
+              </CardTitle>
+            </div>
+          </CardHeader>
+        </Card>
+      </div>
+
       {/* Banner de Saldos */}
       <Card className="border-2">
         <CardHeader className="pb-3">
@@ -394,102 +465,6 @@ export default function Financeiro() {
           )}
         </CardContent>
       </Card>
-
-      <Separator className="my-6" />
-
-      {/* Cards de Navegação */}
-      <div>
-        <h2 className="text-2xl font-bold mb-4">Módulos</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-          {/* Card Contas a Receber */}
-          <Card 
-            className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-green-500"
-            onClick={() => navigate('/financeiro/contas-receber')}
-          >
-            <CardHeader className="p-4 space-y-2">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-green-50 dark:bg-green-950 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                  <TrendingUp className="h-5 w-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
-                    Contas a Receber
-                  </CardTitle>
-                </div>
-              </div>
-              <CardDescription className="text-xs line-clamp-2">
-                Gerenciar recebimentos de clientes
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          {/* Card Contas a Pagar */}
-          <Card 
-            className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-red-500"
-            onClick={() => navigate('/financeiro/contas-pagar')}
-          >
-            <CardHeader className="p-4 space-y-2">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                  <TrendingDown className="h-5 w-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
-                    Contas a Pagar
-                  </CardTitle>
-                </div>
-              </div>
-              <CardDescription className="text-xs line-clamp-2">
-                Gerenciar pagamentos a fornecedores
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          {/* Card Fluxo de Caixa */}
-          <Card 
-            className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-blue-500"
-            onClick={() => navigate('/financeiro/fluxo-caixa')}
-          >
-            <CardHeader className="p-4 space-y-2">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                  <Wallet className="h-5 w-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
-                    Fluxo de Caixa
-                  </CardTitle>
-                </div>
-              </div>
-              <CardDescription className="text-xs line-clamp-2">
-                Análise financeira detalhada
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          {/* Card DRE */}
-          <Card 
-            className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-purple-500"
-            onClick={() => navigate('/financeiro/dre')}
-          >
-            <CardHeader className="p-4 space-y-2">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-purple-50 dark:bg-purple-950 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                  <PieChart className="h-5 w-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
-                    DRE
-                  </CardTitle>
-                </div>
-              </div>
-              <CardDescription className="text-xs line-clamp-2">
-                Demonstração do Resultado
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
-      </div>
 
       {/* Modal Configuração de Saldos */}
       <Dialog open={modalConfigAberto} onOpenChange={setModalConfigAberto}>
