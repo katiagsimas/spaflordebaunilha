@@ -359,23 +359,23 @@ export default function FluxoCaixaMensal() {
       {/* Tabela de Fluxo Mensal */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
+          <div>
+            <div className="flex items-center gap-3 mb-2">
               <CardTitle>Fluxo de Caixa {ano}</CardTitle>
-              <CardDescription>
-                Comparativo mensal com todas as categorias
-              </CardDescription>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={handleExportar}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Exportar para Excel
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => window.print()}>
+                  <Printer className="w-4 h-4 mr-2" />
+                  Imprimir
+                </Button>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handleExportar}>
-                <Download className="w-4 h-4 mr-2" />
-                Exportar para Excel
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => window.print()}>
-                <Printer className="w-4 h-4 mr-2" />
-                Imprimir
-              </Button>
-            </div>
+            <CardDescription>
+              Comparativo mensal com todas as categorias
+            </CardDescription>
           </div>
         </CardHeader>
         <CardContent>
