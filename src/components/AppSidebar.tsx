@@ -77,7 +77,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar shadow-xl" style={{ width: open ? '280px' : undefined }}>
+    <Sidebar collapsible="icon" className="border-r border-gray-200 bg-white shadow-xl" style={{ width: open ? '280px' : undefined }}>
       <SidebarHeader className="border-b border-gray-200 p-8 bg-white">
         {open && (
           <div className="flex justify-center">
@@ -90,9 +90,9 @@ export function AppSidebar() {
         )}
       </SidebarHeader>
 
-      <SidebarContent className="bg-sidebar">
+      <SidebarContent className="bg-white">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground/60 uppercase text-xs font-semibold px-5 py-2">Menu Principal</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-gray-500 uppercase text-xs font-semibold px-5 py-2">Menu Principal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => {
@@ -106,15 +106,15 @@ export function AppSidebar() {
                         className={({ isActive }) =>
                           `flex items-center gap-3 px-5 py-3 transition-all duration-200 ${
                             isActive && item.active
-                              ? "bg-sidebar-accent text-white font-medium border-l-4 border-gold"
-                              : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-white"
+                              ? "bg-primary/10 text-primary font-medium border-l-4 border-primary"
+                              : "text-gray-700 hover:bg-gray-100"
                           } ${!item.active ? "opacity-60 cursor-not-allowed" : ""}`
                         }
                         onClick={(e) => !item.active && e.preventDefault()}
                       >
                         {({ isActive }) => (
                           <>
-                            <Icon className={`h-5 w-5 ${isActive && item.active ? 'text-white' : 'text-sidebar-foreground/80'}`} />
+                            <Icon className={`h-5 w-5 ${isActive && item.active ? 'text-primary' : 'text-gray-600'}`} />
                             {open && (
                               <>
                                 <span className="flex-1">{item.title}</span>
@@ -141,13 +141,13 @@ export function AppSidebar() {
       </SidebarContent>
 
       {open && profile && (
-        <SidebarFooter className="border-t border-sidebar-border p-6 bg-sidebar">
+        <SidebarFooter className="border-t border-gray-200 p-6 bg-white">
           <div className="space-y-2">
             <div>
-              <p className="text-sm font-semibold text-sidebar-foreground truncate">
+              <p className="text-sm font-semibold text-gray-900 truncate">
                 {profile.nome_confeitaria || profile.nome_completo}
               </p>
-              <p className="text-xs text-sidebar-foreground/60 truncate">
+              <p className="text-xs text-gray-500 truncate">
                 {user?.email}
               </p>
             </div>
@@ -155,7 +155,7 @@ export function AppSidebar() {
               onClick={handleLogout}
               variant="ghost" 
               size="sm" 
-              className="w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-white justify-start"
+              className="w-full text-gray-700 hover:bg-gray-100 justify-start"
             >
               <LogOut className="h-4 w-4 mr-2" />
               Sair
