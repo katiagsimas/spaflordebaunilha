@@ -50,7 +50,7 @@ export function AppSidebar() {
   });
 
   // Buscar aniversariantes do mês de fornecedores
-  const { data: aniversariantesDoMes = [] } = useQuery({
+  const { data: aniversariantesFornecedores = [] } = useQuery({
     queryKey: ['fornecedores-aniversariantes', user?.id],
     queryFn: async () => {
       if (!user) return [];
@@ -65,6 +65,28 @@ export function AppSidebar() {
       return data.filter(fornecedor => {
         if (!fornecedor.data_aniversario_contato || !fornecedor.contato) return false;
         const dataAniversario = new Date(fornecedor.data_aniversario_contato + 'T00:00:00');
+        return dataAniversario.getMonth() === mesAtual;
+      });
+    },
+    enabled: !!user,
+  });
+
+  // Buscar aniversariantes do mês de clientes
+  const { data: aniversariantesClientes = [] } = useQuery({
+    queryKey: ['clientes-aniversariantes', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const mesAtual = new Date().getMonth();
+      const { data } = await supabase
+        .from('clientes')
+        .select('*')
+        .eq('usuario_id', user.id);
+      
+      if (!data) return [];
+      
+      return data.filter(cliente => {
+        if (!cliente.data_aniversario) return false;
+        const dataAniversario = new Date(cliente.data_aniversario + 'T00:00:00');
         return dataAniversario.getMonth() === mesAtual;
       });
     },
@@ -114,7 +136,12 @@ export function AppSidebar() {
                             {open && (
                               <>
                                 <span className="flex-1">{item.title}</span>
-                                {item.title === "Fornecedores" && aniversariantesDoMes.length > 0 && (
+                                {item.title === "Clientes" && aniversariantesClientes.length > 0 && (
+                                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center animate-bounce ml-1">
+                                    <Cake className="h-3.5 w-3.5 text-white" />
+                                  </div>
+                                )}
+                                {item.title === "Fornecedores" && aniversariantesFornecedores.length > 0 && (
                                   <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center animate-bounce ml-1">
                                     <Cake className="h-3.5 w-3.5 text-white" />
                                   </div>
