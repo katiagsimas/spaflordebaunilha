@@ -10,7 +10,7 @@ export default function Configuracoes() {
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
           <Settings className="h-8 w-8 text-primary" />
           <div>
@@ -19,6 +19,24 @@ export default function Configuracoes() {
           </div>
         </div>
       </div>
+
+      {/* Card Informativo */}
+      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border-blue-200 dark:border-blue-800 mb-8">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3">
+            <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+            <div className="space-y-2">
+              <h3 className="font-semibold text-blue-900 dark:text-blue-100">
+                💡 Dica: Configure uma vez, use sempre!
+              </h3>
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                Configure estes valores agora e eles serão aplicados automaticamente em todas as suas 
+                fichas técnicas. Você sempre pode voltar aqui para ajustar conforme seu negócio cresce.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Grid Principal com 3 Cards */}
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3 mb-8">
@@ -227,23 +245,6 @@ export default function Configuracoes() {
         </Card>
       </div>
 
-      {/* Card Informativo */}
-      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border-blue-200 dark:border-blue-800">
-        <CardContent className="pt-6">
-          <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
-            <div className="space-y-2">
-              <h3 className="font-semibold text-blue-900 dark:text-blue-100">
-                💡 Dica: Configure uma vez, use sempre!
-              </h3>
-              <p className="text-sm text-blue-700 dark:text-blue-300">
-                Configure estes valores agora e eles serão aplicados automaticamente em todas as suas 
-                fichas técnicas. Você sempre pode voltar aqui para ajustar conforme seu negócio cresce.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
