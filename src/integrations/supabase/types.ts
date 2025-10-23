@@ -290,9 +290,11 @@ export type Database = {
           id: string
           nome: string
           padrao: boolean | null
+          ultima_alteracao: string | null
           updated_at: string | null
           user_id: string
           valor_hora: number
+          versao: number | null
         }
         Insert: {
           ativo?: boolean | null
@@ -302,9 +304,11 @@ export type Database = {
           id?: string
           nome: string
           padrao?: boolean | null
+          ultima_alteracao?: string | null
           updated_at?: string | null
           user_id: string
           valor_hora: number
+          versao?: number | null
         }
         Update: {
           ativo?: boolean | null
@@ -314,9 +318,11 @@ export type Database = {
           id?: string
           nome?: string
           padrao?: boolean | null
+          ultima_alteracao?: string | null
           updated_at?: string | null
           user_id?: string
           valor_hora?: number
+          versao?: number | null
         }
         Relationships: []
       }
@@ -1346,6 +1352,62 @@ export type Database = {
             columns: ["tipo_insumo_id"]
             isOneToOne: false
             referencedRelation: "tipos_insumos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mao_obra_historico: {
+        Row: {
+          created_at: string | null
+          data_alteracao: string | null
+          descricao_alteracao: string | null
+          descricao_anterior: string | null
+          descricao_novo: string | null
+          id: string
+          mao_obra_id: string
+          nome_anterior: string | null
+          nome_novo: string | null
+          tipo_alteracao: string | null
+          user_id: string
+          valor_anterior: number | null
+          valor_novo: number
+        }
+        Insert: {
+          created_at?: string | null
+          data_alteracao?: string | null
+          descricao_alteracao?: string | null
+          descricao_anterior?: string | null
+          descricao_novo?: string | null
+          id?: string
+          mao_obra_id: string
+          nome_anterior?: string | null
+          nome_novo?: string | null
+          tipo_alteracao?: string | null
+          user_id: string
+          valor_anterior?: number | null
+          valor_novo: number
+        }
+        Update: {
+          created_at?: string | null
+          data_alteracao?: string | null
+          descricao_alteracao?: string | null
+          descricao_anterior?: string | null
+          descricao_novo?: string | null
+          id?: string
+          mao_obra_id?: string
+          nome_anterior?: string | null
+          nome_novo?: string | null
+          tipo_alteracao?: string | null
+          user_id?: string
+          valor_anterior?: number | null
+          valor_novo?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mao_obra_historico_mao_obra_id_fkey"
+            columns: ["mao_obra_id"]
+            isOneToOne: false
+            referencedRelation: "configuracao_mao_obra"
             referencedColumns: ["id"]
           },
         ]

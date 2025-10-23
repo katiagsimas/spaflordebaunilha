@@ -22,7 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Clock, Plus, Pencil, Trash2, Star, ArrowLeft, Info } from "lucide-react";
+import { Clock, Plus, Pencil, Trash2, Star, ArrowLeft, Info, History, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useMaoObra, type MaoDeObra } from "@/hooks/useMaoObra";
 import { PageHeader } from "@/components/PageHeader";
@@ -40,11 +40,13 @@ const coresDisponiveis = [
 
 export default function MaoDeObra() {
   const navigate = useNavigate();
-  const { valores, isLoading, createMaoObra, updateMaoObra, deleteMaoObra } = useMaoObra();
+  const { valores, isLoading, historico, createMaoObra, updateMaoObra, deleteMaoObra, toggleAtivo } = useMaoObra();
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editando, setEditando] = useState<MaoDeObra | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<string | null>(null);
+  const [historicoOpen, setHistoricoOpen] = useState(false);
+  const [valorSelecionado, setValorSelecionado] = useState<MaoDeObra | null>(null);
 
   const [formData, setFormData] = useState({
     nome: "",
@@ -114,6 +116,28 @@ export default function MaoDeObra() {
     if (!open) {
       resetForm();
     }
+  };
+
+  const verHistorico = (id: string) => {
+    const valor = valores.find(v => v.id === id);
+    if (valor) {
+      setValorSelecionado(valor);
+      setHistoricoOpen(true);
+    }
+  };
+
+  const historicoFiltrado = valorSelecionado
+    ? historico.filter(h => h.mao_obra_id === valorSelecionado.id)
+    : [];
+
+  const formatarDataHora = (data: string) => {
+    return new Date(data).toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   if (isLoading) {
@@ -272,49 +296,66 @@ export default function MaoDeObra() {
       ) : (
         <div className="grid gap-6 md:grid-cols-2">
           {valores.map((valor) => {
-            const corClass = coresDisponiveis.find(c => c.value === valor.cor)?.class || "bg-blue-100 text-blue-600";
+            const corClass = coresDisponiveis.find(c => c.value === valor.cor)?.class || "bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-300";
+            const historicoCount = historico.filter(h => h.mao_obra_id === valor.id).length;
             
             return (
-              <Card key={valor.id} className="group relative hover:shadow-lg hover:scale-[1.02] transition-all duration-200">
+              <Card key={valor.id} className="relative hover:shadow-lg transition-all border-2">
                 {valor.padrao && (
-                  <div className="absolute -top-2 -right-2">
-                    <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
+                  <div className="absolute -top-2 -right-2 bg-amber-500 text-white p-2 rounded-full shadow-lg z-10">
+                    <Star className="w-4 h-4 fill-current" />
                   </div>
                 )}
-                <CardHeader className="p-4 space-y-2">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg ${corClass} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
-                      <Clock className="h-5 w-5" />
+                
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className={`p-3 rounded-lg border-2 ${corClass}`}>
+                      <Clock className="w-6 h-6" />
                     </div>
-                    <div className="min-w-0 flex-1 flex items-center gap-2">
-                      <CardTitle className="text-base font-semibold leading-tight line-clamp-1">
-                        {valor.nome}
-                      </CardTitle>
-                      {valor.padrao && (
-                        <Badge variant="secondary" className="bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 text-xs shrink-0">
-                          Padrão
-                        </Badge>
-                      )}
+                    <div className="flex gap-1">
                       {!valor.ativo && (
-                        <Badge variant="secondary" className="bg-gray-100 text-gray-600 dark:bg-gray-800 text-xs shrink-0">
+                        <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded font-medium">
                           Inativo
-                        </Badge>
+                        </span>
+                      )}
+                      
+                      {historicoCount > 0 && (
+                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded font-medium">
+                          {historicoCount} alterações
+                        </span>
                       )}
                     </div>
                   </div>
-                  <CardDescription className="text-xs line-clamp-2">
+                  
+                  <CardTitle className="flex items-center gap-2">
+                    {valor.nome}
+                    {valor.padrao && (
+                      <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
+                        Padrão
+                      </span>
+                    )}
+                  </CardTitle>
+                  
+                  <CardDescription>
                     {valor.descricao || "Sem descrição"}
+                    
+                    {valor.ultima_alteracao && (
+                      <span className="block text-xs text-blue-600 mt-1">
+                        Última alteração: {new Date(valor.ultima_alteracao).toLocaleDateString("pt-BR")}
+                      </span>
+                    )}
                   </CardDescription>
                 </CardHeader>
+                
                 <CardContent>
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                      <span className="text-sm text-muted-foreground">
-                        Valor/hora:
-                      </span>
-                      <span className="text-lg font-bold">
-                        R$ {valor.valor_hora.toFixed(2)}
-                      </span>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <span className="text-sm text-gray-600 font-medium">Valor/hora:</span>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-primary">
+                          R$ {valor.valor_hora.toFixed(2)}
+                        </div>
+                      </div>
                     </div>
 
                     <div className="flex gap-2">
@@ -324,16 +365,30 @@ export default function MaoDeObra() {
                         onClick={() => handleEdit(valor)}
                         className="flex-1"
                       >
-                        <Pencil className="h-4 w-4 mr-1" />
-                        Editar
+                        <Pencil className="w-4 h-4 mr-1" />
+                        Alterar
                       </Button>
+                      
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setDeleteDialog(valor.id)}
-                        className="text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+                        onClick={() => verHistorico(valor.id)}
+                        className="text-blue-600 hover:bg-blue-50"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <History className="w-4 h-4" />
+                      </Button>
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleAtivo({ id: valor.id, ativo: valor.ativo })}
+                        className={valor.ativo ? "text-gray-600 hover:bg-gray-50" : "text-green-600 hover:bg-green-50"}
+                      >
+                        {valor.ativo ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -364,6 +419,84 @@ export default function MaoDeObra() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={historicoOpen} onOpenChange={setHistoricoOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <History className="w-5 h-5 text-blue-600" />
+              Histórico de Alterações
+            </DialogTitle>
+            <DialogDescription>
+              {valorSelecionado?.nome}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-4 max-h-[400px] overflow-y-auto">
+            {historicoFiltrado.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">
+                Nenhuma alteração registrada
+              </p>
+            ) : (
+              historicoFiltrado.map((item, index) => (
+                <div key={item.id} className="relative pl-8 pb-6">
+                  {index !== historicoFiltrado.length - 1 && (
+                    <div className="absolute left-3 top-6 bottom-0 w-0.5 bg-blue-200" />
+                  )}
+                  
+                  <div className="absolute left-0 top-0 w-6 h-6 rounded-full bg-blue-100 border-2 border-blue-500 flex items-center justify-center">
+                    <div className="w-2 h-2 rounded-full bg-blue-600" />
+                  </div>
+
+                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs text-gray-600">
+                        {formatarDataHora(item.data_alteracao)}
+                      </span>
+                      {index === 0 && (
+                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-medium">
+                          Atual
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-700">Valor/hora:</span>
+                        <div className="flex items-center gap-2">
+                          {item.valor_anterior && (
+                            <>
+                              <span className="text-sm text-gray-500 line-through">
+                                R$ {item.valor_anterior.toFixed(2)}
+                              </span>
+                              <span className="text-gray-400">→</span>
+                            </>
+                          )}
+                          <span className="text-sm font-bold text-primary">
+                            R$ {item.valor_novo.toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {item.descricao_alteracao && (
+                        <p className="text-xs text-gray-600 mt-1">
+                          {item.descricao_alteracao}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="flex justify-end">
+            <Button onClick={() => setHistoricoOpen(false)}>
+              Fechar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
