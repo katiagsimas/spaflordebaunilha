@@ -258,15 +258,23 @@ export default function ContasPagar() {
   const fetchDadosFiltros = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        console.log('❌ Usuário não autenticado');
+        return;
+      }
+
+      console.log('✅ Buscando fornecedores para usuário:', user.id);
 
       // Fornecedores
-      const { data: dataFornecedores } = await supabase
+      const { data: dataFornecedores, error: errorFornecedores } = await supabase
         .from('fornecedores' as any)
-        .select('id, nome')
+        .select('id, nome, ativo')
         .eq('usuario_id', user.id)
-        .eq('ativo', true)
         .order('nome') as any;
+      
+      console.log('📦 Fornecedores retornados:', dataFornecedores);
+      console.log('❗ Erro ao buscar fornecedores:', errorFornecedores);
+      
       setFornecedores(dataFornecedores || []);
 
       // Planos de Contas (apenas débito/despesas)
