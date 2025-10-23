@@ -444,10 +444,10 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-              R$ {alertas.receberAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              {alertas.receberAtrasado.quantidade}
             </p>
             <p className="text-xs text-muted-foreground">
-              {alertas.receberAtrasado.quantidade} conta(s) em atraso
+              conta(s) em atraso
             </p>
             <Button 
               variant="link" 
@@ -469,10 +469,10 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-              R$ {alertas.pagarAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              {alertas.pagarAtrasado.quantidade}
             </p>
             <p className="text-xs text-muted-foreground">
-              {alertas.pagarAtrasado.quantidade} conta(s) em atraso
+              conta(s) em atraso
             </p>
             <Button 
               variant="link" 
