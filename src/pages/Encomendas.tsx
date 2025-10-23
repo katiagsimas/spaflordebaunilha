@@ -1499,17 +1499,17 @@ const Encomendas = () => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Total */}
         <Card className="border-blue-200 bg-blue-50 shadow-soft">
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-1 pt-3">
             <div className="flex items-center gap-2">
-              <ClipboardList className="h-5 w-5 text-blue-700" />
-              <CardTitle className="text-sm text-blue-700">Total de Encomendas</CardTitle>
+              <ClipboardList className="h-4 w-4 text-blue-700" />
+              <CardTitle className="text-xs text-blue-700">Total de Encomendas</CardTitle>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-700">
+          <CardContent className="pb-3">
+            <div className="text-2xl font-bold text-blue-700">
               {indicadores.total}
             </div>
-            <p className="text-xs text-blue-600 mt-1">
+            <p className="text-xs text-blue-600 mt-0.5">
               {meses[mesSelecionado]}/{anoSelecionado}
             </p>
           </CardContent>
@@ -1517,17 +1517,17 @@ const Encomendas = () => {
 
         {/* Pendentes */}
         <Card className="border-yellow-200 bg-yellow-50 shadow-soft">
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-1 pt-3">
             <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-yellow-700" />
-              <CardTitle className="text-sm text-yellow-700">Pendentes</CardTitle>
+              <Clock className="h-4 w-4 text-yellow-700" />
+              <CardTitle className="text-xs text-yellow-700">Pendentes</CardTitle>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-yellow-700">
+          <CardContent className="pb-3">
+            <div className="text-2xl font-bold text-yellow-700">
               {indicadores.pendentes}
             </div>
-            <p className="text-xs text-yellow-600 mt-1">
+            <p className="text-xs text-yellow-600 mt-0.5">
               Aguardando pagamento
             </p>
           </CardContent>
@@ -1535,17 +1535,17 @@ const Encomendas = () => {
 
         {/* Canceladas */}
         <Card className="border-red-200 bg-red-50 shadow-soft">
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-1 pt-3">
             <div className="flex items-center gap-2">
-              <XCircle className="h-5 w-5 text-red-700" />
-              <CardTitle className="text-sm text-red-700">Canceladas</CardTitle>
+              <XCircle className="h-4 w-4 text-red-700" />
+              <CardTitle className="text-xs text-red-700">Canceladas</CardTitle>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-red-700">
+          <CardContent className="pb-3">
+            <div className="text-2xl font-bold text-red-700">
               {indicadores.canceladas}
             </div>
-            <p className="text-xs text-red-600 mt-1">
+            <p className="text-xs text-red-600 mt-0.5">
               Não realizadas
             </p>
           </CardContent>
@@ -1553,17 +1553,17 @@ const Encomendas = () => {
 
         {/* Confirmadas */}
         <Card className="border-blue-200 bg-blue-50 shadow-soft">
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-1 pt-3">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-blue-700" />
-              <CardTitle className="text-sm text-blue-700">Confirmadas</CardTitle>
+              <CheckCircle2 className="h-4 w-4 text-blue-700" />
+              <CardTitle className="text-xs text-blue-700">Confirmadas</CardTitle>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-700">
+          <CardContent className="pb-3">
+            <div className="text-2xl font-bold text-blue-700">
               {indicadores.confirmadas}
             </div>
-            <p className="text-xs text-blue-600 mt-1">
+            <p className="text-xs text-blue-600 mt-0.5">
               Pagamento confirmado
             </p>
           </CardContent>
@@ -1571,17 +1571,17 @@ const Encomendas = () => {
 
         {/* Entregues */}
         <Card className="border-green-200 bg-green-50 shadow-soft">
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-1 pt-3">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-green-700" />
-              <CardTitle className="text-sm text-green-700">Entregues/Finalizadas</CardTitle>
+              <CheckCircle2 className="h-4 w-4 text-green-700" />
+              <CardTitle className="text-xs text-green-700">Entregues/Finalizadas</CardTitle>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-700">
+          <CardContent className="pb-3">
+            <div className="text-2xl font-bold text-green-700">
               {indicadores.entregues}
             </div>
-            <p className="text-xs text-green-600 mt-1">
+            <p className="text-xs text-green-600 mt-0.5">
               Concluídas
             </p>
           </CardContent>
