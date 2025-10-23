@@ -136,37 +136,41 @@ export default function Fornecedores() {
       </div>
 
       {aniversariantesDoMes.length > 0 && (
-        <Card className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border-purple-200 dark:border-purple-800">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
-              <Cake className="h-5 w-5 animate-bounce" />
-              🎉 Aniversariantes do Mês
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {aniversariantesDoMes.map((fornecedor) => (
-                <div 
-                  key={fornecedor.id}
-                  className="flex items-center justify-between p-3 bg-white dark:bg-gray-900 rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="flex-1">
-                    <p className="font-semibold text-gray-900 dark:text-gray-100">
-                      {fornecedor.contato}
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {new Date(fornecedor.data_aniversario_contato! + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500">
-                      {fornecedor.nome}
-                    </p>
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <Cake className="h-5 w-5 animate-bounce" />
+            🎉 Aniversariantes do Mês
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {aniversariantesDoMes.map((fornecedor) => (
+              <Card 
+                key={fornecedor.id}
+                className="bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 dark:from-purple-500/20 dark:via-pink-500/20 dark:to-orange-500/20 border-2 border-purple-300/50 dark:border-purple-500/50 hover:shadow-lg transition-all duration-300"
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                        <Cake className="h-6 w-6 text-white" />
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm truncate">
+                        {fornecedor.contato}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(fornecedor.data_aniversario_contato! + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {fornecedor.nome}
+                      </p>
+                    </div>
                   </div>
-                  <Cake className="h-8 w-8 text-purple-400" />
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
       )}
 
       <Card>
