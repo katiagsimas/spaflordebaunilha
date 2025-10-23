@@ -1625,7 +1625,7 @@ const Encomendas = () => {
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-5 w-5 text-green-700" />
-              <CardTitle className="text-sm text-green-700">Entregues</CardTitle>
+              <CardTitle className="text-sm text-green-700">Entregues/Finalizadas</CardTitle>
             </div>
           </CardHeader>
           <CardContent>
