@@ -789,57 +789,6 @@ const Encomendas = () => {
   // Lista de clientes únicos que possuem encomendas
   const clientesComEncomendas = Array.from(new Set(encomendas.map(e => e.cliente).filter(c => c && c.trim() !== ""))).sort();
 
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const weekFromNow = new Date(today);
-  weekFromNow.setDate(weekFromNow.getDate() + 7);
-
-  const todayOrders = encomendas.filter(e => {
-    if (!e.data_entrega) return false; // Ignora encomendas sem data de entrega
-    const deliveryDate = new Date(e.data_entrega);
-    return deliveryDate.getTime() === today.getTime() && e.status !== "entregue" && e.status !== "cancelado";
-  }).length;
-
-  const weekOrders = encomendas.filter(e => {
-    if (!e.data_entrega) return false; // Ignora encomendas sem data de entrega
-    const deliveryDate = new Date(e.data_entrega);
-    return deliveryDate >= today && deliveryDate <= weekFromNow && e.status !== "entregue" && e.status !== "cancelado";
-  }).length;
-
-  const totalReceivable = encomendas.filter(e => e.status !== "entregue" && e.status !== "cancelado")
-    .reduce((sum, e) => sum + (e.saldo_restante || 0), 0);
-
-  const stats = [
-    {
-      title: "Total de Encomendas",
-      value: encomendas.length,
-      icon: ShoppingBag,
-      color: "text-primary",
-      bgColor: "bg-primary/10",
-    },
-    {
-      title: "Entregas Hoje",
-      value: todayOrders,
-      icon: CalendarCheck,
-      color: "text-info",
-      bgColor: "bg-info/10",
-    },
-    {
-      title: "Entregas na Semana",
-      value: weekOrders,
-      icon: Clock,
-      color: "text-warning",
-      bgColor: "bg-warning/10",
-    },
-    {
-      title: "Valor a Receber",
-      value: `R$ ${totalReceivable.toFixed(2)}`,
-      icon: DollarSign,
-      color: "text-success",
-      bgColor: "bg-success/10",
-    },
-  ];
-
   return (
     <div className="space-y-8">
       <PageHeader
@@ -1723,29 +1672,6 @@ const Encomendas = () => {
           </div>
         </CardContent>
       </Card>
-
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {stats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Card 
-              key={stat.title} 
-              className="p-4 border-l-4 border-l-[#D89B8C] hover:shadow-lg transition-shadow"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-[#9C8B82]">{stat.title}</p>
-                  <div className={`${stat.bgColor} p-2 rounded-lg`}>
-                    <Icon className={`h-4 w-4 ${stat.color}`} />
-                  </div>
-                </div>
-                <p className="text-2xl font-bold text-[#6B5047]">{stat.value}</p>
-              </div>
-            </Card>
-          );
-        })}
-      </div>
 
       {/* Filtros */}
       <Card className="shadow-soft">
