@@ -273,8 +273,6 @@ export default function ReceitaForm() {
   ]);
   const [valorVenda, setValorVenda] = useState(0);
   const [valorVendaInput, setValorVendaInput] = useState("");
-  const [maoObraId, setMaoObraId] = useState("");
-  const [tempoMaoObra, setTempoMaoObra] = useState(0);
 
   // Sincronizar valorVendaInput quando valorVenda mudar externamente
   useEffect(() => {
@@ -522,10 +520,9 @@ export default function ReceitaForm() {
     : Number(formData.tempoPreparo) / 60;
   const custoFixoReceita = custoFixoPorHora * tempoPreparoHoras;
   
-  // Calcular custo de mão de obra
-  const maoObraSelecionada = valoresMaoObra.find(mo => mo.id === maoObraId);
-  const tempoMaoObraHoras = tempoMaoObra / 60; // converter minutos para horas
-  const custoMaoObra = maoObraSelecionada ? (maoObraSelecionada.valor_hora * tempoMaoObraHoras) : 0;
+  // Calcular custo de mão de obra usando o tempo de preparo da receita
+  const maoObraSelecionada = valoresMaoObra.find(mo => mo.ativo);
+  const custoMaoObra = maoObraSelecionada ? (maoObraSelecionada.valor_hora * tempoPreparoHoras) : 0;
   
   // Calcular outros gastos personalizados
   const handleOutroGastoChange = (index: number, field: 'nome' | 'valor', value: string | number) => {
@@ -1337,17 +1334,15 @@ export default function ReceitaForm() {
                   {/* Mão de Obra */}
                   <div className="space-y-3 p-4 rounded-lg bg-card border">
                     <h4 className="font-semibold text-sm text-muted-foreground">⏱️ Mão de Obra</h4>
-                    <div className="space-y-3">
-                      <div>
-                        <Label className="text-xs">Tempo de Mão de Obra (minutos)</Label>
-                        <Input
-                          type="number"
-                          min="0"
-                          value={tempoMaoObra || ""}
-                          onChange={(e) => setTempoMaoObra(parseFloat(e.target.value) || 0)}
-                          placeholder="Ex: 30"
-                        />
-                      </div>
+                    <div className="space-y-2">
+                      <p className="text-sm">
+                        O custo de mão de obra é calculado automaticamente com base no <span className="font-semibold">Tempo de Preparo</span> informado no início da página.
+                      </p>
+                      {maoObraSelecionada && Number(formData.tempoPreparo) > 0 && (
+                        <p className="text-xs text-muted-foreground">
+                          {formData.tempoPreparo} {formData.unidadeTempo} × R$ {maoObraSelecionada.valor_hora.toFixed(2)}/h = R$ {custoMaoObra.toFixed(2)}
+                        </p>
+                      )}
                     </div>
                   </div>
 
