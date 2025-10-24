@@ -1493,12 +1493,29 @@ export default function ReceitaForm() {
                         className="text-xl font-bold pl-12"
                       />
                     </div>
+                    <Button 
+                      className="w-full mt-3" 
+                      onClick={() => {
+                        if (valorVenda > 0) {
+                          // Scroll suave até a seção de análise
+                          const analiseElement = document.getElementById('analise-venda');
+                          if (analiseElement) {
+                            analiseElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                          }
+                          toast.success('Confira os alertas de CMV e Margem de Contribuição abaixo! 👇');
+                        } else {
+                          toast.error('Digite um valor de venda primeiro!');
+                        }
+                      }}
+                    >
+                      Confirmar
+                    </Button>
                   </div>
                 </div>
 
                 {/* Análise da Venda */}
                 {valorVenda > 0 && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+                  <div id="analise-venda" className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
                     <div className="space-y-3">
                       <div className={`space-y-2 p-4 rounded-lg border-2 transition-all duration-300 ${
                         percentualCMV <= 35 
