@@ -471,51 +471,21 @@ export default function Dashboard() {
       return sum + pendente;
     }, 0) || 0;
 
-    // Buscar saldos dos bancos para calcular saldo atual
-    const { data: bancos } = await supabase
-      .from("bancos")
-      .select("saldo_inicial")
-      .eq("usuario_id", user.id);
+    // Buscar resumo financeiro usando a mesma view que a página Financeiro
+    const mesAtual = new Date().getMonth() + 1;
+    const anoAtual = new Date().getFullYear();
+    
+    const { data: resumo } = await supabase
+      .from('vw_resumo_financeiro')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('mes', mesAtual)
+      .eq('ano', anoAtual);
 
-    // Buscar total de pagamentos recebidos
-    const { data: pagamentosRecebidos } = await supabase
-      .from("contas_receber_pagamentos")
-      .select(`
-        valor_pago,
-        juros,
-        desconto,
-        parcela:contas_receber_parcelas!inner (
-          conta_receber:contas_receber!inner (
-            usuario_id
-          )
-        )
-      `)
-      .eq("parcela.conta_receber.usuario_id", user.id)
-      .eq("estornado", false);
-
-    // Buscar total de pagamentos realizados
-    const { data: pagamentosRealizados } = await supabase
-      .from("contas_pagar_pagamentos")
-      .select(`
-        valor_pago,
-        juros,
-        desconto,
-        parcela:contas_pagar_parcelas!inner (
-          conta_pagar:contas_pagar!inner (
-            usuario_id
-          )
-        )
-      `)
-      .eq("parcela.conta_pagar.usuario_id", user.id)
-      .eq("estornado", false);
-
-    const saldoInicial = bancos?.reduce((sum, b) => sum + (b.saldo_inicial || 0), 0) || 0;
-    const totalRecebido = pagamentosRecebidos?.reduce((sum, p) => 
-      sum + (p.valor_pago || 0) + (p.juros || 0) - (p.desconto || 0), 0) || 0;
-    const totalPago = pagamentosRealizados?.reduce((sum, p) => 
-      sum + (p.valor_pago || 0) + (p.juros || 0) - (p.desconto || 0), 0) || 0;
-
-    const saldoAtual = saldoInicial + totalRecebido - totalPago;
+    let saldoAtual = 0;
+    if (resumo && resumo.length > 0) {
+      saldoAtual = resumo.reduce((acc, b) => acc + (b.saldo_atual || 0), 0);
+    }
 
     setFinanceiro({
       receberAberto,
