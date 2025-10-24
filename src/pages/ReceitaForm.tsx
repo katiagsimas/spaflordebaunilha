@@ -1331,21 +1331,6 @@ export default function ReceitaForm() {
                     </div>
                   </div>
 
-                  {/* Mão de Obra */}
-                  <div className="space-y-3 p-4 rounded-lg bg-card border">
-                    <h4 className="font-semibold text-sm text-muted-foreground">⏱️ Mão de Obra</h4>
-                    <div className="space-y-2">
-                      <p className="text-sm">
-                        O custo de mão de obra é calculado automaticamente com base no <span className="font-semibold">Tempo de Preparo</span> informado no início da página.
-                      </p>
-                      {maoObraSelecionada && Number(formData.tempoPreparo) > 0 && (
-                        <p className="text-xs text-muted-foreground">
-                          {formData.tempoPreparo} {formData.unidadeTempo} × R$ {maoObraSelecionada.valor_hora.toFixed(2)}/h = R$ {custoMaoObra.toFixed(2)}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
                   {/* Outros Gastos */}
                   <div className="space-y-3 p-4 rounded-lg bg-card border">
                     <div className="flex justify-between items-center">
