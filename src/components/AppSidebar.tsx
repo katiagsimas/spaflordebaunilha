@@ -1,9 +1,10 @@
-import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake, Shield } from "lucide-react";
 import donnasBoxLogo from "@/assets/donnas-box-logo.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import {
   Sidebar,
   SidebarContent,
@@ -34,6 +35,7 @@ export function AppSidebar() {
   const { open } = useSidebar();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { isAdmin } = useIsAdmin();
 
   // Buscar perfil do usuário
   const { data: profile } = useQuery({
@@ -164,6 +166,38 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Seção de Administração - Apenas para Admins */}
+        {isAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Administração</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={false}>
+                    <NavLink
+                      to="/admin/usuarios"
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
+                          isActive
+                            ? "bg-secondary text-primary font-semibold border-l-4 border-primary"
+                            : "text-foreground hover:bg-secondary hover:text-primary"
+                        }`
+                      }
+                    >
+                      {({ isActive }) => (
+                        <>
+                          <Shield className={`h-5 w-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
+                          {open && <span className="flex-1">Usuários</span>}
+                        </>
+                      )}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       {open && profile && (

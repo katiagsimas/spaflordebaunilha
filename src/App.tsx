@@ -66,6 +66,7 @@ import SignUp from "./pages/auth/SignUp";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import MigrationStatus from "./pages/MigrationStatus";
 import NotFound from "./pages/NotFound";
+import Usuarios from "./pages/admin/Usuarios";
 
 const queryClient = new QueryClient();
 
@@ -190,6 +191,9 @@ const App = () => (
           
           {/* Financeiro - DRE */}
           <Route path="/financeiro/dre" element={<ProtectedRoute><Layout><DRE /></Layout></ProtectedRoute>} />
+          
+          {/* Admin - Gestão de Usuários */}
+          <Route path="/admin/usuarios" element={<ProtectedRoute><Layout><Usuarios /></Layout></ProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
           </Routes>
