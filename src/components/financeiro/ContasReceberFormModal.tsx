@@ -71,6 +71,13 @@ export default function ContasReceberFormModal({
     fetchDados();
   }, []);
 
+  // Regenerar parcelas automaticamente quando mudar tipo de lançamento ou número de parcelas
+  useEffect(() => {
+    if (parcelasGeradas.length > 0 && !parcelasEditadas) {
+      handleGerarParcelas();
+    }
+  }, [tipoLancamento, numeroParcelas]);
+
   const fetchDados = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
