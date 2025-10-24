@@ -810,93 +810,87 @@ export default function Dashboard() {
       {/* FINANCEIRO E ALERTAS */}
       <div className="grid gap-3 md:grid-cols-4">
         {/* A Receber */}
-        <Card className="border-green-200 bg-green-50/50 dark:bg-green-950/20 shadow-soft">
-          <CardHeader className="pb-1 pt-3 px-3">
-            <CardTitle className="text-xs font-medium flex items-center gap-1">
-              <TrendingUp className="h-3 w-3 text-green-600 dark:text-green-400" />
-              A Receber - {meses[mesSelecionado]}
-            </CardTitle>
+        <Card 
+          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-green-600 group"
+          onClick={() => navigate("/financeiro/contas-receber")}
+        >
+          <CardHeader className="p-3">
+            <div className="flex flex-col items-center gap-2 text-center">
+              <div className="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-950/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <CardTitle className="text-sm mb-0.5">A Receber</CardTitle>
+                <CardDescription className="text-xs mb-1">{meses[mesSelecionado]}</CardDescription>
+                <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                  R$ {financeiro.receberAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </p>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <p className="text-lg font-bold text-green-600 dark:text-green-400">
-              R$ {financeiro.receberAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </p>
-            <p className="text-[10px] text-muted-foreground">Em aberto</p>
-            <Button 
-              variant="link" 
-              className="p-0 h-auto mt-1 text-xs text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
-              onClick={() => navigate("/financeiro/contas-receber")}
-            >
-              Ver Detalhes →
-            </Button>
-          </CardContent>
         </Card>
 
         {/* A Pagar */}
-        <Card className="border-red-200 bg-red-50/50 dark:bg-red-950/20 shadow-soft">
-          <CardHeader className="pb-1 pt-3 px-3">
-            <CardTitle className="text-xs font-medium flex items-center gap-1">
-              <TrendingDown className="h-3 w-3 text-red-600 dark:text-red-400" />
-              A Pagar - {meses[mesSelecionado]}
-            </CardTitle>
+        <Card 
+          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-red-600 group"
+          onClick={() => navigate("/financeiro/contas-pagar")}
+        >
+          <CardHeader className="p-3">
+            <div className="flex flex-col items-center gap-2 text-center">
+              <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />
+              </div>
+              <div>
+                <CardTitle className="text-sm mb-0.5">A Pagar</CardTitle>
+                <CardDescription className="text-xs mb-1">{meses[mesSelecionado]}</CardDescription>
+                <p className="text-lg font-bold text-red-600 dark:text-red-400">
+                  R$ {financeiro.pagarAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </p>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <p className="text-lg font-bold text-red-600 dark:text-red-400">
-              R$ {financeiro.pagarAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </p>
-            <p className="text-[10px] text-muted-foreground">Em aberto</p>
-            <Button 
-              variant="link" 
-              className="p-0 h-auto mt-1 text-xs text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-              onClick={() => navigate("/financeiro/contas-pagar")}
-            >
-              Ver Detalhes →
-            </Button>
-          </CardContent>
         </Card>
 
-        {/* Contas a Receber Atrasado */}
-        <Card className="border-red-200 bg-red-50/50 dark:bg-red-950/20 shadow-soft">
-          <CardHeader className="pb-1 pt-3 px-3">
-            <CardTitle className="text-xs font-medium flex items-center gap-1">
-              <AlertCircle className="h-3 w-3 text-red-600 dark:text-red-400 animate-pulse" />
-              Contas a Receber Atrasadas
-            </CardTitle>
+        {/* Contas a Receber Atrasadas */}
+        <Card 
+          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-orange-600 group"
+          onClick={() => navigate("/financeiro/contas-receber")}
+        >
+          <CardHeader className="p-3">
+            <div className="flex flex-col items-center gap-2 text-center">
+              <div className="w-8 h-8 rounded-lg bg-orange-50 dark:bg-orange-950/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <AlertCircle className="h-4 w-4 text-orange-600 dark:text-orange-400 animate-pulse" />
+              </div>
+              <div>
+                <CardTitle className="text-sm mb-0.5">A Receber Atrasadas</CardTitle>
+                <CardDescription className="text-xs mb-1">Em atraso</CardDescription>
+                <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
+                  R$ {alertas.receberAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </p>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <p className="text-lg font-bold text-red-600 dark:text-red-400">
-              R$ {alertas.receberAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </p>
-            <Button 
-              variant="link" 
-              className="p-0 h-auto mt-1 text-xs text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-              onClick={() => navigate("/financeiro/contas-receber")}
-            >
-              Ver Detalhes →
-            </Button>
-          </CardContent>
         </Card>
 
-        {/* Contas a Pagar Atrasado */}
-        <Card className="border-yellow-200 bg-yellow-50/50 dark:bg-yellow-950/20 shadow-soft">
-          <CardHeader className="pb-1 pt-3 px-3">
-            <CardTitle className="text-xs font-medium flex items-center gap-1">
-              <AlertCircle className="h-3 w-3 text-yellow-600 dark:text-yellow-400 animate-pulse" />
-              Contas a Pagar Atrasadas
-            </CardTitle>
+        {/* Contas a Pagar Atrasadas */}
+        <Card 
+          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-yellow-600 group"
+          onClick={() => navigate("/financeiro/contas-pagar")}
+        >
+          <CardHeader className="p-3">
+            <div className="flex flex-col items-center gap-2 text-center">
+              <div className="w-8 h-8 rounded-lg bg-yellow-50 dark:bg-yellow-950/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400 animate-pulse" />
+              </div>
+              <div>
+                <CardTitle className="text-sm mb-0.5">A Pagar Atrasadas</CardTitle>
+                <CardDescription className="text-xs mb-1">Em atraso</CardDescription>
+                <p className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
+                  R$ {alertas.pagarAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </p>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <p className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
-              R$ {alertas.pagarAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </p>
-            <Button 
-              variant="link" 
-              className="p-0 h-auto mt-1 text-xs text-yellow-600 hover:text-yellow-700 dark:text-yellow-400 dark:hover:text-yellow-300"
-              onClick={() => navigate("/financeiro/contas-pagar")}
-            >
-              Ver Detalhes →
-            </Button>
-          </CardContent>
         </Card>
       </div>
 
