@@ -534,7 +534,7 @@ export default function Financeiro() {
                         <CardContent className="pt-6">
                           <div className="flex items-center justify-between">
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs text-muted-foreground truncate">
+                              <p className="text-xs text-muted-foreground truncate font-semibold">
                                 {banco.banco_codigo} - {banco.banco_nome}
                               </p>
                               <p className={`text-xl font-bold mt-1 ${cor.text}`}>
