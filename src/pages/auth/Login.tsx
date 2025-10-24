@@ -140,16 +140,6 @@ export default function Login() {
                 'Entrar'
               )}
             </Button>
-
-            <div className="text-center text-sm text-muted-foreground">
-              Não tem uma conta?{' '}
-              <Link
-                to="/auth/signup"
-                className="font-semibold text-primary hover:text-accent hover:underline"
-              >
-                Criar conta grátis
-              </Link>
-            </div>
           </CardFooter>
         </form>
       </Card>

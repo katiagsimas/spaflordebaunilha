@@ -24,9 +24,13 @@ export function FirstAccessRedirect() {
   });
 
   useEffect(() => {
-    // Se for primeiro acesso e não estiver já na página de cadastro
-    if (profile?.primeiro_acesso && location.pathname !== '/cadastros/seus-dados') {
-      navigate('/cadastros/seus-dados', { replace: true });
+    // Se for primeiro acesso OU não tiver dados essenciais cadastrados
+    // redireciona para página de cadastro, exceto se já estiver lá
+    if (profile && location.pathname !== '/cadastros/seus-dados') {
+      const dadosIncompletos = profile.primeiro_acesso || !profile.nome_confeitaria;
+      if (dadosIncompletos) {
+        navigate('/cadastros/seus-dados', { replace: true });
+      }
     }
   }, [profile, location.pathname, navigate]);
 
