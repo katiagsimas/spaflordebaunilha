@@ -9,7 +9,7 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { Clock, User, FileText, Loader2 } from "lucide-react";
+import { Clock, User, FileText, Loader2, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -17,6 +17,16 @@ import { PageHeader } from "@/components/PageHeader";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useNavigate } from "react-router-dom";
 import { EmptyState } from "@/components/EmptyState";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "@/hooks/use-toast";
+import * as XLSX from 'xlsx';
 
 interface AdminLog {
   id: string;
@@ -34,6 +44,7 @@ export default function LogsAdmin() {
   const { isAdmin, isLoading: isLoadingAdmin } = useIsAdmin();
   const [logs, setLogs] = useState<AdminLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [porPagina, setPorPagina] = useState(10);
 
   // Redirecionar se não for admin
   if (!isLoadingAdmin && !isAdmin) {
@@ -83,6 +94,30 @@ export default function LogsAdmin() {
     return 'outline';
   };
 
+  // Aplicar paginação
+  const logsPaginados = logs.slice(0, porPagina);
+
+  // Função de exportar para Excel
+  const exportarParaExcel = () => {
+    const dadosExportacao = logs.map(log => ({
+      'Data/Hora': format(new Date(log.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+      'Administrador': log.admin_email,
+      'Ação': getAcaoLabel(log.acao),
+      'Usuário Afetado': log.usuario_afetado_email || '-',
+      'Detalhes': log.detalhes ? JSON.stringify(log.detalhes) : '-'
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(dadosExportacao);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Logs de Ações');
+    XLSX.writeFile(wb, `logs-acoes-${new Date().toISOString().split('T')[0]}.xlsx`);
+    
+    toast({
+      title: '✅ Exportado',
+      description: 'Logs exportados para Excel com sucesso!',
+    });
+  };
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <PageHeader
@@ -99,6 +134,31 @@ export default function LogsAdmin() {
           <CardDescription>
             Registro completo de auditoria das ações administrativas
           </CardDescription>
+          
+          {/* Resultados por Página e Exportar */}
+          <div className="flex items-center gap-4 pt-4">
+            {/* Resultados por Página */}
+            <div className="flex items-center gap-2">
+              <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
+                <SelectTrigger className="w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+              <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
+            </div>
+
+            {/* Botão Exportar */}
+            <Button variant="outline" size="sm" onClick={exportarParaExcel}>
+              <Download className="mr-2 h-4 w-4" />
+              Exportar para Excel
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -124,7 +184,7 @@ export default function LogsAdmin() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {logs.map((log) => (
+                  {logsPaginados.map((log) => (
                     <TableRow key={log.id}>
                       <TableCell>
                         <div className="flex items-center gap-2">
