@@ -477,6 +477,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "contas_pagar_banco_id_fkey"
+            columns: ["banco_id"]
+            isOneToOne: false
+            referencedRelation: "vw_resumo_financeiro"
+            referencedColumns: ["banco_id"]
+          },
+          {
             foreignKeyName: "contas_pagar_categoria_id_fkey"
             columns: ["categoria_id"]
             isOneToOne: false
@@ -750,6 +757,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "fk_contas_receber_banco"
+            columns: ["banco_id"]
+            isOneToOne: false
+            referencedRelation: "vw_resumo_financeiro"
+            referencedColumns: ["banco_id"]
+          },
+          {
             foreignKeyName: "fk_contas_receber_plano_conta"
             columns: ["plano_conta_id"]
             isOneToOne: false
@@ -859,6 +873,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "bancos"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contas_receber_pagamentos_banco_id_fkey"
+            columns: ["banco_id"]
+            isOneToOne: false
+            referencedRelation: "vw_resumo_financeiro"
+            referencedColumns: ["banco_id"]
           },
           {
             foreignKeyName: "contas_receber_pagamentos_parcela_id_fkey"
@@ -2130,6 +2151,13 @@ export type Database = {
             referencedRelation: "bancos"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "saldos_iniciais_bancos_banco_id_fkey"
+            columns: ["banco_id"]
+            isOneToOne: false
+            referencedRelation: "vw_resumo_financeiro"
+            referencedColumns: ["banco_id"]
+          },
         ]
       }
       sub_receitas: {
@@ -2521,6 +2549,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "fk_contas_receber_banco"
+            columns: ["banco_id"]
+            isOneToOne: false
+            referencedRelation: "vw_resumo_financeiro"
+            referencedColumns: ["banco_id"]
+          },
+          {
             foreignKeyName: "fk_contas_receber_plano_conta"
             columns: ["plano_conta_id"]
             isOneToOne: false
@@ -2580,24 +2615,18 @@ export type Database = {
       }
       vw_resumo_financeiro: {
         Row: {
+          ano: number | null
           banco_codigo: string | null
           banco_id: string | null
           banco_nome: string | null
           entradas_mes: number | null
+          mes: number | null
           saidas_mes: number | null
           saldo_atual: number | null
           saldo_inicial: number | null
           user_id: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "saldos_iniciais_bancos_banco_id_fkey"
-            columns: ["banco_id"]
-            isOneToOne: false
-            referencedRelation: "bancos"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Functions: {
@@ -2631,6 +2660,10 @@ export type Database = {
           multa: number
           total: number
         }[]
+      }
+      criar_banco_caixa_empresa_padrao: {
+        Args: { p_user_id: string }
+        Returns: undefined
       }
       criar_categorias_plano_padrao: {
         Args: { p_user_id: string }

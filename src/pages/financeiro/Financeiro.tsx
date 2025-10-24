@@ -85,48 +85,32 @@ export default function Financeiro() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Buscar resumo financeiro
+      // Buscar resumo financeiro do mês/ano selecionado
       const { data: resumo } = await supabase
         .from('vw_resumo_financeiro')
         .select('*')
-        .eq('user_id', user.id);
-
-      // Buscar total recebido do Contas a Receber
-      const { data: parcelasReceber } = await supabase
-        .from('vw_contas_receber_parcelas')
-        .select('*')
-        .eq('user_id', user.id);
-
-      let totalRecebido = 0;
-      parcelasReceber?.forEach((p: any) => {
-        if (p.status === 'pago' || p.status === 'adiantado') {
-          totalRecebido += p.valor_pago || 0;
-        }
-        if (p.status === 'pagamento_parcial') {
-          totalRecebido += p.valor_pago || 0;
-        }
-      });
+        .eq('user_id', user.id)
+        .eq('mes', mesSelecionado)
+        .eq('ano', anoSelecionado);
 
       if (resumo && resumo.length > 0) {
+        // Calcular totais
         const totalSaldoInicial = resumo.reduce((acc, b) => acc + (b.saldo_inicial || 0), 0);
+        const totalEntradas = resumo.reduce((acc, b) => acc + (b.entradas_mes || 0), 0);
         const totalSaidas = resumo.reduce((acc, b) => acc + (b.saidas_mes || 0), 0);
-        
-        // Calcular saldo atual: (Saldo Anterior + Entradas) - Saídas
-        const saldoCalculado = (totalSaldoInicial + totalRecebido) - totalSaidas;
+        const totalSaldoAtual = resumo.reduce((acc, b) => acc + (b.saldo_atual || 0), 0);
 
         setSaldoAnterior(totalSaldoInicial);
-        setEntradas(totalRecebido);
+        setEntradas(totalEntradas);
         setSaidas(totalSaidas);
-        setSaldoAtual(saldoCalculado);
+        setSaldoAtual(totalSaldoAtual);
         setBancosSaldos(resumo);
       } else {
-        // Não tem saldos configurados
-        const saldoCalculado = (0 + totalRecebido) - 0;
-        
+        // Não tem dados para este mês/ano
         setSaldoAnterior(0);
-        setEntradas(totalRecebido);
+        setEntradas(0);
         setSaidas(0);
-        setSaldoAtual(saldoCalculado);
+        setSaldoAtual(0);
         setBancosSaldos([]);
       }
     } catch (error) {
