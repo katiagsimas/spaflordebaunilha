@@ -621,16 +621,9 @@ export default function Usuarios() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Checkbox
-                              checked={profile.ativo !== false}
-                              onCheckedChange={(checked) => handleToggleStatus(profile, checked as boolean)}
-                              disabled={alterarStatusUsuarioMutation.isPending}
-                            />
-                            <Badge variant={profile.ativo !== false ? 'default' : 'secondary'}>
-                              {profile.ativo !== false ? 'Ativo' : 'Inativo'}
-                            </Badge>
-                          </div>
+                          <Badge variant={profile.ativo !== false ? 'default' : 'secondary'}>
+                            {profile.ativo !== false ? 'Ativo' : 'Inativo'}
+                          </Badge>
                         </TableCell>
                         <TableCell>
                           {(profile as any).last_login ? (
@@ -666,18 +659,12 @@ export default function Usuarios() {
                                 <Edit className="mr-2 h-4 w-4" />
                                 Editar
                               </DropdownMenuItem>
-                              {profile.ativo !== false && (
-                                <DropdownMenuItem onClick={() => handleDesabilitar(profile)}>
-                                  <UserX className="mr-2 h-4 w-4" />
-                                  Desabilitar
-                                </DropdownMenuItem>
-                              )}
-                              <DropdownMenuItem
-                                onClick={() => handleExcluir(profile)}
-                                className="text-destructive focus:text-destructive"
+                              <DropdownMenuItem 
+                                onClick={() => handleDesabilitar(profile)}
+                                disabled={profile.ativo === false}
                               >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Excluir
+                                <UserX className="mr-2 h-4 w-4" />
+                                Desabilitar
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
