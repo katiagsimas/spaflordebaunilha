@@ -658,43 +658,6 @@ export default function Financeiro() {
                   </Select>
                 </div>
               </div>
-
-              {/* Distribuição por Banco - Movido para cima */}
-              {bancosSaldos.filter(b => b.saldo_atual !== 0).length > 0 && (
-                <>
-                  <Separator className="my-4" />
-                  <div>
-                    <h3 className="font-semibold mb-4 flex items-center gap-2">
-                      <Building2 className="h-5 w-5" />
-                      Distribuição por Banco
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                      {bancosSaldos.filter(b => b.saldo_atual !== 0).map((banco, index) => {
-                        const cor = getCorBanco(index);
-                        return (
-                          <Card key={banco.banco_id} className={`border-l-4 ${cor.border}`}>
-                            <CardContent className="pt-6">
-                              <div className="flex items-center justify-between">
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-xs text-muted-foreground truncate font-semibold">
-                                    {banco.banco_codigo} - {banco.banco_nome}
-                                  </p>
-                                  <p className={`text-xl font-bold mt-1 ${cor.text}`}>
-                                    {formatarValor(banco.saldo_atual)}
-                                  </p>
-                                </div>
-                                <div className={`w-10 h-10 rounded-lg ${cor.bg} flex items-center justify-center`}>
-                                  <Wallet className={`h-5 w-5 ${cor.text}`} />
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </>
-              )}
             </div>
             
             <Button 
@@ -766,6 +729,43 @@ export default function Financeiro() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Distribuição por Banco */}
+          {bancosSaldos.filter(b => b.saldo_atual !== 0).length > 0 && (
+            <>
+              <Separator />
+              <div>
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <Building2 className="h-5 w-5" />
+                  Distribuição por Banco
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {bancosSaldos.filter(b => b.saldo_atual !== 0).map((banco, index) => {
+                    const cor = getCorBanco(index);
+                    return (
+                      <Card key={banco.banco_id} className={`border-l-4 ${cor.border}`}>
+                        <CardContent className="pt-6">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs text-muted-foreground truncate font-semibold">
+                                {banco.banco_codigo} - {banco.banco_nome}
+                              </p>
+                              <p className={`text-xl font-bold mt-1 ${cor.text}`}>
+                                {formatarValor(banco.saldo_atual)}
+                              </p>
+                            </div>
+                            <div className={`w-10 h-10 rounded-lg ${cor.bg} flex items-center justify-center`}>
+                              <Wallet className={`h-5 w-5 ${cor.text}`} />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
