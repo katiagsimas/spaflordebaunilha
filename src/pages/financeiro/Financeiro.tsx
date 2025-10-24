@@ -6,6 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
   Select,
   SelectContent,
@@ -21,14 +30,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -44,8 +45,28 @@ import {
   ArrowUpCircle,
   ArrowDownCircle,
   Building2,
-  LayoutDashboard
+  LayoutDashboard,
+  AlertCircle,
+  Users
 } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
+
+interface InadimplenciaItem {
+  id: string;
+  nome: string;
+  valor: number;
+  dias_atraso: number;
+  telefone?: string;
+}
 
 export default function Financeiro() {
   const navigate = useNavigate();
@@ -75,8 +96,22 @@ export default function Financeiro() {
   const [saldoInicial, setSaldoInicial] = useState('');
   const [observacao, setObservacao] = useState('');
 
+  // Estados do dashboard
+  const [resumoDashboard, setResumoDashboard] = useState({
+    totalReceber: 0,
+    totalPagar: 0,
+    receitasRecebidas: 0,
+    despesasPagas: 0,
+    saldoLiquido: 0
+  });
+  const [inadimplenciaClientes, setInadimplenciaClientes] = useState<InadimplenciaItem[]>([]);
+  const [inadimplenciaFornecedores, setInadimplenciaFornecedores] = useState<InadimplenciaItem[]>([]);
+  const [mostrarTodosClientes, setMostrarTodosClientes] = useState(false);
+  const [mostrarTodosFornecedores, setMostrarTodosFornecedores] = useState(false);
+
   useEffect(() => {
     fetchResumo();
+    carregarDadosDashboard();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mesSelecionado, anoSelecionado]);
 
@@ -283,6 +318,184 @@ export default function Financeiro() {
     }
     return anos;
   };
+
+  // Funções do Dashboard
+  async function carregarDadosDashboard() {
+    try {
+      await Promise.all([
+        carregarResumoDashboard(),
+        carregarInadimplenciaClientes(),
+        carregarInadimplenciaFornecedores()
+      ]);
+    } catch (error) {
+      console.error("Erro ao carregar dashboard financeiro:", error);
+    }
+  }
+
+  async function carregarResumoDashboard() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    
+    const hoje = new Date().toISOString().split('T')[0];
+    const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+
+    const { data: aReceber } = await supabase
+      .from("contas_receber")
+      .select("valor")
+      .eq("usuario_id", user.id)
+      .neq("status", "pago");
+
+    const { data: aPagar } = await supabase
+      .from("contas_pagar")
+      .select("valor_total")
+      .eq("usuario_id", user.id)
+      .neq("status", "pago");
+
+    const { data: receitasRecebidas } = await supabase
+      .from("contas_receber_parcelas")
+      .select("valor_pago")
+      .eq("status", "pago")
+      .gte("data_pagamento", inicioMes);
+
+    const { data: despesasPagas } = await supabase
+      .from("contas_pagar_parcelas")
+      .select("valor_pago")
+      .eq("status", "pago")
+      .gte("data_pagamento", inicioMes);
+
+    const totalReceber = aReceber?.reduce((sum, c) => sum + (c.valor || 0), 0) || 0;
+    const totalPagar = aPagar?.reduce((sum, c) => sum + (c.valor_total || 0), 0) || 0;
+    const receitas = receitasRecebidas?.reduce((sum, r) => sum + (r.valor_pago || 0), 0) || 0;
+    const despesas = despesasPagas?.reduce((sum, d) => sum + (d.valor_pago || 0), 0) || 0;
+
+    setResumoDashboard({
+      totalReceber,
+      totalPagar,
+      receitasRecebidas: receitas,
+      despesasPagas: despesas,
+      saldoLiquido: receitas - despesas
+    });
+  }
+
+  async function carregarInadimplenciaClientes() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    
+    const hoje = new Date();
+
+    const { data } = await supabase
+      .from("contas_receber")
+      .select(`
+        id,
+        valor,
+        data_vencimento,
+        cliente_id,
+        cliente_nome
+      `)
+      .eq("usuario_id", user.id)
+      .eq("status", "pendente")
+      .lt("data_vencimento", hoje.toISOString().split('T')[0])
+      .order("data_vencimento", { ascending: true });
+
+    if (!data) return;
+
+    const inadimplentesMap = new Map<string, InadimplenciaItem>();
+
+    for (const conta of data) {
+      const vencimento = new Date(conta.data_vencimento!);
+      const diasAtraso = Math.floor((hoje.getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
+
+      const clienteId = conta.cliente_id || conta.id;
+      const clienteNome = conta.cliente_nome || "Cliente desconhecido";
+
+      if (inadimplentesMap.has(clienteId)) {
+        const existing = inadimplentesMap.get(clienteId)!;
+        existing.valor += conta.valor || 0;
+        existing.dias_atraso = Math.max(existing.dias_atraso, diasAtraso);
+      } else {
+        const { data: cliente } = await supabase
+          .from("clientes")
+          .select("telefone")
+          .eq("id", clienteId)
+          .maybeSingle();
+
+        inadimplentesMap.set(clienteId, {
+          id: clienteId,
+          nome: clienteNome,
+          valor: conta.valor || 0,
+          dias_atraso: diasAtraso,
+          telefone: cliente?.telefone
+        });
+      }
+    }
+
+    const agrupado = Array.from(inadimplentesMap.values());
+    agrupado.sort((a, b) => b.valor - a.valor);
+
+    setInadimplenciaClientes(agrupado);
+  }
+
+  async function carregarInadimplenciaFornecedores() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    
+    const hoje = new Date();
+
+    const { data } = await supabase
+      .from("contas_pagar")
+      .select(`
+        id,
+        valor_total,
+        data_vencimento,
+        fornecedor_id
+      `)
+      .eq("usuario_id", user.id)
+      .eq("status", "pendente")
+      .lt("data_vencimento", hoje.toISOString().split('T')[0])
+      .order("data_vencimento", { ascending: true });
+
+    if (!data) return;
+
+    const inadimplentesMap = new Map<string, InadimplenciaItem>();
+
+    for (const conta of data) {
+      const vencimento = new Date(conta.data_vencimento!);
+      const diasAtraso = Math.floor((hoje.getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
+
+      const fornecedorId = conta.fornecedor_id || conta.id;
+
+      if (inadimplentesMap.has(fornecedorId)) {
+        const existing = inadimplentesMap.get(fornecedorId)!;
+        existing.valor += conta.valor_total || 0;
+        existing.dias_atraso = Math.max(existing.dias_atraso, diasAtraso);
+      } else {
+        const { data: fornecedor } = await supabase
+          .from("fornecedores")
+          .select("nome, telefone")
+          .eq("id", fornecedorId)
+          .maybeSingle();
+
+        inadimplentesMap.set(fornecedorId, {
+          id: fornecedorId,
+          nome: fornecedor?.nome || "Fornecedor desconhecido",
+          valor: conta.valor_total || 0,
+          dias_atraso: diasAtraso,
+          telefone: fornecedor?.telefone
+        });
+      }
+    }
+
+    const agrupado = Array.from(inadimplentesMap.values());
+    agrupado.sort((a, b) => b.valor - a.valor);
+
+    setInadimplenciaFornecedores(agrupado);
+  }
+
+  function getCorPorDiasAtraso(dias: number) {
+    if (dias > 30) return "bg-red-600 text-white";
+    if (dias > 15) return "bg-orange-500 text-white";
+    return "bg-yellow-500 text-white";
+  }
 
   const coresBanco = [
     { border: 'border-l-blue-500', text: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-950' },
@@ -553,20 +766,387 @@ export default function Financeiro() {
               </div>
             </>
           )}
-
-          {bancosSaldos.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
-              <p>Nenhum saldo configurado para este mês.</p>
-              <Button variant="link" onClick={handleAbrirConfig}>
-                Configurar agora
-              </Button>
-            </div>
-          )}
         </CardContent>
       </Card>
 
-      {/* Modal Configuração de Saldos */}
+      {/* Dashboard Financeiro */}
+      <div className="space-y-6">
+        {/* Cards de Resumo Dashboard */}
+        <div className="grid gap-4 md:grid-cols-5">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-green-600" />
+                Total a Receber
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-green-600">
+                R$ {resumoDashboard.totalReceber.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <TrendingDown className="h-4 w-4 text-red-600" />
+                Total a Pagar
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-red-600">
+                R$ {resumoDashboard.totalPagar.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Receitas Recebidas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">
+                R$ {resumoDashboard.receitasRecebidas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
+              <p className="text-xs text-muted-foreground">Este mês</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Despesas Pagas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">
+                R$ {resumoDashboard.despesasPagas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
+              <p className="text-xs text-muted-foreground">Este mês</p>
+            </CardContent>
+          </Card>
+
+          <Card className={`${
+            resumoDashboard.saldoLiquido >= 0
+              ? "border-primary bg-primary/10"
+              : "border-red-500 bg-red-50"
+          }`}>
+            <CardHeader className="pb-2">
+              <CardTitle className={`text-sm font-medium ${
+                resumoDashboard.saldoLiquido >= 0 ? "text-primary" : "text-red-700"
+              }`}>
+                Saldo Líquido
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className={`text-2xl font-bold ${
+                resumoDashboard.saldoLiquido >= 0 ? "text-primary" : "text-red-700"
+              }`}>
+                R$ {resumoDashboard.saldoLiquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
+              <p className="text-xs text-muted-foreground">Este mês</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Gráfico */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Visão Geral Financeira</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={[
+                  { categoria: "A Receber", valor: resumoDashboard.totalReceber },
+                  { categoria: "A Pagar", valor: resumoDashboard.totalPagar },
+                  { categoria: "Recebidas", valor: resumoDashboard.receitasRecebidas },
+                  { categoria: "Pagas", valor: resumoDashboard.despesasPagas }
+                ]}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="categoria" />
+                  <YAxis />
+                  <Tooltip
+                    formatter={(value: number) =>
+                      `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                    }
+                  />
+                  <Bar dataKey="valor" fill="hsl(var(--primary))" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* INADIMPLÊNCIA */}
+        <div className="grid gap-4 md:grid-cols-2">
+          {/* Clientes */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5 text-red-600" />
+                    Inadimplência - Clientes
+                  </CardTitle>
+                  <CardDescription>
+                    {inadimplenciaClientes.length} cliente(s) inadimplente(s)
+                  </CardDescription>
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-red-600">
+                    R$ {inadimplenciaClientes.reduce((sum, c) => sum + c.valor, 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Total</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {inadimplenciaClientes.length === 0 ? (
+                <p className="text-center py-8 text-muted-foreground">
+                  Nenhum cliente inadimplente 🎉
+                </p>
+              ) : (
+                <>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Cliente</TableHead>
+                        <TableHead className="text-right">Valor</TableHead>
+                        <TableHead className="text-right">Atraso</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {(mostrarTodosClientes ? inadimplenciaClientes : inadimplenciaClientes.slice(0, 10)).map((cliente, index) => (
+                        <TableRow key={cliente.id}>
+                          <TableCell>
+                            <div>
+                              <p className="font-medium">{index + 1}. {cliente.nome}</p>
+                              {cliente.telefone && (
+                                <p className="text-xs text-muted-foreground">{cliente.telefone}</p>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            R$ {cliente.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Badge className={getCorPorDiasAtraso(cliente.dias_atraso)}>
+                              {cliente.dias_atraso} dias
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+
+                  {inadimplenciaClientes.length > 10 && (
+                    <div className="mt-4 text-center">
+                      <Button
+                        variant="outline"
+                        onClick={() => setMostrarTodosClientes(!mostrarTodosClientes)}
+                      >
+                        {mostrarTodosClientes
+                          ? "Mostrar apenas TOP 10"
+                          : `Ver todos os ${inadimplenciaClientes.length} clientes`}
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Fornecedores */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Building2 className="h-5 w-5 text-orange-600" />
+                    Inadimplência - Fornecedores
+                  </CardTitle>
+                  <CardDescription>
+                    {inadimplenciaFornecedores.length} fornecedor(es) inadimplente(s)
+                  </CardDescription>
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-orange-600">
+                    R$ {inadimplenciaFornecedores.reduce((sum, f) => sum + f.valor, 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Total</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {inadimplenciaFornecedores.length === 0 ? (
+                <p className="text-center py-8 text-muted-foreground">
+                  Nenhum fornecedor inadimplente 🎉
+                </p>
+              ) : (
+                <>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Fornecedor</TableHead>
+                        <TableHead className="text-right">Valor</TableHead>
+                        <TableHead className="text-right">Atraso</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {(mostrarTodosFornecedores ? inadimplenciaFornecedores : inadimplenciaFornecedores.slice(0, 10)).map((fornecedor, index) => (
+                        <TableRow key={fornecedor.id}>
+                          <TableCell>
+                            <div>
+                              <p className="font-medium">{index + 1}. {fornecedor.nome}</p>
+                              {fornecedor.telefone && (
+                                <p className="text-xs text-muted-foreground">{fornecedor.telefone}</p>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            R$ {fornecedor.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Badge className={getCorPorDiasAtraso(fornecedor.dias_atraso)}>
+                              {fornecedor.dias_atraso} dias
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+
+                  {inadimplenciaFornecedores.length > 10 && (
+                    <div className="mt-4 text-center">
+                      <Button
+                        variant="outline"
+                        onClick={() => setMostrarTodosFornecedores(!mostrarTodosFornecedores)}
+                      >
+                        {mostrarTodosFornecedores
+                          ? "Mostrar apenas TOP 10"
+                          : `Ver todos os ${inadimplenciaFornecedores.length} fornecedores`}
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Modal de Configuração */}
       <Dialog open={modalConfigAberto} onOpenChange={setModalConfigAberto}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Configurar Saldos Iniciais</DialogTitle>
+            <DialogDescription>
+              Adicione o saldo inicial de cada banco para o mês de {getMesNome(mesReferencia)}/{anoReferencia}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Formulário */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Adicionar Saldo</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Banco *</Label>
+                    <Select value={bancoId} onValueChange={setBancoId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o banco" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {bancos.map((banco) => (
+                          <SelectItem key={banco.id} value={banco.id}>
+                            {banco.codigo} - {banco.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label>Saldo Inicial *</Label>
+                    <Input
+                      type="text"
+                      placeholder="0,00"
+                      value={saldoInicial}
+                      onChange={(e) => setSaldoInicial(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Observação</Label>
+                  <Textarea
+                    placeholder="Observações sobre o saldo (opcional)"
+                    value={observacao}
+                    onChange={(e) => setObservacao(e.target.value)}
+                  />
+                </div>
+
+                <Button onClick={handleAdicionarSaldo} className="w-full">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Adicionar Saldo
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Lista de Saldos Configurados */}
+            {saldosConfigurados.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Saldos Configurados</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Banco</TableHead>
+                        <TableHead className="text-right">Saldo Inicial</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {saldosConfigurados.map((saldo: any) => (
+                        <TableRow key={saldo.id}>
+                          <TableCell>
+                            {saldo.bancos?.codigo} - {saldo.bancos?.nome}
+                          </TableCell>
+                          <TableCell className="text-right font-bold">
+                            {formatarValor(saldo.saldo_inicial)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleExcluirSaldo(saldo.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-red-600" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setModalConfigAberto(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
