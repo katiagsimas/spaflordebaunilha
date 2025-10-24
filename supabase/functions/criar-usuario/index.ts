@@ -92,12 +92,30 @@ Deno.serve(async (req) => {
     console.error('=== Criar Usuário - Erro ===')
     console.error('Erro completo:', error)
     
-    const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido ao criar usuário'
+    let errorMessage = 'Erro desconhecido ao criar usuário'
+    let statusCode = 400
+    
+    if (error instanceof Error) {
+      errorMessage = error.message
+      
+      // Extrair código de status se for um AuthApiError
+      if ('status' in error) {
+        statusCode = (error as any).status
+      }
+    }
+    
     console.error('Mensagem de erro:', errorMessage)
+    console.error('Status code:', statusCode)
     
     return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      JSON.stringify({ 
+        success: false,
+        error: errorMessage 
+      }),
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+        status: statusCode 
+      }
     )
   }
 })

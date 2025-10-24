@@ -92,7 +92,7 @@ export function AdicionarUsuarioDialog({ open, onOpenChange }: AdicionarUsuarioD
         throw error;
       }
       
-      if (result?.error) {
+      if (result && !result.success && result.error) {
         console.error('Erro retornado pela função:', result.error);
         throw new Error(result.error);
       }
@@ -110,9 +110,24 @@ export function AdicionarUsuarioDialog({ open, onOpenChange }: AdicionarUsuarioD
       onOpenChange(false);
     },
     onError: (error: any) => {
+      let message = 'Ocorreu um erro ao criar o usuário.';
+      
+      // Tentar extrair a mensagem de erro do resultado
+      if (error.message) {
+        if (error.message.includes('already been registered') || error.message.includes('email_exists')) {
+          message = 'Este email já está cadastrado no sistema.';
+        } else if (error.message.includes('Invalid email')) {
+          message = 'Email inválido.';
+        } else if (error.message.includes('Password')) {
+          message = 'A senha deve ter pelo menos 6 caracteres.';
+        } else {
+          message = error.message;
+        }
+      }
+      
       toast({
         title: 'Erro ao criar usuário',
-        description: error.message || 'Ocorreu um erro ao criar o usuário.',
+        description: message,
         variant: 'destructive',
       });
     },
