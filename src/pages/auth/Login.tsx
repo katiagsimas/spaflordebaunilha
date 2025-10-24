@@ -35,7 +35,8 @@ export default function Login() {
       });
       
       await signIn(validated.email, validated.password);
-      navigate('/');
+      console.log('Login bem-sucedido, navegando para /dashboard');
+      navigate('/dashboard');
     } catch (error) {
       if (error instanceof z.ZodError) {
         // Validação falhou - o erro já é visível para o usuário via form validation

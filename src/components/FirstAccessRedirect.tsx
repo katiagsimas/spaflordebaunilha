@@ -24,8 +24,12 @@ export function FirstAccessRedirect() {
   });
 
   useEffect(() => {
+    console.log('FirstAccessRedirect - Profile:', profile);
+    console.log('FirstAccessRedirect - Location:', location.pathname);
+    
     // Se usuário está inativo, fazer logout
     if (profile && profile.ativo === false) {
+      console.log('Usuário inativo, fazendo logout');
       supabase.auth.signOut().then(() => {
         navigate('/auth/login', { replace: true });
       });
@@ -36,7 +40,10 @@ export function FirstAccessRedirect() {
     // redireciona para página de cadastro, exceto se já estiver lá
     if (profile && location.pathname !== '/configuracoes/dados-confeitaria') {
       const dadosIncompletos = profile.primeiro_acesso || !profile.nome_confeitaria;
+      console.log('Dados incompletos?', dadosIncompletos, { primeiro_acesso: profile.primeiro_acesso, nome_confeitaria: profile.nome_confeitaria });
+      
       if (dadosIncompletos) {
+        console.log('Redirecionando para /configuracoes/dados-confeitaria');
         navigate('/configuracoes/dados-confeitaria', { replace: true });
       }
     }
