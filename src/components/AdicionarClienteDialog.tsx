@@ -139,12 +139,13 @@ export function AdicionarClienteDialog({ open, onOpenChange, onClienteAdicionado
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="telefone">Telefone *</Label>
+              <Label htmlFor="telefone">Telefone/WhatsApp *</Label>
               <Input
                 id="telefone"
                 value={formData.telefone}
                 onChange={(e) => setFormData({ ...formData, telefone: formatPhone(e.target.value) })}
                 placeholder="(00) 00000-0000"
+                maxLength={15}
                 required
               />
             </div>
@@ -168,7 +169,8 @@ export function AdicionarClienteDialog({ open, onOpenChange, onClienteAdicionado
                 id="cpf_cnpj"
                 value={formData.cpf_cnpj}
                 onChange={(e) => setFormData({ ...formData, cpf_cnpj: formatCpfCnpj(e.target.value) })}
-                placeholder="000.000.000-00"
+                placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                maxLength={18}
               />
             </div>
 
