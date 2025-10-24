@@ -368,71 +368,79 @@ export default function Usuarios() {
         </div>
 
         {/* Dashboard de Resumo */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
           {/* Total de Usuários */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total de Usuários</p>
-                  <p className="text-2xl font-bold">
-                    {estatisticas.total}
-                  </p>
+          <Card className="hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#D89B8C] group">
+            <CardHeader className="p-3">
+              <div className="flex flex-col items-center gap-2 text-center">
+                <div className="w-8 h-8 rounded-lg text-slate-600 bg-slate-50 dark:bg-slate-950 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Users className="h-4 w-4" />
                 </div>
-                <Users className="h-8 w-8 text-muted-foreground" />
+                <div>
+                  <CardTitle className="text-sm mb-0.5">Total de Usuários</CardTitle>
+                  <CardDescription className="text-2xl font-bold text-foreground">
+                    {estatisticas.total}
+                  </CardDescription>
+                </div>
               </div>
-            </CardContent>
+            </CardHeader>
           </Card>
 
           {/* Usuários Ativos */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+          <Card className="hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#D89B8C] group">
+            <CardHeader className="p-3">
+              <div className="flex flex-col items-center gap-2 text-center">
+                <div className="w-8 h-8 rounded-lg text-green-600 bg-green-50 dark:bg-green-950 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <UserCheck className="h-4 w-4" />
+                </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Ativos</p>
-                  <p className="text-2xl font-bold text-green-600">
+                  <CardTitle className="text-sm mb-0.5">Ativos</CardTitle>
+                  <CardDescription className="text-2xl font-bold text-green-600">
                     {estatisticas.ativos}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  </CardDescription>
+                  <CardDescription className="text-xs">
                     {estatisticas.total > 0 
                       ? `${((estatisticas.ativos / estatisticas.total) * 100).toFixed(0)}% do total`
                       : '0%'
                     }
-                  </p>
+                  </CardDescription>
                 </div>
-                <UserCheck className="h-8 w-8 text-green-600" />
               </div>
-            </CardContent>
+            </CardHeader>
           </Card>
 
           {/* Usuários Inativos */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Inativos</p>
-                  <p className="text-2xl font-bold text-muted-foreground">
-                    {estatisticas.inativos}
-                  </p>
+          <Card className="hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#D89B8C] group">
+            <CardHeader className="p-3">
+              <div className="flex flex-col items-center gap-2 text-center">
+                <div className="w-8 h-8 rounded-lg text-orange-600 bg-orange-50 dark:bg-orange-950 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <UserX className="h-4 w-4" />
                 </div>
-                <UserX className="h-8 w-8 text-muted-foreground" />
+                <div>
+                  <CardTitle className="text-sm mb-0.5">Inativos</CardTitle>
+                  <CardDescription className="text-2xl font-bold text-orange-600">
+                    {estatisticas.inativos}
+                  </CardDescription>
+                </div>
               </div>
-            </CardContent>
+            </CardHeader>
           </Card>
 
           {/* Administradores */}
-          <Card className="border-2 border-primary">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Administradores</p>
-                  <p className="text-2xl font-bold text-primary">
-                    {estatisticas.admins}
-                  </p>
+          <Card className="hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#D89B8C] group">
+            <CardHeader className="p-3">
+              <div className="flex flex-col items-center gap-2 text-center">
+                <div className="w-8 h-8 rounded-lg text-blue-600 bg-blue-50 dark:bg-blue-950 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Shield className="h-4 w-4" />
                 </div>
-                <Shield className="h-8 w-8 text-primary" />
+                <div>
+                  <CardTitle className="text-sm mb-0.5">Administradores</CardTitle>
+                  <CardDescription className="text-2xl font-bold text-blue-600">
+                    {estatisticas.admins}
+                  </CardDescription>
+                </div>
               </div>
-            </CardContent>
+            </CardHeader>
           </Card>
         </div>
 
