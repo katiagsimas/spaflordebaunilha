@@ -34,10 +34,10 @@ export function FirstAccessRedirect() {
 
     // Se for primeiro acesso OU não tiver dados essenciais cadastrados
     // redireciona para página de cadastro, exceto se já estiver lá
-    if (profile && location.pathname !== '/cadastros/seus-dados') {
+    if (profile && location.pathname !== '/configuracoes/dados-confeitaria') {
       const dadosIncompletos = profile.primeiro_acesso || !profile.nome_confeitaria;
       if (dadosIncompletos) {
-        navigate('/cadastros/seus-dados', { replace: true });
+        navigate('/configuracoes/dados-confeitaria', { replace: true });
       }
     }
   }, [profile, location.pathname, navigate]);
