@@ -1240,60 +1240,89 @@ export default function Dashboard() {
         </CardHeader>
         <CardContent>
           {tabEconomica === "mensal" ? (
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-3 md:grid-cols-3">
               {/* Receitas */}
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Total de Receitas
-                  </CardTitle>
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-green-600 group"
+                onClick={() => navigate("/financeiro/dashboard")}
+              >
+                <CardHeader className="p-3">
+                  <div className="flex flex-col items-center gap-2 text-center">
+                    <div className="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-950/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-sm mb-0.5">Total de Receitas</CardTitle>
+                      <CardDescription className="text-xs mb-1">{meses[mesSelecionado]}</CardDescription>
+                      <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                        R$ {visaoEconomica.mensal.receitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </p>
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-2xl font-bold text-green-600">
-                    R$ {visaoEconomica.mensal.receitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </p>
-                </CardContent>
               </Card>
 
               {/* Custos */}
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Custos Totais
-                  </CardTitle>
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-red-600 group"
+                onClick={() => navigate("/financeiro/dashboard")}
+              >
+                <CardHeader className="p-3">
+                  <div className="flex flex-col items-center gap-2 text-center">
+                    <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-sm mb-0.5">Custos Totais</CardTitle>
+                      <CardDescription className="text-xs mb-1">{meses[mesSelecionado]}</CardDescription>
+                      <p className="text-lg font-bold text-red-600 dark:text-red-400">
+                        R$ {visaoEconomica.mensal.custos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </p>
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-2xl font-bold text-red-600">
-                    R$ {visaoEconomica.mensal.custos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </p>
-                </CardContent>
               </Card>
 
               {/* Lucro */}
-              <Card className={`${
-                visaoEconomica.mensal.lucro >= 0
-                  ? "bg-primary/10 border-primary"
-                  : "bg-red-50 border-red-300"
-              }`}>
-                <CardHeader className="pb-2">
-                  <CardTitle className={`text-sm font-medium ${
-                    visaoEconomica.mensal.lucro >= 0 ? "text-primary" : "text-red-700"
-                  }`}>
-                    Lucro Líquido
-                  </CardTitle>
+              <Card 
+                className={`cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 ${
+                  visaoEconomica.mensal.lucro >= 0
+                    ? "border-l-primary"
+                    : "border-l-red-600"
+                } group`}
+                onClick={() => navigate("/financeiro/dashboard")}
+              >
+                <CardHeader className="p-3">
+                  <div className="flex flex-col items-center gap-2 text-center">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform ${
+                      visaoEconomica.mensal.lucro >= 0
+                        ? "bg-primary/10"
+                        : "bg-red-50 dark:bg-red-950/20"
+                    }`}>
+                      <DollarSign className={`h-4 w-4 ${
+                        visaoEconomica.mensal.lucro >= 0 ? "text-primary" : "text-red-600 dark:text-red-400"
+                      }`} />
+                    </div>
+                    <div>
+                      <CardTitle className={`text-sm mb-0.5 ${
+                        visaoEconomica.mensal.lucro >= 0 ? "text-primary" : "text-red-700 dark:text-red-400"
+                      }`}>
+                        Lucro Líquido
+                      </CardTitle>
+                      <CardDescription className="text-xs mb-1">{meses[mesSelecionado]}</CardDescription>
+                      <p className={`text-lg font-bold ${
+                        visaoEconomica.mensal.lucro >= 0 ? "text-primary" : "text-red-700 dark:text-red-400"
+                      }`}>
+                        R$ {visaoEconomica.mensal.lucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Margem: {visaoEconomica.mensal.receitas > 0
+                          ? ((visaoEconomica.mensal.lucro / visaoEconomica.mensal.receitas) * 100).toFixed(1)
+                          : 0}%
+                      </p>
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent>
-                  <p className={`text-2xl font-bold ${
-                    visaoEconomica.mensal.lucro >= 0 ? "text-primary" : "text-red-700"
-                  }`}>
-                    R$ {visaoEconomica.mensal.lucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Margem: {visaoEconomica.mensal.receitas > 0
-                      ? ((visaoEconomica.mensal.lucro / visaoEconomica.mensal.receitas) * 100).toFixed(1)
-                      : 0}%
-                  </p>
-                </CardContent>
               </Card>
             </div>
           ) : (
