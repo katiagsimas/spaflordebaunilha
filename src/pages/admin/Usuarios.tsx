@@ -137,7 +137,8 @@ export default function Usuarios() {
   const usuariosFiltrados = profiles?.filter(usuario => {
     const matchEmail = buscaEmail === "" || 
       usuario.email.toLowerCase().includes(buscaEmail.toLowerCase()) ||
-      usuario.nome_completo?.toLowerCase().includes(buscaEmail.toLowerCase());
+      usuario.nome_completo?.toLowerCase().includes(buscaEmail.toLowerCase()) ||
+      usuario.nome_confeitaria?.toLowerCase().includes(buscaEmail.toLowerCase());
     
     const matchStatus = filtroStatus === "todos" || 
       (filtroStatus === "ativo" && usuario.ativo !== false) ||
@@ -484,7 +485,7 @@ export default function Usuarios() {
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar por nome ou email..."
+                  placeholder="Buscar por nome, email ou confeitaria..."
                   value={buscaEmail}
                   onChange={(e) => setBuscaEmail(e.target.value)}
                   className="pl-10"
