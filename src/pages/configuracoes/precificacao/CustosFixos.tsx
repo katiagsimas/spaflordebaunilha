@@ -14,6 +14,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface CustoFixo {
   id: string;
@@ -385,38 +386,47 @@ export default function CustosFixos() {
           onAction={() => setIsDialogOpen(true)}
         />
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {custosFixos.map((custo) => (
-            <Card key={custo.id}>
-              <CardHeader>
-                <CardTitle className="text-lg">{custo.nome}</CardTitle>
-                <CardDescription className="text-2xl font-bold text-primary">
-                  R$ {custo.valor.toFixed(2)}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1"
-                  onClick={() => handleEdit(custo)}
-                >
-                  <Pencil className="h-4 w-4 mr-2" />
-                  Editar
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1"
-                  onClick={() => setDeletingId(custo.id)}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Excluir
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Card>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nome</TableHead>
+                <TableHead className="text-right">Valor</TableHead>
+                <TableHead className="text-center w-[200px]">Opções</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {custosFixos.map((custo) => (
+                <TableRow key={custo.id}>
+                  <TableCell className="font-medium">{custo.nome}</TableCell>
+                  <TableCell className="text-right font-semibold text-primary">
+                    R$ {custo.valor.toFixed(2)}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex gap-2 justify-center">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(custo)}
+                      >
+                        <Pencil className="h-4 w-4 mr-1" />
+                        Alterar
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setDeletingId(custo.id)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Excluir
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Card>
       )}
 
       <ConfirmDialog
