@@ -511,24 +511,23 @@ export default function Financeiro() {
                   <Building2 className="h-5 w-5" />
                   Distribuição por Banco
                 </h3>
-                <div className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {bancosSaldos.filter(b => b.saldo_atual !== 0).map(banco => (
-                    <div key={banco.banco_id} className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="font-medium">
-                          {banco.banco_codigo} - {banco.banco_nome}
-                        </span>
-                        <span className={`font-bold ${banco.saldo_atual >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
-                          {formatarValor(banco.saldo_atual)}
-                        </span>
-                      </div>
-                      <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
-                        <div
-                          className={`h-full ${banco.saldo_atual >= 0 ? 'bg-blue-500' : 'bg-red-500'}`}
-                          style={{ width: `${(Math.abs(banco.saldo_atual) / maxSaldo) * 100}%` }}
-                        />
-                      </div>
-                    </div>
+                    <Card key={banco.banco_id} className={`border-l-4 ${banco.saldo_atual >= 0 ? 'border-l-blue-500' : 'border-l-red-500'}`}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs text-muted-foreground truncate">
+                              {banco.banco_codigo} - {banco.banco_nome}
+                            </p>
+                            <p className={`text-xl font-bold mt-1 ${banco.saldo_atual >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                              {formatarValor(banco.saldo_atual)}
+                            </p>
+                          </div>
+                          <Wallet className={`h-8 w-8 ml-2 ${banco.saldo_atual >= 0 ? 'text-blue-600' : 'text-red-600'} opacity-50`} />
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               </div>
