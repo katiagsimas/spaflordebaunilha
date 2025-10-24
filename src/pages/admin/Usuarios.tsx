@@ -518,31 +518,6 @@ export default function Usuarios() {
           </CardContent>
         </Card>
 
-        {/* Resultados por Página e Exportar */}
-        <div className="flex items-center justify-between gap-4">
-          {/* Resultados por Página */}
-          <div className="flex items-center gap-2">
-            <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
-              <SelectTrigger className="w-20">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-                <SelectItem value="100">100</SelectItem>
-              </SelectContent>
-            </Select>
-            <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
-          </div>
-
-          {/* Botão Exportar */}
-          <Button variant="outline" size="sm" onClick={exportarParaExcel}>
-            <Download className="mr-2 h-4 w-4" />
-            Exportar para Excel
-          </Button>
-        </div>
-
       <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -552,6 +527,31 @@ export default function Usuarios() {
             <CardDescription>
               Exibindo {usuariosFiltrados.length} de {profiles?.length || 0} usuários cadastrados
             </CardDescription>
+            
+            {/* Resultados por Página e Exportar */}
+            <div className="flex items-center gap-4 pt-4">
+              {/* Botão Exportar */}
+              <Button variant="outline" size="sm" onClick={exportarParaExcel}>
+                <Download className="mr-2 h-4 w-4" />
+                Exportar para Excel
+              </Button>
+
+              {/* Resultados por Página */}
+              <div className="flex items-center gap-2">
+                <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
+                  <SelectTrigger className="w-20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+                <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
+              </div>
+            </div>
           </CardHeader>
         <CardContent>
           {isLoading ? (
