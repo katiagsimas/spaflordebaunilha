@@ -483,14 +483,14 @@ const Encomendas = () => {
 
   const handleClienteAdicionado = (novoCliente: any) => {
     // Preencher automaticamente os dados do formulário com o novo cliente
-    setFormData({
-      ...formData,
-      cliente: novoCliente.nome,
+    setFormData(prev => ({
+      ...prev,
+      cliente: novoCliente.nome || "",
       telefone: novoCliente.telefone || "",
       endereco: novoCliente.endereco || "",
       numero: novoCliente.numero || "",
       cep: novoCliente.cep || "",
-    });
+    }));
     
     toast.success(`Cliente ${novoCliente.nome} adicionado e selecionado!`);
   };
