@@ -451,7 +451,7 @@ export default function Financeiro() {
             <Button 
               variant="outline" 
               onClick={handleAbrirConfig}
-              className="font-bold bg-primary text-primary-foreground hover:bg-primary/90"
+              className={`font-bold bg-primary text-primary-foreground hover:bg-primary/90 ${bancosSaldos.length === 0 ? 'animate-pulse' : ''}`}
             >
               <Settings className="mr-2 h-4 w-4" />
               Configure Saldos Iniciais
