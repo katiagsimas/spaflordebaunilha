@@ -1147,12 +1147,7 @@ export default function Financeiro() {
       </Dialog>
     </div>
   );
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              Configurar Saldos Iniciais
-            </DialogTitle>
+}
             <DialogDescription>
               Defina o saldo inicial de cada banco para calcular o fluxo de caixa do mês atual
             </DialogDescription>
