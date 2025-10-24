@@ -242,6 +242,43 @@ export default function ContasReceberFormModal({
         return;
       }
 
+      // Validar campos obrigatórios UUID
+      if (!tipoDocumentoId || tipoDocumentoId.trim() === '') {
+        toast({
+          title: 'Erro',
+          description: 'Selecione o tipo de documento!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!planoContasId || planoContasId.trim() === '') {
+        toast({
+          title: 'Erro',
+          description: 'Selecione o plano de contas!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!bancoId || bancoId.trim() === '') {
+        toast({
+          title: 'Erro',
+          description: 'Selecione o banco!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!clienteId || clienteId.trim() === '') {
+        toast({
+          title: 'Erro',
+          description: 'Cliente inválido!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       setLoading(true);
 
       const { data: { user } } = await supabase.auth.getUser();
