@@ -66,33 +66,21 @@ export function AdicionarUsuarioDialog({ open, onOpenChange }: AdicionarUsuarioD
     mutationFn: async (data: FormData) => {
       setIsLoading(true);
 
-      // Criar usuário via Supabase Auth Admin
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: data.email,
-        password: data.senha,
-        email_confirm: true,
-        user_metadata: {
-          nome_completo: data.nomeCompleto,
-          nome_confeitaria: data.nomeConfeitaria,
+      // Chamar Edge Function para criar usuário
+      const { data: result, error } = await supabase.functions.invoke('criar-usuario', {
+        body: {
+          email: data.email,
+          senha: data.senha,
+          nomeCompleto: data.nomeCompleto,
+          nomeConfeitaria: data.nomeConfeitaria,
+          role: data.role,
         },
       });
 
-      if (authError) throw authError;
-      if (!authData.user) throw new Error('Erro ao criar usuário');
+      if (error) throw error;
+      if (result.error) throw new Error(result.error);
 
-      // Adicionar role do usuário se não for 'user' (que é criado automaticamente)
-      if (data.role !== 'user') {
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .insert([{
-            user_id: authData.user.id,
-            role: data.role as any,
-          }]);
-
-        if (roleError) throw roleError;
-      }
-
-      return authData;
+      return result;
     },
     onSuccess: () => {
       toast({
