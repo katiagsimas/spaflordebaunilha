@@ -120,6 +120,22 @@ export default function ConfiguracaoTagsEncomendas() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Não autenticado');
 
+      // Verificar se já existe uma tag com o mesmo nome
+      const nomeNormalizado = nomeTag.trim().toLowerCase();
+      const tagDuplicada = tags.find(t => 
+        t.nome.toLowerCase() === nomeNormalizado && 
+        t.id !== tagEditando?.id
+      );
+
+      if (tagDuplicada) {
+        toast({
+          title: 'Erro',
+          description: 'Já existe uma tag com este nome!',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       const dados = {
         user_id: user.id,
         nome: nomeTag.trim(),
