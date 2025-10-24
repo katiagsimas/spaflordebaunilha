@@ -301,30 +301,86 @@ const Encomendas = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Verificar se tem produtos (para nova encomenda verifica tempProdutos, para edição verifica produtosEncomenda)
-    const temProdutos = editingOrder ? produtosEncomenda.length > 0 : tempProdutos.length > 0;
-    if (!temProdutos) {
-      toast.error("Adicione pelo menos um produto à encomenda!");
-      return;
-    }
+    // Para edição de encomenda existente
+    if (editingOrder) {
+      // Verificar se tem produtos
+      if (produtosEncomenda.length === 0) {
+        toast.error("Adicione pelo menos um produto à encomenda!");
+        return;
+      }
 
-    // Verificar se o pagamento foi configurado
-    if (!contaReceberId) {
-      toast.error("Configure o pagamento antes de salvar a encomenda! Clique no botão 'Pagamento' para criar a conta a receber.");
-      return;
-    }
-    
-    try {
-      // Preparar os dados com o valor final calculado
-      const dadosParaSalvar = {
-        ...formData,
-        valor: valorFinal,
-        data_entrega: formData.data_entrega || null, // Converte string vazia para null
-        hora_entrega: formData.hora_entrega || null, // Converte string vazia para null
-        conta_receber_id: contaReceberId || null, // Adiciona o ID da conta a receber
-      };
+      // Verificar se o pagamento foi configurado
+      if (!contaReceberId) {
+        toast.error("Configure o pagamento antes de salvar a encomenda!");
+        return;
+      }
+      
+      try {
+        // Preparar os dados com o valor final calculado
+        const dadosParaSalvar = {
+          ...formData,
+          valor: valorFinal,
+          data_entrega: formData.data_entrega || null,
+          hora_entrega: formData.hora_entrega || null,
+          conta_receber_id: contaReceberId || null,
+        };
 
-      // Validação básica dos campos essenciais com Zod
+        // Validação básica dos campos essenciais com Zod
+        const basicSchema = z.object({
+          cliente: z.string().trim().min(1, 'Nome do cliente é obrigatório'),
+          data_pedido: z.string().min(1, 'Data do pedido é obrigatória'),
+          status: z.enum(['pendente', 'confirmado', 'em_producao', 'pronto', 'entregue', 'cancelado']),
+          valor: z.number().nonnegative('Valor não pode ser negativo'),
+        });
+
+        basicSchema.parse({
+          cliente: dadosParaSalvar.cliente,
+          data_pedido: dadosParaSalvar.data_pedido,
+          status: dadosParaSalvar.status,
+          valor: dadosParaSalvar.valor,
+        });
+        
+        await updateEncomenda(editingOrder.id, dadosParaSalvar);
+        
+        // Salvar tags ao atualizar
+        // Deletar tags antigas
+        await supabase
+          .from('encomendas_tags')
+          .delete()
+          .eq('encomenda_id', editingOrder.id);
+
+        // Inserir novas tags
+        if (tagsSelecionadas.length > 0) {
+          const tagsData = tagsSelecionadas.map(tag => ({
+            encomenda_id: editingOrder.id,
+            tag_id: tag.id,
+          }));
+          await supabase.from('encomendas_tags').insert(tagsData);
+        }
+        
+        setDialogOpen(false);
+        resetForm();
+      } catch (error: any) {
+        if (error instanceof z.ZodError) {
+          const zodError = error as z.ZodError;
+          toast.error(zodError.issues[0].message);
+        } else {
+          toast.error(error.message || "Erro ao salvar encomenda");
+        }
+      }
+    } else {
+      // Para nova encomenda, apenas validar e abrir modal de pagamento
+      if (tempProdutos.length === 0) {
+        toast.error("Adicione pelo menos um produto à encomenda!");
+        return;
+      }
+
+      if (!formData.cliente) {
+        toast.error("Selecione o cliente!");
+        return;
+      }
+
+      // Validação básica dos campos essenciais
       const basicSchema = z.object({
         cliente: z.string().trim().min(1, 'Nome do cliente é obrigatório'),
         data_pedido: z.string().min(1, 'Data do pedido é obrigatória'),
@@ -332,73 +388,24 @@ const Encomendas = () => {
         valor: z.number().nonnegative('Valor não pode ser negativo'),
       });
 
-      basicSchema.parse({
-        cliente: dadosParaSalvar.cliente,
-        data_pedido: dadosParaSalvar.data_pedido,
-        status: dadosParaSalvar.status,
-        valor: dadosParaSalvar.valor,
-      });
-      
-      if (editingOrder) {
-        await updateEncomenda(editingOrder.id, dadosParaSalvar);
-        // Salvar tags ao atualizar
-        if (tagsSelecionadas.length > 0 || editingOrder) {
-          // Deletar tags antigas
-          await supabase
-            .from('encomendas_tags')
-            .delete()
-            .eq('encomenda_id', editingOrder.id);
+      try {
+        basicSchema.parse({
+          cliente: formData.cliente,
+          data_pedido: formData.data_pedido,
+          status: formData.status,
+          valor: valorFinal,
+        });
 
-          // Inserir novas tags
-          if (tagsSelecionadas.length > 0) {
-            const tagsData = tagsSelecionadas.map(tag => ({
-              encomenda_id: editingOrder.id,
-              tag_id: tag.id,
-            }));
-            await supabase.from('encomendas_tags').insert(tagsData);
-          }
+        // Abrir modal de pagamento
+        toast.info("Configure o pagamento para finalizar a encomenda");
+        handleAbrirPagamento();
+      } catch (error: any) {
+        if (error instanceof z.ZodError) {
+          const zodError = error as z.ZodError;
+          toast.error(zodError.issues[0].message);
+        } else {
+          toast.error(error.message || "Erro de validação");
         }
-      } else {
-        const novaEncomenda = await createEncomenda(dadosParaSalvar);
-        
-        // Salvar produtos temporários na encomenda criada
-        if (tempProdutos.length > 0 && novaEncomenda) {
-          for (const produto of tempProdutos) {
-            await createItem({
-              encomenda_id: novaEncomenda.id,
-              receita_id: produto.receita_id,
-              produto: produto.produto,
-              quantidade: produto.quantidade,
-              unidade_medida: produto.unidade_medida,
-              valor_unitario: produto.valor_unitario,
-              subtotal: produto.subtotal,
-            });
-          }
-        }
-
-        // Salvar tags da nova encomenda
-        if (tagsSelecionadas.length > 0 && novaEncomenda) {
-          const tagsData = tagsSelecionadas.map(tag => ({
-            encomenda_id: novaEncomenda.id,
-            tag_id: tag.id,
-          }));
-          const { error: errorTags } = await supabase
-            .from('encomendas_tags')
-            .insert(tagsData);
-
-          if (errorTags) {
-            console.error('Erro ao salvar tags:', errorTags);
-          }
-        }
-      }
-      setDialogOpen(false);
-      resetForm();
-    } catch (error: any) {
-      if (error instanceof z.ZodError) {
-        const zodError = error as z.ZodError;
-        toast.error(zodError.issues[0].message);
-      } else {
-        toast.error(error.message || "Erro ao salvar encomenda");
       }
     }
   };
@@ -656,12 +663,59 @@ const Encomendas = () => {
     setModalPagamentoAberto(true);
   };
 
-  const handleContaCriada = (contaId: string) => {
+  const handleContaCriada = async (contaId: string) => {
     console.log('✅ Conta a receber criada:', contaId);
     setContaReceberId(contaId);
     setModalPagamentoAberto(false);
     
-    toast.success('Conta a receber criada e vinculada à encomenda!');
+    // Criar encomenda automaticamente após salvar as parcelas
+    try {
+      const dadosParaSalvar = {
+        ...formData,
+        valor: valorFinal,
+        data_entrega: formData.data_entrega || null,
+        hora_entrega: formData.hora_entrega || null,
+        conta_receber_id: contaId,
+      };
+
+      const novaEncomenda = await createEncomenda(dadosParaSalvar);
+      
+      // Salvar produtos temporários na encomenda criada
+      if (tempProdutos.length > 0 && novaEncomenda) {
+        for (const produto of tempProdutos) {
+          await createItem({
+            encomenda_id: novaEncomenda.id,
+            receita_id: produto.receita_id,
+            produto: produto.produto,
+            quantidade: produto.quantidade,
+            unidade_medida: produto.unidade_medida,
+            valor_unitario: produto.valor_unitario,
+            subtotal: produto.subtotal,
+          });
+        }
+      }
+
+      // Salvar tags da nova encomenda
+      if (tagsSelecionadas.length > 0 && novaEncomenda) {
+        const tagsData = tagsSelecionadas.map(tag => ({
+          encomenda_id: novaEncomenda.id,
+          tag_id: tag.id,
+        }));
+        const { error: errorTags } = await supabase
+          .from('encomendas_tags')
+          .insert(tagsData);
+
+        if (errorTags) {
+          console.error('Erro ao salvar tags:', errorTags);
+        }
+      }
+
+      setDialogOpen(false);
+      resetForm();
+      toast.success('Encomenda criada com sucesso!');
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao criar encomenda");
+    }
   };
 
   // Buscar ID do cliente selecionado
