@@ -34,7 +34,6 @@ import { Loader2 } from 'lucide-react';
 
 const formSchema = z.object({
   email: z.string().email('Email inválido'),
-  senha: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres'),
   nomeCompleto: z.string().min(2, 'Nome completo é obrigatório'),
   nomeConfeitaria: z.string().min(2, 'Nome da confeitaria é obrigatório'),
   role: z.string(),
@@ -55,7 +54,6 @@ export function AdicionarUsuarioDialog({ open, onOpenChange }: AdicionarUsuarioD
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: '',
-      senha: '',
       nomeCompleto: '',
       nomeConfeitaria: '',
       role: 'user',
@@ -78,7 +76,7 @@ export function AdicionarUsuarioDialog({ open, onOpenChange }: AdicionarUsuarioD
       const { data: result, error } = await supabase.functions.invoke('criar-usuario', {
         body: {
           email: data.email,
-          senha: data.senha,
+          senha: '123456', // Senha padrão fixa
           nomeCompleto: data.nomeCompleto,
           nomeConfeitaria: data.nomeConfeitaria,
           role: data.role,
@@ -170,19 +168,10 @@ export function AdicionarUsuarioDialog({ open, onOpenChange }: AdicionarUsuarioD
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="senha"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Senha</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="••••••" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
+              <p className="font-medium">Senha padrão: 123456</p>
+              <p className="text-xs mt-1">O usuário será obrigado a alterar a senha no primeiro acesso.</p>
+            </div>
 
             <FormField
               control={form.control}

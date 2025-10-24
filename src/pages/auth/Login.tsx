@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { AlterarSenhaObrigatoria } from '@/components/auth/AlterarSenhaObrigatoria';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,8 +23,28 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { signIn } = useAuth();
+  const [mostrarAlterarSenha, setMostrarAlterarSenha] = useState(false);
+  const { signIn, user } = useAuth();
   const navigate = useNavigate();
+
+  // Verificar se precisa trocar senha após login
+  useEffect(() => {
+    const verificarTrocaSenha = async () => {
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('primeiro_acesso')
+          .eq('id', user.id)
+          .single();
+
+        if (profile?.primeiro_acesso) {
+          setMostrarAlterarSenha(true);
+        }
+      }
+    };
+
+    verificarTrocaSenha();
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,8 +57,25 @@ export default function Login() {
       });
       
       await signIn(validated.email, validated.password);
-      console.log('Login bem-sucedido, navegando para /dashboard');
-      navigate('/dashboard');
+      console.log('Login bem-sucedido, verificando necessidade de troca de senha');
+      
+      // Verificar se é primeiro acesso (senha padrão)
+      const { data: { user: loggedUser } } = await supabase.auth.getUser();
+      if (loggedUser) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('primeiro_acesso')
+          .eq('id', loggedUser.id)
+          .single();
+
+        if (profile?.primeiro_acesso) {
+          setMostrarAlterarSenha(true);
+        } else {
+          navigate('/dashboard');
+        }
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       if (error instanceof z.ZodError) {
         // Validação falhou - o erro já é visível para o usuário via form validation
@@ -48,7 +87,10 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center gradient-subtle p-4 relative overflow-hidden">
+    <>
+      <AlterarSenhaObrigatoria open={mostrarAlterarSenha} />
+      
+      <div className="min-h-screen flex items-center justify-center gradient-subtle p-4 relative overflow-hidden">
       {/* Background Image with Opacity */}
       <div 
         className="absolute inset-0 bg-cover bg-center opacity-15"
@@ -145,5 +187,6 @@ export default function Login() {
         </form>
       </Card>
     </div>
+    </>
   );
 }
