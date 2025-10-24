@@ -1339,21 +1339,6 @@ export default function ReceitaForm() {
                     <h4 className="font-semibold text-sm text-muted-foreground">⏱️ Mão de Obra</h4>
                     <div className="space-y-3">
                       <div>
-                        <Label className="text-xs">Valor de Mão de Obra</Label>
-                        <Select value={maoObraId} onValueChange={setMaoObraId}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {valoresMaoObra.filter(mo => mo.ativo).map(maoObra => (
-                              <SelectItem key={maoObra.id} value={maoObra.id}>
-                                {maoObra.nome} - R$ {maoObra.valor_hora.toFixed(2)}/h
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
                         <Label className="text-xs">Tempo de Mão de Obra (minutos)</Label>
                         <Input
                           type="number"
@@ -1362,11 +1347,6 @@ export default function ReceitaForm() {
                           onChange={(e) => setTempoMaoObra(parseFloat(e.target.value) || 0)}
                           placeholder="Ex: 30"
                         />
-                        {maoObraSelecionada && tempoMaoObra > 0 && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {tempoMaoObra} min × R$ {maoObraSelecionada.valor_hora.toFixed(2)}/h = R$ {custoMaoObra.toFixed(2)}
-                          </p>
-                        )}
                       </div>
                     </div>
                   </div>
