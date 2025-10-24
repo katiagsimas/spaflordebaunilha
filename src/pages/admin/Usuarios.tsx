@@ -371,66 +371,66 @@ export default function Usuarios() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {/* Total de Usuários */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total de Usuários
-              </CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {estatisticas.total}
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total de Usuários</p>
+                  <p className="text-2xl font-bold">
+                    {estatisticas.total}
+                  </p>
+                </div>
+                <Users className="h-8 w-8 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
 
           {/* Usuários Ativos */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Ativos
-              </CardTitle>
-              <UserCheck className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {estatisticas.ativos}
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Ativos</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    {estatisticas.ativos}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {estatisticas.total > 0 
+                      ? `${((estatisticas.ativos / estatisticas.total) * 100).toFixed(0)}% do total`
+                      : '0%'
+                    }
+                  </p>
+                </div>
+                <UserCheck className="h-8 w-8 text-green-600" />
               </div>
-              <p className="text-xs text-muted-foreground">
-                {estatisticas.total > 0 
-                  ? `${((estatisticas.ativos / estatisticas.total) * 100).toFixed(0)}% do total`
-                  : '0%'
-                }
-              </p>
             </CardContent>
           </Card>
 
           {/* Usuários Inativos */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Inativos
-              </CardTitle>
-              <UserX className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {estatisticas.inativos}
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Inativos</p>
+                  <p className="text-2xl font-bold text-muted-foreground">
+                    {estatisticas.inativos}
+                  </p>
+                </div>
+                <UserX className="h-8 w-8 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
 
           {/* Administradores */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Administradores
-              </CardTitle>
-              <Shield className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {estatisticas.admins}
+          <Card className="border-2 border-primary">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Administradores</p>
+                  <p className="text-2xl font-bold text-primary">
+                    {estatisticas.admins}
+                  </p>
+                </div>
+                <Shield className="h-8 w-8 text-primary" />
               </div>
             </CardContent>
           </Card>
