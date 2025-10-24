@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import sugarboxAuthLogo from '@/assets/sugarbox-auth-logo.png';
+import donnasBoxLogo from '@/assets/donnas-box-logo.png';
 import authBackground from '@/assets/auth-background.jpg';
 import { z } from 'zod';
 import { toast } from 'sonner';
@@ -59,8 +59,8 @@ export default function Login() {
         <CardHeader className="space-y-3 text-center">
           <div className="flex justify-center mb-2">
             <img 
-              src={sugarboxAuthLogo} 
-              alt="Sugar Box - O Sistema Completo da Confeiteira" 
+              src={donnasBoxLogo} 
+              alt="Donna's Box - Sistema de Gestão para Confeitaria" 
               className="h-40 w-auto object-contain"
             />
           </div>
