@@ -9,7 +9,7 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { Clock, User, FileText, Loader2, Download } from "lucide-react";
+import { Clock, User, FileText, Loader2, Download, Search, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -18,6 +18,7 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useNavigate } from "react-router-dom";
 import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -45,6 +46,12 @@ export default function LogsAdmin() {
   const [logs, setLogs] = useState<AdminLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [porPagina, setPorPagina] = useState(10);
+  
+  // Estados para filtros
+  const [filtroDataInicial, setFiltroDataInicial] = useState("");
+  const [filtroDataFinal, setFiltroDataFinal] = useState("");
+  const [filtroAcao, setFiltroAcao] = useState("todas");
+  const [filtroUsuario, setFiltroUsuario] = useState("");
 
   // Redirecionar se não for admin
   if (!isLoadingAdmin && !isAdmin) {
@@ -94,12 +101,51 @@ export default function LogsAdmin() {
     return 'outline';
   };
 
+  // Filtrar logs
+  const logsFiltrados = logs.filter(log => {
+    // Filtro de data
+    if (filtroDataInicial) {
+      const dataLog = new Date(log.created_at);
+      const dataInicio = new Date(filtroDataInicial);
+      if (dataLog < dataInicio) return false;
+    }
+    
+    if (filtroDataFinal) {
+      const dataLog = new Date(log.created_at);
+      const dataFim = new Date(filtroDataFinal);
+      dataFim.setHours(23, 59, 59, 999); // Incluir todo o dia final
+      if (dataLog > dataFim) return false;
+    }
+    
+    // Filtro de ação
+    if (filtroAcao !== "todas" && log.acao !== filtroAcao) {
+      return false;
+    }
+    
+    // Filtro de usuário afetado
+    if (filtroUsuario && log.usuario_afetado_email) {
+      if (!log.usuario_afetado_email.toLowerCase().includes(filtroUsuario.toLowerCase())) {
+        return false;
+      }
+    }
+    
+    return true;
+  });
+
   // Aplicar paginação
-  const logsPaginados = logs.slice(0, porPagina);
+  const logsPaginados = logsFiltrados.slice(0, porPagina);
+
+  // Função para limpar filtros
+  const limparFiltros = () => {
+    setFiltroDataInicial("");
+    setFiltroDataFinal("");
+    setFiltroAcao("todas");
+    setFiltroUsuario("");
+  };
 
   // Função de exportar para Excel
   const exportarParaExcel = () => {
-    const dadosExportacao = logs.map(log => ({
+    const dadosExportacao = logsFiltrados.map(log => ({
       'Data/Hora': format(new Date(log.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR }),
       'Administrador': log.admin_email,
       'Ação': getAcaoLabel(log.acao),
@@ -125,6 +171,76 @@ export default function LogsAdmin() {
         description="Histórico de todas as ações administrativas realizadas no sistema"
       />
       
+      {/* Filtros */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* Filtro Data Inicial */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Data Inicial</label>
+              <Input
+                type="date"
+                value={filtroDataInicial}
+                onChange={(e) => setFiltroDataInicial(e.target.value)}
+              />
+            </div>
+
+            {/* Filtro Data Final */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Data Final</label>
+              <Input
+                type="date"
+                value={filtroDataFinal}
+                onChange={(e) => setFiltroDataFinal(e.target.value)}
+              />
+            </div>
+
+            {/* Filtro Ação */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Ação</label>
+              <Select value={filtroAcao} onValueChange={setFiltroAcao}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todas as ações" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todas">Todas as ações</SelectItem>
+                  <SelectItem value="desabilitou_usuario">Desabilitou Usuário</SelectItem>
+                  <SelectItem value="habilitou_usuario">Habilitou Usuário</SelectItem>
+                  <SelectItem value="deletou_cadastros">Deletou Cadastros</SelectItem>
+                  <SelectItem value="alterou_permissao">Alterou Permissão</SelectItem>
+                  <SelectItem value="excluiu_usuario">Excluiu Usuário</SelectItem>
+                  <SelectItem value="criou_usuario">Criou Usuário</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Filtro Usuário Afetado */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Usuário Afetado</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar usuário..."
+                  value={filtroUsuario}
+                  onChange={(e) => setFiltroUsuario(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Botão Limpar Filtros */}
+          {(filtroDataInicial || filtroDataFinal || filtroAcao !== "todas" || filtroUsuario) && (
+            <div className="mt-4">
+              <Button variant="outline" size="sm" onClick={limparFiltros}>
+                <X className="mr-2 h-4 w-4" />
+                Limpar Filtros
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -132,7 +248,7 @@ export default function LogsAdmin() {
             Últimas 100 Ações
           </CardTitle>
           <CardDescription>
-            Registro completo de auditoria das ações administrativas
+            Registro completo de auditoria das ações administrativas. Exibindo {logsFiltrados.length} de {logs.length} registros.
           </CardDescription>
           
           {/* Resultados por Página e Exportar */}
