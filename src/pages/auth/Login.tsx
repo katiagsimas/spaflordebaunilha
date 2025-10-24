@@ -68,7 +68,15 @@ export default function Login() {
           .eq('id', loggedUser.id)
           .single();
 
-        if (profile?.primeiro_acesso) {
+        // Se primeiro_acesso é true OU se a senha usada foi a padrão, forçar troca
+        if (profile?.primeiro_acesso || password === '123456') {
+          // Se não estava marcado como primeiro acesso mas usou senha padrão, marcar agora
+          if (!profile?.primeiro_acesso && password === '123456') {
+            await supabase
+              .from('profiles')
+              .update({ primeiro_acesso: true })
+              .eq('id', loggedUser.id);
+          }
           setMostrarAlterarSenha(true);
         } else {
           navigate('/dashboard');
