@@ -160,12 +160,12 @@ export default function Financeiro() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Buscar bancos
+      // Buscar bancos (ordenar por código para que 000 - Caixa Empresa apareça primeiro)
       const { data: dataBancos } = await supabase
         .from('bancos')
         .select('id, codigo, nome')
         .eq('usuario_id', user.id)
-        .order('nome');
+        .order('codigo');
       setBancos(dataBancos || []);
 
       // Buscar saldos configurados do mês atual
