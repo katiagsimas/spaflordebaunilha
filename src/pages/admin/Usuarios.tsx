@@ -20,7 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Loader2, Users, Shield, User, Plus, MoreVertical, Edit, UserX, Trash2, Search, UserCheck, Clock, AlertCircle } from 'lucide-react';
+import { Loader2, Users, Shield, User, Plus, MoreVertical, Edit, UserX, Trash2, Search, UserCheck, Clock, AlertCircle, Download } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useNavigate } from 'react-router-dom';
@@ -31,6 +31,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { toast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import * as XLSX from 'xlsx';
 
 interface UserProfile {
   id: string;
@@ -67,6 +68,7 @@ export default function Usuarios() {
   const [buscaEmail, setBuscaEmail] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("todos");
   const [filtroPermissao, setFiltroPermissao] = useState("todos");
+  const [porPagina, setPorPagina] = useState(10);
   const [estatisticas, setEstatisticas] = useState({
     total: 0,
     ativos: 0,
@@ -148,6 +150,36 @@ export default function Usuarios() {
     
     return matchEmail && matchStatus && matchPermissao;
   }) || [];
+
+  // Aplicar paginação
+  const usuariosPaginados = usuariosFiltrados.slice(0, porPagina);
+
+  // Função de exportar para Excel
+  const exportarParaExcel = () => {
+    const dadosExportacao = usuariosFiltrados.map(usuario => {
+      const userRoles = rolesByUser[usuario.id] || [];
+      const isAdmin = userRoles.includes('admin');
+      
+      return {
+        'Email': usuario.email,
+        'Nome Completo': usuario.nome_completo || 'N/A',
+        'Confeitaria': usuario.nome_confeitaria || 'N/A',
+        'Status': usuario.ativo !== false ? 'Ativo' : 'Inativo',
+        'Permissão': isAdmin ? 'Administrador' : 'Usuário',
+        'Cadastrado em': new Date(usuario.created_at).toLocaleDateString('pt-BR'),
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(dadosExportacao);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Usuários');
+    XLSX.writeFile(wb, `usuarios-${new Date().toISOString().split('T')[0]}.xlsx`);
+    
+    toast({
+      title: '✅ Exportado',
+      description: 'Dados exportados para Excel com sucesso!',
+    });
+  };
 
   const alterarStatusUsuarioMutation = useMutation({
     mutationFn: async ({ userId, novoStatus, userEmail }: { userId: string; novoStatus: boolean; userEmail: string }) => {
@@ -486,6 +518,31 @@ export default function Usuarios() {
           </CardContent>
         </Card>
 
+        {/* Resultados por Página e Exportar */}
+        <div className="flex items-center justify-between gap-4">
+          {/* Resultados por Página */}
+          <div className="flex items-center gap-2">
+            <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
+              <SelectTrigger className="w-20">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
+            <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
+          </div>
+
+          {/* Botão Exportar */}
+          <Button variant="outline" size="sm" onClick={exportarParaExcel}>
+            <Download className="mr-2 h-4 w-4" />
+            Exportar para Excel
+          </Button>
+        </div>
+
       <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -523,7 +580,7 @@ export default function Usuarios() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {usuariosFiltrados.map((profile) => {
+                  {usuariosPaginados.map((profile) => {
                     const userRoles = rolesByUser[profile.id] || ['user'];
                     const mainRole = userRoles[0];
                     return (
