@@ -235,46 +235,55 @@ export default function Dashboard() {
     if (!user) return;
     const hoje = new Date().toISOString().split('T')[0];
 
-    const { data: receberAtrasado } = await supabase
-      .from("contas_receber")
-      .select("valor")
-      .eq("usuario_id", user.id)
+    // Buscar parcelas de contas a receber atrasadas (não pagas)
+    const { data: parcelasReceberAtrasadas } = await supabase
+      .from("contas_receber_parcelas")
+      .select(`
+        valor_parcela,
+        valor_pago,
+        conta_receber:contas_receber!inner (
+          usuario_id
+        )
+      `)
+      .eq("conta_receber.usuario_id", user.id)
       .lt("data_vencimento", hoje)
-      .neq("status", "pago");
+      .in("status", ["aberto", "atrasado", "pagamento_parcial"]);
 
-    const { data: pagarAtrasado } = await supabase
-      .from("contas_pagar")
-      .select("valor_total")
-      .eq("usuario_id", user.id)
+    // Buscar parcelas de contas a pagar atrasadas (não pagas)
+    const { data: parcelasPagarAtrasadas } = await supabase
+      .from("contas_pagar_parcelas")
+      .select(`
+        valor_parcela,
+        valor_pago,
+        conta_pagar:contas_pagar!inner (
+          usuario_id
+        )
+      `)
+      .eq("conta_pagar.usuario_id", user.id)
       .lt("data_vencimento", hoje)
-      .neq("status", "pago");
+      .in("status", ["aberto", "atrasado", "pagamento_parcial"]);
 
-    const { data: inadimplenciaClientes } = await supabase
-      .from("contas_receber")
-      .select("valor")
-      .eq("usuario_id", user.id)
-      .lt("data_vencimento", hoje)
-      .eq("status", "pendente");
+    // Calcular valores pendentes (parcela - pago)
+    const valorReceberAtrasado = parcelasReceberAtrasadas?.reduce((sum, p) => {
+      const pendente = (p.valor_parcela || 0) - (p.valor_pago || 0);
+      return sum + pendente;
+    }, 0) || 0;
 
-    const { data: inadimplenciaFornecedores } = await supabase
-      .from("contas_pagar")
-      .select("valor_total")
-      .eq("usuario_id", user.id)
-      .lt("data_vencimento", hoje)
-      .eq("status", "pendente");
+    const valorPagarAtrasado = parcelasPagarAtrasadas?.reduce((sum, p) => {
+      const pendente = (p.valor_parcela || 0) - (p.valor_pago || 0);
+      return sum + pendente;
+    }, 0) || 0;
 
     setAlertas({
       receberAtrasado: {
-        quantidade: receberAtrasado?.length || 0,
-        valor: receberAtrasado?.reduce((sum, c) => sum + (c.valor || 0), 0) || 0
+        quantidade: parcelasReceberAtrasadas?.length || 0,
+        valor: valorReceberAtrasado
       },
       pagarAtrasado: {
-        quantidade: pagarAtrasado?.length || 0,
-        valor: pagarAtrasado?.reduce((sum, c) => sum + (c.valor_total || 0), 0) || 0
+        quantidade: parcelasPagarAtrasadas?.length || 0,
+        valor: valorPagarAtrasado
       },
-      inadimplenciaTotal: 
-        (inadimplenciaClientes?.reduce((sum, c) => sum + (c.valor || 0), 0) || 0) +
-        (inadimplenciaFornecedores?.reduce((sum, c) => sum + (c.valor_total || 0), 0) || 0)
+      inadimplenciaTotal: valorReceberAtrasado + valorPagarAtrasado
     });
   }
 
@@ -419,25 +428,50 @@ export default function Dashboard() {
     const inicioMes = new Date(anoSelecionado, mesSelecionado, 1).toISOString().split('T')[0];
     const fimMes = new Date(anoSelecionado, mesSelecionado + 1, 0).toISOString().split('T')[0];
 
-    const { data: receberAberto } = await supabase
-      .from("contas_receber")
-      .select("valor")
-      .eq("usuario_id", user.id)
+    // Buscar parcelas de contas a receber em aberto no mês
+    const { data: parcelasReceber } = await supabase
+      .from("contas_receber_parcelas")
+      .select(`
+        valor_parcela,
+        valor_pago,
+        conta_receber:contas_receber!inner (
+          usuario_id
+        )
+      `)
+      .eq("conta_receber.usuario_id", user.id)
       .gte("data_vencimento", inicioMes)
       .lte("data_vencimento", fimMes)
-      .neq("status", "pago");
+      .in("status", ["aberto", "atrasado", "pagamento_parcial"]);
 
-    const { data: pagarAberto } = await supabase
-      .from("contas_pagar")
-      .select("valor_total")
-      .eq("usuario_id", user.id)
+    // Buscar parcelas de contas a pagar em aberto no mês
+    const { data: parcelasPagar } = await supabase
+      .from("contas_pagar_parcelas")
+      .select(`
+        valor_parcela,
+        valor_pago,
+        conta_pagar:contas_pagar!inner (
+          usuario_id
+        )
+      `)
+      .eq("conta_pagar.usuario_id", user.id)
       .gte("data_vencimento", inicioMes)
       .lte("data_vencimento", fimMes)
-      .neq("status", "pago");
+      .in("status", ["aberto", "atrasado", "pagamento_parcial"]);
+
+    // Calcular valores pendentes (parcela - pago)
+    const receberAberto = parcelasReceber?.reduce((sum, p) => {
+      const pendente = (p.valor_parcela || 0) - (p.valor_pago || 0);
+      return sum + pendente;
+    }, 0) || 0;
+
+    const pagarAberto = parcelasPagar?.reduce((sum, p) => {
+      const pendente = (p.valor_parcela || 0) - (p.valor_pago || 0);
+      return sum + pendente;
+    }, 0) || 0;
 
     setFinanceiro({
-      receberAberto: receberAberto?.reduce((sum, c) => sum + (c.valor || 0), 0) || 0,
-      pagarAberto: pagarAberto?.reduce((sum, c) => sum + (c.valor_total || 0), 0) || 0
+      receberAberto,
+      pagarAberto
     });
   }
 
