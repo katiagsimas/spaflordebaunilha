@@ -407,7 +407,7 @@ export default function Financeiro() {
         <CardHeader className="pb-3">
           <div className="flex justify-between items-start gap-4">
             <div className="flex-1">
-              <CardTitle className="text-2xl flex items-center gap-2 mb-4">
+              <CardTitle className="text-xl md:text-2xl font-bold uppercase flex items-center gap-2 mb-4">
                 <Wallet className="h-6 w-6 text-primary" />
                 Resumo Financeiro
               </CardTitle>
