@@ -13,6 +13,7 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface CustoFixo {
   id: string;
@@ -41,6 +42,25 @@ export default function CustosFixos() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [nome, setNome] = useState("");
   const [valor, setValor] = useState("");
+
+  const categoriasCustos = [
+    "Aluguel",
+    "Energia elétrica",
+    "Água",
+    "Internet",
+    "Telefone",
+    "Salários",
+    "Encargos trabalhistas",
+    "Contador",
+    "Taxas e impostos (MEI, Simples Nacional, etc.)",
+    "Assinaturas de softwares (Canva, ChatGPT, Freepik, etc.)",
+    "Manutenção de site",
+    "Domínio e hospedagem",
+    "Taxas bancárias",
+    "Maquininha de cartão",
+    "Seguros",
+    "Pró-labore"
+  ];
   
   // Estados locais para dias e horas (para edição)
   const [diasTrabalho, setDiasTrabalho] = useState(22);
@@ -319,13 +339,19 @@ export default function CustosFixos() {
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="nome">Descrição</Label>
-                <Input
-                  id="nome"
-                  value={nome}
-                  onChange={(e) => setNome(e.target.value)}
-                  placeholder="Ex: Água, Luz, Internet..."
-                />
+                <Label htmlFor="categoria">Categoria</Label>
+                <Select value={nome} onValueChange={setNome}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione uma categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categoriasCustos.map((categoria) => (
+                      <SelectItem key={categoria} value={categoria}>
+                        {categoria}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="valor">Valor Mensal (R$)</Label>
