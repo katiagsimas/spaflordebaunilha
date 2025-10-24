@@ -156,23 +156,12 @@ export function EditarUsuarioDialog({
     mutationFn: async () => {
       if (!userId) throw new Error('ID do usuário não fornecido');
 
-      // Deletar dados das tabelas principais (mantendo configurações)
-      // Nota: Alguns deletes podem falhar se não houver dados, mas isso é esperado
-      try {
-        await supabase.from('encomenda_itens').delete().eq('usuario_id', userId);
-        await supabase.from('encomendas').delete().eq('usuario_id', userId);
-        await supabase.from('contas_receber').delete().eq('usuario_id', userId);
-        await supabase.from('contas_pagar').delete().eq('usuario_id', userId);
-        await supabase.from('movimentacoes_estoque').delete().eq('usuario_id', userId);
-        await supabase.from('receitas').delete().eq('usuario_id', userId);
-        await supabase.from('sub_receitas').delete().eq('usuario_id', userId);
-        await supabase.from('ingredientes').delete().eq('usuario_id', userId);
-        await supabase.from('embalagens').delete().eq('usuario_id', userId);
-        await supabase.from('clientes').delete().eq('usuario_id', userId);
-        await supabase.from('fornecedores').delete().eq('usuario_id', userId);
-      } catch (error) {
-        console.error('Erro ao deletar alguns dados:', error);
-      }
+      // Chamar função do banco de dados para deletar cadastros do usuário
+      const { error } = await supabase.rpc('deletar_cadastros_usuario', {
+        p_user_id: userId
+      });
+
+      if (error) throw error;
     },
     onSuccess: () => {
       toast({

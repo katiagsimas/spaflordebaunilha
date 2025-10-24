@@ -2574,6 +2574,10 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
+      deletar_cadastros_usuario: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
       gerar_proximo_codigo_categoria: {
         Args: { p_user_id: string }
         Returns: string
