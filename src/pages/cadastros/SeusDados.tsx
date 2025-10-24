@@ -42,11 +42,16 @@ export default function SeusDados() {
     queryKey: ['profile', user?.id],
     queryFn: async () => {
       if (!user) return null;
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
+      
+      if (error) {
+        console.error('Erro ao buscar perfil:', error);
+        throw error;
+      }
       return data;
     },
     enabled: !!user,

@@ -35,7 +35,7 @@ export default function Login() {
           .from('profiles')
           .select('primeiro_acesso')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
         if (profile?.primeiro_acesso) {
           setMostrarAlterarSenha(true);
@@ -62,11 +62,17 @@ export default function Login() {
       // Verificar se é primeiro acesso (senha padrão)
       const { data: { user: loggedUser } } = await supabase.auth.getUser();
       if (loggedUser) {
+        // Atualizar last_login
+        await supabase
+          .from('profiles')
+          .update({ last_login: new Date().toISOString() })
+          .eq('id', loggedUser.id);
+
         const { data: profile } = await supabase
           .from('profiles')
           .select('primeiro_acesso')
           .eq('id', loggedUser.id)
-          .single();
+          .maybeSingle();
 
         // Se primeiro_acesso é true OU se a senha usada foi a padrão, forçar troca
         if (profile?.primeiro_acesso || password === '123456') {
