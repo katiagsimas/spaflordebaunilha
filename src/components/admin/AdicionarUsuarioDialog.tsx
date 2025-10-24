@@ -1,0 +1,232 @@
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
+
+const formSchema = z.object({
+  email: z.string().email('Email inválido'),
+  senha: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres'),
+  nomeCompleto: z.string().min(2, 'Nome completo é obrigatório'),
+  nomeConfeitaria: z.string().min(2, 'Nome da confeitaria é obrigatório'),
+  role: z.string(),
+});
+
+type FormData = z.infer<typeof formSchema>;
+
+interface AdicionarUsuarioDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function AdicionarUsuarioDialog({ open, onOpenChange }: AdicionarUsuarioDialogProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient();
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: '',
+      senha: '',
+      nomeCompleto: '',
+      nomeConfeitaria: '',
+      role: 'user',
+    },
+  });
+
+  const criarUsuarioMutation = useMutation({
+    mutationFn: async (data: FormData) => {
+      setIsLoading(true);
+
+      // Criar usuário via Supabase Auth Admin
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+        email: data.email,
+        password: data.senha,
+        email_confirm: true,
+        user_metadata: {
+          nome_completo: data.nomeCompleto,
+          nome_confeitaria: data.nomeConfeitaria,
+        },
+      });
+
+      if (authError) throw authError;
+      if (!authData.user) throw new Error('Erro ao criar usuário');
+
+      // Adicionar role do usuário se não for 'user' (que é criado automaticamente)
+      if (data.role !== 'user') {
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .insert([{
+            user_id: authData.user.id,
+            role: data.role as any,
+          }]);
+
+        if (roleError) throw roleError;
+      }
+
+      return authData;
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Usuário criado com sucesso',
+        description: 'O novo usuário já pode fazer login no sistema.',
+      });
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-user-roles'] });
+      form.reset();
+      onOpenChange(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Erro ao criar usuário',
+        description: error.message || 'Ocorreu um erro ao criar o usuário.',
+        variant: 'destructive',
+      });
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    },
+  });
+
+  const onSubmit = (data: FormData) => {
+    criarUsuarioMutation.mutate(data);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>Adicionar Novo Usuário</DialogTitle>
+          <DialogDescription>
+            Preencha os dados para criar um novo usuário no sistema.
+          </DialogDescription>
+        </DialogHeader>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="usuario@email.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="senha"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Senha</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="nomeCompleto"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome Completo</FormLabel>
+                  <FormControl>
+                    <Input placeholder="João da Silva" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="nomeConfeitaria"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome da Confeitaria</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Doces & Delicias" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Permissão</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione uma permissão" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="user">Usuário</SelectItem>
+                      <SelectItem value="admin">Administrador</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isLoading}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Criar Usuário
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}

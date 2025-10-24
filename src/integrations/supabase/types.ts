@@ -1712,6 +1712,7 @@ export type Database = {
       profiles: {
         Row: {
           alerta_cmv: number | null
+          ativo: boolean | null
           avatar_url: string | null
           cep: string | null
           cidade: string | null
@@ -1738,6 +1739,7 @@ export type Database = {
         }
         Insert: {
           alerta_cmv?: number | null
+          ativo?: boolean | null
           avatar_url?: string | null
           cep?: string | null
           cidade?: string | null
@@ -1764,6 +1766,7 @@ export type Database = {
         }
         Update: {
           alerta_cmv?: number | null
+          ativo?: boolean | null
           avatar_url?: string | null
           cep?: string | null
           cidade?: string | null
