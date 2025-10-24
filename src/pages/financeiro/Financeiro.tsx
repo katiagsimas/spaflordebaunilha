@@ -503,7 +503,7 @@ export default function Financeiro() {
           </div>
 
           {/* Distribuição por Banco */}
-          {bancosSaldos.length > 0 && (
+          {bancosSaldos.filter(b => b.saldo_atual !== 0).length > 0 && (
             <>
               <Separator />
               <div>
@@ -512,7 +512,7 @@ export default function Financeiro() {
                   Distribuição por Banco
                 </h3>
                 <div className="space-y-3">
-                  {bancosSaldos.map(banco => (
+                  {bancosSaldos.filter(b => b.saldo_atual !== 0).map(banco => (
                     <div key={banco.banco_id} className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="font-medium">
