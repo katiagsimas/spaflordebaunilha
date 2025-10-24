@@ -383,17 +383,22 @@ export default function Financeiro() {
     
     const hoje = new Date();
 
+    // Buscar parcelas em atraso que ainda estão em aberto
     const { data } = await supabase
-      .from("contas_receber")
+      .from("contas_receber_parcelas")
       .select(`
         id,
-        valor,
+        valor_parcela,
         data_vencimento,
-        cliente_id,
-        cliente_nome
+        conta_receber_id,
+        contas_receber!inner (
+          cliente_id,
+          cliente_nome,
+          usuario_id
+        )
       `)
-      .eq("usuario_id", user.id)
-      .eq("status", "pendente")
+      .eq("contas_receber.usuario_id", user.id)
+      .eq("status", "aberto")
       .lt("data_vencimento", hoje.toISOString().split('T')[0])
       .order("data_vencimento", { ascending: true });
 
@@ -401,16 +406,16 @@ export default function Financeiro() {
 
     const inadimplentesMap = new Map<string, InadimplenciaItem>();
 
-    for (const conta of data) {
-      const vencimento = new Date(conta.data_vencimento!);
+    for (const parcela of data) {
+      const vencimento = new Date(parcela.data_vencimento!);
       const diasAtraso = Math.floor((hoje.getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
 
-      const clienteId = conta.cliente_id || conta.id;
-      const clienteNome = conta.cliente_nome || "Cliente desconhecido";
+      const clienteId = parcela.contas_receber?.cliente_id || parcela.conta_receber_id;
+      const clienteNome = parcela.contas_receber?.cliente_nome || "Cliente desconhecido";
 
       if (inadimplentesMap.has(clienteId)) {
         const existing = inadimplentesMap.get(clienteId)!;
-        existing.valor += conta.valor || 0;
+        existing.valor += parcela.valor_parcela || 0;
         existing.dias_atraso = Math.max(existing.dias_atraso, diasAtraso);
       } else {
         const { data: cliente } = await supabase
@@ -422,7 +427,7 @@ export default function Financeiro() {
         inadimplentesMap.set(clienteId, {
           id: clienteId,
           nome: clienteNome,
-          valor: conta.valor || 0,
+          valor: parcela.valor_parcela || 0,
           dias_atraso: diasAtraso,
           telefone: cliente?.telefone
         });
@@ -441,16 +446,21 @@ export default function Financeiro() {
     
     const hoje = new Date();
 
+    // Buscar parcelas em atraso que ainda estão em aberto
     const { data } = await supabase
-      .from("contas_pagar")
+      .from("contas_pagar_parcelas")
       .select(`
         id,
-        valor_total,
+        valor_parcela,
         data_vencimento,
-        fornecedor_id
+        conta_pagar_id,
+        contas_pagar!inner (
+          fornecedor_id,
+          usuario_id
+        )
       `)
-      .eq("usuario_id", user.id)
-      .eq("status", "pendente")
+      .eq("contas_pagar.usuario_id", user.id)
+      .eq("status", "aberto")
       .lt("data_vencimento", hoje.toISOString().split('T')[0])
       .order("data_vencimento", { ascending: true });
 
@@ -458,15 +468,15 @@ export default function Financeiro() {
 
     const inadimplentesMap = new Map<string, InadimplenciaItem>();
 
-    for (const conta of data) {
-      const vencimento = new Date(conta.data_vencimento!);
+    for (const parcela of data) {
+      const vencimento = new Date(parcela.data_vencimento!);
       const diasAtraso = Math.floor((hoje.getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
 
-      const fornecedorId = conta.fornecedor_id || conta.id;
+      const fornecedorId = parcela.contas_pagar?.fornecedor_id || parcela.conta_pagar_id;
 
       if (inadimplentesMap.has(fornecedorId)) {
         const existing = inadimplentesMap.get(fornecedorId)!;
-        existing.valor += conta.valor_total || 0;
+        existing.valor += parcela.valor_parcela || 0;
         existing.dias_atraso = Math.max(existing.dias_atraso, diasAtraso);
       } else {
         const { data: fornecedor } = await supabase
@@ -478,7 +488,7 @@ export default function Financeiro() {
         inadimplentesMap.set(fornecedorId, {
           id: fornecedorId,
           nome: fornecedor?.nome || "Fornecedor desconhecido",
-          valor: conta.valor_total || 0,
+          valor: parcela.valor_parcela || 0,
           dias_atraso: diasAtraso,
           telefone: fornecedor?.telefone
         });
