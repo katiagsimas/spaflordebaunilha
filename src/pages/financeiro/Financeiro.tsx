@@ -51,6 +51,10 @@ export default function Financeiro() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Estados de navegação temporal
+  const [mesSelecionado, setMesSelecionado] = useState(new Date().getMonth() + 1);
+  const [anoSelecionado, setAnoSelecionado] = useState(new Date().getFullYear());
+
   // Estados do banner
   const [loading, setLoading] = useState(true);
   const [saldoAnterior, setSaldoAnterior] = useState(0);
@@ -73,7 +77,8 @@ export default function Financeiro() {
 
   useEffect(() => {
     fetchResumo();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mesSelecionado, anoSelecionado]);
 
   const fetchResumo = async () => {
     try {
@@ -278,12 +283,21 @@ export default function Financeiro() {
     });
   };
 
-  const getMesNome = () => {
+  const getMesNome = (mes?: number) => {
     const meses = [
       'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
       'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
     ];
-    return meses[new Date().getMonth()];
+    return meses[(mes || mesSelecionado) - 1];
+  };
+
+  const gerarOpcoesAnos = () => {
+    const anoAtual = new Date().getFullYear();
+    const anos = [];
+    for (let ano = anoAtual - 5; ano <= anoAtual + 5; ano++) {
+      anos.push(ano);
+    }
+    return anos;
   };
 
   if (loading) return <div className="flex justify-center p-8">Carregando...</div>;
@@ -391,18 +405,53 @@ export default function Financeiro() {
       {/* Banner de Saldos */}
       <Card className="border-2">
         <CardHeader className="pb-3">
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle className="text-2xl flex items-center gap-2">
+          <div className="flex justify-between items-start gap-4">
+            <div className="flex-1">
+              <CardTitle className="text-2xl flex items-center gap-2 mb-4">
                 <Wallet className="h-6 w-6 text-primary" />
-                Resumo Financeiro - {getMesNome()} {new Date().getFullYear()}
+                Resumo Financeiro
               </CardTitle>
-              <CardDescription>Visão geral dos seus saldos e movimentações</CardDescription>
+              
+              {/* Seletores de Mês e Ano */}
+              <div className="flex gap-3 items-center">
+                <div className="flex-1">
+                  <Label className="text-xs text-muted-foreground mb-1">Mês</Label>
+                  <Select value={mesSelecionado.toString()} onValueChange={(v) => setMesSelecionado(parseInt(v))}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((mes) => (
+                        <SelectItem key={mes} value={mes.toString()}>
+                          {getMesNome(mes)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex-1">
+                  <Label className="text-xs text-muted-foreground mb-1">Ano</Label>
+                  <Select value={anoSelecionado.toString()} onValueChange={(v) => setAnoSelecionado(parseInt(v))}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {gerarOpcoesAnos().map((ano) => (
+                        <SelectItem key={ano} value={ano.toString()}>
+                          {ano}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
+            
             <Button 
               variant="outline" 
               onClick={handleAbrirConfig}
-              className={`font-bold bg-primary text-primary-foreground hover:bg-primary/90 ${bancosSaldos.length === 0 ? 'animate-pulse' : ''}`}
+              className="font-bold bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Settings className="mr-2 h-4 w-4" />
               Configure Saldos Iniciais
