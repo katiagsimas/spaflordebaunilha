@@ -56,7 +56,6 @@ export default function CustosFixos() {
     "Assinaturas de softwares (Canva, ChatGPT, Freepik, etc.)",
     "Manutenção de site",
     "Domínio e hospedagem",
-    "Taxas bancárias",
     "Maquininha de cartão",
     "Seguros",
     "Pró-labore"
