@@ -345,6 +345,13 @@ export default function Usuarios() {
     });
   };
 
+  // Função para limpar filtros
+  const limparFiltros = () => {
+    setBuscaEmail("");
+    setFiltroStatus("todos");
+    setFiltroPermissao("todos");
+  };
+
   // Redirecionar se não for admin
   if (!isLoadingAdmin && !isAdmin) {
     navigate('/dashboard');
@@ -482,14 +489,25 @@ export default function Usuarios() {
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row gap-4">
               {/* Busca */}
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar por nome, email ou confeitaria..."
-                  value={buscaEmail}
-                  onChange={(e) => setBuscaEmail(e.target.value)}
-                  className="pl-10"
-                />
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar por nome, email ou confeitaria..."
+                    value={buscaEmail}
+                    onChange={(e) => setBuscaEmail(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                {/* Botão Limpar Filtros */}
+                {(buscaEmail || filtroStatus !== "todos" || filtroPermissao !== "todos") && (
+                  <button
+                    onClick={limparFiltros}
+                    className="text-xs text-muted-foreground hover:text-foreground mt-1 underline"
+                  >
+                    Limpar filtros
+                  </button>
+                )}
               </div>
 
               {/* Filtro Status */}
