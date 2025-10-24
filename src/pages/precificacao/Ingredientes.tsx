@@ -180,10 +180,15 @@ export default function Ingredientes() {
         u.sigla === receita.unidadeRendimento
       );
       
+      // Para "Produto para Combo", usar o custoTotal que já inclui todos os componentes
+      // O custoTotal é calculado na página de Ficha Técnica e já inclui:
+      // - Ingredientes + Embalagens + Custos Fixos + Mão de Obra
+      const custoCompleto = receita.custoTotal || 0;
+      
       return {
         id: receita.id,
         marca: "Ficha Técnica",
-        preco: receita.custoTotal || 0,
+        preco: custoCompleto,
         data_atualizacao: new Date().toISOString().split('T')[0],
         tipo_insumo: {
           descricao: receita.nome,
