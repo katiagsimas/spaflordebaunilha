@@ -15,7 +15,8 @@ import {
   TrendingUp,
   TrendingDown,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  DollarSign
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -84,7 +85,8 @@ export default function Dashboard() {
 
   const [financeiro, setFinanceiro] = useState({
     receberAberto: 0,
-    pagarAberto: 0
+    pagarAberto: 0,
+    saldoAtual: 0
   });
 
   const [visaoEconomica, setVisaoEconomica] = useState({
@@ -469,9 +471,56 @@ export default function Dashboard() {
       return sum + pendente;
     }, 0) || 0;
 
+    // Buscar saldos dos bancos para calcular saldo atual
+    const { data: bancos } = await supabase
+      .from("bancos")
+      .select("saldo_inicial")
+      .eq("usuario_id", user.id);
+
+    // Buscar total de pagamentos recebidos
+    const { data: pagamentosRecebidos } = await supabase
+      .from("contas_receber_pagamentos")
+      .select(`
+        valor_pago,
+        juros,
+        desconto,
+        parcela:contas_receber_parcelas!inner (
+          conta_receber:contas_receber!inner (
+            usuario_id
+          )
+        )
+      `)
+      .eq("parcela.conta_receber.usuario_id", user.id)
+      .eq("estornado", false);
+
+    // Buscar total de pagamentos realizados
+    const { data: pagamentosRealizados } = await supabase
+      .from("contas_pagar_pagamentos")
+      .select(`
+        valor_pago,
+        juros,
+        desconto,
+        parcela:contas_pagar_parcelas!inner (
+          conta_pagar:contas_pagar!inner (
+            usuario_id
+          )
+        )
+      `)
+      .eq("parcela.conta_pagar.usuario_id", user.id)
+      .eq("estornado", false);
+
+    const saldoInicial = bancos?.reduce((sum, b) => sum + (b.saldo_inicial || 0), 0) || 0;
+    const totalRecebido = pagamentosRecebidos?.reduce((sum, p) => 
+      sum + (p.valor_pago || 0) + (p.juros || 0) - (p.desconto || 0), 0) || 0;
+    const totalPago = pagamentosRealizados?.reduce((sum, p) => 
+      sum + (p.valor_pago || 0) + (p.juros || 0) - (p.desconto || 0), 0) || 0;
+
+    const saldoAtual = saldoInicial + totalRecebido - totalPago;
+
     setFinanceiro({
       receberAberto,
-      pagarAberto
+      pagarAberto,
+      saldoAtual
     });
   }
 
@@ -851,11 +900,35 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* CALENDÁRIOS DE ENCOMENDAS */}
+      {/* SALDO ATUAL E CALENDÁRIOS DE ENCOMENDAS */}
       <div className="space-y-4">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight mb-4">Calendários de Encomendas</h2>
-          <p className="text-muted-foreground mb-4">Visualize suas encomendas em 3 meses consecutivos</p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight mb-4">Calendários de Encomendas</h2>
+            <p className="text-muted-foreground mb-4">Visualize suas encomendas em 3 meses consecutivos</p>
+          </div>
+          
+          {/* Card Saldo Atual */}
+          <Card 
+            className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-primary group w-[200px]"
+            onClick={() => navigate("/financeiro/dashboard")}
+          >
+            <CardHeader className="p-3">
+              <div className="flex flex-col items-center gap-2 text-center">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <DollarSign className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-sm mb-0.5">Saldo Atual</CardTitle>
+                  <p className={`text-lg font-bold ${
+                    financeiro.saldoAtual >= 0 ? "text-primary" : "text-red-600"
+                  }`}>
+                    R$ {financeiro.saldoAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                </div>
+              </div>
+            </CardHeader>
+          </Card>
         </div>
         
         <div className="grid gap-4 md:grid-cols-3">
