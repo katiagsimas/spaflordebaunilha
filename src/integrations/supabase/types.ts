@@ -1747,6 +1747,7 @@ export type Database = {
           alerta_cmv: number | null
           ativo: boolean | null
           avatar_url: string | null
+          bairro: string | null
           cep: string | null
           cidade: string | null
           cpf: string | null
@@ -1758,6 +1759,7 @@ export type Database = {
           estado: string | null
           horas_diaria_trabalho: number | null
           id: string
+          inscricao_estadual: string | null
           instagram: string | null
           last_login: string | null
           logo_url: string | null
@@ -1765,8 +1767,10 @@ export type Database = {
           meta_faturamento_mensal: number | null
           nome_completo: string | null
           nome_confeitaria: string | null
+          numero: string | null
           planejamento_banner_dismissed: boolean | null
           primeiro_acesso: boolean | null
+          razao_social: string | null
           tags: string[] | null
           telefone: string | null
           updated_at: string | null
@@ -1776,6 +1780,7 @@ export type Database = {
           alerta_cmv?: number | null
           ativo?: boolean | null
           avatar_url?: string | null
+          bairro?: string | null
           cep?: string | null
           cidade?: string | null
           cpf?: string | null
@@ -1787,6 +1792,7 @@ export type Database = {
           estado?: string | null
           horas_diaria_trabalho?: number | null
           id: string
+          inscricao_estadual?: string | null
           instagram?: string | null
           last_login?: string | null
           logo_url?: string | null
@@ -1794,8 +1800,10 @@ export type Database = {
           meta_faturamento_mensal?: number | null
           nome_completo?: string | null
           nome_confeitaria?: string | null
+          numero?: string | null
           planejamento_banner_dismissed?: boolean | null
           primeiro_acesso?: boolean | null
+          razao_social?: string | null
           tags?: string[] | null
           telefone?: string | null
           updated_at?: string | null
@@ -1805,6 +1813,7 @@ export type Database = {
           alerta_cmv?: number | null
           ativo?: boolean | null
           avatar_url?: string | null
+          bairro?: string | null
           cep?: string | null
           cidade?: string | null
           cpf?: string | null
@@ -1816,6 +1825,7 @@ export type Database = {
           estado?: string | null
           horas_diaria_trabalho?: number | null
           id?: string
+          inscricao_estadual?: string | null
           instagram?: string | null
           last_login?: string | null
           logo_url?: string | null
@@ -1823,8 +1833,10 @@ export type Database = {
           meta_faturamento_mensal?: number | null
           nome_completo?: string | null
           nome_confeitaria?: string | null
+          numero?: string | null
           planejamento_banner_dismissed?: boolean | null
           primeiro_acesso?: boolean | null
+          razao_social?: string | null
           tags?: string[] | null
           telefone?: string | null
           updated_at?: string | null

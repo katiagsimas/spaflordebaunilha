@@ -67,15 +67,15 @@ export default function SeusDados() {
     if (profile) {
       const initialData = {
         razaoSocial: profile.nome_confeitaria || "",
-        nomeFantasia: "",
+        nomeFantasia: profile.razao_social || "",
         cnpjCpf: profile.cpf || "",
-        inscricaoEstadual: "",
+        inscricaoEstadual: profile.inscricao_estadual || "",
         nomeResponsavel: profile.nome_completo || "",
         telefone: profile.whatsapp || profile.telefone || "",
         email: profile.email || "",
         endereco: profile.endereco || "",
-        numero: "",
-        bairro: "",
+        numero: profile.numero || "",
+        bairro: profile.bairro || "",
         cidade: profile.cidade || "",
         estado: profile.estado || "",
         cep: profile.cep || "",
@@ -86,7 +86,7 @@ export default function SeusDados() {
         setLogomarca(profile.avatar_url);
       }
     }
-  }, [profile]);
+  }, [profile, reset]);
 
   const cepValue = watch("cep");
 
@@ -130,10 +130,14 @@ export default function SeusDados() {
         .from('profiles')
         .update({
           nome_confeitaria: data.razaoSocial,
+          razao_social: data.nomeFantasia,
           nome_completo: data.nomeResponsavel,
           telefone: data.telefone,
           cpf: data.cnpjCpf,
+          inscricao_estadual: data.inscricaoEstadual,
           endereco: data.endereco,
+          numero: data.numero,
+          bairro: data.bairro,
           cidade: data.cidade,
           estado: data.estado,
           cep: data.cep,
