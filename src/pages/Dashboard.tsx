@@ -94,6 +94,14 @@ export default function Dashboard() {
 
   const [tabEconomica, setTabEconomica] = useState("mensal");
 
+  // Estados para Top 5 Produtos e Ticket Médio
+  const [produtos, setProdutos] = useState<any[]>([]);
+  const [ticketMedio, setTicketMedio] = useState({
+    mensal: 0,
+    anual: 0
+  });
+  const [modoVisualizacao, setModoVisualizacao] = useState<'mensal' | 'anual'>('mensal');
+
   const meses = [
     "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
@@ -108,6 +116,12 @@ export default function Dashboard() {
       carregarCalendarioSeguinte();
     }
   }, [mesSelecionado, anoSelecionado, user]);
+
+  useEffect(() => {
+    if (user) {
+      carregarProdutosMaisVendidos();
+    }
+  }, [mesSelecionado, anoSelecionado, modoVisualizacao, user]);
 
   useEffect(() => {
     setMesAnterior({ mes: mesSelecionado - 1 < 0 ? 11 : mesSelecionado - 1, ano: mesSelecionado - 1 < 0 ? anoSelecionado - 1 : anoSelecionado });
@@ -414,6 +428,123 @@ export default function Dashboard() {
       },
       anual: dadosAnuais
     });
+  }
+
+  async function carregarProdutosMaisVendidos() {
+    if (!user) return;
+    
+    try {
+      let dataInicio: Date;
+      let dataFim: Date;
+
+      if (modoVisualizacao === 'mensal') {
+        dataInicio = new Date(anoSelecionado, mesSelecionado, 1);
+        dataFim = new Date(anoSelecionado, mesSelecionado + 1, 0);
+      } else {
+        dataInicio = new Date(anoSelecionado, 0, 1);
+        dataFim = new Date(anoSelecionado, 11, 31);
+      }
+
+      const inicioStr = format(dataInicio, "yyyy-MM-dd");
+      const fimStr = format(dataFim, "yyyy-MM-dd");
+
+      // Buscar encomendas entregues do período com seus itens
+      const { data: encomendas, error } = await supabase
+        .from("encomendas")
+        .select(`
+          id,
+          valor,
+          data_entrega
+        `)
+        .eq("usuario_id", user.id)
+        .gte("data_entrega", inicioStr)
+        .lte("data_entrega", fimStr)
+        .eq("status", "entregue");
+
+      if (error) throw error;
+
+      // Buscar todos os itens dessas encomendas
+      const encomendaIds = encomendas?.map(e => e.id) || [];
+      
+      let itensData: any[] = [];
+      if (encomendaIds.length > 0) {
+        const { data: itens } = await supabase
+          .from("encomenda_itens")
+          .select("produto, quantidade, valor_unitario, encomenda_id")
+          .in("encomenda_id", encomendaIds)
+          .eq("usuario_id", user.id);
+        
+        itensData = itens || [];
+      }
+
+      // Agrupar produtos e contar vendas
+      const produtosMap = new Map();
+
+      itensData.forEach((item: any) => {
+        const produtoNome = item.produto || "Produto não informado";
+        const quantidade = item.quantidade || 1;
+        const valorItem = (item.valor_unitario || 0) * quantidade;
+
+        if (produtosMap.has(produtoNome)) {
+          const atual = produtosMap.get(produtoNome)!;
+          produtosMap.set(produtoNome, {
+            nome: atual.nome,
+            quantidade: atual.quantidade + quantidade,
+            receita: atual.receita + valorItem
+          });
+        } else {
+          produtosMap.set(produtoNome, {
+            nome: produtoNome,
+            quantidade: quantidade,
+            receita: valorItem
+          });
+        }
+      });
+
+      // Converter para array e ordenar por quantidade
+      const produtosArray = Array.from(produtosMap.entries())
+        .map(([id, dados]) => ({
+          id,
+          nome: dados.nome,
+          quantidade: dados.quantidade,
+          receita: dados.receita
+        }))
+        .sort((a, b) => b.quantidade - a.quantidade)
+        .slice(0, 5);
+
+      setProdutos(produtosArray);
+
+      // Calcular ticket médio
+      const totalEncomendas = encomendas?.length || 0;
+      const totalReceita = encomendas?.reduce((sum, e) => sum + (e.valor || 0), 0) || 0;
+      const ticketMedioCalc = totalEncomendas > 0 ? totalReceita / totalEncomendas : 0;
+
+      if (modoVisualizacao === 'mensal') {
+        setTicketMedio(prev => ({ ...prev, mensal: ticketMedioCalc }));
+        
+        // Calcular também o ticket médio anual
+        const inicioAno = format(new Date(anoSelecionado, 0, 1), "yyyy-MM-dd");
+        const fimAno = format(new Date(anoSelecionado, 11, 31), "yyyy-MM-dd");
+        
+        const { data: encomendasAnual } = await supabase
+          .from("encomendas")
+          .select("id, valor")
+          .eq("usuario_id", user.id)
+          .gte("data_entrega", inicioAno)
+          .lte("data_entrega", fimAno)
+          .eq("status", "entregue");
+          
+        const totalEncomendasAnual = encomendasAnual?.length || 0;
+        const totalReceitaAnual = encomendasAnual?.reduce((sum, e) => sum + (e.valor || 0), 0) || 0;
+        const ticketMedioAnual = totalEncomendasAnual > 0 ? totalReceitaAnual / totalEncomendasAnual : 0;
+        
+        setTicketMedio(prev => ({ ...prev, anual: ticketMedioAnual }));
+      } else {
+        setTicketMedio(prev => ({ ...prev, anual: ticketMedioCalc }));
+      }
+    } catch (error) {
+      console.error("Erro ao carregar produtos mais vendidos:", error);
+    }
   }
 
   function selecionarDia(dados: DadosDia) {
@@ -1009,6 +1140,124 @@ export default function Dashboard() {
               </ResponsiveContainer>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* TOP 5 PRODUTOS MAIS VENDIDOS */}
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <CardTitle className="text-xl">Top 5 Produtos Mais Vendidos</CardTitle>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant={modoVisualizacao === 'mensal' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setModoVisualizacao('mensal')}
+              >
+                Mensal
+              </Button>
+              <Button
+                variant={modoVisualizacao === 'anual' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setModoVisualizacao('anual')}
+              >
+                Anual
+              </Button>
+            </div>
+          </div>
+          <CardDescription>
+            {modoVisualizacao === 'mensal' 
+              ? `${meses[mesSelecionado]} de ${anoSelecionado}`
+              : `Ano ${anoSelecionado}`
+            }
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {produtos.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">
+              Nenhuma venda no período selecionado
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {produtos.map((produto, index) => (
+                <div key={produto.id} className="flex items-center gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
+                  {/* Posição */}
+                  <div className={`
+                    flex items-center justify-center w-12 h-12 rounded-full font-bold text-white shrink-0
+                    ${index === 0 ? 'bg-yellow-500' : ''}
+                    ${index === 1 ? 'bg-gray-400' : ''}
+                    ${index === 2 ? 'bg-amber-600' : ''}
+                    ${index >= 3 ? 'bg-primary' : ''}
+                  `}>
+                    {index + 1}º
+                  </div>
+
+                  {/* Informações do Produto */}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-foreground truncate">{produto.nome}</p>
+                    <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
+                      <span>
+                        {produto.quantidade} {produto.quantidade === 1 ? 'venda' : 'vendas'}
+                      </span>
+                      <span className="font-medium text-green-600">
+                        R$ {produto.receita.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Badge de Destaque */}
+                  {index === 0 && (
+                    <Badge className="bg-yellow-500 hover:bg-yellow-600 text-white shrink-0">
+                      🏆 Campeão
+                    </Badge>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* TICKET MÉDIO */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl">Ticket Médio</CardTitle>
+          <CardDescription>
+            Valor médio por encomenda
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Mensal */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  {meses[mesSelecionado]}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-primary">
+                  R$ {ticketMedio.mensal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Anual */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Ano {anoSelecionado}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-primary">
+                  R$ {ticketMedio.anual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </CardContent>
       </Card>
     </div>
