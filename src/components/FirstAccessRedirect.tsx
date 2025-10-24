@@ -24,6 +24,14 @@ export function FirstAccessRedirect() {
   });
 
   useEffect(() => {
+    // Se usuário está inativo, fazer logout
+    if (profile && profile.ativo === false) {
+      supabase.auth.signOut().then(() => {
+        navigate('/auth/login', { replace: true });
+      });
+      return;
+    }
+
     // Se for primeiro acesso OU não tiver dados essenciais cadastrados
     // redireciona para página de cadastro, exceto se já estiver lá
     if (profile && location.pathname !== '/cadastros/seus-dados') {

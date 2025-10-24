@@ -271,7 +271,7 @@ export default function Usuarios() {
     mutationFn: async (userId: string) => {
       const { data: { user } } = await supabase.auth.getUser();
 
-      // Registrar log ANTES de deletar
+      // Registrar log ANTES de desabilitar
       if (user && selectedUser) {
         await supabase.from('admin_logs').insert({
           admin_id: user.id,
@@ -284,27 +284,24 @@ export default function Usuarios() {
               email: selectedUser.email,
               nome: selectedUser.nome_completo,
               confeitaria: selectedUser.nome_confeitaria
-            }
+            },
+            motivo: 'Usuário excluído pelo administrador - acesso permanentemente bloqueado'
           }
         });
       }
 
-      // Deletar profile (cascade irá deletar user_roles também)
+      // Marcar usuário como inativo (desabilita completamente o acesso)
       const { error: profileError } = await supabase
         .from('profiles')
-        .delete()
+        .update({ ativo: false })
         .eq('id', userId);
       
       if (profileError) throw profileError;
-
-      // Deletar usuário do Auth
-      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
-      if (authError) throw authError;
     },
     onSuccess: () => {
       toast({
         title: 'Usuário excluído',
-        description: 'O usuário foi excluído permanentemente do sistema.',
+        description: 'O acesso do usuário foi bloqueado permanentemente. Ele não poderá mais acessar o sistema.',
       });
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       queryClient.invalidateQueries({ queryKey: ['admin-user-roles'] });
@@ -724,8 +721,8 @@ export default function Usuarios() {
         onOpenChange={setShowExcluirDialog}
         onConfirm={() => selectedUser && excluirUsuarioMutation.mutate(selectedUser.id)}
         title="Excluir Usuário"
-        description={`ATENÇÃO: Esta ação é IRREVERSÍVEL! Tem certeza que deseja excluir permanentemente o usuário ${selectedUser?.nome_completo || selectedUser?.email}? Todos os dados deste usuário serão perdidos.`}
-        confirmLabel="Excluir Permanentemente"
+        description={`ATENÇÃO: Tem certeza que deseja excluir o usuário ${selectedUser?.nome_completo || selectedUser?.email}? O acesso dele será bloqueado permanentemente e ele não poderá mais fazer login no sistema.`}
+        confirmLabel="Excluir Usuário"
         cancelLabel="Cancelar"
       />
     </>

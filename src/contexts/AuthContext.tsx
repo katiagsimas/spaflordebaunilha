@@ -60,12 +60,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
+
+      // Verificar se o usuário está ativo
+      if (data.user) {
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('ativo')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profileError) {
+          console.error('Erro ao verificar status do usuário:', profileError);
+        }
+
+        // Se usuário está inativo, fazer logout imediatamente
+        if (profile && profile.ativo === false) {
+          await supabase.auth.signOut();
+          throw new Error('Sua conta foi desabilitada. Entre em contato com o administrador.');
+        }
+      }
 
       toast({
         title: '✅ Bem-vindo(a) de volta!',
@@ -78,6 +97,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         message = 'Email ou senha incorretos.';
       } else if (error.message?.includes('Email not confirmed')) {
         message = 'Por favor, confirme seu email antes de fazer login.';
+      } else if (error.message?.includes('desabilitada')) {
+        message = error.message;
       }
 
       toast({
