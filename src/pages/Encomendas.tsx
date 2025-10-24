@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck, Package, Upload, X, HandCoins, Tag as TagIcon, FileDown, Calendar, ClipboardList, CheckCircle2, XCircle, AlertCircle, ChevronDown } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck, Package, Upload, X, HandCoins, Tag as TagIcon, FileDown, Calendar, ClipboardList, CheckCircle2, XCircle, AlertCircle, ChevronDown, UserPlus } from "lucide-react";
 import { format, isToday, isTomorrow, isWithinInterval, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useEncomendas } from "@/hooks/useEncomendas";
@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ClienteAutocomplete } from "@/components/ClienteAutocomplete";
+import { AdicionarClienteDialog } from "@/components/AdicionarClienteDialog";
 import { useClientes } from "@/hooks/useClientes";
 import { useReceitas } from "@/hooks/useReceitas";
 import { useEncomendaItens } from "@/hooks/useEncomendaItens";
@@ -54,6 +55,7 @@ const Encomendas = () => {
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [produtoDialogOpen, setProdutoDialogOpen] = useState(false);
+  const [adicionarClienteDialogOpen, setAdicionarClienteDialogOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<any | null>(null);
   const [statusFilter, setStatusFilter] = useState("Todos");
   const [clienteFilter, setClienteFilter] = useState("Todos");
@@ -477,6 +479,20 @@ const Encomendas = () => {
     } else {
       setFormData({ ...formData, cliente: clienteNome });
     }
+  };
+
+  const handleClienteAdicionado = (novoCliente: any) => {
+    // Preencher automaticamente os dados do formulário com o novo cliente
+    setFormData({
+      ...formData,
+      cliente: novoCliente.nome,
+      telefone: novoCliente.telefone || "",
+      endereco: novoCliente.endereco || "",
+      numero: novoCliente.numero || "",
+      cep: novoCliente.cep || "",
+    });
+    
+    toast.success(`Cliente ${novoCliente.nome} adicionado e selecionado!`);
   };
 
   const handleProdutoSelect = (receitaId: string) => {
@@ -918,11 +934,24 @@ const Encomendas = () => {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="cliente">Nome do Cliente *</Label>
-                    <ClienteAutocomplete
-                      value={formData.cliente}
-                      onSelect={handleClienteSelect}
-                      placeholder="Selecione ou busque um cliente..."
-                    />
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <ClienteAutocomplete
+                          value={formData.cliente}
+                          onSelect={handleClienteSelect}
+                          placeholder="Selecione ou busque um cliente..."
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setAdicionarClienteDialogOpen(true)}
+                        title="Adicionar novo cliente"
+                      >
+                        <UserPlus className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="telefone">Telefone/WhatsApp</Label>
@@ -1507,6 +1536,13 @@ const Encomendas = () => {
             </DialogContent>
           </Dialog>
         }
+      />
+
+      {/* Dialog para adicionar novo cliente */}
+      <AdicionarClienteDialog
+        open={adicionarClienteDialogOpen}
+        onOpenChange={setAdicionarClienteDialogOpen}
+        onClienteAdicionado={handleClienteAdicionado}
       />
 
       {/* DASHBOARD DE ENCOMENDAS */}
