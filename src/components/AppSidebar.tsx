@@ -194,6 +194,27 @@ export function AppSidebar() {
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={false}>
+                    <NavLink
+                      to="/admin/logs"
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
+                          isActive
+                            ? "bg-secondary text-primary font-semibold border-l-4 border-primary"
+                            : "text-foreground hover:bg-secondary hover:text-primary"
+                        }`
+                      }
+                    >
+                      {({ isActive }) => (
+                        <>
+                          <FileText className={`h-5 w-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
+                          {open && <span className="flex-1">Logs de Ações</span>}
+                        </>
+                      )}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
