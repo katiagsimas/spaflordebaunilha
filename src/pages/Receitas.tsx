@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
@@ -72,6 +72,11 @@ export default function Receitas() {
   const [dialogAberto, setDialogAberto] = useState(false);
   const [receitaParaDeletar, setReceitaParaDeletar] = useState<string | null>(null);
   const [filtroAtivo, setFiltroAtivo] = useState<"todos" | "ativos" | "combos" | "fora">("todos");
+
+  // Recarregar dados ao montar o componente
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   // Filtrar receitas de acordo com o filtro ativo
   const receitasFiltradas = receitas.filter((receita) => {
