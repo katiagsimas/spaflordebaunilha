@@ -20,7 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Loader2, Users, Shield, User, Plus, MoreVertical, Edit, UserX, Trash2, Search, UserCheck, Clock, AlertCircle, Download } from 'lucide-react';
+import { Loader2, Users, Shield, User, Plus, MoreVertical, Edit, UserX, Trash2, Search, UserCheck, Clock, AlertCircle, Download, UserPlus } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useNavigate } from 'react-router-dom';
@@ -327,6 +327,14 @@ export default function Usuarios() {
   const handleDesabilitar = (profile: any) => {
     setSelectedUser(profile);
     setShowDesabilitarDialog(true);
+  };
+
+  const handleReabilitar = (profile: any) => {
+    alterarStatusUsuarioMutation.mutate({
+      userId: profile.id,
+      novoStatus: true,
+      userEmail: profile.email
+    });
   };
 
   const handleExcluir = (profile: any) => {
@@ -659,13 +667,21 @@ export default function Usuarios() {
                                 <Edit className="mr-2 h-4 w-4" />
                                 Editar
                               </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                onClick={() => handleDesabilitar(profile)}
-                                disabled={profile.ativo === false}
-                              >
-                                <UserX className="mr-2 h-4 w-4" />
-                                Desabilitar
-                              </DropdownMenuItem>
+                              {profile.ativo !== false ? (
+                                <DropdownMenuItem 
+                                  onClick={() => handleDesabilitar(profile)}
+                                >
+                                  <UserX className="mr-2 h-4 w-4" />
+                                  Desabilitar
+                                </DropdownMenuItem>
+                              ) : (
+                                <DropdownMenuItem 
+                                  onClick={() => handleReabilitar(profile)}
+                                >
+                                  <UserPlus className="mr-2 h-4 w-4" />
+                                  Reabilitar
+                                </DropdownMenuItem>
+                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
