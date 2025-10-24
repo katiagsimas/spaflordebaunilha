@@ -38,54 +38,124 @@ Deno.serve(async (req) => {
 
     const { email, senha, nomeCompleto, nomeConfeitaria, role } = requestBody
 
-    console.log('Criando usuário no Auth...')
+    console.log('Verificando se usuário já existe...')
     
-    // Criar usuário via Supabase Auth Admin
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-      email,
-      password: senha,
-      email_confirm: true,
-      user_metadata: {
-        nome_completo: nomeCompleto,
-        nome_confeitaria: nomeConfeitaria,
-      },
-    })
+    // Verificar se o email já existe (ativo ou inativo)
+    const { data: existingProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('id, email, ativo')
+      .eq('email', email)
+      .single()
 
-    if (authError) {
-      console.error('Erro ao criar usuário no Auth:', authError)
-      throw authError
-    }
+    let userId: string
     
-    if (!authData.user) {
-      console.error('Usuário não foi criado')
-      throw new Error('Erro ao criar usuário')
-    }
-
-    console.log('Usuário criado com sucesso:', authData.user.id)
-
-    // Adicionar role do usuário se não for 'user' (que é criado automaticamente)
-    if (role !== 'user') {
-      console.log('Adicionando role:', role)
+    if (existingProfile) {
+      console.log('Usuário encontrado:', existingProfile)
       
-      const { error: roleError } = await supabaseAdmin
-        .from('user_roles')
-        .insert([{
-          user_id: authData.user.id,
-          role: role,
-        }])
-
-      if (roleError) {
-        console.error('Erro ao adicionar role:', roleError)
-        throw roleError
+      if (existingProfile.ativo === true) {
+        throw new Error('Este email já está em uso por um usuário ativo')
       }
       
-      console.log('Role adicionada com sucesso')
+      // Usuário existe mas está inativo - reativar
+      console.log('Reativando usuário inativo...')
+      userId = existingProfile.id
+      
+      // Atualizar perfil para reativar
+      const { error: updateError } = await supabaseAdmin
+        .from('profiles')
+        .update({
+          ativo: true,
+          nome_completo: nomeCompleto,
+          nome_confeitaria: nomeConfeitaria,
+          primeiro_acesso: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId)
+      
+      if (updateError) {
+        console.error('Erro ao reativar usuário:', updateError)
+        throw updateError
+      }
+      
+      // Atualizar senha do usuário no Auth
+      const { error: passwordError } = await supabaseAdmin.auth.admin.updateUserById(
+        userId,
+        { password: senha }
+      )
+      
+      if (passwordError) {
+        console.error('Erro ao atualizar senha:', passwordError)
+        throw passwordError
+      }
+      
+      console.log('Usuário reativado com sucesso')
+    } else {
+      // Usuário não existe - criar novo
+      console.log('Criando novo usuário no Auth...')
+      
+      const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+        email,
+        password: senha,
+        email_confirm: true,
+        user_metadata: {
+          nome_completo: nomeCompleto,
+          nome_confeitaria: nomeConfeitaria,
+        },
+      })
+
+      if (authError) {
+        console.error('Erro ao criar usuário no Auth:', authError)
+        throw authError
+      }
+      
+      if (!authData.user) {
+        console.error('Usuário não foi criado')
+        throw new Error('Erro ao criar usuário')
+      }
+
+      userId = authData.user.id
+      console.log('Usuário criado com sucesso:', userId)
+    }
+
+    // Gerenciar roles do usuário
+    if (role !== 'user') {
+      console.log('Verificando role atual e adicionando se necessário:', role)
+      
+      // Verificar se a role já existe
+      const { data: existingRole } = await supabaseAdmin
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('role', role)
+        .single()
+      
+      if (!existingRole) {
+        const { error: roleError } = await supabaseAdmin
+          .from('user_roles')
+          .insert([{
+            user_id: userId,
+            role: role,
+          }])
+
+        if (roleError) {
+          console.error('Erro ao adicionar role:', roleError)
+          throw roleError
+        }
+        
+        console.log('Role adicionada com sucesso')
+      } else {
+        console.log('Role já existe para este usuário')
+      }
     }
 
     console.log('=== Criar Usuário - Sucesso ===')
     
     return new Response(
-      JSON.stringify({ success: true, user: authData.user }),
+      JSON.stringify({ 
+        success: true, 
+        user: { id: userId },
+        reactivated: existingProfile?.ativo === false 
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
   } catch (error) {

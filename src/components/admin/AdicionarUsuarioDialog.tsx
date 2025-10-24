@@ -99,10 +99,14 @@ export function AdicionarUsuarioDialog({ open, onOpenChange }: AdicionarUsuarioD
 
       return result;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      const wasReactivated = data?.reactivated === true;
+      
       toast({
-        title: 'Usuário criado com sucesso',
-        description: 'O novo usuário já pode fazer login no sistema.',
+        title: wasReactivated ? 'Usuário reativado com sucesso' : 'Usuário criado com sucesso',
+        description: wasReactivated 
+          ? 'O usuário foi reativado e já pode fazer login no sistema.' 
+          : 'O novo usuário já pode fazer login no sistema.',
       });
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       queryClient.invalidateQueries({ queryKey: ['admin-user-roles'] });
