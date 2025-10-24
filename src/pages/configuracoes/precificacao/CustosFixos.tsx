@@ -44,21 +44,21 @@ export default function CustosFixos() {
   const [valor, setValor] = useState("");
 
   const categoriasCustos = [
-    "Aluguel",
-    "Energia elétrica",
     "Água",
-    "Internet",
-    "Telefone",
-    "Salários",
-    "Encargos trabalhistas",
-    "Contador",
-    "Taxas e impostos (MEI, Simples Nacional, etc.)",
+    "Aluguel",
     "Assinaturas de softwares (Canva, ChatGPT, Freepik, etc.)",
-    "Manutenção de site",
+    "Contador",
     "Domínio e hospedagem",
-    "Maquininha de cartão",
+    "Encargos trabalhistas",
+    "Energia elétrica",
+    "Internet",
+    "Manutenção de site",
+    "Pró-labore",
+    "Salários",
     "Seguros",
-    "Pró-labore"
+    "Taxas bancárias",
+    "Taxas e impostos (MEI, Simples Nacional, etc.)",
+    "Telefone"
   ];
   
   // Estados locais para dias e horas (para edição)
