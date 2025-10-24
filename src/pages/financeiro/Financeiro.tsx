@@ -865,31 +865,36 @@ export default function Financeiro() {
         {/* INADIMPLÊNCIA */}
         <div className="grid gap-4 md:grid-cols-2">
           {/* Clientes */}
-          <Card>
-            <CardHeader>
+          <Card className="border-l-4 border-l-red-500">
+            <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5 text-red-600" />
-                    Inadimplência - Clientes
-                  </CardTitle>
-                  <CardDescription>
-                    {inadimplenciaClientes.length} cliente(s) inadimplente(s)
-                  </CardDescription>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-950 flex items-center justify-center">
+                    <Users className="h-5 w-5 text-red-600 dark:text-red-400" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base font-semibold">
+                      Inadimplência - Clientes
+                    </CardTitle>
+                    <CardDescription className="text-sm">
+                      {inadimplenciaClientes.length} cliente(s) inadimplente(s)
+                    </CardDescription>
+                  </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-2xl font-bold text-red-600">
+                  <p className="text-2xl font-bold text-red-600 dark:text-red-400">
                     R$ {inadimplenciaClientes.reduce((sum, c) => sum + c.valor, 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
-                  <p className="text-xs text-muted-foreground">Total</p>
+                  <p className="text-xs text-muted-foreground">Total em atraso</p>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
               {inadimplenciaClientes.length === 0 ? (
-                <p className="text-center py-8 text-muted-foreground">
-                  Nenhum cliente inadimplente 🎉
-                </p>
+                <div className="text-center py-8 text-muted-foreground bg-muted/30 rounded-lg">
+                  <p className="font-medium">Nenhum cliente inadimplente 🎉</p>
+                  <p className="text-sm mt-1">Todas as contas estão em dia</p>
+                </div>
               ) : (
                 <>
                   <Table>
@@ -911,7 +916,7 @@ export default function Financeiro() {
                               )}
                             </div>
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="text-right font-semibold">
                             R$ {cliente.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                           </TableCell>
                           <TableCell className="text-right">
@@ -942,31 +947,36 @@ export default function Financeiro() {
           </Card>
 
           {/* Fornecedores */}
-          <Card>
-            <CardHeader>
+          <Card className="border-l-4 border-l-orange-500">
+            <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <Building2 className="h-5 w-5 text-orange-600" />
-                    Inadimplência - Fornecedores
-                  </CardTitle>
-                  <CardDescription>
-                    {inadimplenciaFornecedores.length} fornecedor(es) inadimplente(s)
-                  </CardDescription>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-orange-50 dark:bg-orange-950 flex items-center justify-center">
+                    <Building2 className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base font-semibold">
+                      Inadimplência - Fornecedores
+                    </CardTitle>
+                    <CardDescription className="text-sm">
+                      {inadimplenciaFornecedores.length} fornecedor(es) inadimplente(s)
+                    </CardDescription>
+                  </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-2xl font-bold text-orange-600">
+                  <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
                     R$ {inadimplenciaFornecedores.reduce((sum, f) => sum + f.valor, 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
-                  <p className="text-xs text-muted-foreground">Total</p>
+                  <p className="text-xs text-muted-foreground">Total em atraso</p>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
               {inadimplenciaFornecedores.length === 0 ? (
-                <p className="text-center py-8 text-muted-foreground">
-                  Nenhum fornecedor inadimplente 🎉
-                </p>
+                <div className="text-center py-8 text-muted-foreground bg-muted/30 rounded-lg">
+                  <p className="font-medium">Nenhum fornecedor inadimplente 🎉</p>
+                  <p className="text-sm mt-1">Todas as contas estão em dia</p>
+                </div>
               ) : (
                 <>
                   <Table>
@@ -988,7 +998,7 @@ export default function Financeiro() {
                               )}
                             </div>
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="text-right font-semibold">
                             R$ {fornecedor.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                           </TableCell>
                           <TableCell className="text-right">
