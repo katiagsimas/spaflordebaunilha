@@ -614,8 +614,10 @@ export default function ReceitaForm() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Não autenticado');
 
-      // Para "Produto para Combo", salvar o custo completo (ingredientes + embalagens + fixos + mão de obra)
-      const custoParaSalvar = custoTotal;
+      // Para "Produto para Combo", salvar custo sem embalagens (ingredientes + fixos + mão de obra)
+      const custoParaSalvar = formData.tipo === "produto_combo" 
+        ? custoIngredientes + custoFixoReceita + custoMaoObra 
+        : custoTotal;
 
       // Salvar ou atualizar receita principal
       const receitaData = {
