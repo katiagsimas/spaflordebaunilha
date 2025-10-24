@@ -123,6 +123,81 @@ export default function Dashboard() {
     }
   }, [mesSelecionado, anoSelecionado, modoVisualizacao, user]);
 
+  // Configurar realtime updates para atualizar o dashboard quando houver mudanças
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('dashboard-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'contas_receber_parcelas'
+        },
+        () => {
+          console.log('📊 Dashboard: Atualização detectada em contas_receber_parcelas');
+          carregarDados();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'contas_receber_pagamentos'
+        },
+        () => {
+          console.log('📊 Dashboard: Atualização detectada em contas_receber_pagamentos');
+          carregarDados();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'contas_pagar_parcelas'
+        },
+        () => {
+          console.log('📊 Dashboard: Atualização detectada em contas_pagar_parcelas');
+          carregarDados();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'contas_pagar_pagamentos'
+        },
+        () => {
+          console.log('📊 Dashboard: Atualização detectada em contas_pagar_pagamentos');
+          carregarDados();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'encomendas'
+        },
+        () => {
+          console.log('📊 Dashboard: Atualização detectada em encomendas');
+          carregarDados();
+          carregarCalendarioAnterior();
+          carregarCalendarioSeguinte();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, mesSelecionado, anoSelecionado]);
+
   useEffect(() => {
     setMesAnterior({ mes: mesSelecionado - 1 < 0 ? 11 : mesSelecionado - 1, ano: mesSelecionado - 1 < 0 ? anoSelecionado - 1 : anoSelecionado });
     setMesSeguinte({ mes: mesSelecionado + 1 > 11 ? 0 : mesSelecionado + 1, ano: mesSelecionado + 1 > 11 ? anoSelecionado + 1 : anoSelecionado });
