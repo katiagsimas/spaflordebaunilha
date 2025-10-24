@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Loader2, Users, Shield, User, Plus, MoreVertical, Edit, UserX, Trash2, Search, UserCheck, Clock, AlertCircle } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState';
@@ -148,6 +149,48 @@ export default function Usuarios() {
     return matchEmail && matchStatus && matchPermissao;
   }) || [];
 
+  const alterarStatusUsuarioMutation = useMutation({
+    mutationFn: async ({ userId, novoStatus, userEmail }: { userId: string; novoStatus: boolean; userEmail: string }) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({ ativo: novoStatus })
+        .eq('id', userId);
+      
+      if (error) throw error;
+
+      // Registrar log
+      if (user) {
+        await supabase.from('admin_logs').insert({
+          admin_id: user.id,
+          admin_email: user.email,
+          acao: novoStatus ? 'habilitou_usuario' : 'desabilitou_usuario',
+          usuario_afetado_id: userId,
+          usuario_afetado_email: userEmail,
+          detalhes: {
+            status_anterior: novoStatus ? 'inativo' : 'ativo',
+            status_novo: novoStatus ? 'ativo' : 'inativo'
+          }
+        });
+      }
+    },
+    onSuccess: (_, variables) => {
+      toast({
+        title: variables.novoStatus ? 'Usuário ativado' : 'Usuário desativado',
+        description: `O usuário foi ${variables.novoStatus ? 'ativado' : 'desativado'} com sucesso.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Erro ao alterar status',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
   const desabilitarUsuarioMutation = useMutation({
     mutationFn: async (userId: string) => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -259,6 +302,14 @@ export default function Usuarios() {
   const handleExcluir = (profile: any) => {
     setSelectedUser(profile);
     setShowExcluirDialog(true);
+  };
+
+  const handleToggleStatus = (profile: any, checked: boolean) => {
+    alterarStatusUsuarioMutation.mutate({
+      userId: profile.id,
+      novoStatus: checked,
+      userEmail: profile.email
+    });
   };
 
   // Redirecionar se não for admin
@@ -489,9 +540,16 @@ export default function Usuarios() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={profile.ativo !== false ? 'default' : 'secondary'}>
-                            {profile.ativo !== false ? 'Ativo' : 'Inativo'}
-                          </Badge>
+                          <div className="flex items-center gap-2">
+                            <Checkbox
+                              checked={profile.ativo !== false}
+                              onCheckedChange={(checked) => handleToggleStatus(profile, checked as boolean)}
+                              disabled={alterarStatusUsuarioMutation.isPending}
+                            />
+                            <Badge variant={profile.ativo !== false ? 'default' : 'secondary'}>
+                              {profile.ativo !== false ? 'Ativo' : 'Inativo'}
+                            </Badge>
+                          </div>
                         </TableCell>
                         <TableCell>
                           {(profile as any).last_login ? (
