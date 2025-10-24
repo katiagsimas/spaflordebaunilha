@@ -104,6 +104,7 @@ const Encomendas = () => {
   
   const [formData, setFormData] = useState({
     cliente: "",
+    clienteId: "", // Armazena o ID do cliente selecionado
     data_pedido: new Date().toISOString().split("T")[0],
     data_entrega: "",
     hora_entrega: "",
@@ -273,6 +274,7 @@ const Encomendas = () => {
   const resetForm = () => {
     setFormData({
       cliente: "",
+      clienteId: "",
       data_pedido: new Date().toISOString().split("T")[0],
       data_entrega: "",
       hora_entrega: "",
@@ -416,6 +418,7 @@ const Encomendas = () => {
     setEditingOrder(encomenda);
     setFormData({
       cliente: encomenda.cliente,
+      clienteId: "", // Ao editar, buscar pela lista de clientes
       data_pedido: encomenda.data_pedido,
       data_entrega: encomenda.data_entrega,
       hora_entrega: encomenda.hora_entrega || "",
@@ -486,6 +489,7 @@ const Encomendas = () => {
     setFormData(prev => ({
       ...prev,
       cliente: novoCliente.nome || "",
+      clienteId: novoCliente.id || "", // Armazenar o ID do cliente
       telefone: novoCliente.telefone || "",
       endereco: novoCliente.endereco || "",
       numero: novoCliente.numero || "",
@@ -736,6 +740,11 @@ const Encomendas = () => {
 
   // Buscar ID do cliente selecionado
   const getClienteId = () => {
+    // Se o cliente foi recém adicionado, usar o ID armazenado no formData
+    if (formData.clienteId) {
+      return formData.clienteId;
+    }
+    // Caso contrário, buscar na lista de clientes
     const cliente = clientes.find(c => c.nome === formData.cliente);
     return cliente?.id || '';
   };
