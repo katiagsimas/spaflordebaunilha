@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { PageHeader } from '@/components/PageHeader';
@@ -6,13 +6,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Loader2, Users, Shield, User, Plus, MoreVertical, Edit, UserX, Trash2 } from 'lucide-react';
+import { Loader2, Users, Shield, User, Plus, MoreVertical, Edit, UserX, Trash2, Search, UserCheck, Clock, AlertCircle } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState';
@@ -20,6 +28,8 @@ import { AdicionarUsuarioDialog } from '@/components/admin/AdicionarUsuarioDialo
 import { EditarUsuarioDialog } from '@/components/admin/EditarUsuarioDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { toast } from '@/hooks/use-toast';
+import { formatDistanceToNow } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface UserProfile {
   id: string;
@@ -51,6 +61,17 @@ export default function Usuarios() {
     ativo?: boolean;
   } | null>(null);
   const [selectedUserRole, setSelectedUserRole] = useState<string>('user');
+  
+  // Estados para busca e filtros
+  const [buscaEmail, setBuscaEmail] = useState("");
+  const [filtroStatus, setFiltroStatus] = useState("todos");
+  const [filtroPermissao, setFiltroPermissao] = useState("todos");
+  const [estatisticas, setEstatisticas] = useState({
+    total: 0,
+    ativos: 0,
+    inativos: 0,
+    admins: 0
+  });
 
   // Verificar se é admin antes de carregar dados
   const { data: profiles, isLoading: isLoadingProfiles } = useQuery({
@@ -90,14 +111,68 @@ export default function Usuarios() {
     return acc;
   }, {} as Record<string, string[]>) || {};
 
+  // Carregar estatísticas
+  useEffect(() => {
+    carregarEstatisticas();
+  }, [profiles, rolesData]);
+
+  async function carregarEstatisticas() {
+    if (!profiles) return;
+    
+    setEstatisticas({
+      total: profiles.length,
+      ativos: profiles.filter(u => u.ativo !== false).length,
+      inativos: profiles.filter(u => u.ativo === false).length,
+      admins: profiles.filter(u => {
+        const roles = rolesByUser[u.id] || [];
+        return roles.includes('admin');
+      }).length
+    });
+  }
+
+  // Filtrar usuários
+  const usuariosFiltrados = profiles?.filter(usuario => {
+    const matchEmail = buscaEmail === "" || 
+      usuario.email.toLowerCase().includes(buscaEmail.toLowerCase()) ||
+      usuario.nome_completo?.toLowerCase().includes(buscaEmail.toLowerCase());
+    
+    const matchStatus = filtroStatus === "todos" || 
+      (filtroStatus === "ativo" && usuario.ativo !== false) ||
+      (filtroStatus === "inativo" && usuario.ativo === false);
+    
+    const userRoles = rolesByUser[usuario.id] || [];
+    const matchPermissao = filtroPermissao === "todos" || 
+      (filtroPermissao === "admin" && userRoles.includes('admin')) ||
+      (filtroPermissao === "user" && !userRoles.includes('admin'));
+    
+    return matchEmail && matchStatus && matchPermissao;
+  }) || [];
+
   const desabilitarUsuarioMutation = useMutation({
     mutationFn: async (userId: string) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
       const { error } = await supabase
         .from('profiles')
         .update({ ativo: false })
         .eq('id', userId);
       
       if (error) throw error;
+
+      // Registrar log
+      if (user && selectedUser) {
+        await supabase.from('admin_logs').insert({
+          admin_id: user.id,
+          admin_email: user.email,
+          acao: 'desabilitou_usuario',
+          usuario_afetado_id: userId,
+          usuario_afetado_email: selectedUser.email,
+          detalhes: {
+            status_anterior: 'ativo',
+            status_novo: 'inativo'
+          }
+        });
+      }
     },
     onSuccess: () => {
       toast({
@@ -118,6 +193,26 @@ export default function Usuarios() {
 
   const excluirUsuarioMutation = useMutation({
     mutationFn: async (userId: string) => {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      // Registrar log ANTES de deletar
+      if (user && selectedUser) {
+        await supabase.from('admin_logs').insert({
+          admin_id: user.id,
+          admin_email: user.email,
+          acao: 'excluiu_usuario',
+          usuario_afetado_id: userId,
+          usuario_afetado_email: selectedUser.email,
+          detalhes: {
+            dados_usuario: {
+              email: selectedUser.email,
+              nome: selectedUser.nome_completo,
+              confeitaria: selectedUser.nome_confeitaria
+            }
+          }
+        });
+      }
+
       // Deletar profile (cascade irá deletar user_roles também)
       const { error: profileError } = await supabase
         .from('profiles')
@@ -221,16 +316,127 @@ export default function Usuarios() {
           </Button>
         </div>
 
+        {/* Dashboard de Resumo */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {/* Total de Usuários */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total de Usuários
+              </CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {estatisticas.total}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Usuários Ativos */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Ativos
+              </CardTitle>
+              <UserCheck className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {estatisticas.ativos}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {estatisticas.total > 0 
+                  ? `${((estatisticas.ativos / estatisticas.total) * 100).toFixed(0)}% do total`
+                  : '0%'
+                }
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Usuários Inativos */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Inativos
+              </CardTitle>
+              <UserX className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {estatisticas.inativos}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Administradores */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Administradores
+              </CardTitle>
+              <Shield className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {estatisticas.admins}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Busca e Filtros */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex flex-col md:flex-row gap-4">
+              {/* Busca */}
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar por nome ou email..."
+                  value={buscaEmail}
+                  onChange={(e) => setBuscaEmail(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              {/* Filtro Status */}
+              <Select value={filtroStatus} onValueChange={setFiltroStatus}>
+                <SelectTrigger className="w-full md:w-[180px]">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos os status</SelectItem>
+                  <SelectItem value="ativo">Ativos</SelectItem>
+                  <SelectItem value="inativo">Inativos</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Filtro Permissão */}
+              <Select value={filtroPermissao} onValueChange={setFiltroPermissao}>
+                <SelectTrigger className="w-full md:w-[200px]">
+                  <SelectValue placeholder="Permissão" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todas as permissões</SelectItem>
+                  <SelectItem value="admin">Administradores</SelectItem>
+                  <SelectItem value="user">Usuários</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            Lista de Usuários
-          </CardTitle>
-          <CardDescription>
-            Total de {profiles?.length || 0} usuários cadastrados
-          </CardDescription>
-        </CardHeader>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Lista de Usuários
+            </CardTitle>
+            <CardDescription>
+              Exibindo {usuariosFiltrados.length} de {profiles?.length || 0} usuários cadastrados
+            </CardDescription>
+          </CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
@@ -252,12 +458,13 @@ export default function Usuarios() {
                     <TableHead>Confeitaria</TableHead>
                     <TableHead>Permissões</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Último Acesso</TableHead>
                     <TableHead>Cadastrado em</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {profiles.map((profile) => {
+                  {usuariosFiltrados.map((profile) => {
                     const userRoles = rolesByUser[profile.id] || ['user'];
                     const mainRole = userRoles[0];
                     return (
@@ -285,6 +492,21 @@ export default function Usuarios() {
                           <Badge variant={profile.ativo !== false ? 'default' : 'secondary'}>
                             {profile.ativo !== false ? 'Ativo' : 'Inativo'}
                           </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {(profile as any).last_login ? (
+                            <div className="flex items-center gap-2">
+                              <Clock className="h-3 w-3 text-muted-foreground" />
+                              <span className="text-sm">
+                                {formatDistanceToNow(new Date((profile as any).last_login), {
+                                  addSuffix: true,
+                                  locale: ptBR
+                                })}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">Nunca acessou</span>
+                          )}
                         </TableCell>
                         <TableCell>
                           {new Date(profile.created_at).toLocaleDateString('pt-BR', {

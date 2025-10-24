@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_logs: {
+        Row: {
+          acao: string
+          admin_email: string
+          admin_id: string
+          created_at: string | null
+          detalhes: Json | null
+          id: string
+          usuario_afetado_email: string | null
+          usuario_afetado_id: string | null
+        }
+        Insert: {
+          acao: string
+          admin_email: string
+          admin_id: string
+          created_at?: string | null
+          detalhes?: Json | null
+          id?: string
+          usuario_afetado_email?: string | null
+          usuario_afetado_id?: string | null
+        }
+        Update: {
+          acao?: string
+          admin_email?: string
+          admin_id?: string
+          created_at?: string | null
+          detalhes?: Json | null
+          id?: string
+          usuario_afetado_email?: string | null
+          usuario_afetado_id?: string | null
+        }
+        Relationships: []
+      }
       bancos: {
         Row: {
           codigo: string
@@ -1726,6 +1759,7 @@ export type Database = {
           horas_diaria_trabalho: number | null
           id: string
           instagram: string | null
+          last_login: string | null
           logo_url: string | null
           meta_faturamento_anual: number | null
           meta_faturamento_mensal: number | null
@@ -1733,6 +1767,7 @@ export type Database = {
           nome_confeitaria: string | null
           planejamento_banner_dismissed: boolean | null
           primeiro_acesso: boolean | null
+          tags: string[] | null
           telefone: string | null
           updated_at: string | null
           whatsapp: string | null
@@ -1753,6 +1788,7 @@ export type Database = {
           horas_diaria_trabalho?: number | null
           id: string
           instagram?: string | null
+          last_login?: string | null
           logo_url?: string | null
           meta_faturamento_anual?: number | null
           meta_faturamento_mensal?: number | null
@@ -1760,6 +1796,7 @@ export type Database = {
           nome_confeitaria?: string | null
           planejamento_banner_dismissed?: boolean | null
           primeiro_acesso?: boolean | null
+          tags?: string[] | null
           telefone?: string | null
           updated_at?: string | null
           whatsapp?: string | null
@@ -1780,6 +1817,7 @@ export type Database = {
           horas_diaria_trabalho?: number | null
           id?: string
           instagram?: string | null
+          last_login?: string | null
           logo_url?: string | null
           meta_faturamento_anual?: number | null
           meta_faturamento_mensal?: number | null
@@ -1787,6 +1825,7 @@ export type Database = {
           nome_confeitaria?: string | null
           planejamento_banner_dismissed?: boolean | null
           primeiro_acesso?: boolean | null
+          tags?: string[] | null
           telefone?: string | null
           updated_at?: string | null
           whatsapp?: string | null
@@ -2197,6 +2236,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "tags_contas_receber_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "user_statistics"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       tags_encomendas: {
@@ -2375,6 +2421,26 @@ export type Database = {
       }
     }
     Views: {
+      user_statistics: {
+        Row: {
+          cadastrado_em: string | null
+          confeitaria: string | null
+          email: string | null
+          full_name: string | null
+          permissao: Database["public"]["Enums"]["app_role"] | null
+          status: boolean | null
+          total_clientes: number | null
+          total_contas_pagar: number | null
+          total_contas_receber: number | null
+          total_encomendas: number | null
+          total_fornecedores: number | null
+          total_receitas: number | null
+          ultimo_acesso: string | null
+          user_id: string | null
+          valor_total_encomendas: number | null
+        }
+        Relationships: []
+      }
       vw_contas_receber_dashboard: {
         Row: {
           parcelas_abertas: number | null
