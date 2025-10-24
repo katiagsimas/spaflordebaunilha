@@ -8,6 +8,7 @@ import { Plus, Trash2, ChefHat, Upload, X } from "lucide-react";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { useCategorias } from "@/hooks/useCategorias";
 import { useCustosFixos } from "@/hooks/useCustosFixos";
+import { useMaoObra } from "@/hooks/useMaoObra";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
@@ -120,6 +121,7 @@ export default function ReceitaForm() {
   const [ingredientesCadastrados, setIngredientesCadastrados] = useState<any[]>([]);
   const [embalagensCadastradas, setEmbalagensCadastradas] = useState<any[]>([]);
   const { custosFixos } = useCustosFixos();
+  const { valores: valoresMaoObra } = useMaoObra();
   const { categorias } = useCategorias();
   const { unidades } = useUnidadesMedida();
 
@@ -271,6 +273,8 @@ export default function ReceitaForm() {
   ]);
   const [valorVenda, setValorVenda] = useState(0);
   const [valorVendaInput, setValorVendaInput] = useState("");
+  const [maoObraId, setMaoObraId] = useState("");
+  const [tempoMaoObra, setTempoMaoObra] = useState(0);
 
   // Sincronizar valorVendaInput quando valorVenda mudar externamente
   useEffect(() => {
@@ -518,6 +522,11 @@ export default function ReceitaForm() {
     : Number(formData.tempoPreparo) / 60;
   const custoFixoReceita = custoFixoPorHora * tempoPreparoHoras;
   
+  // Calcular custo de mão de obra
+  const maoObraSelecionada = valoresMaoObra.find(mo => mo.id === maoObraId);
+  const tempoMaoObraHoras = tempoMaoObra / 60; // converter minutos para horas
+  const custoMaoObra = maoObraSelecionada ? (maoObraSelecionada.valor_hora * tempoMaoObraHoras) : 0;
+  
   // Calcular outros gastos personalizados
   const handleOutroGastoChange = (index: number, field: 'nome' | 'valor', value: string | number) => {
     const novosGastos = [...outrosGastosPersonalizados];
@@ -542,7 +551,7 @@ export default function ReceitaForm() {
   const outrosGastosValor = outrosGastosPersonalizados.reduce((acc, gasto) => acc + (gasto.valor || 0), 0);
   
   // Custo total sem taxas
-  const custoTotal = custoIngredientes + custoEmbalagens + custoFixoReceita + outrosGastosValor;
+  const custoTotal = custoIngredientes + custoEmbalagens + custoFixoReceita + custoMaoObra + outrosGastosValor;
   
   // Calcular despesas de venda automaticamente quando o valor de venda mudar
   useEffect(() => {
@@ -1308,6 +1317,10 @@ export default function ReceitaForm() {
                         <span className="text-sm">Custos Fixos:</span>
                         <span className="font-semibold text-primary">R$ {custoFixoReceita.toFixed(2)}</span>
                       </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Mão de Obra:</span>
+                        <span className="font-semibold text-primary">R$ {custoMaoObra.toFixed(2)}</span>
+                      </div>
                     </div>
                     <div className="pt-3 mt-3 border-t">
                       <Button 
@@ -1316,8 +1329,45 @@ export default function ReceitaForm() {
                         className="w-full font-bold text-xl bg-primary text-foreground hover:bg-primary/90"
                         disabled
                       >
-                        Total: R$ {(custoIngredientes + custoEmbalagens + custoFixoReceita).toFixed(2)}
+                        Total: R$ {(custoIngredientes + custoEmbalagens + custoFixoReceita + custoMaoObra).toFixed(2)}
                       </Button>
+                    </div>
+                  </div>
+
+                  {/* Mão de Obra */}
+                  <div className="space-y-3 p-4 rounded-lg bg-card border">
+                    <h4 className="font-semibold text-sm text-muted-foreground">⏱️ Mão de Obra</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <Label className="text-xs">Valor de Mão de Obra</Label>
+                        <Select value={maoObraId} onValueChange={setMaoObraId}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {valoresMaoObra.filter(mo => mo.ativo).map(maoObra => (
+                              <SelectItem key={maoObra.id} value={maoObra.id}>
+                                {maoObra.nome} - R$ {maoObra.valor_hora.toFixed(2)}/h
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="text-xs">Tempo de Mão de Obra (minutos)</Label>
+                        <Input
+                          type="number"
+                          min="0"
+                          value={tempoMaoObra || ""}
+                          onChange={(e) => setTempoMaoObra(parseFloat(e.target.value) || 0)}
+                          placeholder="Ex: 30"
+                        />
+                        {maoObraSelecionada && tempoMaoObra > 0 && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {tempoMaoObra} min × R$ {maoObraSelecionada.valor_hora.toFixed(2)}/h = R$ {custoMaoObra.toFixed(2)}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
 
