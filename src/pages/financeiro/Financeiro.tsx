@@ -851,34 +851,6 @@ export default function Financeiro() {
       {/* Dashboard Financeiro */}
       <div className="space-y-6">
 
-        {/* Gráfico */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Visão Geral Financeira</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={[
-                  { categoria: "A Receber", valor: resumoDashboard.totalReceber },
-                  { categoria: "A Pagar", valor: resumoDashboard.totalPagar },
-                  { categoria: "Recebidas", valor: resumoDashboard.receitasRecebidas },
-                  { categoria: "Pagas", valor: resumoDashboard.despesasPagas }
-                ]}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="categoria" />
-                  <YAxis />
-                  <Tooltip
-                    formatter={(value: number) =>
-                      `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-                    }
-                  />
-                  <Bar dataKey="valor" fill="hsl(var(--primary))" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* INADIMPLÊNCIA */}
         <div className="grid gap-4 md:grid-cols-2">
