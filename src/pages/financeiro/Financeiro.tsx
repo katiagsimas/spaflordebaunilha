@@ -226,14 +226,12 @@ export default function Financeiro() {
         description: 'O saldo inicial foi salvo com sucesso!',
       });
 
-      // Resetar formulário
-      setBancoId('');
-      setSaldoInicial('');
-      setObservacao('');
-
-      // Recarregar saldos
-      handleAbrirConfig();
-      fetchResumo();
+      // Recarregar dados e fechar modal
+      await fetchResumo();
+      setModalConfigAberto(false);
+      
+      // Redirecionar para a página principal do financeiro
+      navigate('/financeiro');
     } catch (error) {
       console.error('Erro ao adicionar saldo:', error);
       toast({
