@@ -66,6 +66,14 @@ export function AdicionarUsuarioDialog({ open, onOpenChange }: AdicionarUsuarioD
     mutationFn: async (data: FormData) => {
       setIsLoading(true);
 
+      console.log('Invocando edge function criar-usuario...');
+      console.log('Dados enviados:', {
+        email: data.email,
+        nomeCompleto: data.nomeCompleto,
+        nomeConfeitaria: data.nomeConfeitaria,
+        role: data.role,
+      });
+
       // Chamar Edge Function para criar usuário
       const { data: result, error } = await supabase.functions.invoke('criar-usuario', {
         body: {
@@ -77,8 +85,17 @@ export function AdicionarUsuarioDialog({ open, onOpenChange }: AdicionarUsuarioD
         },
       });
 
-      if (error) throw error;
-      if (result.error) throw new Error(result.error);
+      console.log('Resposta da edge function:', { result, error });
+
+      if (error) {
+        console.error('Erro ao invocar função:', error);
+        throw error;
+      }
+      
+      if (result?.error) {
+        console.error('Erro retornado pela função:', result.error);
+        throw new Error(result.error);
+      }
 
       return result;
     },
