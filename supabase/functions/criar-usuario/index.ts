@@ -40,17 +40,25 @@ Deno.serve(async (req) => {
 
     console.log('Verificando se usuário já existe...')
     
-    // Verificar se o email já existe (ativo ou inativo)
+    // Primeiro: verificar se o usuário existe no Auth
+    const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers()
+    const existingAuthUser = authUsers.users?.find(u => u.email === email)
+    
+    console.log('Usuário encontrado no Auth:', existingAuthUser ? 'Sim' : 'Não')
+    
+    // Verificar se o email já existe no perfil (ativo ou inativo)
     const { data: existingProfile } = await supabaseAdmin
       .from('profiles')
       .select('id, email, ativo')
       .eq('email', email)
       .single()
+    
+    console.log('Perfil encontrado:', existingProfile)
 
     let userId: string
     
-    if (existingProfile) {
-      console.log('Usuário encontrado:', existingProfile)
+    if (existingAuthUser && existingProfile) {
+      console.log('Usuário encontrado no Auth e Perfil')
       
       if (existingProfile.ativo === true) {
         throw new Error('Este email já está em uso por um usuário ativo')
@@ -58,7 +66,7 @@ Deno.serve(async (req) => {
       
       // Usuário existe mas está inativo - reativar
       console.log('Reativando usuário inativo...')
-      userId = existingProfile.id
+      userId = existingAuthUser.id
       
       // Atualizar perfil para reativar
       const { error: updateError } = await supabaseAdmin
@@ -89,6 +97,39 @@ Deno.serve(async (req) => {
       }
       
       console.log('Usuário reativado com sucesso')
+    } else if (existingAuthUser && !existingProfile) {
+      // Usuário existe no Auth mas não tem perfil - criar perfil
+      console.log('Usuário existe no Auth mas sem perfil, criando perfil...')
+      userId = existingAuthUser.id
+      
+      const { error: insertError } = await supabaseAdmin
+        .from('profiles')
+        .insert({
+          id: userId,
+          email: email,
+          nome_completo: nomeCompleto,
+          nome_confeitaria: nomeConfeitaria,
+          ativo: true,
+          primeiro_acesso: true
+        })
+      
+      if (insertError) {
+        console.error('Erro ao criar perfil:', insertError)
+        throw insertError
+      }
+      
+      // Atualizar senha
+      const { error: passwordError } = await supabaseAdmin.auth.admin.updateUserById(
+        userId,
+        { password: senha }
+      )
+      
+      if (passwordError) {
+        console.error('Erro ao atualizar senha:', passwordError)
+        throw passwordError
+      }
+      
+      console.log('Perfil criado com sucesso para usuário existente no Auth')
     } else {
       // Usuário não existe - criar novo
       console.log('Criando novo usuário no Auth...')
