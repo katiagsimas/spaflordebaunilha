@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { validarSenhaForte } from '@/lib/validacaoSenha';
 import {
   Dialog,
   DialogContent,
@@ -18,9 +19,7 @@ import { Label } from '@/components/ui/label';
 import { Lock, Eye, EyeOff } from 'lucide-react';
 
 const senhaSchema = z.object({
-  novaSenha: z.string()
-    .length(6, { message: "A senha deve ter exatamente 6 dígitos" })
-    .regex(/^\d+$/, { message: "A senha deve conter apenas números" }),
+  novaSenha: z.string().min(6, { message: "A senha deve ter no mínimo 6 caracteres" }),
   confirmaSenha: z.string(),
 }).refine((data) => data.novaSenha === data.confirmaSenha, {
   message: "As senhas não conferem",
@@ -57,6 +56,34 @@ export function AlterarSenhaObrigatoria({ open }: AlterarSenhaObrigatoriaProps) 
       // Verificar se não está usando senha padrão
       if (novaSenha === '123456') {
         toast.error('Você não pode usar a senha padrão. Escolha uma senha diferente.');
+        setLoading(false);
+        return;
+      }
+
+      // Obter email e nome do usuário para validação
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      let userEmail = currentUser?.email || '';
+      let userName = '';
+
+      if (currentUser) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('nome_completo')
+          .eq('id', currentUser.id)
+          .single();
+        
+        userName = profile?.nome_completo || '';
+      }
+
+      // Validar força da senha
+      const validacaoForte = validarSenhaForte({
+        password: novaSenha,
+        email: userEmail,
+        name: userName
+      });
+
+      if (!validacaoForte.valid) {
+        toast.error(validacaoForte.message);
         setLoading(false);
         return;
       }
@@ -98,25 +125,22 @@ export function AlterarSenhaObrigatoria({ open }: AlterarSenhaObrigatoriaProps) 
           </DialogTitle>
           <DialogDescription>
             Por segurança, você precisa alterar a senha padrão antes de continuar.
-            A nova senha deve ter exatamente 6 dígitos numéricos.
+            A nova senha deve conter: letra maiúscula, letra minúscula, número e símbolo (@ # $ % & * _ - + ! ?).
           </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="novaSenha">Nova Senha (6 dígitos)</Label>
+            <Label htmlFor="novaSenha">Nova Senha</Label>
             <div className="relative">
               <Input
                 id="novaSenha"
                 type={mostrarNovaSenha ? 'text' : 'password'}
-                placeholder="Digite 6 dígitos"
+                placeholder="Digite sua nova senha"
                 value={novaSenha}
                 onChange={(e) => setNovaSenha(e.target.value)}
-                maxLength={6}
                 required
                 className="pr-10"
-                inputMode="numeric"
-                pattern="\d*"
               />
               <button
                 type="button"
@@ -134,14 +158,11 @@ export function AlterarSenhaObrigatoria({ open }: AlterarSenhaObrigatoriaProps) 
               <Input
                 id="confirmaSenha"
                 type={mostrarConfirmaSenha ? 'text' : 'password'}
-                placeholder="Digite novamente os 6 dígitos"
+                placeholder="Digite novamente sua senha"
                 value={confirmaSenha}
                 onChange={(e) => setConfirmaSenha(e.target.value)}
-                maxLength={6}
                 required
                 className="pr-10"
-                inputMode="numeric"
-                pattern="\d*"
               />
               <button
                 type="button"

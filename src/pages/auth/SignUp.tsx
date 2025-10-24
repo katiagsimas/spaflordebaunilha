@@ -9,6 +9,7 @@ import { Loader2, Mail, Lock, User, Store, Eye, EyeOff } from 'lucide-react';
 import donnasBoxLogo from '@/assets/donnas-box-logo.png';
 import authBackground from '@/assets/auth-background.jpg';
 import { z } from 'zod';
+import { validarSenhaForte } from '@/lib/validacaoSenha';
 
 const signUpSchema = z.object({
   email: z.string().trim().email({ message: "Email inválido" }).max(255, { message: "Email muito longo" }),
@@ -19,6 +20,16 @@ const signUpSchema = z.object({
 }).refine((data) => data.password === data.confirmPassword, {
   message: "As senhas não coincidem",
   path: ["confirmPassword"]
+}).refine((data) => {
+  const validacao = validarSenhaForte({
+    password: data.password,
+    email: data.email,
+    name: data.nomeCompleto
+  });
+  return validacao.valid;
+}, {
+  message: "Sua senha deve ter no mínimo 6 caracteres e conter: letra maiúscula, letra minúscula, número e símbolo (@ # $ % & * _ - + ! ?). Não pode conter partes do seu nome, e-mail ou termos como 'donna', 'box' ou 'kasimas'.",
+  path: ["password"]
 });
 
 export default function SignUp() {
@@ -166,7 +177,9 @@ export default function SignUp() {
                   )}
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground">Mínimo de 6 caracteres</p>
+              <p className="text-xs text-muted-foreground">
+                Deve conter: letra maiúscula, minúscula, número e símbolo (@ # $ % & * _ - + ! ?)
+              </p>
             </div>
 
             <div className="space-y-2">
