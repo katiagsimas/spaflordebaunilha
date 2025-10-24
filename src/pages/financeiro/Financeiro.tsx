@@ -284,6 +284,21 @@ export default function Financeiro() {
     return anos;
   };
 
+  const coresBanco = [
+    { border: 'border-l-blue-500', text: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-950' },
+    { border: 'border-l-green-500', text: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950' },
+    { border: 'border-l-purple-500', text: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-950' },
+    { border: 'border-l-orange-500', text: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-950' },
+    { border: 'border-l-pink-500', text: 'text-pink-600', bg: 'bg-pink-50 dark:bg-pink-950' },
+    { border: 'border-l-cyan-500', text: 'text-cyan-600', bg: 'bg-cyan-50 dark:bg-cyan-950' },
+    { border: 'border-l-indigo-500', text: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-950' },
+    { border: 'border-l-teal-500', text: 'text-teal-600', bg: 'bg-teal-50 dark:bg-teal-950' },
+  ];
+
+  const getCorBanco = (index: number) => {
+    return coresBanco[index % coresBanco.length];
+  };
+
   if (loading) return <div className="flex justify-center p-8">Carregando...</div>;
 
   const maxSaldo = Math.max(...bancosSaldos.map(b => b.saldo_atual || 0), 1);
@@ -512,23 +527,28 @@ export default function Financeiro() {
                   Distribuição por Banco
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {bancosSaldos.filter(b => b.saldo_atual !== 0).map(banco => (
-                    <Card key={banco.banco_id} className={`border-l-4 ${banco.saldo_atual >= 0 ? 'border-l-blue-500' : 'border-l-red-500'}`}>
-                      <CardContent className="pt-6">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs text-muted-foreground truncate">
-                              {banco.banco_codigo} - {banco.banco_nome}
-                            </p>
-                            <p className={`text-xl font-bold mt-1 ${banco.saldo_atual >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
-                              {formatarValor(banco.saldo_atual)}
-                            </p>
+                  {bancosSaldos.filter(b => b.saldo_atual !== 0).map((banco, index) => {
+                    const cor = getCorBanco(index);
+                    return (
+                      <Card key={banco.banco_id} className={`border-l-4 ${cor.border}`}>
+                        <CardContent className="pt-6">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs text-muted-foreground truncate">
+                                {banco.banco_codigo} - {banco.banco_nome}
+                              </p>
+                              <p className={`text-xl font-bold mt-1 ${cor.text}`}>
+                                {formatarValor(banco.saldo_atual)}
+                              </p>
+                            </div>
+                            <div className={`w-10 h-10 rounded-lg ${cor.bg} flex items-center justify-center`}>
+                              <Wallet className={`h-5 w-5 ${cor.text}`} />
+                            </div>
                           </div>
-                          <Wallet className={`h-8 w-8 ml-2 ${banco.saldo_atual >= 0 ? 'text-blue-600' : 'text-red-600'} opacity-50`} />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
               </div>
             </>
