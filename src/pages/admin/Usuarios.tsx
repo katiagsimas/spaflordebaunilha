@@ -530,12 +530,6 @@ export default function Usuarios() {
             
             {/* Resultados por Página e Exportar */}
             <div className="flex items-center gap-4 pt-4">
-              {/* Botão Exportar */}
-              <Button variant="outline" size="sm" onClick={exportarParaExcel}>
-                <Download className="mr-2 h-4 w-4" />
-                Exportar para Excel
-              </Button>
-
               {/* Resultados por Página */}
               <div className="flex items-center gap-2">
                 <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
@@ -551,6 +545,12 @@ export default function Usuarios() {
                 </Select>
                 <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
               </div>
+
+              {/* Botão Exportar */}
+              <Button variant="outline" size="sm" onClick={exportarParaExcel}>
+                <Download className="mr-2 h-4 w-4" />
+                Exportar para Excel
+              </Button>
             </div>
           </CardHeader>
         <CardContent>
