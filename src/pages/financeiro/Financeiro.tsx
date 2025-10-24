@@ -537,23 +537,7 @@ export default function Financeiro() {
       </div>
 
       {/* Cards de Navegação */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        {/* Card Dashboard Financeiro */}
-        <Card 
-          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-cyan-500"
-          onClick={() => navigate('/financeiro/dashboard')}
-        >
-          <CardHeader className="p-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-cyan-50 dark:bg-cyan-950 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0">
-                <LayoutDashboard className="h-4 w-4" />
-              </div>
-              <CardTitle className="text-sm font-semibold">
-                Dashboard
-              </CardTitle>
-            </div>
-          </CardHeader>
-        </Card>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
 
         {/* Card Contas a Receber */}
         <Card 
@@ -682,7 +666,7 @@ export default function Financeiro() {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Cards de Resumo Dashboard */}
-          <div className="grid gap-4 md:grid-cols-5">
+          <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -708,52 +692,6 @@ export default function Financeiro() {
                 <p className="text-2xl font-bold text-red-600">
                   R$ {resumoDashboard.totalPagar.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Receitas Recebidas</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold">
-                  R$ {resumoDashboard.receitasRecebidas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </p>
-                <p className="text-xs text-muted-foreground">Este mês</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Despesas Pagas</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold">
-                  R$ {resumoDashboard.despesasPagas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </p>
-                <p className="text-xs text-muted-foreground">Este mês</p>
-              </CardContent>
-            </Card>
-
-            <Card className={`${
-              resumoDashboard.saldoLiquido >= 0
-                ? "border-primary bg-primary/10"
-                : "border-red-500 bg-red-50"
-            }`}>
-              <CardHeader className="pb-2">
-                <CardTitle className={`text-sm font-medium ${
-                  resumoDashboard.saldoLiquido >= 0 ? "text-primary" : "text-red-700"
-                }`}>
-                  Saldo Líquido
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className={`text-2xl font-bold ${
-                  resumoDashboard.saldoLiquido >= 0 ? "text-primary" : "text-red-700"
-                }`}>
-                  R$ {resumoDashboard.saldoLiquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </p>
-                <p className="text-xs text-muted-foreground">Este mês</p>
               </CardContent>
             </Card>
           </div>
