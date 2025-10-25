@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import DarBaixaPagarDialog from '@/components/financeiro/DarBaixaPagarDialog';
 import {
   Select,
   SelectContent,
@@ -127,6 +128,10 @@ export default function ContasPagar() {
   const [porPagina, setPorPagina] = useState(10);
   const [openFornecedor, setOpenFornecedor] = useState(false);
   const [searchFornecedor, setSearchFornecedor] = useState('');
+
+  // Modal de baixa individual
+  const [darBaixaOpen, setDarBaixaOpen] = useState(false);
+  const [parcelaSelecionadaBaixa, setParcelaSelecionadaBaixa] = useState<any>(null);
 
   useEffect(() => {
     fetchDashboard();
@@ -1207,12 +1212,13 @@ export default function ContasPagar() {
                           <Edit className="mr-2 h-4 w-4" />
                           Editar
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => {
-                          toast({
-                            title: 'Em desenvolvimento',
-                            description: 'Funcionalidade será implementada em breve.',
-                          });
-                        }}>
+                        <DropdownMenuItem 
+                          onClick={() => {
+                            setParcelaSelecionadaBaixa(parcela);
+                            setDarBaixaOpen(true);
+                          }}
+                          disabled={parcela.status === 'pago' || parcela.status === 'adiantado'}
+                        >
                           <DollarSign className="mr-2 h-4 w-4 text-green-600" />
                           Dar Baixa
                         </DropdownMenuItem>
@@ -1232,6 +1238,17 @@ export default function ContasPagar() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Modal Dar Baixa Individual */}
+      <DarBaixaPagarDialog
+        open={darBaixaOpen}
+        onOpenChange={setDarBaixaOpen}
+        parcela={parcelaSelecionadaBaixa}
+        onSuccess={() => {
+          fetchParcelas();
+          fetchDashboard();
+        }}
+      />
 
       {/* Modal Baixa em Lote */}
       <Dialog open={modalBaixaLote} onOpenChange={setModalBaixaLote}>
