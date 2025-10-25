@@ -368,6 +368,15 @@ export default function ContasReceberFormModal({
 
   return (
     <div className="space-y-6 max-h-[70vh] overflow-y-auto p-6">
+      <Alert className="bg-blue-50 border-blue-200">
+        <Info className="h-4 w-4 text-blue-600" />
+        <AlertDescription>
+          <strong>Dados da Encomenda:</strong><br />
+          Cliente: <strong>{clienteNome}</strong><br />
+          Valor: <strong>{valorTotalInicial.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong>
+        </AlertDescription>
+      </Alert>
+
       <div className="space-y-2">
         <Label htmlFor="data-emissao">Data de Emissão *</Label>
         <Input
