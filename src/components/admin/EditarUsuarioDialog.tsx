@@ -34,6 +34,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Loader2, 
   Trash2, 
@@ -44,7 +45,9 @@ import {
   TrendingUp, 
   TrendingDown,
   DollarSign,
-  AlertTriangle
+  AlertTriangle,
+  Settings,
+  Tag
 } from 'lucide-react';
 
 const formSchema = z.object({
@@ -80,6 +83,26 @@ export function EditarUsuarioDialog({
   const [isLoading, setIsLoading] = useState(false);
   const [mostrarPreview, setMostrarPreview] = useState(false);
   const [emailConfirmacao, setEmailConfirmacao] = useState("");
+  const [itensSelecionados, setItensSelecionados] = useState({
+    clientes: true,
+    encomendas: true,
+    receitas: true,
+    fornecedores: true,
+    contasReceber: true,
+    contasPagar: true,
+    categorias: false,
+    unidadesMedida: false,
+    custosFixos: false,
+    maoObra: false,
+    tiposInsumos: false,
+    ingredientes: false,
+    embalagens: false,
+    bancos: false,
+    tiposDocumento: false,
+    planoContas: false,
+    categoriasFinanceiras: false,
+    tagsEncomendas: false,
+  });
   const queryClient = useQueryClient();
 
   const form = useForm<FormData>({
@@ -99,26 +122,70 @@ export function EditarUsuarioDialog({
     queryFn: async () => {
       if (!userId) return null;
       
-      const { data, error } = await supabase
-        .from('user_statistics')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
+      // Buscar dados das tabelas principais
+      const [
+        { data: clientes },
+        { data: encomendas },
+        { data: receitas },
+        { data: fornecedores },
+        { data: contasReceber },
+        { data: contasPagar },
+        { data: categorias },
+        { data: unidadesMedida },
+        { data: custosFixos },
+        { data: maoObra },
+        { data: tiposInsumos },
+        { data: ingredientes },
+        { data: embalagens },
+        { data: bancos },
+        { data: tiposDocumento },
+        { data: planoContas },
+        { data: categoriasFinanceiras },
+        { data: tagsEncomendas },
+      ] = await Promise.all([
+        supabase.from('clientes').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('encomendas').select('valor', { count: 'exact' }).eq('usuario_id', userId),
+        supabase.from('receitas').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('fornecedores').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('contas_receber').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('contas_pagar').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('categorias').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('unidades_medida').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('custos_fixos').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('configuracao_mao_obra').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+        supabase.from('tipos_insumos').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('ingredientes').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('embalagens').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('bancos').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('tipos_documento').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('categorias_plano_contas').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+        supabase.from('categorias_financeiras').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('tags_encomendas').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+      ]);
 
-      if (error) {
-        console.error('Erro ao carregar estatísticas:', error);
-        return {
-          total_clientes: 0,
-          total_encomendas: 0,
-          total_receitas: 0,
-          total_fornecedores: 0,
-          total_contas_receber: 0,
-          total_contas_pagar: 0,
-          valor_total_encomendas: 0
-        };
-      }
+      const valorTotalEncomendas = encomendas?.reduce((acc, enc) => acc + (Number(enc.valor) || 0), 0) || 0;
       
-      return data;
+      return {
+        total_clientes: clientes?.count || 0,
+        total_encomendas: encomendas?.count || 0,
+        total_receitas: receitas?.count || 0,
+        total_fornecedores: fornecedores?.count || 0,
+        total_contas_receber: contasReceber?.count || 0,
+        total_contas_pagar: contasPagar?.count || 0,
+        total_categorias: categorias?.count || 0,
+        total_unidades_medida: unidadesMedida?.count || 0,
+        total_custos_fixos: custosFixos?.count || 0,
+        total_mao_obra: maoObra?.count || 0,
+        total_tipos_insumos: tiposInsumos?.count || 0,
+        total_ingredientes: ingredientes?.count || 0,
+        total_embalagens: embalagens?.count || 0,
+        total_bancos: bancos?.count || 0,
+        total_tipos_documento: tiposDocumento?.count || 0,
+        total_plano_contas: planoContas?.count || 0,
+        total_categorias_financeiras: categoriasFinanceiras?.count || 0,
+        total_tags_encomendas: tagsEncomendas?.count || 0,
+        valor_total_encomendas: valorTotalEncomendas
+      };
     },
     enabled: !!userId && open,
   });
@@ -222,12 +289,74 @@ export function EditarUsuarioDialog({
 
       const { data: { user } } = await supabase.auth.getUser();
 
-      // Chamar função do banco de dados para deletar cadastros do usuário
-      const { error } = await supabase.rpc('deletar_cadastros_usuario', {
-        p_user_id: userId
-      });
+      // Deletar dados selecionados
+      const deletePromises = [];
 
-      if (error) throw error;
+      if (itensSelecionados.clientes) {
+        deletePromises.push(supabase.from('clientes').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.encomendas) {
+        deletePromises.push(supabase.from('encomenda_itens').delete().eq('usuario_id', userId));
+        deletePromises.push(supabase.from('encomendas').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.receitas) {
+        deletePromises.push(supabase.from('receita_ingredientes').delete().eq('usuario_id', userId));
+        deletePromises.push(supabase.from('receitas').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.fornecedores) {
+        deletePromises.push(supabase.from('fornecedores').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.contasReceber) {
+        deletePromises.push(supabase.from('contas_receber').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.contasPagar) {
+        deletePromises.push(supabase.from('contas_pagar').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.categorias) {
+        deletePromises.push(supabase.from('categorias').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.unidadesMedida) {
+        deletePromises.push(supabase.from('unidades_medida').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.custosFixos) {
+        deletePromises.push(supabase.from('custos_fixos').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.maoObra) {
+        deletePromises.push(supabase.from('configuracao_mao_obra').delete().eq('user_id', userId));
+      }
+      if (itensSelecionados.tiposInsumos) {
+        deletePromises.push(supabase.from('tipos_insumos').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.ingredientes) {
+        deletePromises.push(supabase.from('ingredientes').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.embalagens) {
+        deletePromises.push(supabase.from('embalagens').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.bancos) {
+        deletePromises.push(supabase.from('bancos').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.tiposDocumento) {
+        deletePromises.push(supabase.from('tipos_documento').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.planoContas) {
+        deletePromises.push(supabase.from('categorias_plano_contas').delete().eq('user_id', userId));
+      }
+      if (itensSelecionados.categoriasFinanceiras) {
+        deletePromises.push(supabase.from('categorias_financeiras').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.tagsEncomendas) {
+        deletePromises.push(supabase.from('tags_encomendas').delete().eq('usuario_id', userId));
+      }
+
+      const results = await Promise.allSettled(deletePromises);
+      
+      // Verificar se houve erros
+      const errors = results.filter(r => r.status === 'rejected');
+      if (errors.length > 0) {
+        console.error('Erros ao deletar:', errors);
+        throw new Error('Alguns registros não puderam ser deletados');
+      }
 
       // Registrar log
       if (user && userData) {
@@ -239,6 +368,7 @@ export function EditarUsuarioDialog({
           usuario_afetado_email: userData.email,
           detalhes: {
             registros_deletados: stats,
+            itens_selecionados: itensSelecionados,
             data_acao: new Date().toISOString()
           }
         });
@@ -247,7 +377,7 @@ export function EditarUsuarioDialog({
     onSuccess: () => {
       toast({
         title: 'Dados deletados com sucesso',
-        description: 'Todos os cadastros do usuário foram removidos.',
+        description: 'Os cadastros selecionados foram removidos.',
       });
       setMostrarPreview(false);
       setEmailConfirmacao("");
@@ -455,9 +585,8 @@ export function EditarUsuarioDialog({
                 </h4>
                 <Alert variant="destructive">
                   <AlertDescription>
-                    <strong>Deletar Cadastros do Usuário:</strong> Esta ação irá remover PERMANENTEMENTE todos os
-                    dados cadastrados pelo usuário (clientes, receitas, encomendas, etc.), mas
-                    manterá as configurações do sistema.
+                    <strong>Deletar Cadastros do Usuário:</strong> Esta ação irá remover PERMANENTEMENTE os
+                    dados selecionados do usuário.
                   </AlertDescription>
                 </Alert>
                 <Button
@@ -492,67 +621,386 @@ export function EditarUsuarioDialog({
 
       {/* Modal de Preview e Confirmação */}
       <Dialog open={mostrarPreview} onOpenChange={setMostrarPreview}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="h-5 w-5" />
               Confirmar Exclusão de Cadastros
             </DialogTitle>
             <DialogDescription>
-              Esta ação NÃO PODE ser desfeita. Todos os dados serão permanentemente deletados.
+              Esta ação NÃO PODE ser desfeita. Os dados selecionados serão permanentemente deletados.
             </DialogDescription>
           </DialogHeader>
 
           {/* Preview dos dados que serão deletados */}
           <div className="space-y-4">
-            <Alert variant="destructive">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Atenção!</strong>
-                <p className="mt-1">
-                  Os seguintes registros serão PERMANENTEMENTE deletados:
-                </p>
-              </AlertDescription>
-            </Alert>
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Atenção!</strong>
+                  <p className="mt-1">
+                    Selecione os cadastros que deseja DELETAR PERMANENTEMENTE:
+                  </p>
+                </AlertDescription>
+              </Alert>
 
-            <div className="grid grid-cols-2 gap-2">
-              <div className="flex justify-between p-2 bg-muted rounded">
-                <span className="text-sm">Clientes:</span>
-                <Badge variant={(stats?.total_clientes || 0) > 0 ? "destructive" : "secondary"}>
-                  {stats?.total_clientes || 0}
-                </Badge>
+              {/* Cadastros Principais */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Cadastros Principais
+                </h4>
+                <div className="grid gap-2">
+                  <div className="flex items-center justify-between p-2 bg-muted rounded">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="clientes"
+                        checked={itensSelecionados.clientes}
+                        onCheckedChange={(checked) =>
+                          setItensSelecionados({ ...itensSelecionados, clientes: checked as boolean })
+                        }
+                      />
+                      <label htmlFor="clientes" className="text-sm cursor-pointer">
+                        Clientes
+                      </label>
+                    </div>
+                    <Badge variant={(stats?.total_clientes || 0) > 0 ? "destructive" : "secondary"}>
+                      {stats?.total_clientes || 0}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2 bg-muted rounded">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="encomendas"
+                        checked={itensSelecionados.encomendas}
+                        onCheckedChange={(checked) =>
+                          setItensSelecionados({ ...itensSelecionados, encomendas: checked as boolean })
+                        }
+                      />
+                      <label htmlFor="encomendas" className="text-sm cursor-pointer">
+                        Encomendas
+                      </label>
+                    </div>
+                    <Badge variant={(stats?.total_encomendas || 0) > 0 ? "destructive" : "secondary"}>
+                      {stats?.total_encomendas || 0}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2 bg-muted rounded">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="receitas"
+                        checked={itensSelecionados.receitas}
+                        onCheckedChange={(checked) =>
+                          setItensSelecionados({ ...itensSelecionados, receitas: checked as boolean })
+                        }
+                      />
+                      <label htmlFor="receitas" className="text-sm cursor-pointer">
+                        Receitas
+                      </label>
+                    </div>
+                    <Badge variant={(stats?.total_receitas || 0) > 0 ? "destructive" : "secondary"}>
+                      {stats?.total_receitas || 0}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2 bg-muted rounded">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="fornecedores"
+                        checked={itensSelecionados.fornecedores}
+                        onCheckedChange={(checked) =>
+                          setItensSelecionados({ ...itensSelecionados, fornecedores: checked as boolean })
+                        }
+                      />
+                      <label htmlFor="fornecedores" className="text-sm cursor-pointer">
+                        Fornecedores
+                      </label>
+                    </div>
+                    <Badge variant={(stats?.total_fornecedores || 0) > 0 ? "destructive" : "secondary"}>
+                      {stats?.total_fornecedores || 0}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2 bg-muted rounded">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="contasReceber"
+                        checked={itensSelecionados.contasReceber}
+                        onCheckedChange={(checked) =>
+                          setItensSelecionados({ ...itensSelecionados, contasReceber: checked as boolean })
+                        }
+                      />
+                      <label htmlFor="contasReceber" className="text-sm cursor-pointer">
+                        Contas a Receber
+                      </label>
+                    </div>
+                    <Badge variant={(stats?.total_contas_receber || 0) > 0 ? "destructive" : "secondary"}>
+                      {stats?.total_contas_receber || 0}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2 bg-muted rounded">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="contasPagar"
+                        checked={itensSelecionados.contasPagar}
+                        onCheckedChange={(checked) =>
+                          setItensSelecionados({ ...itensSelecionados, contasPagar: checked as boolean })
+                        }
+                      />
+                      <label htmlFor="contasPagar" className="text-sm cursor-pointer">
+                        Contas a Pagar
+                      </label>
+                    </div>
+                    <Badge variant={(stats?.total_contas_pagar || 0) > 0 ? "destructive" : "secondary"}>
+                      {stats?.total_contas_pagar || 0}
+                    </Badge>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between p-2 bg-muted rounded">
-                <span className="text-sm">Encomendas:</span>
-                <Badge variant={(stats?.total_encomendas || 0) > 0 ? "destructive" : "secondary"}>
-                  {stats?.total_encomendas || 0}
-                </Badge>
+
+              <Separator />
+
+              {/* Configurações */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  Configurações
+                </h4>
+                <div className="grid gap-2">
+                  <div className="flex items-center justify-between p-2 bg-muted rounded">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="categorias"
+                        checked={itensSelecionados.categorias}
+                        onCheckedChange={(checked) =>
+                          setItensSelecionados({ ...itensSelecionados, categorias: checked as boolean })
+                        }
+                      />
+                      <label htmlFor="categorias" className="text-sm cursor-pointer">
+                        Categorias
+                      </label>
+                    </div>
+                    <Badge variant={"secondary"}>
+                      {stats?.total_categorias || 0}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2 bg-muted rounded">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="unidadesMedida"
+                        checked={itensSelecionados.unidadesMedida}
+                        onCheckedChange={(checked) =>
+                          setItensSelecionados({ ...itensSelecionados, unidadesMedida: checked as boolean })
+                        }
+                      />
+                      <label htmlFor="unidadesMedida" className="text-sm cursor-pointer">
+                        Unidades de Medida
+                      </label>
+                    </div>
+                    <Badge variant={"secondary"}>
+                      {stats?.total_unidades_medida || 0}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2 bg-muted rounded">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="bancos"
+                        checked={itensSelecionados.bancos}
+                        onCheckedChange={(checked) =>
+                          setItensSelecionados({ ...itensSelecionados, bancos: checked as boolean })
+                        }
+                      />
+                      <label htmlFor="bancos" className="text-sm cursor-pointer">
+                        Bancos
+                      </label>
+                    </div>
+                    <Badge variant={"secondary"}>
+                      {stats?.total_bancos || 0}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2 bg-muted rounded">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="tiposDocumento"
+                        checked={itensSelecionados.tiposDocumento}
+                        onCheckedChange={(checked) =>
+                          setItensSelecionados({ ...itensSelecionados, tiposDocumento: checked as boolean })
+                        }
+                      />
+                      <label htmlFor="tiposDocumento" className="text-sm cursor-pointer">
+                        Tipos de Documento
+                      </label>
+                    </div>
+                    <Badge variant={"secondary"}>
+                      {stats?.total_tipos_documento || 0}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2 bg-muted rounded">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="planoContas"
+                        checked={itensSelecionados.planoContas}
+                        onCheckedChange={(checked) =>
+                          setItensSelecionados({ ...itensSelecionados, planoContas: checked as boolean })
+                        }
+                      />
+                      <label htmlFor="planoContas" className="text-sm cursor-pointer">
+                        Plano de Contas
+                      </label>
+                    </div>
+                    <Badge variant={"secondary"}>
+                      {stats?.total_plano_contas || 0}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2 bg-muted rounded">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="categoriasFinanceiras"
+                        checked={itensSelecionados.categoriasFinanceiras}
+                        onCheckedChange={(checked) =>
+                          setItensSelecionados({ ...itensSelecionados, categoriasFinanceiras: checked as boolean })
+                        }
+                      />
+                      <label htmlFor="categoriasFinanceiras" className="text-sm cursor-pointer">
+                        Categorias Financeiras
+                      </label>
+                    </div>
+                    <Badge variant={"secondary"}>
+                      {stats?.total_categorias_financeiras || 0}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2 bg-muted rounded">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="tagsEncomendas"
+                        checked={itensSelecionados.tagsEncomendas}
+                        onCheckedChange={(checked) =>
+                          setItensSelecionados({ ...itensSelecionados, tagsEncomendas: checked as boolean })
+                        }
+                      />
+                      <label htmlFor="tagsEncomendas" className="text-sm cursor-pointer">
+                        Tags de Encomendas
+                      </label>
+                    </div>
+                    <Badge variant={"secondary"}>
+                      {stats?.total_tags_encomendas || 0}
+                    </Badge>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between p-2 bg-muted rounded">
-                <span className="text-sm">Receitas:</span>
-                <Badge variant={(stats?.total_receitas || 0) > 0 ? "destructive" : "secondary"}>
-                  {stats?.total_receitas || 0}
-                </Badge>
-              </div>
-              <div className="flex justify-between p-2 bg-muted rounded">
-                <span className="text-sm">Fornecedores:</span>
-                <Badge variant={(stats?.total_fornecedores || 0) > 0 ? "destructive" : "secondary"}>
-                  {stats?.total_fornecedores || 0}
-                </Badge>
-              </div>
-              <div className="flex justify-between p-2 bg-muted rounded">
-                <span className="text-sm">Contas a Receber:</span>
-                <Badge variant={(stats?.total_contas_receber || 0) > 0 ? "destructive" : "secondary"}>
-                  {stats?.total_contas_receber || 0}
-                </Badge>
-              </div>
-              <div className="flex justify-between p-2 bg-muted rounded">
-                <span className="text-sm">Contas a Pagar:</span>
-                <Badge variant={(stats?.total_contas_pagar || 0) > 0 ? "destructive" : "secondary"}>
-                  {stats?.total_contas_pagar || 0}
-                </Badge>
+
+              <Separator />
+
+              {/* Precificação */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold flex items-center gap-2">
+                  <Tag className="h-4 w-4" />
+                  Precificação
+                </h4>
+                <div className="grid gap-2">
+                  <div className="flex items-center justify-between p-2 bg-muted rounded">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="custosFixos"
+                        checked={itensSelecionados.custosFixos}
+                        onCheckedChange={(checked) =>
+                          setItensSelecionados({ ...itensSelecionados, custosFixos: checked as boolean })
+                        }
+                      />
+                      <label htmlFor="custosFixos" className="text-sm cursor-pointer">
+                        Custos Fixos
+                      </label>
+                    </div>
+                    <Badge variant={"secondary"}>
+                      {stats?.total_custos_fixos || 0}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2 bg-muted rounded">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="maoObra"
+                        checked={itensSelecionados.maoObra}
+                        onCheckedChange={(checked) =>
+                          setItensSelecionados({ ...itensSelecionados, maoObra: checked as boolean })
+                        }
+                      />
+                      <label htmlFor="maoObra" className="text-sm cursor-pointer">
+                        Mão de Obra
+                      </label>
+                    </div>
+                    <Badge variant={"secondary"}>
+                      {stats?.total_mao_obra || 0}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2 bg-muted rounded">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="tiposInsumos"
+                        checked={itensSelecionados.tiposInsumos}
+                        onCheckedChange={(checked) =>
+                          setItensSelecionados({ ...itensSelecionados, tiposInsumos: checked as boolean })
+                        }
+                      />
+                      <label htmlFor="tiposInsumos" className="text-sm cursor-pointer">
+                        Tipos de Insumos
+                      </label>
+                    </div>
+                    <Badge variant={"secondary"}>
+                      {stats?.total_tipos_insumos || 0}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2 bg-muted rounded">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="ingredientes"
+                        checked={itensSelecionados.ingredientes}
+                        onCheckedChange={(checked) =>
+                          setItensSelecionados({ ...itensSelecionados, ingredientes: checked as boolean })
+                        }
+                      />
+                      <label htmlFor="ingredientes" className="text-sm cursor-pointer">
+                        Ingredientes
+                      </label>
+                    </div>
+                    <Badge variant={"secondary"}>
+                      {stats?.total_ingredientes || 0}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2 bg-muted rounded">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="embalagens"
+                        checked={itensSelecionados.embalagens}
+                        onCheckedChange={(checked) =>
+                          setItensSelecionados({ ...itensSelecionados, embalagens: checked as boolean })
+                        }
+                      />
+                      <label htmlFor="embalagens" className="text-sm cursor-pointer">
+                        Embalagens
+                      </label>
+                    </div>
+                    <Badge variant={"secondary"}>
+                      {stats?.total_embalagens || 0}
+                    </Badge>
+                  </div>
+                </div>
               </div>
             </div>
+
+            <Separator />
 
             {/* Confirmação digitando email */}
             <div className="space-y-2">
@@ -598,7 +1046,7 @@ export function EditarUsuarioDialog({
               disabled={emailConfirmacao !== userData?.email || deletarDadosUsuarioMutation.isPending}
             >
               {deletarDadosUsuarioMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sim, Deletar Tudo
+              Sim, Deletar Selecionados
             </Button>
           </DialogFooter>
         </DialogContent>
