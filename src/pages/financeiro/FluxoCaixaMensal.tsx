@@ -138,14 +138,15 @@ export default function FluxoCaixaMensal() {
           saldoAnterior = saldoInicialBancos + totalSaldosConfiguradosIniciais + totalEntradasAnt - totalSaidasAnt;
         }
 
-        // Para meses subsequentes, buscar saldos configurados dentro do ano
+        // Buscar saldos configurados para o mês ATUAL (que devem aparecer como saldo inicial deste mês)
         const dataInicioMes = new Date(ano, mes, 1).toISOString().split('T')[0];
+        const dataFimMes = new Date(ano, mes + 1, 0).toISOString().split('T')[0];
         const { data: saldosConfiguradosMes } = await supabase
           .from('saldos_iniciais_bancos')
           .select('saldo_inicial, data_referencia')
           .eq('user_id', user.id)
-          .gte('data_referencia', inicioAno)
-          .lt('data_referencia', dataInicioMes);
+          .gte('data_referencia', dataInicioMes)
+          .lte('data_referencia', dataFimMes);
 
         const saldosConfiguradosNoMes = saldosConfiguradosMes?.reduce((acc, s) => acc + (s.saldo_inicial || 0), 0) || 0;
 
@@ -291,12 +292,11 @@ export default function FluxoCaixaMensal() {
         };
 
         const saldoOperacional = entradasCalc.total - saidasCalc.total;
-        // Adicionar saldos configurados no mês ao cálculo
         const saldoFinal = saldoAnterior + saldosConfiguradosNoMes + saldoOperacional;
 
         fluxoCalculado.push({
           mes: meses[mes],
-          saldoInicial: saldoAnterior,
+          saldoInicial: saldoAnterior + saldosConfiguradosNoMes, // Adicionar saldos configurados ao saldo inicial
           entradas: entradasCalc,
           saidas: saidasCalc,
           saldoOperacional,
