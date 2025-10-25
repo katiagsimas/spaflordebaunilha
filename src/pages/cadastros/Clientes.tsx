@@ -108,6 +108,23 @@ export default function Clientes() {
 
   const handleDelete = async (id: string) => {
     try {
+      // Buscar o nome do cliente
+      const cliente = clientes.find(c => c.id === id);
+      
+      // Verificar se o cliente possui encomendas
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data: encomendas } = await supabase
+        .from('encomendas')
+        .select('id')
+        .eq('cliente', cliente?.nome)
+        .limit(1);
+      
+      if (encomendas && encomendas.length > 0) {
+        toast.error('Não é possível excluir este cliente pois ele possui encomendas cadastradas.');
+        setDeleteId(null);
+        return;
+      }
+      
       await deleteCliente(id);
       setDeleteId(null);
     } catch (error: any) {
