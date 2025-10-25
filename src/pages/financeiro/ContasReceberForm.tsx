@@ -64,6 +64,9 @@ export default function ContasReceberForm() {
   const [popoverClienteAberto, setPopoverClienteAberto] = useState(false);
   const [buscaCliente, setBuscaCliente] = useState('');
 
+  const [openPlanoContas, setOpenPlanoContas] = useState(false);
+  const [searchPlanoContas, setSearchPlanoContas] = useState('');
+
   const [modalClienteAberto, setModalClienteAberto] = useState(false);
   const [formDataCliente, setFormDataCliente] = useState({
     nome: '',
@@ -629,18 +632,63 @@ export default function ContasReceberForm() {
 
             <div className="space-y-2">
               <Label>Plano de Contas *</Label>
-              <Select value={planoContasId} onValueChange={setPlanoContasId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {planosContas.map(plano => (
-                    <SelectItem key={plano.id} value={plano.id}>
-                      {plano.codigo_estruturado} - {plano.descricao}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={openPlanoContas} onOpenChange={setOpenPlanoContas}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={openPlanoContas}
+                    className="w-full justify-between bg-popover"
+                  >
+                    {planoContasId
+                      ? (() => {
+                          const plano = planosContas.find((p: any) => p.id === planoContasId);
+                          return plano ? `${plano.codigo_estruturado} - ${plano.descricao}` : 'Selecione...';
+                        })()
+                      : 'Selecione...'}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0 bg-popover z-50" align="start">
+                  <Command className="bg-popover">
+                    <CommandInput
+                      placeholder="Buscar plano de contas..."
+                      value={searchPlanoContas}
+                      onValueChange={setSearchPlanoContas}
+                    />
+                    <CommandEmpty>Nenhum plano de contas encontrado.</CommandEmpty>
+                    <CommandGroup className="max-h-64 overflow-auto">
+                      {planosContas
+                        .filter((plano: any) => {
+                          const searchLower = searchPlanoContas.toLowerCase();
+                          return (
+                            plano.codigo_estruturado.toLowerCase().includes(searchLower) ||
+                            plano.descricao.toLowerCase().includes(searchLower)
+                          );
+                        })
+                        .map((plano: any) => (
+                          <CommandItem
+                            key={plano.id}
+                            value={plano.id}
+                            onSelect={() => {
+                              setPlanoContasId(plano.id);
+                              setOpenPlanoContas(false);
+                              setSearchPlanoContas('');
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                'mr-2 h-4 w-4',
+                                planoContasId === plano.id ? 'opacity-100' : 'opacity-0'
+                              )}
+                            />
+                            {plano.codigo_estruturado} - {plano.descricao}
+                          </CommandItem>
+                        ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
 
