@@ -119,43 +119,6 @@ export function FornecedorFormDialog({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>O que Fornece *</Label>
-            <ToggleGroup
-              type="single"
-              value={formData.tipo_fornecedor}
-              onValueChange={(value) =>
-                value &&
-                setFormData({
-                  ...formData,
-                  tipo_fornecedor: value as
-                    | 'Insumos'
-                    | 'Embalagens'
-                    | 'Diversos'
-                    | 'Papelaria Personalizada'
-                    | 'Outros',
-                })
-              }
-              className="justify-start flex-wrap"
-            >
-              <ToggleGroupItem value="Insumos" aria-label="Insumos">
-                Insumos
-              </ToggleGroupItem>
-              <ToggleGroupItem value="Embalagens" aria-label="Embalagens">
-                Embalagens
-              </ToggleGroupItem>
-              <ToggleGroupItem value="Diversos" aria-label="Diversos">
-                Diversos
-              </ToggleGroupItem>
-              <ToggleGroupItem value="Papelaria Personalizada" aria-label="Papelaria Personalizada">
-                Papelaria Personalizada
-              </ToggleGroupItem>
-              <ToggleGroupItem value="Outros" aria-label="Outros">
-                Outros
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="telefone">Telefone/WhatsApp</Label>
