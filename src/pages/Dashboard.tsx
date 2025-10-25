@@ -617,24 +617,27 @@ export default function Dashboard() {
           const atual = produtosMap.get(produtoNome)!;
           produtosMap.set(produtoNome, {
             nome: atual.nome,
-            quantidade: atual.quantidade + quantidade,
+            quantidade: atual.quantidade + 1, // Conta número de vendas (não soma quantidade)
+            quantidadeTotal: atual.quantidadeTotal + quantidade, // Soma total de unidades vendidas
             receita: atual.receita + valorItem
           });
         } else {
           produtosMap.set(produtoNome, {
             nome: produtoNome,
-            quantidade: quantidade,
+            quantidade: 1, // Primeira venda deste produto
+            quantidadeTotal: quantidade,
             receita: valorItem
           });
         }
       });
 
-      // Converter para array e ordenar por quantidade
+      // Converter para array e ordenar por quantidade de vendas
       const produtosArray = Array.from(produtosMap.entries())
         .map(([id, dados]) => ({
           id,
           nome: dados.nome,
-          quantidade: dados.quantidade,
+          quantidade: dados.quantidade, // número de vendas
+          quantidadeTotal: dados.quantidadeTotal, // total de unidades
           receita: dados.receita
         }))
         .sort((a, b) => b.quantidade - a.quantidade)
@@ -1375,6 +1378,9 @@ export default function Dashboard() {
                     <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
                       <span>
                         {produto.quantidade} {produto.quantidade === 1 ? 'venda' : 'vendas'}
+                      </span>
+                      <span>
+                        {produto.quantidadeTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} unid.
                       </span>
                       <span className="font-medium text-green-600">
                         R$ {produto.receita.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
