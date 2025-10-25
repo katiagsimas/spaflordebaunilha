@@ -186,7 +186,7 @@ export function FornecedorAutocomplete({
             {filteredFornecedores.map((fornecedor) => (
               <CommandItem
                 key={fornecedor.id}
-                value={fornecedor.id}
+                value={fornecedor.nome}
                 onSelect={() => handleSelect(fornecedor.id)}
               >
                 <Check
