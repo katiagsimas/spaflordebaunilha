@@ -1171,7 +1171,7 @@ export default function Dashboard() {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => navigate("/encomendas")}
+                          onClick={() => navigate(`/encomendas?id=${encomenda.id}`)}
                         >
                           Ver Detalhes
                         </Button>
