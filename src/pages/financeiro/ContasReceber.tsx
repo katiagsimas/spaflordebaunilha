@@ -893,11 +893,6 @@ export default function ContasReceber() {
             <X className="mr-2 h-4 w-4" />
             Limpar Filtros
           </Button>
-
-          <Button variant="outline" size="sm" onClick={exportarParaExcel}>
-            <Download className="mr-2 h-4 w-4" />
-            Exportar para Excel
-          </Button>
         </div>
 
         <CollapsibleContent>
@@ -1063,6 +1058,11 @@ export default function ContasReceber() {
             </Select>
             <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
           </div>
+
+          <Button variant="outline" size="sm" onClick={exportarParaExcel}>
+            <Download className="mr-2 h-4 w-4" />
+            Exportar para Excel
+          </Button>
           
         </div>
       </div>
