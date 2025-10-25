@@ -262,21 +262,18 @@ export default function ContasPagarForm() {
         });
       }
     } else {
-      // Recorrente - usa o dia do primeiro vencimento
+      // Recorrente - cada parcela tem o valor total, vencimentos a cada 30 dias
 
       for (let i = 0; i < parcelas; i++) {
         const dataVenc = new Date(dataBase);
-        dataVenc.setMonth(dataVenc.getMonth() + i);
-
-        const dataEmissaoParcela = new Date(dataVenc);
-        dataEmissaoParcela.setDate(1);
+        dataVenc.setDate(dataVenc.getDate() + (i * 30)); // 30 dias após a anterior
 
         parcelas_geradas.push({
           numero_parcela: i + 1,
-          data_emissao: dataEmissaoParcela.toISOString().split('T')[0],
+          data_emissao: dataEmissao, // Mesma data de emissão para todas
           data_vencimento: dataVenc.toISOString().split('T')[0],
           valor_total: valor,
-          valor_parcela: valor,
+          valor_parcela: valor, // Valor total para cada parcela
           status: 'aberto',
         });
       }
@@ -302,23 +299,26 @@ export default function ContasPagarForm() {
         return;
       }
 
-      // Validar se soma das parcelas = valor total
-      const totalParcelas = parcelasGeradas.reduce((acc, p) => acc + p.valor_parcela, 0);
+      // Validar se soma das parcelas = valor total (somente para não-recorrentes)
       const valorTotalNum = parseFloat(valorTotal.replace(',', '.'));
       
-      if (Math.abs(totalParcelas - valorTotalNum) > 0.01) {
-        toast({
-          title: 'Erro',
-          description: `A soma das parcelas (${totalParcelas.toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-          })}) não corresponde ao valor total (${valorTotalNum.toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-          })})`,
-          variant: 'destructive',
-        });
-        return;
+      if (tipoLancamento !== 'recorrente') {
+        const totalParcelas = parcelasGeradas.reduce((acc, p) => acc + p.valor_parcela, 0);
+        
+        if (Math.abs(totalParcelas - valorTotalNum) > 0.01) {
+          toast({
+            title: 'Erro',
+            description: `A soma das parcelas (${totalParcelas.toLocaleString('pt-BR', {
+              style: 'currency',
+              currency: 'BRL'
+            })}) não corresponde ao valor total (${valorTotalNum.toLocaleString('pt-BR', {
+              style: 'currency',
+              currency: 'BRL'
+            })})`,
+            variant: 'destructive',
+          });
+          return;
+        }
       }
 
       setLoading(true);
@@ -438,22 +438,19 @@ export default function ContasPagarForm() {
         });
       }
     } else {
-      // Recorrente: repete o valor total - usa o dia do primeiro vencimento
+      // Recorrente - cada parcela tem o valor total, vencimentos a cada 30 dias
 
       for (let i = 0; i < parcelas; i++) {
         const dataVenc = new Date(dataBase);
-        dataVenc.setMonth(dataVenc.getMonth() + i);
-
-        const dataEmissaoParcela = new Date(dataVenc);
-        dataEmissaoParcela.setDate(1);
+        dataVenc.setDate(dataVenc.getDate() + (i * 30)); // 30 dias após a anterior
 
         parcelas_data.push({
           conta_pagar_id: contaId,
           numero_parcela: i + 1,
-          data_emissao: dataEmissaoParcela.toISOString().split('T')[0],
+          data_emissao: dataEmissao, // Mesma data de emissão para todas
           data_vencimento: dataVenc.toISOString().split('T')[0],
           valor_total: valor,
-          valor_parcela: valor,
+          valor_parcela: valor, // Valor total para cada parcela
           status: 'aberto',
         });
       }
