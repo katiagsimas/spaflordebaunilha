@@ -818,14 +818,19 @@ export default function ContasPagar() {
             </Button>
           ))}
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setMostrarFiltrosAvancados(!mostrarFiltrosAvancados)}
-        >
-          Mais Opções de Busca
-          <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${mostrarFiltrosAvancados ? 'rotate-180' : ''}`} />
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setMostrarFiltrosAvancados(!mostrarFiltrosAvancados)}
+          >
+            Mais Opções de Busca
+            <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${mostrarFiltrosAvancados ? 'rotate-180' : ''}`} />
+          </Button>
+          <Button variant="outline" size="sm" onClick={limparFiltros}>
+            Limpar Filtros
+          </Button>
+        </div>
       </div>
 
       {/* Filtros Avançados - Datas */}
@@ -892,13 +897,6 @@ export default function ContasPagar() {
             />
           </div>
         </div>
-      </div>
-
-      {/* Botão Limpar Filtros */}
-      <div className="flex gap-2">
-        <Button variant="outline" onClick={limparFiltros}>
-          Limpar Filtros
-        </Button>
       </div>
 
       {/* Filtros Avançados Recolhíveis */}
