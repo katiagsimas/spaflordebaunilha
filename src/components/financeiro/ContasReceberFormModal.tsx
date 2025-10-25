@@ -13,8 +13,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Info } from 'lucide-react';
+import { ClienteAutocomplete } from '@/components/ClienteAutocomplete';
+import { PlanoContasAutocomplete } from '@/components/PlanoContasAutocomplete';
 import {
   Table,
   TableBody,
@@ -48,8 +48,8 @@ export default function ContasReceberFormModal({
   const { toast } = useToast();
 
   const [dataEmissao, setDataEmissao] = useState(dataEmissaoInicial);
-  const [clienteId] = useState(clienteIdInicial);
-  const [clienteNome] = useState(clienteNomeInicial);
+  const [clienteId, setClienteId] = useState(clienteIdInicial);
+  const [clienteNome, setClienteNome] = useState(clienteNomeInicial);
   const [tipoDocumentoId, setTipoDocumentoId] = useState('');
   const [planoContasId, setPlanoContasId] = useState(planoContasIdInicial || '');
   const [bancoId, setBancoId] = useState('');
@@ -366,17 +366,15 @@ export default function ContasReceberFormModal({
     setParcelasEditadas(true);
   };
 
+  const handleClienteSelect = (nome: string, clienteCompleto?: any) => {
+    setClienteNome(nome);
+    if (clienteCompleto) {
+      setClienteId(clienteCompleto.id);
+    }
+  };
+
   return (
     <div className="space-y-6 max-h-[70vh] overflow-y-auto p-6">
-      <Alert className="bg-blue-50 border-blue-200">
-        <Info className="h-4 w-4 text-blue-600" />
-        <AlertDescription>
-          <strong>Dados da Encomenda:</strong><br />
-          Cliente: <strong>{clienteNome}</strong><br />
-          Valor: <strong>{valorTotalInicial.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong>
-        </AlertDescription>
-      </Alert>
-
       <div className="space-y-2">
         <Label htmlFor="data-emissao">Data de Emissão *</Label>
         <Input
@@ -390,10 +388,10 @@ export default function ContasReceberFormModal({
 
       <div className="space-y-2">
         <Label>Cliente *</Label>
-        <Input
+        <ClienteAutocomplete
           value={clienteNome}
-          disabled
-          className="bg-muted"
+          onSelect={handleClienteSelect}
+          placeholder="Selecione ou cadastre um cliente..."
         />
       </div>
 
@@ -416,18 +414,12 @@ export default function ContasReceberFormModal({
 
         <div className="space-y-2">
           <Label>Plano de Contas *</Label>
-          <Select value={planoContasId} onValueChange={setPlanoContasId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione..." />
-            </SelectTrigger>
-            <SelectContent>
-              {planosContas.filter((p: any) => p.id && p.id.trim() !== "").map((plano: any) => (
-                <SelectItem key={plano.id} value={plano.id}>
-                  {plano.codigo_estruturado} - {plano.descricao}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <PlanoContasAutocomplete
+            value={planoContasId}
+            planosContas={planosContas.filter((p: any) => p.id && p.id.trim() !== "")}
+            onSelect={setPlanoContasId}
+            placeholder="Selecione um plano de contas..."
+          />
         </div>
       </div>
 
