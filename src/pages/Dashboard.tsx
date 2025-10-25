@@ -594,6 +594,10 @@ export default function Dashboard() {
       // Buscar todos os itens dessas encomendas
       const encomendaIds = encomendas?.map(e => e.id) || [];
       
+      console.log('=== DEBUG Top 5 Produtos ===');
+      console.log('Encomendas entregues no período:', encomendas?.length);
+      console.log('IDs das encomendas:', encomendaIds);
+      
       let itensData: any[] = [];
       if (encomendaIds.length > 0) {
         const { data: itens } = await supabase
@@ -603,45 +607,61 @@ export default function Dashboard() {
           .eq("usuario_id", user.id);
         
         itensData = itens || [];
+        console.log('Total de itens encontrados:', itensData.length);
+        console.log('Itens:', itensData);
       }
 
-      // Agrupar produtos e contar vendas
+      // Agrupar produtos e contar vendas (número de encomendas únicas)
       const produtosMap = new Map();
 
       itensData.forEach((item: any) => {
         const produtoNome = item.produto || "Produto não informado";
         const quantidade = item.quantidade || 1;
         const valorItem = (item.valor_unitario || 0) * quantidade;
+        const encomendaId = item.encomenda_id;
 
         if (produtosMap.has(produtoNome)) {
           const atual = produtosMap.get(produtoNome)!;
+          // Adiciona a encomenda ao Set para contar vendas únicas
+          atual.encomendasSet.add(encomendaId);
           produtosMap.set(produtoNome, {
             nome: atual.nome,
-            quantidade: atual.quantidade + 1, // Conta número de vendas (não soma quantidade)
-            quantidadeTotal: atual.quantidadeTotal + quantidade, // Soma total de unidades vendidas
+            encomendasSet: atual.encomendasSet,
+            quantidadeTotal: atual.quantidadeTotal + quantidade,
             receita: atual.receita + valorItem
           });
         } else {
+          const encomendasSet = new Set();
+          encomendasSet.add(encomendaId);
           produtosMap.set(produtoNome, {
             nome: produtoNome,
-            quantidade: 1, // Primeira venda deste produto
+            encomendasSet: encomendasSet,
             quantidadeTotal: quantidade,
             receita: valorItem
           });
         }
       });
+      
+      console.log('Produtos agrupados:', Array.from(produtosMap.entries()).map(([nome, dados]) => ({
+        nome,
+        vendas: dados.encomendasSet.size,
+        unidades: dados.quantidadeTotal,
+        receita: dados.receita
+      })));
 
-      // Converter para array e ordenar por quantidade de vendas
+      // Converter para array e ordenar por número de vendas (encomendas únicas)
       const produtosArray = Array.from(produtosMap.entries())
         .map(([id, dados]) => ({
           id,
           nome: dados.nome,
-          quantidade: dados.quantidade, // número de vendas
+          quantidade: dados.encomendasSet.size, // número de encomendas diferentes
           quantidadeTotal: dados.quantidadeTotal, // total de unidades
           receita: dados.receita
         }))
         .sort((a, b) => b.quantidade - a.quantidade)
         .slice(0, 5);
+      
+      console.log('Top 5 produtos finais:', produtosArray);
 
       setProdutos(produtosArray);
 
