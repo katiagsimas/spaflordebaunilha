@@ -1753,7 +1753,7 @@ const Encomendas = () => {
           </CardContent>
         </Card>
 
-        {/* Filtro de Hora da Entrega */}
+      {/* Filtro de Hora da Entrega */}
         <Card className="shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="p-4">
             <Label htmlFor="filtro-hora-entrega" className="text-sm font-medium mb-2 block">Hora da Entrega</Label>
@@ -1764,6 +1764,28 @@ const Encomendas = () => {
               onChange={(e) => setHoraEntregaFilter(e.target.value)}
               className="bg-background"
             />
+          </CardContent>
+        </Card>
+
+        {/* Botão Limpar Filtros */}
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
+          <CardContent className="p-4 flex items-end h-full">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                setClienteFilter("Todos");
+                setStatusFilter("Todos");
+                setTagFilter("todos");
+                setDataEntregaFilter("");
+                setHoraEntregaFilter("");
+                setBuscaNome("");
+                toast.success("Filtros limpos com sucesso!");
+              }}
+            >
+              <X className="h-4 w-4 mr-2" />
+              Limpar Filtros
+            </Button>
           </CardContent>
         </Card>
       </div>
