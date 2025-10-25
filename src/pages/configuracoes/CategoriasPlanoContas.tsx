@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { LoadingStateFullScreen } from '@/components/LoadingState';
 import {
   Select,
   SelectContent,
@@ -456,11 +457,7 @@ export default function CategoriasPlanoContas() {
   ].filter(Boolean).length;
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="text-lg">Carregando...</div>
-      </div>
-    );
+    return <LoadingStateFullScreen message="Carregando Categorias" submessage="Organizando seu plano de contas..." />;
   }
 
   return (

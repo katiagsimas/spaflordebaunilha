@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { LoadingState } from '@/components/LoadingState';
 import {
   Table,
   TableBody,
@@ -266,7 +267,7 @@ export default function TiposInsumosIngredientes() {
     });
   };
 
-  if (loading) return <div>Carregando...</div>;
+  if (loading) return <LoadingState message="Carregando Tipos de Ingredientes" submessage="Organizando categorias..." />;
 
   const tiposFiltrados = tipos.filter((tipo) =>
     tipo.descricao.toLowerCase().includes(busca.toLowerCase())

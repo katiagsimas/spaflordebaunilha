@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useReceitas } from '@/hooks/useReceitas';
+import { LoadingState } from '@/components/LoadingState';
 import {
   Table,
   TableBody,
@@ -510,7 +511,7 @@ export default function Ingredientes() {
     verificarDesatualizado(i.data_atualizacao)
   ).length;
 
-  if (loading) return <div className="flex justify-center p-8">Carregando...</div>;
+  if (loading) return <LoadingState message="Carregando Ingredientes" submessage="Buscando ingredientes cadastrados..." />;
 
   return (
     <div className="space-y-6">

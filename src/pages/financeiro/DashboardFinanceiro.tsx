@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { LoadingStateFullScreen } from "@/components/LoadingState";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   BarChart,
@@ -270,14 +271,7 @@ export default function DashboardFinanceiro() {
   ];
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Carregando dashboard financeiro...</p>
-        </div>
-      </div>
-    );
+    return <LoadingStateFullScreen message="Carregando Dashboard Financeiro" submessage="Calculando indicadores financeiros..." />;
   }
 
   return (

@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { LoadingState } from '@/components/LoadingState';
 import {
   Table,
   TableBody,
@@ -634,7 +635,7 @@ export default function ContasPagarDetalhes() {
     };
   };
 
-  if (loading) return <div className="flex justify-center p-8">Carregando...</div>;
+  if (loading) return <LoadingState message="Carregando Detalhes" submessage="Buscando informações da conta..." />;
   if (!conta) return <div className="flex justify-center p-8">Conta não encontrada</div>;
 
   const totais = calcularTotais();

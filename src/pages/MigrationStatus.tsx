@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { BackButton } from '@/components/BackButton';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { LoadingState } from '@/components/LoadingState';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface TableStats {
@@ -119,13 +120,7 @@ export default function MigrationStatus() {
   };
   
   if (loading) {
-    return (
-      <div className="container mx-auto py-8">
-        <div className="flex items-center justify-center h-96">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-      </div>
-    );
+    return <LoadingState message="Verificando Status de Migração" submessage="Aguarde enquanto verificamos seus dados..." />;
   }
   
   const totalRecords = tableStats.reduce((sum, s) => sum + s.count, 0);

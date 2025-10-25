@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/EmptyState";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/PageHeader";
 import { NovaEntradaDialog } from "@/components/estoque/NovaEntradaDialog";
 import { NovaSaidaDialog } from "@/components/estoque/NovaSaidaDialog";

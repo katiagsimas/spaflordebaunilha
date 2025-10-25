@@ -8,6 +8,7 @@ import { useCustosFixos } from "@/hooks/useCustosFixos";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { Plus, Pencil, Trash2, AlertCircle, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { LoadingState } from "@/components/LoadingState";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
@@ -222,12 +223,7 @@ export default function CustosFixos() {
   const loading = loadingCustos || loadingProfile;
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin mr-2" />
-        <span>Carregando custos fixos...</span>
-      </div>
-    );
+    return <LoadingState message="Carregando Custos Fixos" submessage="Preparando dados de precificação..." />;
   }
 
   const totalCustos = custosFixos.reduce((acc, custo) => acc + custo.valor, 0);

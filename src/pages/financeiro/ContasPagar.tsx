@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import DarBaixaPagarDialog from '@/components/financeiro/DarBaixaPagarDialog';
+import { LoadingState } from '@/components/LoadingState';
 import {
   Select,
   SelectContent,
@@ -725,7 +726,7 @@ export default function ContasPagar() {
     return badges[status] || <Badge variant="outline">{status}</Badge>;
   };
 
-  if (loading) return <div className="flex justify-center p-8">Carregando...</div>;
+  if (loading) return <LoadingState message="Carregando Contas a Pagar" submessage="Buscando suas despesas..." />;
 
   return (
     <div className="container mx-auto p-6 space-y-6">

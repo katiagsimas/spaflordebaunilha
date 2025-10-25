@@ -8,6 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { LoadingState } from '@/components/LoadingState';
 import { useToast } from '@/hooks/use-toast';
 import { Percent, Info, Save } from 'lucide-react';
 
@@ -142,7 +143,7 @@ export default function ConfiguracaoJuros() {
     return total.toFixed(2).replace('.', ',');
   };
 
-  if (loading) return <div className="flex justify-center p-8">Carregando...</div>;
+  if (loading) return <LoadingState message="Carregando Configurações" submessage="Buscando taxas de juros..." />;
 
   return (
     <Card>

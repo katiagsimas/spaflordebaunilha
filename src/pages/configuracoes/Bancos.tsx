@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { AlertCircle } from 'lucide-react';
+import { LoadingStateFullScreen } from '@/components/LoadingState';
 import {
   Dialog,
   DialogContent,
@@ -400,13 +401,7 @@ export default function Bancos() {
   };
 
   if (loading) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="flex justify-center items-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </div>
-    );
+    return <LoadingStateFullScreen message="Carregando Bancos" submessage="Buscando dados dos seus bancos..." />;
   }
 
   return (

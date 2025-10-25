@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { LoadingState } from '@/components/LoadingState';
 import {
   Dialog,
   DialogContent,
@@ -251,7 +252,7 @@ export default function TiposDocumentos() {
     }
   };
 
-  if (loading) return <div className="flex justify-center p-8">Carregando...</div>;
+  if (loading) return <LoadingState message="Carregando Tipos de Documentos" submessage="Buscando seus documentos..." />;
 
   return (
     <div className="container mx-auto p-6 space-y-6">

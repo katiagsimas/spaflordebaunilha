@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { LoadingState } from '@/components/LoadingState';
 import {
   Select,
   SelectContent,
@@ -579,9 +580,7 @@ export default function Usuarios() {
           </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
+            <LoadingState message="Carregando Usuários" submessage="Buscando lista de usuários..." />
           ) : !profiles || profiles.length === 0 ? (
             <EmptyState
               title="Nenhum usuário encontrado"

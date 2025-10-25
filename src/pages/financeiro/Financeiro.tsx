@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
+import { LoadingState } from '@/components/LoadingState';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
@@ -531,7 +532,7 @@ export default function Financeiro() {
     return coresBanco[index % coresBanco.length];
   };
 
-  if (loading) return <div className="flex justify-center p-8">Carregando...</div>;
+  if (loading) return <LoadingState message="Carregando Financeiro" submessage="Preparando suas informações financeiras..." />;
 
   const maxSaldo = Math.max(...bancosSaldos.map(b => b.saldo_atual || 0), 1);
 

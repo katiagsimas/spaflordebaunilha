@@ -6,6 +6,7 @@ import DarBaixaDialog from '@/components/financeiro/DarBaixaDialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { DatePickerField } from '@/components/DatePickerField';
+import { LoadingState } from '@/components/LoadingState';
 import {
   Select,
   SelectContent,
@@ -682,7 +683,7 @@ export default function ContasReceber() {
     return badges[status] || <Badge variant="outline">{status}</Badge>;
   };
 
-  if (loading) return <div className="flex justify-center p-8">Carregando...</div>;
+  if (loading) return <LoadingState message="Carregando Contas a Receber" submessage="Buscando suas receitas..." />;
 
   return (
     <div className="container mx-auto p-6 space-y-6">

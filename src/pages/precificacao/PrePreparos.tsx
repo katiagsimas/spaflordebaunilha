@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
+import { LoadingState } from '@/components/LoadingState';
 import {
   Table,
   TableBody,
@@ -70,7 +71,7 @@ export default function PrePreparos() {
     });
   };
 
-  if (loading) return <div className="flex justify-center p-8">Carregando...</div>;
+  if (loading) return <LoadingState message="Carregando Pré-Preparos" submessage="Listando pré-preparos..." />;
 
   return (
     <div className="container mx-auto p-6 space-y-6">

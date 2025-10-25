@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { LoadingState } from '@/components/LoadingState';
 import {
   Dialog,
   DialogContent,
@@ -224,7 +225,7 @@ export default function ConfiguracaoTagsEncomendas() {
     }
   };
 
-  if (loading) return <div className="flex justify-center p-8">Carregando...</div>;
+  if (loading) return <LoadingState message="Carregando Tags" submessage="Organizando etiquetas de encomendas..." />;
 
   return (
     <Card className="border-l-4" style={{ borderLeftColor: 'hsl(var(--primary))' }}>

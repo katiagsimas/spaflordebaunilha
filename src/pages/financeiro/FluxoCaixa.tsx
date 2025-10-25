@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { LoadingState } from '@/components/LoadingState';
 import {
   Table,
   TableBody,
@@ -616,7 +617,7 @@ export default function FluxoCaixa() {
     });
   };
 
-  if (loading) return <div className="flex justify-center p-8">Carregando...</div>;
+  if (loading) return <LoadingState message="Carregando Fluxo de Caixa" submessage="Calculando movimentações financeiras..." />;
 
   return (
     <div className="container mx-auto p-6 space-y-6">
