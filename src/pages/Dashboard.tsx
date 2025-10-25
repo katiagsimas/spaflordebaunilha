@@ -576,7 +576,7 @@ export default function Dashboard() {
       const inicioStr = format(dataInicio, "yyyy-MM-dd");
       const fimStr = format(dataFim, "yyyy-MM-dd");
 
-      // Buscar encomendas entregues do período com seus itens
+      // Buscar encomendas do período (excluindo pendentes e canceladas)
       const { data: encomendas, error } = await supabase
         .from("encomendas")
         .select(`
@@ -587,7 +587,7 @@ export default function Dashboard() {
         .eq("usuario_id", user.id)
         .gte("data_entrega", inicioStr)
         .lte("data_entrega", fimStr)
-        .eq("status", "entregue");
+        .in("status", ["confirmado", "em_producao", "pronto", "entregue"]);
 
       if (error) throw error;
 
