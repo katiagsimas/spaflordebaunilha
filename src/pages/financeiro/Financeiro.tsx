@@ -7,6 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import {
   Table,
   TableBody,
@@ -32,11 +37,11 @@ import {
 } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { 
+import {
   TrendingUp, 
   TrendingDown, 
   DollarSign,
-  Calendar,
+  Calendar as CalendarDaysIcon,
   PieChart,
   Settings,
   Plus,
@@ -93,6 +98,7 @@ export default function Financeiro() {
   const [bancoId, setBancoId] = useState('');
   const [mesReferencia, setMesReferencia] = useState(new Date().getMonth() + 1);
   const [anoReferencia, setAnoReferencia] = useState(new Date().getFullYear());
+  const [dataReferencia, setDataReferencia] = useState<Date>(new Date());
   const [saldoInicial, setSaldoInicial] = useState('');
   const [observacao, setObservacao] = useState('');
 
@@ -179,6 +185,7 @@ export default function Financeiro() {
           banco_id,
           mes_referencia,
           ano_referencia,
+          data_referencia,
           saldo_inicial,
           bancos (
             codigo,
@@ -196,6 +203,7 @@ export default function Financeiro() {
       setBancoId('');
       setMesReferencia(mesAtual);
       setAnoReferencia(anoAtual);
+      setDataReferencia(new Date());
       setSaldoInicial('');
       setObservacao('');
 
@@ -237,6 +245,7 @@ export default function Financeiro() {
           banco_id: bancoId,
           mes_referencia: mesReferencia,
           ano_referencia: anoReferencia,
+          data_referencia: format(dataReferencia, 'yyyy-MM-dd'),
           saldo_inicial: valor,
           observacao: observacao.trim() || null,
         }, {
@@ -676,7 +685,7 @@ export default function Financeiro() {
                       {formatarValor(saldoAnterior)}
                     </p>
                   </div>
-                  <Calendar className="h-8 w-8 text-muted-foreground" />
+                  <CalendarDaysIcon className="h-8 w-8 text-muted-foreground" />
                 </div>
               </CardContent>
             </Card>
@@ -952,7 +961,7 @@ export default function Financeiro() {
                 <CardTitle className="text-base">Adicionar Saldo</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <Label>Banco *</Label>
                     <Select value={bancoId} onValueChange={setBancoId}>
@@ -967,6 +976,33 @@ export default function Financeiro() {
                         ))}
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  <div>
+                    <Label>Data do Saldo *</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !dataReferencia && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {dataReferencia ? format(dataReferencia, "dd/MM/yyyy") : <span>Selecione a data</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={dataReferencia}
+                          onSelect={(date) => date && setDataReferencia(date)}
+                          initialFocus
+                          className="pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
 
                   <div>
@@ -1007,6 +1043,7 @@ export default function Financeiro() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Banco</TableHead>
+                        <TableHead>Data</TableHead>
                         <TableHead className="text-right">Saldo Inicial</TableHead>
                         <TableHead className="text-right">Ações</TableHead>
                       </TableRow>
@@ -1016,6 +1053,9 @@ export default function Financeiro() {
                         <TableRow key={saldo.id}>
                           <TableCell>
                             {saldo.bancos?.codigo} - {saldo.bancos?.nome}
+                          </TableCell>
+                          <TableCell>
+                            {saldo.data_referencia ? format(new Date(saldo.data_referencia), 'dd/MM/yyyy') : '-'}
                           </TableCell>
                           <TableCell className="text-right font-bold">
                             {formatarValor(saldo.saldo_inicial)}

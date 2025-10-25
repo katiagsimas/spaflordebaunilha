@@ -2114,6 +2114,7 @@ export type Database = {
           ano_referencia: number
           banco_id: string
           created_at: string | null
+          data_referencia: string
           id: string
           mes_referencia: number
           observacao: string | null
@@ -2125,6 +2126,7 @@ export type Database = {
           ano_referencia: number
           banco_id: string
           created_at?: string | null
+          data_referencia: string
           id?: string
           mes_referencia: number
           observacao?: string | null
@@ -2136,6 +2138,7 @@ export type Database = {
           ano_referencia?: number
           banco_id?: string
           created_at?: string | null
+          data_referencia?: string
           id?: string
           mes_referencia?: number
           observacao?: string | null
