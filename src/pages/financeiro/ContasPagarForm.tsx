@@ -13,11 +13,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from '@/components/ui/command';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { FornecedorFormDialog } from '@/components/FornecedorFormDialog';
-import { ArrowLeft, Plus, Info } from 'lucide-react';
+import { ArrowLeft, Plus, Info, Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function ContasPagarForm() {
   const navigate = useNavigate();
@@ -43,6 +56,10 @@ export default function ContasPagarForm() {
   const [tiposDocumento, setTiposDocumento] = useState<any[]>([]);
   const [planosContas, setPlanosContas] = useState<any[]>([]);
   const [bancos, setBancos] = useState<any[]>([]);
+
+  // Estados para Combobox Plano de Contas
+  const [openPlanoContas, setOpenPlanoContas] = useState(false);
+  const [searchPlanoContas, setSearchPlanoContas] = useState('');
 
   // Modal cadastro de fornecedor
   const [modalFornecedor, setModalFornecedor] = useState(false);
@@ -506,18 +523,63 @@ export default function ContasPagarForm() {
 
             <div className="space-y-2">
               <Label>Plano de Contas *</Label>
-              <Select value={planoContasId} onValueChange={setPlanoContasId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {planosContas.map((plano: any) => (
-                    <SelectItem key={plano.id} value={plano.id}>
-                      {plano.codigo_estruturado} - {plano.descricao}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={openPlanoContas} onOpenChange={setOpenPlanoContas}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={openPlanoContas}
+                    className="w-full justify-between bg-popover"
+                  >
+                    {planoContasId
+                      ? (() => {
+                          const plano = planosContas.find((p: any) => p.id === planoContasId);
+                          return plano ? `${plano.codigo_estruturado} - ${plano.descricao}` : 'Selecione...';
+                        })()
+                      : 'Selecione...'}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0 bg-popover z-50" align="start">
+                  <Command className="bg-popover">
+                    <CommandInput
+                      placeholder="Buscar plano de contas..."
+                      value={searchPlanoContas}
+                      onValueChange={setSearchPlanoContas}
+                    />
+                    <CommandEmpty>Nenhum plano de contas encontrado.</CommandEmpty>
+                    <CommandGroup className="max-h-64 overflow-auto">
+                      {planosContas
+                        .filter((plano: any) => {
+                          const searchLower = searchPlanoContas.toLowerCase();
+                          return (
+                            plano.codigo_estruturado.toLowerCase().includes(searchLower) ||
+                            plano.descricao.toLowerCase().includes(searchLower)
+                          );
+                        })
+                        .map((plano: any) => (
+                          <CommandItem
+                            key={plano.id}
+                            value={plano.id}
+                            onSelect={() => {
+                              setPlanoContasId(plano.id);
+                              setOpenPlanoContas(false);
+                              setSearchPlanoContas('');
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                'mr-2 h-4 w-4',
+                                planoContasId === plano.id ? 'opacity-100' : 'opacity-0'
+                              )}
+                            />
+                            {plano.codigo_estruturado} - {plano.descricao}
+                          </CommandItem>
+                        ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
 
