@@ -1399,9 +1399,6 @@ export default function Dashboard() {
                       <span>
                         {produto.quantidade} {produto.quantidade === 1 ? 'venda' : 'vendas'}
                       </span>
-                      <span>
-                        {produto.quantidadeTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} unid.
-                      </span>
                       <span className="font-medium text-green-600">
                         R$ {produto.receita.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </span>
