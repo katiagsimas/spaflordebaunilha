@@ -14,7 +14,8 @@ import {
 import { 
   Download, 
   Printer,
-  DollarSign
+  DollarSign,
+  CakeSlice
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -330,6 +331,25 @@ export default function FluxoCaixaMensal() {
     link.download = `fluxo-caixa-mensal-${ano}.csv`;
     link.click();
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-6">
+          <div className="relative">
+            <CakeSlice className="w-24 h-24 text-primary mx-auto animate-pulse" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-32 h-32 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-xl font-semibold text-foreground">Preparando seu relatório</h3>
+            <p className="text-muted-foreground">Calculando fluxo de caixa mensal...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
