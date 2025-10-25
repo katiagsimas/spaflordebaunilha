@@ -127,59 +127,49 @@ export default function ContasReceberFormModal({
   };
 
   const handleGerarParcelas = () => {
-    // Validações
+    // Validações - coletar todos os erros
+    const erros: string[] = [];
+
     if (!tipoDocumentoId) {
-      toast({
-        title: 'Erro',
-        description: 'Selecione o tipo de documento!',
-        variant: 'destructive',
-      });
-      return;
+      erros.push('• Tipo de Documento');
     }
 
     if (!planoContasId) {
-      toast({
-        title: 'Erro',
-        description: 'Selecione o plano de contas!',
-        variant: 'destructive',
-      });
-      return;
+      erros.push('• Plano de Contas');
     }
 
     if (!bancoId) {
-      toast({
-        title: 'Erro',
-        description: 'Selecione o banco!',
-        variant: 'destructive',
-      });
-      return;
+      erros.push('• Banco');
     }
 
     const valor = parseFloat(valorTotal.replace(',', '.'));
     if (!valor || valor <= 0) {
-      toast({
-        title: 'Erro',
-        description: 'Informe um valor válido!',
-        variant: 'destructive',
-      });
-      return;
+      erros.push('• Valor Total (deve ser maior que zero)');
     }
 
     const parcelas = parseInt(numeroParcelas);
     if (!parcelas || parcelas < 1) {
-      toast({
-        title: 'Erro',
-        description: 'Número de parcelas inválido!',
-        variant: 'destructive',
-      });
-      return;
+      erros.push('• Número de Parcelas (deve ser no mínimo 1)');
     }
 
     if (!primeiroVencimento) {
+      erros.push('• Data do Primeiro Vencimento');
+    }
+
+    // Se houver erros, mostrar todos de uma vez
+    if (erros.length > 0) {
       toast({
-        title: 'Erro',
-        description: 'Informe a data do primeiro vencimento!',
+        title: 'Campos obrigatórios não preenchidos',
+        description: (
+          <div className="space-y-1">
+            <p className="font-semibold">Preencha os seguintes campos:</p>
+            {erros.map((erro, index) => (
+              <p key={index} className="text-sm">{erro}</p>
+            ))}
+          </div>
+        ),
         variant: 'destructive',
+        duration: 6000,
       });
       return;
     }
