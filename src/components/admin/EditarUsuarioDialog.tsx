@@ -122,27 +122,7 @@ export function EditarUsuarioDialog({
     queryFn: async () => {
       if (!userId) return null;
       
-      // Buscar dados das tabelas principais
-      const [
-        { data: clientes },
-        { data: encomendas },
-        { data: receitas },
-        { data: fornecedores },
-        { data: contasReceber },
-        { data: contasPagar },
-        { data: categorias },
-        { data: unidadesMedida },
-        { data: custosFixos },
-        { data: maoObra },
-        { data: tiposInsumos },
-        { data: ingredientes },
-        { data: embalagens },
-        { data: bancos },
-        { data: tiposDocumento },
-        { data: planoContas },
-        { data: categoriasFinanceiras },
-        { data: tagsEncomendas },
-      ] = await Promise.all([
+      const queries = [
         supabase.from('clientes').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
         supabase.from('encomendas').select('valor', { count: 'exact' }).eq('usuario_id', userId),
         supabase.from('receitas').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
@@ -161,29 +141,31 @@ export function EditarUsuarioDialog({
         supabase.from('categorias_plano_contas').select('*', { count: 'exact', head: true }).eq('user_id', userId),
         supabase.from('categorias_financeiras').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
         supabase.from('tags_encomendas').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-      ]);
+      ] as const;
+      
+      const results = await Promise.all(queries) as any[];
 
-      const valorTotalEncomendas = encomendas?.reduce((acc, enc) => acc + (Number(enc.valor) || 0), 0) || 0;
+      const valorTotalEncomendas = results[1].data?.reduce((acc: number, enc: any) => acc + (Number(enc.valor) || 0), 0) || 0;
       
       return {
-        total_clientes: clientes?.count || 0,
-        total_encomendas: encomendas?.count || 0,
-        total_receitas: receitas?.count || 0,
-        total_fornecedores: fornecedores?.count || 0,
-        total_contas_receber: contasReceber?.count || 0,
-        total_contas_pagar: contasPagar?.count || 0,
-        total_categorias: categorias?.count || 0,
-        total_unidades_medida: unidadesMedida?.count || 0,
-        total_custos_fixos: custosFixos?.count || 0,
-        total_mao_obra: maoObra?.count || 0,
-        total_tipos_insumos: tiposInsumos?.count || 0,
-        total_ingredientes: ingredientes?.count || 0,
-        total_embalagens: embalagens?.count || 0,
-        total_bancos: bancos?.count || 0,
-        total_tipos_documento: tiposDocumento?.count || 0,
-        total_plano_contas: planoContas?.count || 0,
-        total_categorias_financeiras: categoriasFinanceiras?.count || 0,
-        total_tags_encomendas: tagsEncomendas?.count || 0,
+        total_clientes: results[0].count || 0,
+        total_encomendas: results[1].count || 0,
+        total_receitas: results[2].count || 0,
+        total_fornecedores: results[3].count || 0,
+        total_contas_receber: results[4].count || 0,
+        total_contas_pagar: results[5].count || 0,
+        total_categorias: results[6].count || 0,
+        total_unidades_medida: results[7].count || 0,
+        total_custos_fixos: results[8].count || 0,
+        total_mao_obra: results[9].count || 0,
+        total_tipos_insumos: results[10].count || 0,
+        total_ingredientes: results[11].count || 0,
+        total_embalagens: results[12].count || 0,
+        total_bancos: results[13].count || 0,
+        total_tipos_documento: results[14].count || 0,
+        total_plano_contas: results[15].count || 0,
+        total_categorias_financeiras: results[16].count || 0,
+        total_tags_encomendas: results[17].count || 0,
         valor_total_encomendas: valorTotalEncomendas
       };
     },
@@ -210,7 +192,6 @@ export function EditarUsuarioDialog({
       const { data: { user } } = await supabase.auth.getUser();
       const roleAnterior = userRole;
 
-      // Atualizar email se mudou
       if (data.email !== userData?.email) {
         const { error: emailError } = await supabase.auth.admin.updateUserById(userId, {
           email: data.email,
@@ -218,7 +199,6 @@ export function EditarUsuarioDialog({
         if (emailError) throw emailError;
       }
 
-      // Atualizar profile
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
@@ -230,7 +210,6 @@ export function EditarUsuarioDialog({
 
       if (profileError) throw profileError;
 
-      // Atualizar role se mudou
       if (data.role !== userRole) {
         await supabase.from('user_roles').delete().eq('user_id', userId);
 
@@ -241,7 +220,6 @@ export function EditarUsuarioDialog({
 
         if (roleError) throw roleError;
 
-        // Registrar log de alteração de permissão
         if (user && userData) {
           await supabase.from('admin_logs').insert({
             admin_id: user.id,
@@ -282,14 +260,11 @@ export function EditarUsuarioDialog({
     mutationFn: async () => {
       if (!userId) throw new Error('ID do usuário não fornecido');
 
-      // Validação: digitar email
       if (emailConfirmacao !== userData?.email) {
         throw new Error('Email de confirmação incorreto!');
       }
 
       const { data: { user } } = await supabase.auth.getUser();
-
-      // Deletar dados selecionados
       const deletePromises = [];
 
       if (itensSelecionados.clientes) {
@@ -300,7 +275,6 @@ export function EditarUsuarioDialog({
         deletePromises.push(supabase.from('encomendas').delete().eq('usuario_id', userId));
       }
       if (itensSelecionados.receitas) {
-        deletePromises.push(supabase.from('receita_ingredientes').delete().eq('usuario_id', userId));
         deletePromises.push(supabase.from('receitas').delete().eq('usuario_id', userId));
       }
       if (itensSelecionados.fornecedores) {
@@ -351,14 +325,12 @@ export function EditarUsuarioDialog({
 
       const results = await Promise.allSettled(deletePromises);
       
-      // Verificar se houve erros
       const errors = results.filter(r => r.status === 'rejected');
       if (errors.length > 0) {
         console.error('Erros ao deletar:', errors);
         throw new Error('Alguns registros não puderam ser deletados');
       }
 
-      // Registrar log
       if (user && userData) {
         await supabase.from('admin_logs').insert({
           admin_id: user.id,
@@ -471,11 +443,11 @@ export function EditarUsuarioDialog({
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione uma permissão" />
                         </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="user">Usuário</SelectItem>
-                      <SelectItem value="admin">Administrador</SelectItem>
-                    </SelectContent>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="user">Usuário</SelectItem>
+                        <SelectItem value="admin">Administrador</SelectItem>
+                      </SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
@@ -502,7 +474,6 @@ export function EditarUsuarioDialog({
 
               <Separator className="my-6" />
 
-              {/* Estatísticas do Usuário */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base flex items-center gap-2">
@@ -577,7 +548,6 @@ export function EditarUsuarioDialog({
 
               <Separator className="my-6" />
 
-              {/* Zona de Perigo */}
               <div className="space-y-3">
                 <h4 className="font-semibold text-sm flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4 text-destructive" />
@@ -619,7 +589,6 @@ export function EditarUsuarioDialog({
         </DialogContent>
       </Dialog>
 
-      {/* Modal de Preview e Confirmação */}
       <Dialog open={mostrarPreview} onOpenChange={setMostrarPreview}>
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -632,7 +601,6 @@ export function EditarUsuarioDialog({
             </DialogDescription>
           </DialogHeader>
 
-          {/* Preview dos dados que serão deletados */}
           <div className="space-y-4">
             <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
@@ -644,7 +612,6 @@ export function EditarUsuarioDialog({
               </AlertDescription>
             </Alert>
 
-            {/* Cadastros Principais */}
             <div className="space-y-3">
               <h4 className="text-sm font-semibold flex items-center gap-2">
                 <FileText className="h-4 w-4" />
@@ -763,7 +730,6 @@ export function EditarUsuarioDialog({
 
             <Separator />
 
-            {/* Configurações */}
             <div className="space-y-3">
               <h4 className="text-sm font-semibold flex items-center gap-2">
                 <Settings className="h-4 w-4" />
@@ -898,110 +864,108 @@ export function EditarUsuarioDialog({
               </div>
             </div>
 
+            <Separator />
 
-              {/* Precificação */}
-              <div className="space-y-3">
-                <h4 className="text-sm font-semibold flex items-center gap-2">
-                  <Tag className="h-4 w-4" />
-                  Precificação
-                </h4>
-                <div className="grid gap-2">
-                  <div className="flex items-center justify-between p-2 bg-muted rounded">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="custosFixos"
-                        checked={itensSelecionados.custosFixos}
-                        onCheckedChange={(checked) =>
-                          setItensSelecionados({ ...itensSelecionados, custosFixos: checked as boolean })
-                        }
-                      />
-                      <label htmlFor="custosFixos" className="text-sm cursor-pointer">
-                        Custos Fixos
-                      </label>
-                    </div>
-                    <Badge variant={"secondary"}>
-                      {stats?.total_custos_fixos || 0}
-                    </Badge>
+            <div className="space-y-3">
+              <h4 className="text-sm font-semibold flex items-center gap-2">
+                <Tag className="h-4 w-4" />
+                Precificação
+              </h4>
+              <div className="grid gap-2">
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="custosFixos"
+                      checked={itensSelecionados.custosFixos}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, custosFixos: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="custosFixos" className="text-sm cursor-pointer">
+                      Custos Fixos
+                    </label>
                   </div>
+                  <Badge variant="secondary">
+                    {stats?.total_custos_fixos || 0}
+                  </Badge>
+                </div>
 
-                  <div className="flex items-center justify-between p-2 bg-muted rounded">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="maoObra"
-                        checked={itensSelecionados.maoObra}
-                        onCheckedChange={(checked) =>
-                          setItensSelecionados({ ...itensSelecionados, maoObra: checked as boolean })
-                        }
-                      />
-                      <label htmlFor="maoObra" className="text-sm cursor-pointer">
-                        Mão de Obra
-                      </label>
-                    </div>
-                    <Badge variant={"secondary"}>
-                      {stats?.total_mao_obra || 0}
-                    </Badge>
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="maoObra"
+                      checked={itensSelecionados.maoObra}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, maoObra: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="maoObra" className="text-sm cursor-pointer">
+                      Mão de Obra
+                    </label>
                   </div>
+                  <Badge variant="secondary">
+                    {stats?.total_mao_obra || 0}
+                  </Badge>
+                </div>
 
-                  <div className="flex items-center justify-between p-2 bg-muted rounded">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="tiposInsumos"
-                        checked={itensSelecionados.tiposInsumos}
-                        onCheckedChange={(checked) =>
-                          setItensSelecionados({ ...itensSelecionados, tiposInsumos: checked as boolean })
-                        }
-                      />
-                      <label htmlFor="tiposInsumos" className="text-sm cursor-pointer">
-                        Tipos de Insumos
-                      </label>
-                    </div>
-                    <Badge variant={"secondary"}>
-                      {stats?.total_tipos_insumos || 0}
-                    </Badge>
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="tiposInsumos"
+                      checked={itensSelecionados.tiposInsumos}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, tiposInsumos: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="tiposInsumos" className="text-sm cursor-pointer">
+                      Tipos de Insumos
+                    </label>
                   </div>
+                  <Badge variant="secondary">
+                    {stats?.total_tipos_insumos || 0}
+                  </Badge>
+                </div>
 
-                  <div className="flex items-center justify-between p-2 bg-muted rounded">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="ingredientes"
-                        checked={itensSelecionados.ingredientes}
-                        onCheckedChange={(checked) =>
-                          setItensSelecionados({ ...itensSelecionados, ingredientes: checked as boolean })
-                        }
-                      />
-                      <label htmlFor="ingredientes" className="text-sm cursor-pointer">
-                        Ingredientes
-                      </label>
-                    </div>
-                    <Badge variant={"secondary"}>
-                      {stats?.total_ingredientes || 0}
-                    </Badge>
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="ingredientes"
+                      checked={itensSelecionados.ingredientes}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, ingredientes: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="ingredientes" className="text-sm cursor-pointer">
+                      Ingredientes
+                    </label>
                   </div>
+                  <Badge variant="secondary">
+                    {stats?.total_ingredientes || 0}
+                  </Badge>
+                </div>
 
-                  <div className="flex items-center justify-between p-2 bg-muted rounded">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="embalagens"
-                        checked={itensSelecionados.embalagens}
-                        onCheckedChange={(checked) =>
-                          setItensSelecionados({ ...itensSelecionados, embalagens: checked as boolean })
-                        }
-                      />
-                      <label htmlFor="embalagens" className="text-sm cursor-pointer">
-                        Embalagens
-                      </label>
-                    </div>
-                    <Badge variant={"secondary"}>
-                      {stats?.total_embalagens || 0}
-                    </Badge>
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="embalagens"
+                      checked={itensSelecionados.embalagens}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, embalagens: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="embalagens" className="text-sm cursor-pointer">
+                      Embalagens
+                    </label>
                   </div>
+                  <Badge variant="secondary">
+                    {stats?.total_embalagens || 0}
+                  </Badge>
                 </div>
               </div>
             </div>
 
             <Separator />
 
-            {/* Confirmação digitando email */}
             <div className="space-y-2">
               <p className="text-sm font-medium">
                 Para confirmar, digite o email do usuário:
@@ -1020,7 +984,6 @@ export function EditarUsuarioDialog({
               </div>
             </div>
 
-            {/* Informação sobre backup */}
             <Alert>
               <FileText className="h-4 w-4" />
               <AlertDescription>
