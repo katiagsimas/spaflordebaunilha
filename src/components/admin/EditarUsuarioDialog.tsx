@@ -613,8 +613,8 @@ export function EditarUsuarioDialog({
               <AlertTriangle className="h-5 w-5" />
               Confirmar Exclusão de Cadastros
             </DialogTitle>
-            <DialogDescription>
-              Esta ação NÃO PODE ser desfeita. Os dados selecionados serão permanentemente deletados.
+            <DialogDescription className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 animate-pulse">
+              <span className="text-destructive font-semibold">Esta ação NÃO PODE ser desfeita. Os dados selecionados serão permanentemente deletados.</span>
             </DialogDescription>
           </DialogHeader>
 
