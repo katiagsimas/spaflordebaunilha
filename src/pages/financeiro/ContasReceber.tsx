@@ -1108,17 +1108,6 @@ export default function ContasReceber() {
           {/* Cards de Visualização */}
           <div className="flex gap-2">
             <Button
-              variant={visualizacao === 'ativas' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => {
-                setVisualizacao('ativas');
-                setFiltroStatus('todos');
-              }}
-              className={visualizacao === 'ativas' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-blue-600 text-blue-600 hover:bg-blue-50'}
-            >
-              Contas a Receber
-            </Button>
-            <Button
               variant={visualizacao === 'pagas' ? 'default' : 'outline'}
               size="sm"
               onClick={() => {
