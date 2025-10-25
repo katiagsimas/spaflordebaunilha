@@ -496,55 +496,150 @@ export default function Dashboard() {
 
   async function carregarVisaoEconomica() {
     if (!user) return;
-    const inicioMes = new Date(anoSelecionado, mesSelecionado, 1).toISOString().split('T')[0];
-    const fimMes = new Date(anoSelecionado, mesSelecionado + 1, 0).toISOString().split('T')[0];
 
-    const { data: receitasMes } = await supabase
-      .from("contas_receber")
-      .select("valor")
-      .eq("usuario_id", user.id)
-      .gte("data_vencimento", inicioMes)
-      .lte("data_vencimento", fimMes);
-
-    const { data: custosMes } = await supabase
+    // Calcular dados mensais usando o mesmo conceito do DRE
+    // Buscar todas as contas a pagar com suas parcelas
+    const { data: contasPagarMensal } = await supabase
       .from("contas_pagar")
-      .select("valor_total")
-      .eq("usuario_id", user.id)
-      .gte("data_vencimento", inicioMes)
-      .lte("data_vencimento", fimMes);
+      .select(`
+        id,
+        data_emissao,
+        tipo_lancamento,
+        contas_pagar_parcelas (
+          id,
+          valor_parcela,
+          data_emissao
+        )
+      `)
+      .eq("usuario_id", user.id);
 
-    const receitasMensal = receitasMes?.reduce((sum, r) => sum + (r.valor || 0), 0) || 0;
-    const custosMensal = custosMes?.reduce((sum, c) => sum + (c.valor_total || 0), 0) || 0;
+    let custosMensal = 0;
+    
+    contasPagarMensal?.forEach((conta: any) => {
+      // Para lançamentos não recorrentes, usar data_emissao da conta principal
+      if (conta.tipo_lancamento !== 'recorrente') {
+        const [anoEmissao, mesEmissaoStr] = conta.data_emissao.split('-').map(Number);
+        const mesEmissao = mesEmissaoStr - 1; // JavaScript meses são 0-11
+        
+        // Se a data de emissão da conta está no mês selecionado, somar TODAS as parcelas
+        if (mesEmissao === mesSelecionado && anoEmissao === anoSelecionado) {
+          conta.contas_pagar_parcelas?.forEach((parcela: any) => {
+            custosMensal += parcela.valor_parcela || 0;
+          });
+        }
+      } else {
+        // Para lançamentos recorrentes, usar data_emissao de cada parcela
+        conta.contas_pagar_parcelas?.forEach((parcela: any) => {
+          const [anoEmissaoParcela, mesEmissaoParcelaStr] = parcela.data_emissao.split('-').map(Number);
+          const mesEmissaoParcela = mesEmissaoParcelaStr - 1; // JavaScript meses são 0-11
+          
+          if (mesEmissaoParcela === mesSelecionado && anoEmissaoParcela === anoSelecionado) {
+            custosMensal += parcela.valor_parcela || 0;
+          }
+        });
+      }
+    });
+
+    // Buscar receitas mensais (mantém o mesmo conceito para receitas)
+    const { data: contasReceberMensal } = await supabase
+      .from("contas_receber")
+      .select(`
+        id,
+        data_emissao,
+        tipo_lancamento,
+        contas_receber_parcelas (
+          id,
+          valor_parcela,
+          data_emissao
+        )
+      `)
+      .eq("usuario_id", user.id);
+
+    let receitasMensal = 0;
+    
+    contasReceberMensal?.forEach((conta: any) => {
+      // Para lançamentos não recorrentes, usar data_emissao da conta principal
+      if (conta.tipo_lancamento !== 'recorrente') {
+        const [anoEmissao, mesEmissaoStr] = conta.data_emissao.split('-').map(Number);
+        const mesEmissao = mesEmissaoStr - 1;
+        
+        if (mesEmissao === mesSelecionado && anoEmissao === anoSelecionado) {
+          conta.contas_receber_parcelas?.forEach((parcela: any) => {
+            receitasMensal += parcela.valor_parcela || 0;
+          });
+        }
+      } else {
+        // Para lançamentos recorrentes, usar data_emissao de cada parcela
+        conta.contas_receber_parcelas?.forEach((parcela: any) => {
+          const [anoEmissaoParcela, mesEmissaoParcelaStr] = parcela.data_emissao.split('-').map(Number);
+          const mesEmissaoParcela = mesEmissaoParcelaStr - 1;
+          
+          if (mesEmissaoParcela === mesSelecionado && anoEmissaoParcela === anoSelecionado) {
+            receitasMensal += parcela.valor_parcela || 0;
+          }
+        });
+      }
+    });
+
     const lucroMensal = receitasMensal - custosMensal;
 
+    // Calcular dados anuais usando o mesmo conceito do DRE
     const dadosAnuais = [];
     for (let i = 0; i < 12; i++) {
-      const mesAtual = new Date(anoSelecionado, i, 1);
-      const inicioMesAnual = format(mesAtual, "yyyy-MM-dd");
-      const fimMesAnual = format(new Date(anoSelecionado, i + 1, 0), "yyyy-MM-dd");
+      let custosAnual = 0;
+      let receitasAnual = 0;
 
-      const { data: receitasAnual } = await supabase
-        .from("contas_receber")
-        .select("valor")
-        .eq("usuario_id", user.id)
-        .gte("data_vencimento", inicioMesAnual)
-        .lte("data_vencimento", fimMesAnual);
+      // Processar custos anuais
+      contasPagarMensal?.forEach((conta: any) => {
+        if (conta.tipo_lancamento !== 'recorrente') {
+          const [anoEmissao, mesEmissaoStr] = conta.data_emissao.split('-').map(Number);
+          const mesEmissao = mesEmissaoStr - 1;
+          
+          if (mesEmissao === i && anoEmissao === anoSelecionado) {
+            conta.contas_pagar_parcelas?.forEach((parcela: any) => {
+              custosAnual += parcela.valor_parcela || 0;
+            });
+          }
+        } else {
+          conta.contas_pagar_parcelas?.forEach((parcela: any) => {
+            const [anoEmissaoParcela, mesEmissaoParcelaStr] = parcela.data_emissao.split('-').map(Number);
+            const mesEmissaoParcela = mesEmissaoParcelaStr - 1;
+            
+            if (mesEmissaoParcela === i && anoEmissaoParcela === anoSelecionado) {
+              custosAnual += parcela.valor_parcela || 0;
+            }
+          });
+        }
+      });
 
-      const { data: custosAnual } = await supabase
-        .from("contas_pagar")
-        .select("valor_total")
-        .eq("usuario_id", user.id)
-        .gte("data_vencimento", inicioMesAnual)
-        .lte("data_vencimento", fimMesAnual);
-
-      const receitas = receitasAnual?.reduce((sum, r) => sum + (r.valor || 0), 0) || 0;
-      const custos = custosAnual?.reduce((sum, c) => sum + (c.valor_total || 0), 0) || 0;
+      // Processar receitas anuais
+      contasReceberMensal?.forEach((conta: any) => {
+        if (conta.tipo_lancamento !== 'recorrente') {
+          const [anoEmissao, mesEmissaoStr] = conta.data_emissao.split('-').map(Number);
+          const mesEmissao = mesEmissaoStr - 1;
+          
+          if (mesEmissao === i && anoEmissao === anoSelecionado) {
+            conta.contas_receber_parcelas?.forEach((parcela: any) => {
+              receitasAnual += parcela.valor_parcela || 0;
+            });
+          }
+        } else {
+          conta.contas_receber_parcelas?.forEach((parcela: any) => {
+            const [anoEmissaoParcela, mesEmissaoParcelaStr] = parcela.data_emissao.split('-').map(Number);
+            const mesEmissaoParcela = mesEmissaoParcelaStr - 1;
+            
+            if (mesEmissaoParcela === i && anoEmissaoParcela === anoSelecionado) {
+              receitasAnual += parcela.valor_parcela || 0;
+            }
+          });
+        }
+      });
 
       dadosAnuais.push({
         mes: meses[i].substring(0, 3),
-        receitas,
-        custos,
-        lucro: receitas - custos
+        receitas: receitasAnual,
+        custos: custosAnual,
+        lucro: receitasAnual - custosAnual
       });
     }
 
