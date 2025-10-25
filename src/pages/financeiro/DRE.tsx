@@ -153,111 +153,133 @@ export default function DRE() {
         const inicioStr = dataInicio.toISOString().split('T')[0];
         const fimStr = dataFim.toISOString().split('T')[0];
 
-        // Buscar receitas (pagamentos de contas a receber)
-        const { data: pagamentosReceber } = await supabase
-          .from("contas_receber_pagamentos")
+        // Buscar receitas (todas as parcelas com base na data de emissão)
+        const { data: contasReceber } = await supabase
+          .from("contas_receber")
           .select(`
-            valor_pago,
-            juros,
-            desconto,
-            parcela_id
+            id,
+            plano_conta_id,
+            data_emissao,
+            tipo_lancamento,
+            contas_receber_parcelas (
+              id,
+              valor_parcela,
+              data_emissao
+            )
           `)
-          .gte("data_pagamento", inicioStr)
-          .lte("data_pagamento", fimStr)
-          .eq("estornado", false);
+          .eq("usuario_id", user.id);
 
-        if (pagamentosReceber && pagamentosReceber.length > 0) {
-          const parcelasIds = pagamentosReceber.map(p => p.parcela_id);
+        const planosReceita: any = {};
+        
+        contasReceber?.forEach((conta: any) => {
+          if (!conta.plano_conta_id) return;
           
-          const { data: parcelas } = await supabase
-            .from("contas_receber_parcelas")
-            .select("conta_receber_id")
-            .in("id", parcelasIds);
+          const codigoCategoria = planosMap.get(conta.plano_conta_id);
+          if (!codigoCategoria) return;
 
-          if (parcelas && parcelas.length > 0) {
-            const contasIds = parcelas.map(p => p.conta_receber_id);
+          // Para lançamentos não recorrentes, usar data_emissao da conta principal
+          if (conta.tipo_lancamento !== 'recorrente') {
+            const dataEmissaoConta = new Date(conta.data_emissao);
+            const mesEmissao = dataEmissaoConta.getMonth();
+            const anoEmissao = dataEmissaoConta.getFullYear();
             
-            const { data: contas } = await supabase
-              .from("contas_receber")
-              .select("plano_conta_id")
-              .in("id", contasIds);
-
-            const planosReceita: any = {};
-            pagamentosReceber.forEach((pag, idx) => {
-              const conta = contas?.find((c, i) => parcelas[i].conta_receber_id === contasIds[i]);
-              if (conta && conta.plano_conta_id) {
-                const codigoCategoria = planosMap.get(conta.plano_conta_id);
-                const valor = pag.valor_pago + (pag.juros || 0) - (pag.desconto || 0);
-                
+            // Se a data de emissão da conta está neste mês/ano, somar TODAS as parcelas
+            if (mesEmissao === mes && anoEmissao === ano) {
+              conta.contas_receber_parcelas?.forEach((parcela: any) => {
                 if (!planosReceita[codigoCategoria]) {
                   planosReceita[codigoCategoria] = 0;
                 }
-                planosReceita[codigoCategoria] += valor;
+                planosReceita[codigoCategoria] += parcela.valor_parcela || 0;
+              });
+            }
+          } else {
+            // Para lançamentos recorrentes, usar data_emissao de cada parcela
+            conta.contas_receber_parcelas?.forEach((parcela: any) => {
+              const dataEmissaoParcela = new Date(parcela.data_emissao);
+              const mesEmissaoParcela = dataEmissaoParcela.getMonth();
+              const anoEmissaoParcela = dataEmissaoParcela.getFullYear();
+              
+              if (mesEmissaoParcela === mes && anoEmissaoParcela === ano) {
+                if (!planosReceita[codigoCategoria]) {
+                  planosReceita[codigoCategoria] = 0;
+                }
+                planosReceita[codigoCategoria] += parcela.valor_parcela || 0;
               }
             });
-
-            linhas.receitaVendas[mes] = planosReceita['1'] || 0;
-            linhas.receitasFinanceiras[mes] = planosReceita['106'] || 0;
-            linhas.receitasNaoOperacionais[mes] = planosReceita['9'] || 0;
           }
-        }
+        });
 
-        // Buscar despesas (pagamentos de contas a pagar)
-        const { data: pagamentosPagar } = await supabase
-          .from("contas_pagar_pagamentos")
+        linhas.receitaVendas[mes] = planosReceita['1'] || 0;
+        linhas.receitasFinanceiras[mes] = planosReceita['106'] || 0;
+        linhas.receitasNaoOperacionais[mes] = planosReceita['9'] || 0;
+
+        // Buscar despesas (todas as parcelas com base na data de emissão)
+        const { data: contasPagar } = await supabase
+          .from("contas_pagar")
           .select(`
-            valor_pago,
-            juros,
-            desconto,
-            parcela_id
+            id,
+            plano_contas_id,
+            data_emissao,
+            tipo_lancamento,
+            contas_pagar_parcelas (
+              id,
+              valor_parcela,
+              data_emissao
+            )
           `)
-          .gte("data_pagamento", inicioStr)
-          .lte("data_pagamento", fimStr)
-          .eq("estornado", false);
+          .eq("usuario_id", user.id);
 
-        if (pagamentosPagar && pagamentosPagar.length > 0) {
-          const parcelasIds = pagamentosPagar.map(p => p.parcela_id);
+        const planosDespesa: any = {};
+        
+        contasPagar?.forEach((conta: any) => {
+          if (!conta.plano_contas_id) return;
           
-          const { data: parcelas } = await supabase
-            .from("contas_pagar_parcelas")
-            .select("conta_pagar_id")
-            .in("id", parcelasIds);
+          const codigoCategoria = planosMap.get(conta.plano_contas_id);
+          if (!codigoCategoria) return;
 
-          if (parcelas && parcelas.length > 0) {
-            const contasIds = parcelas.map(p => p.conta_pagar_id);
+          // Para lançamentos não recorrentes, usar data_emissao da conta principal
+          if (conta.tipo_lancamento !== 'recorrente') {
+            const dataEmissaoConta = new Date(conta.data_emissao);
+            const mesEmissao = dataEmissaoConta.getMonth();
+            const anoEmissao = dataEmissaoConta.getFullYear();
             
-            const { data: contas } = await supabase
-              .from("contas_pagar")
-              .select("plano_contas_id")
-              .in("id", contasIds);
-
-            const planosDespesa: any = {};
-            pagamentosPagar.forEach((pag, idx) => {
-              const conta = contas?.find((c, i) => parcelas[i].conta_pagar_id === contasIds[i]);
-              if (conta && conta.plano_contas_id) {
-                const codigoCategoria = planosMap.get(conta.plano_contas_id);
-                const valor = pag.valor_pago + (pag.juros || 0) - (pag.desconto || 0);
-                
+            // Se a data de emissão da conta está neste mês/ano, somar TODAS as parcelas
+            if (mesEmissao === mes && anoEmissao === ano) {
+              conta.contas_pagar_parcelas?.forEach((parcela: any) => {
                 if (!planosDespesa[codigoCategoria]) {
                   planosDespesa[codigoCategoria] = 0;
                 }
-                planosDespesa[codigoCategoria] += valor;
+                planosDespesa[codigoCategoria] += parcela.valor_parcela || 0;
+              });
+            }
+          } else {
+            // Para lançamentos recorrentes, usar data_emissao de cada parcela
+            conta.contas_pagar_parcelas?.forEach((parcela: any) => {
+              const dataEmissaoParcela = new Date(parcela.data_emissao);
+              const mesEmissaoParcela = dataEmissaoParcela.getMonth();
+              const anoEmissaoParcela = dataEmissaoParcela.getFullYear();
+              
+              if (mesEmissaoParcela === mes && anoEmissaoParcela === ano) {
+                if (!planosDespesa[codigoCategoria]) {
+                  planosDespesa[codigoCategoria] = 0;
+                }
+                planosDespesa[codigoCategoria] += parcela.valor_parcela || 0;
               }
             });
-
-            linhas.impostosSobreVendas[mes] = planosDespesa['2'] || 0;
-            linhas.outrasDeducoes[mes] = planosDespesa['99'] || 0;
-            linhas.cmv[mes] = planosDespesa['3'] || 0;
-            linhas.despesasComerciais[mes] = planosDespesa['8'] || 0;
-            linhas.despesaOperacionalVariavel[mes] = planosDespesa['103'] || 0;
-            linhas.campanhasSazonais[mes] = planosDespesa['112'] || 0;
-            linhas.despesasPessoal[mes] = planosDespesa['5'] || 0;
-            linhas.despesasOcupacao[mes] = planosDespesa['6'] || 0;
-            linhas.despesasAdministrativas[mes] = planosDespesa['7'] || 0;
-            linhas.despesasFinanceiras[mes] = planosDespesa['107'] || 0;
-            linhas.gastosNaoOperacionais[mes] = planosDespesa['10'] || 0;
           }
-        }
+        });
+
+        linhas.impostosSobreVendas[mes] = planosDespesa['2'] || 0;
+        linhas.outrasDeducoes[mes] = planosDespesa['99'] || 0;
+        linhas.cmv[mes] = planosDespesa['3'] || 0;
+        linhas.despesasComerciais[mes] = planosDespesa['8'] || 0;
+        linhas.despesaOperacionalVariavel[mes] = planosDespesa['103'] || 0;
+        linhas.campanhasSazonais[mes] = planosDespesa['112'] || 0;
+        linhas.despesasPessoal[mes] = planosDespesa['5'] || 0;
+        linhas.despesasOcupacao[mes] = planosDespesa['6'] || 0;
+        linhas.despesasAdministrativas[mes] = planosDespesa['7'] || 0;
+        linhas.despesasFinanceiras[mes] = planosDespesa['107'] || 0;
+        linhas.gastosNaoOperacionais[mes] = planosDespesa['10'] || 0;
 
         // Calcular totais e indicadores
         linhas.receitaBruta[mes] = linhas.receitaVendas[mes];
