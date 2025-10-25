@@ -566,7 +566,7 @@ export default function ContasReceberForm() {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-full p-0">
-                <Command>
+                <Command shouldFilter={false}>
                   <CommandInput 
                     placeholder="Buscar cliente..." 
                     value={buscaCliente}
@@ -650,7 +650,7 @@ export default function ContasReceberForm() {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-full p-0 bg-popover z-50" align="start">
-                  <Command className="bg-popover">
+                  <Command className="bg-popover" shouldFilter={false}>
                     <CommandInput
                       placeholder="Buscar plano de contas..."
                       value={searchPlanoContas}

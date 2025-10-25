@@ -541,7 +541,7 @@ export default function ContasPagarForm() {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-full p-0 bg-popover z-50" align="start">
-                  <Command className="bg-popover">
+                  <Command className="bg-popover" shouldFilter={false}>
                     <CommandInput
                       placeholder="Buscar plano de contas..."
                       value={searchPlanoContas}
