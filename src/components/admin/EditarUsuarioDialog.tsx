@@ -122,7 +122,26 @@ export function EditarUsuarioDialog({
     queryFn: async () => {
       if (!userId) return null;
       
-      const queries = [
+      const [
+        clientesRes,
+        encomendasRes,
+        receitasRes,
+        fornecedoresRes,
+        contasReceberRes,
+        contasPagarRes,
+        categoriasRes,
+        unidadesMedidaRes,
+        custosFixosRes,
+        maoObraRes,
+        tiposInsumosRes,
+        ingredientesRes,
+        embalagensRes,
+        bancosRes,
+        tiposDocumentoRes,
+        categoriasPlanoRes,
+        categoriasFinanceirasRes,
+        tagsEncomendasRes,
+      ] = await Promise.all([
         supabase.from('clientes').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
         supabase.from('encomendas').select('valor', { count: 'exact' }).eq('usuario_id', userId),
         supabase.from('receitas').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
@@ -140,32 +159,30 @@ export function EditarUsuarioDialog({
         supabase.from('tipos_documento').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
         supabase.from('categorias_plano_contas').select('*', { count: 'exact', head: true }).eq('user_id', userId),
         supabase.from('categorias_financeiras').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        supabase.from('tags_encomendas').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-      ] as const;
-      
-      const results = await Promise.all(queries) as any[];
+        supabase.from('tags_encomendas').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+      ]);
 
-      const valorTotalEncomendas = results[1].data?.reduce((acc: number, enc: any) => acc + (Number(enc.valor) || 0), 0) || 0;
+      const valorTotalEncomendas = encomendasRes.data?.reduce((acc: number, enc: any) => acc + (Number(enc.valor) || 0), 0) || 0;
       
       return {
-        total_clientes: results[0].count || 0,
-        total_encomendas: results[1].count || 0,
-        total_receitas: results[2].count || 0,
-        total_fornecedores: results[3].count || 0,
-        total_contas_receber: results[4].count || 0,
-        total_contas_pagar: results[5].count || 0,
-        total_categorias: results[6].count || 0,
-        total_unidades_medida: results[7].count || 0,
-        total_custos_fixos: results[8].count || 0,
-        total_mao_obra: results[9].count || 0,
-        total_tipos_insumos: results[10].count || 0,
-        total_ingredientes: results[11].count || 0,
-        total_embalagens: results[12].count || 0,
-        total_bancos: results[13].count || 0,
-        total_tipos_documento: results[14].count || 0,
-        total_plano_contas: results[15].count || 0,
-        total_categorias_financeiras: results[16].count || 0,
-        total_tags_encomendas: results[17].count || 0,
+        total_clientes: clientesRes.count || 0,
+        total_encomendas: encomendasRes.count || 0,
+        total_receitas: receitasRes.count || 0,
+        total_fornecedores: fornecedoresRes.count || 0,
+        total_contas_receber: contasReceberRes.count || 0,
+        total_contas_pagar: contasPagarRes.count || 0,
+        total_categorias: categoriasRes.count || 0,
+        total_unidades_medida: unidadesMedidaRes.count || 0,
+        total_custos_fixos: custosFixosRes.count || 0,
+        total_mao_obra: maoObraRes.count || 0,
+        total_tipos_insumos: tiposInsumosRes.count || 0,
+        total_ingredientes: ingredientesRes.count || 0,
+        total_embalagens: embalagensRes.count || 0,
+        total_bancos: bancosRes.count || 0,
+        total_tipos_documento: tiposDocumentoRes.count || 0,
+        total_plano_contas: categoriasPlanoRes.count || 0,
+        total_categorias_financeiras: categoriasFinanceirasRes.count || 0,
+        total_tags_encomendas: tagsEncomendasRes.count || 0,
         valor_total_encomendas: valorTotalEncomendas
       };
     },
@@ -320,12 +337,12 @@ export function EditarUsuarioDialog({
         deletePromises.push(supabase.from('categorias_financeiras').delete().eq('usuario_id', userId));
       }
       if (itensSelecionados.tagsEncomendas) {
-        deletePromises.push(supabase.from('tags_encomendas').delete().eq('usuario_id', userId));
+        deletePromises.push(supabase.from('tags_encomendas').delete().eq('user_id', userId));
       }
 
-      const results = await Promise.allSettled(deletePromises);
+      const deleteResults = await Promise.allSettled(deletePromises);
       
-      const errors = results.filter(r => r.status === 'rejected');
+      const errors = deleteResults.filter(r => r.status === 'rejected');
       if (errors.length > 0) {
         console.error('Erros ao deletar:', errors);
         throw new Error('Alguns registros não puderam ser deletados');
