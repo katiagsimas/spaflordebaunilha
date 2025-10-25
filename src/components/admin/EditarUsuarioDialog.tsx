@@ -634,271 +634,270 @@ export function EditarUsuarioDialog({
 
           {/* Preview dos dados que serão deletados */}
           <div className="space-y-4">
-              <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Atenção!</strong>
-                  <p className="mt-1">
-                    Selecione os cadastros que deseja DELETAR PERMANENTEMENTE:
-                  </p>
-                </AlertDescription>
-              </Alert>
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Atenção!</strong>
+                <p className="mt-1">
+                  Selecione os cadastros que deseja DELETAR PERMANENTEMENTE:
+                </p>
+              </AlertDescription>
+            </Alert>
 
-              {/* Cadastros Principais */}
-              <div className="space-y-3">
-                <h4 className="text-sm font-semibold flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  Cadastros Principais
-                </h4>
-                <div className="grid gap-2">
-                  <div className="flex items-center justify-between p-2 bg-muted rounded">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="clientes"
-                        checked={itensSelecionados.clientes}
-                        onCheckedChange={(checked) =>
-                          setItensSelecionados({ ...itensSelecionados, clientes: checked as boolean })
-                        }
-                      />
-                      <label htmlFor="clientes" className="text-sm cursor-pointer">
-                        Clientes
-                      </label>
-                    </div>
-                    <Badge variant={(stats?.total_clientes || 0) > 0 ? "destructive" : "secondary"}>
-                      {stats?.total_clientes || 0}
-                    </Badge>
+            {/* Cadastros Principais */}
+            <div className="space-y-3">
+              <h4 className="text-sm font-semibold flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Cadastros Principais
+              </h4>
+              <div className="grid gap-2">
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="clientes"
+                      checked={itensSelecionados.clientes}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, clientes: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="clientes" className="text-sm cursor-pointer">
+                      Clientes
+                    </label>
                   </div>
+                  <Badge variant={(stats?.total_clientes || 0) > 0 ? "destructive" : "secondary"}>
+                    {stats?.total_clientes || 0}
+                  </Badge>
+                </div>
 
-                  <div className="flex items-center justify-between p-2 bg-muted rounded">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="encomendas"
-                        checked={itensSelecionados.encomendas}
-                        onCheckedChange={(checked) =>
-                          setItensSelecionados({ ...itensSelecionados, encomendas: checked as boolean })
-                        }
-                      />
-                      <label htmlFor="encomendas" className="text-sm cursor-pointer">
-                        Encomendas
-                      </label>
-                    </div>
-                    <Badge variant={(stats?.total_encomendas || 0) > 0 ? "destructive" : "secondary"}>
-                      {stats?.total_encomendas || 0}
-                    </Badge>
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="encomendas"
+                      checked={itensSelecionados.encomendas}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, encomendas: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="encomendas" className="text-sm cursor-pointer">
+                      Encomendas
+                    </label>
                   </div>
+                  <Badge variant={(stats?.total_encomendas || 0) > 0 ? "destructive" : "secondary"}>
+                    {stats?.total_encomendas || 0}
+                  </Badge>
+                </div>
 
-                  <div className="flex items-center justify-between p-2 bg-muted rounded">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="receitas"
-                        checked={itensSelecionados.receitas}
-                        onCheckedChange={(checked) =>
-                          setItensSelecionados({ ...itensSelecionados, receitas: checked as boolean })
-                        }
-                      />
-                      <label htmlFor="receitas" className="text-sm cursor-pointer">
-                        Receitas
-                      </label>
-                    </div>
-                    <Badge variant={(stats?.total_receitas || 0) > 0 ? "destructive" : "secondary"}>
-                      {stats?.total_receitas || 0}
-                    </Badge>
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="receitas"
+                      checked={itensSelecionados.receitas}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, receitas: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="receitas" className="text-sm cursor-pointer">
+                      Receitas
+                    </label>
                   </div>
+                  <Badge variant={(stats?.total_receitas || 0) > 0 ? "destructive" : "secondary"}>
+                    {stats?.total_receitas || 0}
+                  </Badge>
+                </div>
 
-                  <div className="flex items-center justify-between p-2 bg-muted rounded">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="fornecedores"
-                        checked={itensSelecionados.fornecedores}
-                        onCheckedChange={(checked) =>
-                          setItensSelecionados({ ...itensSelecionados, fornecedores: checked as boolean })
-                        }
-                      />
-                      <label htmlFor="fornecedores" className="text-sm cursor-pointer">
-                        Fornecedores
-                      </label>
-                    </div>
-                    <Badge variant={(stats?.total_fornecedores || 0) > 0 ? "destructive" : "secondary"}>
-                      {stats?.total_fornecedores || 0}
-                    </Badge>
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="fornecedores"
+                      checked={itensSelecionados.fornecedores}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, fornecedores: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="fornecedores" className="text-sm cursor-pointer">
+                      Fornecedores
+                    </label>
                   </div>
+                  <Badge variant={(stats?.total_fornecedores || 0) > 0 ? "destructive" : "secondary"}>
+                    {stats?.total_fornecedores || 0}
+                  </Badge>
+                </div>
 
-                  <div className="flex items-center justify-between p-2 bg-muted rounded">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="contasReceber"
-                        checked={itensSelecionados.contasReceber}
-                        onCheckedChange={(checked) =>
-                          setItensSelecionados({ ...itensSelecionados, contasReceber: checked as boolean })
-                        }
-                      />
-                      <label htmlFor="contasReceber" className="text-sm cursor-pointer">
-                        Contas a Receber
-                      </label>
-                    </div>
-                    <Badge variant={(stats?.total_contas_receber || 0) > 0 ? "destructive" : "secondary"}>
-                      {stats?.total_contas_receber || 0}
-                    </Badge>
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="contasReceber"
+                      checked={itensSelecionados.contasReceber}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, contasReceber: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="contasReceber" className="text-sm cursor-pointer">
+                      Contas a Receber
+                    </label>
                   </div>
+                  <Badge variant={(stats?.total_contas_receber || 0) > 0 ? "destructive" : "secondary"}>
+                    {stats?.total_contas_receber || 0}
+                  </Badge>
+                </div>
 
-                  <div className="flex items-center justify-between p-2 bg-muted rounded">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="contasPagar"
-                        checked={itensSelecionados.contasPagar}
-                        onCheckedChange={(checked) =>
-                          setItensSelecionados({ ...itensSelecionados, contasPagar: checked as boolean })
-                        }
-                      />
-                      <label htmlFor="contasPagar" className="text-sm cursor-pointer">
-                        Contas a Pagar
-                      </label>
-                    </div>
-                    <Badge variant={(stats?.total_contas_pagar || 0) > 0 ? "destructive" : "secondary"}>
-                      {stats?.total_contas_pagar || 0}
-                    </Badge>
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="contasPagar"
+                      checked={itensSelecionados.contasPagar}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, contasPagar: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="contasPagar" className="text-sm cursor-pointer">
+                      Contas a Pagar
+                    </label>
                   </div>
+                  <Badge variant={(stats?.total_contas_pagar || 0) > 0 ? "destructive" : "secondary"}>
+                    {stats?.total_contas_pagar || 0}
+                  </Badge>
                 </div>
               </div>
+            </div>
 
-              <Separator />
+            <Separator />
 
-              {/* Configurações */}
-              <div className="space-y-3">
-                <h4 className="text-sm font-semibold flex items-center gap-2">
-                  <Settings className="h-4 w-4" />
-                  Configurações
-                </h4>
-                <div className="grid gap-2">
-                  <div className="flex items-center justify-between p-2 bg-muted rounded">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="categorias"
-                        checked={itensSelecionados.categorias}
-                        onCheckedChange={(checked) =>
-                          setItensSelecionados({ ...itensSelecionados, categorias: checked as boolean })
-                        }
-                      />
-                      <label htmlFor="categorias" className="text-sm cursor-pointer">
-                        Categorias
-                      </label>
-                    </div>
-                    <Badge variant={"secondary"}>
-                      {stats?.total_categorias || 0}
-                    </Badge>
+            {/* Configurações */}
+            <div className="space-y-3">
+              <h4 className="text-sm font-semibold flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Configurações
+              </h4>
+              <div className="grid gap-2">
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="categorias"
+                      checked={itensSelecionados.categorias}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, categorias: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="categorias" className="text-sm cursor-pointer">
+                      Categorias
+                    </label>
                   </div>
+                  <Badge variant="secondary">
+                    {stats?.total_categorias || 0}
+                  </Badge>
+                </div>
 
-                  <div className="flex items-center justify-between p-2 bg-muted rounded">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="unidadesMedida"
-                        checked={itensSelecionados.unidadesMedida}
-                        onCheckedChange={(checked) =>
-                          setItensSelecionados({ ...itensSelecionados, unidadesMedida: checked as boolean })
-                        }
-                      />
-                      <label htmlFor="unidadesMedida" className="text-sm cursor-pointer">
-                        Unidades de Medida
-                      </label>
-                    </div>
-                    <Badge variant={"secondary"}>
-                      {stats?.total_unidades_medida || 0}
-                    </Badge>
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="unidadesMedida"
+                      checked={itensSelecionados.unidadesMedida}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, unidadesMedida: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="unidadesMedida" className="text-sm cursor-pointer">
+                      Unidades de Medida
+                    </label>
                   </div>
+                  <Badge variant="secondary">
+                    {stats?.total_unidades_medida || 0}
+                  </Badge>
+                </div>
 
-                  <div className="flex items-center justify-between p-2 bg-muted rounded">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="bancos"
-                        checked={itensSelecionados.bancos}
-                        onCheckedChange={(checked) =>
-                          setItensSelecionados({ ...itensSelecionados, bancos: checked as boolean })
-                        }
-                      />
-                      <label htmlFor="bancos" className="text-sm cursor-pointer">
-                        Bancos
-                      </label>
-                    </div>
-                    <Badge variant={"secondary"}>
-                      {stats?.total_bancos || 0}
-                    </Badge>
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="bancos"
+                      checked={itensSelecionados.bancos}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, bancos: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="bancos" className="text-sm cursor-pointer">
+                      Bancos
+                    </label>
                   </div>
+                  <Badge variant="secondary">
+                    {stats?.total_bancos || 0}
+                  </Badge>
+                </div>
 
-                  <div className="flex items-center justify-between p-2 bg-muted rounded">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="tiposDocumento"
-                        checked={itensSelecionados.tiposDocumento}
-                        onCheckedChange={(checked) =>
-                          setItensSelecionados({ ...itensSelecionados, tiposDocumento: checked as boolean })
-                        }
-                      />
-                      <label htmlFor="tiposDocumento" className="text-sm cursor-pointer">
-                        Tipos de Documento
-                      </label>
-                    </div>
-                    <Badge variant={"secondary"}>
-                      {stats?.total_tipos_documento || 0}
-                    </Badge>
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="tiposDocumento"
+                      checked={itensSelecionados.tiposDocumento}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, tiposDocumento: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="tiposDocumento" className="text-sm cursor-pointer">
+                      Tipos de Documento
+                    </label>
                   </div>
+                  <Badge variant="secondary">
+                    {stats?.total_tipos_documento || 0}
+                  </Badge>
+                </div>
 
-                  <div className="flex items-center justify-between p-2 bg-muted rounded">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="planoContas"
-                        checked={itensSelecionados.planoContas}
-                        onCheckedChange={(checked) =>
-                          setItensSelecionados({ ...itensSelecionados, planoContas: checked as boolean })
-                        }
-                      />
-                      <label htmlFor="planoContas" className="text-sm cursor-pointer">
-                        Plano de Contas
-                      </label>
-                    </div>
-                    <Badge variant={"secondary"}>
-                      {stats?.total_plano_contas || 0}
-                    </Badge>
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="planoContas"
+                      checked={itensSelecionados.planoContas}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, planoContas: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="planoContas" className="text-sm cursor-pointer">
+                      Plano de Contas
+                    </label>
                   </div>
+                  <Badge variant="secondary">
+                    {stats?.total_plano_contas || 0}
+                  </Badge>
+                </div>
 
-                  <div className="flex items-center justify-between p-2 bg-muted rounded">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="categoriasFinanceiras"
-                        checked={itensSelecionados.categoriasFinanceiras}
-                        onCheckedChange={(checked) =>
-                          setItensSelecionados({ ...itensSelecionados, categoriasFinanceiras: checked as boolean })
-                        }
-                      />
-                      <label htmlFor="categoriasFinanceiras" className="text-sm cursor-pointer">
-                        Categorias Financeiras
-                      </label>
-                    </div>
-                    <Badge variant={"secondary"}>
-                      {stats?.total_categorias_financeiras || 0}
-                    </Badge>
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="categoriasFinanceiras"
+                      checked={itensSelecionados.categoriasFinanceiras}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, categoriasFinanceiras: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="categoriasFinanceiras" className="text-sm cursor-pointer">
+                      Categorias Financeiras
+                    </label>
                   </div>
+                  <Badge variant="secondary">
+                    {stats?.total_categorias_financeiras || 0}
+                  </Badge>
+                </div>
 
-                  <div className="flex items-center justify-between p-2 bg-muted rounded">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="tagsEncomendas"
-                        checked={itensSelecionados.tagsEncomendas}
-                        onCheckedChange={(checked) =>
-                          setItensSelecionados({ ...itensSelecionados, tagsEncomendas: checked as boolean })
-                        }
-                      />
-                      <label htmlFor="tagsEncomendas" className="text-sm cursor-pointer">
-                        Tags de Encomendas
-                      </label>
-                    </div>
-                    <Badge variant={"secondary"}>
-                      {stats?.total_tags_encomendas || 0}
-                    </Badge>
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="tagsEncomendas"
+                      checked={itensSelecionados.tagsEncomendas}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, tagsEncomendas: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="tagsEncomendas" className="text-sm cursor-pointer">
+                      Tags de Encomendas
+                    </label>
                   </div>
+                  <Badge variant="secondary">
+                    {stats?.total_tags_encomendas || 0}
+                  </Badge>
                 </div>
               </div>
+            </div>
 
-              <Separator />
 
               {/* Precificação */}
               <div className="space-y-3">
