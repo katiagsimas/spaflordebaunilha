@@ -798,24 +798,34 @@ export default function ContasPagar() {
       </div>
 
       {/* Filtros Rápidos */}
-      <div className="flex flex-wrap gap-2">
-        {[
-          { value: 'todos', label: 'Todos' },
-          { value: 'aberto', label: 'Em Aberto' },
-          { value: 'pagamento_parcial', label: 'Pago Parcialmente' },
-          { value: 'pago', label: 'Pago' },
-          { value: 'atrasado', label: 'Atrasado' },
-          { value: 'adiantado', label: 'Adiantado' },
-        ].map(filtro => (
-          <Button
-            key={filtro.value}
-            variant={filtroStatus === filtro.value ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFiltroStatus(filtro.value)}
-          >
-            {filtro.label}
-          </Button>
-        ))}
+      <div className="flex flex-wrap justify-between items-center gap-2">
+        <div className="flex flex-wrap gap-2">
+          {[
+            { value: 'todos', label: 'Todos' },
+            { value: 'aberto', label: 'Em Aberto' },
+            { value: 'pagamento_parcial', label: 'Pago Parcialmente' },
+            { value: 'pago', label: 'Pago' },
+            { value: 'atrasado', label: 'Atrasado' },
+            { value: 'adiantado', label: 'Adiantado' },
+          ].map(filtro => (
+            <Button
+              key={filtro.value}
+              variant={filtroStatus === filtro.value ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setFiltroStatus(filtro.value)}
+            >
+              {filtro.label}
+            </Button>
+          ))}
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setMostrarFiltrosAvancados(!mostrarFiltrosAvancados)}
+        >
+          Mais Opções de Busca
+          <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${mostrarFiltrosAvancados ? 'rotate-180' : ''}`} />
+        </Button>
       </div>
 
       {/* Filtros Avançados - Datas */}
@@ -884,15 +894,8 @@ export default function ContasPagar() {
         </div>
       </div>
 
-      {/* Botão Mais Opções */}
+      {/* Botão Limpar Filtros */}
       <div className="flex gap-2">
-        <Button
-          variant="outline"
-          onClick={() => setMostrarFiltrosAvancados(!mostrarFiltrosAvancados)}
-        >
-          Mais Opções de Busca
-          <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${mostrarFiltrosAvancados ? 'rotate-180' : ''}`} />
-        </Button>
         <Button variant="outline" onClick={limparFiltros}>
           Limpar Filtros
         </Button>
