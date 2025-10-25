@@ -153,6 +153,21 @@ const Encomendas = () => {
     return valorTotalProdutos - valorDesconto + formData.taxa_entrega + formData.topo_bolo + formData.outros;
   }, [valorTotalProdutos, valorDesconto, formData.taxa_entrega, formData.topo_bolo, formData.outros]);
 
+  // Verificar se há um ID na URL para abrir automaticamente o formulário de edição
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const encomendaId = searchParams.get('id');
+    
+    if (encomendaId && encomendas.length > 0 && !editingOrder) {
+      const encomenda = encomendas.find(e => e.id === encomendaId);
+      if (encomenda) {
+        handleEdit(encomenda);
+        // Limpar o parâmetro da URL após abrir o formulário
+        window.history.replaceState({}, '', '/encomendas');
+      }
+    }
+  }, [encomendas, editingOrder]);
+
   // Calcular indicadores do dashboard
   useEffect(() => {
     calcularIndicadores();
