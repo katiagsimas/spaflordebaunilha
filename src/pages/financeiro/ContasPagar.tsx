@@ -1044,7 +1044,16 @@ export default function ContasPagar() {
       )}
 
       {/* Card de Controles */}
-      <div className="border rounded-lg p-4">
+      <div className="border rounded-lg p-4 space-y-4">
+        {/* Linha Superior - Botão Adicionar */}
+        <div className="flex items-center justify-start">
+          <Button onClick={() => navigate('/financeiro/contas-pagar/nova')}>
+            <Plus className="mr-2 h-4 w-4" />
+            Adicionar Conta a Pagar
+          </Button>
+        </div>
+
+        {/* Linha Inferior - Controles */}
         <div className="flex items-center justify-between gap-4">
           {/* Resultados por Página - Esquerda */}
           <div className="flex items-center gap-2">
@@ -1065,12 +1074,6 @@ export default function ContasPagar() {
           <Button variant="outline" size="sm" onClick={handleExportarExcel}>
             <Download className="mr-2 h-4 w-4" />
             Exportar para Excel
-          </Button>
-          
-          {/* Botão Adicionar - Centro */}
-          <Button onClick={() => navigate('/financeiro/contas-pagar/nova')}>
-            <Plus className="mr-2 h-4 w-4" />
-            Adicionar Conta a Pagar
           </Button>
         </div>
       </div>
