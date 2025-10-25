@@ -28,8 +28,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { FornecedorFormDialog } from '@/components/FornecedorFormDialog';
-import { ArrowLeft, Plus, Info, Check, ChevronsUpDown } from 'lucide-react';
+import { FornecedorAutocomplete } from '@/components/FornecedorAutocomplete';
+import { ArrowLeft, Info, Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function ContasPagarForm() {
@@ -41,6 +41,7 @@ export default function ContasPagarForm() {
   // Estados do formulário
   const [dataEmissao, setDataEmissao] = useState(new Date().toISOString().split('T')[0]);
   const [fornecedorId, setFornecedorId] = useState('');
+  const [fornecedorNome, setFornecedorNome] = useState('');
   const [tipoDocumentoId, setTipoDocumentoId] = useState('');
   const [planoContasId, setPlanoContasId] = useState('');
   const [bancoId, setBancoId] = useState('');
@@ -61,8 +62,6 @@ export default function ContasPagarForm() {
   const [openPlanoContas, setOpenPlanoContas] = useState(false);
   const [searchPlanoContas, setSearchPlanoContas] = useState('');
 
-  // Modal cadastro de fornecedor
-  const [modalFornecedor, setModalFornecedor] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -146,6 +145,9 @@ export default function ContasPagarForm() {
 
       setDataEmissao(conta.data_emissao);
       setFornecedorId(conta.fornecedor_id);
+      // Buscar nome do fornecedor
+      const fornecedor = fornecedores.find(f => f.id === conta.fornecedor_id);
+      if (fornecedor) setFornecedorNome(fornecedor.nome);
       setTipoDocumentoId(conta.tipo_documento_id);
       setPlanoContasId(conta.plano_contas_id);
       setBancoId(conta.banco_id);
@@ -171,50 +173,9 @@ export default function ContasPagarForm() {
     }
   };
 
-  const handleCriarFornecedor = async (formData: any) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Não autenticado');
-
-      const { data, error } = await supabase
-        .from('fornecedores' as any)
-        .insert({
-          usuario_id: user.id,
-          nome: formData.nome,
-          tipo: formData.tipo,
-          tipo_fornecedor: formData.tipo_fornecedor,
-          cpf_cnpj: formData.cpf_cnpj || null,
-          telefone: formData.telefone || null,
-          email: formData.email || null,
-          contato: formData.contato || null,
-          data_aniversario_contato: formData.data_aniversario_contato || null,
-          observacoes: formData.observacoes || null,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      if (!data) return;
-
-      const fornecedor = data as any;
-
-      toast({
-        title: '✅ Fornecedor criado',
-        description: 'O fornecedor foi cadastrado com sucesso!',
-      });
-
-      setFornecedores([...fornecedores, { id: fornecedor.id, nome: fornecedor.nome }]);
-      setFornecedorId(fornecedor.id);
-      setModalFornecedor(false);
-    } catch (error: any) {
-      console.error('Erro ao criar fornecedor:', error);
-      toast({
-        title: 'Erro',
-        description: error.message,
-        variant: 'destructive',
-      });
-      throw error;
-    }
+  const handleFornecedorSelect = (fornecedorId: string, fornecedorNome: string) => {
+    setFornecedorId(fornecedorId);
+    setFornecedorNome(fornecedorNome);
   };
 
   const handleSalvar = async () => {
@@ -478,29 +439,12 @@ export default function ContasPagarForm() {
 
           {/* Fornecedor */}
           <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <Label>Fornecedor *</Label>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setModalFornecedor(true)}
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Novo Fornecedor
-              </Button>
-            </div>
-            <Select value={fornecedorId} onValueChange={setFornecedorId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione o fornecedor..." />
-              </SelectTrigger>
-              <SelectContent>
-                {fornecedores.map(f => (
-                  <SelectItem key={f.id} value={f.id}>
-                    {f.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label>Fornecedor *</Label>
+            <FornecedorAutocomplete
+              value={fornecedorId}
+              onSelect={handleFornecedorSelect}
+              placeholder="Selecione o fornecedor..."
+            />
           </div>
 
           {/* Tipo Documento e Plano Contas */}
@@ -713,14 +657,6 @@ export default function ContasPagarForm() {
           {loading ? 'Salvando...' : (isEdicao ? 'Atualizar Conta' : 'Cadastrar Conta a Pagar')}
         </Button>
       </div>
-
-      {/* Modal Novo Fornecedor */}
-      <FornecedorFormDialog
-        open={modalFornecedor}
-        onOpenChange={setModalFornecedor}
-        onSubmit={handleCriarFornecedor}
-        loading={loading}
-      />
     </div>
   );
 }
