@@ -135,7 +135,23 @@ export function ClienteAutocomplete({
     }
 
     try {
-      const novoCliente = await createCliente(formData);
+      // Limpar campos vazios para evitar erros de validação
+      const clienteData = {
+        nome: formData.nome,
+        tipo: formData.tipo,
+        telefone: formData.telefone,
+        email: formData.email || null,
+        cpf_cnpj: formData.cpf_cnpj || null,
+        data_aniversario: formData.data_aniversario || null,
+        cep: formData.cep || null,
+        endereco: formData.endereco || null,
+        numero: formData.numero || null,
+        cidade: formData.cidade || null,
+        estado: formData.estado || null,
+        observacoes: formData.observacoes || null,
+      };
+
+      const novoCliente = await createCliente(clienteData);
       
       // Retornar o cliente completo para preencher os campos
       onSelect(formData.nome, novoCliente);
