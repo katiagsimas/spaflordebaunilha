@@ -1603,217 +1603,170 @@ const Encomendas = () => {
       </Card>
 
       {/* Cards de Visão Geral */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {/* Total */}
-        <Card className="border-blue-200 bg-blue-50 shadow-soft">
-          <CardHeader className="pb-1 pt-3">
-            <div className="flex items-center gap-2">
-              <ClipboardList className="h-4 w-4 text-blue-700" />
-              <CardTitle className="text-xs text-blue-700">Total de Encomendas</CardTitle>
+        <Card className="border-l-4 border-l-blue-500">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Total</p>
+                <p className="text-2xl font-bold">{indicadores.total}</p>
+              </div>
+              <ClipboardList className="h-8 w-8 text-blue-500" />
             </div>
-          </CardHeader>
-          <CardContent className="pb-3">
-            <div className="text-2xl font-bold text-blue-700">
-              {indicadores.total}
-            </div>
-            <p className="text-xs text-blue-600 mt-0.5">
-              {meses[mesSelecionado]}/{anoSelecionado}
-            </p>
           </CardContent>
         </Card>
 
         {/* Pendentes */}
-        <Card className="border-yellow-200 bg-yellow-50 shadow-soft">
-          <CardHeader className="pb-1 pt-3">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-yellow-700" />
-              <CardTitle className="text-xs text-yellow-700">Pendentes</CardTitle>
+        <Card className="border-l-4 border-l-yellow-500">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Pendentes</p>
+                <p className="text-2xl font-bold">{indicadores.pendentes}</p>
+              </div>
+              <Clock className="h-8 w-8 text-yellow-500" />
             </div>
-          </CardHeader>
-          <CardContent className="pb-3">
-            <div className="text-2xl font-bold text-yellow-700">
-              {indicadores.pendentes}
-            </div>
-            <p className="text-xs text-yellow-600 mt-0.5">
-              Aguardando pagamento
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Canceladas */}
-        <Card className="border-red-200 bg-red-50 shadow-soft">
-          <CardHeader className="pb-1 pt-3">
-            <div className="flex items-center gap-2">
-              <XCircle className="h-4 w-4 text-red-700" />
-              <CardTitle className="text-xs text-red-700">Canceladas</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="pb-3">
-            <div className="text-2xl font-bold text-red-700">
-              {indicadores.canceladas}
-            </div>
-            <p className="text-xs text-red-600 mt-0.5">
-              Não realizadas
-            </p>
           </CardContent>
         </Card>
 
         {/* Confirmadas */}
-        <Card className="border-blue-200 bg-blue-50 shadow-soft">
-          <CardHeader className="pb-1 pt-3">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-blue-700" />
-              <CardTitle className="text-xs text-blue-700">Confirmadas</CardTitle>
+        <Card className="border-l-4 border-l-blue-500">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Confirmadas</p>
+                <p className="text-2xl font-bold">{indicadores.confirmadas}</p>
+              </div>
+              <CheckCircle2 className="h-8 w-8 text-blue-500" />
             </div>
-          </CardHeader>
-          <CardContent className="pb-3">
-            <div className="text-2xl font-bold text-blue-700">
-              {indicadores.confirmadas}
-            </div>
-            <p className="text-xs text-blue-600 mt-0.5">
-              Pagamento confirmado
-            </p>
           </CardContent>
         </Card>
 
         {/* Entregues */}
-        <Card className="border-green-200 bg-green-50 shadow-soft">
-          <CardHeader className="pb-1 pt-3">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-green-700" />
-              <CardTitle className="text-xs text-green-700">Entregues/Finalizadas</CardTitle>
+        <Card className="border-l-4 border-l-green-500">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Entregues</p>
+                <p className="text-2xl font-bold">{indicadores.entregues}</p>
+              </div>
+              <CheckCircle2 className="h-8 w-8 text-green-500" />
             </div>
-          </CardHeader>
-          <CardContent className="pb-3">
-            <div className="text-2xl font-bold text-green-700">
-              {indicadores.entregues}
+          </CardContent>
+        </Card>
+
+        {/* Canceladas */}
+        <Card className="border-l-4 border-l-red-500">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Canceladas</p>
+                <p className="text-2xl font-bold">{indicadores.canceladas}</p>
+              </div>
+              <XCircle className="h-8 w-8 text-red-500" />
             </div>
-            <p className="text-xs text-green-600 mt-0.5">
-              Concluídas
-            </p>
           </CardContent>
         </Card>
       </div>
 
       {/* Filtros */}
-      <Collapsible open={filtrosAbertos} onOpenChange={setFiltrosAbertos}>
-        <Card className="shadow-soft">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CollapsibleTrigger className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <CardTitle>Filtros</CardTitle>
-                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${filtrosAbertos ? '' : '-rotate-90'}`} />
-              </CollapsibleTrigger>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => {
-                  setClienteFilter("Todos");
-                  setStatusFilter("Todos");
-                  setDataEntregaFilter("");
-                  setHoraEntregaFilter("");
-                  setTagFilter("todos");
-                }}
-                disabled={clienteFilter === "Todos" && statusFilter === "Todos" && !dataEntregaFilter && !horaEntregaFilter && tagFilter === "todos"}
-                className="gap-2"
-              >
-                <X className="h-4 w-4" />
-                Limpar Filtros
-              </Button>
-            </div>
-          </CardHeader>
-          <CollapsibleContent>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                {/* Filtro de Cliente */}
-                <div className="space-y-2">
-                  <Label htmlFor="filtro-cliente">Cliente</Label>
-                  <Select value={clienteFilter} onValueChange={setClienteFilter}>
-                    <SelectTrigger id="filtro-cliente" className="bg-popover">
-                      <SelectValue placeholder="Todos os clientes" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-popover z-50">
-                      <SelectItem value="Todos">Todos os clientes</SelectItem>
-                      {clientesComEncomendas.map((cliente) => (
-                        <SelectItem key={cliente} value={cliente}>
-                          {cliente}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Filtro de Status */}
-                <div className="space-y-2">
-                  <Label htmlFor="filtro-status">Status</Label>
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger id="filtro-status" className="bg-popover">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-popover z-50">
-                      <SelectItem value="Todos">Todos</SelectItem>
-                      <SelectItem value="Pendente">Pendente</SelectItem>
-                      <SelectItem value="Confirmado">Confirmado</SelectItem>
-                      <SelectItem value="Em Produção">Em Produção</SelectItem>
-                      <SelectItem value="Pronto">Pronto</SelectItem>
-                      <SelectItem value="Entregue">Entregue</SelectItem>
-                      <SelectItem value="Cancelado">Cancelado</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Filtro de Tags */}
-                <div className="space-y-2">
-                  <Label htmlFor="filtro-tag">Tag</Label>
-                  <Select value={tagFilter} onValueChange={setTagFilter}>
-                    <SelectTrigger id="filtro-tag" className="bg-popover">
-                      <SelectValue placeholder="Todas as tags" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-popover z-50">
-                      <SelectItem value="todos">Todas as tags</SelectItem>
-                      {tagsDisponiveis.map(tag => (
-                        <SelectItem key={tag.id} value={tag.id}>
-                          <div className="flex items-center gap-2">
-                            <div
-                              className="w-3 h-3 rounded-full"
-                              style={{ backgroundColor: tag.cor }}
-                            />
-                            {tag.nome}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Filtro de Data da Entrega */}
-                <div className="space-y-2">
-                  <Label htmlFor="filtro-data-entrega">Data da Entrega</Label>
-                  <Input
-                    id="filtro-data-entrega"
-                    type="date"
-                    value={dataEntregaFilter}
-                    onChange={(e) => setDataEntregaFilter(e.target.value)}
-                    className="bg-popover"
-                  />
-                </div>
-
-                {/* Filtro de Hora da Entrega */}
-                <div className="space-y-2">
-                  <Label htmlFor="filtro-hora-entrega">Hora da Entrega</Label>
-                  <Input
-                    id="filtro-hora-entrega"
-                    type="time"
-                    value={horaEntregaFilter}
-                    onChange={(e) => setHoraEntregaFilter(e.target.value)}
-                    className="bg-popover"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </CollapsibleContent>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        {/* Filtro de Cliente */}
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
+          <CardContent className="p-4">
+            <Label htmlFor="filtro-cliente" className="text-sm font-medium mb-2 block">Cliente</Label>
+            <Select value={clienteFilter} onValueChange={setClienteFilter}>
+              <SelectTrigger id="filtro-cliente" className="bg-background">
+                <SelectValue placeholder="Todos os clientes" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="Todos">Todos os clientes</SelectItem>
+                {clientesComEncomendas.map((cliente) => (
+                  <SelectItem key={cliente} value={cliente}>
+                    {cliente}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardContent>
         </Card>
-      </Collapsible>
+
+        {/* Filtro de Status */}
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
+          <CardContent className="p-4">
+            <Label htmlFor="filtro-status" className="text-sm font-medium mb-2 block">Status</Label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger id="filtro-status" className="bg-background">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="Todos">Todos</SelectItem>
+                <SelectItem value="Pendente">Pendente</SelectItem>
+                <SelectItem value="Confirmado">Confirmado</SelectItem>
+                <SelectItem value="Em Produção">Em Produção</SelectItem>
+                <SelectItem value="Pronto">Pronto</SelectItem>
+                <SelectItem value="Entregue">Entregue</SelectItem>
+                <SelectItem value="Cancelado">Cancelado</SelectItem>
+              </SelectContent>
+            </Select>
+          </CardContent>
+        </Card>
+
+        {/* Filtro de Tags */}
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
+          <CardContent className="p-4">
+            <Label htmlFor="filtro-tag" className="text-sm font-medium mb-2 block">Tag</Label>
+            <Select value={tagFilter} onValueChange={setTagFilter}>
+              <SelectTrigger id="filtro-tag" className="bg-background">
+                <SelectValue placeholder="Todas as tags" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="todos">Todas as tags</SelectItem>
+                {tagsDisponiveis.map(tag => (
+                  <SelectItem key={tag.id} value={tag.id}>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: tag.cor }}
+                      />
+                      {tag.nome}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardContent>
+        </Card>
+
+        {/* Filtro de Data da Entrega */}
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
+          <CardContent className="p-4">
+            <Label htmlFor="filtro-data-entrega" className="text-sm font-medium mb-2 block">Data da Entrega</Label>
+            <Input
+              id="filtro-data-entrega"
+              type="date"
+              value={dataEntregaFilter}
+              onChange={(e) => setDataEntregaFilter(e.target.value)}
+              className="bg-background"
+            />
+          </CardContent>
+        </Card>
+
+        {/* Filtro de Hora da Entrega */}
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
+          <CardContent className="p-4">
+            <Label htmlFor="filtro-hora-entrega" className="text-sm font-medium mb-2 block">Hora da Entrega</Label>
+            <Input
+              id="filtro-hora-entrega"
+              type="time"
+              value={horaEntregaFilter}
+              onChange={(e) => setHoraEntregaFilter(e.target.value)}
+              className="bg-background"
+            />
+          </CardContent>
+        </Card>
+      </div>
 
       <Card className="shadow-soft">
         <CardHeader>
