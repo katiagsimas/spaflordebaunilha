@@ -1437,7 +1437,7 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold text-primary">
-                  R$ {ticketMedio.mensal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  R$ {ticketMedio.mensal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </CardContent>
             </Card>
@@ -1451,7 +1451,7 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold text-primary">
-                  R$ {ticketMedio.anual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  R$ {ticketMedio.anual.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </CardContent>
             </Card>
