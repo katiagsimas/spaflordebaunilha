@@ -50,7 +50,6 @@ export default function ContasPagarForm() {
   const [numeroParcelas, setNumeroParcelas] = useState('1');
   const [primeiroVencimento, setPrimeiroVencimento] = useState('');
   const [tipoLancamento, setTipoLancamento] = useState('unico');
-  const [diaVencimentoRecorrente, setDiaVencimentoRecorrente] = useState('');
 
   // Dados para picklists
   const [fornecedores, setFornecedores] = useState<any[]>([]);
@@ -157,10 +156,6 @@ export default function ContasPagarForm() {
       setValorTotal(conta.valor_total.toFixed(2).replace('.', ','));
       setNumeroParcelas(conta.numero_parcelas.toString());
       setTipoLancamento(conta.tipo_lancamento);
-      
-      if (conta.e_recorrente) {
-        setDiaVencimentoRecorrente(conta.dia_vencimento_recorrente?.toString() || '');
-      }
 
       if (conta.parcelas && conta.parcelas.length > 0) {
         setPrimeiroVencimento(conta.parcelas[0].data_vencimento);
@@ -229,10 +224,6 @@ export default function ContasPagarForm() {
       erros.push('• Data do Primeiro Vencimento');
     }
 
-    if (tipoLancamento === 'recorrente' && !diaVencimentoRecorrente) {
-      erros.push('• Dia do Vencimento (obrigatório para recorrente)');
-    }
-
     if (erros.length > 0) {
       toast({
         title: '⚠️ Preencha os campos obrigatórios',
@@ -271,13 +262,11 @@ export default function ContasPagarForm() {
         });
       }
     } else {
-      // Recorrente
-      const dia = parseInt(diaVencimentoRecorrente);
+      // Recorrente - usa o dia do primeiro vencimento
 
       for (let i = 0; i < parcelas; i++) {
         const dataVenc = new Date(dataBase);
         dataVenc.setMonth(dataVenc.getMonth() + i);
-        dataVenc.setDate(dia);
 
         const dataEmissaoParcela = new Date(dataVenc);
         dataEmissaoParcela.setDate(1);
@@ -349,7 +338,6 @@ export default function ContasPagarForm() {
         numero_parcelas: parseInt(numeroParcelas),
         tipo_lancamento: tipoLancamento,
         e_recorrente: tipoLancamento === 'recorrente',
-        dia_vencimento_recorrente: tipoLancamento === 'recorrente' ? parseInt(diaVencimentoRecorrente) : null,
       };
 
       if (isEdicao) {
@@ -450,13 +438,11 @@ export default function ContasPagarForm() {
         });
       }
     } else {
-      // Recorrente: repete o valor total
-      const dia = parseInt(diaVencimentoRecorrente);
+      // Recorrente: repete o valor total - usa o dia do primeiro vencimento
 
       for (let i = 0; i < parcelas; i++) {
         const dataVenc = new Date(dataBase);
         dataVenc.setMonth(dataVenc.getMonth() + i);
-        dataVenc.setDate(dia);
 
         const dataEmissaoParcela = new Date(dataVenc);
         dataEmissaoParcela.setDate(1);
