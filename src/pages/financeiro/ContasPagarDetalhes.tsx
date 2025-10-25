@@ -177,16 +177,7 @@ export default function ContasPagarDetalhes() {
         
         const { data: dataPagamentos, error: errorPagamentos } = await supabase
           .from('contas_pagar_pagamentos')
-          .select(`
-            *,
-            banco:bancos (
-              codigo,
-              nome
-            ),
-            tipo_documento:tipos_documento (
-              descricao
-            )
-          `)
+          .select('*')
           .in('parcela_id', parcelaIds)
           .order('data_pagamento', { ascending: false });
 
@@ -194,12 +185,48 @@ export default function ContasPagarDetalhes() {
         
         console.log('Pagamentos carregados:', dataPagamentos?.length);
         
-        setPagamentos(dataPagamentos || []);
-        
-        // Buscar comprovantes
+        // Buscar dados de bancos e tipos de documento para os pagamentos
         if (dataPagamentos && dataPagamentos.length > 0) {
+          const bancoIds = [...new Set(dataPagamentos.map(p => p.banco_id).filter(Boolean))];
+          const tipoDocIds = [...new Set(dataPagamentos.map(p => p.tipo_documento_id).filter(Boolean))];
+          
+          // Buscar bancos
+          const { data: bancosData } = await supabase
+            .from('bancos')
+            .select('id, codigo, nome')
+            .in('id', bancoIds);
+          
+          // Buscar tipos de documento
+          const { data: tiposDocData } = await supabase
+            .from('tipos_documento')
+            .select('id, descricao')
+            .in('id', tipoDocIds);
+          
+          // Criar mapas para lookup rápido
+          const bancosMap = (bancosData || []).reduce((acc, b) => {
+            acc[b.id] = b;
+            return acc;
+          }, {} as Record<string, any>);
+          
+          const tiposDocMap = (tiposDocData || []).reduce((acc, t) => {
+            acc[t.id] = t;
+            return acc;
+          }, {} as Record<string, any>);
+          
+          // Enriquecer pagamentos com dados de banco e tipo_documento
+          const pagamentosEnriquecidos = dataPagamentos.map(pag => ({
+            ...pag,
+            banco: bancosMap[pag.banco_id] || null,
+            tipo_documento: tiposDocMap[pag.tipo_documento_id] || null,
+          }));
+          
+          setPagamentos(pagamentosEnriquecidos);
+          
+          // Buscar comprovantes
           const ids = dataPagamentos.map(p => p.id);
           await fetchComprovantes(ids);
+        } else {
+          setPagamentos([]);
         }
       }
     } catch (error) {
