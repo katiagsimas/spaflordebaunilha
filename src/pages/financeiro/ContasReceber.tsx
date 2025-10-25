@@ -853,6 +853,14 @@ export default function ContasReceber() {
           >
             Todos
           </Button>
+
+          <Button
+            variant={filtroStatus === 'aberto' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFiltroStatus('aberto')}
+          >
+            Em Aberto
+          </Button>
           
           {visualizacao === 'ativas' ? (
             <>
