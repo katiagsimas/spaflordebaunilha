@@ -512,20 +512,7 @@ export default function ContasReceber() {
   };
 
   const parcelasFiltradas = parcelas.filter(p => {
-    // Filtro principal: Ativas (não pagas) vs Pagas
-    if (visualizacao === 'ativas') {
-      // Mostrar apenas parcelas que NÃO estão pagas ou adiantadas
-      if (p.status === 'pago' || p.status === 'adiantado') {
-        return false;
-      }
-    } else if (visualizacao === 'pagas') {
-      // Mostrar apenas parcelas pagas ou adiantadas
-      if (p.status !== 'pago' && p.status !== 'adiantado') {
-        return false;
-      }
-    }
-    
-    // Filtro de status (secundário)
+    // Filtro de status
     if (filtroStatus !== 'todos') {
       // Tratar "vencido" como sinônimo de "atrasado"
       if (filtroStatus === 'vencido' && p.status !== 'atrasado') {
@@ -1105,20 +1092,6 @@ export default function ContasReceber() {
             <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
           </div>
           
-          {/* Cards de Visualização */}
-          <div className="flex gap-2">
-            <Button
-              variant={visualizacao === 'pagas' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => {
-                setVisualizacao('pagas');
-                setFiltroStatus('todos');
-              }}
-              className={visualizacao === 'pagas' ? 'bg-green-600 hover:bg-green-700 text-white' : 'border-green-600 text-green-600 hover:bg-green-50'}
-            >
-              Contas Recebidas
-            </Button>
-          </div>
         </div>
       </div>
 
