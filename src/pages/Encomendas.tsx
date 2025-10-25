@@ -16,7 +16,6 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ClienteAutocomplete } from "@/components/ClienteAutocomplete";
-import { AdicionarClienteDialog } from "@/components/AdicionarClienteDialog";
 import { useClientes } from "@/hooks/useClientes";
 import { useReceitas } from "@/hooks/useReceitas";
 import { useEncomendaItens } from "@/hooks/useEncomendaItens";
@@ -55,7 +54,6 @@ const Encomendas = () => {
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [produtoDialogOpen, setProdutoDialogOpen] = useState(false);
-  const [adicionarClienteDialogOpen, setAdicionarClienteDialogOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<any | null>(null);
   const [statusFilter, setStatusFilter] = useState("Todos");
   const [clienteFilter, setClienteFilter] = useState("Todos");
@@ -468,36 +466,36 @@ const Encomendas = () => {
     setDialogOpen(true);
   };
 
-  const handleClienteSelect = (clienteNome: string) => {
-    const cliente = clientes.find(c => c.nome === clienteNome);
-    if (cliente) {
+  const handleClienteSelect = (clienteNome: string, clienteCompleto?: any) => {
+    if (clienteCompleto) {
       setFormData({
         ...formData,
         cliente: clienteNome,
-        telefone: cliente.telefone || "",
-        endereco: cliente.endereco || "",
-        numero: cliente.numero || "",
-        cep: cliente.cep || "",
+        clienteId: clienteCompleto.id || "",
+        telefone: clienteCompleto.telefone || "",
+        endereco: clienteCompleto.endereco || "",
+        numero: clienteCompleto.numero || "",
+        cep: clienteCompleto.cep || "",
       });
     } else {
-      setFormData({ ...formData, cliente: clienteNome });
+      // Caso não tenha recebido clienteCompleto, buscar na lista
+      const cliente = clientes.find(c => c.nome === clienteNome);
+      if (cliente) {
+        setFormData({
+          ...formData,
+          cliente: clienteNome,
+          clienteId: cliente.id,
+          telefone: cliente.telefone || "",
+          endereco: cliente.endereco || "",
+          numero: cliente.numero || "",
+          cep: cliente.cep || "",
+        });
+      } else {
+        setFormData({ ...formData, cliente: clienteNome });
+      }
     }
   };
 
-  const handleClienteAdicionado = (novoCliente: any) => {
-    // Preencher automaticamente os dados do formulário com o novo cliente
-    setFormData(prev => ({
-      ...prev,
-      cliente: novoCliente.nome || "",
-      clienteId: novoCliente.id || "", // Armazenar o ID do cliente
-      telefone: novoCliente.telefone || "",
-      endereco: novoCliente.endereco || "",
-      numero: novoCliente.numero || "",
-      cep: novoCliente.cep || "",
-    }));
-    
-    toast.success(`Cliente ${novoCliente.nome} adicionado e selecionado!`);
-  };
 
   const handleProdutoSelect = (receitaId: string) => {
     const receita = receitas.find(r => r.id === receitaId);
@@ -944,24 +942,11 @@ const Encomendas = () => {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="cliente">Nome do Cliente *</Label>
-                    <div className="flex gap-2">
-                      <div className="flex-1">
-                        <ClienteAutocomplete
-                          value={formData.cliente}
-                          onSelect={handleClienteSelect}
-                          placeholder="Selecione ou busque um cliente..."
-                        />
-                      </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={() => setAdicionarClienteDialogOpen(true)}
-                        title="Adicionar novo cliente"
-                      >
-                        <UserPlus className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <ClienteAutocomplete
+                      value={formData.cliente}
+                      onSelect={handleClienteSelect}
+                      placeholder="Selecione ou busque um cliente..."
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="telefone">Telefone/WhatsApp</Label>
@@ -1548,12 +1533,6 @@ const Encomendas = () => {
         }
       />
 
-      {/* Dialog para adicionar novo cliente */}
-      <AdicionarClienteDialog
-        open={adicionarClienteDialogOpen}
-        onOpenChange={setAdicionarClienteDialogOpen}
-        onClienteAdicionado={handleClienteAdicionado}
-      />
 
       {/* DASHBOARD DE ENCOMENDAS */}
       

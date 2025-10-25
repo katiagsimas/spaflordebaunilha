@@ -36,7 +36,7 @@ import { toast } from "sonner";
 
 interface ClienteAutocompleteProps {
   value: string;
-  onSelect: (clienteNome: string) => void;
+  onSelect: (clienteNome: string, clienteCompleto?: any) => void;
   placeholder?: string;
 }
 
@@ -70,7 +70,13 @@ export function ClienteAutocomplete({
   );
 
   const handleSelect = (clienteNome: string) => {
-    onSelect(clienteNome);
+    // Buscar dados completos do cliente
+    const cliente = clientes.find(c => c.nome === clienteNome);
+    if (cliente) {
+      onSelect(clienteNome, cliente);
+    } else {
+      onSelect(clienteNome);
+    }
     setOpen(false);
     setSearchValue("");
   };
@@ -129,8 +135,11 @@ export function ClienteAutocomplete({
     }
 
     try {
-      await createCliente(formData);
-      onSelect(formData.nome);
+      const novoCliente = await createCliente(formData);
+      
+      // Retornar o cliente completo para preencher os campos
+      onSelect(formData.nome, novoCliente);
+      
       setDialogOpen(false);
       setFormData({
         nome: "",
@@ -146,6 +155,7 @@ export function ClienteAutocomplete({
         estado: "",
         observacoes: "",
       });
+      toast.success("Cliente cadastrado com sucesso!");
     } catch (error: any) {
       toast.error(error.message || "Erro ao cadastrar cliente");
     }
