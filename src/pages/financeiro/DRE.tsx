@@ -179,9 +179,9 @@ export default function DRE() {
 
           // Para lançamentos não recorrentes, usar data_emissao da conta principal
           if (conta.tipo_lancamento !== 'recorrente') {
-            const dataEmissaoConta = new Date(conta.data_emissao);
-            const mesEmissao = dataEmissaoConta.getMonth();
-            const anoEmissao = dataEmissaoConta.getFullYear();
+            // Extrair ano e mês diretamente da string ISO para evitar problemas de fuso horário
+            const [anoEmissao, mesEmissaoStr] = conta.data_emissao.split('-').map(Number);
+            const mesEmissao = mesEmissaoStr - 1; // JavaScript meses são 0-11
             
             // Se a data de emissão da conta está neste mês/ano, somar TODAS as parcelas
             if (mesEmissao === mes && anoEmissao === ano) {
@@ -195,9 +195,9 @@ export default function DRE() {
           } else {
             // Para lançamentos recorrentes, usar data_emissao de cada parcela
             conta.contas_receber_parcelas?.forEach((parcela: any) => {
-              const dataEmissaoParcela = new Date(parcela.data_emissao);
-              const mesEmissaoParcela = dataEmissaoParcela.getMonth();
-              const anoEmissaoParcela = dataEmissaoParcela.getFullYear();
+              // Extrair ano e mês diretamente da string ISO para evitar problemas de fuso horário
+              const [anoEmissaoParcela, mesEmissaoParcelaStr] = parcela.data_emissao.split('-').map(Number);
+              const mesEmissaoParcela = mesEmissaoParcelaStr - 1; // JavaScript meses são 0-11
               
               if (mesEmissaoParcela === mes && anoEmissaoParcela === ano) {
                 if (!planosReceita[codigoCategoria]) {
@@ -239,9 +239,9 @@ export default function DRE() {
 
           // Para lançamentos não recorrentes, usar data_emissao da conta principal
           if (conta.tipo_lancamento !== 'recorrente') {
-            const dataEmissaoConta = new Date(conta.data_emissao);
-            const mesEmissao = dataEmissaoConta.getMonth();
-            const anoEmissao = dataEmissaoConta.getFullYear();
+            // Extrair ano e mês diretamente da string ISO para evitar problemas de fuso horário
+            const [anoEmissao, mesEmissaoStr] = conta.data_emissao.split('-').map(Number);
+            const mesEmissao = mesEmissaoStr - 1; // JavaScript meses são 0-11
             
             // Se a data de emissão da conta está neste mês/ano, somar TODAS as parcelas
             if (mesEmissao === mes && anoEmissao === ano) {
@@ -255,9 +255,9 @@ export default function DRE() {
           } else {
             // Para lançamentos recorrentes, usar data_emissao de cada parcela
             conta.contas_pagar_parcelas?.forEach((parcela: any) => {
-              const dataEmissaoParcela = new Date(parcela.data_emissao);
-              const mesEmissaoParcela = dataEmissaoParcela.getMonth();
-              const anoEmissaoParcela = dataEmissaoParcela.getFullYear();
+              // Extrair ano e mês diretamente da string ISO para evitar problemas de fuso horário
+              const [anoEmissaoParcela, mesEmissaoParcelaStr] = parcela.data_emissao.split('-').map(Number);
+              const mesEmissaoParcela = mesEmissaoParcelaStr - 1; // JavaScript meses são 0-11
               
               if (mesEmissaoParcela === mes && anoEmissaoParcela === ano) {
                 if (!planosDespesa[codigoCategoria]) {
