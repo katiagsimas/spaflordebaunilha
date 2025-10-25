@@ -74,7 +74,7 @@ export default function ContasReceber() {
 
   // Filtros
   const [visualizacao, setVisualizacao] = useState<'ativas' | 'pagas'>('ativas'); // Novo filtro principal
-  const [filtroStatus, setFiltroStatus] = useState('todos');
+  const [filtroStatus, setFiltroStatus] = useState('aberto'); // Fixado em "aberto" por padrão
   
   // Filtros de Data
   const [dataEmissaoInicial, setDataEmissaoInicial] = useState<Date | undefined>();
@@ -512,15 +512,11 @@ export default function ContasReceber() {
   };
 
   const parcelasFiltradas = parcelas.filter(p => {
-    // Por padrão, ocultar contas pagas/adiantadas (só aparecem com filtro ativo)
-    const temFiltroAtivo = filtroStatus !== 'todos' || 
-                           dataEmissaoInicial || dataEmissaoFinal ||
-                           dataPagamentoInicial || dataPagamentoFinal ||
-                           dataVencimentoInicial || dataVencimentoFinal ||
-                           filtroPlanoContasId || filtroClienteId || 
-                           filtroCategoriaId || filtroTipoDocId || filtroBancoId;
+    // Ocultar contas pagas/adiantadas APENAS quando o filtro está em "aberto" ou em status que não sejam "todos" ou "pago" ou "adiantado"
+    const isFiltroAberto = filtroStatus === 'aberto' || 
+                           (filtroStatus !== 'todos' && filtroStatus !== 'pago' && filtroStatus !== 'adiantado');
     
-    if (!temFiltroAtivo && (p.status === 'pago' || p.status === 'adiantado')) {
+    if (isFiltroAberto && (p.status === 'pago' || p.status === 'adiantado')) {
       return false;
     }
     
@@ -591,7 +587,7 @@ export default function ContasReceber() {
   const parcelasPaginadas = parcelasFiltradas.slice(0, porPagina);
 
   const limparFiltros = () => {
-    setFiltroStatus('todos');
+    setFiltroStatus('aberto'); // Volta para "aberto" ao limpar filtros
     setDataEmissaoInicial(undefined);
     setDataEmissaoFinal(undefined);
     setDataPagamentoInicial(undefined);
