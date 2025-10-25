@@ -76,13 +76,23 @@ export default function FluxoCaixaMensal() {
       const fluxoCalculado: FluxoMensal[] = [];
       let saldoAnterior = 0;
 
-      // Buscar saldo inicial dos bancos (Saldo Anterior do Dashboard) para o primeiro mês
+      // Buscar saldo inicial dos bancos (Saldo Anterior do Dashboard)
       const { data: saldosBancos } = await supabase
         .from('bancos')
         .select('saldo_inicial')
         .eq('usuario_id', user.id);
 
       const saldoInicialBancos = saldosBancos?.reduce((acc, s) => acc + (s.saldo_inicial || 0), 0) || 0;
+
+      // Buscar saldos iniciais configurados até o início do ano
+      const inicioAno = `${ano}-01-01`;
+      const { data: saldosConfiguradosAno } = await supabase
+        .from('saldos_iniciais_bancos')
+        .select('saldo_inicial, data_referencia')
+        .eq('user_id', user.id)
+        .lt('data_referencia', inicioAno);
+
+      const totalSaldosConfiguradosIniciais = saldosConfiguradosAno?.reduce((acc, s) => acc + (s.saldo_inicial || 0), 0) || 0;
 
       // Buscar categorias do plano de contas
       const { data: categorias } = await supabase
@@ -101,46 +111,43 @@ export default function FluxoCaixaMensal() {
         const inicioStr = dataInicio.toISOString().split('T')[0];
         const fimStr = dataFim.toISOString().split('T')[0];
 
-        // Para o primeiro mês do ano, verificar se há movimentações anteriores
+        // Para o primeiro mês do ano, calcular o saldo inicial
         if (mes === 0) {
-          // Verificar se há alguma movimentação antes de janeiro do ano atual
-          const anoAnterior = ano - 1;
-          const dataLimite = new Date(anoAnterior, 11, 31).toISOString().split('T')[0];
+          const dataLimite = new Date(ano, 0, 1).toISOString().split('T')[0];
 
-          const { data: movimentacoesAnteriores } = await supabase
+          // Buscar movimentações anteriores
+          const { data: entradasAnteriores } = await supabase
             .from("contas_receber_pagamentos")
-            .select("id")
-            .lte("data_pagamento", dataLimite)
-            .eq("estornado", false)
-            .limit(1);
+            .select("valor_pago, juros, desconto")
+            .lt("data_pagamento", dataLimite)
+            .eq("estornado", false);
 
-          // Se não há movimentações anteriores (primeiro mês de movimentações),
-          // usar o Saldo Anterior do Dashboard
-          if (!movimentacoesAnteriores || movimentacoesAnteriores.length === 0) {
-            saldoAnterior = saldoInicialBancos;
-          } else {
-            // Se há movimentações anteriores, calcular o saldo final do ano anterior
-            const { data: entradasAnteriores } = await supabase
-              .from("contas_receber_pagamentos")
-              .select("valor_pago, juros, desconto")
-              .lte("data_pagamento", dataLimite)
-              .eq("estornado", false);
+          const { data: saidasAnteriores } = await supabase
+            .from("contas_pagar_pagamentos")
+            .select("valor_pago, juros, desconto")
+            .lt("data_pagamento", dataLimite)
+            .eq("estornado", false);
 
-            const { data: saidasAnteriores } = await supabase
-              .from("contas_pagar_pagamentos")
-              .select("valor_pago, juros, desconto")
-              .lte("data_pagamento", dataLimite)
-              .eq("estornado", false);
+          const totalEntradasAnt = entradasAnteriores
+            ?.reduce((sum, e) => sum + (e.valor_pago || 0) + (e.juros || 0) - (e.desconto || 0), 0) || 0;
 
-            const totalEntradasAnt = entradasAnteriores
-              ?.reduce((sum, e) => sum + (e.valor_pago || 0) + (e.juros || 0) - (e.desconto || 0), 0) || 0;
+          const totalSaidasAnt = saidasAnteriores
+            ?.reduce((sum, s) => sum + (s.valor_pago || 0) + (s.juros || 0) - (s.desconto || 0), 0) || 0;
 
-            const totalSaidasAnt = saidasAnteriores
-              ?.reduce((sum, s) => sum + (s.valor_pago || 0) + (s.juros || 0) - (s.desconto || 0), 0) || 0;
-
-            saldoAnterior = saldoInicialBancos + totalEntradasAnt - totalSaidasAnt;
-          }
+          // Calcular: Saldo Bancos + Saldos Configurados + Entradas - Saídas anteriores
+          saldoAnterior = saldoInicialBancos + totalSaldosConfiguradosIniciais + totalEntradasAnt - totalSaidasAnt;
         }
+
+        // Para meses subsequentes, buscar saldos configurados dentro do ano
+        const dataInicioMes = new Date(ano, mes, 1).toISOString().split('T')[0];
+        const { data: saldosConfiguradosMes } = await supabase
+          .from('saldos_iniciais_bancos')
+          .select('saldo_inicial, data_referencia')
+          .eq('user_id', user.id)
+          .gte('data_referencia', inicioAno)
+          .lt('data_referencia', dataInicioMes);
+
+        const saldosConfiguradosNoMes = saldosConfiguradosMes?.reduce((acc, s) => acc + (s.saldo_inicial || 0), 0) || 0;
 
         // Buscar entradas (Contas a Receber pagas)
         const { data: pagamentosReceber } = await supabase
@@ -284,7 +291,8 @@ export default function FluxoCaixaMensal() {
         };
 
         const saldoOperacional = entradasCalc.total - saidasCalc.total;
-        const saldoFinal = saldoAnterior + saldoOperacional;
+        // Adicionar saldos configurados no mês ao cálculo
+        const saldoFinal = saldoAnterior + saldosConfiguradosNoMes + saldoOperacional;
 
         fluxoCalculado.push({
           mes: meses[mes],

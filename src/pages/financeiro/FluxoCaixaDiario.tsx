@@ -70,6 +70,7 @@ export default function FluxoCaixaDiario() {
       
       // Calcular saldo inicial
       const fimMesAnterior = new Date(mesAno.getFullYear(), mesAno.getMonth(), 0);
+      const inicioMesAtual = format(inicio, "yyyy-MM-dd");
       
       // 1. Buscar saldo inicial dos bancos (Saldo Anterior do Dashboard)
       const { data: saldos } = await supabase
@@ -79,17 +80,26 @@ export default function FluxoCaixaDiario() {
 
       const saldoInicialBancos = saldos?.reduce((acc, s) => acc + (s.saldo_inicial || 0), 0) || 0;
 
-      // 2. Verificar se há movimentações anteriores
+      // 2. Buscar saldos iniciais configurados até o início do mês atual
+      const { data: saldosConfigurados } = await supabase
+        .from('saldos_iniciais_bancos')
+        .select('saldo_inicial, data_referencia')
+        .eq('user_id', user.id)
+        .lt('data_referencia', inicioMesAtual);
+
+      const totalSaldosConfigurados = saldosConfigurados?.reduce((acc, s) => acc + (s.saldo_inicial || 0), 0) || 0;
+
+      // 3. Buscar movimentações anteriores ao mês atual
       const { data: entradasAnteriores } = await supabase
         .from("contas_receber_pagamentos")
         .select("valor_pago, juros, desconto")
-        .lte("data_pagamento", format(fimMesAnterior, "yyyy-MM-dd"))
+        .lt("data_pagamento", inicioMesAtual)
         .eq("estornado", false);
 
       const { data: saidasAnteriores } = await supabase
         .from("contas_pagar_pagamentos")
         .select("valor_pago, juros, desconto")
-        .lte("data_pagamento", format(fimMesAnterior, "yyyy-MM-dd"))
+        .lt("data_pagamento", inicioMesAtual)
         .eq("estornado", false);
 
       const totalEntradasAnteriores = entradasAnteriores
@@ -98,11 +108,8 @@ export default function FluxoCaixaDiario() {
       const totalSaidasAnteriores = saidasAnteriores
         ?.reduce((sum, s) => sum + (s.valor_pago || 0) + (s.juros || 0) - (s.desconto || 0), 0) || 0;
 
-      // Se não há movimentações anteriores (mês 0), usar apenas o Saldo Anterior dos bancos
-      // Caso contrário, calcular: Saldo Inicial dos Bancos + Entradas - Saídas até o mês anterior
-      const saldoIni = totalEntradasAnteriores === 0 && totalSaidasAnteriores === 0
-        ? saldoInicialBancos
-        : saldoInicialBancos + totalEntradasAnteriores - totalSaidasAnteriores;
+      // Calcular saldo inicial: Saldo Bancos + Saldos Configurados + Entradas - Saídas anteriores
+      const saldoIni = saldoInicialBancos + totalSaldosConfigurados + totalEntradasAnteriores - totalSaidasAnteriores;
       
       setSaldoInicial(saldoIni);
       
