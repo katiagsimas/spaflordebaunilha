@@ -1054,7 +1054,7 @@ export default function ContasPagar() {
         </div>
 
         {/* Linha Inferior - Controles */}
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
           {/* Resultados por Página - Esquerda */}
           <div className="flex items-center gap-2">
             <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
