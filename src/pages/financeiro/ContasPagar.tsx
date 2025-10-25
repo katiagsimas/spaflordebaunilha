@@ -89,7 +89,7 @@ export default function ContasPagar() {
   });
 
   // Filtros pré-definidos
-  const [filtroStatus, setFiltroStatus] = useState('todos');
+  const [filtroStatus, setFiltroStatus] = useState('aberto'); // Fixado em "aberto" por padrão
 
   // Filtros avançados
   const [mostrarFiltrosAvancados, setMostrarFiltrosAvancados] = useState(false);
@@ -125,7 +125,6 @@ export default function ContasPagar() {
   
   // Estados para paginação e busca
   const [porPagina, setPorPagina] = useState(10);
-  const [buscaNome, setBuscaNome] = useState('');
   const [openFornecedor, setOpenFornecedor] = useState(false);
   const [searchFornecedor, setSearchFornecedor] = useState('');
 
@@ -326,6 +325,14 @@ export default function ContasPagar() {
   };
 
   const parcelasFiltradas = parcelas.filter((p: any) => {
+    // Ocultar contas pagas/adiantadas APENAS quando o filtro está em "aberto" ou em status que não sejam "todos" ou "pago" ou "adiantado"
+    const isFiltroAberto = filtroStatus === 'aberto' || 
+                           (filtroStatus !== 'todos' && filtroStatus !== 'pago' && filtroStatus !== 'adiantado');
+    
+    if (isFiltroAberto && (p.status === 'pago' || p.status === 'adiantado')) {
+      return false;
+    }
+    
     // Filtro de status
     if (filtroStatus !== 'todos' && p.status !== filtroStatus) {
       return false;
@@ -345,13 +352,6 @@ export default function ContasPagar() {
     if (categoriaFiltro !== 'todos' && p.plano_contas_categoria_id !== categoriaFiltro) return false;
     if (tipoDocumentoFiltro !== 'todos' && p.conta?.tipo_documento_id !== tipoDocumentoFiltro) return false;
     if (bancoFiltro !== 'todos' && p.conta?.banco_id !== bancoFiltro) return false;
-    
-    // Filtro de busca por nome do fornecedor
-    if (buscaNome && p.fornecedor_nome) {
-      if (!p.fornecedor_nome.toLowerCase().includes(buscaNome.toLowerCase())) {
-        return false;
-      }
-    }
 
     return true;
   });
@@ -360,7 +360,7 @@ export default function ContasPagar() {
   const parcelasPaginadas = parcelasFiltradas.slice(0, porPagina);
 
   const limparFiltros = () => {
-    setFiltroStatus('todos');
+    setFiltroStatus('aberto'); // Volta para "aberto" ao limpar filtros
     setDataEmissaoInicio('');
     setDataEmissaoFim('');
     setDataPagamentoInicio('');
@@ -896,10 +896,6 @@ export default function ContasPagar() {
         <Button variant="outline" onClick={limparFiltros}>
           Limpar Filtros
         </Button>
-        <Button variant="outline" onClick={handleExportarExcel}>
-          <Download className="mr-2 h-4 w-4" />
-          Exportar para Excel
-        </Button>
       </div>
 
       {/* Filtros Avançados Recolhíveis */}
@@ -1064,22 +1060,17 @@ export default function ContasPagar() {
             </Select>
             <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
           </div>
+
+          <Button variant="outline" size="sm" onClick={handleExportarExcel}>
+            <Download className="mr-2 h-4 w-4" />
+            Exportar para Excel
+          </Button>
           
           {/* Botão Adicionar - Centro */}
           <Button onClick={() => navigate('/financeiro/contas-pagar/nova')}>
             <Plus className="mr-2 h-4 w-4" />
             Adicionar Conta a Pagar
           </Button>
-          
-          {/* Campo de Busca - Direita */}
-          <div className="relative flex-1 max-w-xs">
-            <Input
-              placeholder="Buscar por nome do fornecedor..."
-              value={buscaNome}
-              onChange={(e) => setBuscaNome(e.target.value)}
-              className="bg-popover"
-            />
-          </div>
         </div>
       </div>
 
