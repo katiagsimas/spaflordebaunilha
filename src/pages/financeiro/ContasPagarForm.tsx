@@ -701,25 +701,6 @@ export default function ContasPagarForm() {
             </div>
           </div>
 
-          {/* Dia Vencimento Recorrente */}
-          {tipoLancamento === 'recorrente' && (
-            <div className="space-y-2">
-              <Label htmlFor="dia-vencimento">Dia do Vencimento *</Label>
-              <Select value={diaVencimentoRecorrente} onValueChange={setDiaVencimentoRecorrente}>
-                <SelectTrigger className="max-w-xs">
-                  <SelectValue placeholder="Selecione o dia..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 31 }, (_, i) => i + 1).map(dia => (
-                    <SelectItem key={dia} value={dia.toString()}>
-                      Dia {dia}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
           {/* Banco */}
           <div className="space-y-2">
             <Label>Banco *</Label>
