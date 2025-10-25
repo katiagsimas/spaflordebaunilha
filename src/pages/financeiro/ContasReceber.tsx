@@ -512,6 +512,18 @@ export default function ContasReceber() {
   };
 
   const parcelasFiltradas = parcelas.filter(p => {
+    // Por padrão, ocultar contas pagas/adiantadas (só aparecem com filtro ativo)
+    const temFiltroAtivo = filtroStatus !== 'todos' || 
+                           dataEmissaoInicial || dataEmissaoFinal ||
+                           dataPagamentoInicial || dataPagamentoFinal ||
+                           dataVencimentoInicial || dataVencimentoFinal ||
+                           filtroPlanoContasId || filtroClienteId || 
+                           filtroCategoriaId || filtroTipoDocId || filtroBancoId;
+    
+    if (!temFiltroAtivo && (p.status === 'pago' || p.status === 'adiantado')) {
+      return false;
+    }
+    
     // Filtro de status
     if (filtroStatus !== 'todos') {
       // Tratar "vencido" como sinônimo de "atrasado"
