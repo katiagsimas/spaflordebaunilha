@@ -63,6 +63,8 @@ export default function ContasPagarForm() {
   const [searchPlanoContas, setSearchPlanoContas] = useState('');
 
   const [loading, setLoading] = useState(false);
+  const [parcelasGeradas, setParcelasGeradas] = useState<any[]>([]);
+  const [parcelasEditadas, setParcelasEditadas] = useState(false);
 
   useEffect(() => {
     fetchDados();
@@ -178,78 +180,153 @@ export default function ContasPagarForm() {
     setFornecedorNome(fornecedorNome);
   };
 
+  const handleEditarParcela = (index: number, campo: string, valor: any) => {
+    const novasParcelas = [...parcelasGeradas];
+    
+    if (campo === 'valor_parcela') {
+      // Converter de string para number
+      const valorNumerico = parseFloat(valor.replace(',', '.'));
+      novasParcelas[index][campo] = isNaN(valorNumerico) ? 0 : valorNumerico;
+    } else {
+      novasParcelas[index][campo] = valor;
+    }
+    
+    setParcelasGeradas(novasParcelas);
+    setParcelasEditadas(true);
+  };
+
+  const handleGerarParcelas = () => {
+    // Validações - coletar todos os erros
+    const erros: string[] = [];
+
+    if (!fornecedorId) {
+      erros.push('• Fornecedor');
+    }
+
+    if (!tipoDocumentoId) {
+      erros.push('• Tipo de Documento');
+    }
+
+    if (!planoContasId) {
+      erros.push('• Plano de Contas');
+    }
+
+    if (!bancoId) {
+      erros.push('• Banco');
+    }
+
+    const valor = parseFloat(valorTotal.replace(',', '.'));
+    if (!valor || valor <= 0) {
+      erros.push('• Valor Total (deve ser maior que zero)');
+    }
+
+    const parcelas = parseInt(numeroParcelas);
+    if (!parcelas || parcelas < 1) {
+      erros.push('• Número de Parcelas (deve ser maior que zero)');
+    }
+
+    if (!primeiroVencimento) {
+      erros.push('• Data do Primeiro Vencimento');
+    }
+
+    if (tipoLancamento === 'recorrente' && !diaVencimentoRecorrente) {
+      erros.push('• Dia do Vencimento (obrigatório para recorrente)');
+    }
+
+    if (erros.length > 0) {
+      toast({
+        title: '⚠️ Preencha os campos obrigatórios',
+        description: (
+          <div className="mt-2">
+            <p className="font-semibold mb-1">Campos faltando:</p>
+            {erros.map((erro, idx) => (
+              <div key={idx} className="text-sm">{erro}</div>
+            ))}
+          </div>
+        ),
+        variant: 'destructive',
+        duration: 6000,
+      });
+      return;
+    }
+
+    // Gerar parcelas
+    const parcelas_geradas = [];
+    const dataBase = new Date(primeiroVencimento + 'T00:00:00');
+
+    if (tipoLancamento === 'parcelado' || tipoLancamento === 'unico') {
+      const valorParcela = valor / parcelas;
+
+      for (let i = 0; i < parcelas; i++) {
+        const dataVenc = new Date(dataBase);
+        dataVenc.setMonth(dataVenc.getMonth() + i);
+
+        parcelas_geradas.push({
+          numero_parcela: i + 1,
+          data_emissao: dataEmissao,
+          data_vencimento: dataVenc.toISOString().split('T')[0],
+          valor_total: valor,
+          valor_parcela: valorParcela,
+          status: 'aberto',
+        });
+      }
+    } else {
+      // Recorrente
+      const dia = parseInt(diaVencimentoRecorrente);
+
+      for (let i = 0; i < parcelas; i++) {
+        const dataVenc = new Date(dataBase);
+        dataVenc.setMonth(dataVenc.getMonth() + i);
+        dataVenc.setDate(dia);
+
+        const dataEmissaoParcela = new Date(dataVenc);
+        dataEmissaoParcela.setDate(1);
+
+        parcelas_geradas.push({
+          numero_parcela: i + 1,
+          data_emissao: dataEmissaoParcela.toISOString().split('T')[0],
+          data_vencimento: dataVenc.toISOString().split('T')[0],
+          valor_total: valor,
+          valor_parcela: valor,
+          status: 'aberto',
+        });
+      }
+    }
+
+    setParcelasGeradas(parcelas_geradas);
+    setParcelasEditadas(false);
+
+    toast({
+      title: '✅ Parcelas geradas',
+      description: `${parcelas_geradas.length} parcela(s) gerada(s) com sucesso!`,
+    });
+  };
+
   const handleSalvar = async () => {
     try {
-      // Validações
-      if (!fornecedorId) {
+      if (parcelasGeradas.length === 0) {
         toast({
           title: 'Erro',
-          description: 'Selecione o fornecedor!',
+          description: 'Gere as parcelas antes de salvar!',
           variant: 'destructive',
         });
         return;
       }
 
-      if (!tipoDocumentoId) {
+      // Validar se soma das parcelas = valor total
+      const totalParcelas = parcelasGeradas.reduce((acc, p) => acc + p.valor_parcela, 0);
+      const valorTotalNum = parseFloat(valorTotal.replace(',', '.'));
+      
+      if (Math.abs(totalParcelas - valorTotalNum) > 0.01) {
         toast({
           title: 'Erro',
-          description: 'Selecione o tipo de documento!',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (!planoContasId) {
-        toast({
-          title: 'Erro',
-          description: 'Selecione o plano de contas!',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (!bancoId) {
-        toast({
-          title: 'Erro',
-          description: 'Selecione o banco!',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      const valor = parseFloat(valorTotal.replace(',', '.'));
-      if (!valor || valor <= 0) {
-        toast({
-          title: 'Erro',
-          description: 'Informe um valor válido!',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      const parcelas = parseInt(numeroParcelas);
-      if (!parcelas || parcelas < 1) {
-        toast({
-          title: 'Erro',
-          description: 'Número de parcelas inválido!',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (!primeiroVencimento) {
-        toast({
-          title: 'Erro',
-          description: 'Informe a data do primeiro vencimento!',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (tipoLancamento === 'recorrente' && !diaVencimentoRecorrente) {
-        toast({
-          title: 'Erro',
-          description: 'Informe o dia do vencimento para lançamentos recorrentes!',
+          description: `A soma das parcelas (${totalParcelas.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+          })}) não corresponde ao valor total (${valorTotalNum.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+          })})`,
           variant: 'destructive',
         });
         return;
@@ -268,8 +345,8 @@ export default function ContasPagarForm() {
         plano_contas_id: planoContasId,
         banco_id: bancoId,
         descricao: descricao.trim() || null,
-        valor_total: valor,
-        numero_parcelas: parcelas,
+        valor_total: valorTotalNum,
+        numero_parcelas: parseInt(numeroParcelas),
         tipo_lancamento: tipoLancamento,
         e_recorrente: tipoLancamento === 'recorrente',
         dia_vencimento_recorrente: tipoLancamento === 'recorrente' ? parseInt(diaVencimentoRecorrente) : null,
@@ -290,8 +367,17 @@ export default function ContasPagarForm() {
           .delete()
           .eq('conta_pagar_id', id);
 
-        // Criar novas parcelas
-        await criarParcelas(id as string, valor, parcelas);
+        // Inserir novas parcelas
+        const parcelasParaInserir = parcelasGeradas.map(p => ({
+          ...p,
+          conta_pagar_id: id,
+        }));
+
+        const { error: errorParcelas } = await supabase
+          .from('contas_pagar_parcelas' as any)
+          .insert(parcelasParaInserir);
+
+        if (errorParcelas) throw errorParcelas;
 
         toast({
           title: '✅ Conta atualizada',
@@ -310,12 +396,21 @@ export default function ContasPagarForm() {
 
         const contaCriada = conta as any;
 
-        // Criar parcelas
-        await criarParcelas(contaCriada.id, valor, parcelas);
+        // Inserir parcelas
+        const parcelasParaInserir = parcelasGeradas.map(p => ({
+          ...p,
+          conta_pagar_id: contaCriada.id,
+        }));
+
+        const { error: errorParcelas } = await supabase
+          .from('contas_pagar_parcelas' as any)
+          .insert(parcelasParaInserir);
+
+        if (errorParcelas) throw errorParcelas;
 
         toast({
           title: '✅ Conta criada',
-          description: `${parcelas} parcela(s) criada(s) com sucesso!`,
+          description: `${parcelasGeradas.length} parcela(s) criada(s) com sucesso!`,
         });
       }
 
@@ -527,23 +622,6 @@ export default function ContasPagarForm() {
             </div>
           </div>
 
-          {/* Banco */}
-          <div className="space-y-2">
-            <Label>Banco *</Label>
-            <Select value={bancoId} onValueChange={setBancoId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione..." />
-              </SelectTrigger>
-              <SelectContent>
-                {bancos.map(banco => (
-                  <SelectItem key={banco.id} value={banco.id}>
-                    {banco.codigo} - {banco.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           {/* Descrição */}
           <div className="space-y-2">
             <Label htmlFor="descricao">Descrição</Label>
@@ -641,8 +719,103 @@ export default function ContasPagarForm() {
               </Select>
             </div>
           )}
+
+          {/* Banco */}
+          <div className="space-y-2">
+            <Label>Banco *</Label>
+            <Select value={bancoId} onValueChange={setBancoId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione..." />
+              </SelectTrigger>
+              <SelectContent>
+                {bancos.map(banco => (
+                  <SelectItem key={banco.id} value={banco.id}>
+                    {banco.codigo} - {banco.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </CardContent>
       </Card>
+
+      {/* Tabela de Parcelas Geradas */}
+      {parcelasGeradas.length > 0 && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Parcelas Geradas</CardTitle>
+              {parcelasEditadas && (
+                <span className="text-xs text-orange-600">
+                  ⚠️ Parcelas editadas
+                </span>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="border rounded-lg overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-muted">
+                  <tr>
+                    <th className="p-2 text-left">#</th>
+                    <th className="p-2 text-left">Vencimento</th>
+                    <th className="p-2 text-right">Valor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {parcelasGeradas.map((parcela, index) => (
+                    <tr key={index} className="border-t">
+                      <td className="p-2">{parcela.numero_parcela}</td>
+                      <td className="p-2">
+                        <Input
+                          type="date"
+                          value={parcela.data_vencimento}
+                          onChange={(e) => handleEditarParcela(index, 'data_vencimento', e.target.value)}
+                          className="w-40"
+                        />
+                      </td>
+                      <td className="p-2 text-right">
+                        <Input
+                          type="text"
+                          placeholder="0,00"
+                          value={parcela.valor_parcela.toFixed(2).replace('.', ',')}
+                          onChange={(e) => {
+                            let valor = e.target.value;
+                            // Permitir apenas números e vírgula
+                            valor = valor.replace(/[^\d,]/g, '');
+                            // Garantir apenas uma vírgula
+                            const partes = valor.split(',');
+                            if (partes.length > 2) {
+                              valor = partes[0] + ',' + partes.slice(1).join('');
+                            }
+                            // Limitar casas decimais a 2
+                            if (partes[1] && partes[1].length > 2) {
+                              valor = partes[0] + ',' + partes[1].substring(0, 2);
+                            }
+                            handleEditarParcela(index, 'valor_parcela', valor);
+                          }}
+                          className="w-40 text-right ml-auto"
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot className="bg-muted font-semibold">
+                  <tr>
+                    <td colSpan={2} className="p-2 text-right">Total:</td>
+                    <td className="p-2 text-right">
+                      {parcelasGeradas.reduce((acc, p) => acc + p.valor_parcela, 0).toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                      })}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Botões de Ação */}
       <div className="flex gap-4">
@@ -650,12 +823,20 @@ export default function ContasPagarForm() {
           variant="outline"
           onClick={() => navigate('/financeiro/contas-pagar')}
           disabled={loading}
+          className="flex-1"
         >
           Cancelar
         </Button>
-        <Button onClick={handleSalvar} disabled={loading} className="flex-1">
-          {loading ? 'Salvando...' : (isEdicao ? 'Atualizar Conta' : 'Cadastrar Conta a Pagar')}
-        </Button>
+        
+        {parcelasGeradas.length === 0 ? (
+          <Button onClick={handleGerarParcelas} disabled={loading} className="flex-1">
+            Gerar Parcelas
+          </Button>
+        ) : (
+          <Button onClick={handleSalvar} disabled={loading} className="flex-1">
+            {loading ? 'Salvando...' : (isEdicao ? 'Atualizar Conta' : 'Cadastrar Conta a Pagar')}
+          </Button>
+        )}
       </div>
     </div>
   );
