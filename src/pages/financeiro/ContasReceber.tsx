@@ -771,67 +771,6 @@ export default function ContasReceber() {
         </Card>
       </div>
 
-      {/* Filtros de Status Dinâmicos */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-muted-foreground" />
-          <Label>Filtros de Status</Label>
-        </div>
-        
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant={filtroStatus === 'todos' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFiltroStatus('todos')}
-          >
-            Todos
-          </Button>
-          
-          {visualizacao === 'ativas' ? (
-            <>
-              <Button
-                variant={filtroStatus === 'aberto' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFiltroStatus('aberto')}
-              >
-                Em Aberto
-              </Button>
-              <Button
-                variant={filtroStatus === 'vencido' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFiltroStatus('vencido')}
-              >
-                Vencido
-              </Button>
-              <Button
-                variant={filtroStatus === 'pagamento_parcial' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFiltroStatus('pagamento_parcial')}
-              >
-                Pago Parcialmente
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button
-                variant={filtroStatus === 'pago' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFiltroStatus('pago')}
-              >
-                Pago
-              </Button>
-              <Button
-                variant={filtroStatus === 'adiantado' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFiltroStatus('adiantado')}
-              >
-                Adiantado
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
-
       {/* Filtros de Data */}
       <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -903,9 +842,65 @@ export default function ContasReceber() {
         </div>
       </div>
 
-      {/* Mais Opções de Busca + Limpar + Exportar */}
+      {/* Filtros de Status + Mais Opções de Busca + Limpar + Exportar */}
       <Collapsible open={maisOpcoesOpen} onOpenChange={setMaisOpcoesOpen} className="w-full space-y-4">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Filtros de Status */}
+          <Button
+            variant={filtroStatus === 'todos' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFiltroStatus('todos')}
+          >
+            Todos
+          </Button>
+          
+          {visualizacao === 'ativas' ? (
+            <>
+              <Button
+                variant={filtroStatus === 'aberto' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFiltroStatus('aberto')}
+              >
+                Em Aberto
+              </Button>
+              <Button
+                variant={filtroStatus === 'vencido' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFiltroStatus('vencido')}
+              >
+                Vencido
+              </Button>
+              <Button
+                variant={filtroStatus === 'pagamento_parcial' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFiltroStatus('pagamento_parcial')}
+              >
+                Pago Parcialmente
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant={filtroStatus === 'pago' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFiltroStatus('pago')}
+              >
+                Pago
+              </Button>
+              <Button
+                variant={filtroStatus === 'adiantado' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFiltroStatus('adiantado')}
+              >
+                Adiantado
+              </Button>
+            </>
+          )}
+
+          {/* Separador visual */}
+          <div className="h-8 w-px bg-border mx-1" />
+
+          {/* Mais Opções de Busca */}
           <CollapsibleTrigger asChild>
             <Button 
               variant={maisOpcoesOpen ? 'default' : 'outline'}
