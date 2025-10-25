@@ -319,8 +319,9 @@ const Encomendas = () => {
       
       try {
         // Preparar os dados com o valor final calculado
+        const { clienteId, ...dadosEncomenda } = formData; // Remover clienteId que não existe na tabela
         const dadosParaSalvar = {
-          ...formData,
+          ...dadosEncomenda,
           valor: valorFinal,
           data_entrega: formData.data_entrega || null,
           hora_entrega: formData.hora_entrega || null,
