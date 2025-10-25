@@ -571,13 +571,6 @@ export default function ContasReceber() {
     if (filtroBancoId && p.banco_id !== filtroBancoId) {
       return false;
     }
-    
-    // Filtro de busca por nome do cliente
-    if (buscaNome && p.cliente_nome) {
-      if (!p.cliente_nome.toLowerCase().includes(buscaNome.toLowerCase())) {
-        return false;
-      }
-    }
 
     return true;
   });
@@ -1046,21 +1039,11 @@ export default function ContasReceber() {
       <div className="border rounded-lg p-4 space-y-4">
         {/* Primeira linha: Botão Adicionar e Busca */}
         <div className="flex items-center justify-between gap-4">
-          {/* Botão Adicionar - Centro */}
+          {/* Botão Adicionar */}
           <Button onClick={() => navigate('/financeiro/contas-receber/nova')}>
             <Plus className="mr-2 h-4 w-4" />
             Adicionar Conta a Receber
           </Button>
-          
-          {/* Campo de Busca - Direita */}
-          <div className="relative flex-1 max-w-xs">
-            <Input
-              placeholder="Buscar por nome do cliente..."
-              value={buscaNome}
-              onChange={(e) => setBuscaNome(e.target.value)}
-              className="bg-popover"
-            />
-          </div>
         </div>
 
         {/* Segunda linha: Contador e Cards de Visualização */}
