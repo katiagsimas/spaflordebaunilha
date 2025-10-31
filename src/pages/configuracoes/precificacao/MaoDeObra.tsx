@@ -28,6 +28,7 @@ import { useMaoObra, type MaoDeObra } from "@/hooks/useMaoObra";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 
 const coresDisponiveis = [
   { value: "blue", label: "Azul", class: "bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-300" },
@@ -152,8 +153,9 @@ export default function MaoDeObra() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-6">
-      <PageHeader
+    <TooltipProvider>
+      <div className="min-h-screen bg-background p-4 md:p-6">
+        <PageHeader
         title="Valores de Mão de Obra"
         description="Defina quanto vale sua hora de trabalho"
         backButton={<BackButton to="/configuracoes/precificacao" />}
@@ -369,27 +371,41 @@ export default function MaoDeObra() {
                         Alterar
                       </Button>
                       
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => verHistorico(valor.id)}
-                        className="text-blue-600 hover:bg-blue-50"
-                      >
-                        <History className="w-4 h-4" />
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => verHistorico(valor.id)}
+                            className="text-blue-600 hover:bg-blue-50"
+                          >
+                            <History className="w-4 h-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="text-xs">Ver histórico de alterações</p>
+                        </TooltipContent>
+                      </Tooltip>
                       
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => toggleAtivo({ id: valor.id, ativo: valor.ativo })}
-                        className={valor.ativo ? "text-gray-600 hover:bg-gray-50" : "text-green-600 hover:bg-green-50"}
-                      >
-                        {valor.ativo ? (
-                          <EyeOff className="w-4 h-4" />
-                        ) : (
-                          <Eye className="w-4 h-4" />
-                        )}
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => toggleAtivo({ id: valor.id, ativo: valor.ativo })}
+                            className={valor.ativo ? "text-gray-600 hover:bg-gray-50" : "text-green-600 hover:bg-green-50"}
+                          >
+                            {valor.ativo ? (
+                              <EyeOff className="w-4 h-4" />
+                            ) : (
+                              <Eye className="w-4 h-4" />
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="text-xs">{valor.ativo ? "Desativar valor" : "Ativar valor"}</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </div>
                   </div>
                 </CardContent>
@@ -497,6 +513,7 @@ export default function MaoDeObra() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </TooltipProvider>
   );
 }
