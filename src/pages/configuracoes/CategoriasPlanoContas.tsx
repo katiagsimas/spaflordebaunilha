@@ -101,7 +101,7 @@ export default function CategoriasPlanoContas() {
         .from('categorias_plano_contas')
         .select('*')
         .eq('user_id', user.id)
-        .order('descricao');
+        .order('codigo');
 
       if (error) throw error;
       setCategorias((data || []) as Categoria[]);
@@ -152,10 +152,12 @@ export default function CategoriasPlanoContas() {
       resultado = resultado.filter(cat => cat.e_padrao === ePadrao);
     }
 
-    // Ordenar alfabeticamente por descrição
-    resultado.sort((a, b) => 
-      a.descricao.localeCompare(b.descricao, 'pt-BR', { sensitivity: 'base' })
-    );
+    // Ordenar numericamente por código
+    resultado.sort((a, b) => {
+      const codigoA = parseInt(a.codigo);
+      const codigoB = parseInt(b.codigo);
+      return codigoA - codigoB;
+    });
 
     return resultado;
   }, [categorias, termoBusca, filtroIndicador, filtroStatus, filtroFaixaDRE, filtroTipo]);
