@@ -16,7 +16,7 @@ export default function ConfiguracaoJuros() {
   const { toast } = useToast();
   
   const [configId, setConfigId] = useState<string | null>(null);
-  const [cobrarJuros, setCobrarJuros] = useState(true);
+  const [cobrarJuros, setCobrarJuros] = useState(false);
   const [tipoJuros, setTipoJuros] = useState('mensal');
   const [percentualJuros, setPercentualJuros] = useState('1,00');
   const [multaAtraso, setMultaAtraso] = useState(false);
