@@ -34,6 +34,7 @@ import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2 } f
 import * as XLSX from 'xlsx';
 import { BackButton } from '@/components/BackButton';
 import { PageHeader } from '@/components/PageHeader';
+import { CategoriaPlanoContasAutocomplete } from '@/components/CategoriaPlanoContasAutocomplete';
 
 export default function PlanoContas() {
   const [planos, setPlanos] = useState([]);
@@ -659,21 +660,12 @@ export default function PlanoContas() {
 
             <div className="space-y-2">
               <Label>Categoria *</Label>
-              <Select 
-                value={categoriaId} 
-                onValueChange={handleCategoriaChange}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {categorias.map(cat => (
-                    <SelectItem key={cat.id} value={cat.id}>
-                      {cat.codigo} - {cat.descricao}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <CategoriaPlanoContasAutocomplete
+                value={categoriaId}
+                categorias={categorias}
+                onSelect={handleCategoriaChange}
+                placeholder="Selecione uma categoria..."
+              />
               {editando && (
                 <p className="text-xs text-muted-foreground">
                   💡 Ao alterar a categoria, o código estruturado será recalculado automaticamente
