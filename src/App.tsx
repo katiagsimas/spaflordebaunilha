@@ -32,6 +32,7 @@ import Clientes from "./pages/cadastros/Clientes";
 import Fornecedores from "./pages/cadastros/Fornecedores";
 import UnidadesMedida from "./pages/cadastros/UnidadesMedida";
 import Categorias from "./pages/cadastros/Categorias";
+import CategoriasEstoque from "./pages/configuracoes/CategoriasEstoque";
 import SubReceitas from "./pages/SubReceitas";
 import SubReceitaForm from "./pages/SubReceitaForm";
 import Receitas from "./pages/Receitas";
@@ -158,6 +159,7 @@ const App = () => (
           <Route path="/configuracoes/tags-encomendas" element={<ProtectedRoute><Layout><TagsEncomendasPage /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/dados-confeitaria" element={<ProtectedRoute><Layout><SeusDados /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/categorias-receitas" element={<ProtectedRoute><Layout><Categorias /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/categorias-estoque" element={<ProtectedRoute><Layout><CategoriasEstoque /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/unidades-medida" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
           
           {/* Precificação - Ingredientes e Embalagens */}
