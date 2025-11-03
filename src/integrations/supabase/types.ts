@@ -1007,6 +1007,7 @@ export type Database = {
       }
       embalagens: {
         Row: {
+          controlar_estoque: boolean
           created_at: string | null
           data_atualizacao: string
           id: string
@@ -1017,6 +1018,7 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
+          controlar_estoque?: boolean
           created_at?: string | null
           data_atualizacao?: string
           id?: string
@@ -1027,6 +1029,7 @@ export type Database = {
           usuario_id: string
         }
         Update: {
+          controlar_estoque?: boolean
           created_at?: string | null
           data_atualizacao?: string
           id?: string
@@ -1368,6 +1371,7 @@ export type Database = {
       }
       ingredientes: {
         Row: {
+          controlar_estoque: boolean
           created_at: string | null
           data_atualizacao: string
           e_pre_preparo: boolean | null
@@ -1379,6 +1383,7 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
+          controlar_estoque?: boolean
           created_at?: string | null
           data_atualizacao?: string
           e_pre_preparo?: boolean | null
@@ -1390,6 +1395,7 @@ export type Database = {
           usuario_id: string
         }
         Update: {
+          controlar_estoque?: boolean
           created_at?: string | null
           data_atualizacao?: string
           e_pre_preparo?: boolean | null

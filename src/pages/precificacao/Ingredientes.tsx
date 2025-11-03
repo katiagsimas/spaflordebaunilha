@@ -44,7 +44,8 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Check, ChevronsUpDown, Info, Download, Search, AlertTriangle } from 'lucide-react';
+import { Plus, Edit, Check, ChevronsUpDown, Info, Download, Search, AlertTriangle, Package } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import * as XLSX from 'xlsx';
 import { BackButton } from '@/components/BackButton';
@@ -68,6 +69,7 @@ export default function Ingredientes() {
   const [tipoSelecionado, setTipoSelecionado] = useState('');
   const [marca, setMarca] = useState('');
   const [preco, setPreco] = useState('');
+  const [controlarEstoque, setControlarEstoque] = useState(false);
   const [popoverAberto, setPopoverAberto] = useState(false);
   const [termoBuscaTipo, setTermoBuscaTipo] = useState('');
   
@@ -310,11 +312,13 @@ export default function Ingredientes() {
       setTipoSelecionado(ingrediente.tipo_insumo_id);
       setMarca(ingrediente.marca || '');
       setPreco(ingrediente.preco.toString().replace('.', ','));
+      setControlarEstoque(ingrediente.controlar_estoque || false);
     } else {
       setEditando(null);
       setTipoSelecionado('');
       setMarca('');
       setPreco('');
+      setControlarEstoque(false);
     }
     setModalAberto(true);
   };
@@ -350,6 +354,7 @@ export default function Ingredientes() {
             marca: marca.trim() || null,
             preco: precoNum,
             data_atualizacao: new Date().toISOString().split('T')[0],
+            controlar_estoque: controlarEstoque,
           })
           .eq('id', editando.id);
 
@@ -368,6 +373,7 @@ export default function Ingredientes() {
             marca: marca.trim() || null,
             preco: precoNum,
             data_atualizacao: new Date().toISOString().split('T')[0],
+            controlar_estoque: controlarEstoque,
           });
 
         if (error) {
@@ -576,13 +582,14 @@ export default function Ingredientes() {
               <TableHead>Unidade</TableHead>
               <TableHead>Preço</TableHead>
               <TableHead>Data Atualização</TableHead>
+              <TableHead className="text-center">Estoque</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {ingredientesFiltrados.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                   {termoBusca ? 'Nenhum ingrediente encontrado com esse termo.' : 'Nenhum ingrediente cadastrado. Clique em "Novo Ingrediente".'}
                 </TableCell>
               </TableRow>
@@ -657,6 +664,16 @@ export default function Ingredientes() {
                       !eReceita && !ePrePreparo && desatualizado && 'text-amber-700 font-medium dark:text-amber-400'
                     )}>
                       {formatarData(ingrediente.data_atualizacao)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {ingrediente.controlar_estoque ? (
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-400">
+                          <Package className="h-3 w-3 mr-1" />
+                          Sim
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">-</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       {eReceita ? (
@@ -817,6 +834,26 @@ export default function Ingredientes() {
                   setPreco(valor);
                 }}
               />
+            </div>
+
+            {/* Checkbox Controlar Estoque */}
+            <div className="flex items-center space-x-2 p-4 border rounded-lg bg-muted/30">
+              <Checkbox 
+                id="controlar-estoque" 
+                checked={controlarEstoque}
+                onCheckedChange={(checked) => setControlarEstoque(checked as boolean)}
+              />
+              <div className="flex flex-col">
+                <Label htmlFor="controlar-estoque" className="cursor-pointer font-medium">
+                  <div className="flex items-center gap-2">
+                    <Package className="h-4 w-4 text-primary" />
+                    Controlar no Estoque
+                  </div>
+                </Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Marque para acompanhar entradas e saídas deste item no módulo de Estoque
+                </p>
+              </div>
             </div>
           </div>
 
