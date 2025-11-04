@@ -40,6 +40,7 @@ export function EntradaRapida({ item, open, onOpenChange, onSave }: EntradaRapid
     try {
       const result = await onSave({
         movimento: {
+          item_id: item.id,
           tipo: 'entrada',
           subtipo: 'compra',
           quantidade: formData.quantidade,
