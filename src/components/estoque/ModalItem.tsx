@@ -107,11 +107,6 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
         });
       }
 
-      // Chamar callback se existir
-      if (onSave) {
-        await onSave(formData);
-      }
-
       onOpenChange(false);
     } catch (error: any) {
       console.error('Erro ao salvar item:', error);
