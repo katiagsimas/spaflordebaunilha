@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import Encomendas from "./pages/Encomendas";
 import Producao from "./pages/Producao";
 import Estoque from "./pages/Estoque";
+import EstoqueIntegrado from "./pages/EstoqueIntegrado";
 import RelatoriosEstoque from "./pages/estoque/RelatoriosEstoque";
 import RelatorioMovimentacoes from "./pages/estoque/RelatorioMovimentacoes";
 import RelatorioConsumoMedio from "./pages/estoque/RelatorioConsumoMedio";
@@ -135,6 +136,7 @@ const App = () => (
           
           {/* Estoque */}
           <Route path="/estoque" element={<ProtectedRoute><Layout><Estoque /></Layout></ProtectedRoute>} />
+          <Route path="/estoque/integrado" element={<ProtectedRoute><Layout><EstoqueIntegrado /></Layout></ProtectedRoute>} />
           <Route path="/estoque/relatorios" element={<ProtectedRoute><Layout><RelatoriosEstoque /></Layout></ProtectedRoute>} />
           <Route path="/estoque/movimentacoes" element={<ProtectedRoute><Layout><RelatorioMovimentacoes /></Layout></ProtectedRoute>} />
           <Route path="/estoque/consumo-medio" element={<ProtectedRoute><Layout><RelatorioConsumoMedio /></Layout></ProtectedRoute>} />

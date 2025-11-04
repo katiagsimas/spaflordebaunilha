@@ -1416,6 +1416,69 @@ export type Database = {
           },
         ]
       }
+      itens: {
+        Row: {
+          ativo: boolean
+          atualizado_em: string
+          categoria: string | null
+          conversoes: Json | null
+          criado_em: string
+          descricao: string | null
+          fornecedor_padrao: string | null
+          id: string
+          imagem_url: string | null
+          localizacao: string | null
+          nome: string
+          observacoes: string | null
+          ponto_de_pedido: number | null
+          quantidade_por_embalagem: number
+          rastrear_estoque: boolean
+          tipo: string
+          unidade_base: string
+          usuario_id: string
+        }
+        Insert: {
+          ativo?: boolean
+          atualizado_em?: string
+          categoria?: string | null
+          conversoes?: Json | null
+          criado_em?: string
+          descricao?: string | null
+          fornecedor_padrao?: string | null
+          id?: string
+          imagem_url?: string | null
+          localizacao?: string | null
+          nome: string
+          observacoes?: string | null
+          ponto_de_pedido?: number | null
+          quantidade_por_embalagem?: number
+          rastrear_estoque?: boolean
+          tipo: string
+          unidade_base: string
+          usuario_id: string
+        }
+        Update: {
+          ativo?: boolean
+          atualizado_em?: string
+          categoria?: string | null
+          conversoes?: Json | null
+          criado_em?: string
+          descricao?: string | null
+          fornecedor_padrao?: string | null
+          id?: string
+          imagem_url?: string | null
+          localizacao?: string | null
+          nome?: string
+          observacoes?: string | null
+          ponto_de_pedido?: number | null
+          quantidade_por_embalagem?: number
+          rastrear_estoque?: boolean
+          tipo?: string
+          unidade_base?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       mao_obra_historico: {
         Row: {
           created_at: string | null
@@ -1531,6 +1594,72 @@ export type Database = {
           vinculo_pedido_id?: string | null
         }
         Relationships: []
+      }
+      movimentos_estoque_v2: {
+        Row: {
+          criado_em: string
+          custo_unitario: number | null
+          data: string
+          id: string
+          item_id: string
+          observacao: string | null
+          quantidade: number
+          referencia_id: string | null
+          referencia_tipo: string | null
+          responsavel: string | null
+          subtipo: string | null
+          tipo: string
+          usuario_id: string
+          valor_total: number | null
+        }
+        Insert: {
+          criado_em?: string
+          custo_unitario?: number | null
+          data?: string
+          id?: string
+          item_id: string
+          observacao?: string | null
+          quantidade: number
+          referencia_id?: string | null
+          referencia_tipo?: string | null
+          responsavel?: string | null
+          subtipo?: string | null
+          tipo: string
+          usuario_id: string
+          valor_total?: number | null
+        }
+        Update: {
+          criado_em?: string
+          custo_unitario?: number | null
+          data?: string
+          id?: string
+          item_id?: string
+          observacao?: string | null
+          quantidade?: number
+          referencia_id?: string | null
+          referencia_tipo?: string | null
+          responsavel?: string | null
+          subtipo?: string | null
+          tipo?: string
+          usuario_id?: string
+          valor_total?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movimentos_estoque_v2_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "estoque_atual_v2"
+            referencedColumns: ["item_id"]
+          },
+          {
+            foreignKeyName: "movimentos_estoque_v2_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "itens"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       plano_contas: {
         Row: {
@@ -1735,6 +1864,69 @@ export type Database = {
             columns: ["pre_preparo_id"]
             isOneToOne: false
             referencedRelation: "pre_preparos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      precos: {
+        Row: {
+          ativo: boolean
+          criado_em: string
+          custo_unitario: number | null
+          data_coleta: string
+          fornecedor: string | null
+          id: string
+          item_id: string
+          link_compra: string | null
+          marca: string
+          observacao: string | null
+          preco_total_embalagem: number
+          quantidade_embalagem: number
+          usuario_id: string
+        }
+        Insert: {
+          ativo?: boolean
+          criado_em?: string
+          custo_unitario?: number | null
+          data_coleta?: string
+          fornecedor?: string | null
+          id?: string
+          item_id: string
+          link_compra?: string | null
+          marca: string
+          observacao?: string | null
+          preco_total_embalagem: number
+          quantidade_embalagem: number
+          usuario_id: string
+        }
+        Update: {
+          ativo?: boolean
+          criado_em?: string
+          custo_unitario?: number | null
+          data_coleta?: string
+          fornecedor?: string | null
+          id?: string
+          item_id?: string
+          link_compra?: string | null
+          marca?: string
+          observacao?: string | null
+          preco_total_embalagem?: number
+          quantidade_embalagem?: number
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "precos_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "estoque_atual_v2"
+            referencedColumns: ["item_id"]
+          },
+          {
+            foreignKeyName: "precos_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "itens"
             referencedColumns: ["id"]
           },
         ]
@@ -2470,6 +2662,22 @@ export type Database = {
       }
     }
     Views: {
+      estoque_atual_v2: {
+        Row: {
+          categoria: string | null
+          custo_medio: number | null
+          item_id: string | null
+          nome: string | null
+          ponto_de_pedido: number | null
+          saldo: number | null
+          tipo: string | null
+          ultima_movimentacao: string | null
+          unidade_base: string | null
+          usuario_id: string | null
+          valor_estoque: number | null
+        }
+        Relationships: []
+      }
       user_statistics: {
         Row: {
           cadastrado_em: string | null
@@ -2713,6 +2921,10 @@ export type Database = {
       gerar_proximo_codigo_tipo_documento: {
         Args: { p_user_id: string }
         Returns: number
+      }
+      get_status_estoque: {
+        Args: { p_ponto_pedido: number; p_saldo: number }
+        Returns: string
       }
       has_role: {
         Args: {
