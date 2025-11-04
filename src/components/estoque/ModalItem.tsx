@@ -7,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, Package2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import type { Item, TipoItem } from "@/types/estoque";
 import { useCategoriasEstoque } from "@/hooks/useCategoriasEstoque";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
@@ -20,6 +22,7 @@ interface ModalItemProps {
 
 export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) {
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
   const { categorias } = useCategoriasEstoque();
   const { unidades } = useUnidadesMedida();
   const [formData, setFormData] = useState<Partial<Item>>({
@@ -41,10 +44,82 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
     setLoading(true);
 
     try {
-      const result = await onSave(formData);
-      if (result.success) {
-        onOpenChange(false);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Erro",
+          description: "Usuário não autenticado",
+          variant: "destructive",
+        });
+        return;
       }
+
+      if (item?.id) {
+        // Atualizar item existente
+        const { error } = await supabase
+          .from('itens')
+          .update({
+            ...formData,
+            atualizado_em: new Date().toISOString(),
+          })
+          .eq('id', item.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Item atualizado!",
+          description: "As alterações foram salvas com sucesso.",
+        });
+      } else {
+        // Criar novo item - validar campos obrigatórios
+        if (!formData.nome || !formData.tipo || !formData.unidade_base) {
+          toast({
+            title: "Erro",
+            description: "Preencha todos os campos obrigatórios",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const { error } = await supabase
+          .from('itens')
+          .insert([{
+            nome: formData.nome,
+            tipo: formData.tipo,
+            unidade_base: formData.unidade_base,
+            quantidade_por_embalagem: formData.quantidade_por_embalagem || 1,
+            categoria: formData.categoria,
+            descricao: formData.descricao,
+            rastrear_estoque: formData.rastrear_estoque || false,
+            ponto_de_pedido: formData.ponto_de_pedido,
+            localizacao: formData.localizacao,
+            fornecedor_padrao: formData.fornecedor_padrao,
+            observacoes: formData.observacoes,
+            usuario_id: user.id,
+            ativo: true,
+          }]);
+
+        if (error) throw error;
+
+        toast({
+          title: "Item criado!",
+          description: `${formData.nome} foi adicionado ao catálogo.`,
+        });
+      }
+
+      // Chamar callback se existir
+      if (onSave) {
+        await onSave(formData);
+      }
+
+      onOpenChange(false);
+    } catch (error: any) {
+      console.error('Erro ao salvar item:', error);
+      toast({
+        title: "Erro ao salvar",
+        description: error.message || "Ocorreu um erro ao salvar o item",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
