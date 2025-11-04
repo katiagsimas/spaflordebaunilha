@@ -266,7 +266,8 @@ export function useEstoqueIntegrado(filtros?: FiltrosEstoque) {
 
   useEffect(() => {
     carregarItens();
-  }, [carregarItens]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtros?.tipo, filtros?.categoria, filtros?.rastrear_estoque, filtros?.busca, filtros?.status]);
 
   return {
     itens,
