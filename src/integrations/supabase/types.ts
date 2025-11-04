@@ -14,6 +14,117 @@ export type Database = {
   }
   public: {
     Tables: {
+      _backup_embalagens: {
+        Row: {
+          controlar_estoque: boolean | null
+          created_at: string | null
+          data_atualizacao: string | null
+          id: string | null
+          marca: string | null
+          preco: number | null
+          tipo_insumo_id: string | null
+          updated_at: string | null
+          usuario_id: string | null
+        }
+        Insert: {
+          controlar_estoque?: boolean | null
+          created_at?: string | null
+          data_atualizacao?: string | null
+          id?: string | null
+          marca?: string | null
+          preco?: number | null
+          tipo_insumo_id?: string | null
+          updated_at?: string | null
+          usuario_id?: string | null
+        }
+        Update: {
+          controlar_estoque?: boolean | null
+          created_at?: string | null
+          data_atualizacao?: string | null
+          id?: string | null
+          marca?: string | null
+          preco?: number | null
+          tipo_insumo_id?: string | null
+          updated_at?: string | null
+          usuario_id?: string | null
+        }
+        Relationships: []
+      }
+      _backup_ingredientes: {
+        Row: {
+          controlar_estoque: boolean | null
+          created_at: string | null
+          data_atualizacao: string | null
+          e_pre_preparo: boolean | null
+          id: string | null
+          marca: string | null
+          preco: number | null
+          tipo_insumo_id: string | null
+          updated_at: string | null
+          usuario_id: string | null
+        }
+        Insert: {
+          controlar_estoque?: boolean | null
+          created_at?: string | null
+          data_atualizacao?: string | null
+          e_pre_preparo?: boolean | null
+          id?: string | null
+          marca?: string | null
+          preco?: number | null
+          tipo_insumo_id?: string | null
+          updated_at?: string | null
+          usuario_id?: string | null
+        }
+        Update: {
+          controlar_estoque?: boolean | null
+          created_at?: string | null
+          data_atualizacao?: string | null
+          e_pre_preparo?: boolean | null
+          id?: string | null
+          marca?: string | null
+          preco?: number | null
+          tipo_insumo_id?: string | null
+          updated_at?: string | null
+          usuario_id?: string | null
+        }
+        Relationships: []
+      }
+      _backup_tipos_insumos: {
+        Row: {
+          created_at: string | null
+          descricao: string | null
+          id: string | null
+          pre_preparo_id: string | null
+          quantidade_embalagem: number | null
+          tipo: string | null
+          unidade_medida_id: string | null
+          updated_at: string | null
+          usuario_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          descricao?: string | null
+          id?: string | null
+          pre_preparo_id?: string | null
+          quantidade_embalagem?: number | null
+          tipo?: string | null
+          unidade_medida_id?: string | null
+          updated_at?: string | null
+          usuario_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          descricao?: string | null
+          id?: string | null
+          pre_preparo_id?: string | null
+          quantidade_embalagem?: number | null
+          tipo?: string | null
+          unidade_medida_id?: string | null
+          updated_at?: string | null
+          usuario_id?: string | null
+        }
+        Relationships: []
+      }
       admin_logs: {
         Row: {
           acao: string
