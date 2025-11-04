@@ -12,8 +12,6 @@ import { Loader2 } from "lucide-react";
 import Dashboard from "./pages/Dashboard";
 import Encomendas from "./pages/Encomendas";
 import Producao from "./pages/Producao";
-import Estoque from "./pages/Estoque";
-import EstoqueIntegrado from "./pages/EstoqueIntegrado";
 import CatalogoItens from "./pages/CatalogoItens";
 import RelatoriosEstoque from "./pages/estoque/RelatoriosEstoque";
 import RelatorioMovimentacoes from "./pages/estoque/RelatorioMovimentacoes";
@@ -136,9 +134,7 @@ const App = () => (
           <Route path="/fornecedores" element={<ProtectedRoute><Layout><Fornecedores /></Layout></ProtectedRoute>} />
           
           {/* Estoque */}
-          <Route path="/estoque" element={<ProtectedRoute><Layout><Estoque /></Layout></ProtectedRoute>} />
-          <Route path="/estoque/integrado" element={<ProtectedRoute><Layout><EstoqueIntegrado /></Layout></ProtectedRoute>} />
-          <Route path="/estoque/catalogo" element={<ProtectedRoute><Layout><CatalogoItens /></Layout></ProtectedRoute>} />
+          <Route path="/estoque" element={<ProtectedRoute><Layout><CatalogoItens /></Layout></ProtectedRoute>} />
           <Route path="/estoque/relatorios" element={<ProtectedRoute><Layout><RelatoriosEstoque /></Layout></ProtectedRoute>} />
           <Route path="/estoque/movimentacoes" element={<ProtectedRoute><Layout><RelatorioMovimentacoes /></Layout></ProtectedRoute>} />
           <Route path="/estoque/consumo-medio" element={<ProtectedRoute><Layout><RelatorioConsumoMedio /></Layout></ProtectedRoute>} />
