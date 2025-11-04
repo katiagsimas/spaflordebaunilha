@@ -39,7 +39,6 @@ import Receitas from "./pages/Receitas";
 import ReceitaForm from "./pages/ReceitaForm";
 import ComingSoon from "./pages/ComingSoon";
 import Configuracoes from "./pages/Configuracoes";
-import TiposInsumos from "./pages/configuracoes/TiposInsumos";
 import CategoriasPlanoContas from "./pages/configuracoes/CategoriasPlanoContas";
 import PlanoContas from "./pages/configuracoes/PlanoContas";
 import Bancos from "./pages/configuracoes/Bancos";
@@ -157,7 +156,6 @@ const App = () => (
           <Route path="/configuracoes/financeiro" element={<ProtectedRoute><Layout><FinanceiroPage /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/precificacao/mao-obra" element={<ProtectedRoute><Layout><MaoDeObra /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/precificacao/custos-fixos" element={<ProtectedRoute><Layout><CustosFixos /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/tipos-insumos" element={<ProtectedRoute><Layout><TiposInsumos /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/categorias-plano-contas" element={<ProtectedRoute><Layout><CategoriasPlanoContas /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/plano-contas" element={<ProtectedRoute><Layout><PlanoContas /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/bancos" element={<ProtectedRoute><Layout><Bancos /></Layout></ProtectedRoute>} />
