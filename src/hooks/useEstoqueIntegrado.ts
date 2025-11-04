@@ -112,7 +112,12 @@ export function useEstoqueIntegrado(filtros?: FiltrosEstoque) {
         valor_total: valorTotal
       });
 
-      setItens(itensFiltrados);
+      // Ordenar alfabeticamente
+      const itensOrdenados = [...itensFiltrados].sort((a, b) => 
+        a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' })
+      );
+
+      setItens(itensOrdenados);
     } catch (err: any) {
       console.error('Erro ao carregar itens:', err);
       toast({

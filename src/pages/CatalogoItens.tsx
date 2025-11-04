@@ -4,13 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Filter } from "lucide-react";
+import { Plus, Search, Filter, Settings } from "lucide-react";
 import { useEstoqueIntegrado } from "@/hooks/useEstoqueIntegrado";
 import { ModalItem } from "@/components/estoque/ModalItem";
 import { EntradaRapida } from "@/components/estoque/EntradaRapida";
 import { AlertasEstoque } from "@/components/estoque/AlertasEstoque";
-import { CardItem } from "@/components/estoque/CardItem";
+import { BadgeStatus } from "@/components/estoque/BadgeStatus";
+import { Badge } from "@/components/ui/badge";
 import type { Item, ItemComEstoque } from "@/types/estoque";
 
 export default function CatalogoItens() {
@@ -136,23 +138,11 @@ export default function CatalogoItens() {
             </Select>
           </div>
 
-          {/* Grid de Cards */}
+          {/* Tabela de Itens */}
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="space-y-2">
               {Array.from({ length: 6 }).map((_, i) => (
-                <Card key={i}>
-                  <CardHeader>
-                    <Skeleton className="h-5 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-2/3" />
-                    </div>
-                  </CardContent>
-                </Card>
+                <Skeleton key={i} className="h-16 w-full" />
               ))}
             </div>
           ) : itens.length === 0 ? (
@@ -163,17 +153,110 @@ export default function CatalogoItens() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {itens.map((item) => (
-                <CardItem
-                  key={item.id}
-                  item={item}
-                  onEntrada={handleEntradaRapida}
-                  onEditar={handleEditarItem}
-                  onAtivarRastreio={handleAtivarRastreio}
-                />
-              ))}
-            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Estoque</TableHead>
+                  <TableHead className="text-right">Custo/Un</TableHead>
+                  <TableHead className="text-right">Valor Total</TableHead>
+                  <TableHead className="text-center">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {itens.map((item) => {
+                  const formatarValor = (valor?: number) => {
+                    if (!valor) return '-';
+                    return new Intl.NumberFormat('pt-BR', {
+                      style: 'currency',
+                      currency: 'BRL'
+                    }).format(valor);
+                  };
+
+                  const formatarQuantidade = (qtd?: number, unidade?: string) => {
+                    if (qtd === undefined) return '-';
+                    return `${qtd.toFixed(2)} ${unidade || ''}`;
+                  };
+
+                  return (
+                    <TableRow key={item.id}>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{item.nome}</div>
+                          {item.categoria && (
+                            <Badge variant="outline" className="mt-1 text-xs">
+                              {item.categoria}
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {item.tipo === 'ingrediente' ? '🧈 Ingrediente' : '📦 Embalagem'}
+                      </TableCell>
+                      <TableCell>
+                        <BadgeStatus status={item.status || 'sem_rastreio'} saldo={item.estoque?.saldo} />
+                      </TableCell>
+                      <TableCell className="text-right font-mono">
+                        {item.rastrear_estoque && item.estoque
+                          ? formatarQuantidade(item.estoque.saldo, item.unidade_base)
+                          : '-'}
+                      </TableCell>
+                      <TableCell className="text-right font-mono">
+                        {item.preco_ativo
+                          ? `${formatarValor(item.preco_ativo.custo_unitario)}/${item.unidade_base}`
+                          : '-'}
+                      </TableCell>
+                      <TableCell className="text-right font-mono text-emerald-600 dark:text-emerald-400">
+                        {item.rastrear_estoque && item.estoque
+                          ? formatarValor(item.estoque.valor_estoque)
+                          : '-'}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-center gap-2">
+                          {item.rastrear_estoque ? (
+                            <>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleEntradaRapida(item)}
+                              >
+                                ➕
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleEditarItem(item)}
+                              >
+                                <Settings className="h-4 w-4" />
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleAtivarRastreio(item)}
+                              >
+                                🎯 Ativar
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleEditarItem(item)}
+                              >
+                                <Settings className="h-4 w-4" />
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
           )}
         </CardContent>
       </Card>
