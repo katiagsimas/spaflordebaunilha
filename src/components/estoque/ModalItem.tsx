@@ -7,7 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, Package2 } from "lucide-react";
-import type { Item, TipoItem, UnidadeBase } from "@/types/estoque";
+import type { Item, TipoItem } from "@/types/estoque";
+import { useCategoriasEstoque } from "@/hooks/useCategoriasEstoque";
+import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 
 interface ModalItemProps {
   open: boolean;
@@ -16,10 +18,10 @@ interface ModalItemProps {
   onSave: (item: Partial<Item>) => Promise<{ success: boolean }>;
 }
 
-const UNIDADES: UnidadeBase[] = ['g', 'kg', 'ml', 'l', 'un', 'caixa', 'pct'];
-
 export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) {
   const [loading, setLoading] = useState(false);
+  const { categorias } = useCategoriasEstoque();
+  const { unidades } = useUnidadesMedida();
   const [formData, setFormData] = useState<Partial<Item>>({
     tipo: item?.tipo || 'ingrediente',
     categoria: item?.categoria || '',
@@ -80,12 +82,24 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
 
             <div className="space-y-2">
               <Label htmlFor="categoria">Categoria</Label>
-              <Input
-                id="categoria"
+              <Select
                 value={formData.categoria}
-                onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
-                placeholder="Ex: Farináceos, Laticínios..."
-              />
+                onValueChange={(value) => setFormData({ ...formData, categoria: value })}
+              >
+                <SelectTrigger id="categoria">
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categorias
+                    .filter(cat => cat.ativo)
+                    .map(cat => (
+                      <SelectItem key={cat.id} value={cat.nome}>
+                        {cat.icone && <span className="mr-2">{cat.icone}</span>}
+                        {cat.nome}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -119,15 +133,19 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
               <Label htmlFor="unidade_base">Unidade Base *</Label>
               <Select
                 value={formData.unidade_base}
-                onValueChange={(value: UnidadeBase) => setFormData({ ...formData, unidade_base: value })}
+                onValueChange={(value: string) => setFormData({ ...formData, unidade_base: value as any })}
               >
                 <SelectTrigger id="unidade_base">
-                  <SelectValue />
+                  <SelectValue placeholder="Selecione uma unidade" />
                 </SelectTrigger>
                 <SelectContent>
-                  {UNIDADES.map(un => (
-                    <SelectItem key={un} value={un}>{un}</SelectItem>
-                  ))}
+                  {unidades
+                    .filter(un => un.ativo)
+                    .map(un => (
+                      <SelectItem key={un.id} value={un.sigla}>
+                        {un.nome} ({un.sigla})
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>
