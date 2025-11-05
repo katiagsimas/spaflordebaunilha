@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Package2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,13 +29,12 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
     tipo: item?.tipo || 'ingrediente',
     categoria: item?.categoria || '',
     nome: item?.nome || '',
-    descricao: item?.descricao || '',
+    marca: item?.marca || '',
     unidade_base: item?.unidade_base || 'g',
     quantidade_por_embalagem: item?.quantidade_por_embalagem || 1,
     rastrear_estoque: item?.rastrear_estoque || false,
     ponto_de_pedido: item?.ponto_de_pedido,
     localizacao: item?.localizacao || '',
-    fornecedor_padrao: item?.fornecedor_padrao || '',
     observacoes: item?.observacoes || '',
   });
 
@@ -72,7 +71,7 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
         });
       } else {
         // Criar novo item - validar campos obrigatórios
-        if (!formData.nome || !formData.tipo || !formData.unidade_base) {
+        if (!formData.nome || !formData.tipo || !formData.unidade_base || formData.rastrear_estoque === undefined) {
           toast({
             title: "Erro",
             description: "Preencha todos os campos obrigatórios",
@@ -86,14 +85,13 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
           .insert([{
             nome: formData.nome,
             tipo: formData.tipo,
+            marca: formData.marca,
             unidade_base: formData.unidade_base,
             quantidade_por_embalagem: formData.quantidade_por_embalagem || 1,
             categoria: formData.categoria,
-            descricao: formData.descricao,
-            rastrear_estoque: formData.rastrear_estoque || false,
+            rastrear_estoque: formData.rastrear_estoque,
             ponto_de_pedido: formData.ponto_de_pedido,
             localizacao: formData.localizacao,
-            fornecedor_padrao: formData.fornecedor_padrao,
             observacoes: formData.observacoes,
             usuario_id: user.id,
             ativo: true,
@@ -185,15 +183,14 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
             />
           </div>
 
-          {/* Descrição */}
+          {/* Marca */}
           <div className="space-y-2">
-            <Label htmlFor="descricao">Descrição</Label>
-            <Textarea
-              id="descricao"
-              value={formData.descricao}
-              onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-              placeholder="Detalhes adicionais sobre o item..."
-              rows={2}
+            <Label htmlFor="marca">Marca</Label>
+            <Input
+              id="marca"
+              value={formData.marca}
+              onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
+              placeholder="Ex: Nestlé, Embare..."
             />
           </div>
 
@@ -235,21 +232,40 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
           </div>
 
           {/* Controle de Estoque */}
-          <div className="border rounded-lg p-4 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="rastrear_estoque" className="text-base">
-                  Rastrear Estoque
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  Ativar controle de estoque para este item
-                </p>
+          <div className="border-2 border-primary/30 rounded-lg p-5 space-y-4 bg-primary/5">
+            <div className="space-y-3">
+              <Label className="text-base font-semibold text-foreground">
+                Rastrear Estoque *
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Escolha se deseja controlar o estoque deste item
+              </p>
+              
+              <div className="flex flex-col gap-3 pt-2">
+                <div className="flex items-center space-x-3 p-3 rounded-lg border-2 border-border hover:border-primary/50 transition-colors">
+                  <Checkbox
+                    id="rastrear_sim"
+                    checked={formData.rastrear_estoque === true}
+                    onCheckedChange={() => setFormData({ ...formData, rastrear_estoque: true })}
+                    className="h-5 w-5"
+                  />
+                  <Label htmlFor="rastrear_sim" className="font-medium cursor-pointer flex-1">
+                    Sim - Controlar estoque
+                  </Label>
+                </div>
+                
+                <div className="flex items-center space-x-3 p-3 rounded-lg border-2 border-border hover:border-primary/50 transition-colors">
+                  <Checkbox
+                    id="rastrear_nao"
+                    checked={formData.rastrear_estoque === false}
+                    onCheckedChange={() => setFormData({ ...formData, rastrear_estoque: false })}
+                    className="h-5 w-5"
+                  />
+                  <Label htmlFor="rastrear_nao" className="font-medium cursor-pointer flex-1">
+                    Não - Apenas catalogar
+                  </Label>
+                </div>
               </div>
-              <Switch
-                id="rastrear_estoque"
-                checked={formData.rastrear_estoque}
-                onCheckedChange={(checked) => setFormData({ ...formData, rastrear_estoque: checked })}
-              />
             </div>
 
             {formData.rastrear_estoque && (
@@ -277,17 +293,6 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
                 </div>
               </div>
             )}
-          </div>
-
-          {/* Fornecedor Padrão */}
-          <div className="space-y-2">
-            <Label htmlFor="fornecedor">Fornecedor Padrão</Label>
-            <Input
-              id="fornecedor"
-              value={formData.fornecedor_padrao}
-              onChange={(e) => setFormData({ ...formData, fornecedor_padrao: e.target.value })}
-              placeholder="Nome do fornecedor preferencial"
-            />
           </div>
 
           {/* Observações */}

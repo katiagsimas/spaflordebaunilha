@@ -1539,6 +1539,7 @@ export type Database = {
           id: string
           imagem_url: string | null
           localizacao: string | null
+          marca: string | null
           nome: string
           observacoes: string | null
           ponto_de_pedido: number | null
@@ -1559,6 +1560,7 @@ export type Database = {
           id?: string
           imagem_url?: string | null
           localizacao?: string | null
+          marca?: string | null
           nome: string
           observacoes?: string | null
           ponto_de_pedido?: number | null
@@ -1579,6 +1581,7 @@ export type Database = {
           id?: string
           imagem_url?: string | null
           localizacao?: string | null
+          marca?: string | null
           nome?: string
           observacoes?: string | null
           ponto_de_pedido?: number | null

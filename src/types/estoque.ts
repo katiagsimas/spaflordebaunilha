@@ -16,7 +16,7 @@ export interface Item {
   tipo: TipoItem;
   categoria?: string;
   nome: string;
-  descricao?: string;
+  marca?: string;
   unidade_base: UnidadeBase;
   quantidade_por_embalagem: number;
   conversoes?: Record<string, any>;
