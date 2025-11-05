@@ -124,17 +124,6 @@ export default function CategoriasEstoque() {
               </div>
 
               <div>
-                <Label htmlFor="icone">Ícone (emoji)</Label>
-                <Input
-                  id="icone"
-                  value={formData.icone}
-                  onChange={(e) => setFormData({ ...formData, icone: e.target.value })}
-                  placeholder="Ex: 🌾"
-                  maxLength={2}
-                />
-              </div>
-
-              <div>
                 <Label htmlFor="cor">Cor</Label>
                 <div className="flex gap-2">
                   <Input
@@ -215,29 +204,19 @@ export default function CategoriasEstoque() {
                       <div className="flex justify-end gap-2">
                         <Button
                           variant="ghost"
-                          size="icon"
-                          onClick={() => handleToggleAtivo(categoria.id, categoria.ativo)}
-                          title={categoria.ativo ? "Desativar" : "Ativar"}
-                        >
-                          {categoria.ativo ? (
-                            <PowerOff className="h-4 w-4" />
-                          ) : (
-                            <Power className="h-4 w-4" />
-                          )}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
+                          size="sm"
                           onClick={() => handleEdit(categoria)}
                         >
-                          <Pencil className="h-4 w-4" />
+                          <Pencil className="h-4 w-4 mr-1" />
+                          Alterar
                         </Button>
                         <Button
                           variant="ghost"
-                          size="icon"
+                          size="sm"
                           onClick={() => setDeleteId(categoria.id)}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Excluir
                         </Button>
                       </div>
                     </TableCell>

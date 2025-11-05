@@ -15,12 +15,11 @@ export interface CategoriaEstoque {
 }
 
 const CATEGORIAS_INICIAIS = [
-  { nome: 'Secos/Farináceos', icone: '🌾', cor: '#D4A574' },
-  { nome: 'Frios/Laticínios', icone: '🥚', cor: '#F5E6D3' },
-  { nome: 'Chocolates/Cacau', icone: '🍫', cor: '#6B4423' },
-  { nome: 'Confeitaria', icone: '🎨', cor: '#FF6B9D' },
-  { nome: 'Embalagens', icone: '📦', cor: '#B8956A' },
-  { nome: 'Decoração', icone: '🧁', cor: '#FFB4E5' },
+  { nome: 'Chocolates', cor: '#6B4423' },
+  { nome: 'Decoração', cor: '#FFB4E5' },
+  { nome: 'Insumos', cor: '#D4A574' },
+  { nome: 'Perecíveis', cor: '#F5E6D3' },
+  { nome: 'Embalagens', cor: '#B8956A' },
 ];
 
 export function useCategoriasEstoque() {
