@@ -6,10 +6,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Filter, Settings } from "lucide-react";
+import { Plus, Search, Filter, Settings, Package, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useEstoqueIntegrado } from "@/hooks/useEstoqueIntegrado";
 import { ModalItem } from "@/components/estoque/ModalItem";
 import { EntradaRapida } from "@/components/estoque/EntradaRapida";
+import { ModalMovimentacao } from "@/components/estoque/ModalMovimentacao";
+import { DialogExcluirItem } from "@/components/estoque/DialogExcluirItem";
 import { AlertasEstoque } from "@/components/estoque/AlertasEstoque";
 import { BadgeStatus } from "@/components/estoque/BadgeStatus";
 import { Badge } from "@/components/ui/badge";
@@ -20,9 +28,11 @@ export default function CatalogoItens() {
   const [filtroTipo, setFiltroTipo] = useState<string>("todos");
   const [modalItemAberto, setModalItemAberto] = useState(false);
   const [modalEntradaAberto, setModalEntradaAberto] = useState(false);
+  const [modalMovimentacaoAberto, setModalMovimentacaoAberto] = useState(false);
+  const [dialogExcluirAberto, setDialogExcluirAberto] = useState(false);
   const [itemSelecionado, setItemSelecionado] = useState<ItemComEstoque | undefined>();
 
-  const { itens, loading, resumo, criarItem, atualizarItem, registrarMovimento, salvarPreco, ativarRastreamento } = useEstoqueIntegrado({
+  const { itens, loading, resumo, criarItem, atualizarItem, registrarMovimento, salvarPreco, ativarRastreamento, carregarItens } = useEstoqueIntegrado({
     busca: busca || undefined,
     tipo: filtroTipo === "todos" ? undefined : filtroTipo as any
   });
@@ -103,10 +113,19 @@ export default function CatalogoItens() {
                 {resumo?.total_itens || 0} itens • {resumo?.itens_rastreados || 0} com rastreamento
               </CardDescription>
             </div>
-            <Button onClick={handleNovoItem}>
-              <Plus className="mr-2 h-4 w-4" />
-              Adicionar Item
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline"
+                onClick={() => setModalMovimentacaoAberto(true)}
+              >
+                <Package className="mr-2 h-4 w-4" />
+                Movimentação de Estoque
+              </Button>
+              <Button onClick={handleNovoItem}>
+                <Plus className="mr-2 h-4 w-4" />
+                Adicionar Item
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -224,13 +243,29 @@ export default function CatalogoItens() {
                               >
                                 ➕
                               </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleEditarItem(item)}
-                              >
-                                <Settings className="h-4 w-4" />
-                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="outline" size="sm">
+                                    <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => handleEditarItem(item)}>
+                                    <Pencil className="mr-2 h-4 w-4" />
+                                    Alterar
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    className="text-destructive focus:text-destructive"
+                                    onClick={() => {
+                                      setItemSelecionado(item);
+                                      setDialogExcluirAberto(true);
+                                    }}
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Excluir
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </>
                           ) : (
                             <>
@@ -241,13 +276,29 @@ export default function CatalogoItens() {
                               >
                                 🎯 Ativar
                               </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleEditarItem(item)}
-                              >
-                                <Settings className="h-4 w-4" />
-                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="outline" size="sm">
+                                    <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => handleEditarItem(item)}>
+                                    <Pencil className="mr-2 h-4 w-4" />
+                                    Alterar
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    className="text-destructive focus:text-destructive"
+                                    onClick={() => {
+                                      setItemSelecionado(item);
+                                      setDialogExcluirAberto(true);
+                                    }}
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Excluir
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </>
                           )}
                         </div>
@@ -275,6 +326,28 @@ export default function CatalogoItens() {
           open={modalEntradaAberto}
           onOpenChange={setModalEntradaAberto}
           onSave={handleSalvarEntrada}
+        />
+      )}
+
+      <ModalMovimentacao
+        aberto={modalMovimentacaoAberto}
+        onFechar={() => setModalMovimentacaoAberto(false)}
+        onSucesso={carregarItens}
+      />
+
+      {itemSelecionado && (
+        <DialogExcluirItem
+          item={itemSelecionado}
+          aberto={dialogExcluirAberto}
+          onFechar={() => {
+            setDialogExcluirAberto(false);
+            setItemSelecionado(undefined);
+          }}
+          onExcluir={() => {
+            setDialogExcluirAberto(false);
+            setItemSelecionado(undefined);
+            carregarItens();
+          }}
         />
       )}
     </div>

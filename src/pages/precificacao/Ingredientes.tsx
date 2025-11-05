@@ -215,7 +215,7 @@ export default function Ingredientes() {
 
       {/* Modal */}
       <ModalItem
-        item={itemSelecionado}
+        item={itemSelecionado as any}
         open={modalAberto}
         onOpenChange={(open) => {
           setModalAberto(open);

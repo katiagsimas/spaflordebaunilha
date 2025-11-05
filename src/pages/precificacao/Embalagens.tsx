@@ -215,7 +215,7 @@ export default function Embalagens() {
 
       {/* Modal */}
       <ModalItem
-        item={itemSelecionado}
+        item={itemSelecionado as any}
         open={modalAberto}
         onOpenChange={(open) => {
           setModalAberto(open);

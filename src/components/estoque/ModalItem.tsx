@@ -6,17 +6,18 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Package2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, Package2, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import type { Item, TipoItem } from "@/types/estoque";
+import type { Item, TipoItem, ItemComEstoque } from "@/types/estoque";
 import { useCategoriasEstoque } from "@/hooks/useCategoriasEstoque";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 
 interface ModalItemProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  item?: Item;
+  item?: ItemComEstoque;
   onSave: (item: Partial<Item>) => Promise<{ success: boolean }>;
 }
 
@@ -231,6 +232,36 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
             </div>
           </div>
 
+          {/* Informações de Estoque - Se for edição */}
+          {item && item.rastrear_estoque && item.estoque && (
+            <Alert className="bg-muted/50">
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                <div className="font-semibold mb-2">📊 Informações de Estoque</div>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <div className="text-muted-foreground">Saldo Atual</div>
+                    <div className="font-semibold font-mono">
+                      {item.estoque.saldo.toFixed(2)} {item.unidade_base}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">Valor em Estoque</div>
+                    <div className="font-semibold font-mono">
+                      {new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                      }).format(item.estoque.valor_estoque)}
+                    </div>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Para ajustar o saldo, use "Movimentação de Estoque" ou registre uma entrada/saída.
+                </p>
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Controle de Estoque */}
           <div className="border-2 border-primary/30 rounded-lg p-5 space-y-4 bg-primary/5">
             <div className="space-y-3">
@@ -248,6 +279,7 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
                     checked={formData.rastrear_estoque === true}
                     onCheckedChange={() => setFormData({ ...formData, rastrear_estoque: true })}
                     className="h-5 w-5"
+                    disabled={!!item}
                   />
                   <Label htmlFor="rastrear_sim" className="font-medium cursor-pointer flex-1">
                     Sim - Controlar estoque
@@ -260,12 +292,21 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
                     checked={formData.rastrear_estoque === false}
                     onCheckedChange={() => setFormData({ ...formData, rastrear_estoque: false })}
                     className="h-5 w-5"
+                    disabled={!!item}
                   />
                   <Label htmlFor="rastrear_nao" className="font-medium cursor-pointer flex-1">
                     Não - Apenas catalogar
                   </Label>
                 </div>
               </div>
+              
+              {item && (
+                <Alert>
+                  <AlertDescription className="text-xs">
+                    Não é possível alterar o rastreamento de estoque de um item já cadastrado.
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
 
             {formData.rastrear_estoque && (
