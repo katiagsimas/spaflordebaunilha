@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, Search, DollarSign, Package, AlertCircle } from 'lucide-react';
+import { Plus, Search, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { supabase } from '@/integrations/supabase/client';
 import { PageHeader } from '@/components/PageHeader';
 import { BackButton } from '@/components/BackButton';
@@ -150,75 +151,66 @@ export default function Embalagens() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {embalagensFiltradas.map(item => (
-            <Card 
-              key={item.id} 
-              className="hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => {
-                setItemSelecionado(item);
-                setModalAberto(true);
-              }}
-            >
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-base">{item.nome}</CardTitle>
-                    {item.preco_ativo?.marca && (
-                      <CardDescription className="mt-1">
-                        {item.preco_ativo.marca}
-                      </CardDescription>
-                    )}
-                  </div>
-                  {!item.preco_ativo && (
-                    <Badge variant="destructive" className="ml-2">
-                      Sem preço
-                    </Badge>
-                  )}
-                  {item.preco_ativo && verificarDesatualizado(item.preco_ativo.data_coleta) && (
-                    <Badge variant="outline" className="ml-2">
-                      Desatualizado
-                    </Badge>
-                  )}
-                </div>
-              </CardHeader>
-
-              <CardContent className="space-y-3">
-                {/* Embalagem */}
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Package className="h-4 w-4" />
-                    <span>Quantidade</span>
-                  </div>
-                  <span className="font-medium">
-                    {item.quantidade_por_embalagem} {item.unidade_base}
-                  </span>
-                </div>
-
-                {/* Preço */}
-                {item.preco_ativo && (
-                  <>
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <DollarSign className="h-4 w-4" />
-                        <span>Custo unitário</span>
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Marca</TableHead>
+                  <TableHead className="text-right">Quantidade</TableHead>
+                  <TableHead className="text-right">Custo Unitário</TableHead>
+                  <TableHead className="text-right">Preço Total</TableHead>
+                  <TableHead className="text-center">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {embalagensFiltradas.map(item => (
+                  <TableRow 
+                    key={item.id}
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setItemSelecionado(item);
+                      setModalAberto(true);
+                    }}
+                  >
+                    <TableCell className="font-medium">{item.nome}</TableCell>
+                    <TableCell>{item.preco_ativo?.marca || '-'}</TableCell>
+                    <TableCell className="text-right">
+                      {item.quantidade_por_embalagem} {item.unidade_base}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {item.preco_ativo 
+                        ? `${formatarPreco(item.preco_ativo.custo_unitario)}/${item.unidade_base}`
+                        : '-'
+                      }
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {item.preco_ativo 
+                        ? formatarPreco(item.preco_ativo.preco_total_embalagem)
+                        : '-'
+                      }
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex gap-1 justify-center">
+                        {!item.preco_ativo && (
+                          <Badge variant="destructive">
+                            Sem preço
+                          </Badge>
+                        )}
+                        {item.preco_ativo && verificarDesatualizado(item.preco_ativo.data_coleta) && (
+                          <Badge variant="outline">
+                            Desatualizado
+                          </Badge>
+                        )}
                       </div>
-                      <span className="font-medium">
-                        {formatarPreco(item.preco_ativo.custo_unitario)}/{item.unidade_base}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm pt-2 border-t">
-                      <span className="text-muted-foreground">Preço total</span>
-                      <span className="font-medium">
-                        {formatarPreco(item.preco_ativo.preco_total_embalagem)}
-                      </span>
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       )}
 
       {/* Modal */}
