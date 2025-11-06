@@ -1832,6 +1832,93 @@ export type Database = {
           },
         ]
       }
+      planejamento_produtos: {
+        Row: {
+          created_at: string | null
+          id: string
+          percentual_participacao: number
+          planejamento_id: string
+          receita_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          percentual_participacao: number
+          planejamento_id: string
+          receita_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          percentual_participacao?: number
+          planejamento_id?: string
+          receita_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planejamento_produtos_planejamento_id_fkey"
+            columns: ["planejamento_id"]
+            isOneToOne: false
+            referencedRelation: "planejamento_vendas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "planejamento_produtos_receita_id_fkey"
+            columns: ["receita_id"]
+            isOneToOne: false
+            referencedRelation: "receitas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      planejamento_vendas: {
+        Row: {
+          ano: number
+          created_at: string | null
+          id: string
+          mes: number
+          meta_faturamento_anual: number | null
+          meta_faturamento_mensal: number
+          meta_lucro_anual: number | null
+          meta_lucro_mensal: number
+          meta_pedidos: number
+          meta_ticket_medio: number
+          updated_at: string | null
+          usuario_id: string
+        }
+        Insert: {
+          ano: number
+          created_at?: string | null
+          id?: string
+          mes: number
+          meta_faturamento_anual?: number | null
+          meta_faturamento_mensal: number
+          meta_lucro_anual?: number | null
+          meta_lucro_mensal: number
+          meta_pedidos: number
+          meta_ticket_medio: number
+          updated_at?: string | null
+          usuario_id: string
+        }
+        Update: {
+          ano?: number
+          created_at?: string | null
+          id?: string
+          mes?: number
+          meta_faturamento_anual?: number | null
+          meta_faturamento_mensal?: number
+          meta_lucro_anual?: number | null
+          meta_lucro_mensal?: number
+          meta_pedidos?: number
+          meta_ticket_medio?: number
+          updated_at?: string | null
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       plano_contas: {
         Row: {
           ativo: boolean | null

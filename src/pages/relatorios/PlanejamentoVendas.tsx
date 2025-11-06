@@ -1,63 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Target, TrendingUp, DollarSign, Package, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useReceitas } from '@/hooks/useReceitas';
-import { useEncomendas } from '@/hooks/useEncomendas';
 import { useToast } from '@/hooks/use-toast';
 
-interface MetasMensais {
-  meta_faturamento: number;
-  meta_lucro: number;
-  meta_pedidos: number;
-  meta_ticket_medio: number;
-}
-
-interface PlanoMensal {
-  resumo: {
-    mes_referencia: string;
-    meta_faturamento: number;
-    meta_lucro: number;
-    meta_pedidos: number;
-    meta_ticket_medio: number;
-    ticket_medio_calculado: number;
-    ponto_de_equilibrio_mensal: number;
-    risco_quebra: boolean;
-    ajustes_aplicados: string[];
-  };
-  mix_planejado: Array<{
-    product_id: string;
-    nome: string;
-    preco_venda: number;
-    cmv_unitario: number;
-    margem_unitaria_liquida: number;
-    faturamento_alocado: number;
-    qtd_planejada: number;
-    receita_prevista: number;
-    lucro_previsto: number;
-    peso_utilizado: {
-      historico: number;
-      margem: number;
-      final: number;
-    };
-    observacoes: string;
-  }>;
-  consolidado: {
-    receita_total_prevista: number;
-    lucro_total_previsto: number;
-    qtd_total_prevista: number;
-    ticket_medio_previsto: number;
-    margem_media_pct: number;
-  };
-  acoes_recomendadas: string[];
-  alertas: string[];
+interface DistribuicaoProduto {
+  receita_id: string;
+  nome: string;
+  preco_venda: number;
+  percentual: number;
 }
 
 export default function PlanejamentoVendas() {
@@ -65,21 +24,220 @@ export default function PlanejamentoVendas() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { receitas } = useReceitas();
-  const { encomendas } = useEncomendas();
-
-  const [metas, setMetas] = useState<MetasMensais>({
-    meta_faturamento: 15000,
-    meta_lucro: 4500,
-    meta_pedidos: 120,
-    meta_ticket_medio: 125,
-  });
 
   const [loading, setLoading] = useState(false);
-  const [plano, setPlano] = useState<PlanoMensal | null>(null);
+  const [loadingData, setLoadingData] = useState(true);
+  const [planejamentoId, setPlanejamentoId] = useState<string | null>(null);
+
+  // Mês selecionado
   const [mesReferencia, setMesReferencia] = useState(() => {
     const hoje = new Date();
     return `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
   });
+
+  // Metas anuais
+  const [metaFaturamentoAnual, setMetaFaturamentoAnual] = useState('');
+  const [metaLucroAnual, setMetaLucroAnual] = useState('');
+
+  // Metas mensais
+  const [metaFaturamentoMensal, setMetaFaturamentoMensal] = useState('');
+  const [metaLucroMensal, setMetaLucroMensal] = useState('');
+  const [metaPedidos, setMetaPedidos] = useState('');
+  const [metaTicketMedio, setMetaTicketMedio] = useState('');
+
+  // Distribuição por produto
+  const [distribuicao, setDistribuicao] = useState<DistribuicaoProduto[]>([]);
+
+  // Produtos ativos
+  const produtosAtivos = receitas.filter(r => r.cardapio === 'ativo');
+
+  // Calcular soma dos percentuais
+  const somaPercentuais = distribuicao.reduce((sum, item) => sum + item.percentual, 0);
+
+  useEffect(() => {
+    if (user) {
+      carregarPlanejamento();
+    }
+  }, [mesReferencia, user]);
+
+  // Inicializar distribuição com produtos ativos
+  useEffect(() => {
+    if (produtosAtivos.length > 0 && distribuicao.length === 0) {
+      const distribuicaoInicial = produtosAtivos.map(produto => ({
+        receita_id: produto.id,
+        nome: produto.nome,
+        preco_venda: produto.valorVenda || 0,
+        percentual: 0,
+      }));
+      setDistribuicao(distribuicaoInicial);
+    }
+  }, [produtosAtivos]);
+
+  const carregarPlanejamento = async () => {
+    if (!user) return;
+
+    try {
+      setLoadingData(true);
+      const [ano, mes] = mesReferencia.split('-').map(Number);
+
+      // Buscar planejamento existente
+      const { data: planejamentoData, error: planejamentoError } = await supabase
+        .from('planejamento_vendas')
+        .select('*')
+        .eq('usuario_id', user.id)
+        .eq('ano', ano)
+        .eq('mes', mes)
+        .single();
+
+      if (planejamentoError && planejamentoError.code !== 'PGRST116') {
+        throw planejamentoError;
+      }
+
+      if (planejamentoData) {
+        setPlanejamentoId(planejamentoData.id);
+        setMetaFaturamentoAnual(planejamentoData.meta_faturamento_anual?.toString() || '');
+        setMetaLucroAnual(planejamentoData.meta_lucro_anual?.toString() || '');
+        setMetaFaturamentoMensal(planejamentoData.meta_faturamento_mensal.toString());
+        setMetaLucroMensal(planejamentoData.meta_lucro_mensal.toString());
+        setMetaPedidos(planejamentoData.meta_pedidos.toString());
+        setMetaTicketMedio(planejamentoData.meta_ticket_medio.toString());
+
+        // Buscar distribuição de produtos
+        const { data: produtosData, error: produtosError } = await supabase
+          .from('planejamento_produtos')
+          .select('receita_id, percentual_participacao')
+          .eq('planejamento_id', planejamentoData.id);
+
+        if (produtosError) throw produtosError;
+
+        // Mesclar com produtos ativos
+        const distribuicaoCarregada = produtosAtivos.map(produto => {
+          const produtoSalvo = produtosData?.find(p => p.receita_id === produto.id);
+          return {
+            receita_id: produto.id,
+            nome: produto.nome,
+            preco_venda: produto.valorVenda || 0,
+            percentual: produtoSalvo?.percentual_participacao || 0,
+          };
+        });
+
+        setDistribuicao(distribuicaoCarregada);
+      } else {
+        setPlanejamentoId(null);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar planejamento:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível carregar o planejamento.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoadingData(false);
+    }
+  };
+
+  const handlePercentualChange = (receitaId: string, valor: string) => {
+    const percentual = parseFloat(valor) || 0;
+    
+    setDistribuicao(prev =>
+      prev.map(item =>
+        item.receita_id === receitaId
+          ? { ...item, percentual }
+          : item
+      )
+    );
+  };
+
+  const salvarPlanejamento = async () => {
+    if (!user) return;
+
+    // Validações
+    if (!metaFaturamentoMensal || !metaLucroMensal || !metaPedidos || !metaTicketMedio) {
+      toast({
+        title: 'Campos obrigatórios',
+        description: 'Preencha todas as metas mensais.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (Math.abs(somaPercentuais - 100) > 0.01) {
+      toast({
+        title: 'Distribuição inválida',
+        description: 'A soma dos percentuais deve ser exatamente 100%.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const [ano, mes] = mesReferencia.split('-').map(Number);
+
+      // Salvar ou atualizar planejamento
+      const planejamentoPayload = {
+        usuario_id: user.id,
+        ano,
+        mes,
+        meta_faturamento_anual: metaFaturamentoAnual ? parseFloat(metaFaturamentoAnual) : null,
+        meta_lucro_anual: metaLucroAnual ? parseFloat(metaLucroAnual) : null,
+        meta_faturamento_mensal: parseFloat(metaFaturamentoMensal),
+        meta_lucro_mensal: parseFloat(metaLucroMensal),
+        meta_pedidos: parseInt(metaPedidos),
+        meta_ticket_medio: parseFloat(metaTicketMedio),
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data: planejamentoData, error: planejamentoError } = await supabase
+        .from('planejamento_vendas')
+        .upsert(planejamentoPayload, { onConflict: 'usuario_id,ano,mes' })
+        .select()
+        .single();
+
+      if (planejamentoError) throw planejamentoError;
+
+      setPlanejamentoId(planejamentoData.id);
+
+      // Deletar distribuição anterior
+      await supabase
+        .from('planejamento_produtos')
+        .delete()
+        .eq('planejamento_id', planejamentoData.id);
+
+      // Salvar nova distribuição (apenas produtos com percentual > 0)
+      const produtosParaSalvar = distribuicao
+        .filter(item => item.percentual > 0)
+        .map(item => ({
+          planejamento_id: planejamentoData.id,
+          receita_id: item.receita_id,
+          percentual_participacao: item.percentual,
+        }));
+
+      if (produtosParaSalvar.length > 0) {
+        const { error: produtosError } = await supabase
+          .from('planejamento_produtos')
+          .insert(produtosParaSalvar);
+
+        if (produtosError) throw produtosError;
+      }
+
+      toast({
+        title: 'Sucesso!',
+        description: 'Planejamento salvo com sucesso.',
+      });
+
+    } catch (error) {
+      console.error('Erro ao salvar planejamento:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível salvar o planejamento.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -88,123 +246,13 @@ export default function PlanejamentoVendas() {
     }).format(value);
   };
 
-  const gerarPlano = async () => {
-    if (!user) return;
-
-    try {
-      setLoading(true);
-
-      // Buscar itens de encomendas (últimos 90 dias)
-      const dataLimite = new Date();
-      dataLimite.setDate(dataLimite.getDate() - 90);
-
-      const { data: itensData } = await supabase
-        .from('encomenda_itens')
-        .select('receita_id, produto, quantidade, valor_unitario')
-        .gte('created_at', dataLimite.toISOString());
-
-      // Montar histórico de vendas por produto
-      const vendasPorProduto = (itensData || []).reduce((acc, item) => {
-        const key = item.receita_id || 'unknown';
-        if (!acc[key]) {
-          acc[key] = {
-            product_id: key,
-            nome: item.produto || 'Item',
-            qtd_vendida: 0,
-            receita_total: 0,
-          };
-        }
-        acc[key].qtd_vendida += item.quantidade || 0;
-        acc[key].receita_total += item.valor_unitario * (item.quantidade || 0);
-        return acc;
-      }, {} as Record<string, any>);
-
-      // Montar cardápio ativo (apenas receitas com cardapio = 'ativo')
-      const cardapioAtivo = receitas
-        .filter(r => r.cardapio === 'ativo')
-        .map(r => ({
-          product_id: r.id,
-          nome: r.nome,
-          preco_venda: r.valorVenda || 0,
-          cmv_unitario: r.custoTotal || 0,
-          rendimento_unidade: r.unidadeRendimento || 'unidade',
-          categoria: r.categoria || 'Sem categoria',
-          ativo: true,
-        }));
-
-      // Montar input para a IA
-      const input = {
-        contexto: {
-          moeda: 'BRL',
-          loja_nome: 'Donna\'s Box',
-          mes_referencia: mesReferencia,
-        },
-        metas: {
-          anual: {
-            faturamento_anual: metas.meta_faturamento * 12,
-            lucro_anual: metas.meta_lucro * 12,
-          },
-          mensal: {
-            meta_faturamento: metas.meta_faturamento,
-            meta_lucro: metas.meta_lucro,
-            meta_pedidos: metas.meta_pedidos,
-            meta_ticket_medio: metas.meta_ticket_medio,
-          },
-        },
-        custos: {
-          ponto_de_equilibrio_mensal: 9000, // TODO: buscar do sistema
-          custo_indireto_mensal: 4500,
-          taxa_media_pagamento_pct: 3.2,
-        },
-        historico: {
-          janela_dias: 90,
-          vendas_por_produto: Object.values(vendasPorProduto),
-        },
-        cardapio_ativo: cardapioAtivo,
-      };
-
-      const { data, error } = await supabase.functions.invoke('planejamento-vendas', {
-        body: { input },
-      });
-
-      if (error) throw error;
-
-      if (data.error) {
-        if (data.error.includes('Rate limits')) {
-          toast({
-            title: 'Limite atingido',
-            description: 'Muitas requisições. Aguarde um momento e tente novamente.',
-            variant: 'destructive',
-          });
-        } else if (data.error.includes('Payment required')) {
-          toast({
-            title: 'Créditos insuficientes',
-            description: 'Adicione créditos em Settings → Workspace → Usage.',
-            variant: 'destructive',
-          });
-        } else {
-          throw new Error(data.error);
-        }
-        return;
-      }
-
-      setPlano(data.result);
-      toast({
-        title: 'Plano gerado!',
-        description: 'Seu planejamento de vendas está pronto.',
-      });
-
-    } catch (error) {
-      console.error('Erro ao gerar plano:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível gerar o planejamento. Tente novamente.',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (loadingData) {
+    return (
+      <div className="min-h-screen bg-background p-4 md:p-6 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6 space-y-6">
@@ -220,237 +268,215 @@ export default function PlanejamentoVendas() {
         <div>
           <h1 className="text-3xl font-bold">📈 Planejamento de Vendas</h1>
           <p className="text-muted-foreground">
-            Defina metas e receba um plano de vendas inteligente com IA
+            Defina metas claras e controle seu crescimento mensal
           </p>
         </div>
       </div>
 
-      {/* Formulário de Metas */}
+      {/* Seletor de Mês */}
       <Card>
-        <CardHeader>
-          <CardTitle>Defina suas Metas</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="mes">Mês de Referência</Label>
-              <Input
-                id="mes"
-                type="month"
-                value={mesReferencia}
-                onChange={(e) => setMesReferencia(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="faturamento">Meta de Faturamento (R$)</Label>
-              <Input
-                id="faturamento"
-                type="number"
-                step="100"
-                value={metas.meta_faturamento}
-                onChange={(e) => setMetas({ ...metas, meta_faturamento: parseFloat(e.target.value) || 0 })}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="lucro">Meta de Lucro (R$)</Label>
-              <Input
-                id="lucro"
-                type="number"
-                step="100"
-                value={metas.meta_lucro}
-                onChange={(e) => setMetas({ ...metas, meta_lucro: parseFloat(e.target.value) || 0 })}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="pedidos">Meta de Pedidos</Label>
-              <Input
-                id="pedidos"
-                type="number"
-                value={metas.meta_pedidos}
-                onChange={(e) => setMetas({ ...metas, meta_pedidos: parseInt(e.target.value) || 0 })}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="ticket">Ticket Médio (R$)</Label>
-              <Input
-                id="ticket"
-                type="number"
-                step="10"
-                value={metas.meta_ticket_medio}
-                onChange={(e) => setMetas({ ...metas, meta_ticket_medio: parseFloat(e.target.value) || 0 })}
-              />
-            </div>
-          </div>
-
-          <Button
-            onClick={gerarPlano}
-            disabled={loading}
-            className="w-full"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Gerando plano com IA...
-              </>
-            ) : (
-              'Gerar Plano de Vendas'
-            )}
-          </Button>
+        <CardContent className="pt-6">
+          <Label htmlFor="mes">Mês de Referência</Label>
+          <Input
+            id="mes"
+            type="month"
+            value={mesReferencia}
+            onChange={(e) => setMesReferencia(e.target.value)}
+            className="max-w-xs"
+          />
         </CardContent>
       </Card>
 
-      {/* Resultados */}
-      {plano && (
-        <>
-          {/* Alertas */}
-          {plano.resumo?.risco_quebra && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                ⚠️ RISCO: Meta de faturamento abaixo do ponto de equilíbrio!
-                Você precisa de pelo menos {formatCurrency(plano.resumo.ponto_de_equilibrio_mensal)} para não ter prejuízo.
-              </AlertDescription>
-            </Alert>
-          )}
+      {/* Bloco 1 - Meta Anual */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Meta Anual</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="faturamento-anual">Faturamento Anual (R$)</Label>
+              <Input
+                id="faturamento-anual"
+                type="number"
+                step="0.01"
+                value={metaFaturamentoAnual}
+                onChange={(e) => setMetaFaturamentoAnual(e.target.value)}
+                placeholder="0,00"
+              />
+            </div>
 
-          {plano.alertas?.length > 0 && (
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                <div className="space-y-1">
-                  {plano.alertas.map((alerta, i) => (
-                    <div key={i}>• {alerta}</div>
-                  ))}
-                </div>
-              </AlertDescription>
-            </Alert>
-          )}
+            <div>
+              <Label htmlFor="lucro-anual">Lucro Anual (R$)</Label>
+              <Input
+                id="lucro-anual"
+                type="number"
+                step="0.01"
+                value={metaLucroAnual}
+                onChange={(e) => setMetaLucroAnual(e.target.value)}
+                placeholder="0,00"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-          {/* Cards de Resumo */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Receita Prevista</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {formatCurrency(plano.consolidado?.receita_total_prevista || 0)}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Meta: {formatCurrency(plano.resumo?.meta_faturamento || 0)}
-                </p>
-              </CardContent>
-            </Card>
+      {/* Bloco 2 - Metas Mensais */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Metas Mensais</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="faturamento-mensal">Meta de Faturamento (R$) *</Label>
+              <Input
+                id="faturamento-mensal"
+                type="number"
+                step="0.01"
+                value={metaFaturamentoMensal}
+                onChange={(e) => setMetaFaturamentoMensal(e.target.value)}
+                placeholder="0,00"
+                required
+              />
+            </div>
 
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Lucro Previsto</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {formatCurrency(plano.consolidado?.lucro_total_previsto || 0)}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Margem: {plano.consolidado?.margem_media_pct?.toFixed(1) || 0}%
-                </p>
-              </CardContent>
-            </Card>
+            <div>
+              <Label htmlFor="lucro-mensal">Meta de Lucro (R$) *</Label>
+              <Input
+                id="lucro-mensal"
+                type="number"
+                step="0.01"
+                value={metaLucroMensal}
+                onChange={(e) => setMetaLucroMensal(e.target.value)}
+                placeholder="0,00"
+                required
+              />
+            </div>
 
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Pedidos Previstos</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {plano.consolidado?.qtd_total_prevista || 0}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Meta: {plano.resumo?.meta_pedidos || 0}
-                </p>
-              </CardContent>
-            </Card>
+            <div>
+              <Label htmlFor="pedidos">Quantidade de Pedidos *</Label>
+              <Input
+                id="pedidos"
+                type="number"
+                value={metaPedidos}
+                onChange={(e) => setMetaPedidos(e.target.value)}
+                placeholder="0"
+                required
+              />
+            </div>
 
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Ticket Médio</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {formatCurrency(plano.consolidado?.ticket_medio_previsto || 0)}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Meta: {formatCurrency(plano.resumo?.meta_ticket_medio || 0)}
-                </p>
-              </CardContent>
-            </Card>
+            <div>
+              <Label htmlFor="ticket-medio">Ticket Médio (R$) *</Label>
+              <Input
+                id="ticket-medio"
+                type="number"
+                step="0.01"
+                value={metaTicketMedio}
+                onChange={(e) => setMetaTicketMedio(e.target.value)}
+                placeholder="0,00"
+                required
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Bloco 3 - Distribuição por Produto */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>Distribuição por Produto</span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-normal text-muted-foreground">
+                Total: {somaPercentuais.toFixed(1)}%
+              </span>
+              {Math.abs(somaPercentuais - 100) < 0.01 ? (
+                <span className="text-sm text-green-600">✓</span>
+              ) : (
+                <span className="text-sm text-red-600">✗</span>
+              )}
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Barra de Progresso */}
+          <div className="space-y-2">
+            <Progress value={Math.min(somaPercentuais, 100)} className="h-2" />
+            {Math.abs(somaPercentuais - 100) > 0.01 && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  A soma deve ser 100%. Faltam {(100 - somaPercentuais).toFixed(1)}%.
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
 
-          {/* Mix de Produtos */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Mix de Produtos Planejado</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {plano.mix_planejado?.map((produto, index) => (
-                  <div
-                    key={produto.product_id}
-                    className="flex items-center justify-between p-4 border rounded-lg"
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline">#{index + 1}</Badge>
-                        <h3 className="font-semibold">{produto.nome}</h3>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {produto.observacoes}
-                      </p>
-                      <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
-                        <span>Preço: {formatCurrency(produto.preco_venda)}</span>
-                        <span>CMV: {formatCurrency(produto.cmv_unitario)}</span>
-                        <span>Margem: {formatCurrency(produto.margem_unitaria_liquida)}</span>
-                      </div>
-                    </div>
-
-                    <div className="text-right space-y-1">
-                      <div className="text-lg font-bold">
-                        {produto.qtd_planejada} un
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {formatCurrency(produto.receita_prevista)}
-                      </div>
-                      <div className="text-xs text-green-600">
-                        Lucro: {formatCurrency(produto.lucro_previsto)}
-                      </div>
-                    </div>
+          {/* Lista de Produtos */}
+          <div className="space-y-3">
+            {distribuicao.length === 0 ? (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Nenhum produto ativo encontrado. Ative produtos em Precificação → Ficha Técnica.
+                </AlertDescription>
+              </Alert>
+            ) : (
+              distribuicao.map((item) => (
+                <div
+                  key={item.receita_id}
+                  className="grid grid-cols-12 gap-4 items-center p-4 border rounded-lg"
+                >
+                  <div className="col-span-5">
+                    <p className="font-medium">{item.nome}</p>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* Ações Recomendadas */}
-          <Card>
-            <CardHeader>
-              <CardTitle>💡 Ações Recomendadas</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {plano.acoes_recomendadas?.map((acao, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <span className="text-primary">✓</span>
-                    <span>{acao}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        </>
-      )}
+                  <div className="col-span-3 text-right text-sm text-muted-foreground">
+                    {formatCurrency(item.preco_venda)}
+                  </div>
+
+                  <div className="col-span-4 flex items-center gap-2">
+                    <Input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="100"
+                      value={item.percentual || ''}
+                      onChange={(e) => handlePercentualChange(item.receita_id, e.target.value)}
+                      placeholder="0"
+                      className="text-right"
+                    />
+                    <span className="text-sm text-muted-foreground">%</span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Botão de Salvar */}
+      <div className="flex justify-end">
+        <Button
+          onClick={salvarPlanejamento}
+          disabled={loading || Math.abs(somaPercentuais - 100) > 0.01}
+          size="lg"
+          className="gap-2"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Salvando...
+            </>
+          ) : (
+            <>
+              <Save className="h-4 w-4" />
+              Salvar Planejamento
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   );
 }
