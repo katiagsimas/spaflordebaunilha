@@ -128,11 +128,31 @@ export default function PlanejamentoVendas() {
   // Atualizar metas mensais quando mudar meta anual ou % lucro
   useEffect(() => {
     if (metaFaturamentoAnual && pctLucroSelecionado && ticketMedioInteligencia > 0) {
-      const metasTemCustomizado = metasMensais.some(m => m.customizado);
+      // Verificar se há algum mês com valor maior que 0
+      const temMetasDefinidas = metasMensais.some(m => m.faturamento > 0);
       
-      // Se não há metas customizadas, recalcular tudo
-      if (!metasTemCustomizado) {
+      // Se não há metas definidas, preencher automaticamente
+      if (!temMetasDefinidas) {
         inicializarMetasMensais();
+      } else {
+        // Se há metas, recalcular apenas as não customizadas
+        const metaFatMensal = Math.round(parseFloat(metaFaturamentoAnual) / 12);
+        
+        setMetasMensais(prev => {
+          if (prev.length === 0) return prev;
+          
+          return prev.map(m => {
+            if (m.customizado) return m; // Mantém os customizados
+            
+            return {
+              ...m,
+              faturamento: metaFatMensal,
+              lucro: Math.round(metaFatMensal * (pctLucroSelecionado / 100)),
+              ticketMedio: ticketMedioInteligencia,
+              pedidos: Math.max(1, Math.floor(metaFatMensal / ticketMedioInteligencia)),
+            };
+          });
+        });
       }
     }
   }, [metaFaturamentoAnual, pctLucroSelecionado, ticketMedioInteligencia]);
@@ -171,18 +191,20 @@ export default function PlanejamentoVendas() {
     for (let mes = 1; mes <= 12; mes++) {
       const metaExistente = metasMensais.find(m => m.mes === mes);
       
-      novasMetasMensais.push({
-        mes,
-        faturamento: metaExistente?.customizado ? metaExistente.faturamento : metaFatMensal,
-        lucro: metaExistente?.customizado 
-          ? metaExistente.lucro 
-          : Math.round(metaFatMensal * (pctLucroSelecionado! / 100)),
-        ticketMedio: ticketMedioInteligencia,
-        pedidos: metaExistente?.customizado
-          ? metaExistente.pedidos
-          : Math.max(1, Math.floor(metaFatMensal / ticketMedioInteligencia)),
-        customizado: metaExistente?.customizado || false,
-      });
+      // Se o mês já existe E foi customizado, mantém os valores dele
+      // Senão, usa os valores calculados (anual/12)
+      if (metaExistente?.customizado) {
+        novasMetasMensais.push(metaExistente);
+      } else {
+        novasMetasMensais.push({
+          mes,
+          faturamento: metaFatMensal,
+          lucro: Math.round(metaFatMensal * (pctLucroSelecionado! / 100)),
+          ticketMedio: ticketMedioInteligencia,
+          pedidos: Math.max(1, Math.floor(metaFatMensal / ticketMedioInteligencia)),
+          customizado: false,
+        });
+      }
     }
 
     setMetasMensais(novasMetasMensais);
