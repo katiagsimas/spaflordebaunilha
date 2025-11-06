@@ -68,6 +68,7 @@ import MigrationStatus from "./pages/MigrationStatus";
 import NotFound from "./pages/NotFound";
 import Usuarios from "./pages/admin/Usuarios";
 import LogsAdmin from "./pages/admin/Logs";
+import InteligenciaNegocios from "./pages/relatorios/InteligenciaNegocios";
 
 const queryClient = new QueryClient();
 
@@ -203,6 +204,9 @@ const App = () => (
           {/* Admin - Gestão de Usuários */}
           <Route path="/admin/usuarios" element={<ProtectedRoute><Layout><Usuarios /></Layout></ProtectedRoute>} />
           <Route path="/admin/logs" element={<ProtectedRoute><Layout><LogsAdmin /></Layout></ProtectedRoute>} />
+          
+          {/* Relatórios - Inteligência de Negócios */}
+          <Route path="/relatorios/inteligencia" element={<ProtectedRoute><Layout><InteligenciaNegocios /></Layout></ProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
           </Routes>

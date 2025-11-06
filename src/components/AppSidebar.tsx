@@ -1,4 +1,4 @@
-import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake, Shield, FileText } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake, Shield, FileText, BarChart3 } from "lucide-react";
 import donnasBoxLogo from "@/assets/donnas-box-logo.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, active: true },
   { title: "Encomendas", url: "/encomendas", icon: ShoppingBag, active: true },
+  { title: "Inteligência", url: "/relatorios/inteligencia", icon: BarChart3, active: true },
   { title: "Clientes", url: "/clientes", icon: User, active: true },
   { title: "Fornecedores", url: "/fornecedores", icon: Truck, active: true },
   { title: "Estoque", url: "/estoque", icon: Package, active: true },
