@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertCircle, Info } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useReceitas } from '@/hooks/useReceitas';
@@ -37,13 +38,10 @@ export default function PlanejamentoVendas() {
 
   // Metas anuais
   const [metaFaturamentoAnual, setMetaFaturamentoAnual] = useState('');
-  const [metaLucroAnual, setMetaLucroAnual] = useState('');
+  const [pctLucroSelecionado, setPctLucroSelecionado] = useState<35 | 45 | 50 | null>(null);
 
-  // Metas mensais
-  const [metaFaturamentoMensal, setMetaFaturamentoMensal] = useState('');
-  const [metaLucroMensal, setMetaLucroMensal] = useState('');
-  const [metaPedidos, setMetaPedidos] = useState('');
-  const [metaTicketMedio, setMetaTicketMedio] = useState('');
+  // Metas mensais (calculadas automaticamente)
+  const [ticketMedioInteligencia, setTicketMedioInteligencia] = useState<number>(0);
 
   // Distribuição por produto
   const [distribuicao, setDistribuicao] = useState<DistribuicaoProduto[]>([]);
@@ -54,9 +52,28 @@ export default function PlanejamentoVendas() {
   // Calcular soma dos percentuais
   const somaPercentuais = distribuicao.reduce((sum, item) => sum + item.percentual, 0);
 
+  // Calcular Lucro Anual automaticamente
+  const metaLucroAnual = metaFaturamentoAnual && pctLucroSelecionado
+    ? Math.round(parseFloat(metaFaturamentoAnual) * (pctLucroSelecionado / 100))
+    : 0;
+
+  // Calcular Metas Mensais automaticamente
+  const metaFaturamentoMensal = metaFaturamentoAnual
+    ? Math.round(parseFloat(metaFaturamentoAnual) / 12)
+    : 0;
+
+  const metaLucroMensal = metaFaturamentoMensal && pctLucroSelecionado
+    ? Math.round(metaFaturamentoMensal * (pctLucroSelecionado / 100))
+    : 0;
+
+  const metaPedidos = metaFaturamentoMensal && ticketMedioInteligencia > 0
+    ? Math.max(1, Math.floor(metaFaturamentoMensal / ticketMedioInteligencia))
+    : 0;
+
   useEffect(() => {
     if (user) {
       carregarPlanejamento();
+      carregarTicketMedio();
     }
   }, [mesReferencia, user]);
 
@@ -72,6 +89,33 @@ export default function PlanejamentoVendas() {
       setDistribuicao(distribuicaoInicial);
     }
   }, [produtosAtivos]);
+
+  const carregarTicketMedio = async () => {
+    if (!user) return;
+
+    try {
+      // Calcular ticket médio dos últimos 90 dias
+      const dataInicio = new Date();
+      dataInicio.setDate(dataInicio.getDate() - 90);
+
+      const { data: encomendas, error } = await supabase
+        .from('encomendas')
+        .select('valor')
+        .eq('usuario_id', user.id)
+        .gte('data_entrega', dataInicio.toISOString())
+        .in('status', ['entregue', 'pago', 'concluido', 'finalizado']);
+
+      if (error) throw error;
+
+      if (encomendas && encomendas.length > 0) {
+        const totalReceita = encomendas.reduce((sum, e) => sum + (e.valor || 0), 0);
+        const ticketMedio = totalReceita / encomendas.length;
+        setTicketMedioInteligencia(ticketMedio);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar ticket médio:', error);
+    }
+  };
 
   const carregarPlanejamento = async () => {
     if (!user) return;
@@ -96,11 +140,7 @@ export default function PlanejamentoVendas() {
       if (planejamentoData) {
         setPlanejamentoId(planejamentoData.id);
         setMetaFaturamentoAnual(planejamentoData.meta_faturamento_anual?.toString() || '');
-        setMetaLucroAnual(planejamentoData.meta_lucro_anual?.toString() || '');
-        setMetaFaturamentoMensal(planejamentoData.meta_faturamento_mensal.toString());
-        setMetaLucroMensal(planejamentoData.meta_lucro_mensal.toString());
-        setMetaPedidos(planejamentoData.meta_pedidos.toString());
-        setMetaTicketMedio(planejamentoData.meta_ticket_medio.toString());
+        setPctLucroSelecionado(planejamentoData.pct_lucro_selecionado as 35 | 45 | 50 | null);
 
         // Buscar distribuição de produtos
         const { data: produtosData, error: produtosError } = await supabase
@@ -153,10 +193,28 @@ export default function PlanejamentoVendas() {
     if (!user) return;
 
     // Validações
-    if (!metaFaturamentoMensal || !metaLucroMensal || !metaPedidos || !metaTicketMedio) {
+    if (!metaFaturamentoAnual || parseFloat(metaFaturamentoAnual) <= 0) {
       toast({
-        title: 'Campos obrigatórios',
-        description: 'Preencha todas as metas mensais.',
+        title: 'Campo obrigatório',
+        description: 'Informe o Faturamento Anual (maior que 0).',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!pctLucroSelecionado) {
+      toast({
+        title: 'Selecione o percentual de lucro',
+        description: 'Escolha uma das opções: 35%, 45% ou 50%.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (ticketMedioInteligencia <= 0) {
+      toast({
+        title: 'Ticket Médio ausente',
+        description: 'Não foi possível calcular o Ticket Médio. Adicione vendas no sistema.',
         variant: 'destructive',
       });
       return;
@@ -180,12 +238,13 @@ export default function PlanejamentoVendas() {
         usuario_id: user.id,
         ano,
         mes,
-        meta_faturamento_anual: metaFaturamentoAnual ? parseFloat(metaFaturamentoAnual) : null,
-        meta_lucro_anual: metaLucroAnual ? parseFloat(metaLucroAnual) : null,
-        meta_faturamento_mensal: parseFloat(metaFaturamentoMensal),
-        meta_lucro_mensal: parseFloat(metaLucroMensal),
-        meta_pedidos: parseInt(metaPedidos),
-        meta_ticket_medio: parseFloat(metaTicketMedio),
+        meta_faturamento_anual: parseFloat(metaFaturamentoAnual),
+        meta_lucro_anual: metaLucroAnual,
+        pct_lucro_selecionado: pctLucroSelecionado,
+        meta_faturamento_mensal: metaFaturamentoMensal,
+        meta_lucro_mensal: metaLucroMensal,
+        meta_pedidos: metaPedidos,
+        meta_ticket_medio: ticketMedioInteligencia,
         updated_at: new Date().toISOString(),
       };
 
@@ -292,31 +351,98 @@ export default function PlanejamentoVendas() {
         <CardHeader>
           <CardTitle>Meta Anual</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="faturamento-anual">Faturamento Anual (R$)</Label>
-              <Input
-                id="faturamento-anual"
-                type="number"
-                step="0.01"
-                value={metaFaturamentoAnual}
-                onChange={(e) => setMetaFaturamentoAnual(e.target.value)}
-                placeholder="0,00"
-              />
+        <CardContent className="space-y-6">
+          <div>
+            <Label htmlFor="faturamento-anual">Faturamento Anual (R$) *</Label>
+            <Input
+              id="faturamento-anual"
+              type="number"
+              step="0.01"
+              value={metaFaturamentoAnual}
+              onChange={(e) => setMetaFaturamentoAnual(e.target.value)}
+              placeholder="0,00"
+              required
+            />
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Label>Percentual de Lucro *</Label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>% aplicado sobre o faturamento para projetar seu lucro</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
 
-            <div>
-              <Label htmlFor="lucro-anual">Lucro Anual (R$)</Label>
-              <Input
-                id="lucro-anual"
-                type="number"
-                step="0.01"
-                value={metaLucroAnual}
-                onChange={(e) => setMetaLucroAnual(e.target.value)}
-                placeholder="0,00"
-              />
+            <div className="flex flex-wrap gap-4">
+              <button
+                type="button"
+                onClick={() => setPctLucroSelecionado(35)}
+                className={`flex-1 min-w-[140px] px-4 py-3 rounded-lg border-2 transition-all ${
+                  pctLucroSelecionado === 35
+                    ? 'border-primary bg-primary/10 text-primary font-semibold'
+                    : 'border-border hover:border-primary/50'
+                }`}
+              >
+                <div className="text-2xl font-bold">35%</div>
+                <div className="text-xs opacity-70">Meta mínima</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPctLucroSelecionado(45)}
+                className={`flex-1 min-w-[140px] px-4 py-3 rounded-lg border-2 transition-all ${
+                  pctLucroSelecionado === 45
+                    ? 'border-primary bg-primary/10 text-primary font-semibold'
+                    : 'border-border hover:border-primary/50'
+                }`}
+              >
+                <div className="text-2xl font-bold">45%</div>
+                <div className="text-xs opacity-70">Meta saudável</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPctLucroSelecionado(50)}
+                className={`flex-1 min-w-[140px] px-4 py-3 rounded-lg border-2 transition-all ${
+                  pctLucroSelecionado === 50
+                    ? 'border-primary bg-primary/10 text-primary font-semibold'
+                    : 'border-border hover:border-primary/50'
+                }`}
+              >
+                <div className="text-2xl font-bold">50%</div>
+                <div className="text-xs opacity-70">Meta premium</div>
+              </button>
             </div>
+
+            {!pctLucroSelecionado && metaFaturamentoAnual && (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Selecione um percentual de lucro para calcular as metas.
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
+
+          <div>
+            <Label htmlFor="lucro-anual">Lucro Anual (R$)</Label>
+            <Input
+              id="lucro-anual"
+              type="text"
+              value={formatCurrency(metaLucroAnual)}
+              readOnly
+              className="bg-muted cursor-not-allowed"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Calculado automaticamente
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -327,56 +453,94 @@ export default function PlanejamentoVendas() {
           <CardTitle>Metas Mensais</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {ticketMedioInteligencia <= 0 && (
+            <Alert className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Defina o Ticket Médio adicionando vendas no sistema (últimos 90 dias).
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <Label htmlFor="faturamento-mensal">Meta de Faturamento (R$) *</Label>
+              <Label htmlFor="faturamento-mensal">Meta de Faturamento (R$)</Label>
               <Input
                 id="faturamento-mensal"
-                type="number"
-                step="0.01"
-                value={metaFaturamentoMensal}
-                onChange={(e) => setMetaFaturamentoMensal(e.target.value)}
-                placeholder="0,00"
-                required
+                type="text"
+                value={formatCurrency(metaFaturamentoMensal)}
+                readOnly
+                className="bg-muted cursor-not-allowed"
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                Faturamento Anual ÷ 12
+              </p>
             </div>
 
             <div>
-              <Label htmlFor="lucro-mensal">Meta de Lucro (R$) *</Label>
+              <Label htmlFor="lucro-mensal">Meta de Lucro (R$)</Label>
               <Input
                 id="lucro-mensal"
-                type="number"
-                step="0.01"
-                value={metaLucroMensal}
-                onChange={(e) => setMetaLucroMensal(e.target.value)}
-                placeholder="0,00"
-                required
+                type="text"
+                value={formatCurrency(metaLucroMensal)}
+                readOnly
+                className="bg-muted cursor-not-allowed"
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                Faturamento × % Lucro
+              </p>
             </div>
 
             <div>
-              <Label htmlFor="pedidos">Quantidade de Pedidos *</Label>
-              <Input
-                id="pedidos"
-                type="number"
-                value={metaPedidos}
-                onChange={(e) => setMetaPedidos(e.target.value)}
-                placeholder="0"
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="ticket-medio">Ticket Médio (R$) *</Label>
+              <Label htmlFor="ticket-medio" className="flex items-center gap-1">
+                Ticket Médio (R$)
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Calculado: média dos últimos 90 dias</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </Label>
               <Input
                 id="ticket-medio"
-                type="number"
-                step="0.01"
-                value={metaTicketMedio}
-                onChange={(e) => setMetaTicketMedio(e.target.value)}
-                placeholder="0,00"
-                required
+                type="text"
+                value={formatCurrency(ticketMedioInteligencia)}
+                readOnly
+                className="bg-muted cursor-not-allowed"
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                Carregado da Inteligência
+              </p>
+            </div>
+
+            <div>
+              <Label htmlFor="pedidos" className="flex items-center gap-1">
+                Quantidade de Pedidos
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Calculado: Faturamento Mensal ÷ Ticket Médio</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </Label>
+              <Input
+                id="pedidos"
+                type="text"
+                value={metaPedidos}
+                readOnly
+                className="bg-muted cursor-not-allowed"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Faturamento ÷ Ticket Médio
+              </p>
             </div>
           </div>
         </CardContent>
@@ -460,7 +624,14 @@ export default function PlanejamentoVendas() {
       <div className="flex justify-end">
         <Button
           onClick={salvarPlanejamento}
-          disabled={loading || Math.abs(somaPercentuais - 100) > 0.01}
+          disabled={
+            loading || 
+            Math.abs(somaPercentuais - 100) > 0.01 ||
+            !metaFaturamentoAnual ||
+            parseFloat(metaFaturamentoAnual) <= 0 ||
+            !pctLucroSelecionado ||
+            ticketMedioInteligencia <= 0
+          }
           size="lg"
           className="gap-2"
         >

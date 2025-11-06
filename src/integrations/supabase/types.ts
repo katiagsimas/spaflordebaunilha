@@ -1886,6 +1886,7 @@ export type Database = {
           meta_lucro_mensal: number
           meta_pedidos: number
           meta_ticket_medio: number
+          pct_lucro_selecionado: number | null
           updated_at: string | null
           usuario_id: string
         }
@@ -1900,6 +1901,7 @@ export type Database = {
           meta_lucro_mensal: number
           meta_pedidos: number
           meta_ticket_medio: number
+          pct_lucro_selecionado?: number | null
           updated_at?: string | null
           usuario_id: string
         }
@@ -1914,6 +1916,7 @@ export type Database = {
           meta_lucro_mensal?: number
           meta_pedidos?: number
           meta_ticket_medio?: number
+          pct_lucro_selecionado?: number | null
           updated_at?: string | null
           usuario_id?: string
         }
