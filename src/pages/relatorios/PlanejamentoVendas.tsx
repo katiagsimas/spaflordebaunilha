@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Loader2, AlertCircle, Info, Edit, Check, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertCircle, Info, Edit, Check, RefreshCw, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -75,6 +75,20 @@ export default function PlanejamentoVendas() {
   // Produtos ativos
   const produtosAtivos = receitas.filter(r => r.cardapio === 'ativo');
 
+  // Garantir que sempre tenhamos 12 meses para exibir
+  const mesesParaExibir: MetaMensal[] = Array.from({ length: 12 }, (_, i) => {
+    const mes = i + 1;
+    const metaExistente = metasMensais.find(m => m.mes === mes);
+    return metaExistente || {
+      mes,
+      faturamento: 0,
+      lucro: 0,
+      ticketMedio: 0,
+      pedidos: 0,
+      customizado: false,
+    };
+  });
+
   // Calcular soma dos percentuais
   const somaPercentuais = distribuicao.reduce((sum, item) => sum + item.percentual, 0);
 
@@ -84,9 +98,9 @@ export default function PlanejamentoVendas() {
     : 0;
 
   // Calcular somatórios das metas mensais
-  const somaFaturamentoMensal = metasMensais.reduce((sum, m) => sum + m.faturamento, 0);
-  const somaLucroMensal = metasMensais.reduce((sum, m) => sum + m.lucro, 0);
-  const somaPedidosMensal = metasMensais.reduce((sum, m) => sum + m.pedidos, 0);
+  const somaFaturamentoMensal = mesesParaExibir.reduce((sum, m) => sum + m.faturamento, 0);
+  const somaLucroMensal = mesesParaExibir.reduce((sum, m) => sum + m.lucro, 0);
+  const somaPedidosMensal = mesesParaExibir.reduce((sum, m) => sum + m.pedidos, 0);
   
   // Diferença entre soma mensal e meta anual
   const diferencaFaturamento = somaFaturamentoMensal - (parseFloat(metaFaturamentoAnual) || 0);
@@ -265,11 +279,23 @@ export default function PlanejamentoVendas() {
   };
 
   const handleEditarMes = (mes: number) => {
-    const meta = metasMensais.find(m => m.mes === mes);
+    const meta = mesesParaExibir.find(m => m.mes === mes);
     if (meta) {
       setMesEditando(mes);
-      setValorEditando(meta.faturamento.toString());
+      setValorEditando(meta.faturamento > 0 ? meta.faturamento.toString() : '');
     }
+  };
+
+  const handleLimparMes = (mes: number) => {
+    setMetasMensais(prev => {
+      const novasMetas = prev.filter(m => m.mes !== mes);
+      return novasMetas;
+    });
+    
+    toast({
+      title: 'Mês limpo',
+      description: `Os valores de ${nomesMeses[mes - 1]} foram removidos.`,
+    });
   };
 
   const handleSalvarMes = (mes: number) => {
@@ -417,8 +443,10 @@ export default function PlanejamentoVendas() {
     try {
       setLoading(true);
 
-      // Salvar ou atualizar planejamento para cada mês
-      for (const metaMes of metasMensais) {
+      // Salvar ou atualizar planejamento apenas para meses com valores
+      const mesesComValores = mesesParaExibir.filter(m => m.faturamento > 0);
+      
+      for (const metaMes of mesesComValores) {
         const planejamentoPayload = {
           usuario_id: user.id,
           ano: anoReferencia,
@@ -668,7 +696,7 @@ export default function PlanejamentoVendas() {
           )}
 
           {/* Alerta de diferença */}
-          {Math.abs(diferencaFaturamento) > 0.01 && metasMensais.length > 0 && (
+          {Math.abs(diferencaFaturamento) > 0.01 && somaFaturamentoMensal > 0 && (
             <Alert variant={diferencaFaturamento > 0 ? "destructive" : "default"}>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription className="flex items-center justify-between">
@@ -705,7 +733,7 @@ export default function PlanejamentoVendas() {
                   </tr>
                 </thead>
                 <tbody>
-                  {metasMensais.map((meta) => (
+                  {mesesParaExibir.map((meta) => (
                     <tr key={meta.mes} className="border-t hover:bg-muted/30">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
@@ -728,62 +756,75 @@ export default function PlanejamentoVendas() {
                             autoFocus
                           />
                         ) : (
-                          formatCurrency(meta.faturamento)
+                          meta.faturamento > 0 ? formatCurrency(meta.faturamento) : '—'
                         )}
                       </td>
                       <td className="px-4 py-3 text-right text-muted-foreground">
-                        {formatCurrency(meta.lucro)}
+                        {meta.lucro > 0 ? formatCurrency(meta.lucro) : '—'}
                       </td>
                       <td className="px-4 py-3 text-right text-muted-foreground">
-                        {formatCurrency(meta.ticketMedio)}
+                        {meta.ticketMedio > 0 ? formatCurrency(meta.ticketMedio) : '—'}
                       </td>
                       <td className="px-4 py-3 text-right text-muted-foreground">
-                        {meta.pedidos}
+                        {meta.pedidos > 0 ? meta.pedidos : '—'}
                       </td>
                       <td className="px-4 py-3 text-center">
-                        {mesEditando === meta.mes ? (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleSalvarMes(meta.mes)}
-                            className="gap-1"
-                          >
-                            <Check className="h-4 w-4" />
-                            Salvar
-                          </Button>
-                        ) : (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleEditarMes(meta.mes)}
-                            className="gap-1"
-                            disabled={!pctLucroSelecionado || ticketMedioInteligencia <= 0}
-                          >
-                            <Edit className="h-4 w-4" />
-                            Editar
-                          </Button>
-                        )}
+                        <div className="flex items-center justify-center gap-2">
+                          {mesEditando === meta.mes ? (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleSalvarMes(meta.mes)}
+                              className="gap-1"
+                            >
+                              <Check className="h-4 w-4" />
+                              Salvar
+                            </Button>
+                          ) : (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleEditarMes(meta.mes)}
+                                className="gap-1"
+                                disabled={!pctLucroSelecionado || ticketMedioInteligencia <= 0}
+                              >
+                                <Edit className="h-4 w-4" />
+                                Editar
+                              </Button>
+                              {meta.faturamento > 0 && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => handleLimparMes(meta.mes)}
+                                  className="gap-1 text-destructive hover:text-destructive"
+                                >
+                                  <X className="h-4 w-4" />
+                                  Limpar
+                                </Button>
+                              )}
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
                   
                   {/* Linha de Total */}
-                  {metasMensais.length > 0 && (
-                    <tr className="border-t-2 bg-muted/50 font-semibold">
-                      <td className="px-4 py-3">Total do Ano</td>
-                      <td className="px-4 py-3 text-right">
-                        {formatCurrency(somaFaturamentoMensal)}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        {formatCurrency(somaLucroMensal)}
-                      </td>
-                      <td className="px-4 py-3 text-right">—</td>
-                      <td className="px-4 py-3 text-right">
-                        {somaPedidosMensal}
-                      </td>
-                      <td className="px-4 py-3"></td>
-                    </tr>
-                  )}
+                  <tr className="border-t-2 bg-muted/50 font-semibold">
+                    <td className="px-4 py-3">Total do Ano</td>
+                    <td className="px-4 py-3 text-right">
+                      {formatCurrency(somaFaturamentoMensal)}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {formatCurrency(somaLucroMensal)}
+                    </td>
+                    <td className="px-4 py-3 text-right">—</td>
+                    <td className="px-4 py-3 text-right">
+                      {somaPedidosMensal}
+                    </td>
+                    <td className="px-4 py-3"></td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -877,7 +918,7 @@ export default function PlanejamentoVendas() {
             parseFloat(metaFaturamentoAnual) <= 0 ||
             !pctLucroSelecionado ||
             ticketMedioInteligencia <= 0 ||
-            metasMensais.length === 0
+            somaFaturamentoMensal === 0
           }
           size="lg"
           className="gap-2"
