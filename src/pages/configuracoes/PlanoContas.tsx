@@ -163,10 +163,13 @@ export default function PlanoContas() {
       resultado = resultado.filter(p => p.ativo === ativo);
     }
 
-    // Tipo
+    // Tipo (usar padrao_sistema ao invés de e_padrao)
     if (filtroTipo !== 'todos') {
-      const ePadrao = filtroTipo === 'padrao';
-      resultado = resultado.filter(p => p.e_padrao === ePadrao);
+      if (filtroTipo === 'padrao') {
+        resultado = resultado.filter(p => p.padrao_sistema === true);
+      } else {
+        resultado = resultado.filter(p => p.padrao_sistema === false);
+      }
     }
 
     // Ordenar numericamente por código estruturado (ex: 1.01, 1.02, 2.01, 10.01)
@@ -437,23 +440,13 @@ export default function PlanoContas() {
 
       {/* Alerts */}
       <div className="space-y-3">
-        <Alert className="bg-blue-50 border-blue-200">
-          <Info className="h-4 w-4 text-blue-600" />
+        <Alert className="bg-amber-50 border-amber-200">
+          <Lock className="h-4 w-4 text-amber-600" />
           <AlertDescription>
-            O sistema criou automaticamente {planos.filter(p => p.e_padrao).length} planos de contas padrão 
-            para confeitaria. Você pode criar planos personalizados conforme sua necessidade.
+            <strong>{planos.filter(p => p.padrao_sistema).length} contas padrão do sistema</strong> estão disponíveis e protegidas. 
+            Você pode criar contas personalizadas conforme sua necessidade.
           </AlertDescription>
         </Alert>
-
-        {planos.filter(p => p.padrao_sistema).length > 0 && (
-          <Alert className="bg-amber-50 border-amber-200">
-            <Lock className="h-4 w-4 text-amber-600" />
-            <AlertDescription>
-              <strong>{planos.filter(p => p.padrao_sistema).length} contas do sistema</strong> estão disponíveis para todos os usuários. 
-              Essas contas são protegidas e só podem ser habilitadas ou desabilitadas.
-            </AlertDescription>
-          </Alert>
-        )}
       </div>
 
       {/* Botão Criar */}
@@ -560,8 +553,8 @@ export default function PlanoContas() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todos">Todos</SelectItem>
-                <SelectItem value="padrao">Padrão</SelectItem>
-                <SelectItem value="customizado">Customizados</SelectItem>
+                <SelectItem value="padrao">Padrão do Sistema</SelectItem>
+                <SelectItem value="customizado">Personalizados</SelectItem>
               </SelectContent>
             </Select>
           </div>
