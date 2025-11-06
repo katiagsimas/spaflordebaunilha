@@ -60,6 +60,8 @@ export default function PontoEquilibrio() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      console.log('Carregando dados do PE para ano:', anoSelecionado);
+
       // Carregar dados de todos os 12 meses
       const promises = Array.from({ length: 12 }, (_, i) => {
         return supabase.rpc('get_ponto_equilibrio_mes', {
@@ -70,14 +72,41 @@ export default function PontoEquilibrio() {
       });
 
       const results = await Promise.all(promises);
+      console.log('Resultados recebidos:', results);
       
       const todosOsDados: DadosPE[] = [];
-      results.forEach((result) => {
+      results.forEach((result, index) => {
+        const mesNumero = index + 1;
+        console.log(`Mês ${mesNumero}:`, result);
+        
         if (result.data && result.data.length > 0) {
           todosOsDados.push(result.data[0] as DadosPE);
+        } else {
+          // Se não retornou dados, criar entrada vazia para o mês
+          const nomeMes = new Date(anoSelecionado, index, 1).toLocaleDateString('pt-BR', { month: 'long' });
+          todosOsDados.push({
+            ano: anoSelecionado,
+            mes: mesNumero,
+            mes_nome: nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1),
+            tipo_dado: 'estimado',
+            editavel: true,
+            custos_fixos: 0,
+            cmv: 0,
+            cmv_percentual: 0,
+            faturamento: 0,
+            margem_contribuicao_percentual: 0,
+            ponto_equilibrio_reais: 0,
+            ticket_medio: 0,
+            ponto_equilibrio_unidades: 0,
+            quantidade_vendas_real: 0,
+            resultado_mes: 0,
+            percentual_acima_pe: 0,
+            status: 'pendente'
+          });
         }
       });
 
+      console.log('Total de meses carregados:', todosOsDados.length);
       setDadosAnuais(todosOsDados);
     } catch (error) {
       console.error('Erro ao carregar PE:', error);
@@ -404,39 +433,64 @@ export default function PontoEquilibrio() {
 
                       {/* Ações */}
                       <TableCell className="text-center">
-                        {mes.editavel ? (
-                          editandoEsteMes ? (
-                            <div className="flex gap-1 justify-center">
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleCancelarMes(mes.mes)}
-                                className="h-8 w-8 p-0"
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                onClick={() => handleSalvarMes(mes.mes)}
-                                className="h-8 w-8 p-0"
-                              >
-                                <Save className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          ) : (
+                        {editandoEsteMes ? (
+                          <div className="flex gap-1 justify-center">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleCancelarMes(mes.mes)}
+                              className="h-8 px-2"
+                              title="Cancelar"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => handleSalvarMes(mes.mes)}
+                              className="h-8 px-2"
+                              title="Salvar"
+                            >
+                              <Save className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex gap-1 justify-center">
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => setMesEditando(mes.mes)}
                               disabled={mesEditando !== null}
-                              className="h-8"
+                              className="h-8 px-2"
+                              title="Editar"
                             >
-                              <Edit2 className="h-3 w-3 mr-1" />
-                              Alterar
+                              <Edit2 className="h-3 w-3" />
                             </Button>
-                          )
-                        ) : (
-                          <span className="text-xs text-muted-foreground">-</span>
+                            {mes.tipo_dado === 'estimado' && (mes.custos_fixos > 0 || mes.cmv_percentual > 0 || mes.ticket_medio > 0) && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={async () => {
+                                  const { data: { user } } = await supabase.auth.getUser();
+                                  if (!user) return;
+                                  
+                                  await supabase
+                                    .from('cmv_mensal')
+                                    .delete()
+                                    .eq('usuario_id', user.id)
+                                    .eq('ano', anoSelecionado)
+                                    .eq('mes', mes.mes);
+                                  
+                                  toast.success('Estimativas removidas');
+                                  carregarDados();
+                                }}
+                                disabled={mesEditando !== null}
+                                className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                title="Limpar"
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </div>
                         )}
                       </TableCell>
                     </TableRow>
