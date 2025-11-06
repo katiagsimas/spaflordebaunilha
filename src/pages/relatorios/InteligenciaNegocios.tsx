@@ -127,10 +127,13 @@ export default function InteligenciaNegocios() {
           </CardContent>
         </Card>
 
-        <Card className="cursor-not-allowed opacity-60 border-2">
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-primary"
+          onClick={() => navigate('/relatorios/ponto-equilibrio')}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Target className="h-5 w-5 text-muted-foreground" />
+              <Target className="h-5 w-5 text-primary" />
               Ponto de Equilíbrio
             </CardTitle>
           </CardHeader>
@@ -138,7 +141,6 @@ export default function InteligenciaNegocios() {
             <p className="text-sm text-muted-foreground">
               Calcule quanto precisa faturar para cobrir seus custos
             </p>
-            <p className="text-xs text-yellow-600 mt-2">Em breve</p>
           </CardContent>
         </Card>
 

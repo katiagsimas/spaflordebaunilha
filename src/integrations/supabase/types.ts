@@ -428,42 +428,54 @@ export type Database = {
       cmv_mensal: {
         Row: {
           ano: number
+          cmv_percentual_estimado: number | null
           compras: number
           created_at: string
+          custos_fixos_estimado: number | null
           estoque_final: number
           estoque_inicial: number
           faturamento: number
           id: string
           mes: number
           observacao: string | null
+          ticket_medio_estimado: number | null
+          tipo_dado: string | null
           updated_at: string
           usa_dados_sistema: boolean
           usuario_id: string
         }
         Insert: {
           ano: number
+          cmv_percentual_estimado?: number | null
           compras?: number
           created_at?: string
+          custos_fixos_estimado?: number | null
           estoque_final?: number
           estoque_inicial?: number
           faturamento?: number
           id?: string
           mes: number
           observacao?: string | null
+          ticket_medio_estimado?: number | null
+          tipo_dado?: string | null
           updated_at?: string
           usa_dados_sistema?: boolean
           usuario_id: string
         }
         Update: {
           ano?: number
+          cmv_percentual_estimado?: number | null
           compras?: number
           created_at?: string
+          custos_fixos_estimado?: number | null
           estoque_final?: number
           estoque_inicial?: number
           faturamento?: number
           id?: string
           mes?: number
           observacao?: string | null
+          ticket_medio_estimado?: number | null
+          tipo_dado?: string | null
           updated_at?: string
           usa_dados_sistema?: boolean
           usuario_id?: string
@@ -3161,6 +3173,10 @@ export type Database = {
         Args: { p_ano: number; p_mes: number; p_usuario_id: string }
         Returns: number
       }
+      get_custos_fixos_mes: {
+        Args: { p_ano: number; p_mes: number; p_usuario_id: string }
+        Returns: number
+      }
       get_estoque_final_mes: {
         Args: { p_ano: number; p_mes: number; p_usuario_id: string }
         Returns: number
@@ -3180,9 +3196,39 @@ export type Database = {
           valor_total: number
         }[]
       }
+      get_ponto_equilibrio_mes: {
+        Args: { p_ano: number; p_mes: number; p_usuario_id: string }
+        Returns: {
+          ano: number
+          cmv: number
+          cmv_percentual: number
+          custos_fixos: number
+          editavel: boolean
+          faturamento: number
+          margem_contribuicao_percentual: number
+          mes: number
+          mes_nome: string
+          percentual_acima_pe: number
+          ponto_equilibrio_reais: number
+          ponto_equilibrio_unidades: number
+          quantidade_vendas_real: number
+          resultado_mes: number
+          status: string
+          ticket_medio: number
+          tipo_dado: string
+        }[]
+      }
+      get_quantidade_vendas_mes: {
+        Args: { p_ano: number; p_mes: number; p_usuario_id: string }
+        Returns: number
+      }
       get_status_estoque: {
         Args: { p_ponto_pedido: number; p_saldo: number }
         Returns: string
+      }
+      get_ticket_medio_mes: {
+        Args: { p_ano: number; p_mes: number; p_usuario_id: string }
+        Returns: number
       }
       has_role: {
         Args: {

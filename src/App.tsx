@@ -20,6 +20,7 @@ import RelatorioCMVGlobal from "./pages/estoque/RelatorioCMVGlobal";
 import Precificacao from "./pages/Precificacao";
 import Planejamento from "./pages/Planejamento";
 import CMVGlobal from "./pages/CMVGlobal";
+import PontoEquilibrio from "./pages/relatorios/PontoEquilibrio";
 import Cadastros from "./pages/Cadastros";
 import ClientesFornecedores from "./pages/ClientesFornecedores";
 import SeusDados from "./pages/cadastros/SeusDados";
@@ -210,6 +211,7 @@ const App = () => (
           <Route path="/relatorios/inteligencia" element={<ProtectedRoute><Layout><InteligenciaNegocios /></Layout></ProtectedRoute>} />
           <Route path="/relatorios/custos-categorias" element={<ProtectedRoute><Layout><CustosPorCategoria /></Layout></ProtectedRoute>} />
           <Route path="/relatorios/cmv-global" element={<ProtectedRoute><Layout><CMVGlobal /></Layout></ProtectedRoute>} />
+          <Route path="/relatorios/ponto-equilibrio" element={<ProtectedRoute><Layout><PontoEquilibrio /></Layout></ProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
           </Routes>
