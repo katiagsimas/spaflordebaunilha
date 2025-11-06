@@ -307,7 +307,7 @@ export default function PlanejamentoVendas() {
       {plano && (
         <>
           {/* Alertas */}
-          {plano.resumo.risco_quebra && (
+          {plano.resumo?.risco_quebra && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
@@ -317,7 +317,7 @@ export default function PlanejamentoVendas() {
             </Alert>
           )}
 
-          {plano.alertas.length > 0 && (
+          {plano.alertas?.length > 0 && (
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
@@ -338,10 +338,10 @@ export default function PlanejamentoVendas() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {formatCurrency(plano.consolidado.receita_total_prevista)}
+                  {formatCurrency(plano.consolidado?.receita_total_prevista || 0)}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Meta: {formatCurrency(plano.resumo.meta_faturamento)}
+                  Meta: {formatCurrency(plano.resumo?.meta_faturamento || 0)}
                 </p>
               </CardContent>
             </Card>
@@ -352,10 +352,10 @@ export default function PlanejamentoVendas() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {formatCurrency(plano.consolidado.lucro_total_previsto)}
+                  {formatCurrency(plano.consolidado?.lucro_total_previsto || 0)}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Margem: {plano.consolidado.margem_media_pct.toFixed(1)}%
+                  Margem: {plano.consolidado?.margem_media_pct?.toFixed(1) || 0}%
                 </p>
               </CardContent>
             </Card>
@@ -366,10 +366,10 @@ export default function PlanejamentoVendas() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {plano.consolidado.qtd_total_prevista}
+                  {plano.consolidado?.qtd_total_prevista || 0}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Meta: {plano.resumo.meta_pedidos}
+                  Meta: {plano.resumo?.meta_pedidos || 0}
                 </p>
               </CardContent>
             </Card>
@@ -380,10 +380,10 @@ export default function PlanejamentoVendas() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {formatCurrency(plano.consolidado.ticket_medio_previsto)}
+                  {formatCurrency(plano.consolidado?.ticket_medio_previsto || 0)}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Meta: {formatCurrency(plano.resumo.meta_ticket_medio)}
+                  Meta: {formatCurrency(plano.resumo?.meta_ticket_medio || 0)}
                 </p>
               </CardContent>
             </Card>
@@ -396,7 +396,7 @@ export default function PlanejamentoVendas() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {plano.mix_planejado.map((produto, index) => (
+                {plano.mix_planejado?.map((produto, index) => (
                   <div
                     key={produto.product_id}
                     className="flex items-center justify-between p-4 border rounded-lg"
@@ -440,7 +440,7 @@ export default function PlanejamentoVendas() {
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
-                {plano.acoes_recomendadas.map((acao, i) => (
+                {plano.acoes_recomendadas?.map((acao, i) => (
                   <li key={i} className="flex items-start gap-2">
                     <span className="text-primary">✓</span>
                     <span>{acao}</span>
