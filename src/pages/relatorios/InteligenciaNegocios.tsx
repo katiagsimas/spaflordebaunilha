@@ -3,7 +3,6 @@ import { BarChart3, TrendingUp, Target, DollarSign, Calculator, ShoppingBag } fr
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { BackButton } from '@/components/BackButton';
 import {
   Select,
   SelectContent,
@@ -80,14 +79,11 @@ export default function InteligenciaNegocios() {
     <div className="min-h-screen bg-background p-4 md:p-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <BackButton to="/encomendas" />
-          <div>
-            <h1 className="text-3xl font-bold">🎯 Centro de Comando Financeiro</h1>
-            <p className="text-muted-foreground">
-              Decisões baseadas em dados reais
-            </p>
-          </div>
+        <div>
+          <h1 className="text-3xl font-bold">🎯 Centro de Comando Financeiro</h1>
+          <p className="text-muted-foreground">
+            Decisões baseadas em dados reais
+          </p>
         </div>
 
         <Select value={periodo} onValueChange={setPeriodo}>
