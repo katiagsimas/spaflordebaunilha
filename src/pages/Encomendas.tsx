@@ -22,6 +22,7 @@ import { useEncomendaItens } from "@/hooks/useEncomendaItens";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import ContasReceberFormModal from "@/components/financeiro/ContasReceberFormModal";
 import { useNavigate } from "react-router-dom";
+import { SeletorTags } from "@/components/encomendas/SeletorTags";
 
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from 'xlsx';
@@ -59,7 +60,6 @@ const Encomendas = () => {
   const [clienteFilter, setClienteFilter] = useState("Todos");
   const [dataEntregaFilter, setDataEntregaFilter] = useState("");
   const [horaEntregaFilter, setHoraEntregaFilter] = useState("");
-  const [tagFilter, setTagFilter] = useState("todos");
   const [modalPagamentoAberto, setModalPagamentoAberto] = useState(false);
   const [contaReceberId, setContaReceberId] = useState<string | null>(null);
   const [planoContasVendaId, setPlanoContasVendaId] = useState<string>('');
@@ -87,8 +87,7 @@ const Encomendas = () => {
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
   ];
   
-  // Estados para tags
-  const [tagsDisponiveis, setTagsDisponiveis] = useState<any[]>([]);
+  // Estados para tags (novo sistema categorizado)
   const [tagsSelecionadas, setTagsSelecionadas] = useState<any[]>([]);
   const [tempProdutos, setTempProdutos] = useState<Array<{
     id: string;
@@ -237,7 +236,7 @@ const Encomendas = () => {
     });
   }
 
-  // Buscar o ID do plano de contas "Venda de Produtos" e tags ao carregar
+  // Buscar o ID do plano de contas "Venda de Produtos" ao carregar
   useEffect(() => {
     const fetchPlanoContasVenda = async () => {
       try {
@@ -261,27 +260,7 @@ const Encomendas = () => {
       }
     };
 
-    const fetchTags = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        const { data, error } = await supabase
-          .from('tags_encomendas')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('ativo', true)
-          .order('nome');
-
-        if (error) throw error;
-        setTagsDisponiveis(data || []);
-      } catch (error) {
-        console.error('Erro ao buscar tags:', error);
-      }
-    };
-
     fetchPlanoContasVenda();
-    fetchTags();
   }, []);
 
   const resetForm = () => {
@@ -457,16 +436,17 @@ const Encomendas = () => {
     // Carregar o ID da conta a receber vinculada, se existir
     setContaReceberId(encomenda.conta_receber_id || null);
     
-    // Buscar tags da encomenda
+    // Buscar tags da encomenda (novo sistema)
     try {
       const { data: tagsData } = await supabase
         .from('encomendas_tags')
         .select(`
           tag_id,
-          tag:tags_encomendas (
+          tag:tags (
             id,
             nome,
-            cor
+            cor,
+            categoria_id
           )
         `)
         .eq('encomenda_id', encomenda.id);
@@ -879,13 +859,10 @@ const Encomendas = () => {
       const matchesDataEntrega = !dataEntregaFilter || e.data_entrega === dataEntregaFilter;
       const matchesHoraEntrega = !horaEntregaFilter || (e.hora_entrega && e.hora_entrega.slice(0, 5) === horaEntregaFilter);
       
-      // Filtro por tag
-      const matchesTag = tagFilter === "todos" || (e.tags && e.tags.some((t: any) => t.id === tagFilter));
-      
       // Filtro por busca de nome
       const matchesBusca = !buscaNome || e.cliente.toLowerCase().includes(buscaNome.toLowerCase());
       
-      return matchesStatus && matchesCliente && matchesDataEntrega && matchesHoraEntrega && matchesTag && matchesBusca;
+      return matchesStatus && matchesCliente && matchesDataEntrega && matchesHoraEntrega && matchesBusca;
     })
     .sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime());
 
@@ -1493,37 +1470,11 @@ const Encomendas = () => {
 
                       {/* Tags Disponíveis */}
                       <div>
-                        <Label className="mb-2 block text-sm">Tags Disponíveis:</Label>
-                        <div className="flex flex-wrap gap-2">
-                          {tagsDisponiveis.map(tag => {
-                            const selecionada = tagsSelecionadas.find(t => t.id === tag.id);
-                            return (
-                              <Badge
-                                key={tag.id}
-                                style={{ 
-                                  backgroundColor: selecionada ? tag.cor : 'transparent',
-                                  color: selecionada ? '#fff' : tag.cor,
-                                  borderColor: tag.cor,
-                                }}
-                                className="cursor-pointer border-2 hover:scale-105 transition-transform"
-                                onClick={() => {
-                                  if (selecionada) {
-                                    setTagsSelecionadas(tagsSelecionadas.filter(t => t.id !== tag.id));
-                                  } else {
-                                    setTagsSelecionadas([...tagsSelecionadas, tag]);
-                                  }
-                                }}
-                              >
-                                {tag.nome}
-                              </Badge>
-                            );
-                          })}
-                        </div>
-                        {tagsDisponiveis.length === 0 && (
-                          <p className="text-sm text-muted-foreground">
-                            Nenhuma tag cadastrada. Crie tags em Configurações.
-                          </p>
-                        )}
+                        <Label className="mb-2 block text-sm">Tags da Encomenda:</Label>
+                        <SeletorTags
+                          tagsSelecionadas={tagsSelecionadas}
+                          onChange={setTagsSelecionadas}
+                        />
                       </div>
                     </CardContent>
                   </Card>
@@ -1713,32 +1664,6 @@ const Encomendas = () => {
           </CardContent>
         </Card>
 
-        {/* Filtro de Tags */}
-        <Card className="shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <Label htmlFor="filtro-tag" className="text-sm font-medium mb-2 block">Tag</Label>
-            <Select value={tagFilter} onValueChange={setTagFilter}>
-              <SelectTrigger id="filtro-tag" className="bg-background">
-                <SelectValue placeholder="Todas as tags" />
-              </SelectTrigger>
-              <SelectContent className="bg-popover z-50">
-                <SelectItem value="todos">Todas as tags</SelectItem>
-                {tagsDisponiveis.map(tag => (
-                  <SelectItem key={tag.id} value={tag.id}>
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: tag.cor }}
-                      />
-                      {tag.nome}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </CardContent>
-        </Card>
-
         {/* Filtro de Data da Entrega */}
         <Card className="shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="p-4">
@@ -1776,7 +1701,6 @@ const Encomendas = () => {
               onClick={() => {
                 setClienteFilter("Todos");
                 setStatusFilter("Todos");
-                setTagFilter("todos");
                 setDataEntregaFilter("");
                 setHoraEntregaFilter("");
                 setBuscaNome("");

@@ -332,6 +332,36 @@ export type Database = {
         }
         Relationships: []
       }
+      categorias_tags: {
+        Row: {
+          ativo: boolean
+          criado_em: string
+          descricao: string | null
+          icone: string | null
+          id: string
+          nome: string
+          ordem: number
+        }
+        Insert: {
+          ativo?: boolean
+          criado_em?: string
+          descricao?: string | null
+          icone?: string | null
+          id?: string
+          nome: string
+          ordem: number
+        }
+        Update: {
+          ativo?: boolean
+          criado_em?: string
+          descricao?: string | null
+          icone?: string | null
+          id?: string
+          nome?: string
+          ordem?: number
+        }
+        Relationships: []
+      }
       clientes: {
         Row: {
           cep: string | null
@@ -2574,6 +2604,44 @@ export type Database = {
           },
         ]
       }
+      tags: {
+        Row: {
+          ativo: boolean
+          categoria_id: string
+          cor: string | null
+          criado_em: string
+          id: string
+          nome: string
+          ordem: number
+        }
+        Insert: {
+          ativo?: boolean
+          categoria_id: string
+          cor?: string | null
+          criado_em?: string
+          id?: string
+          nome: string
+          ordem: number
+        }
+        Update: {
+          ativo?: boolean
+          categoria_id?: string
+          cor?: string | null
+          criado_em?: string
+          id?: string
+          nome?: string
+          ordem?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tags_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tags_contas_receber: {
         Row: {
           cor: string
@@ -3048,6 +3116,17 @@ export type Database = {
       gerar_proximo_codigo_tipo_documento: {
         Args: { p_user_id: string }
         Returns: number
+      }
+      get_insights_cruzados: {
+        Args: { dias: number; user_id_param: string }
+        Returns: {
+          evento: string
+          origem: string
+          percentual: number
+          ticket_medio: number
+          total_vendas: number
+          valor_total: number
+        }[]
       }
       get_status_estoque: {
         Args: { p_ponto_pedido: number; p_saldo: number }
