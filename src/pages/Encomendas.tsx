@@ -25,6 +25,8 @@ import { useNavigate } from "react-router-dom";
 import { SeletorTags } from "@/components/encomendas/SeletorTags";
 import { useValidacaoEstoque } from "@/hooks/useValidacaoEstoque";
 import { AlertaEstoque } from "@/components/encomendas/AlertaEstoque";
+import { CalculadoraValor } from "@/components/encomendas/CalculadoraValor";
+import { PreviewEncomenda } from "@/components/encomendas/PreviewEncomenda";
 
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from 'xlsx';
@@ -109,6 +111,7 @@ const Encomendas = () => {
     hora_entrega: "",
     status: "pendente",
     valor: 0,
+    valorManual: false, // Controla se o valor foi definido manualmente
     observacoes_cliente: "",
     observacoes_internas: "",
     telefone: "",
@@ -162,8 +165,22 @@ const Encomendas = () => {
   }, [valorTotalProdutos, formData.desconto_percentual, formData.desconto_valor]);
 
   const valorFinal = useMemo(() => {
+    // Se o valor foi definido manualmente, usar o valor manual
+    if (formData.valorManual) {
+      return formData.valor;
+    }
+    // Caso contrário, calcular automaticamente
     return valorTotalProdutos - valorDesconto + formData.taxa_entrega + formData.topo_bolo + formData.outros;
-  }, [valorTotalProdutos, valorDesconto, formData.taxa_entrega, formData.topo_bolo, formData.outros]);
+  }, [formData.valorManual, formData.valor, valorTotalProdutos, valorDesconto, formData.taxa_entrega, formData.topo_bolo, formData.outros]);
+
+  // Handler para atualizar o valor da calculadora
+  const handleValorChange = (valor: number, isManual: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      valor,
+      valorManual: isManual,
+    }));
+  };
 
   // Verificar se há um ID na URL para abrir automaticamente o formulário de edição
   useEffect(() => {
@@ -285,6 +302,7 @@ const Encomendas = () => {
       hora_entrega: "",
       status: "pendente",
       valor: 0,
+      valorManual: false,
       observacoes_cliente: "",
       observacoes_internas: "",
       telefone: "",
@@ -431,6 +449,7 @@ const Encomendas = () => {
       hora_entrega: encomenda.hora_entrega || "",
       status: encomenda.status,
       valor: encomenda.valor,
+      valorManual: false, // Reset ao editar
       observacoes_cliente: encomenda.observacoes_cliente || encomenda.observacoes || "",
       observacoes_internas: encomenda.observacoes_internas || "",
       telefone: encomenda.telefone || "",
@@ -1550,7 +1569,40 @@ const Encomendas = () => {
                     </CardContent>
                   </Card>
 
-                  <div className="flex gap-2 justify-end">
+                  {/* Calculadora de Valor */}
+                  {produtosExibidos.length > 0 && (
+                    <CalculadoraValor
+                      itens={produtosExibidos.map(item => ({
+                        receita_id: item.receita_id,
+                        quantidade: item.quantidade,
+                        valor_unitario: item.valor_unitario,
+                      }))}
+                      valorManual={formData.valorManual ? formData.valor : undefined}
+                      onChange={handleValorChange}
+                    />
+                  )}
+
+                  {/* Preview da Encomenda */}
+                  {formData.cliente && produtosExibidos.length > 0 && formData.data_entrega && (
+                    <div className="mt-4">
+                      <PreviewEncomenda
+                        dados={{
+                          cliente: formData.cliente,
+                          data_pedido: formData.data_pedido,
+                          data_entrega: formData.data_entrega,
+                          hora_entrega: formData.hora_entrega,
+                          valor: valorFinal,
+                          itens: produtosExibidos,
+                          tags: tagsSelecionadas,
+                          observacoes_cliente: formData.observacoes_cliente,
+                          observacoes_internas: formData.observacoes_internas,
+                        }}
+                        validacaoEstoque={validacaoEstoque}
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex gap-2 justify-end mt-6">
                   <Button
                     type="button"
                     variant="outline"
