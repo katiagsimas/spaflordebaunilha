@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { BackButton } from '@/components/BackButton';
 import {
   Select,
   SelectContent,
@@ -29,7 +30,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { FornecedorAutocomplete } from '@/components/FornecedorAutocomplete';
-import { ArrowLeft, Info, Check, ChevronsUpDown } from 'lucide-react';
+import { Info, Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function ContasPagarForm() {
@@ -467,9 +468,7 @@ export default function ContasPagarForm() {
     <div className="container mx-auto p-6 space-y-6 max-w-4xl">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/financeiro/contas-pagar')}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
+        <BackButton to="/financeiro/contas-pagar" />
         <div>
           <h1 className="text-3xl font-bold">
             {isEdicao ? 'Editar Conta a Pagar' : 'Nova Conta a Pagar'}

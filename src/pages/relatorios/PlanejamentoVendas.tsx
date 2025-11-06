@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Loader2, AlertCircle, Info, Edit, Check, RefreshCw, X } from 'lucide-react';
+import { Save, Loader2, AlertCircle, Info, Edit, Check, RefreshCw, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useReceitas } from '@/hooks/useReceitas';
 import { useToast } from '@/hooks/use-toast';
+import { BackButton } from '@/components/BackButton';
 
 interface DistribuicaoProduto {
   receita_id: string;
@@ -606,13 +607,7 @@ export default function PlanejamentoVendas() {
     <div className="min-h-screen bg-background p-4 md:p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate('/relatorios/inteligencia')}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
+        <BackButton to="/relatorios/inteligencia" />
         <div>
           <h1 className="text-3xl font-bold">📈 Planejamento de Vendas</h1>
           <p className="text-muted-foreground">

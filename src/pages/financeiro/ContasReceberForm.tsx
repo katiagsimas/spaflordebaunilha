@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft } from 'lucide-react';
+import { BackButton } from '@/components/BackButton';
 import ContasReceberFormModal from '@/components/financeiro/ContasReceberFormModal';
 
 export default function ContasReceberForm() {
@@ -69,16 +68,10 @@ export default function ContasReceberForm() {
   if (isEditMode && loading) {
     return (
       <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/financeiro/contas-receber')}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-2xl font-bold">Carregando...</h1>
-        </div>
+      <div className="flex items-center gap-4">
+        <BackButton to="/financeiro/contas-receber" />
+        <h1 className="text-2xl font-bold">Carregando...</h1>
+      </div>
       </div>
     );
   }
@@ -91,13 +84,7 @@ export default function ContasReceberForm() {
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
       <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate('/financeiro/contas-receber')}
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
+        <BackButton to="/financeiro/contas-receber" />
         <h1 className="text-2xl font-bold">
           {isEditMode ? 'Editar Conta a Receber' : 'Nova Conta a Receber'}
         </h1>

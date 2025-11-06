@@ -44,7 +44,8 @@ import {
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Trash2, Upload, X, Info, ArrowLeft } from 'lucide-react';
+import { Plus, Trash2, Upload, X, Info } from 'lucide-react';
+import { BackButton } from '@/components/BackButton';
 
 export default function PrePreparoForm() {
   const navigate = useNavigate();
@@ -672,9 +673,7 @@ export default function PrePreparoForm() {
     <div className="container mx-auto p-6 space-y-6 max-w-5xl">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/precificacao/pre-preparos')}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
+        <BackButton to="/precificacao/pre-preparos" />
         <div>
           <h1 className="text-3xl font-bold">
             {isEditMode ? 'Editar Pré-Preparo' : 'Novo Pré-Preparo'}
