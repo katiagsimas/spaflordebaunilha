@@ -85,11 +85,11 @@ export default function PlanoContas() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Buscar categorias ativas (do usuário OU padrão do sistema)
+      // Buscar categorias ativas do usuário
       const { data: dataCategorias, error: errorCat } = await supabase
         .from('categorias_plano_contas')
         .select('*')
-        .or(`user_id.eq.${user.id},padrao_sistema.eq.true`)
+        .eq('user_id', user.id)
         .eq('ativo', true)
         .order('ordem');
 
@@ -117,7 +117,7 @@ export default function PlanoContas() {
         }
       }
 
-      // Buscar planos (do usuário OU padrão do sistema)
+      // Buscar planos do usuário atual
       const { data: dataPlanos, error: errorPlanos } = await supabase
         .from('plano_contas')
         .select(`
@@ -130,7 +130,7 @@ export default function PlanoContas() {
             faixa_dre
           )
         `)
-        .or(`user_id.eq.${user.id},padrao_sistema.eq.true`)
+        .eq('user_id', user.id)
         .order('codigo_estruturado');
 
       if (errorPlanos) throw errorPlanos;
@@ -501,7 +501,7 @@ export default function PlanoContas() {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-full p-0" align="start">
-                <Command>
+                <Command shouldFilter={false}>
                   <CommandInput 
                     placeholder="Digite para buscar..." 
                     value={termoBusca}
