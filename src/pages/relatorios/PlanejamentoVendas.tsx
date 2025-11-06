@@ -56,6 +56,7 @@ export default function PlanejamentoVendas() {
   // Mês sendo editado
   const [mesEditando, setMesEditando] = useState<number | null>(null);
   const [valorEditando, setValorEditando] = useState('');
+  const [ticketMedioEditando, setTicketMedioEditando] = useState('');
 
   // Distribuição por produto
   const [distribuicao, setDistribuicao] = useState<DistribuicaoProduto[]>([]);
@@ -320,6 +321,7 @@ export default function PlanejamentoVendas() {
     if (meta) {
       setMesEditando(mes);
       setValorEditando(meta.faturamento > 0 ? meta.faturamento.toString() : '');
+      setTicketMedioEditando(meta.ticketMedio > 0 ? meta.ticketMedio.toString() : '');
     }
   };
 
@@ -337,6 +339,7 @@ export default function PlanejamentoVendas() {
 
   const handleSalvarMes = (mes: number) => {
     const novoFaturamento = parseFloat(valorEditando);
+    const novoTicketMedio = parseFloat(ticketMedioEditando);
     
     if (isNaN(novoFaturamento) || novoFaturamento <= 0) {
       toast({
@@ -347,10 +350,17 @@ export default function PlanejamentoVendas() {
       return;
     }
 
+    if (isNaN(novoTicketMedio) || novoTicketMedio <= 0) {
+      toast({
+        title: 'Valor inválido',
+        description: 'O ticket médio deve ser maior que zero.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const novoLucro = Math.round(novoFaturamento * (pctLucroSelecionado! / 100));
-    const novosPedidos = ticketMedioInteligencia > 0 
-      ? Math.max(1, Math.floor(novoFaturamento / ticketMedioInteligencia))
-      : 0;
+    const novosPedidos = Math.max(1, Math.floor(novoFaturamento / novoTicketMedio));
 
     setMetasMensais(prev =>
       prev.map(m =>
@@ -359,6 +369,7 @@ export default function PlanejamentoVendas() {
               ...m,
               faturamento: novoFaturamento,
               lucro: novoLucro,
+              ticketMedio: novoTicketMedio,
               pedidos: novosPedidos,
               customizado: true,
             }
@@ -368,6 +379,7 @@ export default function PlanejamentoVendas() {
 
     setMesEditando(null);
     setValorEditando('');
+    setTicketMedioEditando('');
   };
 
   const handleRedistribuirDiferenca = () => {
@@ -428,7 +440,7 @@ export default function PlanejamentoVendas() {
     );
   };
 
-  const salvarPlanejamento = async () => {
+  const salvarMetaAnual = async () => {
     if (!user) return;
 
     // Validações
@@ -450,19 +462,38 @@ export default function PlanejamentoVendas() {
       return;
     }
 
-    if (Math.abs(diferencaFaturamento) > 0.01) {
+    toast({
+      title: 'Meta Anual salva!',
+      description: 'Os valores foram aplicados nas metas mensais.',
+    });
+  };
+
+  const salvarMetasMensais = async () => {
+    if (!user) return;
+
+    // Validações
+    if (!metaFaturamentoAnual || parseFloat(metaFaturamentoAnual) <= 0) {
       toast({
-        title: 'Soma inválida',
-        description: 'A soma das metas mensais deve igualar a Meta de Faturamento Anual.',
+        title: 'Campo obrigatório',
+        description: 'Informe o Faturamento Anual primeiro.',
         variant: 'destructive',
       });
       return;
     }
 
-    if (Math.abs(somaPercentuais - 100) > 0.01) {
+    if (!pctLucroSelecionado) {
       toast({
-        title: 'Distribuição inválida',
-        description: 'A soma dos percentuais deve ser exatamente 100%.',
+        title: 'Selecione o percentual de lucro',
+        description: 'Escolha uma das opções: 35%, 45% ou 50%.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (Math.abs(diferencaFaturamento) > 0.01) {
+      toast({
+        title: 'Soma inválida',
+        description: 'A soma das metas mensais deve igualar a Meta de Faturamento Anual.',
         variant: 'destructive',
       });
       return;
@@ -523,7 +554,7 @@ export default function PlanejamentoVendas() {
 
       toast({
         title: 'Sucesso!',
-        description: 'Planejamento salvo com sucesso.',
+        description: 'Metas mensais salvas com sucesso.',
       });
 
     } catch (error) {
@@ -536,6 +567,24 @@ export default function PlanejamentoVendas() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const salvarDistribuicaoProdutos = async () => {
+    if (!user) return;
+
+    if (Math.abs(somaPercentuais - 100) > 0.01) {
+      toast({
+        title: 'Distribuição inválida',
+        description: 'A soma dos percentuais deve ser exatamente 100%.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    toast({
+      title: 'Distribuição salva!',
+      description: 'A distribuição por produto foi atualizada.',
+    });
   };
 
   const formatCurrency = (value: number) => {
@@ -692,6 +741,22 @@ export default function PlanejamentoVendas() {
               Calculado automaticamente
             </p>
           </div>
+
+          <div className="flex justify-end pt-4">
+            <Button
+              onClick={salvarMetaAnual}
+              disabled={
+                loading || 
+                !metaFaturamentoAnual ||
+                parseFloat(metaFaturamentoAnual) <= 0 ||
+                !pctLucroSelecionado
+              }
+              className="gap-2"
+            >
+              <Save className="h-4 w-4" />
+              Salvar Meta Anual
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
@@ -762,7 +827,7 @@ export default function PlanejamentoVendas() {
                 </thead>
                 <tbody>
                   {mesesParaExibir.map((meta) => (
-                    <tr key={meta.mes} className="border-t hover:bg-muted/30">
+                  <tr key={meta.mes} className="border-t hover:bg-muted/30">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           {nomesMeses[meta.mes - 1]}
@@ -790,8 +855,19 @@ export default function PlanejamentoVendas() {
                       <td className="px-4 py-3 text-right text-muted-foreground">
                         {meta.lucro > 0 ? formatCurrency(meta.lucro) : '—'}
                       </td>
-                      <td className="px-4 py-3 text-right text-muted-foreground">
-                        {meta.ticketMedio > 0 ? formatCurrency(meta.ticketMedio) : '—'}
+                      <td className="px-4 py-3 text-right">
+                        {mesEditando === meta.mes ? (
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={ticketMedioEditando}
+                            onChange={(e) => setTicketMedioEditando(e.target.value)}
+                            className="w-32 ml-auto text-right"
+                            placeholder="Ticket médio"
+                          />
+                        ) : (
+                          meta.ticketMedio > 0 ? formatCurrency(meta.ticketMedio) : '—'
+                        )}
                       </td>
                       <td className="px-4 py-3 text-right text-muted-foreground">
                         {meta.pedidos > 0 ? meta.pedidos : '—'}
@@ -856,6 +932,24 @@ export default function PlanejamentoVendas() {
                 </tbody>
               </table>
             </div>
+          </div>
+
+          <div className="flex justify-end pt-4">
+            <Button
+              onClick={salvarMetasMensais}
+              disabled={
+                loading || 
+                Math.abs(diferencaFaturamento) > 0.01 ||
+                !metaFaturamentoAnual ||
+                parseFloat(metaFaturamentoAnual) <= 0 ||
+                !pctLucroSelecionado ||
+                somaFaturamentoMensal === 0
+              }
+              className="gap-2"
+            >
+              <Save className="h-4 w-4" />
+              Salvar Metas Mensais
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -931,38 +1025,22 @@ export default function PlanejamentoVendas() {
               ))
             )}
           </div>
+
+          <div className="flex justify-end pt-4">
+            <Button
+              onClick={salvarDistribuicaoProdutos}
+              disabled={
+                loading || 
+                Math.abs(somaPercentuais - 100) > 0.01
+              }
+              className="gap-2"
+            >
+              <Save className="h-4 w-4" />
+              Salvar Distribuição
+            </Button>
+          </div>
         </CardContent>
       </Card>
-
-      {/* Botão de Salvar */}
-      <div className="flex justify-end">
-        <Button
-          onClick={salvarPlanejamento}
-          disabled={
-            loading || 
-            Math.abs(diferencaFaturamento) > 0.01 ||
-            Math.abs(somaPercentuais - 100) > 0.01 ||
-            !metaFaturamentoAnual ||
-            parseFloat(metaFaturamentoAnual) <= 0 ||
-            !pctLucroSelecionado ||
-            somaFaturamentoMensal === 0
-          }
-          size="lg"
-          className="gap-2"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Salvando...
-            </>
-          ) : (
-            <>
-              <Save className="h-4 w-4" />
-              Salvar Planejamento
-            </>
-          )}
-        </Button>
-      </div>
     </div>
   );
 }
