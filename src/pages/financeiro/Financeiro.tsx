@@ -540,9 +540,8 @@ export default function Financeiro() {
     <div className="container mx-auto p-6 space-y-6">
       {/* Título da Página */}
       <div className="mb-6">
-        <h1 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2 whitespace-nowrap">
-          <DollarSign className="w-6 h-6 md:w-7 md:h-7 text-primary flex-shrink-0" />
-          MOVIMENTAÇÕES E RELATÓRIOS FINANCEIROS
+        <h1 className="text-xl md:text-2xl font-bold tracking-tight">
+          CONTROLE FINANCEIRO
         </h1>
       </div>
 
