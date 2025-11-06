@@ -8,6 +8,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from '@/components/ui/command';
 import {
   Popover,
@@ -29,16 +30,10 @@ export function CategoriaReceitaAutocomplete({
   placeholder = "Selecione a categoria..." 
 }: CategoriaReceitaAutocompleteProps) {
   const [open, setOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
-
-  const filteredCategorias = categorias.filter(categoria =>
-    categoria.nome.toLowerCase().includes(searchValue.toLowerCase())
-  );
 
   const handleSelect = (categoriaId: string) => {
     onSelect(categoriaId);
     setOpen(false);
-    setSearchValue('');
   };
 
   const selectedCategoria = categorias.find(c => c.id === value);
@@ -56,31 +51,29 @@ export function CategoriaReceitaAutocomplete({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0" align="start">
+      <PopoverContent className="w-full p-0 bg-popover" align="start">
         <Command>
-          <CommandInput 
-            placeholder="Buscar categoria..." 
-            value={searchValue}
-            onValueChange={setSearchValue}
-          />
-          <CommandEmpty>Nenhuma categoria encontrada.</CommandEmpty>
-          <CommandGroup className="max-h-64 overflow-auto">
-            {filteredCategorias.map((categoria) => (
-              <CommandItem
-                key={categoria.id}
-                value={categoria.id}
-                onSelect={() => handleSelect(categoria.id)}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    value === categoria.id ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                {categoria.nome}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          <CommandInput placeholder="Buscar categoria..." />
+          <CommandList>
+            <CommandEmpty>Nenhuma categoria encontrada.</CommandEmpty>
+            <CommandGroup>
+              {categorias.map((categoria) => (
+                <CommandItem
+                  key={categoria.id}
+                  value={categoria.nome}
+                  onSelect={() => handleSelect(categoria.id)}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === categoria.id ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {categoria.nome}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>
