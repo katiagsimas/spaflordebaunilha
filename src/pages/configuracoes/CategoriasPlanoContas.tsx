@@ -52,7 +52,6 @@ export default function CategoriasPlanoContas() {
   const [loading, setLoading] = useState(true);
 
   // Filtros
-  const [termoBusca, setTermoBusca] = useState('');
   const [filtroIndicador, setFiltroIndicador] = useState('todos');
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [filtroFaixaDRE, setFiltroFaixaDRE] = useState('todos');
@@ -121,15 +120,6 @@ export default function CategoriasPlanoContas() {
   const categoriasFiltradas = useMemo(() => {
     let resultado = [...categorias];
 
-    // Filtro de busca (código ou descrição)
-    if (termoBusca.trim()) {
-      const termo = termoBusca.toLowerCase();
-      resultado = resultado.filter(cat => 
-        cat.codigo.toLowerCase().includes(termo) ||
-        cat.descricao.toLowerCase().includes(termo)
-      );
-    }
-
     // Filtro de indicador
     if (filtroIndicador !== 'todos') {
       resultado = resultado.filter(cat => cat.indicador === filtroIndicador);
@@ -160,7 +150,7 @@ export default function CategoriasPlanoContas() {
     });
 
     return resultado;
-  }, [categorias, termoBusca, filtroIndicador, filtroStatus, filtroFaixaDRE, filtroTipo]);
+  }, [categorias, filtroIndicador, filtroStatus, filtroFaixaDRE, filtroTipo]);
 
   // Extrair faixas DRE únicas para o filtro
   const faixasDRE = useMemo(() => {
@@ -440,7 +430,6 @@ export default function CategoriasPlanoContas() {
   };
 
   const handleLimparFiltros = () => {
-    setTermoBusca('');
     setFiltroIndicador('todos');
     setFiltroStatus('todos');
     setFiltroFaixaDRE('todos');
@@ -456,7 +445,6 @@ export default function CategoriasPlanoContas() {
 
   // Contar filtros ativos
   const filtrosAtivos = [
-    termoBusca.trim() !== '',
     filtroIndicador !== 'todos',
     filtroStatus !== 'todos',
     filtroFaixaDRE !== 'todos',
@@ -509,22 +497,7 @@ export default function CategoriasPlanoContas() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          {/* Busca */}
-          <div className="space-y-2">
-            <Label htmlFor="busca">Buscar</Label>
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="busca"
-                placeholder="Código ou descrição..."
-                value={termoBusca}
-                onChange={(e) => setTermoBusca(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Filtro Tipo */}
           <div className="space-y-2">
             <Label>Tipo</Label>
@@ -619,7 +592,7 @@ export default function CategoriasPlanoContas() {
             {categoriasFiltradas.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                  {termoBusca || filtrosAtivos > 0 
+                  {filtrosAtivos > 0 
                     ? 'Nenhuma categoria encontrada com esses filtros.' 
                     : 'Nenhuma categoria encontrada.'}
                 </TableCell>
