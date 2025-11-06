@@ -96,7 +96,7 @@ export default function CatalogoItens() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="🏪 Catálogo de Itens"
+        title="Catálogo de Itens"
         description="Gerencie ingredientes e embalagens"
       />
 
