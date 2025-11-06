@@ -435,7 +435,9 @@ export type Database = {
           faturamento: number
           id: string
           mes: number
+          observacao: string | null
           updated_at: string
+          usa_dados_sistema: boolean
           usuario_id: string
         }
         Insert: {
@@ -447,7 +449,9 @@ export type Database = {
           faturamento?: number
           id?: string
           mes: number
+          observacao?: string | null
           updated_at?: string
+          usa_dados_sistema?: boolean
           usuario_id: string
         }
         Update: {
@@ -459,7 +463,9 @@ export type Database = {
           faturamento?: number
           id?: string
           mes?: number
+          observacao?: string | null
           updated_at?: string
+          usa_dados_sistema?: boolean
           usuario_id?: string
         }
         Relationships: []
@@ -3134,6 +3140,33 @@ export type Database = {
       }
       gerar_proximo_codigo_tipo_documento: {
         Args: { p_user_id: string }
+        Returns: number
+      }
+      get_cmv_anual: {
+        Args: { p_ano: number; p_usuario_id: string }
+        Returns: {
+          cmv: number
+          compras: number
+          editavel: boolean
+          estoque_final: number
+          estoque_inicial: number
+          faturamento: number
+          mes: number
+          mes_nome: string
+          percentual_cmv: number
+          tem_historico: boolean
+        }[]
+      }
+      get_compras_mes: {
+        Args: { p_ano: number; p_mes: number; p_usuario_id: string }
+        Returns: number
+      }
+      get_estoque_final_mes: {
+        Args: { p_ano: number; p_mes: number; p_usuario_id: string }
+        Returns: number
+      }
+      get_faturamento_mes: {
+        Args: { p_ano: number; p_mes: number; p_usuario_id: string }
         Returns: number
       }
       get_insights_cruzados: {

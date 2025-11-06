@@ -1,80 +1,254 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Calculator, TrendingDown, TrendingUp, DollarSign, Package, Edit2, Save, X } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useCMVMensal } from "@/hooks/useCMVMensal";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Save } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useCMVMensal } from "@/hooks/useCMVMensal";
 import { toast } from "sonner";
-
-const meses = [
-  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-];
+import { cn } from "@/lib/utils";
 
 export default function CMVGlobal() {
-  const { dados: dadosBanco, upsertDado, calcularCustoMensal, calcularCMVPercentual } = useCMVMensal();
-  const [dadosLocais, setDadosLocais] = useState<{[key: number]: any}>({});
   const anoAtual = new Date().getFullYear();
+  const [anoSelecionado, setAnoSelecionado] = useState(anoAtual);
+  const [editando, setEditando] = useState(false);
+  const [dadosEditados, setDadosEditados] = useState<Record<number, any>>({});
 
-  // Montar dados combinando banco + locais
-  const dados = meses.map((mes, index) => {
-    const dadoBanco = dadosBanco.find(d => d.mes === (index + 1));
-    const dadoLocal = dadosLocais[index];
-    
-    return {
-      mes,
-      estoqueInicial: dadoLocal?.estoque_inicial ?? dadoBanco?.estoque_inicial ?? 0,
-      compras: dadoLocal?.compras ?? dadoBanco?.compras ?? 0,
-      estoqueFinal: dadoLocal?.estoque_final ?? dadoBanco?.estoque_final ?? 0,
-      faturamento: dadoLocal?.faturamento ?? dadoBanco?.faturamento ?? 0,
-    };
-  });
+  const { dadosAnuais, isLoading, upsertDado } = useCMVMensal(anoSelecionado);
 
-  const handleChange = (index: number, campo: string, valor: string) => {
-    setDadosLocais(prev => ({
+  useEffect(() => {
+    setDadosEditados({});
+    setEditando(false);
+  }, [anoSelecionado]);
+
+  const handleEditar = (mes: number, campo: string, valor: string) => {
+    const mesData = dadosAnuais.find((d) => d.mes === mes);
+    setDadosEditados((prev) => ({
       ...prev,
-      [index]: {
-        ...(prev[index] || {}),
+      [mes]: {
+        ...prev[mes],
         [campo]: parseFloat(valor) || 0,
-      }
+      },
     }));
   };
 
-  const handleSave = () => {
-    // Salvar todos os meses que foram alterados
-    Object.keys(dadosLocais).forEach(indexStr => {
-      const index = parseInt(indexStr);
-      const dadoLocal = dadosLocais[index];
-      
-      upsertDado({
-        ano: anoAtual,
-        mes: index + 1,
-        updates: {
-          estoque_inicial: dadoLocal.estoque_inicial ?? 0,
-          compras: dadoLocal.compras ?? 0,
-          estoque_final: dadoLocal.estoque_final ?? 0,
-          faturamento: dadoLocal.faturamento ?? 0,
-        }
-      });
-    });
-    
-    setDadosLocais({});
-    toast.success("Dados salvos com sucesso!");
+  const handleSalvar = async () => {
+    try {
+      // Salvar cada mês editado
+      for (const [mesStr, valores] of Object.entries(dadosEditados)) {
+        const mes = parseInt(mesStr);
+        const mesData = dadosAnuais.find((d) => d.mes === mes);
+
+        // Estoque inicial só pode ser editado no primeiro mês
+        const estoqueInicial = mes === 1 ? valores.estoque_inicial ?? mesData?.estoque_inicial : null;
+
+        await upsertDado({
+          ano: anoSelecionado,
+          mes,
+          updates: {
+            estoque_inicial: estoqueInicial,
+            compras: valores.compras ?? mesData?.compras,
+            estoque_final: valores.estoque_final ?? mesData?.estoque_final,
+            faturamento: valores.faturamento ?? mesData?.faturamento,
+            usa_dados_sistema: anoSelecionado >= 2025,
+          },
+        });
+      }
+
+      setEditando(false);
+      setDadosEditados({});
+      toast.success("Dados salvos com sucesso!");
+    } catch (error) {
+      console.error("Erro ao salvar:", error);
+      toast.error("Erro ao salvar dados");
+    }
   };
+
+  // Calcular totais
+  const totais = dadosAnuais.reduce(
+    (acc, mes) => ({
+      compras: acc.compras + (mes.compras || 0),
+      cmv: acc.cmv + (mes.cmv || 0),
+      faturamento: acc.faturamento + (mes.faturamento || 0),
+    }),
+    { compras: 0, cmv: 0, faturamento: 0 }
+  );
+
+  const percentualCMVMedio = totais.faturamento > 0 ? (totais.cmv / totais.faturamento) * 100 : 0;
+
+  const formatarMoeda = (valor: number) => {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(valor || 0);
+  };
+
+  const getCorPercentual = (percentual: number) => {
+    if (percentual <= 30) return "text-green-600 bg-green-50 border-green-200";
+    if (percentual <= 40) return "text-yellow-600 bg-yellow-50 border-yellow-200";
+    return "text-red-600 bg-red-50 border-red-200";
+  };
+
+  const getStatusPercentual = (percentual: number) => {
+    if (percentual <= 30) return "✅ Excelente";
+    if (percentual <= 40) return "⚠️ Atenção";
+    return "🚨 Crítico";
+  };
+
+  // Gerar lista de anos (2020 até ano atual + 1)
+  const anos = Array.from({ length: anoAtual - 2020 + 2 }, (_, i) => 2020 + i);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="CMV Global"
+          description="Custo de Mercadoria Vendida - Análise Anual"
+          backButton={<BackButton to="/planejamento" />}
+        />
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-center h-64">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <PageHeader
         title="CMV Global"
-        description="Custo de Mercadoria Vendida por mês"
+        description="Custo de Mercadoria Vendida - Análise Anual"
         backButton={<BackButton to="/planejamento" />}
       />
 
+      <div className="flex items-center justify-between gap-4">
+        {/* Seletor de Ano */}
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium">Ano:</label>
+          <Select value={anoSelecionado.toString()} onValueChange={(v) => setAnoSelecionado(parseInt(v))}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {anos.map((ano) => (
+                <SelectItem key={ano} value={ano.toString()}>
+                  {ano}
+                  {ano === anoAtual && " (atual)"}
+                  {ano < 2025 && " (histórico)"}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Botão Editar/Salvar */}
+        {editando ? (
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setEditando(false);
+                setDadosEditados({});
+              }}
+            >
+              <X className="h-4 w-4 mr-2" />
+              Cancelar
+            </Button>
+            <Button onClick={handleSalvar}>
+              <Save className="h-4 w-4 mr-2" />
+              Salvar
+            </Button>
+          </div>
+        ) : (
+          <Button variant="outline" onClick={() => setEditando(true)}>
+            <Edit2 className="h-4 w-4 mr-2" />
+            Editar Dados
+          </Button>
+        )}
+      </div>
+
+      {/* Alertas informativos */}
+      {anoSelecionado < 2025 && (
+        <Alert>
+          <AlertDescription>
+            📝 <strong>Ano {anoSelecionado} (Histórico):</strong> Todos os dados devem ser digitados manualmente.
+            Use este recurso para registrar informações de anos anteriores.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {anoSelecionado >= 2025 && (
+        <Alert>
+          <AlertDescription>
+            🤖 <strong>Ano {anoSelecionado}:</strong> Dados carregados automaticamente do sistema. Você pode fazer
+            ajustes manuais se necessário.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Cards de Resumo */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Compras Totais</CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatarMoeda(totais.compras)}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">CMV Total</CardTitle>
+            <TrendingDown className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatarMoeda(totais.cmv)}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Faturamento Total</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatarMoeda(totais.faturamento)}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">% CMV Médio</CardTitle>
+            <Calculator className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{percentualCMVMedio.toFixed(1)}%</div>
+            <Badge variant="outline" className={cn("mt-1", getCorPercentual(percentualCMVMedio))}>
+              {getStatusPercentual(percentualCMVMedio)}
+            </Badge>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Tabela CMV */}
       <Card>
-        <CardContent className="pt-6">
+        <CardHeader>
+          <CardTitle>Análise Mensal - {anoSelecionado}</CardTitle>
+          <CardDescription>Detalhamento do Custo de Mercadoria Vendida por mês</CardDescription>
+        </CardHeader>
+        <CardContent>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -83,77 +257,137 @@ export default function CMVGlobal() {
                   <TableHead className="text-right">Estoque Inicial</TableHead>
                   <TableHead className="text-right">Compras</TableHead>
                   <TableHead className="text-right">Estoque Final</TableHead>
-                  <TableHead className="text-right">Custo Mensal</TableHead>
+                  <TableHead className="text-right">CMV</TableHead>
                   <TableHead className="text-right">Faturamento</TableHead>
-                  <TableHead className="text-right">CMV Global (%)</TableHead>
+                  <TableHead className="text-right">% CMV</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {dados.map((linha, index) => {
-                  const custoMensal = linha.estoqueInicial + linha.compras - linha.estoqueFinal;
-                  const cmvGlobal = linha.faturamento === 0 ? 0 : (custoMensal / linha.faturamento) * 100;
+                {dadosAnuais.map((mes, index) => {
+                  const dadosEditadosMes = dadosEditados[mes.mes] || {};
+                  const estoqueInicial =
+                    mes.mes === 1
+                      ? editando
+                        ? dadosEditadosMes.estoque_inicial ?? mes.estoque_inicial
+                        : mes.estoque_inicial
+                      : index > 0
+                      ? dadosAnuais[index - 1].estoque_final
+                      : 0;
+
+                  const compras = editando ? dadosEditadosMes.compras ?? mes.compras : mes.compras;
+                  const estoqueFinal = editando
+                    ? dadosEditadosMes.estoque_final ?? mes.estoque_final
+                    : mes.estoque_final;
+                  const faturamento = editando ? dadosEditadosMes.faturamento ?? mes.faturamento : mes.faturamento;
+
+                  const cmvCalculado = (estoqueInicial || 0) + (compras || 0) - (estoqueFinal || 0);
+                  const percentualCalculado = faturamento > 0 ? (cmvCalculado / faturamento) * 100 : 0;
 
                   return (
-                    <TableRow key={linha.mes}>
-                      <TableCell className="font-medium">{linha.mes}</TableCell>
+                    <TableRow key={mes.mes}>
+                      <TableCell className="font-medium">{mes.mes_nome}</TableCell>
+
+                      {/* Estoque Inicial */}
                       <TableCell className="text-right">
-                        <Input
-                          type="number"
-                          value={linha.estoqueInicial || ""}
-                          onChange={(e) => handleChange(index, "estoque_inicial", e.target.value)}
-                          className="text-right"
-                          placeholder="0,00"
-                          step="0.01"
-                        />
+                        {mes.mes === 1 && editando ? (
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={dadosEditadosMes.estoque_inicial ?? mes.estoque_inicial}
+                            onChange={(e) => handleEditar(mes.mes, "estoque_inicial", e.target.value)}
+                            className="text-right h-9"
+                          />
+                        ) : (
+                          <span className="text-sm">{formatarMoeda(estoqueInicial)}</span>
+                        )}
                       </TableCell>
+
+                      {/* Compras */}
                       <TableCell className="text-right">
-                        <Input
-                          type="number"
-                          value={linha.compras || ""}
-                          onChange={(e) => handleChange(index, "compras", e.target.value)}
-                          className="text-right"
-                          placeholder="0,00"
-                          step="0.01"
-                        />
+                        {editando && (anoSelecionado < 2025 || mes.tem_historico) ? (
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={dadosEditadosMes.compras ?? mes.compras}
+                            onChange={(e) => handleEditar(mes.mes, "compras", e.target.value)}
+                            className="text-right h-9"
+                          />
+                        ) : (
+                          formatarMoeda(compras)
+                        )}
                       </TableCell>
+
+                      {/* Estoque Final */}
                       <TableCell className="text-right">
-                        <Input
-                          type="number"
-                          value={linha.estoqueFinal || ""}
-                          onChange={(e) => handleChange(index, "estoque_final", e.target.value)}
-                          className="text-right"
-                          placeholder="0,00"
-                          step="0.01"
-                        />
+                        {editando && (anoSelecionado < 2025 || mes.tem_historico) ? (
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={dadosEditadosMes.estoque_final ?? mes.estoque_final}
+                            onChange={(e) => handleEditar(mes.mes, "estoque_final", e.target.value)}
+                            className="text-right h-9"
+                          />
+                        ) : (
+                          formatarMoeda(estoqueFinal)
+                        )}
                       </TableCell>
-                      <TableCell className="text-right font-semibold">
-                        R$ {custoMensal.toFixed(2)}
-                      </TableCell>
+
+                      {/* CMV (Calculado) */}
+                      <TableCell className="text-right font-semibold">{formatarMoeda(cmvCalculado)}</TableCell>
+
+                      {/* Faturamento */}
                       <TableCell className="text-right">
-                        <Input
-                          type="number"
-                          value={linha.faturamento || ""}
-                          onChange={(e) => handleChange(index, "faturamento", e.target.value)}
-                          className="text-right"
-                          placeholder="0,00"
-                          step="0.01"
-                        />
+                        {editando && (anoSelecionado < 2025 || mes.tem_historico) ? (
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={dadosEditadosMes.faturamento ?? mes.faturamento}
+                            onChange={(e) => handleEditar(mes.mes, "faturamento", e.target.value)}
+                            className="text-right h-9"
+                          />
+                        ) : (
+                          formatarMoeda(faturamento)
+                        )}
                       </TableCell>
-                      <TableCell className="text-right font-semibold">
-                        {cmvGlobal.toFixed(2)}%
+
+                      {/* % CMV (Calculado) */}
+                      <TableCell className="text-right">
+                        <Badge variant="outline" className={cn("font-semibold", getCorPercentual(percentualCalculado))}>
+                          {percentualCalculado.toFixed(1)}%
+                        </Badge>
                       </TableCell>
                     </TableRow>
                   );
                 })}
+
+                {/* LINHA DE TOTAIS */}
+                <TableRow className="bg-muted/50 font-bold">
+                  <TableCell>TOTAL {anoSelecionado}</TableCell>
+                  <TableCell className="text-right">-</TableCell>
+                  <TableCell className="text-right">{formatarMoeda(totais.compras)}</TableCell>
+                  <TableCell className="text-right">-</TableCell>
+                  <TableCell className="text-right">{formatarMoeda(totais.cmv)}</TableCell>
+                  <TableCell className="text-right">{formatarMoeda(totais.faturamento)}</TableCell>
+                  <TableCell className="text-right">
+                    <Badge variant="outline" className={cn("font-semibold", getCorPercentual(percentualCMVMedio))}>
+                      {percentualCMVMedio.toFixed(1)}%
+                    </Badge>
+                  </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </div>
 
-          <div className="flex justify-end mt-6">
-            <Button onClick={handleSave}>
-              <Save className="h-4 w-4 mr-2" />
-              Salvar Dados
-            </Button>
+          {/* Legenda */}
+          <div className="mt-6 p-4 bg-muted/30 rounded-lg border">
+            <h4 className="font-semibold mb-2">📚 Como Interpretar:</h4>
+            <ul className="text-sm space-y-1 text-muted-foreground">
+              <li>• <strong>CMV</strong> = Estoque Inicial + Compras - Estoque Final</li>
+              <li>• <strong>% CMV Ideal para Confeitaria:</strong> Entre 25% e 30%</li>
+              <li>• ✅ <strong>0-30%:</strong> Excelente controle de custos</li>
+              <li>• ⚠️ <strong>31-40%:</strong> Atenção! Revisar fornecedores e desperdícios</li>
+              <li>• 🚨 <strong>Acima de 40%:</strong> Crítico! Ajustes urgentes necessários</li>
+            </ul>
           </div>
         </CardContent>
       </Card>
