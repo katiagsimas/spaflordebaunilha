@@ -29,8 +29,14 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
-import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2, Lock } from 'lucide-react';
+import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2, Lock, MoreVertical } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { BackButton } from '@/components/BackButton';
 import { PageHeader } from '@/components/PageHeader';
@@ -635,39 +641,42 @@ export default function PlanoContas() {
                           )}
                         </Button>
                       ) : (
-                        // Menu completo para contas personalizadas
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleAbrirModal(plano)}
-                            title="Editar"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          {!plano.e_padrao && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeletar(plano.id, plano.e_padrao, plano.padrao_sistema)}
-                              title="Deletar"
-                            >
-                              <Trash2 className="h-4 w-4 text-red-600" />
+                        // Menu dropdown com 3 pontos verticais para contas personalizadas
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreVertical className="h-4 w-4" />
                             </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleToggleAtivo(plano.id, plano.ativo)}
-                            title={plano.ativo ? 'Desativar' : 'Ativar'}
-                          >
-                            {plano.ativo ? (
-                              <PowerOff className="h-4 w-4 text-red-600" />
-                            ) : (
-                              <Power className="h-4 w-4 text-green-600" />
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleAbrirModal(plano)}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleToggleAtivo(plano.id, plano.ativo)}>
+                              {plano.ativo ? (
+                                <>
+                                  <PowerOff className="h-4 w-4 mr-2" />
+                                  Desabilitar
+                                </>
+                              ) : (
+                                <>
+                                  <Power className="h-4 w-4 mr-2" />
+                                  Habilitar
+                                </>
+                              )}
+                            </DropdownMenuItem>
+                            {!plano.e_padrao && (
+                              <DropdownMenuItem
+                                className="text-destructive"
+                                onClick={() => handleDeletar(plano.id, plano.e_padrao, plano.padrao_sistema)}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Excluir
+                              </DropdownMenuItem>
                             )}
-                          </Button>
-                        </>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       )}
                     </div>
                   </TableCell>
