@@ -26,12 +26,15 @@ export default function Producao() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Produção" breadcrumbs={[{ label: "Produção", href: "/producao" }]}>
-        <Button onClick={() => gerarTarefas(3)} disabled={isGerando}>
-          {isGerando && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-          Gerar Tarefas
-        </Button>
-      </PageHeader>
+      <PageHeader 
+        title="Produção"
+        actions={
+          <Button onClick={() => gerarTarefas(3)} disabled={isGerando}>
+            {isGerando && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            Gerar Tarefas
+          </Button>
+        }
+      />
 
       <ResumoProducao totalPedidos={stats.total} totalItens={stats.totalItens} tempoTotal={stats.tempoTotal} />
 
