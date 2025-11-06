@@ -556,7 +556,7 @@ export default function ContasPagarForm() {
                     {planoContasId
                       ? (() => {
                           const plano = planosContas.find((p: any) => p.id === planoContasId);
-                          return plano ? `${plano.codigo_estruturado} - ${plano.descricao}` : 'Selecione...';
+                          return plano ? plano.descricao : 'Selecione...';
                         })()
                       : 'Selecione...'}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -595,7 +595,7 @@ export default function ContasPagarForm() {
                                 planoContasId === plano.id ? 'opacity-100' : 'opacity-0'
                               )}
                             />
-                            {plano.codigo_estruturado} - {plano.descricao}
+                            {plano.descricao}
                           </CommandItem>
                         ))}
                     </CommandGroup>

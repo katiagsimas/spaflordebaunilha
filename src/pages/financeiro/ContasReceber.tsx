@@ -481,7 +481,7 @@ export default function ContasReceber() {
       const dadosExportacao = parcelasExportar.map(p => ({
         'Documento': p.tipo_documento_descricao || 'N/A',
         'Emissão': formatarData(p.data_emissao),
-        'Plano Contas': `${p.plano_contas_codigo} - ${p.plano_contas_descricao}`,
+        'Plano Contas': p.plano_contas_descricao,
         'Cliente': p.cliente_nome || 'N/A',
         'Vencimento': formatarData(p.data_vencimento),
         'Valor Total': p.valor_total,
@@ -606,7 +606,7 @@ export default function ContasReceber() {
     const dadosExportacao = parcelasFiltradas.map(p => ({
       'Documento': p.tipo_documento_descricao || 'N/A',
       'Emissão': formatarData(p.data_emissao),
-      'Plano Contas': `${p.plano_contas_codigo} - ${p.plano_contas_descricao}`,
+      'Plano Contas': p.plano_contas_descricao,
       'Cliente': p.cliente_nome || 'N/A',
       'Vencimento': formatarData(p.data_vencimento),
       'Valor Total': p.valor_total,
@@ -916,7 +916,7 @@ export default function ContasReceber() {
                   <SelectItem value="todos">Todos</SelectItem>
                   {planoContas.map((plano) => (
                     <SelectItem key={plano.id} value={plano.id}>
-                      {plano.codigo} - {plano.descricao}
+                      {plano.descricao}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -1108,7 +1108,7 @@ export default function ContasReceber() {
                   <TableCell>{parcela.tipo_documento_descricao || 'N/A'}</TableCell>
                   <TableCell>{formatarData(parcela.data_emissao)}</TableCell>
                   <TableCell className="text-sm">
-                    {parcela.plano_contas_codigo} - {parcela.plano_contas_descricao}
+                    {parcela.plano_contas_descricao}
                   </TableCell>
                   <TableCell className="font-medium">{parcela.cliente_nome || 'N/A'}</TableCell>
                   <TableCell>{formatarData(parcela.data_vencimento)}</TableCell>
