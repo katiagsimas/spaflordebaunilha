@@ -71,6 +71,7 @@ import Usuarios from "./pages/admin/Usuarios";
 import LogsAdmin from "./pages/admin/Logs";
 import InteligenciaNegocios from "./pages/relatorios/InteligenciaNegocios";
 import CustosPorCategoria from "./pages/relatorios/CustosPorCategoria";
+import PlanejamentoVendas from "./pages/relatorios/PlanejamentoVendas";
 
 const queryClient = new QueryClient();
 
@@ -212,6 +213,7 @@ const App = () => (
           <Route path="/relatorios/custos-categorias" element={<ProtectedRoute><Layout><CustosPorCategoria /></Layout></ProtectedRoute>} />
           <Route path="/relatorios/cmv-global" element={<ProtectedRoute><Layout><CMVGlobal /></Layout></ProtectedRoute>} />
           <Route path="/relatorios/ponto-equilibrio" element={<ProtectedRoute><Layout><PontoEquilibrio /></Layout></ProtectedRoute>} />
+          <Route path="/relatorios/planejamento-vendas" element={<ProtectedRoute><Layout><PlanejamentoVendas /></Layout></ProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
           </Routes>
