@@ -209,6 +209,7 @@ const App = () => (
           {/* Relatórios - Inteligência de Negócios */}
           <Route path="/relatorios/inteligencia" element={<ProtectedRoute><Layout><InteligenciaNegocios /></Layout></ProtectedRoute>} />
           <Route path="/relatorios/custos-categorias" element={<ProtectedRoute><Layout><CustosPorCategoria /></Layout></ProtectedRoute>} />
+          <Route path="/relatorios/cmv-global" element={<ProtectedRoute><Layout><CMVGlobal /></Layout></ProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
           </Routes>

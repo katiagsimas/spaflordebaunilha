@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart3, TrendingUp, Target, DollarSign, ArrowLeft } from 'lucide-react';
+import { BarChart3, TrendingUp, Target, DollarSign, ArrowLeft, Calculator, ShoppingBag } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -88,9 +88,9 @@ export default function InteligenciaNegocios() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">🎯 Inteligência de Negócios</h1>
+            <h1 className="text-3xl font-bold">🎯 Centro de Comando Financeiro</h1>
             <p className="text-muted-foreground">
-              Descubra onde está o dinheiro e como crescer
+              Decisões baseadas em dados reais
             </p>
           </div>
         </div>
@@ -106,6 +106,56 @@ export default function InteligenciaNegocios() {
             <SelectItem value="365">Último ano</SelectItem>
           </SelectContent>
         </Select>
+      </div>
+
+      {/* Módulos do Centro de Comando */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-primary"
+          onClick={() => navigate('/relatorios/cmv-global')}
+        >
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Calculator className="h-5 w-5 text-primary" />
+              CMV Global
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Análise anual do Custo de Mercadoria Vendida com histórico e projeções
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-not-allowed opacity-60 border-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Target className="h-5 w-5 text-muted-foreground" />
+              Ponto de Equilíbrio
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Calcule quanto precisa faturar para cobrir seus custos
+            </p>
+            <p className="text-xs text-yellow-600 mt-2">Em breve</p>
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-not-allowed opacity-60 border-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <TrendingUp className="h-5 w-5 text-muted-foreground" />
+              Planejamento Anual
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Defina metas e acompanhe seu progresso mensal
+            </p>
+            <p className="text-xs text-yellow-600 mt-2">Em breve</p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Cards de Resumo */}
@@ -284,6 +334,3 @@ export default function InteligenciaNegocios() {
     </div>
   );
 }
-
-// Importação faltando do ShoppingBag
-import { ShoppingBag } from 'lucide-react';
