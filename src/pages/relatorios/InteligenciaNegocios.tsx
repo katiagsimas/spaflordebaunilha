@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { BarChart3, TrendingUp, Target, DollarSign, ArrowLeft, Calculator, ShoppingBag } from 'lucide-react';
+import { BarChart3, TrendingUp, Target, DollarSign, Calculator, ShoppingBag } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import { BackButton } from '@/components/BackButton';
 import {
   Select,
   SelectContent,
@@ -80,13 +81,7 @@ export default function InteligenciaNegocios() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/encomendas')}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
+          <BackButton to="/encomendas" />
           <div>
             <h1 className="text-3xl font-bold">🎯 Centro de Comando Financeiro</h1>
             <p className="text-muted-foreground">

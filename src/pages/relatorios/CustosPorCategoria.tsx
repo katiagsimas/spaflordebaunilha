@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { DollarSign, Package, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/PageHeader';
+import { BackButton } from '@/components/BackButton';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -56,6 +57,7 @@ export default function CustosPorCategoria() {
         <PageHeader
           title="💰 Custos por Categoria"
           description="Quanto você tem investido em cada categoria de estoque"
+          backButton={<BackButton to="/relatorios/inteligencia" />}
         />
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -71,6 +73,7 @@ export default function CustosPorCategoria() {
       <PageHeader
         title="💰 Custos por Categoria"
         description="Quanto você tem investido em cada categoria de estoque"
+        backButton={<BackButton to="/relatorios/inteligencia" />}
       />
 
       {/* Total Geral */}
