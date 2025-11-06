@@ -553,7 +553,7 @@ export default function PlanoContas() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todos">Todos</SelectItem>
-                <SelectItem value="padrao">Padrão do Sistema</SelectItem>
+                <SelectItem value="padrao">Sistema</SelectItem>
                 <SelectItem value="customizado">Personalizados</SelectItem>
               </SelectContent>
             </Select>
@@ -652,14 +652,7 @@ export default function PlanoContas() {
                     {plano.codigo_estruturado}
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{plano.descricao}</span>
-                      {plano.padrao_sistema && (
-                        <Badge variant="secondary" className="text-xs">
-                          🔒 Protegido
-                        </Badge>
-                      )}
-                    </div>
+                    <span className="font-medium">{plano.descricao}</span>
                   </TableCell>
                   <TableCell className="text-sm">
                     {plano.categoria?.codigo} - {plano.categoria?.descricao}
