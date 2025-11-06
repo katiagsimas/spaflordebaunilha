@@ -148,7 +148,7 @@ export default function InteligenciaNegocios() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <TrendingUp className="h-5 w-5 text-muted-foreground" />
-              Planejamento Anual
+              Planejamento de Vendas
             </CardTitle>
           </CardHeader>
           <CardContent>
