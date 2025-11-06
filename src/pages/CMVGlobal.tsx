@@ -16,14 +16,14 @@ import { cn } from "@/lib/utils";
 export default function CMVGlobal() {
   const anoAtual = new Date().getFullYear();
   const [anoSelecionado, setAnoSelecionado] = useState(anoAtual);
-  const [editando, setEditando] = useState(false);
+  const [mesEditando, setMesEditando] = useState<number | null>(null);
   const [dadosEditados, setDadosEditados] = useState<Record<number, any>>({});
 
   const { dadosAnuais, isLoading, upsertDado } = useCMVMensal(anoSelecionado);
 
   useEffect(() => {
     setDadosEditados({});
-    setEditando(false);
+    setMesEditando(null);
   }, [anoSelecionado]);
 
   const handleEditar = (mes: number, campo: string, valor: string) => {
@@ -37,36 +37,46 @@ export default function CMVGlobal() {
     }));
   };
 
-  const handleSalvar = async () => {
+  const handleSalvarMes = async (mes: number) => {
     try {
-      // Salvar cada mês editado
-      for (const [mesStr, valores] of Object.entries(dadosEditados)) {
-        const mes = parseInt(mesStr);
-        const mesData = dadosAnuais.find((d) => d.mes === mes);
+      const valores = dadosEditados[mes] || {};
+      const mesData = dadosAnuais.find((d) => d.mes === mes);
 
-        // Estoque inicial só pode ser editado no primeiro mês
-        const estoqueInicial = mes === 1 ? valores.estoque_inicial ?? mesData?.estoque_inicial : null;
+      // Estoque inicial só pode ser editado no primeiro mês
+      const estoqueInicial = mes === 1 ? valores.estoque_inicial ?? mesData?.estoque_inicial : null;
 
-        await upsertDado({
-          ano: anoSelecionado,
-          mes,
-          updates: {
-            estoque_inicial: estoqueInicial,
-            compras: valores.compras ?? mesData?.compras,
-            estoque_final: valores.estoque_final ?? mesData?.estoque_final,
-            faturamento: valores.faturamento ?? mesData?.faturamento,
-            usa_dados_sistema: anoSelecionado >= 2025,
-          },
-        });
-      }
+      await upsertDado({
+        ano: anoSelecionado,
+        mes,
+        updates: {
+          estoque_inicial: estoqueInicial,
+          compras: valores.compras ?? mesData?.compras,
+          estoque_final: valores.estoque_final ?? mesData?.estoque_final,
+          faturamento: valores.faturamento ?? mesData?.faturamento,
+          usa_dados_sistema: anoSelecionado >= 2025,
+        },
+      });
 
-      setEditando(false);
-      setDadosEditados({});
+      setMesEditando(null);
+      setDadosEditados((prev) => {
+        const newData = { ...prev };
+        delete newData[mes];
+        return newData;
+      });
       toast.success("Dados salvos com sucesso!");
     } catch (error) {
       console.error("Erro ao salvar:", error);
       toast.error("Erro ao salvar dados");
     }
+  };
+
+  const handleCancelarMes = (mes: number) => {
+    setMesEditando(null);
+    setDadosEditados((prev) => {
+      const newData = { ...prev };
+      delete newData[mes];
+      return newData;
+    });
   };
 
   // Calcular totais
@@ -131,50 +141,22 @@ export default function CMVGlobal() {
         backButton={<BackButton to="/planejamento" />}
       />
 
-      <div className="flex items-center justify-between gap-4">
-        {/* Seletor de Ano */}
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium">Ano:</label>
-          <Select value={anoSelecionado.toString()} onValueChange={(v) => setAnoSelecionado(parseInt(v))}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {anos.map((ano) => (
-                <SelectItem key={ano} value={ano.toString()}>
-                  {ano}
-                  {ano === anoAtual && " (atual)"}
-                  {ano < 2025 && " (histórico)"}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Botão Editar/Salvar */}
-        {editando ? (
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setEditando(false);
-                setDadosEditados({});
-              }}
-            >
-              <X className="h-4 w-4 mr-2" />
-              Cancelar
-            </Button>
-            <Button onClick={handleSalvar}>
-              <Save className="h-4 w-4 mr-2" />
-              Salvar
-            </Button>
-          </div>
-        ) : (
-          <Button variant="outline" onClick={() => setEditando(true)}>
-            <Edit2 className="h-4 w-4 mr-2" />
-            Editar Dados
-          </Button>
-        )}
+      <div className="flex items-center gap-2">
+        <label className="text-sm font-medium">Ano:</label>
+        <Select value={anoSelecionado.toString()} onValueChange={(v) => setAnoSelecionado(parseInt(v))}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {anos.map((ano) => (
+              <SelectItem key={ano} value={ano.toString()}>
+                {ano}
+                {ano === anoAtual && " (atual)"}
+                {ano < 2025 && " (histórico)"}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Alertas informativos */}
@@ -260,25 +242,27 @@ export default function CMVGlobal() {
                   <TableHead className="text-right">CMV</TableHead>
                   <TableHead className="text-right">Faturamento</TableHead>
                   <TableHead className="text-right">% CMV</TableHead>
+                  <TableHead className="text-center w-32">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {dadosAnuais.map((mes, index) => {
+                  const editandoEsteMes = mesEditando === mes.mes;
                   const dadosEditadosMes = dadosEditados[mes.mes] || {};
                   const estoqueInicial =
                     mes.mes === 1
-                      ? editando
+                      ? editandoEsteMes
                         ? dadosEditadosMes.estoque_inicial ?? mes.estoque_inicial
                         : mes.estoque_inicial
                       : index > 0
                       ? dadosAnuais[index - 1].estoque_final
                       : 0;
 
-                  const compras = editando ? dadosEditadosMes.compras ?? mes.compras : mes.compras;
-                  const estoqueFinal = editando
+                  const compras = editandoEsteMes ? dadosEditadosMes.compras ?? mes.compras : mes.compras;
+                  const estoqueFinal = editandoEsteMes
                     ? dadosEditadosMes.estoque_final ?? mes.estoque_final
                     : mes.estoque_final;
-                  const faturamento = editando ? dadosEditadosMes.faturamento ?? mes.faturamento : mes.faturamento;
+                  const faturamento = editandoEsteMes ? dadosEditadosMes.faturamento ?? mes.faturamento : mes.faturamento;
 
                   const cmvCalculado = (estoqueInicial || 0) + (compras || 0) - (estoqueFinal || 0);
                   const percentualCalculado = faturamento > 0 ? (cmvCalculado / faturamento) * 100 : 0;
@@ -289,7 +273,7 @@ export default function CMVGlobal() {
 
                       {/* Estoque Inicial */}
                       <TableCell className="text-right">
-                        {mes.mes === 1 && editando ? (
+                        {mes.mes === 1 && editandoEsteMes ? (
                           <Input
                             type="number"
                             step="0.01"
@@ -304,7 +288,7 @@ export default function CMVGlobal() {
 
                       {/* Compras */}
                       <TableCell className="text-right">
-                        {editando && (anoSelecionado < 2025 || mes.tem_historico) ? (
+                        {editandoEsteMes ? (
                           <Input
                             type="number"
                             step="0.01"
@@ -319,7 +303,7 @@ export default function CMVGlobal() {
 
                       {/* Estoque Final */}
                       <TableCell className="text-right">
-                        {editando && (anoSelecionado < 2025 || mes.tem_historico) ? (
+                        {editandoEsteMes ? (
                           <Input
                             type="number"
                             step="0.01"
@@ -337,7 +321,7 @@ export default function CMVGlobal() {
 
                       {/* Faturamento */}
                       <TableCell className="text-right">
-                        {editando && (anoSelecionado < 2025 || mes.tem_historico) ? (
+                        {editandoEsteMes ? (
                           <Input
                             type="number"
                             step="0.01"
@@ -356,6 +340,40 @@ export default function CMVGlobal() {
                           {percentualCalculado.toFixed(1)}%
                         </Badge>
                       </TableCell>
+
+                      {/* Ações */}
+                      <TableCell className="text-center">
+                        {editandoEsteMes ? (
+                          <div className="flex gap-1 justify-center">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleCancelarMes(mes.mes)}
+                              className="h-8 w-8 p-0"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => handleSalvarMes(mes.mes)}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Save className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setMesEditando(mes.mes)}
+                            disabled={mesEditando !== null}
+                            className="h-8"
+                          >
+                            <Edit2 className="h-3 w-3 mr-1" />
+                            Alterar
+                          </Button>
+                        )}
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -373,6 +391,7 @@ export default function CMVGlobal() {
                       {percentualCMVMedio.toFixed(1)}%
                     </Badge>
                   </TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
               </TableBody>
             </Table>
