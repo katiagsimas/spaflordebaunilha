@@ -30,7 +30,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2 } from 'lucide-react';
+import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2, Lock } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { BackButton } from '@/components/BackButton';
 import { PageHeader } from '@/components/PageHeader';
@@ -64,11 +64,11 @@ export default function PlanoContas() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Buscar categorias ativas
+      // Buscar categorias ativas (do usuário OU padrão do sistema)
       const { data: dataCategorias, error: errorCat } = await supabase
         .from('categorias_plano_contas')
         .select('*')
-        .eq('user_id', user.id)
+        .or(`user_id.eq.${user.id},padrao_sistema.eq.true`)
         .eq('ativo', true)
         .order('ordem');
 
@@ -96,7 +96,7 @@ export default function PlanoContas() {
         }
       }
 
-      // Buscar planos
+      // Buscar planos (do usuário OU padrão do sistema)
       const { data: dataPlanos, error: errorPlanos } = await supabase
         .from('plano_contas')
         .select(`
@@ -109,7 +109,7 @@ export default function PlanoContas() {
             faixa_dre
           )
         `)
-        .eq('user_id', user.id)
+        .or(`user_id.eq.${user.id},padrao_sistema.eq.true`)
         .order('codigo_estruturado');
 
       if (errorPlanos) throw errorPlanos;
@@ -170,7 +170,12 @@ export default function PlanoContas() {
 
   const handleAbrirModal = async (plano = null) => {
     if (plano) {
-      // Editar (permite edição de planos padrão)
+      // Bloquear edição de contas padrão do sistema
+      if (plano.padrao_sistema) {
+        toast.error('Contas padrão do sistema não podem ser editadas. Use o botão de ativar/desativar.');
+        return;
+      }
+      // Editar
       setEditando(plano);
       setCategoriaId(plano.categoria_id);
       setDescricao(plano.descricao);
@@ -318,10 +323,10 @@ export default function PlanoContas() {
     }
   };
 
-  const handleDeletar = async (id, ePadrao) => {
+  const handleDeletar = async (id, ePadrao, padraoSistema) => {
     try {
-      if (ePadrao) {
-        toast.error('Planos padrão não podem ser deletados.');
+      if (ePadrao || padraoSistema) {
+        toast.error('Planos padrão do sistema não podem ser deletados. Use o botão de ativar/desativar.');
         return;
       }
 
@@ -331,7 +336,8 @@ export default function PlanoContas() {
         .from('plano_contas')
         .delete()
         .eq('id', id)
-        .eq('e_padrao', false);
+        .eq('e_padrao', false)
+        .eq('padrao_sistema', false);
 
       if (error) {
         if (error.code === '23503') {
@@ -351,7 +357,7 @@ export default function PlanoContas() {
   const handleExportar = () => {
     try {
       const dados = planosFiltrados.map(p => ({
-        'Tipo': p.e_padrao ? 'Padrão' : 'Customizado',
+        'Tipo': p.padrao_sistema ? 'Sistema' : (p.e_padrao ? 'Padrão' : 'Customizado'),
         'Código': p.codigo,
         'Código Estruturado': p.codigo_estruturado,
         'Descrição': p.descricao,
@@ -412,14 +418,26 @@ export default function PlanoContas() {
         backButton={<BackButton to="/configuracoes/financeiro" />}
       />
 
-      {/* Alert */}
-      <Alert className="bg-blue-50 border-blue-200">
-        <Info className="h-4 w-4 text-blue-600" />
-        <AlertDescription>
-          O sistema criou automaticamente {planos.filter(p => p.e_padrao).length} planos de contas padrão 
-          para confeitaria. Você pode criar planos personalizados conforme sua necessidade.
-        </AlertDescription>
-      </Alert>
+      {/* Alerts */}
+      <div className="space-y-3">
+        <Alert className="bg-blue-50 border-blue-200">
+          <Info className="h-4 w-4 text-blue-600" />
+          <AlertDescription>
+            O sistema criou automaticamente {planos.filter(p => p.e_padrao).length} planos de contas padrão 
+            para confeitaria. Você pode criar planos personalizados conforme sua necessidade.
+          </AlertDescription>
+        </Alert>
+
+        {planos.filter(p => p.padrao_sistema).length > 0 && (
+          <Alert className="bg-amber-50 border-amber-200">
+            <Lock className="h-4 w-4 text-amber-600" />
+            <AlertDescription>
+              <strong>{planos.filter(p => p.padrao_sistema).length} contas do sistema</strong> estão disponíveis para todos os usuários. 
+              Essas contas são protegidas e só podem ser habilitadas ou desabilitadas.
+            </AlertDescription>
+          </Alert>
+        )}
+      </div>
 
       {/* Botão Criar */}
       <div className="flex justify-center">
@@ -551,7 +569,11 @@ export default function PlanoContas() {
                   className={!plano.ativo ? 'opacity-50 bg-muted/50' : ''}
                 >
                   <TableCell>
-                    {plano.e_padrao ? (
+                    {plano.padrao_sistema ? (
+                      <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">
+                        Sistema
+                      </Badge>
+                    ) : plano.e_padrao ? (
                       <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
                         Padrão
                       </Badge>
@@ -564,7 +586,16 @@ export default function PlanoContas() {
                   <TableCell className="font-mono font-bold">
                     {plano.codigo_estruturado}
                   </TableCell>
-                  <TableCell className="font-medium">{plano.descricao}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{plano.descricao}</span>
+                      {plano.padrao_sistema && (
+                        <Badge variant="secondary" className="text-xs">
+                          🔒 Protegido
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell className="text-sm">
                     {plano.categoria?.codigo} - {plano.categoria?.descricao}
                   </TableCell>
@@ -582,36 +613,62 @@ export default function PlanoContas() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleAbrirModal(plano)}
-                        title="Editar"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      {!plano.e_padrao && (
+                      {plano.padrao_sistema ? (
+                        // Apenas toggle ativo/inativo para contas padrão do sistema
                         <Button
-                          variant="ghost"
+                          variant={plano.ativo ? "outline" : "default"}
                           size="sm"
-                          onClick={() => handleDeletar(plano.id, plano.e_padrao)}
-                          title="Deletar"
+                          onClick={() => handleToggleAtivo(plano.id, plano.ativo)}
+                          title={plano.ativo ? 'Desativar conta' : 'Ativar conta'}
+                          className="gap-2"
                         >
-                          <Trash2 className="h-4 w-4 text-red-600" />
+                          {plano.ativo ? (
+                            <>
+                              <PowerOff className="h-4 w-4" />
+                              Desativar
+                            </>
+                          ) : (
+                            <>
+                              <Power className="h-4 w-4" />
+                              Ativar
+                            </>
+                          )}
                         </Button>
+                      ) : (
+                        // Menu completo para contas personalizadas
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleAbrirModal(plano)}
+                            title="Editar"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          {!plano.e_padrao && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeletar(plano.id, plano.e_padrao, plano.padrao_sistema)}
+                              title="Deletar"
+                            >
+                              <Trash2 className="h-4 w-4 text-red-600" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleToggleAtivo(plano.id, plano.ativo)}
+                            title={plano.ativo ? 'Desativar' : 'Ativar'}
+                          >
+                            {plano.ativo ? (
+                              <PowerOff className="h-4 w-4 text-red-600" />
+                            ) : (
+                              <Power className="h-4 w-4 text-green-600" />
+                            )}
+                          </Button>
+                        </>
                       )}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleToggleAtivo(plano.id, plano.ativo)}
-                        title={plano.ativo ? 'Desativar' : 'Ativar'}
-                      >
-                        {plano.ativo ? (
-                          <PowerOff className="h-4 w-4 text-red-600" />
-                        ) : (
-                          <Power className="h-4 w-4 text-green-600" />
-                        )}
-                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>

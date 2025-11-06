@@ -304,6 +304,7 @@ export type Database = {
           id: string
           indicador: string
           ordem: number
+          padrao_sistema: boolean
           updated_at: string | null
           user_id: string
         }
@@ -317,6 +318,7 @@ export type Database = {
           id?: string
           indicador: string
           ordem?: number
+          padrao_sistema?: boolean
           updated_at?: string | null
           user_id: string
         }
@@ -330,6 +332,7 @@ export type Database = {
           id?: string
           indicador?: string
           ordem?: number
+          padrao_sistema?: boolean
           updated_at?: string | null
           user_id?: string
         }
@@ -1821,6 +1824,7 @@ export type Database = {
           descricao: string
           e_padrao: boolean | null
           id: string
+          padrao_sistema: boolean
           updated_at: string | null
           user_id: string
         }
@@ -1833,6 +1837,7 @@ export type Database = {
           descricao: string
           e_padrao?: boolean | null
           id?: string
+          padrao_sistema?: boolean
           updated_at?: string | null
           user_id: string
         }
@@ -1845,6 +1850,7 @@ export type Database = {
           descricao?: string
           e_padrao?: boolean | null
           id?: string
+          padrao_sistema?: boolean
           updated_at?: string | null
           user_id?: string
         }
