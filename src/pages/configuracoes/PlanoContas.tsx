@@ -35,8 +35,21 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { toast } from 'sonner';
-import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2, Lock, MoreVertical } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2, Lock, MoreVertical, Check, ChevronsUpDown } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { BackButton } from '@/components/BackButton';
 import { PageHeader } from '@/components/PageHeader';
@@ -49,6 +62,8 @@ export default function PlanoContas() {
 
   // Filtros
   const [termoBusca, setTermoBusca] = useState('');
+  const [contaSelecionada, setContaSelecionada] = useState('');
+  const [buscaAberta, setBuscaAberta] = useState(false);
   const [filtroCategoria, setFiltroCategoria] = useState('todos');
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [filtroTipo, setFiltroTipo] = useState('todos');
@@ -132,14 +147,9 @@ export default function PlanoContas() {
   const planosFiltrados = useMemo(() => {
     let resultado = [...planos];
 
-    // Busca
-    if (termoBusca.trim()) {
-      const termo = termoBusca.toLowerCase();
-      resultado = resultado.filter(p => 
-        p.codigo_estruturado.toLowerCase().includes(termo) ||
-        p.descricao.toLowerCase().includes(termo) ||
-        p.categoria?.descricao.toLowerCase().includes(termo)
-      );
+    // Filtro por conta selecionada
+    if (contaSelecionada) {
+      resultado = resultado.filter(p => p.id === contaSelecionada);
     }
 
     // Categoria
@@ -172,7 +182,7 @@ export default function PlanoContas() {
     });
 
     return resultado;
-  }, [planos, termoBusca, filtroCategoria, filtroStatus, filtroTipo]);
+  }, [planos, contaSelecionada, filtroCategoria, filtroStatus, filtroTipo]);
 
   const handleAbrirModal = async (plano = null) => {
     if (plano) {
@@ -395,6 +405,7 @@ export default function PlanoContas() {
 
   const handleLimparFiltros = () => {
     setTermoBusca('');
+    setContaSelecionada('');
     setFiltroCategoria('todos');
     setFiltroStatus('todos');
     setFiltroTipo('todos');
@@ -408,7 +419,7 @@ export default function PlanoContas() {
   };
 
   const filtrosAtivos = [
-    termoBusca.trim() !== '',
+    contaSelecionada !== '',
     filtroCategoria !== 'todos',
     filtroStatus !== 'todos',
     filtroTipo !== 'todos',
@@ -471,18 +482,73 @@ export default function PlanoContas() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Busca */}
+          {/* Busca com Autocompletar */}
           <div className="space-y-2">
-            <Label>Buscar</Label>
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Código ou descrição..."
-                value={termoBusca}
-                onChange={(e) => setTermoBusca(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+            <Label>Buscar Conta</Label>
+            <Popover open={buscaAberta} onOpenChange={setBuscaAberta}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={buscaAberta}
+                  className="w-full justify-between"
+                >
+                  {contaSelecionada
+                    ? planos.find((p) => p.id === contaSelecionada)?.codigo_estruturado + ' - ' + 
+                      planos.find((p) => p.id === contaSelecionada)?.descricao
+                    : "Selecione uma conta..."}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0" align="start">
+                <Command>
+                  <CommandInput 
+                    placeholder="Digite para buscar..." 
+                    value={termoBusca}
+                    onValueChange={setTermoBusca}
+                  />
+                  <CommandEmpty>Nenhuma conta encontrada.</CommandEmpty>
+                  <CommandGroup className="max-h-64 overflow-auto">
+                    {planos
+                      .filter(p => {
+                        if (!termoBusca) return true;
+                        const termo = termoBusca.toLowerCase();
+                        return (
+                          p.codigo_estruturado.toLowerCase().includes(termo) ||
+                          p.descricao.toLowerCase().includes(termo) ||
+                          p.categoria?.descricao.toLowerCase().includes(termo)
+                        );
+                      })
+                      .map((plano) => (
+                        <CommandItem
+                          key={plano.id}
+                          value={plano.id}
+                          onSelect={(currentValue) => {
+                            setContaSelecionada(currentValue === contaSelecionada ? "" : currentValue);
+                            setBuscaAberta(false);
+                            setTermoBusca('');
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              contaSelecionada === plano.id ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          <div className="flex flex-col">
+                            <span className="font-medium">
+                              {plano.codigo_estruturado} - {plano.descricao}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {plano.categoria?.descricao}
+                            </span>
+                          </div>
+                        </CommandItem>
+                      ))}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Tipo */}
@@ -563,7 +629,7 @@ export default function PlanoContas() {
             {planosFiltrados.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                  {termoBusca || filtrosAtivos > 0 
+                  {contaSelecionada || filtrosAtivos > 0 
                     ? 'Nenhum plano encontrado.' 
                     : 'Nenhum plano cadastrado.'}
                 </TableCell>
