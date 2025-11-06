@@ -18,16 +18,22 @@ import {
 
 interface CategoriaReceitaAutocompleteProps {
   value: string;
-  categorias: any[];
+  categorias: Array<{
+    id: string;
+    nome: string;
+    ativo?: boolean;
+  }>;
   onSelect: (categoriaId: string) => void;
   placeholder?: string;
+  apenasAtivas?: boolean;
 }
 
 export function CategoriaReceitaAutocomplete({ 
   value, 
   categorias, 
   onSelect, 
-  placeholder = "Selecione a categoria..." 
+  placeholder = "Selecione a categoria...",
+  apenasAtivas = true
 }: CategoriaReceitaAutocompleteProps) {
   const [open, setOpen] = useState(false);
 
@@ -35,6 +41,11 @@ export function CategoriaReceitaAutocomplete({
     onSelect(categoriaId);
     setOpen(false);
   };
+
+  // Filtrar apenas categorias ativas se apenasAtivas = true
+  const categoriasDisponiveis = apenasAtivas 
+    ? categorias.filter(c => c.ativo !== false)
+    : categorias;
 
   const selectedCategoria = categorias.find(c => c.id === value);
 
@@ -57,7 +68,7 @@ export function CategoriaReceitaAutocomplete({
           <CommandList>
             <CommandEmpty>Nenhuma categoria encontrada.</CommandEmpty>
             <CommandGroup>
-              {categorias.map((categoria) => (
+              {categoriasDisponiveis.map((categoria) => (
                 <CommandItem
                   key={categoria.id}
                   value={categoria.nome}

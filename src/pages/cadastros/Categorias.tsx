@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
@@ -8,10 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EmptyState } from "@/components/EmptyState";
 import { useCategorias } from "@/hooks/useCategorias";
-import { Plus, Pencil, Trash2, Tag } from "lucide-react";
+import { Plus, Power, PowerOff, Tag } from "lucide-react";
 import { toast } from "sonner";
 
 const categoriasIniciais = [
@@ -37,14 +38,23 @@ const categoriasIniciais = [
 export default function Categorias() {
   const navigate = useNavigate();
   
-  const { categorias, loading, createCategoria, updateCategoria, deleteCategoria } = useCategorias();
+  const { categorias, loading, createCategoria, toggleAtivo } = useCategorias();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingCategoria, setEditingCategoria] = useState<any | null>(null);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [filtroStatus, setFiltroStatus] = useState<'todas' | 'habilitadas' | 'desabilitadas'>('habilitadas');
 
   const [formData, setFormData] = useState({
     nome: "",
   });
+
+  // Filtrar categorias por status
+  const categoriasFiltradas = useMemo(() => {
+    if (filtroStatus === 'todas') return categorias;
+    if (filtroStatus === 'habilitadas') return categorias.filter(c => c.ativo !== false);
+    return categorias.filter(c => c.ativo === false);
+  }, [categorias, filtroStatus]);
+
+  // Verificar se deve mostrar o filtro (só mostra se houver categorias desabilitadas)
+  const temCategoriasDesabilitadas = categorias.some(c => c.ativo === false);
 
   // Garantir que as categorias iniciais sejam carregadas se estiver vazio
   useEffect(() => {
@@ -63,13 +73,6 @@ export default function Categorias() {
     initializeCategorias();
   }, [loading, categorias.length]);
 
-  useEffect(() => {
-    if (editingCategoria) {
-      setFormData(editingCategoria);
-      setIsDialogOpen(true);
-    }
-  }, [editingCategoria]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -79,11 +82,7 @@ export default function Categorias() {
     }
 
     try {
-      if (editingCategoria) {
-        await updateCategoria(editingCategoria.id, { nome: formData.nome });
-      } else {
-        await createCategoria({ nome: formData.nome });
-      }
+      await createCategoria({ nome: formData.nome });
       resetForm();
     } catch (error: any) {
       toast.error(error.message || "Erro ao salvar categoria");
@@ -94,21 +93,15 @@ export default function Categorias() {
     setFormData({
       nome: "",
     });
-    setEditingCategoria(null);
     setIsDialogOpen(false);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleToggleAtivo = async (id: string, ativo: boolean) => {
     try {
-      await deleteCategoria(id);
-      setDeleteId(null);
+      await toggleAtivo(id, !ativo);
     } catch (error: any) {
-      toast.error(error.message || "Erro ao excluir categoria");
+      toast.error(error.message || "Erro ao alterar status da categoria");
     }
-  };
-
-  const handleEdit = (categoria: any) => {
-    setEditingCategoria(categoria);
   };
 
   return (
@@ -119,17 +112,30 @@ export default function Categorias() {
         backButton={<BackButton to="/configuracoes/cadastros-base" />}
       />
 
-      <div className="flex justify-end">
+      <div className="flex justify-between items-center">
+        {temCategoriasDesabilitadas && (
+          <Select value={filtroStatus} onValueChange={(value: any) => setFiltroStatus(value)}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Filtrar por status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="habilitadas">Habilitadas</SelectItem>
+              <SelectItem value="desabilitadas">Desabilitadas</SelectItem>
+              <SelectItem value="todas">Todas</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+        
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => { setEditingCategoria(null); resetForm(); }}>
+            <Button onClick={resetForm} className={!temCategoriasDesabilitadas ? "ml-auto" : ""}>
               <Plus className="h-4 w-4 mr-2" />
               Nova Categoria
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingCategoria ? "Editar Categoria" : "Nova Categoria"}</DialogTitle>
+              <DialogTitle>Nova Categoria</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -148,7 +154,7 @@ export default function Categorias() {
                   Cancelar
                 </Button>
                 <Button type="submit">
-                  {editingCategoria ? "Atualizar" : "Cadastrar"}
+                  Cadastrar
                 </Button>
               </div>
             </form>
@@ -156,13 +162,13 @@ export default function Categorias() {
         </Dialog>
       </div>
 
-      {categorias.length === 0 ? (
+      {categoriasFiltradas.length === 0 ? (
         <EmptyState
           icon={Tag}
-          title="Nenhuma categoria cadastrada"
-          description="Comece criando sua primeira categoria"
-          actionLabel="Nova Categoria"
-          onAction={() => setIsDialogOpen(true)}
+          title={filtroStatus === 'desabilitadas' ? "Nenhuma categoria desabilitada" : "Nenhuma categoria cadastrada"}
+          description={filtroStatus === 'desabilitadas' ? "Não há categorias desabilitadas no momento" : "Comece criando sua primeira categoria"}
+          actionLabel={filtroStatus === 'desabilitadas' ? undefined : "Nova Categoria"}
+          onAction={filtroStatus === 'desabilitadas' ? undefined : () => setIsDialogOpen(true)}
         />
       ) : (
         <Card>
@@ -174,30 +180,37 @@ export default function Categorias() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Nome</TableHead>
+                  <TableHead className="text-center">Status</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {categorias.map((categoria) => (
+                {categoriasFiltradas.map((categoria) => (
                   <TableRow key={categoria.id}>
                     <TableCell className="font-medium">{categoria.nome}</TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant={categoria.ativo === false ? "destructive" : "default"}>
+                        {categoria.ativo === false ? "Desabilitada" : "Habilitada"}
+                      </Badge>
+                    </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(categoria)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeleteId(categoria.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleToggleAtivo(categoria.id, categoria.ativo !== false)}
+                      >
+                        {categoria.ativo === false ? (
+                          <>
+                            <Power className="h-4 w-4 mr-2" />
+                            Habilitar
+                          </>
+                        ) : (
+                          <>
+                            <PowerOff className="h-4 w-4 mr-2" />
+                            Desabilitar
+                          </>
+                        )}
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -206,16 +219,6 @@ export default function Categorias() {
           </CardContent>
         </Card>
       )}
-
-      <ConfirmDialog
-        open={!!deleteId}
-        onOpenChange={(open) => !open && setDeleteId(null)}
-        onConfirm={() => deleteId && handleDelete(deleteId)}
-        title="Excluir categoria"
-        description="Tem certeza que deseja excluir esta categoria? Esta ação não pode ser desfeita."
-        confirmLabel="Excluir"
-        cancelLabel="Cancelar"
-      />
     </div>
   );
 }

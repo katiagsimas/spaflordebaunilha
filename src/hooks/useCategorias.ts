@@ -7,6 +7,7 @@ interface Categoria {
   id: string;
   usuario_id: string;
   nome: string;
+  ativo?: boolean;
   created_at?: string;
   updated_at?: string;
 }
@@ -83,6 +84,23 @@ export function useCategorias() {
     toast.success('Categoria deletada!');
   };
 
+  const toggleAtivo = async (id: string, ativo: boolean) => {
+    if (!user) throw new Error('Usuário não autenticado');
+
+    const { data, error } = await supabase
+      .from('categorias')
+      .update({ ativo })
+      .eq('id', id)
+      .eq('usuario_id', user.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    setCategorias(categorias.map(c => c.id === id ? data : c));
+    toast.success(ativo ? 'Categoria habilitada!' : 'Categoria desabilitada!');
+    return data;
+  };
+
   useEffect(() => {
     if (user) fetchCategorias();
   }, [user]);
@@ -93,6 +111,7 @@ export function useCategorias() {
     createCategoria,
     updateCategoria,
     deleteCategoria,
+    toggleAtivo,
     refetch: fetchCategorias,
   };
 }

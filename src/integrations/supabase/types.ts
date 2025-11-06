@@ -199,6 +199,7 @@ export type Database = {
       }
       categorias: {
         Row: {
+          ativo: boolean
           created_at: string
           id: string
           nome: string
@@ -206,6 +207,7 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
+          ativo?: boolean
           created_at?: string
           id?: string
           nome: string
@@ -213,6 +215,7 @@ export type Database = {
           usuario_id: string
         }
         Update: {
+          ativo?: boolean
           created_at?: string
           id?: string
           nome?: string
