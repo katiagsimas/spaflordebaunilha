@@ -69,6 +69,7 @@ import NotFound from "./pages/NotFound";
 import Usuarios from "./pages/admin/Usuarios";
 import LogsAdmin from "./pages/admin/Logs";
 import InteligenciaNegocios from "./pages/relatorios/InteligenciaNegocios";
+import CustosPorCategoria from "./pages/relatorios/CustosPorCategoria";
 
 const queryClient = new QueryClient();
 

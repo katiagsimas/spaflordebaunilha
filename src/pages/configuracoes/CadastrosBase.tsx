@@ -1,6 +1,7 @@
 import React from "react";
 import { Package, UserCircle, Tag, Archive } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
@@ -79,10 +80,13 @@ export default function CadastrosBase() {
                 <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
                   Categorias de Estoque
                 </CardTitle>
+                <Badge variant="secondary" className="mt-1 text-[10px] px-1.5 py-0">
+                  🔒 Apenas visualização
+                </Badge>
               </div>
             </div>
             <CardDescription className="text-xs line-clamp-2">
-              Organize insumos por categorias de estoque
+              Veja as 6 categorias fixas e padronizadas
             </CardDescription>
           </CardHeader>
         </Card>

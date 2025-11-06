@@ -227,33 +227,36 @@ export type Database = {
       categorias_estoque: {
         Row: {
           ativo: boolean
-          cor: string | null
-          created_at: string
-          icone: string | null
+          cor: string
+          criado_em: string
+          descricao: string
+          editavel: boolean
+          icone: string
           id: string
           nome: string
-          updated_at: string
-          usuario_id: string
+          ordem: number
         }
         Insert: {
           ativo?: boolean
-          cor?: string | null
-          created_at?: string
-          icone?: string | null
+          cor: string
+          criado_em?: string
+          descricao: string
+          editavel?: boolean
+          icone: string
           id?: string
           nome: string
-          updated_at?: string
-          usuario_id: string
+          ordem: number
         }
         Update: {
           ativo?: boolean
-          cor?: string | null
-          created_at?: string
-          icone?: string | null
+          cor?: string
+          criado_em?: string
+          descricao?: string
+          editavel?: boolean
+          icone?: string
           id?: string
           nome?: string
-          updated_at?: string
-          usuario_id?: string
+          ordem?: number
         }
         Relationships: []
       }
@@ -2857,6 +2860,16 @@ export type Database = {
       }
     }
     Views: {
+      custos_por_categoria: {
+        Row: {
+          categoria: string | null
+          itens_rastreados: number | null
+          total_itens: number | null
+          valor_medio_por_item: number | null
+          valor_total_estoque: number | null
+        }
+        Relationships: []
+      }
       estoque_atual_v2: {
         Row: {
           categoria: string | null
