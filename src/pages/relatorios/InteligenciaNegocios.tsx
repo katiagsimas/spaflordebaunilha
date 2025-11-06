@@ -28,13 +28,14 @@ export default function InteligenciaNegocios() {
   const { user } = useAuth();
   const [insights, setInsights] = useState<InsightCruzado[]>([]);
   const [loading, setLoading] = useState(true);
-  const [periodo, setPeriodo] = useState('30');
+  const [anoSelecionado, setAnoSelecionado] = useState(new Date().getFullYear());
+  const [mesSelecionado, setMesSelecionado] = useState(new Date().getMonth() + 1);
 
   useEffect(() => {
     if (user) {
       carregarInsights();
     }
-  }, [periodo, user]);
+  }, [anoSelecionado, mesSelecionado, user]);
 
   const carregarInsights = async () => {
     if (!user) return;
@@ -42,8 +43,11 @@ export default function InteligenciaNegocios() {
     try {
       setLoading(true);
 
+      // Calcular dias do mês selecionado
+      const diasNoMes = new Date(anoSelecionado, mesSelecionado, 0).getDate();
+
       const { data, error } = await supabase.rpc('get_insights_cruzados', {
-        dias: parseInt(periodo),
+        dias: diasNoMes,
         user_id_param: user.id,
       });
 
@@ -86,17 +90,31 @@ export default function InteligenciaNegocios() {
           </p>
         </div>
 
-        <Select value={periodo} onValueChange={setPeriodo}>
-          <SelectTrigger className="w-48">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="7">Últimos 7 dias</SelectItem>
-            <SelectItem value="30">Últimos 30 dias</SelectItem>
-            <SelectItem value="90">Últimos 90 dias</SelectItem>
-            <SelectItem value="365">Último ano</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-2">
+          <Select value={anoSelecionado.toString()} onValueChange={(value) => setAnoSelecionado(parseInt(value))}>
+            <SelectTrigger className="w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(ano => (
+                <SelectItem key={ano} value={ano.toString()}>{ano}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={mesSelecionado.toString()} onValueChange={(value) => setMesSelecionado(parseInt(value))}>
+            <SelectTrigger className="w-36">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map(mes => (
+                <SelectItem key={mes} value={mes.toString()}>
+                  {new Date(2024, mes - 1).toLocaleDateString('pt-BR', { month: 'long' })}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Módulos do Centro de Comando */}

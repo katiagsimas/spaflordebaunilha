@@ -138,7 +138,7 @@ export default function CMVGlobal() {
       <PageHeader
         title="CMV Global"
         description="Custo de Mercadoria Vendida - Análise Anual"
-        backButton={<BackButton to="/relatorios/inteligencia-negocios" />}
+        backButton={<BackButton to="/relatorios/inteligencia" />}
       />
 
       <div className="flex items-center gap-2">

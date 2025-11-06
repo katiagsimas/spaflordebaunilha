@@ -217,7 +217,7 @@ export default function PontoEquilibrio() {
         <PageHeader
           title="Ponto de Equilíbrio"
           description="Análise e Planejamento - Quanto você precisa vender"
-          backButton={<BackButton to="/relatorios/inteligencia-negocios" />}
+          backButton={<BackButton to="/relatorios/inteligencia" />}
         />
         <Card>
           <CardContent className="pt-6">
@@ -236,7 +236,7 @@ export default function PontoEquilibrio() {
       <PageHeader
         title="Ponto de Equilíbrio"
         description="Análise e Planejamento - Quanto você precisa vender"
-        backButton={<BackButton to="/relatorios/inteligencia-negocios" />}
+        backButton={<BackButton to="/relatorios/inteligencia" />}
       />
 
       {/* Seletor de Ano */}

@@ -60,7 +60,7 @@ export default function RelatorioCMVGlobal() {
         <PageHeader
           title="Relatório de CMV Global"
           description="Custo de Mercadoria Vendida"
-          backButton={<BackButton to="/estoque/relatorios" />}
+          backButton={<BackButton to="/relatorios/inteligencia" />}
         />
         <Skeleton className="h-96 w-full" />
       </div>
@@ -73,7 +73,7 @@ export default function RelatorioCMVGlobal() {
         <PageHeader
           title="Relatório de CMV Global"
           description="Custo de Mercadoria Vendida"
-          backButton={<BackButton to="/estoque/relatorios" />}
+          backButton={<BackButton to="/relatorios/inteligencia" />}
         />
         <Card>
           <CardContent className="pt-6">
@@ -91,7 +91,7 @@ export default function RelatorioCMVGlobal() {
       <PageHeader
         title="Relatório de CMV Global"
         description="Custo de Mercadoria Vendida"
-        backButton={<BackButton to="/estoque/relatorios" />}
+        backButton={<BackButton to="/relatorios/inteligencia" />}
       />
 
       {/* Seleção de Período */}
