@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Loader2, AlertCircle, Info } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertCircle, Info, Edit, Check, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useReceitas } from '@/hooks/useReceitas';
@@ -20,6 +22,15 @@ interface DistribuicaoProduto {
   percentual: number;
 }
 
+interface MetaMensal {
+  mes: number;
+  faturamento: number;
+  lucro: number;
+  ticketMedio: number;
+  pedidos: number;
+  customizado: boolean;
+}
+
 export default function PlanejamentoVendas() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -28,23 +39,38 @@ export default function PlanejamentoVendas() {
 
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
-  const [planejamentoId, setPlanejamentoId] = useState<string | null>(null);
 
-  // Mês selecionado
-  const [mesReferencia, setMesReferencia] = useState(() => {
-    const hoje = new Date();
-    return `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
-  });
+  // Ano selecionado
+  const [anoReferencia, setAnoReferencia] = useState(() => new Date().getFullYear());
 
   // Metas anuais
   const [metaFaturamentoAnual, setMetaFaturamentoAnual] = useState('');
   const [pctLucroSelecionado, setPctLucroSelecionado] = useState<35 | 45 | 50 | null>(null);
 
-  // Metas mensais (calculadas automaticamente)
+  // Ticket médio carregado da Inteligência
   const [ticketMedioInteligencia, setTicketMedioInteligencia] = useState<number>(0);
+
+  // Metas mensais (12 meses)
+  const [metasMensais, setMetasMensais] = useState<MetaMensal[]>([]);
+  
+  // Mês sendo editado
+  const [mesEditando, setMesEditando] = useState<number | null>(null);
+  const [valorEditando, setValorEditando] = useState('');
 
   // Distribuição por produto
   const [distribuicao, setDistribuicao] = useState<DistribuicaoProduto[]>([]);
+
+  // Anos disponíveis para seleção
+  const anosDisponiveis = Array.from(
+    { length: 7 },
+    (_, i) => new Date().getFullYear() - 3 + i
+  );
+
+  // Nomes dos meses
+  const nomesMeses = [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+  ];
 
   // Produtos ativos
   const produtosAtivos = receitas.filter(r => r.cardapio === 'ativo');
@@ -57,25 +83,20 @@ export default function PlanejamentoVendas() {
     ? Math.round(parseFloat(metaFaturamentoAnual) * (pctLucroSelecionado / 100))
     : 0;
 
-  // Calcular Metas Mensais automaticamente
-  const metaFaturamentoMensal = metaFaturamentoAnual
-    ? Math.round(parseFloat(metaFaturamentoAnual) / 12)
-    : 0;
-
-  const metaLucroMensal = metaFaturamentoMensal && pctLucroSelecionado
-    ? Math.round(metaFaturamentoMensal * (pctLucroSelecionado / 100))
-    : 0;
-
-  const metaPedidos = metaFaturamentoMensal && ticketMedioInteligencia > 0
-    ? Math.max(1, Math.floor(metaFaturamentoMensal / ticketMedioInteligencia))
-    : 0;
+  // Calcular somatórios das metas mensais
+  const somaFaturamentoMensal = metasMensais.reduce((sum, m) => sum + m.faturamento, 0);
+  const somaLucroMensal = metasMensais.reduce((sum, m) => sum + m.lucro, 0);
+  const somaPedidosMensal = metasMensais.reduce((sum, m) => sum + m.pedidos, 0);
+  
+  // Diferença entre soma mensal e meta anual
+  const diferencaFaturamento = somaFaturamentoMensal - (parseFloat(metaFaturamentoAnual) || 0);
 
   useEffect(() => {
     if (user) {
       carregarPlanejamento();
       carregarTicketMedio();
     }
-  }, [mesReferencia, user]);
+  }, [anoReferencia, user]);
 
   // Inicializar distribuição com produtos ativos
   useEffect(() => {
@@ -89,6 +110,18 @@ export default function PlanejamentoVendas() {
       setDistribuicao(distribuicaoInicial);
     }
   }, [produtosAtivos]);
+
+  // Atualizar metas mensais quando mudar meta anual ou % lucro
+  useEffect(() => {
+    if (metaFaturamentoAnual && pctLucroSelecionado && ticketMedioInteligencia > 0) {
+      const metasTemCustomizado = metasMensais.some(m => m.customizado);
+      
+      // Se não há metas customizadas, recalcular tudo
+      if (!metasTemCustomizado) {
+        inicializarMetasMensais();
+      }
+    }
+  }, [metaFaturamentoAnual, pctLucroSelecionado, ticketMedioInteligencia]);
 
   const carregarTicketMedio = async () => {
     if (!user) return;
@@ -117,53 +150,107 @@ export default function PlanejamentoVendas() {
     }
   };
 
+  const inicializarMetasMensais = () => {
+    const metaFatMensal = Math.round(parseFloat(metaFaturamentoAnual) / 12);
+    const novasMetasMensais: MetaMensal[] = [];
+
+    for (let mes = 1; mes <= 12; mes++) {
+      const metaExistente = metasMensais.find(m => m.mes === mes);
+      
+      novasMetasMensais.push({
+        mes,
+        faturamento: metaExistente?.customizado ? metaExistente.faturamento : metaFatMensal,
+        lucro: metaExistente?.customizado 
+          ? metaExistente.lucro 
+          : Math.round(metaFatMensal * (pctLucroSelecionado! / 100)),
+        ticketMedio: ticketMedioInteligencia,
+        pedidos: metaExistente?.customizado
+          ? metaExistente.pedidos
+          : Math.max(1, Math.floor(metaFatMensal / ticketMedioInteligencia)),
+        customizado: metaExistente?.customizado || false,
+      });
+    }
+
+    setMetasMensais(novasMetasMensais);
+  };
+
   const carregarPlanejamento = async () => {
     if (!user) return;
 
     try {
       setLoadingData(true);
-      const [ano, mes] = mesReferencia.split('-').map(Number);
 
-      // Buscar planejamento existente
-      const { data: planejamentoData, error: planejamentoError } = await supabase
+      // Buscar planejamentos de todos os 12 meses do ano
+      const { data: planejamentosData, error: planejamentoError } = await supabase
         .from('planejamento_vendas')
         .select('*')
         .eq('usuario_id', user.id)
-        .eq('ano', ano)
-        .eq('mes', mes)
-        .single();
+        .eq('ano', anoReferencia);
 
       if (planejamentoError && planejamentoError.code !== 'PGRST116') {
         throw planejamentoError;
       }
 
-      if (planejamentoData) {
-        setPlanejamentoId(planejamentoData.id);
-        setMetaFaturamentoAnual(planejamentoData.meta_faturamento_anual?.toString() || '');
-        setPctLucroSelecionado(planejamentoData.pct_lucro_selecionado as 35 | 45 | 50 | null);
+      if (planejamentosData && planejamentosData.length > 0) {
+        // Pegar dados da meta anual do primeiro registro (assumindo que é o mesmo para todos)
+        const primeiroRegistro = planejamentosData[0];
+        setMetaFaturamentoAnual(primeiroRegistro.meta_faturamento_anual?.toString() || '');
+        setPctLucroSelecionado(primeiroRegistro.pct_lucro_selecionado as 35 | 45 | 50 | null);
 
-        // Buscar distribuição de produtos
-        const { data: produtosData, error: produtosError } = await supabase
-          .from('planejamento_produtos')
-          .select('receita_id, percentual_participacao')
-          .eq('planejamento_id', planejamentoData.id);
+        // Carregar metas mensais existentes
+        const metasCarregadas: MetaMensal[] = [];
+        for (let mes = 1; mes <= 12; mes++) {
+          const planejamentoMes = planejamentosData.find(p => p.mes === mes);
+          
+          if (planejamentoMes) {
+            metasCarregadas.push({
+              mes,
+              faturamento: planejamentoMes.meta_faturamento_mensal || 0,
+              lucro: planejamentoMes.meta_lucro_mensal || 0,
+              ticketMedio: planejamentoMes.meta_ticket_medio || 0,
+              pedidos: planejamentoMes.meta_pedidos || 0,
+              customizado: true, // Se foi salvo, considera customizado
+            });
+          } else {
+            // Mês sem dados
+            metasCarregadas.push({
+              mes,
+              faturamento: 0,
+              lucro: 0,
+              ticketMedio: 0,
+              pedidos: 0,
+              customizado: false,
+            });
+          }
+        }
+        setMetasMensais(metasCarregadas);
 
-        if (produtosError) throw produtosError;
+        // Buscar distribuição de produtos (usar o primeiro mês que tiver)
+        const planejamentoComProdutos = planejamentosData.find(p => p.id);
+        if (planejamentoComProdutos) {
+          const { data: produtosData, error: produtosError } = await supabase
+            .from('planejamento_produtos')
+            .select('receita_id, percentual_participacao')
+            .eq('planejamento_id', planejamentoComProdutos.id);
 
-        // Mesclar com produtos ativos
-        const distribuicaoCarregada = produtosAtivos.map(produto => {
-          const produtoSalvo = produtosData?.find(p => p.receita_id === produto.id);
-          return {
-            receita_id: produto.id,
-            nome: produto.nome,
-            preco_venda: produto.valorVenda || 0,
-            percentual: produtoSalvo?.percentual_participacao || 0,
-          };
-        });
+          if (produtosError) throw produtosError;
 
-        setDistribuicao(distribuicaoCarregada);
+          // Mesclar com produtos ativos
+          const distribuicaoCarregada = produtosAtivos.map(produto => {
+            const produtoSalvo = produtosData?.find(p => p.receita_id === produto.id);
+            return {
+              receita_id: produto.id,
+              nome: produto.nome,
+              preco_venda: produto.valorVenda || 0,
+              percentual: produtoSalvo?.percentual_participacao || 0,
+            };
+          });
+
+          setDistribuicao(distribuicaoCarregada);
+        }
       } else {
-        setPlanejamentoId(null);
+        // Nenhum planejamento encontrado para este ano
+        setMetasMensais([]);
       }
     } catch (error) {
       console.error('Erro ao carregar planejamento:', error);
@@ -175,6 +262,95 @@ export default function PlanejamentoVendas() {
     } finally {
       setLoadingData(false);
     }
+  };
+
+  const handleEditarMes = (mes: number) => {
+    const meta = metasMensais.find(m => m.mes === mes);
+    if (meta) {
+      setMesEditando(mes);
+      setValorEditando(meta.faturamento.toString());
+    }
+  };
+
+  const handleSalvarMes = (mes: number) => {
+    const novoFaturamento = parseFloat(valorEditando);
+    
+    if (isNaN(novoFaturamento) || novoFaturamento <= 0) {
+      toast({
+        title: 'Valor inválido',
+        description: 'O faturamento deve ser maior que zero.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const novoLucro = Math.round(novoFaturamento * (pctLucroSelecionado! / 100));
+    const novosPedidos = ticketMedioInteligencia > 0 
+      ? Math.max(1, Math.floor(novoFaturamento / ticketMedioInteligencia))
+      : 0;
+
+    setMetasMensais(prev =>
+      prev.map(m =>
+        m.mes === mes
+          ? {
+              ...m,
+              faturamento: novoFaturamento,
+              lucro: novoLucro,
+              pedidos: novosPedidos,
+              customizado: true,
+            }
+          : m
+      )
+    );
+
+    setMesEditando(null);
+    setValorEditando('');
+  };
+
+  const handleRedistribuirDiferenca = () => {
+    if (!metaFaturamentoAnual || !pctLucroSelecionado) return;
+
+    const metaAnual = parseFloat(metaFaturamentoAnual);
+    const mesesNaoCustomizados = metasMensais.filter(m => !m.customizado);
+    
+    if (mesesNaoCustomizados.length === 0) {
+      toast({
+        title: 'Não é possível redistribuir',
+        description: 'Todos os meses foram customizados manualmente.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const faturamentoCustomizado = metasMensais
+      .filter(m => m.customizado)
+      .reduce((sum, m) => sum + m.faturamento, 0);
+
+    const faturamentoRestante = metaAnual - faturamentoCustomizado;
+    const faturamentoPorMes = Math.round(faturamentoRestante / mesesNaoCustomizados.length);
+
+    setMetasMensais(prev =>
+      prev.map(m => {
+        if (m.customizado) return m;
+
+        const novoLucro = Math.round(faturamentoPorMes * (pctLucroSelecionado / 100));
+        const novosPedidos = ticketMedioInteligencia > 0
+          ? Math.max(1, Math.floor(faturamentoPorMes / ticketMedioInteligencia))
+          : 0;
+
+        return {
+          ...m,
+          faturamento: faturamentoPorMes,
+          lucro: novoLucro,
+          pedidos: novosPedidos,
+        };
+      })
+    );
+
+    toast({
+      title: 'Diferença redistribuída',
+      description: `Faturamento redistribuído entre ${mesesNaoCustomizados.length} meses.`,
+    });
   };
 
   const handlePercentualChange = (receitaId: string, valor: string) => {
@@ -220,6 +396,15 @@ export default function PlanejamentoVendas() {
       return;
     }
 
+    if (Math.abs(diferencaFaturamento) > 0.01) {
+      toast({
+        title: 'Soma inválida',
+        description: 'A soma das metas mensais deve igualar a Meta de Faturamento Anual.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     if (Math.abs(somaPercentuais - 100) > 0.01) {
       toast({
         title: 'Distribuição inválida',
@@ -231,54 +416,53 @@ export default function PlanejamentoVendas() {
 
     try {
       setLoading(true);
-      const [ano, mes] = mesReferencia.split('-').map(Number);
 
-      // Salvar ou atualizar planejamento
-      const planejamentoPayload = {
-        usuario_id: user.id,
-        ano,
-        mes,
-        meta_faturamento_anual: parseFloat(metaFaturamentoAnual),
-        meta_lucro_anual: metaLucroAnual,
-        pct_lucro_selecionado: pctLucroSelecionado,
-        meta_faturamento_mensal: metaFaturamentoMensal,
-        meta_lucro_mensal: metaLucroMensal,
-        meta_pedidos: metaPedidos,
-        meta_ticket_medio: ticketMedioInteligencia,
-        updated_at: new Date().toISOString(),
-      };
+      // Salvar ou atualizar planejamento para cada mês
+      for (const metaMes of metasMensais) {
+        const planejamentoPayload = {
+          usuario_id: user.id,
+          ano: anoReferencia,
+          mes: metaMes.mes,
+          meta_faturamento_anual: parseFloat(metaFaturamentoAnual),
+          meta_lucro_anual: metaLucroAnual,
+          pct_lucro_selecionado: pctLucroSelecionado,
+          meta_faturamento_mensal: metaMes.faturamento,
+          meta_lucro_mensal: metaMes.lucro,
+          meta_pedidos: metaMes.pedidos,
+          meta_ticket_medio: metaMes.ticketMedio,
+          updated_at: new Date().toISOString(),
+        };
 
-      const { data: planejamentoData, error: planejamentoError } = await supabase
-        .from('planejamento_vendas')
-        .upsert(planejamentoPayload, { onConflict: 'usuario_id,ano,mes' })
-        .select()
-        .single();
+        const { data: planejamentoData, error: planejamentoError } = await supabase
+          .from('planejamento_vendas')
+          .upsert(planejamentoPayload, { onConflict: 'usuario_id,ano,mes' })
+          .select()
+          .single();
 
-      if (planejamentoError) throw planejamentoError;
+        if (planejamentoError) throw planejamentoError;
 
-      setPlanejamentoId(planejamentoData.id);
-
-      // Deletar distribuição anterior
-      await supabase
-        .from('planejamento_produtos')
-        .delete()
-        .eq('planejamento_id', planejamentoData.id);
-
-      // Salvar nova distribuição (apenas produtos com percentual > 0)
-      const produtosParaSalvar = distribuicao
-        .filter(item => item.percentual > 0)
-        .map(item => ({
-          planejamento_id: planejamentoData.id,
-          receita_id: item.receita_id,
-          percentual_participacao: item.percentual,
-        }));
-
-      if (produtosParaSalvar.length > 0) {
-        const { error: produtosError } = await supabase
+        // Deletar distribuição anterior deste mês
+        await supabase
           .from('planejamento_produtos')
-          .insert(produtosParaSalvar);
+          .delete()
+          .eq('planejamento_id', planejamentoData.id);
 
-        if (produtosError) throw produtosError;
+        // Salvar nova distribuição (apenas produtos com percentual > 0)
+        const produtosParaSalvar = distribuicao
+          .filter(item => item.percentual > 0)
+          .map(item => ({
+            planejamento_id: planejamentoData.id,
+            receita_id: item.receita_id,
+            percentual_participacao: item.percentual,
+          }));
+
+        if (produtosParaSalvar.length > 0) {
+          const { error: produtosError } = await supabase
+            .from('planejamento_produtos')
+            .insert(produtosParaSalvar);
+
+          if (produtosError) throw produtosError;
+        }
       }
 
       toast({
@@ -332,17 +516,25 @@ export default function PlanejamentoVendas() {
         </div>
       </div>
 
-      {/* Seletor de Mês */}
+      {/* Seletor de Ano */}
       <Card>
         <CardContent className="pt-6">
-          <Label htmlFor="mes">Mês de Referência</Label>
-          <Input
-            id="mes"
-            type="month"
-            value={mesReferencia}
-            onChange={(e) => setMesReferencia(e.target.value)}
-            className="max-w-xs"
-          />
+          <Label htmlFor="ano">Ano de Referência</Label>
+          <Select
+            value={anoReferencia.toString()}
+            onValueChange={(value) => setAnoReferencia(parseInt(value))}
+          >
+            <SelectTrigger className="max-w-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {anosDisponiveis.map((ano) => (
+                <SelectItem key={ano} value={ano.toString()}>
+                  {ano}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </CardContent>
       </Card>
 
@@ -447,14 +639,27 @@ export default function PlanejamentoVendas() {
         </CardContent>
       </Card>
 
-      {/* Bloco 2 - Metas Mensais */}
+      {/* Bloco 2 - Metas Mensais (Tabela) */}
       <Card>
         <CardHeader>
-          <CardTitle>Metas Mensais</CardTitle>
+          <CardTitle className="flex items-center justify-between">
+            <span>Metas Mensais</span>
+            {metaFaturamentoAnual && pctLucroSelecionado && ticketMedioInteligencia > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={inicializarMetasMensais}
+                className="gap-2"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Resetar para Meta Anual ÷ 12
+              </Button>
+            )}
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           {ticketMedioInteligencia <= 0 && (
-            <Alert className="mb-4">
+            <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
                 Defina o Ticket Médio adicionando vendas no sistema (últimos 90 dias).
@@ -462,85 +667,125 @@ export default function PlanejamentoVendas() {
             </Alert>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-              <Label htmlFor="faturamento-mensal">Meta de Faturamento (R$)</Label>
-              <Input
-                id="faturamento-mensal"
-                type="text"
-                value={formatCurrency(metaFaturamentoMensal)}
-                readOnly
-                className="bg-muted cursor-not-allowed"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Faturamento Anual ÷ 12
-              </p>
-            </div>
+          {/* Alerta de diferença */}
+          {Math.abs(diferencaFaturamento) > 0.01 && metasMensais.length > 0 && (
+            <Alert variant={diferencaFaturamento > 0 ? "destructive" : "default"}>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="flex items-center justify-between">
+                <span>
+                  {diferencaFaturamento > 0 
+                    ? `Excedeu em ${formatCurrency(diferencaFaturamento)} a meta anual de faturamento.`
+                    : `Faltam ${formatCurrency(Math.abs(diferencaFaturamento))} para alcançar a meta anual de faturamento.`
+                  }
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRedistribuirDiferenca}
+                  className="ml-4"
+                >
+                  Redistribuir Diferença
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
 
-            <div>
-              <Label htmlFor="lucro-mensal">Meta de Lucro (R$)</Label>
-              <Input
-                id="lucro-mensal"
-                type="text"
-                value={formatCurrency(metaLucroMensal)}
-                readOnly
-                className="bg-muted cursor-not-allowed"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Faturamento × % Lucro
-              </p>
-            </div>
-
-            <div>
-              <Label htmlFor="ticket-medio" className="flex items-center gap-1">
-                Ticket Médio (R$)
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-3 w-3 text-muted-foreground cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Calculado: média dos últimos 90 dias</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </Label>
-              <Input
-                id="ticket-medio"
-                type="text"
-                value={formatCurrency(ticketMedioInteligencia)}
-                readOnly
-                className="bg-muted cursor-not-allowed"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Carregado da Inteligência
-              </p>
-            </div>
-
-            <div>
-              <Label htmlFor="pedidos" className="flex items-center gap-1">
-                Quantidade de Pedidos
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-3 w-3 text-muted-foreground cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Calculado: Faturamento Mensal ÷ Ticket Médio</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </Label>
-              <Input
-                id="pedidos"
-                type="text"
-                value={metaPedidos}
-                readOnly
-                className="bg-muted cursor-not-allowed"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Faturamento ÷ Ticket Médio
-              </p>
+          {/* Tabela de meses */}
+          <div className="border rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-muted/50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-sm font-medium">Mês</th>
+                    <th className="px-4 py-3 text-right text-sm font-medium">Faturamento (R$)</th>
+                    <th className="px-4 py-3 text-right text-sm font-medium">Lucro (R$)</th>
+                    <th className="px-4 py-3 text-right text-sm font-medium">Ticket Médio (R$)</th>
+                    <th className="px-4 py-3 text-right text-sm font-medium">Pedidos</th>
+                    <th className="px-4 py-3 text-center text-sm font-medium">Ação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {metasMensais.map((meta) => (
+                    <tr key={meta.mes} className="border-t hover:bg-muted/30">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          {nomesMeses[meta.mes - 1]}
+                          {meta.customizado && (
+                            <Badge variant="outline" className="text-xs">
+                              Personalizado
+                            </Badge>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {mesEditando === meta.mes ? (
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={valorEditando}
+                            onChange={(e) => setValorEditando(e.target.value)}
+                            className="w-32 ml-auto text-right"
+                            autoFocus
+                          />
+                        ) : (
+                          formatCurrency(meta.faturamento)
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-right text-muted-foreground">
+                        {formatCurrency(meta.lucro)}
+                      </td>
+                      <td className="px-4 py-3 text-right text-muted-foreground">
+                        {formatCurrency(meta.ticketMedio)}
+                      </td>
+                      <td className="px-4 py-3 text-right text-muted-foreground">
+                        {meta.pedidos}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        {mesEditando === meta.mes ? (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleSalvarMes(meta.mes)}
+                            className="gap-1"
+                          >
+                            <Check className="h-4 w-4" />
+                            Salvar
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleEditarMes(meta.mes)}
+                            className="gap-1"
+                            disabled={!pctLucroSelecionado || ticketMedioInteligencia <= 0}
+                          >
+                            <Edit className="h-4 w-4" />
+                            Editar
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                  
+                  {/* Linha de Total */}
+                  {metasMensais.length > 0 && (
+                    <tr className="border-t-2 bg-muted/50 font-semibold">
+                      <td className="px-4 py-3">Total do Ano</td>
+                      <td className="px-4 py-3 text-right">
+                        {formatCurrency(somaFaturamentoMensal)}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {formatCurrency(somaLucroMensal)}
+                      </td>
+                      <td className="px-4 py-3 text-right">—</td>
+                      <td className="px-4 py-3 text-right">
+                        {somaPedidosMensal}
+                      </td>
+                      <td className="px-4 py-3"></td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </CardContent>
@@ -626,11 +871,13 @@ export default function PlanejamentoVendas() {
           onClick={salvarPlanejamento}
           disabled={
             loading || 
+            Math.abs(diferencaFaturamento) > 0.01 ||
             Math.abs(somaPercentuais - 100) > 0.01 ||
             !metaFaturamentoAnual ||
             parseFloat(metaFaturamentoAnual) <= 0 ||
             !pctLucroSelecionado ||
-            ticketMedioInteligencia <= 0
+            ticketMedioInteligencia <= 0 ||
+            metasMensais.length === 0
           }
           size="lg"
           className="gap-2"
