@@ -127,7 +127,14 @@ export default function PlanejamentoVendas() {
 
   // Atualizar metas mensais quando mudar meta anual ou % lucro
   useEffect(() => {
-    if (metaFaturamentoAnual && pctLucroSelecionado && ticketMedioInteligencia > 0) {
+    if (metaFaturamentoAnual && pctLucroSelecionado) {
+      const metaAnualNum = parseFloat(metaFaturamentoAnual);
+      
+      // Validar se é um número válido
+      if (isNaN(metaAnualNum) || metaAnualNum <= 0) {
+        return;
+      }
+      
       // Verificar se há algum mês com valor maior que 0
       const temMetasDefinidas = metasMensais.some(m => m.faturamento > 0);
       
@@ -136,7 +143,7 @@ export default function PlanejamentoVendas() {
         inicializarMetasMensais();
       } else {
         // Se há metas, recalcular apenas as não customizadas
-        const metaFatMensal = Math.round(parseFloat(metaFaturamentoAnual) / 12);
+        const metaFatMensal = Math.round(metaAnualNum / 12);
         
         setMetasMensais(prev => {
           if (prev.length === 0) return prev;
@@ -144,18 +151,22 @@ export default function PlanejamentoVendas() {
           return prev.map(m => {
             if (m.customizado) return m; // Mantém os customizados
             
+            const pedidos = ticketMedioInteligencia > 0
+              ? Math.max(1, Math.floor(metaFatMensal / ticketMedioInteligencia))
+              : 0;
+            
             return {
               ...m,
               faturamento: metaFatMensal,
               lucro: Math.round(metaFatMensal * (pctLucroSelecionado / 100)),
               ticketMedio: ticketMedioInteligencia,
-              pedidos: Math.max(1, Math.floor(metaFatMensal / ticketMedioInteligencia)),
+              pedidos,
             };
           });
         });
       }
     }
-  }, [metaFaturamentoAnual, pctLucroSelecionado, ticketMedioInteligencia]);
+  }, [metaFaturamentoAnual, pctLucroSelecionado]);
 
   const carregarTicketMedio = async () => {
     if (!user) return;
@@ -196,12 +207,16 @@ export default function PlanejamentoVendas() {
       if (metaExistente?.customizado) {
         novasMetasMensais.push(metaExistente);
       } else {
+        const pedidos = ticketMedioInteligencia > 0
+          ? Math.max(1, Math.floor(metaFatMensal / ticketMedioInteligencia))
+          : 0;
+          
         novasMetasMensais.push({
           mes,
           faturamento: metaFatMensal,
           lucro: Math.round(metaFatMensal * (pctLucroSelecionado! / 100)),
           ticketMedio: ticketMedioInteligencia,
-          pedidos: Math.max(1, Math.floor(metaFatMensal / ticketMedioInteligencia)),
+          pedidos,
           customizado: false,
         });
       }
@@ -430,15 +445,6 @@ export default function PlanejamentoVendas() {
       toast({
         title: 'Selecione o percentual de lucro',
         description: 'Escolha uma das opções: 35%, 45% ou 50%.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (ticketMedioInteligencia <= 0) {
-      toast({
-        title: 'Ticket Médio ausente',
-        description: 'Não foi possível calcular o Ticket Médio. Adicione vendas no sistema.',
         variant: 'destructive',
       });
       return;
@@ -694,7 +700,7 @@ export default function PlanejamentoVendas() {
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span>Metas Mensais</span>
-            {metaFaturamentoAnual && pctLucroSelecionado && ticketMedioInteligencia > 0 && (
+            {metaFaturamentoAnual && pctLucroSelecionado && (
               <Button
                 variant="outline"
                 size="sm"
@@ -712,7 +718,7 @@ export default function PlanejamentoVendas() {
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Defina o Ticket Médio adicionando vendas no sistema (últimos 90 dias).
+                O Ticket Médio não pôde ser calculado (sem vendas nos últimos 90 dias). A quantidade de pedidos ficará como "—" até que haja dados disponíveis.
               </AlertDescription>
             </Alert>
           )}
@@ -804,16 +810,16 @@ export default function PlanejamentoVendas() {
                             </Button>
                           ) : (
                             <>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleEditarMes(meta.mes)}
-                                className="gap-1"
-                                disabled={!pctLucroSelecionado || ticketMedioInteligencia <= 0}
-                              >
-                                <Edit className="h-4 w-4" />
-                                Editar
-                              </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleEditarMes(meta.mes)}
+                            className="gap-1"
+                            disabled={!pctLucroSelecionado}
+                          >
+                            <Edit className="h-4 w-4" />
+                            Editar
+                          </Button>
                               {meta.faturamento > 0 && (
                                 <Button
                                   size="sm"
@@ -939,7 +945,6 @@ export default function PlanejamentoVendas() {
             !metaFaturamentoAnual ||
             parseFloat(metaFaturamentoAnual) <= 0 ||
             !pctLucroSelecionado ||
-            ticketMedioInteligencia <= 0 ||
             somaFaturamentoMensal === 0
           }
           size="lg"
