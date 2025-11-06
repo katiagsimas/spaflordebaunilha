@@ -1880,6 +1880,7 @@ export type Database = {
       }
       pre_preparos: {
         Row: {
+          categoria_id: string | null
           created_at: string | null
           custo_por_unidade: number | null
           custo_total: number | null
@@ -1896,6 +1897,7 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
+          categoria_id?: string | null
           created_at?: string | null
           custo_por_unidade?: number | null
           custo_total?: number | null
@@ -1912,6 +1914,7 @@ export type Database = {
           usuario_id: string
         }
         Update: {
+          categoria_id?: string | null
           created_at?: string | null
           custo_por_unidade?: number | null
           custo_total?: number | null
@@ -1928,6 +1931,13 @@ export type Database = {
           usuario_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "pre_preparos_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pre_preparos_rendimento_unidade_id_fkey"
             columns: ["rendimento_unidade_id"]

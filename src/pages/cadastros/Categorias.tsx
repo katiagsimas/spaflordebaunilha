@@ -15,11 +15,23 @@ import { Plus, Pencil, Trash2, Tag } from "lucide-react";
 import { toast } from "sonner";
 
 const categoriasIniciais = [
-  "Bolo Caseiro",
-  "Bolo Decorado",
-  "Doces",
-  "Salgados",
-  "Fatias",
+  "Bolos",
+  "Tortas",
+  "Doces Finos",
+  "Brigadeiria",
+  "Cupcakes",
+  "Biscoitos / Cookies",
+  "Brownies / Barrinhas",
+  "Sobremesas Geladas",
+  "Salgados Fritos",
+  "Salgados Assados",
+  "Bebidas / Xaropes",
+  "Recheios",
+  "Coberturas",
+  "Bases (massas base)",
+  "Cremes Técnicos (ganache / chantilly / buttercream)",
+  "Decoração (confeitos, toppers feitos à mão, flores comestíveis)",
+  "Produção Auxiliar (caldas, caldas de brilho, glaçagem, etc)",
 ];
 
 export default function Categorias() {

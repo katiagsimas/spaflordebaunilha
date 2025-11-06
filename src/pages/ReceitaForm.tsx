@@ -16,6 +16,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Textarea } from "@/components/ui/textarea";
+import { CategoriaReceitaAutocomplete } from "@/components/CategoriaReceitaAutocomplete";
 import {
   Command,
   CommandEmpty,
@@ -228,6 +229,7 @@ export default function ReceitaForm() {
     rendimento: "",
     unidadeRendimentoId: "",
   });
+  const [categoriaIdReceita, setCategoriaIdReceita] = useState("");
 
   const [ingredientes, setIngredientes] = useState<IngredienteReceita[]>([]);
   const [embalagens, setEmbalagens] = useState<EmbalagemReceita[]>([]);
@@ -314,6 +316,14 @@ export default function ReceitaForm() {
             rendimento: receitaData.rendimento.toString(),
             unidadeRendimentoId: receitaData.unidade_rendimento,
           });
+
+          // Mapear categoria de nome para ID
+          if (receitaData.categoria) {
+            const catEncontrada = categorias.find(c => c.nome === receitaData.categoria);
+            if (catEncontrada) {
+              setCategoriaIdReceita(catEncontrada.id);
+            }
+          }
 
           // Mapear ingredientes
           const ingredientesFormatados = (ingredientesRes.data || []).map((ing: any) => ({
@@ -782,34 +792,17 @@ export default function ReceitaForm() {
             </div>
 
             <div>
-              <Label htmlFor="categoria">Categoria</Label>
-              <Select
-                value={formData.categoria}
-                onValueChange={(value) => setFormData({ ...formData, categoria: value })}
-              >
-                <SelectTrigger id="categoria">
-                  <SelectValue placeholder="Selecione uma categoria" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categorias.length === 0 && (
-                    <div className="p-2 text-sm text-muted-foreground text-center">
-                      Nenhuma categoria cadastrada.{" "}
-                      <Button
-                        variant="link"
-                        className="p-0 h-auto"
-                        onClick={() => navigate("/cadastros/categorias")}
-                      >
-                        Cadastrar agora
-                      </Button>
-                    </div>
-                  )}
-                  {categorias.map((categoria) => (
-                    <SelectItem key={categoria.id} value={categoria.nome}>
-                      {categoria.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="categoria">Categoria de Receita</Label>
+              <CategoriaReceitaAutocomplete
+                value={categoriaIdReceita}
+                categorias={categorias}
+                onSelect={(id) => {
+                  setCategoriaIdReceita(id);
+                  const categoriaNome = categorias.find(c => c.id === id)?.nome || '';
+                  setFormData({ ...formData, categoria: categoriaNome });
+                }}
+                placeholder="Selecione uma categoria..."
+              />
             </div>
 
             <div>

@@ -12,6 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useCategorias } from '@/hooks/useCategorias';
+import { CategoriaReceitaAutocomplete } from '@/components/CategoriaReceitaAutocomplete';
 import {
   Table,
   TableBody,
@@ -52,11 +54,14 @@ export default function PrePreparoForm() {
 
   // Campos básicos
   const [nome, setNome] = useState('');
+  const [categoriaId, setCategoriaId] = useState('');
   const [tempoPreparo, setTempoPreparo] = useState('');
   const [tempoUnidade, setTempoUnidade] = useState('minutos');
   const [rendimentoQtd, setRendimentoQtd] = useState('');
   const [rendimentoUnidadeId, setRendimentoUnidadeId] = useState('');
   const [modoPreparo, setModoPreparo] = useState('');
+
+  const { categorias } = useCategorias();
 
   // Ingredientes
   const [ingredientesSelecionados, setIngredientesSelecionados] = useState<any[]>([]);
@@ -217,6 +222,7 @@ export default function PrePreparoForm() {
       if (error) throw error;
 
       setNome(data.nome);
+      setCategoriaId(data.categoria_id || '');
       setTempoPreparo(data.tempo_preparo.toString());
       setTempoUnidade(data.tempo_preparo_unidade);
       setRendimentoQtd(data.rendimento_quantidade.toString());
@@ -557,6 +563,7 @@ export default function PrePreparoForm() {
       const dadosPrePreparo = {
         usuario_id: user.id,
         nome: nome.trim(),
+        categoria_id: categoriaId || null,
         tempo_preparo: tempo,
         tempo_preparo_unidade: tempoUnidade,
         rendimento_quantidade: rendimento,
@@ -693,6 +700,16 @@ export default function PrePreparoForm() {
                 placeholder="Ex: Massa de Bolo Base"
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="categoria">Categoria de Receita</Label>
+              <CategoriaReceitaAutocomplete
+                value={categoriaId}
+                categorias={categorias}
+                onSelect={setCategoriaId}
+                placeholder="Selecione uma categoria..."
               />
             </div>
 
