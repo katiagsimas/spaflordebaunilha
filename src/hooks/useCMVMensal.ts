@@ -103,6 +103,7 @@ export function useCMVMensal(ano?: number) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cmv_mensal"] });
+      queryClient.invalidateQueries({ queryKey: ["cmv_anual"] });
     },
     onError: (error) => {
       console.error("Erro ao salvar dados de CMV:", error);
