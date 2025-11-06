@@ -26,7 +26,11 @@ export const encomendaSchema = z.object({
   
   status: z.enum(['pendente', 'confirmado', 'em_producao', 'pronto', 'entregue', 'cancelado']),
   
-  observacoes: z.string()
+  observacoes_cliente: z.string()
+    .max(1000, 'Observações muito longas (máximo 1000 caracteres)')
+    .optional(),
+  
+  observacoes_internas: z.string()
     .max(1000, 'Observações muito longas (máximo 1000 caracteres)')
     .optional(),
   

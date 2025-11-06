@@ -1274,6 +1274,8 @@ export type Database = {
           id: string
           numero: string | null
           observacoes: string | null
+          observacoes_cliente: string | null
+          observacoes_internas: string | null
           outros: number | null
           pagamentos: Json | null
           saldo_restante: number | null
@@ -1304,6 +1306,8 @@ export type Database = {
           id?: string
           numero?: string | null
           observacoes?: string | null
+          observacoes_cliente?: string | null
+          observacoes_internas?: string | null
           outros?: number | null
           pagamentos?: Json | null
           saldo_restante?: number | null
@@ -1334,6 +1338,8 @@ export type Database = {
           id?: string
           numero?: string | null
           observacoes?: string | null
+          observacoes_cliente?: string | null
+          observacoes_internas?: string | null
           outros?: number | null
           pagamentos?: Json | null
           saldo_restante?: number | null
@@ -3326,6 +3332,17 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      validar_estoque_receita: {
+        Args: {
+          p_quantidade: number
+          p_receita_id: string
+          p_usuario_id: string
+        }
+        Returns: {
+          itens_faltantes: Json
+          tem_estoque: boolean
+        }[]
       }
     }
     Enums: {

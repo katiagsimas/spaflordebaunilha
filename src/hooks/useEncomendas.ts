@@ -12,7 +12,9 @@ interface Encomenda {
   hora_entrega?: string;
   status: string;
   valor: number;
-  observacoes?: string;
+  observacoes?: string; // Deprecated - use observacoes_cliente e observacoes_internas
+  observacoes_cliente?: string;
+  observacoes_internas?: string;
   telefone?: string;
   endereco?: string;
   numero?: string;

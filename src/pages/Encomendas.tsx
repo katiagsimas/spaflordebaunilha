@@ -23,6 +23,8 @@ import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import ContasReceberFormModal from "@/components/financeiro/ContasReceberFormModal";
 import { useNavigate } from "react-router-dom";
 import { SeletorTags } from "@/components/encomendas/SeletorTags";
+import { useValidacaoEstoque } from "@/hooks/useValidacaoEstoque";
+import { AlertaEstoque } from "@/components/encomendas/AlertaEstoque";
 
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from 'xlsx';
@@ -107,7 +109,8 @@ const Encomendas = () => {
     hora_entrega: "",
     status: "pendente",
     valor: 0,
-    observacoes: "",
+    observacoes_cliente: "",
+    observacoes_internas: "",
     telefone: "",
     endereco: "",
     numero: "",
@@ -135,6 +138,16 @@ const Encomendas = () => {
   });
 
   const { itens: produtosEncomenda, createItem, deleteItem } = useEncomendaItens(editingOrder?.id || null);
+
+  // Hook de validação de estoque
+  const { 
+    data: validacaoEstoque, 
+    isLoading: validandoEstoque 
+  } = useValidacaoEstoque({
+    receitaId: produtoForm.receita_id || undefined,
+    quantidade: parseFloat(produtoForm.quantidade || "0"),
+    enabled: !!produtoForm.receita_id && parseFloat(produtoForm.quantidade || "0") > 0,
+  });
 
   // Usar produtos temporários quando criando nova encomenda, ou produtos salvos quando editando
   const produtosExibidos = editingOrder ? produtosEncomenda : tempProdutos;
@@ -272,7 +285,8 @@ const Encomendas = () => {
       hora_entrega: "",
       status: "pendente",
       valor: 0,
-      observacoes: "",
+      observacoes_cliente: "",
+      observacoes_internas: "",
       telefone: "",
       endereco: "",
       numero: "",
@@ -417,7 +431,8 @@ const Encomendas = () => {
       hora_entrega: encomenda.hora_entrega || "",
       status: encomenda.status,
       valor: encomenda.valor,
-      observacoes: encomenda.observacoes || "",
+      observacoes_cliente: encomenda.observacoes_cliente || encomenda.observacoes || "",
+      observacoes_internas: encomenda.observacoes_internas || "",
       telefone: encomenda.telefone || "",
       endereco: encomenda.endereco || "",
       numero: encomenda.numero || "",
@@ -1050,7 +1065,12 @@ const Encomendas = () => {
 
                           <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                              <Label htmlFor="quantidade">Quantidade *</Label>
+                              <div className="flex items-center gap-2">
+                                <Label htmlFor="quantidade">Quantidade *</Label>
+                                {validacaoEstoque?.tem_estoque && produtoForm.quantidade && parseFloat(produtoForm.quantidade) > 0 && (
+                                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                                )}
+                              </div>
                               <Input
                                 id="quantidade"
                                 type="number"
@@ -1098,6 +1118,11 @@ const Encomendas = () => {
                             </div>
                           </div>
 
+                          {/* Alerta de Estoque */}
+                          {validacaoEstoque && !validandoEstoque && (
+                            <AlertaEstoque itensFaltantes={validacaoEstoque.itens_faltantes || []} />
+                          )}
+
                           <div className="flex gap-2 justify-end">
                             <Button
                               type="button"
@@ -1106,8 +1131,12 @@ const Encomendas = () => {
                             >
                               Cancelar
                             </Button>
-                            <Button type="button" onClick={handleAddProduto}>
-                              Adicionar
+                            <Button 
+                              type="button" 
+                              onClick={handleAddProduto}
+                              disabled={validandoEstoque}
+                            >
+                              {validandoEstoque ? "Validando..." : "Adicionar"}
                             </Button>
                           </div>
                         </div>
@@ -1423,19 +1452,61 @@ const Encomendas = () => {
                       </Dialog>
                     </div>
                   )}
-                </div>
-
-                 <div className="space-y-2">
-                    <Label htmlFor="observacoes">Observações</Label>
-                    <Textarea
-                      id="observacoes"
-                      rows={3}
-                      value={formData.observacoes}
-                      onChange={(e) =>
-                        setFormData({ ...formData, observacoes: e.target.value })
-                      }
-                    />
                   </div>
+
+                  {/* Seção de Observações - Separadas */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base">Observações</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {/* Observações do Cliente */}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor="observacoes_cliente">Observações do Cliente</Label>
+                          <span className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-950 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-300">
+                            Visível no recibo
+                          </span>
+                        </div>
+                        <Textarea
+                          id="observacoes_cliente"
+                          rows={3}
+                          value={formData.observacoes_cliente}
+                          onChange={(e) =>
+                            setFormData({ ...formData, observacoes_cliente: e.target.value })
+                          }
+                          placeholder="Ex: Bolo tema Frozen, decoração em azul e branco..."
+                          className="resize-none"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          ℹ️ O cliente verá estas informações no recibo e contrato
+                        </p>
+                      </div>
+
+                      {/* Observações Internas */}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor="observacoes_internas">Observações Internas</Label>
+                          <span className="inline-flex items-center rounded-full bg-amber-50 dark:bg-amber-950 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-300">
+                            Apenas equipe
+                          </span>
+                        </div>
+                        <Textarea
+                          id="observacoes_internas"
+                          rows={3}
+                          value={formData.observacoes_internas}
+                          onChange={(e) =>
+                            setFormData({ ...formData, observacoes_internas: e.target.value })
+                          }
+                          placeholder="Ex: Cobrar na entrega, cliente pediu desconto..."
+                          className="resize-none border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20 focus:border-amber-400 dark:focus:border-amber-600"
+                        />
+                        <p className="text-xs text-amber-600 dark:text-amber-400">
+                          🔒 Apenas você e sua equipe verão estas observações
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
 
                   {/* Seção de Tags */}
                   <Card>
