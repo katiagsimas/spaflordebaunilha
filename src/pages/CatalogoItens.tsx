@@ -21,6 +21,7 @@ import { DialogExcluirItem } from "@/components/estoque/DialogExcluirItem";
 import { AlertasEstoque } from "@/components/estoque/AlertasEstoque";
 import { BadgeStatus } from "@/components/estoque/BadgeStatus";
 import { Badge } from "@/components/ui/badge";
+import { formatarMilhar } from "@/lib/utils";
 import type { Item, ItemComEstoque } from "@/types/estoque";
 
 export default function CatalogoItens() {
@@ -178,7 +179,7 @@ export default function CatalogoItens() {
                   <TableHead>Nome</TableHead>
                   <TableHead>Tipo</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Estoque</TableHead>
+                  <TableHead className="text-right">Estoque Atual</TableHead>
                   <TableHead className="text-right">Custo/Un</TableHead>
                   <TableHead className="text-right">Valor Total</TableHead>
                   <TableHead className="text-center">Ações</TableHead>
@@ -196,7 +197,17 @@ export default function CatalogoItens() {
 
                   const formatarQuantidade = (qtd?: number, unidade?: string) => {
                     if (qtd === undefined) return '-';
-                    return `${qtd.toFixed(2)} ${unidade || ''}`;
+                    return `${formatarMilhar(qtd)} ${unidade || ''}`;
+                  };
+
+                  // Calcular custo unitário (Valor Total / Estoque Atual)
+                  const calcularCustoUnitario = () => {
+                    if (!item.rastrear_estoque || !item.estoque) return '-';
+                    const saldo = item.estoque.saldo || 0;
+                    const valorTotal = item.estoque.valor_estoque || 0;
+                    if (saldo === 0) return '-';
+                    const custoUn = valorTotal / saldo;
+                    return `${formatarValor(custoUn)}/${item.unidade_base}`;
                   };
 
                   return (
@@ -215,7 +226,11 @@ export default function CatalogoItens() {
                         {item.tipo === 'ingrediente' ? '🧈 Ingrediente' : '📦 Embalagem'}
                       </TableCell>
                       <TableCell>
-                        <BadgeStatus status={item.status || 'sem_rastreio'} saldo={item.estoque?.saldo} />
+                        {item.rastrear_estoque ? (
+                          <BadgeStatus status={item.status || 'sem_rastreio'} />
+                        ) : (
+                          <span className="text-muted-foreground text-sm">-</span>
+                        )}
                       </TableCell>
                       <TableCell className="text-right font-mono">
                         {item.rastrear_estoque && item.estoque
@@ -223,9 +238,7 @@ export default function CatalogoItens() {
                           : '-'}
                       </TableCell>
                       <TableCell className="text-right font-mono">
-                        {item.preco_ativo
-                          ? `${formatarValor(item.preco_ativo.custo_unitario)}/${item.unidade_base}`
-                          : '-'}
+                        {calcularCustoUnitario()}
                       </TableCell>
                       <TableCell className="text-right font-mono text-emerald-600 dark:text-emerald-400">
                         {item.rastrear_estoque && item.estoque
@@ -234,73 +247,29 @@ export default function CatalogoItens() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-center gap-2">
-                          {item.rastrear_estoque ? (
-                            <>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleEntradaRapida(item)}
-                              >
-                                ➕
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <MoreVertical className="h-4 w-4" />
                               </Button>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="outline" size="sm">
-                                    <MoreVertical className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem onClick={() => handleEditarItem(item)}>
-                                    <Pencil className="mr-2 h-4 w-4" />
-                                    Alterar
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem 
-                                    className="text-destructive focus:text-destructive"
-                                    onClick={() => {
-                                      setItemSelecionado(item);
-                                      setDialogExcluirAberto(true);
-                                    }}
-                                  >
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Excluir
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </>
-                          ) : (
-                            <>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleAtivarRastreio(item)}
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleEditarItem(item)}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Alterar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="text-destructive focus:text-destructive"
+                                onClick={() => {
+                                  setItemSelecionado(item);
+                                  setDialogExcluirAberto(true);
+                                }}
                               >
-                                🎯 Ativar
-                              </Button>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="outline" size="sm">
-                                    <MoreVertical className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem onClick={() => handleEditarItem(item)}>
-                                    <Pencil className="mr-2 h-4 w-4" />
-                                    Alterar
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem 
-                                    className="text-destructive focus:text-destructive"
-                                    onClick={() => {
-                                      setItemSelecionado(item);
-                                      setDialogExcluirAberto(true);
-                                    }}
-                                  >
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Excluir
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </>
-                          )}
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Excluir
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </TableCell>
                     </TableRow>
