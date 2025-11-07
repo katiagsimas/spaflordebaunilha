@@ -9,13 +9,10 @@ interface Aniversariante {
   id: string;
   nome: string;
   tipo: string;
-  referencia: string;
   data_aniversario: string;
   telefone?: string;
-  email?: string;
-  proximo_aniversario: string;
   dias_ate_aniversario: number;
-  observacoes?: string;
+  cliente_nome?: string;
 }
 
 interface WidgetAniversariantesProps {}
@@ -25,9 +22,12 @@ export function WidgetAniversariantes({}: WidgetAniversariantesProps) {
   const { data: aniversariantes = [], isLoading } = useQuery({
     queryKey: ['todos-aniversariantes-semana'],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
       const { data, error } = await supabase
         .rpc('get_todos_aniversariantes', { 
-          mes_param: new Date().getMonth() + 1 
+          p_tenant_id: user.id
         });
       
       if (error) throw error;
@@ -58,16 +58,16 @@ export function WidgetAniversariantes({}: WidgetAniversariantesProps) {
     }
   };
 
-  const getTipoLabel = (tipo: string, referencia: string) => {
+  const getTipoLabel = (tipo: string, clienteNome?: string) => {
     switch (tipo) {
       case 'cliente':
         return 'Cliente';
       case 'familiar':
-        return `Familiar - ${referencia}`;
+        return clienteNome ? `Familiar de ${clienteNome}` : 'Familiar';
       case 'contato_fornecedor':
-        return `Fornecedor - ${referencia}`;
+        return 'Contato Fornecedor';
       default:
-        return referencia;
+        return tipo;
     }
   };
 
@@ -109,7 +109,7 @@ export function WidgetAniversariantes({}: WidgetAniversariantesProps) {
                     <div className="space-y-1 flex-1">
                       <p className="font-medium">{aniversariante.nome}</p>
                       <p className="text-xs text-muted-foreground">
-                        {getTipoLabel(aniversariante.tipo, aniversariante.referencia)}
+                        {getTipoLabel(aniversariante.tipo, aniversariante.cliente_nome)}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {new Date(aniversariante.data_aniversario + 'T00:00:00').toLocaleDateString('pt-BR', {
