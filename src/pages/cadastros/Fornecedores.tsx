@@ -13,7 +13,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useFornecedores } from "@/hooks/useFornecedores";
-import { Plus, Pencil, Trash2, Truck, ChevronDown, Cake, Search, Download } from "lucide-react";
+import { Plus, Pencil, Trash2, Truck, Cake, Search, Download } from "lucide-react";
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Badge } from "@/components/ui/badge";
@@ -26,8 +28,6 @@ interface FormDataFornecedor {
   cpf_cnpj: string;
   telefone: string;
   email: string;
-  contato: string;
-  data_aniversario_contato: string;
   observacoes: string;
 }
 
@@ -37,7 +37,6 @@ export default function Fornecedores() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [observacoesOpen, setObservacoesOpen] = useState(false);
   const [busca, setBusca] = useState("");
   const [porPagina, setPorPagina] = useState(10);
 
@@ -47,8 +46,6 @@ export default function Fornecedores() {
     cpf_cnpj: "",
     telefone: "",
     email: "",
-    contato: "",
-    data_aniversario_contato: "",
     observacoes: "",
   });
 
@@ -62,8 +59,6 @@ export default function Fornecedores() {
           cpf_cnpj: fornecedor.cpf_cnpj || "",
           telefone: fornecedor.telefone || "",
           email: fornecedor.email || "",
-          contato: fornecedor.contato || "",
-          data_aniversario_contato: fornecedor.data_aniversario_contato || "",
           observacoes: fornecedor.observacoes || "",
         });
         setIsDialogOpen(true);
@@ -93,13 +88,10 @@ export default function Fornecedores() {
       cpf_cnpj: "",
       telefone: "",
       email: "",
-      contato: "",
-      data_aniversario_contato: "",
       observacoes: "",
     });
     setEditingId(null);
     setIsDialogOpen(false);
-    setObservacoesOpen(false);
   };
 
   const handleDelete = async (id: string) => {
@@ -115,19 +107,17 @@ export default function Fornecedores() {
     setEditingId(id);
   };
 
-  // Filtrar aniversariantes do mês
-  const aniversariantesDoMes = useMemo(() => {
-    const mesAtual = new Date().getMonth();
-    return fornecedores.filter(fornecedor => {
-      if (!fornecedor.data_aniversario_contato || !fornecedor.contato) return false;
-      const dataAniversario = new Date(fornecedor.data_aniversario_contato + 'T00:00:00');
-      return dataAniversario.getMonth() === mesAtual;
-    }).sort((a, b) => {
-      const dataA = new Date(a.data_aniversario_contato! + 'T00:00:00').getDate();
-      const dataB = new Date(b.data_aniversario_contato! + 'T00:00:00').getDate();
-      return dataA - dataB;
-    });
-  }, [fornecedores]);
+  // Buscar aniversariantes do mês (agora dos contatos)
+  const { data: aniversariantesDoMes = [] } = useQuery({
+    queryKey: ['aniversariantes-fornecedores-mes'],
+    queryFn: async () => {
+      const mesAtual = new Date().getMonth() + 1;
+      const { data, error } = await supabase
+        .rpc('get_aniversariantes_fornecedores_mes', { mes_param: mesAtual });
+      if (error) throw error;
+      return data || [];
+    }
+  });
 
   // Filtrar fornecedores por busca
   const fornecedoresFiltrados = useMemo(() => {
@@ -152,10 +142,6 @@ export default function Fornecedores() {
       'CPF/CNPJ': fornecedor.cpf_cnpj || '-',
       'Telefone': fornecedor.telefone || '-',
       'E-mail': fornecedor.email || '-',
-      'Contato': fornecedor.contato || '-',
-      'Aniversário': fornecedor.data_aniversario_contato 
-        ? new Date(fornecedor.data_aniversario_contato + 'T00:00:00').toLocaleDateString('pt-BR')
-        : '-',
     }));
 
     const ws = XLSX.utils.json_to_sheet(dadosExport);
@@ -180,9 +166,9 @@ export default function Fornecedores() {
             🎉 Aniversariantes do Mês
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {aniversariantesDoMes.map((fornecedor) => (
+            {aniversariantesDoMes.map((aniversariante: any) => (
               <Card 
-                key={fornecedor.id}
+                key={aniversariante.fornecedor_id + '-' + aniversariante.nome}
                 className="bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 dark:from-purple-500/20 dark:via-pink-500/20 dark:to-orange-500/20 border-2 border-purple-300/50 dark:border-purple-500/50 hover:shadow-lg transition-all duration-300"
               >
                 <CardContent className="p-4">
@@ -194,13 +180,13 @@ export default function Fornecedores() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-sm truncate">
-                        {fornecedor.contato}
+                        {aniversariante.nome}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {new Date(fornecedor.data_aniversario_contato! + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })}
+                        {new Date(aniversariante.data_aniversario + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })}
                       </p>
                       <p className="text-xs text-muted-foreground truncate">
-                        {fornecedor.nome}
+                        {aniversariante.tipo} {aniversariante.cargo && `• ${aniversariante.cargo}`}
                       </p>
                     </div>
                   </div>
@@ -285,57 +271,35 @@ export default function Fornecedores() {
                       placeholder="email@exemplo.com"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="contato">Contato</Label>
-                    <Input
-                      id="contato"
-                      value={formData.contato}
-                      onChange={(e) => setFormData({ ...formData, contato: e.target.value })}
-                      placeholder="Nome do contato"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="data_aniversario_contato">Aniversário do Contato</Label>
-                    <Input
-                      id="data_aniversario_contato"
-                      type="date"
-                      value={formData.data_aniversario_contato}
-                      onChange={(e) => setFormData({ ...formData, data_aniversario_contato: e.target.value })}
-                    />
-                  </div>
                 </div>
 
-                <Collapsible open={observacoesOpen} onOpenChange={setObservacoesOpen}>
-                  <CollapsibleTrigger asChild>
-                    <Button type="button" variant="outline" className="w-full">
-                      <ChevronDown className="h-4 w-4 mr-2" />
-                      Observações
-                    </Button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="mt-2">
-                    <Textarea
-                      id="observacoes"
-                      value={formData.observacoes}
-                      onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
-                      placeholder="Digite aqui observações sobre o fornecedor..."
-                      rows={4}
-                    />
-                  </CollapsibleContent>
-                </Collapsible>
-
-                {/* SEÇÃO DE CONTATOS ADICIONAIS */}
-                <div className="col-span-2 pt-2">
-                  <ContatosFornecedorManager 
-                    fornecedorId={editingId} 
-                    isNewFornecedor={!editingId}
+                <div className="space-y-2">
+                  <Label htmlFor="observacoes">Observações</Label>
+                  <Textarea
+                    id="observacoes"
+                    value={formData.observacoes}
+                    onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+                    placeholder="Digite aqui observações sobre o fornecedor..."
+                    rows={4}
                   />
                 </div>
+
+                {/* SEÇÃO DE CONTATOS ADICIONAIS */}
+                {editingId && (
+                  <div className="pt-2 border-t">
+                    <ContatosFornecedorManager 
+                      fornecedorId={editingId} 
+                      isNewFornecedor={false}
+                    />
+                  </div>
+                )}
+                
                 <div className="flex gap-2 justify-end">
                   <Button type="button" variant="outline" onClick={resetForm}>
                     Cancelar
                   </Button>
                   <Button type="submit" disabled={loading}>
-                    {editingId ? "Atualizar" : "Cadastrar"}
+                    {editingId ? "Atualizar" : "Salvar"}
                   </Button>
                 </div>
                 </form>
@@ -411,8 +375,7 @@ export default function Fornecedores() {
                     <TableHead>Tipo</TableHead>
                     <TableHead>CNPJ/CPF</TableHead>
                     <TableHead>Telefone</TableHead>
-                    <TableHead>Contato</TableHead>
-                    <TableHead>Aniversário</TableHead>
+                    <TableHead>E-mail</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -423,12 +386,7 @@ export default function Fornecedores() {
                       <TableCell>{fornecedor.tipo || "-"}</TableCell>
                       <TableCell>{fornecedor.cpf_cnpj || "-"}</TableCell>
                       <TableCell>{fornecedor.telefone || "-"}</TableCell>
-                      <TableCell>{fornecedor.contato || "-"}</TableCell>
-                      <TableCell>
-                        {fornecedor.data_aniversario_contato 
-                          ? new Date(fornecedor.data_aniversario_contato + 'T00:00:00').toLocaleDateString('pt-BR')
-                          : "-"}
-                      </TableCell>
+                      <TableCell>{fornecedor.email || "-"}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex gap-2 justify-end">
                           <Button
