@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -29,6 +30,7 @@ interface FamiliaresManagerProps {
 export function FamiliaresManager({ clienteId, isNewCliente = false }: FamiliaresManagerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [showAddAnotherDialog, setShowAddAnotherDialog] = useState(false);
   const [familiarAtual, setFamiliarAtual] = useState<Familiar>({
     nome: '',
     parentesco: '',
@@ -90,9 +92,14 @@ export function FamiliaresManager({ clienteId, isNewCliente = false }: Familiare
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['familiares', clienteId] });
-      toast.success('Familiar salvo com sucesso!');
+      toast.success(isEditing ? "Familiar atualizado!" : "Familiar salvo!");
       limparFormulario();
-      setIsEditing(false);
+      
+      if (!isEditing) {
+        setShowAddAnotherDialog(true);
+      } else {
+        setIsOpen(false);
+      }
     },
     onError: (error: any) => {
       toast.error(error.message || 'Erro ao salvar familiar');
@@ -121,6 +128,17 @@ export function FamiliaresManager({ clienteId, isNewCliente = false }: Familiare
       data_nascimento: '',
       observacoes: ''
     });
+    setIsEditing(false);
+  };
+
+  const handleAddAnother = () => {
+    setShowAddAnotherDialog(false);
+    limparFormulario();
+  };
+
+  const handleFinish = () => {
+    setShowAddAnotherDialog(false);
+    setIsOpen(false);
   };
 
   const editarFamiliar = (familiar: any) => {
@@ -155,40 +173,28 @@ export function FamiliaresManager({ clienteId, isNewCliente = false }: Familiare
     return dias;
   };
 
-  // Se é cliente novo, mostrar formulário inline
+  // Se é cliente novo, não exibir nada
   if (isNewCliente || !clienteId) {
-    return (
-      <Card className="bg-muted/30">
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            Familiares (Opcional)
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Salve o cliente primeiro para cadastrar familiares e seus aniversários.
-          </p>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Cake className="h-4 w-4" />
-            <span>
-              Cadastre aniversários de familiares para criar lembretes automáticos!
-            </span>
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return null;
   }
 
   // Se já tem cliente salvo, mostrar botão
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="w-full">
-          <Users className="h-4 w-4 mr-2" />
-          Ver Familiares {familiares && familiares.length > 0 && `(${familiares.length})`}
-        </Button>
-      </DialogTrigger>
+    <>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button 
+            variant="outline" 
+            className="w-full"
+            onClick={() => {
+              limparFormulario();
+              setIsOpen(true);
+            }}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            + Adicionar Familiar
+          </Button>
+        </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -219,29 +225,16 @@ export function FamiliaresManager({ clienteId, isNewCliente = false }: Familiare
 
                 <div className="space-y-2">
                   <Label htmlFor="parentesco">Parentesco *</Label>
-                  <Select
+                  <Input
+                    id="parentesco"
                     value={familiarAtual.parentesco}
-                    onValueChange={(value) => setFamiliarAtual({ ...familiarAtual, parentesco: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="filho">👶 Filho(a)</SelectItem>
-                      <SelectItem value="conjuge">💑 Cônjuge</SelectItem>
-                      <SelectItem value="pai">👨 Pai</SelectItem>
-                      <SelectItem value="mae">👩 Mãe</SelectItem>
-                      <SelectItem value="irmao">👫 Irmão(ã)</SelectItem>
-                      <SelectItem value="avo">👴 Avô(ó)</SelectItem>
-                      <SelectItem value="neto">👶 Neto(a)</SelectItem>
-                      <SelectItem value="sobrinho">🧒 Sobrinho(a)</SelectItem>
-                      <SelectItem value="outro">👤 Outro</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    onChange={(e) => setFamiliarAtual({ ...familiarAtual, parentesco: e.target.value })}
+                    placeholder="Ex: Filho(a), Esposo(a), Mãe, Pai"
+                  />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="data_nascimento">Data de Nascimento *</Label>
+                  <Label htmlFor="data_nascimento">Data de Aniversário *</Label>
                   <Input
                     id="data_nascimento"
                     type="date"
@@ -258,6 +251,7 @@ export function FamiliaresManager({ clienteId, isNewCliente = false }: Familiare
                     onChange={(e) => setFamiliarAtual({ ...familiarAtual, observacoes: e.target.value })}
                     placeholder="Ex: Gosta de chocolate, alérgico a amendoim..."
                     rows={2}
+                    className="resize-none"
                   />
                 </div>
               </div>
@@ -268,7 +262,7 @@ export function FamiliaresManager({ clienteId, isNewCliente = false }: Familiare
                   disabled={!familiarAtual.nome || !familiarAtual.parentesco || !familiarAtual.data_nascimento}
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  {isEditing ? 'Atualizar' : 'Adicionar'}
+                  {isEditing ? 'Atualizar' : 'Salvar Familiar'}
                 </Button>
                 {isEditing && (
                   <Button variant="outline" onClick={() => {
@@ -377,5 +371,22 @@ export function FamiliaresManager({ clienteId, isNewCliente = false }: Familiare
         </div>
       </DialogContent>
     </Dialog>
+
+    {/* AlertDialog para adicionar outro familiar */}
+    <AlertDialog open={showAddAnotherDialog} onOpenChange={setShowAddAnotherDialog}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Adicionar Outro Familiar?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Deseja adicionar mais um familiar para este cliente?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={handleFinish}>Não</AlertDialogCancel>
+          <AlertDialogAction onClick={handleAddAnother}>Sim</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }

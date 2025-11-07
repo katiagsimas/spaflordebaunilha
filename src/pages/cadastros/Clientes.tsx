@@ -11,11 +11,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useClientes } from "@/hooks/useClientes";
 import { useViaCEP } from "@/hooks/useViaCEP";
-import { Plus, Pencil, Trash2, Users, Search, ChevronDown, Download, Cake } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, Search, ChevronDown, Download, Cake, MoreVertical, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +38,8 @@ export default function Clientes() {
   const { buscarCEP, loading: loadingCEP } = useViaCEP();
   const [busca, setBusca] = useState("");
   const [porPagina, setPorPagina] = useState(10);
+  const [familiarClienteId, setFamiliarClienteId] = useState<string | null>(null);
+  const [isFamiliarDialogOpen, setIsFamiliarDialogOpen] = useState(false);
 
   const [filtroSegmento, setFiltroSegmento] = useState("todos");
   const [filtroOrigem, setFiltroOrigem] = useState("todos");
@@ -167,6 +170,11 @@ export default function Clientes() {
 
   const handleEdit = (cliente: any) => {
     setEditingCliente(cliente);
+  };
+
+  const handleAdicionarFamiliar = (clienteId: string) => {
+    setFamiliarClienteId(clienteId);
+    setIsFamiliarDialogOpen(true);
   };
 
   // Filtrar aniversariantes do mês
@@ -635,23 +643,18 @@ export default function Clientes() {
                   />
                 </div>
 
-                <Collapsible open={observacoesOpen} onOpenChange={setObservacoesOpen}>
-                  <CollapsibleTrigger asChild>
-                    <Button type="button" variant="outline" className="w-full">
-                      <ChevronDown className="h-4 w-4 mr-2" />
-                      Observações Gerais
-                    </Button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="mt-2">
-                    <Textarea
-                      id="observacoes"
-                      value={formData.observacoes}
-                      onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
-                      placeholder="Digite aqui observações sobre o cliente..."
-                      rows={4}
-                    />
-                  </CollapsibleContent>
-                </Collapsible>
+                {/* Observações sempre visível */}
+                <div className="space-y-2">
+                  <Label htmlFor="observacoes">Observações Gerais</Label>
+                  <Textarea
+                    id="observacoes"
+                    value={formData.observacoes}
+                    onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+                    placeholder="Digite aqui observações sobre o cliente..."
+                    rows={4}
+                    className="resize-none"
+                  />
+                </div>
                 <div className="flex gap-2 justify-end">
                   <Button type="button" variant="outline" onClick={resetForm}>
                     Cancelar
@@ -817,22 +820,30 @@ export default function Clientes() {
                           : "-"}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex gap-2 justify-end">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEdit(cliente)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setDeleteId(cliente.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleEdit(cliente)}>
+                              <Pencil className="h-4 w-4 mr-2" />
+                              Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAdicionarFamiliar(cliente.id)}>
+                              <UserPlus className="h-4 w-4 mr-2" />
+                              Adicionar Familiar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => setDeleteId(cliente.id)}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Excluir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -850,6 +861,21 @@ export default function Clientes() {
         title="Excluir Cliente"
         description="Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita."
       />
+
+      {/* Dialog para adicionar familiar */}
+      <Dialog open={isFamiliarDialogOpen} onOpenChange={setIsFamiliarDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Gerenciar Familiares do Cliente</DialogTitle>
+          </DialogHeader>
+          {familiarClienteId && (
+            <FamiliaresManager 
+              clienteId={familiarClienteId}
+              isNewCliente={false}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
         </TabsContent>
         
         <TabsContent value="nps">
