@@ -3290,6 +3290,31 @@ export type Database = {
       }
     }
     Views: {
+      admin_dashboard_metrics: {
+        Row: {
+          active_users_today: number | null
+          active_users_week: number | null
+          pending_deletions: number | null
+          recent_errors: number | null
+          total_storage_used: number | null
+          total_users: number | null
+        }
+        Relationships: []
+      }
+      admin_recent_activity: {
+        Row: {
+          action: string | null
+          admin_email: string | null
+          admin_id: string | null
+          created_at: string | null
+          id: string | null
+          module: string | null
+          reason: string | null
+          target_user_email: string | null
+          target_user_id: string | null
+        }
+        Relationships: []
+      }
       custos_por_categoria: {
         Row: {
           categoria: string | null
@@ -3313,6 +3338,17 @@ export type Database = {
           unidade_base: string | null
           usuario_id: string | null
           valor_estoque: number | null
+        }
+        Relationships: []
+      }
+      user_admin_access_history: {
+        Row: {
+          access_date: string | null
+          actions_performed: Json | null
+          admin_email: string | null
+          duration: string | null
+          module: string | null
+          reason: string | null
         }
         Relationships: []
       }
@@ -3634,6 +3670,31 @@ export type Database = {
       gerar_proximo_codigo_tipo_documento: {
         Args: { p_user_id: string }
         Returns: number
+      }
+      get_admin_dashboard_metrics: {
+        Args: never
+        Returns: {
+          active_users_today: number
+          active_users_week: number
+          pending_deletions: number
+          recent_errors: number
+          total_storage_used: number
+          total_users: number
+        }[]
+      }
+      get_admin_recent_activity: {
+        Args: never
+        Returns: {
+          action: string
+          admin_email: string
+          admin_id: string
+          created_at: string
+          id: string
+          module: string
+          reason: string
+          target_user_email: string
+          target_user_id: string
+        }[]
       }
       get_cmv_anual: {
         Args: { p_ano: number; p_usuario_id: string }
