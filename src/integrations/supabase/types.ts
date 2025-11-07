@@ -3615,6 +3615,10 @@ export type Database = {
           suggested_count: number
         }[]
       }
+      generate_admin_access_token: {
+        Args: { p_admin_id: string; p_reason: string; p_target_user_id: string }
+        Returns: Json
+      }
       gerar_proximo_codigo_categoria: {
         Args: { p_user_id: string }
         Returns: string
@@ -3707,12 +3711,32 @@ export type Database = {
         Args: { p_ano: number; p_mes: number; p_usuario_id: string }
         Returns: number
       }
+      hard_delete_user_data: {
+        Args: { p_admin_id: string; p_user_id: string }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      is_admin: { Args: { check_user_id: string }; Returns: boolean }
+      log_admin_action: {
+        Args: {
+          p_action: string
+          p_admin_id: string
+          p_details?: Json
+          p_module?: string
+          p_target_user_id?: string
+        }
+        Returns: undefined
+      }
+      revoke_admin_token: { Args: { p_token: string }; Returns: undefined }
+      soft_delete_user: {
+        Args: { p_admin_id: string; p_user_id: string }
+        Returns: undefined
       }
       validar_estoque_receita: {
         Args: {
@@ -3725,6 +3749,7 @@ export type Database = {
           tem_estoque: boolean
         }[]
       }
+      validate_admin_token: { Args: { p_token: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "user"
