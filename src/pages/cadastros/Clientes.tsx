@@ -21,8 +21,11 @@ import { formatPhone, formatCpfCnpj } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import * as XLSX from 'xlsx';
 import { FamiliaresManager } from "@/components/clientes/FamiliaresManager";
+import { NPSManager } from "@/components/clientes/NPSManager";
+import { DashboardAniversariantes } from "@/components/clientes/DashboardAniversariantes";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Clientes() {
   const navigate = useNavigate();
@@ -220,6 +223,14 @@ export default function Clientes() {
 
   return (
     <div className="space-y-6">
+      <Tabs defaultValue="lista" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="lista">📋 Lista</TabsTrigger>
+          <TabsTrigger value="nps">⭐ NPS</TabsTrigger>
+          <TabsTrigger value="aniversariantes">🎂 Aniversariantes</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="lista" className="space-y-6">
       <div className="space-y-1">
         <h1 className="text-3xl font-bold tracking-tight">Clientes</h1>
         <Badge variant="secondary" className="text-sm px-3 py-1">
@@ -839,6 +850,16 @@ export default function Clientes() {
         title="Excluir Cliente"
         description="Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita."
       />
+        </TabsContent>
+        
+        <TabsContent value="nps">
+          <NPSManager />
+        </TabsContent>
+        
+        <TabsContent value="aniversariantes">
+          <DashboardAniversariantes />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
