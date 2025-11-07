@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { ImpersonationProvider, useImpersonation } from "@/contexts/ImpersonationContext";
+import { ImpersonateBanner } from "@/components/admin/ImpersonateBanner";
 import { FirstAccessRedirect } from "@/components/FirstAccessRedirect";
 import { Loader2 } from "lucide-react";
 import Dashboard from "./pages/Dashboard";
@@ -97,34 +99,40 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const Layout = ({ children }: { children: React.ReactNode }) => (
-  <SidebarProvider>
-    <div className="flex min-h-screen w-full">
-      <AppSidebar />
-      <div className="flex-1 flex flex-col">
-        <header className="sticky top-0 z-10 h-14 border-b bg-background/80 backdrop-blur-md shadow-sm supports-[backdrop-filter]:bg-background/70">
-          <div className="flex h-full items-center px-6 gap-3">
-            <SidebarTrigger className="hover:bg-accent/50 transition-colors" />
-            <div className="h-6 w-px bg-border" />
-          </div>
-        </header>
-        <main className="flex-1 p-6 md:p-8 bg-muted/20">
-          <FirstAccessRedirect />
-          {children}
-        </main>
+const Layout = ({ children }: { children: React.ReactNode }) => {
+  const { isImpersonating } = useImpersonation();
+  
+  return (
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full" style={{ paddingTop: isImpersonating ? '70px' : '0' }}>
+        <AppSidebar />
+        <div className="flex-1 flex flex-col">
+          <header className="sticky top-0 z-10 h-14 border-b bg-background/80 backdrop-blur-md shadow-sm supports-[backdrop-filter]:bg-background/70">
+            <div className="flex h-full items-center px-6 gap-3">
+              <SidebarTrigger className="hover:bg-accent/50 transition-colors" />
+              <div className="h-6 w-px bg-border" />
+            </div>
+          </header>
+          <main className="flex-1 p-6 md:p-8 bg-muted/20">
+            <FirstAccessRedirect />
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
-  </SidebarProvider>
-);
+    </SidebarProvider>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
+      <ImpersonationProvider>
+        <TooltipProvider>
+          <ImpersonateBanner />
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
             {/* Auth routes */}
             <Route path="/auth/login" element={<AuthLogin />} />
             <Route path="/auth/signup" element={<SignUp />} />
@@ -230,6 +238,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
+      </ImpersonationProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
