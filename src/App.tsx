@@ -18,6 +18,10 @@ import RelatorioMovimentacoes from "./pages/estoque/RelatorioMovimentacoes";
 import RelatorioConsumoMedio from "./pages/estoque/RelatorioConsumoMedio";
 import RelatorioCMVGlobal from "./pages/estoque/RelatorioCMVGlobal";
 import Precificacao from "./pages/Precificacao";
+import BankRulesPage from "./pages/banco/Regras";
+import BankImportPage from "./pages/banco/Importar";
+import ReconcilePage from "./pages/banco/Reconciliar";
+import BankReportsPage from "./pages/banco/Relatorios";
 import Planejamento from "./pages/Planejamento";
 import CMVGlobal from "./pages/CMVGlobal";
 import PontoEquilibrio from "./pages/relatorios/PontoEquilibrio";
@@ -213,10 +217,16 @@ const App = () => (
           <Route path="/relatorios/inteligencia" element={<ProtectedRoute><Layout><InteligenciaNegocios /></Layout></ProtectedRoute>} />
           <Route path="/relatorios/custos-categorias" element={<ProtectedRoute><Layout><CustosPorCategoria /></Layout></ProtectedRoute>} />
           <Route path="/relatorios/cmv-global" element={<ProtectedRoute><Layout><CMVGlobal /></Layout></ProtectedRoute>} />
-          <Route path="/relatorios/ponto-equilibrio" element={<ProtectedRoute><Layout><PontoEquilibrio /></Layout></ProtectedRoute>} />
-          <Route path="/relatorios/planejamento-vendas" element={<ProtectedRoute><Layout><PlanejamentoVendas /></Layout></ProtectedRoute>} />
-          
-          <Route path="*" element={<NotFound />} />
+              <Route path="/relatorios/ponto-equilibrio" element={<ProtectedRoute><Layout><PontoEquilibrio /></Layout></ProtectedRoute>} />
+              <Route path="/relatorios/planejamento-vendas" element={<ProtectedRoute><Layout><PlanejamentoVendas /></Layout></ProtectedRoute>} />
+           
+           {/* Conciliação Bancária */}
+           <Route path="/banco/regras" element={<ProtectedRoute><Layout><BankRulesPage /></Layout></ProtectedRoute>} />
+           <Route path="/banco/importar" element={<ProtectedRoute><Layout><BankImportPage /></Layout></ProtectedRoute>} />
+           <Route path="/banco/reconciliar/:importId" element={<ProtectedRoute><Layout><ReconcilePage /></Layout></ProtectedRoute>} />
+           <Route path="/banco/relatorios" element={<ProtectedRoute><Layout><BankReportsPage /></Layout></ProtectedRoute>} />
+           
+           <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
