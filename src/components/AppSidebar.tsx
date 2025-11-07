@@ -56,46 +56,49 @@ export function AppSidebar() {
     enabled: !!user,
   });
 
-  // Buscar aniversariantes do mês de fornecedores
+  // Buscar aniversariantes do mês de fornecedores (contatos)
   const { data: aniversariantesFornecedores = [] } = useQuery({
-    queryKey: ['fornecedores-aniversariantes', user?.id],
+    queryKey: ['fornecedores-aniversariantes-mes'],
     queryFn: async () => {
       if (!user) return [];
-      const mesAtual = new Date().getMonth();
-      const { data } = await supabase
-        .from('fornecedores')
-        .select('*')
-        .eq('usuario_id', user.id);
-      
-      if (!data) return [];
-      
-      return data.filter(fornecedor => {
-        if (!fornecedor.data_aniversario_contato || !fornecedor.contato) return false;
-        const dataAniversario = new Date(fornecedor.data_aniversario_contato + 'T00:00:00');
-        return dataAniversario.getMonth() === mesAtual;
-      });
+      const mesAtual = new Date().getMonth() + 1;
+      const { data, error } = await supabase
+        .rpc('get_aniversariantes_fornecedores_mes', { mes_param: mesAtual });
+      if (error) {
+        console.error('Erro ao buscar aniversariantes fornecedores:', error);
+        return [];
+      }
+      return data || [];
     },
     enabled: !!user,
   });
 
-  // Buscar aniversariantes do mês de clientes
+  // Buscar aniversariantes do mês de clientes (familiares)
   const { data: aniversariantesClientes = [] } = useQuery({
-    queryKey: ['clientes-aniversariantes', user?.id],
+    queryKey: ['familiares-aniversariantes-mes'],
     queryFn: async () => {
       if (!user) return [];
-      const mesAtual = new Date().getMonth();
-      const { data } = await supabase
-        .from('clientes')
+      const mesAtual = new Date().getMonth() + 1;
+      
+      const { data, error } = await supabase
+        .from('cliente_familiares')
         .select('*')
-        .eq('usuario_id', user.id);
+        .eq('usuario_id', user.id)
+        .eq('ativo', true)
+        .not('data_nascimento', 'is', null);
       
-      if (!data) return [];
+      if (error) {
+        console.error('Erro ao buscar aniversariantes clientes:', error);
+        return [];
+      }
       
-      return data.filter(cliente => {
-        if (!cliente.data_aniversario) return false;
-        const dataAniversario = new Date(cliente.data_aniversario + 'T00:00:00');
-        return dataAniversario.getMonth() === mesAtual;
+      // Filtrar pelo mês atual
+      const familiaresDoMes = (data || []).filter(familiar => {
+        const dataNasc = new Date(familiar.data_nascimento + 'T00:00:00');
+        return dataNasc.getMonth() + 1 === mesAtual;
       });
+      
+      return familiaresDoMes;
     },
     enabled: !!user,
   });
