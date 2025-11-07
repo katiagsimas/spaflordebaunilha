@@ -180,9 +180,9 @@ export function FamiliaresManager({ clienteId, isNewCliente = false, setIsFamili
     return null;
   }
 
-  // Se já tem cliente salvo, mostrar botão
+  // Se já tem cliente salvo, mostrar botão e lista
   return (
-    <>
+    <div className="space-y-4">
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
           <Button 
@@ -194,7 +194,7 @@ export function FamiliaresManager({ clienteId, isNewCliente = false, setIsFamili
             }}
           >
             <Plus className="h-4 w-4 mr-2" />
-            + Adicionar Familiar
+            + Adicionar Familiar {familiares && familiares.length > 0 && `(${familiares.length})`}
           </Button>
         </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
@@ -389,6 +389,77 @@ export function FamiliaresManager({ clienteId, isNewCliente = false, setIsFamili
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-    </>
+
+    {/* Lista de familiares no formulário */}
+    {familiares && familiares.length > 0 && (
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Familiares Cadastrados ({familiares.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nome</TableHead>
+                <TableHead>Parentesco</TableHead>
+                <TableHead>Idade</TableHead>
+                <TableHead>Aniversário</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {familiares.map((familiar) => (
+                <TableRow key={familiar.id}>
+                  <TableCell className="font-medium">{familiar.nome}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="text-xs">
+                      {familiar.parentesco}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-sm">{calcularIdade(familiar.data_nascimento)} anos</TableCell>
+                  <TableCell className="text-sm">
+                    {new Date(familiar.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR', {
+                      day: '2-digit',
+                      month: '2-digit'
+                    })}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex gap-1 justify-end">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          editarFamiliar(familiar);
+                          setIsOpen(true);
+                        }}
+                        title="Editar familiar"
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          if (confirm(`Remover ${familiar.nome} da lista de familiares?`)) {
+                            deletarFamiliar.mutate(familiar.id);
+                          }
+                        }}
+                        title="Excluir familiar"
+                      >
+                        <Trash2 className="h-3 w-3 text-destructive" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    )}
+    </div>
   );
 }

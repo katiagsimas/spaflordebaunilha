@@ -651,7 +651,7 @@ export default function Clientes() {
                 )}
 
                 {/* SEÇÃO DE FAMILIARES */}
-                <div className="col-span-2">
+                <div className="col-span-full">
                   <FamiliaresManager 
                     clienteId={editingCliente?.id || null} 
                     isNewCliente={!editingCliente}
