@@ -1,27 +1,19 @@
-import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { PageHeader } from "@/components/PageHeader";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
+import { FornecedorFormDialog } from "@/components/FornecedorFormDialog";
 import { useFornecedores } from "@/hooks/useFornecedores";
-import { Plus, Pencil, Trash2, Truck, Cake, Search, Download, MoreVertical, UserPlus } from "lucide-react";
+import { Plus, Pencil, Trash2, Truck, Cake, Search, Download, MoreVertical } from "lucide-react";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { formatPhone, formatCpfCnpj } from "@/lib/utils";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Badge } from "@/components/ui/badge";
 import * as XLSX from 'xlsx';
-import { ContatosFornecedorManager } from '@/components/fornecedores/ContatosFornecedorManager';
 
 interface FormDataFornecedor {
   nome: string;
@@ -33,68 +25,31 @@ interface FormDataFornecedor {
 }
 
 export default function Fornecedores() {
-  const navigate = useNavigate();
   const { fornecedores, loading, createFornecedor, updateFornecedor, deleteFornecedor } = useFornecedores();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [busca, setBusca] = useState("");
   const [porPagina, setPorPagina] = useState(10);
-  const [contatoFornecedorId, setContatoFornecedorId] = useState<string | null>(null);
-  const [isContatoDialogOpen, setIsContatoDialogOpen] = useState(false);
 
-  const [formData, setFormData] = useState<FormDataFornecedor>({
-    nome: "",
-    tipo: "PF",
-    cpf_cnpj: "",
-    telefone: "",
-    email: "",
-    observacoes: "",
-  });
-
-  useEffect(() => {
-    if (editingId) {
-      const fornecedor = fornecedores.find(f => f.id === editingId);
-      if (fornecedor) {
-        setFormData({
-          nome: fornecedor.nome,
-          tipo: (fornecedor.tipo as "PF" | "PJ") || "PF",
-          cpf_cnpj: fornecedor.cpf_cnpj || "",
-          telefone: fornecedor.telefone || "",
-          email: fornecedor.email || "",
-          observacoes: fornecedor.observacoes || "",
-        });
-        setIsDialogOpen(true);
-      }
-    }
-  }, [editingId, fornecedores]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleSubmit = async (data: FormDataFornecedor) => {
     try {
       if (editingId) {
-        await updateFornecedor(editingId, formData);
+        await updateFornecedor(editingId, data);
+        setIsDialogOpen(false);
+        setEditingId(null);
       } else {
-        await createFornecedor(formData);
+        const newFornecedor = await createFornecedor(data);
+        // Após criar, abre o dialog novamente em modo de edição para poder adicionar contatos
+        if (newFornecedor?.id) {
+          setEditingId(newFornecedor.id);
+          return;
+        }
+        setIsDialogOpen(false);
       }
-      resetForm();
     } catch (error: any) {
       console.error('Erro ao salvar fornecedor:', error);
     }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      nome: "",
-      tipo: "PF",
-      cpf_cnpj: "",
-      telefone: "",
-      email: "",
-      observacoes: "",
-    });
-    setEditingId(null);
-    setIsDialogOpen(false);
   };
 
   const handleDelete = async (id: string) => {
@@ -108,11 +63,12 @@ export default function Fornecedores() {
 
   const handleEdit = (id: string) => {
     setEditingId(id);
+    setIsDialogOpen(true);
   };
 
-  const handleAdicionarContato = (fornecedorId: string) => {
-    setContatoFornecedorId(fornecedorId);
-    setIsContatoDialogOpen(true);
+  const handleNovo = () => {
+    setEditingId(null);
+    setIsDialogOpen(true);
   };
 
   // Buscar aniversariantes do mês (agora dos contatos)
@@ -157,6 +113,17 @@ export default function Fornecedores() {
     XLSX.utils.book_append_sheet(wb, ws, 'Fornecedores');
     XLSX.writeFile(wb, `fornecedores_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
+
+  // Buscar dados do fornecedor sendo editado
+  const fornecedorData = fornecedores.find(f => f.id === editingId);
+  const initialData = fornecedorData ? {
+    nome: fornecedorData.nome,
+    tipo: (fornecedorData.tipo as "PF" | "PJ") || "PF",
+    cpf_cnpj: fornecedorData.cpf_cnpj || "",
+    telefone: fornecedorData.telefone || "",
+    email: fornecedorData.email || "",
+    observacoes: fornecedorData.observacoes || "",
+  } : undefined;
 
   return (
     <div className="space-y-6">
@@ -209,110 +176,10 @@ export default function Fornecedores() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Lista de Fornecedores</CardTitle>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button onClick={() => setEditingId(null)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Novo Fornecedor
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>{editingId ? "Editar Fornecedor" : "Novo Fornecedor"}</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="nome">Nome *</Label>
-                    <Input
-                      id="nome"
-                      value={formData.nome}
-                      onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="tipo">PF ou PJ</Label>
-                    <Select
-                      value={formData.tipo}
-                      onValueChange={(value: "PF" | "PJ") => setFormData({ ...formData, tipo: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="PF">Pessoa Física</SelectItem>
-                        <SelectItem value="PJ">Pessoa Jurídica</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cpf_cnpj">CNPJ/CPF</Label>
-                    <Input
-                      id="cpf_cnpj"
-                      value={formData.cpf_cnpj}
-                      onChange={(e) => setFormData({ ...formData, cpf_cnpj: e.target.value })}
-                      onBlur={(e) => setFormData({ ...formData, cpf_cnpj: formatCpfCnpj(e.target.value) })}
-                      placeholder="00.000.000/0000-00"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="telefone">Telefone/WhatsApp</Label>
-                    <Input
-                      id="telefone"
-                      value={formData.telefone}
-                      onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
-                      onBlur={(e) => setFormData({ ...formData, telefone: formatPhone(e.target.value) })}
-                      placeholder="(00) 00000-0000"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">E-mail</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="email@exemplo.com"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="observacoes">Observações</Label>
-                  <Textarea
-                    id="observacoes"
-                    value={formData.observacoes}
-                    onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
-                    placeholder="Digite aqui observações sobre o fornecedor..."
-                    rows={4}
-                  />
-                </div>
-
-                {/* SEÇÃO DE CONTATOS ADICIONAIS */}
-                {editingId && (
-                  <div className="pt-2 border-t">
-                    <ContatosFornecedorManager 
-                      fornecedorId={editingId} 
-                      isNewFornecedor={false}
-                    />
-                  </div>
-                )}
-                
-                <div className="flex gap-2 justify-end">
-                  <Button type="button" variant="outline" onClick={resetForm}>
-                    Cancelar
-                  </Button>
-                  <Button type="submit" disabled={loading}>
-                    {editingId ? "Atualizar" : "Salvar"}
-                  </Button>
-                </div>
-                </form>
-              </DialogContent>
-            </Dialog>
+            <Button onClick={handleNovo}>
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Fornecedor
+            </Button>
           </div>
         </CardHeader>
         
@@ -407,10 +274,6 @@ export default function Fornecedores() {
                               <Pencil className="h-4 w-4 mr-2" />
                               Editar
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleAdicionarContato(fornecedor.id)}>
-                              <UserPlus className="h-4 w-4 mr-2" />
-                              Adicionar Contato
-                            </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => setDeleteId(fornecedor.id)}
                               className="text-destructive"
@@ -430,6 +293,15 @@ export default function Fornecedores() {
         </CardContent>
       </Card>
 
+      <FornecedorFormDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onSubmit={handleSubmit}
+        initialData={initialData}
+        loading={loading}
+        fornecedorId={editingId}
+      />
+
       <ConfirmDialog
         open={!!deleteId}
         onOpenChange={(open) => !open && setDeleteId(null)}
@@ -437,22 +309,6 @@ export default function Fornecedores() {
         title="Excluir Fornecedor"
         description="Tem certeza que deseja excluir este fornecedor? Esta ação não pode ser desfeita."
       />
-
-      {/* Dialog para adicionar contato */}
-      <Dialog open={isContatoDialogOpen} onOpenChange={setIsContatoDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Gerenciar Contatos do Fornecedor</DialogTitle>
-          </DialogHeader>
-          {contatoFornecedorId && (
-            <ContatosFornecedorManager 
-              fornecedorId={contatoFornecedorId}
-              isNewFornecedor={false}
-              setIsContatoDialogOpen={setIsContatoDialogOpen}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
