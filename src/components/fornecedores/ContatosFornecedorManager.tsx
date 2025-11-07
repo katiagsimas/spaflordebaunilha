@@ -104,7 +104,10 @@ export function ContatosFornecedorManager({ fornecedorId, isNewFornecedor = fals
       if (!isEditing) {
         setShowAddAnotherDialog(true);
       } else {
+        // Quando for edição, fecha tudo e volta para a página principal
         limparFormulario();
+        setIsOpen(false);
+        setIsContatoDialogOpen?.(false);
       }
     },
     onError: (error) => {
