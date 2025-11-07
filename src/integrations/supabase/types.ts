@@ -4026,21 +4026,34 @@ export type Database = {
         Args: { p_ano: number; p_mes: number; p_usuario_id: string }
         Returns: number
       }
-      get_todos_aniversariantes: {
-        Args: { mes_param?: number }
-        Returns: {
-          data_aniversario: string
-          dias_ate_aniversario: number
-          email: string
-          id: string
-          nome: string
-          observacoes: string
-          proximo_aniversario: string
-          referencia: string
-          telefone: string
-          tipo: string
-        }[]
-      }
+      get_todos_aniversariantes:
+        | {
+            Args: { mes_param?: number }
+            Returns: {
+              data_aniversario: string
+              dias_ate_aniversario: number
+              email: string
+              id: string
+              nome: string
+              observacoes: string
+              proximo_aniversario: string
+              referencia: string
+              telefone: string
+              tipo: string
+            }[]
+          }
+        | {
+            Args: { p_tenant_id: string }
+            Returns: {
+              cliente_nome: string
+              data_aniversario: string
+              dias_ate_aniversario: number
+              id: string
+              nome: string
+              telefone: string
+              tipo: string
+            }[]
+          }
       hard_delete_user_data: {
         Args: { p_admin_id: string; p_user_id: string }
         Returns: Json
