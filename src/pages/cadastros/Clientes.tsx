@@ -313,6 +313,61 @@ export default function Clientes() {
         </Card>
       </div>
 
+      {/* Alerta de Aniversariantes Familiares nos Próximos 7 Dias */}
+      {aniversariantes && aniversariantes.filter((a: any) => a.tipo === 'familiar' && a.dias_ate_aniversario <= 7).length > 0 && (
+        <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-300">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Cake className="h-5 w-5 text-purple-600 animate-pulse" />
+              🎉 Aniversários de Familiares - Próximos 7 Dias
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {aniversariantes
+                .filter((aniv: any) => aniv.tipo === 'familiar' && aniv.dias_ate_aniversario <= 7)
+                .map((aniv: any) => (
+                  <div 
+                    key={`familiar-${aniv.cliente_id}`}
+                    className="flex items-center justify-between p-4 bg-white rounded-lg border-2 border-purple-200 shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center flex-shrink-0">
+                        <span className="text-2xl">👶</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-base">{aniv.nome}</p>
+                        <div className="flex flex-wrap gap-2 mt-1">
+                          <Badge variant="outline" className="bg-purple-50">
+                            {aniv.parentesco}
+                          </Badge>
+                          <span className="text-sm text-muted-foreground">
+                            Familiar de: <span className="font-medium text-foreground">{aniv.cliente_nome}</span>
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          📅 {new Date(aniv.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR', {
+                            day: '2-digit',
+                            month: 'long'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge 
+                      variant={aniv.dias_ate_aniversario === 0 ? 'default' : aniv.dias_ate_aniversario <= 3 ? 'default' : 'secondary'}
+                      className="text-sm px-3 py-1 flex-shrink-0"
+                    >
+                      {aniv.dias_ate_aniversario === 0 ? '🎉 HOJE!' :
+                       aniv.dias_ate_aniversario === 1 ? '⭐ Amanhã' :
+                       `Em ${aniv.dias_ate_aniversario} dias`}
+                    </Badge>
+                  </div>
+                ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Card de Aniversariantes do Mês */}
       {aniversariantes && aniversariantes.length > 0 && (
         <Card className="bg-gradient-to-r from-pink-50 to-purple-50 border-pink-200">
