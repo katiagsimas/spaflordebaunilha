@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { incrementarUsoTipoDocumento } from '@/utils/tipoDocumentoUtils';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -368,6 +369,9 @@ export default function ContasPagarForm() {
 
         if (errorParcelas) throw errorParcelas;
 
+        // Incrementar contador de uso do tipo de documento
+        await incrementarUsoTipoDocumento(tipoDocumentoId);
+
         toast({
           title: '✅ Conta atualizada',
           description: 'A conta foi atualizada com sucesso!',
@@ -396,6 +400,9 @@ export default function ContasPagarForm() {
           .insert(parcelasParaInserir);
 
         if (errorParcelas) throw errorParcelas;
+
+        // Incrementar contador de uso do tipo de documento
+        await incrementarUsoTipoDocumento(tipoDocumentoId);
 
         toast({
           title: '✅ Conta criada',

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { incrementarUsoTipoDocumento } from '@/utils/tipoDocumentoUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -298,6 +299,9 @@ export default function ContasReceberFormModal({
         .single();
 
       if (errorConta) throw errorConta;
+
+      // Incrementar contador de uso do tipo de documento
+      await incrementarUsoTipoDocumento(tipoDocumentoId);
 
       // Salvar parcelas editadas
       const parcelas_data = parcelasGeradas.map(p => ({

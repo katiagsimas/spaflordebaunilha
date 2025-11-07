@@ -3337,6 +3337,7 @@ export type Database = {
         Row: {
           ativo: boolean | null
           codigo: number
+          contador_uso: number | null
           created_at: string
           descricao: string
           e_padrao: boolean | null
@@ -3347,6 +3348,7 @@ export type Database = {
         Insert: {
           ativo?: boolean | null
           codigo: number
+          contador_uso?: number | null
           created_at?: string
           descricao: string
           e_padrao?: boolean | null
@@ -3357,6 +3359,7 @@ export type Database = {
         Update: {
           ativo?: boolean | null
           codigo?: number
+          contador_uso?: number | null
           created_at?: string
           descricao?: string
           e_padrao?: boolean | null
@@ -4027,16 +4030,13 @@ export type Database = {
         Returns: number
       }
       get_todos_aniversariantes: {
-        Args: { mes_param?: number }
+        Args: { p_tenant_id: string }
         Returns: {
+          cliente_nome: string
           data_aniversario: string
           dias_ate_aniversario: number
-          email: string
           id: string
           nome: string
-          observacoes: string
-          proximo_aniversario: string
-          referencia: string
           telefone: string
           tipo: string
         }[]
@@ -4051,6 +4051,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      incrementar_uso_tipo_documento: {
+        Args: { p_tipo_documento_id: string }
+        Returns: undefined
       }
       is_admin: { Args: { check_user_id: string }; Returns: boolean }
       log_admin_action: {
