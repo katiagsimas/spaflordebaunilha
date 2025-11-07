@@ -429,6 +429,7 @@ export function FamiliaresManager({ clienteId, isNewCliente = false, setIsFamili
                   <TableCell className="text-right">
                     <div className="flex gap-1 justify-end">
                       <Button
+                        type="button"
                         variant="ghost"
                         size="sm"
                         onClick={() => {
@@ -440,6 +441,7 @@ export function FamiliaresManager({ clienteId, isNewCliente = false, setIsFamili
                         <Pencil className="h-3 w-3" />
                       </Button>
                       <Button
+                        type="button"
                         variant="ghost"
                         size="sm"
                         onClick={() => {
