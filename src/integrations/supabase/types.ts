@@ -651,10 +651,119 @@ export type Database = {
         }
         Relationships: []
       }
+      cliente_familiares: {
+        Row: {
+          ativo: boolean | null
+          cliente_id: string
+          created_at: string | null
+          data_nascimento: string
+          id: string
+          nome: string
+          observacoes: string | null
+          parentesco: string
+          updated_at: string | null
+          usuario_id: string
+        }
+        Insert: {
+          ativo?: boolean | null
+          cliente_id: string
+          created_at?: string | null
+          data_nascimento: string
+          id?: string
+          nome: string
+          observacoes?: string | null
+          parentesco: string
+          updated_at?: string | null
+          usuario_id: string
+        }
+        Update: {
+          ativo?: boolean | null
+          cliente_id?: string
+          created_at?: string | null
+          data_nascimento?: string
+          id?: string
+          nome?: string
+          observacoes?: string | null
+          parentesco?: string
+          updated_at?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cliente_familiares_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cliente_nps: {
+        Row: {
+          categoria: string | null
+          cliente_id: string
+          comentario: string | null
+          created_at: string | null
+          encomenda_id: string | null
+          enviado_em: string | null
+          id: string
+          nota: number
+          respondido_em: string | null
+          usuario_id: string
+        }
+        Insert: {
+          categoria?: string | null
+          cliente_id: string
+          comentario?: string | null
+          created_at?: string | null
+          encomenda_id?: string | null
+          enviado_em?: string | null
+          id?: string
+          nota: number
+          respondido_em?: string | null
+          usuario_id: string
+        }
+        Update: {
+          categoria?: string | null
+          cliente_id?: string
+          comentario?: string | null
+          created_at?: string | null
+          encomenda_id?: string | null
+          enviado_em?: string | null
+          id?: string
+          nota?: number
+          respondido_em?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cliente_nps_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cliente_nps_encomenda_id_fkey"
+            columns: ["encomenda_id"]
+            isOneToOne: false
+            referencedRelation: "encomendas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cliente_nps_encomenda_id_fkey"
+            columns: ["encomenda_id"]
+            isOneToOne: false
+            referencedRelation: "vw_encomendas_com_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clientes: {
         Row: {
           cep: string | null
           cidade: string | null
+          como_conheceu: string | null
           cpf_cnpj: string | null
           created_at: string
           data_aniversario: string | null
@@ -665,14 +774,20 @@ export type Database = {
           nome: string
           numero: string | null
           observacoes: string | null
+          preferencias_alergias: string | null
+          quantidade_pedidos: number | null
+          segmento: string | null
           telefone: string | null
           tipo: string | null
+          total_compras: number | null
+          ultima_compra: string | null
           updated_at: string
           usuario_id: string
         }
         Insert: {
           cep?: string | null
           cidade?: string | null
+          como_conheceu?: string | null
           cpf_cnpj?: string | null
           created_at?: string
           data_aniversario?: string | null
@@ -683,14 +798,20 @@ export type Database = {
           nome: string
           numero?: string | null
           observacoes?: string | null
+          preferencias_alergias?: string | null
+          quantidade_pedidos?: number | null
+          segmento?: string | null
           telefone?: string | null
           tipo?: string | null
+          total_compras?: number | null
+          ultima_compra?: string | null
           updated_at?: string
           usuario_id: string
         }
         Update: {
           cep?: string | null
           cidade?: string | null
+          como_conheceu?: string | null
           cpf_cnpj?: string | null
           created_at?: string
           data_aniversario?: string | null
@@ -701,8 +822,13 @@ export type Database = {
           nome?: string
           numero?: string | null
           observacoes?: string | null
+          preferencias_alergias?: string | null
+          quantidade_pedidos?: number | null
+          segmento?: string | null
           telefone?: string | null
           tipo?: string | null
+          total_compras?: number | null
+          ultima_compra?: string | null
           updated_at?: string
           usuario_id?: string
         }
@@ -3372,6 +3498,23 @@ export type Database = {
         }
         Relationships: []
       }
+      v_aniversariantes_completa: {
+        Row: {
+          cliente_id: string | null
+          data_nascimento: string | null
+          dia_aniversario: number | null
+          email: string | null
+          mes_aniversario: number | null
+          nome: string | null
+          observacoes: string | null
+          parentesco: string | null
+          proximo_aniversario: string | null
+          telefone: string | null
+          tipo: string | null
+          usuario_id: string | null
+        }
+        Relationships: []
+      }
       vw_bank_differences: {
         Row: {
           amount: number | null
@@ -3694,6 +3837,21 @@ export type Database = {
           reason: string
           target_user_email: string
           target_user_id: string
+        }[]
+      }
+      get_aniversariantes_mes: {
+        Args: { mes_param?: number }
+        Returns: {
+          cliente_id: string
+          data_nascimento: string
+          dias_ate_aniversario: number
+          email: string
+          nome: string
+          observacoes: string
+          parentesco: string
+          proximo_aniversario: string
+          telefone: string
+          tipo: string
         }[]
       }
       get_cmv_anual: {

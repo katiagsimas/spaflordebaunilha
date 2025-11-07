@@ -32,6 +32,9 @@ export default function Clientes() {
   const [busca, setBusca] = useState("");
   const [porPagina, setPorPagina] = useState(10);
 
+  const [filtroSegmento, setFiltroSegmento] = useState("todos");
+  const [filtroOrigem, setFiltroOrigem] = useState("todos");
+
   const [formData, setFormData] = useState({
     nome: "",
     tipo: "PF",
@@ -45,6 +48,11 @@ export default function Clientes() {
     cidade: "",
     estado: "",
     observacoes: "",
+    como_conheceu: "",
+    preferencias_alergias: "",
+    segmento: "novo",
+    quantidade_pedidos: 0,
+    total_compras: 0,
   });
 
   useEffect(() => {
@@ -88,6 +96,11 @@ export default function Clientes() {
       cidade: "",
       estado: "",
       observacoes: "",
+      como_conheceu: "",
+      preferencias_alergias: "",
+      segmento: "novo",
+      quantidade_pedidos: 0,
+      total_compras: 0,
     });
     setEditingCliente(null);
     setIsDialogOpen(false);
@@ -150,10 +163,13 @@ export default function Clientes() {
     });
   }, [clientes]);
 
-  // Filtrar clientes por busca
-  const clientesFiltrados = clientes.filter(cliente =>
-    cliente.nome.toLowerCase().includes(busca.toLowerCase())
-  );
+  // Filtrar clientes por busca e filtros
+  const clientesFiltrados = clientes.filter(cliente => {
+    const matchBusca = cliente.nome.toLowerCase().includes(busca.toLowerCase());
+    const matchSegmento = filtroSegmento === "todos" || cliente.segmento === filtroSegmento;
+    const matchOrigem = filtroOrigem === "todos" || cliente.como_conheceu === filtroOrigem;
+    return matchBusca && matchSegmento && matchOrigem;
+  });
 
   // Paginação
   const clientesPaginados = clientesFiltrados.slice(0, porPagina);
@@ -192,6 +208,73 @@ export default function Clientes() {
         <Badge variant="secondary" className="text-sm px-3 py-1">
           {clientes.length} {clientes.length === 1 ? 'cliente cadastrado' : 'clientes cadastrados'}
         </Badge>
+      </div>
+
+      {/* Cards de Estatísticas por Segmento */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">VIP</p>
+                <p className="text-2xl font-bold">
+                  {clientes.filter(c => c.segmento === 'vip').length}
+                </p>
+              </div>
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="text-2xl">⭐</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Eventuais</p>
+                <p className="text-2xl font-bold">
+                  {clientes.filter(c => c.segmento === 'eventual').length}
+                </p>
+              </div>
+              <div className="h-12 w-12 rounded-full bg-blue-500/10 flex items-center justify-center">
+                <span className="text-2xl">🔄</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Novos</p>
+                <p className="text-2xl font-bold">
+                  {clientes.filter(c => c.segmento === 'novo').length}
+                </p>
+              </div>
+              <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center">
+                <span className="text-2xl">🌟</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Inativos</p>
+                <p className="text-2xl font-bold">
+                  {clientes.filter(c => c.segmento === 'inativo').length}
+                </p>
+              </div>
+              <div className="h-12 w-12 rounded-full bg-red-500/10 flex items-center justify-center">
+                <span className="text-2xl">😴</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {aniversariantesDoMes.length > 0 && (
@@ -381,11 +464,90 @@ export default function Clientes() {
                   </div>
                 </div>
 
+                {/* NOVO: Como Conheceu */}
+                <div className="space-y-2">
+                  <Label htmlFor="como_conheceu">Como Conheceu?</Label>
+                  <Select
+                    value={formData.como_conheceu || ''}
+                    onValueChange={(value) => 
+                      setFormData({ ...formData, como_conheceu: value })
+                    }
+                  >
+                    <SelectTrigger className="bg-background">
+                      <SelectValue placeholder="Selecione a origem..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      <SelectItem value="instagram">📱 Instagram</SelectItem>
+                      <SelectItem value="facebook">👥 Facebook</SelectItem>
+                      <SelectItem value="whatsapp">💬 WhatsApp</SelectItem>
+                      <SelectItem value="indicacao">🤝 Indicação</SelectItem>
+                      <SelectItem value="google">🔍 Google</SelectItem>
+                      <SelectItem value="evento">🎉 Evento</SelectItem>
+                      <SelectItem value="feira">🏪 Feira</SelectItem>
+                      <SelectItem value="cliente_antigo">🔄 Cliente Antigo</SelectItem>
+                      <SelectItem value="outro">📝 Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Como esse cliente conheceu seu negócio?
+                  </p>
+                </div>
+
+                {/* NOVO: Preferências e Alergias */}
+                <div className="space-y-2">
+                  <Label htmlFor="preferencias_alergias">
+                    Preferências e Alergias
+                  </Label>
+                  <Textarea
+                    id="preferencias_alergias"
+                    value={formData.preferencias_alergias || ''}
+                    onChange={(e) => 
+                      setFormData({ ...formData, preferencias_alergias: e.target.value })
+                    }
+                    placeholder="Ex: Alérgico a lactose, prefere chocolate meio amargo, não gosta de coco..."
+                    rows={4}
+                    className="resize-none"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Anote restrições alimentares, preferências de sabor ou qualquer informação importante
+                  </p>
+                </div>
+
+                {/* NOVO: Badge de Segmento (somente no modo edição) */}
+                {editingCliente && formData.segmento && (
+                  <div className="space-y-2">
+                    <Label>Segmento</Label>
+                    <div className="flex items-center gap-2">
+                      <Badge 
+                        variant={
+                          formData.segmento === 'vip' ? 'default' :
+                          formData.segmento === 'inativo' ? 'destructive' :
+                          formData.segmento === 'eventual' ? 'secondary' :
+                          'outline'
+                        }
+                        className="text-sm px-3 py-1"
+                      >
+                        {formData.segmento === 'vip' && '⭐ VIP'}
+                        {formData.segmento === 'eventual' && '🔄 Eventual'}
+                        {formData.segmento === 'novo' && '🌟 Novo'}
+                        {formData.segmento === 'inativo' && '😴 Inativo'}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {formData.quantidade_pedidos || 0} pedido(s) • 
+                        R$ {(formData.total_compras || 0).toFixed(2)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Segmento calculado automaticamente baseado no histórico
+                    </p>
+                  </div>
+                )}
+
                 <Collapsible open={observacoesOpen} onOpenChange={setObservacoesOpen}>
                   <CollapsibleTrigger asChild>
                     <Button type="button" variant="outline" className="w-full">
                       <ChevronDown className="h-4 w-4 mr-2" />
-                      Observações
+                      Observações Gerais
                     </Button>
                   </CollapsibleTrigger>
                   <CollapsibleContent className="mt-2">
@@ -413,7 +575,37 @@ export default function Clientes() {
         </CardHeader>
         
         {/* Card de Controles */}
-        <div className="px-6 pb-4">
+        <div className="px-6 pb-4 space-y-4">
+          {/* Filtros */}
+          <div className="flex gap-2 flex-wrap">
+            <Select value={filtroSegmento} onValueChange={setFiltroSegmento}>
+              <SelectTrigger className="w-[180px] bg-popover">
+                <SelectValue placeholder="Todos os segmentos" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="todos">Todos os segmentos</SelectItem>
+                <SelectItem value="vip">⭐ VIP</SelectItem>
+                <SelectItem value="eventual">🔄 Eventual</SelectItem>
+                <SelectItem value="novo">🌟 Novo</SelectItem>
+                <SelectItem value="inativo">😴 Inativo</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={filtroOrigem} onValueChange={setFiltroOrigem}>
+              <SelectTrigger className="w-[180px] bg-popover">
+                <SelectValue placeholder="Todas as origens" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="todos">Todas as origens</SelectItem>
+                <SelectItem value="instagram">📱 Instagram</SelectItem>
+                <SelectItem value="indicacao">🤝 Indicação</SelectItem>
+                <SelectItem value="google">🔍 Google</SelectItem>
+                <SelectItem value="evento">🎉 Evento</SelectItem>
+                <SelectItem value="outro">📝 Outro</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="flex items-center justify-between gap-4 p-4 bg-muted/30 rounded-lg">
             {/* Resultados por Página - Esquerda */}
             <div className="flex items-center gap-2">
@@ -477,6 +669,8 @@ export default function Clientes() {
                   <TableRow>
                     <TableHead>Nome</TableHead>
                     <TableHead>Tipo</TableHead>
+                    <TableHead>Segmento</TableHead>
+                    <TableHead>Origem</TableHead>
                     <TableHead>Telefone</TableHead>
                     <TableHead>E-mail</TableHead>
                     <TableHead>Aniversário</TableHead>
@@ -488,6 +682,41 @@ export default function Clientes() {
                     <TableRow key={cliente.id}>
                       <TableCell className="font-medium">{cliente.nome}</TableCell>
                       <TableCell>{cliente.tipo || "PF"}</TableCell>
+                      <TableCell>
+                        <Badge 
+                          variant={
+                            cliente.segmento === 'vip' ? 'default' :
+                            cliente.segmento === 'inativo' ? 'destructive' :
+                            cliente.segmento === 'eventual' ? 'secondary' :
+                            'outline'
+                          }
+                          className="text-xs"
+                        >
+                          {cliente.segmento === 'vip' && '⭐ VIP'}
+                          {cliente.segmento === 'eventual' && '🔄 Eventual'}
+                          {cliente.segmento === 'novo' && '🌟 Novo'}
+                          {cliente.segmento === 'inativo' && '😴 Inativo'}
+                          {!cliente.segmento && '🌟 Novo'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-xs text-muted-foreground">
+                          {cliente.como_conheceu && (
+                            <>
+                              {cliente.como_conheceu === 'instagram' && '📱 Instagram'}
+                              {cliente.como_conheceu === 'indicacao' && '🤝 Indicação'}
+                              {cliente.como_conheceu === 'google' && '🔍 Google'}
+                              {cliente.como_conheceu === 'evento' && '🎉 Evento'}
+                              {cliente.como_conheceu === 'facebook' && '👥 Facebook'}
+                              {cliente.como_conheceu === 'whatsapp' && '💬 WhatsApp'}
+                              {cliente.como_conheceu === 'feira' && '🏪 Feira'}
+                              {cliente.como_conheceu === 'cliente_antigo' && '🔄 Cliente Antigo'}
+                              {cliente.como_conheceu === 'outro' && '📝 Outro'}
+                            </>
+                          )}
+                          {!cliente.como_conheceu && '-'}
+                        </span>
+                      </TableCell>
                       <TableCell>{cliente.telefone}</TableCell>
                       <TableCell>{cliente.email || "-"}</TableCell>
                       <TableCell>
