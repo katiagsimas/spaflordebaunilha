@@ -18,6 +18,7 @@ import { formatPhone, formatCpfCnpj } from "@/lib/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Badge } from "@/components/ui/badge";
 import * as XLSX from 'xlsx';
+import { ContatosFornecedorManager } from '@/components/fornecedores/ContatosFornecedorManager';
 
 interface FormDataFornecedor {
   nome: string;
@@ -321,6 +322,14 @@ export default function Fornecedores() {
                     />
                   </CollapsibleContent>
                 </Collapsible>
+
+                {/* SEÇÃO DE CONTATOS ADICIONAIS */}
+                <div className="col-span-2 pt-2">
+                  <ContatosFornecedorManager 
+                    fornecedorId={editingId} 
+                    isNewFornecedor={!editingId}
+                  />
+                </div>
                 <div className="flex gap-2 justify-end">
                   <Button type="button" variant="outline" onClick={resetForm}>
                     Cancelar

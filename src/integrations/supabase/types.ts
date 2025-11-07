@@ -1931,6 +1931,66 @@ export type Database = {
         }
         Relationships: []
       }
+      fornecedor_contatos: {
+        Row: {
+          ativo: boolean | null
+          cargo: string | null
+          created_at: string | null
+          data_aniversario: string | null
+          email: string | null
+          fornecedor_id: string
+          id: string
+          nome: string
+          observacoes: string | null
+          telefone: string | null
+          updated_at: string | null
+          usuario_id: string
+        }
+        Insert: {
+          ativo?: boolean | null
+          cargo?: string | null
+          created_at?: string | null
+          data_aniversario?: string | null
+          email?: string | null
+          fornecedor_id: string
+          id?: string
+          nome: string
+          observacoes?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+          usuario_id: string
+        }
+        Update: {
+          ativo?: boolean | null
+          cargo?: string | null
+          created_at?: string | null
+          data_aniversario?: string | null
+          email?: string | null
+          fornecedor_id?: string
+          id?: string
+          nome?: string
+          observacoes?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_fornecedor_contato"
+            columns: ["fornecedor_id"]
+            isOneToOne: false
+            referencedRelation: "fornecedores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fornecedor_contatos_fornecedor_id_fkey"
+            columns: ["fornecedor_id"]
+            isOneToOne: false
+            referencedRelation: "fornecedores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fornecedores: {
         Row: {
           contato: string | null
@@ -3515,6 +3575,23 @@ export type Database = {
         }
         Relationships: []
       }
+      v_aniversariantes_fornecedores: {
+        Row: {
+          cargo: string | null
+          data_aniversario: string | null
+          dia_aniversario: number | null
+          email: string | null
+          fornecedor_id: string | null
+          mes_aniversario: number | null
+          nome: string | null
+          observacoes: string | null
+          proximo_aniversario: string | null
+          telefone: string | null
+          tipo: string | null
+          usuario_id: string | null
+        }
+        Relationships: []
+      }
       vw_bank_differences: {
         Row: {
           amount: number | null
@@ -3837,6 +3914,21 @@ export type Database = {
           reason: string
           target_user_email: string
           target_user_id: string
+        }[]
+      }
+      get_aniversariantes_fornecedores_mes: {
+        Args: { mes_param?: number }
+        Returns: {
+          cargo: string
+          data_aniversario: string
+          dias_ate_aniversario: number
+          email: string
+          fornecedor_id: string
+          nome: string
+          observacoes: string
+          proximo_aniversario: string
+          telefone: string
+          tipo: string
         }[]
       }
       get_aniversariantes_mes: {
