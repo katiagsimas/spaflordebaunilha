@@ -125,6 +125,84 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_access_tokens: {
+        Row: {
+          admin_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          reason: string
+          revoked_at: string | null
+          target_user_id: string
+          token: string
+        }
+        Insert: {
+          admin_id: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          reason: string
+          revoked_at?: string | null
+          target_user_id: string
+          token: string
+        }
+        Update: {
+          admin_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          reason?: string
+          revoked_at?: string | null
+          target_user_id?: string
+          token?: string
+        }
+        Relationships: []
+      }
+      admin_audit_log: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string
+          id: string
+          ip_address: unknown
+          module: string | null
+          new_value: Json | null
+          old_value: Json | null
+          reason: string | null
+          record_id: string | null
+          target_user_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown
+          module?: string | null
+          new_value?: Json | null
+          old_value?: Json | null
+          reason?: string | null
+          record_id?: string | null
+          target_user_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown
+          module?: string | null
+          new_value?: Json | null
+          old_value?: Json | null
+          reason?: string | null
+          record_id?: string | null
+          target_user_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       admin_logs: {
         Row: {
           acao: string
@@ -1375,6 +1453,33 @@ export type Database = {
           updated_at?: string
           usuario_id?: string
           valor?: number
+        }
+        Relationships: []
+      }
+      deleted_data_backup: {
+        Row: {
+          data: Json
+          deleted_at: string
+          deleted_by: string
+          id: string
+          permanent_delete_at: string
+          user_id: string
+        }
+        Insert: {
+          data: Json
+          deleted_at?: string
+          deleted_by: string
+          id?: string
+          permanent_delete_at: string
+          user_id: string
+        }
+        Update: {
+          data?: Json
+          deleted_at?: string
+          deleted_by?: string
+          id?: string
+          permanent_delete_at?: string
+          user_id?: string
         }
         Relationships: []
       }
