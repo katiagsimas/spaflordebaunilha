@@ -21,9 +21,9 @@ interface Aniversariante {
 interface WidgetAniversariantesProps {}
 
 export function WidgetAniversariantes({}: WidgetAniversariantesProps) {
-  // Buscar todos os aniversariantes desta semana
+  // Buscar todos os aniversariantes deste mês
   const { data: aniversariantes = [], isLoading } = useQuery({
-    queryKey: ['todos-aniversariantes-semana'],
+    queryKey: ['todos-aniversariantes-mes'],
     queryFn: async () => {
       const { data, error } = await supabase
         .rpc('get_todos_aniversariantes', { 
@@ -32,8 +32,8 @@ export function WidgetAniversariantes({}: WidgetAniversariantesProps) {
       
       if (error) throw error;
       
-      // Filtrar apenas os da semana (próximos 7 dias)
-      return (data || []).filter((aniv: Aniversariante) => aniv.dias_ate_aniversario <= 7);
+      // Retornar todos os aniversariantes do mês
+      return data || [];
     },
     refetchInterval: 60000 // Recarrega a cada 1 minuto
   });
@@ -94,7 +94,7 @@ export function WidgetAniversariantes({}: WidgetAniversariantesProps) {
       <CardContent>
         {aniversariantes.length === 0 ? (
           <p className="text-muted-foreground text-center py-4">
-            Nenhum aniversariante esta semana
+            Nenhum aniversariante este mês
           </p>
         ) : (
           <div className="space-y-3">
