@@ -163,12 +163,12 @@ export default function PlanoContas() {
       resultado = resultado.filter(p => p.ativo === ativo);
     }
 
-    // Tipo (usar padrao_sistema ao invés de e_padrao)
+    // Tipo (usar e_padrao)
     if (filtroTipo !== 'todos') {
       if (filtroTipo === 'padrao') {
-        resultado = resultado.filter(p => p.padrao_sistema === true);
+        resultado = resultado.filter(p => p.e_padrao === true);
       } else {
-        resultado = resultado.filter(p => p.padrao_sistema === false);
+        resultado = resultado.filter(p => p.e_padrao === false);
       }
     }
 
@@ -190,7 +190,7 @@ export default function PlanoContas() {
   const handleAbrirModal = async (plano = null) => {
     if (plano) {
       // Bloquear edição de contas padrão do sistema
-      if (plano.padrao_sistema) {
+      if (plano.e_padrao) {
         toast.error('Contas padrão do sistema não podem ser editadas. Use o botão de ativar/desativar.');
         return;
       }
@@ -342,9 +342,9 @@ export default function PlanoContas() {
     }
   };
 
-  const handleDeletar = async (id, ePadrao, padraoSistema) => {
+  const handleDeletar = async (id, ePadrao) => {
     try {
-      if (ePadrao || padraoSistema) {
+      if (ePadrao) {
         toast.error('Planos padrão do sistema não podem ser deletados. Use o botão de ativar/desativar.');
         return;
       }
@@ -355,8 +355,7 @@ export default function PlanoContas() {
         .from('plano_contas')
         .delete()
         .eq('id', id)
-        .eq('e_padrao', false)
-        .eq('padrao_sistema', false);
+        .eq('e_padrao', false);
 
       if (error) {
         if (error.code === '23503') {
@@ -376,7 +375,7 @@ export default function PlanoContas() {
   const handleExportar = () => {
     try {
       const dados = planosFiltrados.map(p => ({
-        'Tipo': p.padrao_sistema ? 'Sistema' : (p.e_padrao ? 'Padrão' : 'Customizado'),
+        'Tipo': p.e_padrao ? 'Padrão' : 'Customizado',
         'Código': p.codigo,
         'Código Estruturado': p.codigo_estruturado,
         'Descrição': p.descricao,
@@ -443,7 +442,7 @@ export default function PlanoContas() {
         <Alert className="bg-amber-50 border-amber-200">
           <Lock className="h-4 w-4 text-amber-600" />
           <AlertDescription>
-            <strong>{planos.filter(p => p.padrao_sistema).length} contas padrão do sistema</strong> estão disponíveis e protegidas. 
+            <strong>{planos.filter(p => p.e_padrao).length} contas padrão do sistema</strong> estão disponíveis e protegidas. 
             Você pode criar contas personalizadas conforme sua necessidade.
           </AlertDescription>
         </Alert>
@@ -634,11 +633,7 @@ export default function PlanoContas() {
                   className={!plano.ativo ? 'opacity-50 bg-muted/50' : ''}
                 >
                   <TableCell>
-                    {plano.padrao_sistema ? (
-                      <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">
-                        Sistema
-                      </Badge>
-                    ) : plano.e_padrao ? (
+                    {plano.e_padrao ? (
                       <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
                         Padrão
                       </Badge>
@@ -671,8 +666,8 @@ export default function PlanoContas() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
-                      {plano.padrao_sistema ? (
-                        // Apenas toggle ativo/inativo para contas padrão do sistema
+                      {plano.e_padrao ? (
+                        // Apenas toggle ativo/inativo para contas padrão
                         <Button
                           variant={plano.ativo ? "outline" : "default"}
                           size="sm"
@@ -721,7 +716,7 @@ export default function PlanoContas() {
                             {!plano.e_padrao && (
                               <DropdownMenuItem
                                 className="text-destructive"
-                                onClick={() => handleDeletar(plano.id, plano.e_padrao, plano.padrao_sistema)}
+                                onClick={() => handleDeletar(plano.id, plano.e_padrao)}
                               >
                                 <Trash2 className="h-4 w-4 mr-2" />
                                 Excluir
