@@ -448,6 +448,7 @@ export default function Fornecedores() {
             <ContatosFornecedorManager 
               fornecedorId={contatoFornecedorId}
               isNewFornecedor={false}
+              setIsContatoDialogOpen={setIsContatoDialogOpen}
             />
           )}
         </DialogContent>

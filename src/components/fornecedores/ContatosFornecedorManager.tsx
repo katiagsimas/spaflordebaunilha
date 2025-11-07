@@ -25,9 +25,10 @@ interface Contato {
 interface ContatosFornecedorManagerProps {
   fornecedorId: string | null;
   isNewFornecedor?: boolean;
+  setIsContatoDialogOpen?: (open: boolean) => void;
 }
 
-export function ContatosFornecedorManager({ fornecedorId, isNewFornecedor = false }: ContatosFornecedorManagerProps) {
+export function ContatosFornecedorManager({ fornecedorId, isNewFornecedor = false, setIsContatoDialogOpen }: ContatosFornecedorManagerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showAddAnotherDialog, setShowAddAnotherDialog] = useState(false);
@@ -153,6 +154,7 @@ export function ContatosFornecedorManager({ fornecedorId, isNewFornecedor = fals
     } else {
       limparFormulario();
       setIsOpen(false);
+      setIsContatoDialogOpen?.(false); // Fecha o dialog pai se existir
     }
   };
 

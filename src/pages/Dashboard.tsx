@@ -90,7 +90,7 @@ export default function Dashboard() {
       {/* Widgets Inferiores */}
       <div className="grid gap-4 md:grid-cols-2">
         <WidgetEntregas entregas={entregas} />
-        <WidgetAniversariantes aniversariantes={aniversariantes} />
+        <WidgetAniversariantes />
       </div>
     </div>
   );

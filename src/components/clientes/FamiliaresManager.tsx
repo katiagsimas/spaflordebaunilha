@@ -25,9 +25,10 @@ interface Familiar {
 interface FamiliaresManagerProps {
   clienteId: string | null;
   isNewCliente?: boolean;
+  setIsFamiliarDialogOpen?: (open: boolean) => void;
 }
 
-export function FamiliaresManager({ clienteId, isNewCliente = false }: FamiliaresManagerProps) {
+export function FamiliaresManager({ clienteId, isNewCliente = false, setIsFamiliarDialogOpen }: FamiliaresManagerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showAddAnotherDialog, setShowAddAnotherDialog] = useState(false);
@@ -139,6 +140,7 @@ export function FamiliaresManager({ clienteId, isNewCliente = false }: Familiare
   const handleFinish = () => {
     setShowAddAnotherDialog(false);
     setIsOpen(false);
+    setIsFamiliarDialogOpen?.(false); // Fecha o dialog pai se existir
   };
 
   const editarFamiliar = (familiar: any) => {

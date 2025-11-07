@@ -872,6 +872,7 @@ export default function Clientes() {
             <FamiliaresManager 
               clienteId={familiarClienteId}
               isNewCliente={false}
+              setIsFamiliarDialogOpen={setIsFamiliarDialogOpen}
             />
           )}
         </DialogContent>
