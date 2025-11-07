@@ -3817,6 +3817,10 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
+      deletar_cadastros_seletivo: {
+        Args: { p_selecao: Json; p_user_id: string }
+        Returns: Json
+      }
       deletar_cadastros_usuario: {
         Args: { p_user_id: string }
         Returns: undefined
