@@ -10,10 +10,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useFornecedores } from "@/hooks/useFornecedores";
-import { Plus, Pencil, Trash2, Truck, Cake, Search, Download } from "lucide-react";
+import { Plus, Pencil, Trash2, Truck, Cake, Search, Download, MoreVertical, UserPlus } from "lucide-react";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
@@ -39,6 +40,8 @@ export default function Fornecedores() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [busca, setBusca] = useState("");
   const [porPagina, setPorPagina] = useState(10);
+  const [contatoFornecedorId, setContatoFornecedorId] = useState<string | null>(null);
+  const [isContatoDialogOpen, setIsContatoDialogOpen] = useState(false);
 
   const [formData, setFormData] = useState<FormDataFornecedor>({
     nome: "",
@@ -105,6 +108,11 @@ export default function Fornecedores() {
 
   const handleEdit = (id: string) => {
     setEditingId(id);
+  };
+
+  const handleAdicionarContato = (fornecedorId: string) => {
+    setContatoFornecedorId(fornecedorId);
+    setIsContatoDialogOpen(true);
   };
 
   // Buscar aniversariantes do mês (agora dos contatos)
@@ -388,22 +396,30 @@ export default function Fornecedores() {
                       <TableCell>{fornecedor.telefone || "-"}</TableCell>
                       <TableCell>{fornecedor.email || "-"}</TableCell>
                       <TableCell className="text-right">
-                        <div className="flex gap-2 justify-end">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEdit(fornecedor.id)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setDeleteId(fornecedor.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleEdit(fornecedor.id)}>
+                              <Pencil className="h-4 w-4 mr-2" />
+                              Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAdicionarContato(fornecedor.id)}>
+                              <UserPlus className="h-4 w-4 mr-2" />
+                              Adicionar Contato
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => setDeleteId(fornecedor.id)}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Excluir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -421,6 +437,21 @@ export default function Fornecedores() {
         title="Excluir Fornecedor"
         description="Tem certeza que deseja excluir este fornecedor? Esta ação não pode ser desfeita."
       />
+
+      {/* Dialog para adicionar contato */}
+      <Dialog open={isContatoDialogOpen} onOpenChange={setIsContatoDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Gerenciar Contatos do Fornecedor</DialogTitle>
+          </DialogHeader>
+          {contatoFornecedorId && (
+            <ContatosFornecedorManager 
+              fornecedorId={contatoFornecedorId}
+              isNewFornecedor={false}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
