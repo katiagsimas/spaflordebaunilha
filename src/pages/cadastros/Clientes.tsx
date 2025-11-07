@@ -20,6 +20,9 @@ import { toast } from "sonner";
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import * as XLSX from 'xlsx';
+import { FamiliaresManager } from "@/components/clientes/FamiliaresManager";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Clientes() {
   const navigate = useNavigate();
@@ -34,6 +37,20 @@ export default function Clientes() {
 
   const [filtroSegmento, setFiltroSegmento] = useState("todos");
   const [filtroOrigem, setFiltroOrigem] = useState("todos");
+
+  // Query para aniversariantes do mês
+  const { data: aniversariantes } = useQuery({
+    queryKey: ['aniversariantes-mes'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .rpc('get_aniversariantes_mes', { 
+          mes_param: new Date().getMonth() + 1 
+        });
+      
+      if (error) throw error;
+      return data || [];
+    }
+  });
 
   const [formData, setFormData] = useState({
     nome: "",
@@ -276,6 +293,62 @@ export default function Clientes() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Card de Aniversariantes do Mês */}
+      {aniversariantes && aniversariantes.length > 0 && (
+        <Card className="bg-gradient-to-r from-pink-50 to-purple-50 border-pink-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Cake className="h-5 w-5 text-pink-600" />
+              Aniversariantes do Mês
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {aniversariantes.slice(0, 5).map((aniv: any) => (
+                <div 
+                  key={`${aniv.tipo}-${aniv.cliente_id}`}
+                  className="flex items-center justify-between p-3 bg-white rounded-lg border"
+                >
+                  <div className="flex items-center gap-3">
+                    {aniv.tipo === 'cliente' ? (
+                      <div className="h-10 w-10 rounded-full bg-pink-100 flex items-center justify-center">
+                        👤
+                      </div>
+                    ) : (
+                      <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                        👶
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-medium">{aniv.nome}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {aniv.tipo === 'familiar' && aniv.parentesco && `${aniv.parentesco} • `}
+                        {new Date(aniv.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR', {
+                          day: '2-digit',
+                          month: 'long'
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                  <Badge 
+                    variant={aniv.dias_ate_aniversario <= 7 ? 'default' : 'secondary'}
+                  >
+                    {aniv.dias_ate_aniversario === 0 ? '🎉 HOJE!' :
+                     aniv.dias_ate_aniversario === 1 ? '⭐ Amanhã' :
+                     `${aniv.dias_ate_aniversario} dias`}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+            {aniversariantes.length > 5 && (
+              <p className="text-sm text-muted-foreground mt-3 text-center">
+                + {aniversariantes.length - 5} aniversariantes este mês
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {aniversariantesDoMes.length > 0 && (
         <div className="space-y-2">
@@ -542,6 +615,14 @@ export default function Clientes() {
                     </p>
                   </div>
                 )}
+
+                {/* SEÇÃO DE FAMILIARES */}
+                <div className="col-span-2">
+                  <FamiliaresManager 
+                    clienteId={editingCliente?.id || null} 
+                    isNewCliente={!editingCliente}
+                  />
+                </div>
 
                 <Collapsible open={observacoesOpen} onOpenChange={setObservacoesOpen}>
                   <CollapsibleTrigger asChild>
