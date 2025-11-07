@@ -132,6 +132,48 @@ export default function Bancos() {
         e_customizado: false,
       }));
       
+      // Se não há bancos, criar automaticamente o "Caixa Empresa"
+      if (!bancosFormatados || bancosFormatados.length === 0) {
+        console.log('Nenhum banco encontrado. Criando "Caixa Empresa" automaticamente...');
+        
+        const { error: insertError } = await supabase
+          .from('bancos')
+          .insert({
+            usuario_id: user.id,
+            codigo: '000',
+            nome: 'Caixa Empresa',
+            tipo: 'Caixa',
+            saldo_inicial: 0,
+            e_banco_oficial: true,
+            e_customizado: false,
+          });
+        
+        if (insertError) {
+          console.error('Erro ao criar Caixa Empresa:', insertError);
+        } else {
+          console.log('Caixa Empresa criado com sucesso!');
+          // Recarregar bancos
+          const { data: novosData } = await supabase
+            .from('bancos')
+            .select('id, codigo, nome, tipo')
+            .eq('usuario_id', user.id)
+            .order('codigo');
+          
+          if (novosData) {
+            const novosBancosFormatados = novosData.map(b => ({
+              id: b.id,
+              codigo: b.codigo,
+              nome: b.nome,
+              tipo: b.tipo,
+              e_banco_oficial: false,
+              e_customizado: false,
+            }));
+            setBancos(novosBancosFormatados);
+            return;
+          }
+        }
+      }
+      
       setBancos(bancosFormatados);
     } catch (error) {
       console.error('Erro ao buscar bancos:', error);
