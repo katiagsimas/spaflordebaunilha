@@ -58,6 +58,12 @@ export default function Clientes() {
     }
   });
 
+  // Filtrar apenas familiares aniversariantes do mês
+  const familiaresAniversariantes = useMemo(() => {
+    if (!aniversariantes) return [];
+    return aniversariantes.filter((aniv: any) => aniv.tipo === 'familiar');
+  }, [aniversariantes]);
+
   const [formData, setFormData] = useState({
     nome: "",
     tipo: "PF",
@@ -312,6 +318,60 @@ export default function Clientes() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Alerta de Familiares Aniversariantes */}
+      {familiaresAniversariantes.length > 0 && (
+        <Card className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border-2 border-purple-300 dark:border-purple-700">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
+              <Users className="h-5 w-5 animate-pulse" />
+              🎂 Alerta: Familiares Aniversariantes do Mês!
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              {familiaresAniversariantes.length} {familiaresAniversariantes.length === 1 ? 'familiar faz' : 'familiares fazem'} aniversário este mês. Não esqueça de parabenizar!
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {familiaresAniversariantes.slice(0, 4).map((familiar: any) => {
+                const cliente = clientes.find(c => c.id === familiar.cliente_id);
+                return (
+                  <div
+                    key={`alerta-${familiar.cliente_id}-${familiar.nome}`}
+                    className="p-3 bg-white dark:bg-gray-900 rounded-lg border-2 border-purple-200 dark:border-purple-800 hover:shadow-md transition-all"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-2xl">👶</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm truncate">{familiar.nome}</p>
+                        <p className="text-xs text-purple-600 dark:text-purple-400 truncate">
+                          {familiar.parentesco} de {cliente?.nome || 'N/A'}
+                        </p>
+                      </div>
+                      <Badge variant={familiar.dias_ate_aniversario <= 7 ? 'default' : 'secondary'}>
+                        {familiar.dias_ate_aniversario === 0 ? '🎉 HOJE!' :
+                         familiar.dias_ate_aniversario === 1 ? '⭐ Amanhã' :
+                         `${familiar.dias_ate_aniversario} dias`}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(familiar.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: 'long'
+                      })}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+            {familiaresAniversariantes.length > 4 && (
+              <p className="text-xs text-center text-muted-foreground mt-3">
+                + {familiaresAniversariantes.length - 4} familiares aniversariantes este mês
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Card de Aniversariantes do Mês - Clientes e Familiares */}
       {aniversariantes && aniversariantes.length > 0 && (
