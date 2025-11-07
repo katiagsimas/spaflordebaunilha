@@ -4027,13 +4027,16 @@ export type Database = {
         Returns: number
       }
       get_todos_aniversariantes: {
-        Args: { p_tenant_id: string }
+        Args: { mes_param?: number }
         Returns: {
-          cliente_nome: string
           data_aniversario: string
           dias_ate_aniversario: number
+          email: string
           id: string
           nome: string
+          observacoes: string
+          proximo_aniversario: string
+          referencia: string
           telefone: string
           tipo: string
         }[]
