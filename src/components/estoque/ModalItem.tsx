@@ -44,69 +44,23 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
     setLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      // Validar campos obrigatórios
+      if (!formData.nome || !formData.tipo || !formData.unidade_base || formData.rastrear_estoque === undefined) {
         toast({
           title: "Erro",
-          description: "Usuário não autenticado",
+          description: "Preencha todos os campos obrigatórios",
           variant: "destructive",
         });
+        setLoading(false);
         return;
       }
 
-      if (item?.id) {
-        // Atualizar item existente
-        const { error } = await supabase
-          .from('itens')
-          .update({
-            ...formData,
-            atualizado_em: new Date().toISOString(),
-          })
-          .eq('id', item.id);
+      // Usar a função onSave passada como prop que irá chamar criarItem ou atualizarItem
+      const result = await onSave(formData);
 
-        if (error) throw error;
-
-        toast({
-          title: "Item atualizado!",
-          description: "As alterações foram salvas com sucesso.",
-        });
-      } else {
-        // Criar novo item - validar campos obrigatórios
-        if (!formData.nome || !formData.tipo || !formData.unidade_base || formData.rastrear_estoque === undefined) {
-          toast({
-            title: "Erro",
-            description: "Preencha todos os campos obrigatórios",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        const { error } = await supabase
-          .from('itens')
-          .insert([{
-            nome: formData.nome,
-            tipo: formData.tipo,
-            marca: formData.marca,
-            unidade_base: formData.unidade_base,
-            quantidade_por_embalagem: formData.quantidade_por_embalagem || 1,
-            categoria: formData.categoria,
-            rastrear_estoque: formData.rastrear_estoque,
-            ponto_de_pedido: formData.ponto_de_pedido,
-            localizacao: formData.localizacao,
-            observacoes: formData.observacoes,
-            usuario_id: user.id,
-            ativo: true,
-          }]);
-
-        if (error) throw error;
-
-        toast({
-          title: "Item criado!",
-          description: `${formData.nome} foi adicionado ao catálogo.`,
-        });
+      if (result.success) {
+        onOpenChange(false);
       }
-
-      onOpenChange(false);
     } catch (error: any) {
       console.error('Erro ao salvar item:', error);
       toast({
