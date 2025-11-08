@@ -20,6 +20,7 @@ interface ModalMovimentacaoProps {
 
 export function ModalMovimentacao({ aberto, onFechar, onSucesso }: ModalMovimentacaoProps) {
   const [busca, setBusca] = useState('');
+  const [todosItens, setTodosItens] = useState<ItemComEstoque[]>([]);
   const [itemEncontrado, setItemEncontrado] = useState<ItemComEstoque | null>(null);
   const [buscando, setBuscando] = useState(false);
   const [tipoMovimento, setTipoMovimento] = useState<'entrada' | 'saida'>('entrada');
@@ -28,20 +29,96 @@ export function ModalMovimentacao({ aberto, onFechar, onSucesso }: ModalMoviment
   const [observacao, setObservacao] = useState('');
   const [salvando, setSalvando] = useState(false);
   const [modalCadastroAberto, setModalCadastroAberto] = useState(false);
+  const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
   const { toast } = useToast();
+
+  // Carregar todos os itens ao abrir o modal
+  useEffect(() => {
+    if (aberto) {
+      carregarTodosItens();
+    } else {
+      // Reset ao fechar
+      setBusca('');
+      setItemEncontrado(null);
+      setQuantidade('');
+      setValorTotal('');
+      setObservacao('');
+      setMostrarSugestoes(false);
+    }
+  }, [aberto]);
 
   // Buscar item ao digitar (com debounce)
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (busca.length >= 3) {
+      if (busca.length >= 2) {
         buscarItem();
       } else {
         setItemEncontrado(null);
       }
-    }, 500);
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [busca]);
+
+  const carregarTodosItens = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: itensData, error } = await supabase
+        .from('itens')
+        .select('*')
+        .eq('usuario_id', user.id)
+        .eq('ativo', true)
+        .eq('rastrear_estoque', true)
+        .order('nome');
+
+      if (error) throw error;
+
+      // Carregar preços e estoques para todos os itens
+      const itensCompletos = await Promise.all(
+        (itensData || []).map(async (item) => {
+          const { data: precoData } = await supabase
+            .from('precos')
+            .select('*')
+            .eq('item_id', item.id)
+            .eq('ativo', true)
+            .maybeSingle();
+
+          const { data: estoqueData } = await supabase
+            .from('estoque_atual_v2')
+            .select('*')
+            .eq('item_id', item.id)
+            .maybeSingle();
+
+          return {
+            ...item,
+            tipo: item.tipo as 'ingrediente' | 'embalagem',
+            unidade_base: item.unidade_base as any,
+            conversoes: item.conversoes as any,
+            preco_ativo: precoData || undefined,
+            estoque: estoqueData ? {
+              item_id: estoqueData.item_id || '',
+              usuario_id: estoqueData.usuario_id || '',
+              nome: item.nome,
+              tipo: item.tipo as 'ingrediente' | 'embalagem',
+              categoria: item.categoria,
+              unidade_base: item.unidade_base,
+              ponto_de_pedido: item.ponto_de_pedido,
+              saldo: estoqueData.saldo || 0,
+              custo_medio: estoqueData.custo_medio || 0,
+              valor_estoque: estoqueData.valor_estoque || 0,
+              ultima_movimentacao: estoqueData.ultima_movimentacao
+            } : undefined
+          } as ItemComEstoque;
+        })
+      );
+
+      setTodosItens(itensCompletos);
+    } catch (error) {
+      console.error('Erro ao carregar itens:', error);
+    }
+  };
 
   const buscarItem = async () => {
     try {
@@ -101,6 +178,7 @@ export function ModalMovimentacao({ aberto, onFechar, onSucesso }: ModalMoviment
         };
         
         setItemEncontrado(itemCompleto);
+        setMostrarSugestoes(false);
       } else {
         setItemEncontrado(null);
       }
@@ -110,6 +188,18 @@ export function ModalMovimentacao({ aberto, onFechar, onSucesso }: ModalMoviment
       setBuscando(false);
     }
   };
+
+  const selecionarItem = (item: ItemComEstoque) => {
+    setItemEncontrado(item);
+    setBusca(item.nome);
+    setMostrarSugestoes(false);
+  };
+
+  const itensFiltrados = busca.length >= 2
+    ? todosItens.filter(item => 
+        item.nome.toLowerCase().includes(busca.toLowerCase())
+      )
+    : todosItens;
 
   const calcularNovoPrecoUnitario = () => {
     const qtd = parseFloat(quantidade);
@@ -176,11 +266,6 @@ export function ModalMovimentacao({ aberto, onFechar, onSucesso }: ModalMoviment
           });
       }
 
-      toast({
-        title: "Movimentação registrada!",
-        description: `${tipoMovimento === 'entrada' ? 'Entrada' : 'Saída'} de ${qtd} ${itemEncontrado.unidade_base} registrada com sucesso.`,
-      });
-
       // Resetar formulário
       setBusca('');
       setItemEncontrado(null);
@@ -188,7 +273,16 @@ export function ModalMovimentacao({ aberto, onFechar, onSucesso }: ModalMoviment
       setValorTotal('');
       setObservacao('');
 
-      if (onSucesso) onSucesso();
+      // Chamar onSucesso para atualizar a listagem
+      if (onSucesso) {
+        await onSucesso();
+      }
+
+      toast({
+        title: "Movimentação registrada!",
+        description: `${tipoMovimento === 'entrada' ? 'Entrada' : 'Saída'} de ${qtd} ${itemEncontrado.unidade_base} registrada com sucesso.`,
+      });
+
       onFechar();
     } catch (error: any) {
       console.error('Erro ao registrar movimentação:', error);
@@ -214,7 +308,7 @@ export function ModalMovimentacao({ aberto, onFechar, onSucesso }: ModalMoviment
           </DialogHeader>
 
           <div className="space-y-4">
-            {/* Campo de busca */}
+            {/* Campo de busca com autocomplete */}
             <div className="space-y-2">
               <Label htmlFor="busca">Buscar Item</Label>
               <div className="relative">
@@ -222,8 +316,12 @@ export function ModalMovimentacao({ aberto, onFechar, onSucesso }: ModalMoviment
                 <Input
                   id="busca"
                   value={busca}
-                  onChange={(e) => setBusca(e.target.value)}
-                  placeholder="Digite o nome do item..."
+                  onChange={(e) => {
+                    setBusca(e.target.value);
+                    setMostrarSugestoes(true);
+                  }}
+                  onFocus={() => setMostrarSugestoes(true)}
+                  placeholder="Digite o nome do item ou clique para ver todos..."
                   className="pl-10"
                   autoFocus
                 />
@@ -232,18 +330,42 @@ export function ModalMovimentacao({ aberto, onFechar, onSucesso }: ModalMoviment
                     Buscando...
                   </span>
                 )}
+
+                {/* Lista de sugestões */}
+                {mostrarSugestoes && !itemEncontrado && itensFiltrados.length > 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-auto">
+                    {itensFiltrados.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => selecionarItem(item)}
+                        className="w-full px-4 py-2 text-left hover:bg-muted flex items-center justify-between border-b last:border-b-0"
+                      >
+                        <div>
+                          <div className="font-medium">{item.nome}</div>
+                          {item.marca && (
+                            <div className="text-xs text-muted-foreground">{item.marca}</div>
+                          )}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {item.estoque?.saldo?.toFixed(2) || '0'} {item.unidade_base}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Item não encontrado */}
-            {busca.length >= 3 && !itemEncontrado && !buscando && (
+            {busca.length >= 2 && !itemEncontrado && !buscando && itensFiltrados.length === 0 && !mostrarSugestoes && (
               <Alert>
                 <AlertDescription className="flex items-center justify-between">
-                  <span>⚠️ Item não cadastrado</span>
+                  <span>⚠️ Item não encontrado</span>
                   <Button
                     size="sm"
                     onClick={() => {
                       setModalCadastroAberto(true);
+                      setMostrarSugestoes(false);
                     }}
                   >
                     <Plus className="mr-2 h-4 w-4" />
@@ -424,10 +546,23 @@ export function ModalMovimentacao({ aberto, onFechar, onSucesso }: ModalMoviment
       {/* Modal de cadastro caso item não exista */}
       <ModalItem
         open={modalCadastroAberto}
-        onOpenChange={setModalCadastroAberto}
-        onSave={async () => {
+        onOpenChange={(open) => {
+          setModalCadastroAberto(open);
+          if (!open) {
+            // Ao fechar o modal de cadastro, recarregar todos os itens
+            carregarTodosItens();
+          }
+        }}
+        onSave={async (item) => {
           setModalCadastroAberto(false);
-          setBusca('');
+          // Recarregar lista de itens
+          await carregarTodosItens();
+          // Se o item foi criado com rastreamento, selecionar automaticamente
+          if (item.rastrear_estoque && item.nome) {
+            setBusca(item.nome);
+            // Buscar o item recém-criado
+            setTimeout(() => buscarItem(), 500);
+          }
           return { success: true };
         }}
       />

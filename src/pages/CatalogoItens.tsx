@@ -215,10 +215,8 @@ export default function CatalogoItens() {
                       <TableCell>
                         <div>
                           <div className="font-medium">{item.nome}</div>
-                          {item.categoria && (
-                            <Badge variant="outline" className="mt-1 text-xs">
-                              {item.categoria}
-                            </Badge>
+                          {item.marca && (
+                            <div className="text-sm text-muted-foreground mt-1">{item.marca}</div>
                           )}
                         </div>
                       </TableCell>
