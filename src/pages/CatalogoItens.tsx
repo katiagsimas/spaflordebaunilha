@@ -184,7 +184,7 @@ export default function CatalogoItens() {
         <CardContent className="space-y-4">
           {/* Controles de Filtro */}
           <div className="flex flex-col lg:flex-row gap-3">
-            <div className="flex-1 relative">
+            <div className="flex-1 relative max-w-xs">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar por nome..."
@@ -195,7 +195,7 @@ export default function CatalogoItens() {
             </div>
 
             <Select value={filtroTipo} onValueChange={setFiltroTipo}>
-              <SelectTrigger className="w-full lg:w-[180px]">
+              <SelectTrigger className="w-full lg:w-[160px]">
                 <SelectValue placeholder="Tipo" />
               </SelectTrigger>
               <SelectContent>
@@ -206,7 +206,7 @@ export default function CatalogoItens() {
             </Select>
 
             <Select value={filtroCategoria} onValueChange={setFiltroCategoria}>
-              <SelectTrigger className="w-full lg:w-[180px]">
+              <SelectTrigger className="w-full lg:w-[160px]">
                 <SelectValue placeholder="Categoria" />
               </SelectTrigger>
               <SelectContent>
@@ -220,7 +220,7 @@ export default function CatalogoItens() {
             </Select>
 
             <Select value={filtroStatus} onValueChange={setFiltroStatus}>
-              <SelectTrigger className="w-full lg:w-[180px]">
+              <SelectTrigger className="w-full lg:w-[150px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -234,21 +234,21 @@ export default function CatalogoItens() {
             </Select>
 
             <Button
-              variant="outline"
+              variant="ghost"
               onClick={limparFiltros}
               className="w-full lg:w-auto"
             >
               <X className="mr-2 h-4 w-4" />
-              Limpar
+              Limpar Filtros
             </Button>
 
             <Button
               variant="outline"
               onClick={exportarParaExcel}
-              className="w-full lg:w-auto"
+              className="w-full lg:w-auto lg:min-w-[180px]"
             >
               <FileDown className="mr-2 h-4 w-4" />
-              Excel
+              Exportar para Excel
             </Button>
           </div>
 
