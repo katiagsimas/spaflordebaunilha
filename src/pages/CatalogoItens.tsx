@@ -6,8 +6,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Filter, Package, MoreVertical, Pencil, Trash2, X, FileDown } from "lucide-react";
+import { Plus, Search, Filter, Package, MoreVertical, Pencil, Trash2, X, FileDown, Check, ChevronsUpDown } from "lucide-react";
 import * as XLSX from 'xlsx';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +32,7 @@ import { useCategoriasEstoque } from "@/hooks/useCategoriasEstoque";
 
 export default function CatalogoItens() {
   const [busca, setBusca] = useState("");
+  const [openCombobox, setOpenCombobox] = useState(false);
   const [filtroTipo, setFiltroTipo] = useState<string>("todos");
   const [filtroCategoria, setFiltroCategoria] = useState<string>("todos");
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
@@ -67,6 +71,7 @@ export default function CatalogoItens() {
     setFiltroTipo("todos");
     setFiltroCategoria("todos");
     setFiltroStatus("todos");
+    setOpenCombobox(false);
   };
 
   const exportarParaExcel = () => {
@@ -184,15 +189,62 @@ export default function CatalogoItens() {
         <CardContent className="space-y-4">
           {/* Controles de Filtro */}
           <div className="flex flex-col lg:flex-row gap-3">
-            <div className="flex-1 relative max-w-xs">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por nome..."
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-                className="pl-9"
-              />
-            </div>
+            <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={openCombobox}
+                  className="w-full lg:max-w-xs justify-between text-left font-normal"
+                  onMouseEnter={() => setOpenCombobox(true)}
+                >
+                  {busca ? (
+                    <span className="truncate">{busca}</span>
+                  ) : (
+                    <span className="text-muted-foreground">Buscar por nome...</span>
+                  )}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[300px] p-0" align="start">
+                <Command>
+                  <CommandInput 
+                    placeholder="Digite para buscar..." 
+                    value={busca}
+                    onValueChange={setBusca}
+                  />
+                  <CommandList>
+                    <CommandEmpty>Nenhum item encontrado.</CommandEmpty>
+                    <CommandGroup>
+                      {itens.map((item) => (
+                        <CommandItem
+                          key={item.id}
+                          value={item.nome}
+                          onSelect={(currentValue) => {
+                            setBusca(currentValue === busca ? "" : currentValue);
+                            setOpenCombobox(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              busca === item.nome ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          <div className="flex-1">
+                            <div className="font-medium">{item.nome}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {item.tipo === 'ingrediente' ? '🧈 Ingrediente' : '📦 Embalagem'}
+                              {item.categoria && ` • ${item.categoria}`}
+                            </div>
+                          </div>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
 
             <Select value={filtroTipo} onValueChange={setFiltroTipo}>
               <SelectTrigger className="w-full lg:w-[160px]">
