@@ -198,7 +198,7 @@ export default function CatalogoItens() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               {/* Busca por Nome */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Busca</Label>
+                <Label className="text-sm font-medium">Nome</Label>
                 <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
                   <PopoverTrigger asChild>
                     <Button
@@ -211,7 +211,7 @@ export default function CatalogoItens() {
                       {busca ? (
                         <span className="truncate">{busca}</span>
                       ) : (
-                        <span className="text-muted-foreground">Buscar por nome...</span>
+                        <span className="text-muted-foreground">nome</span>
                       )}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
@@ -324,39 +324,6 @@ export default function CatalogoItens() {
               </div>
             </div>
 
-            {/* Contador e Exportação */}
-            <div className="flex items-center justify-between pt-2 border-t">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Mostrar:</span>
-                <Select
-                  value={itensPorPagina.toString()}
-                  onValueChange={(value) => setItensPorPagina(value === "0" ? 0 : parseInt(value))}
-                >
-                  <SelectTrigger className="w-[120px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="10">10 linhas</SelectItem>
-                    <SelectItem value="25">25 linhas</SelectItem>
-                    <SelectItem value="50">50 linhas</SelectItem>
-                    <SelectItem value="100">100 linhas</SelectItem>
-                    <SelectItem value="0">Todos</SelectItem>
-                  </SelectContent>
-                </Select>
-                <span className="text-sm text-muted-foreground">
-                  Mostrando {itensPorPagina === 0 ? itens.length : Math.min(itensPorPagina, itens.length)} de {itens.length} item(ns)
-                </span>
-              </div>
-              
-              <Button
-                variant="outline"
-                onClick={exportarParaExcel}
-                size="sm"
-              >
-                <FileDown className="mr-2 h-4 w-4" />
-                Exportar Excel
-              </Button>
-            </div>
           </div>
 
           {/* Seletor de itens por página */}
@@ -382,6 +349,15 @@ export default function CatalogoItens() {
                 {itensPorPagina === 0 ? `Exibindo ${itens.length}` : `Exibindo ${Math.min(itensPorPagina, itens.length)}`} de {itens.length} itens
               </span>
             </div>
+            <Button
+              variant="outline"
+              onClick={exportarParaExcel}
+              size="sm"
+              className="min-w-[180px]"
+            >
+              <FileDown className="mr-2 h-4 w-4" />
+              Exportar para Excel
+            </Button>
           </div>
 
           {/* Tabela de Itens */}
