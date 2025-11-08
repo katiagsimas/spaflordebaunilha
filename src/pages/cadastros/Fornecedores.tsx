@@ -144,7 +144,8 @@ export default function Fornecedores() {
             {aniversariantesDoMes.map((aniversariante: any) => (
               <Card 
                 key={aniversariante.fornecedor_id + '-' + aniversariante.nome}
-                className="bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 dark:from-purple-500/20 dark:via-pink-500/20 dark:to-orange-500/20 border-2 border-purple-300/50 dark:border-purple-500/50 hover:shadow-lg transition-all duration-300"
+                className="bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 dark:from-purple-500/20 dark:via-pink-500/20 dark:to-orange-500/20 border-2 border-purple-300/50 dark:border-purple-500/50 hover:shadow-lg transition-all duration-300 cursor-pointer"
+                onClick={() => handleEdit(aniversariante.fornecedor_id)}
               >
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">

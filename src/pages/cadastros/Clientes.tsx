@@ -376,7 +376,13 @@ export default function Clientes() {
             {familiaresAniversariantesDoMes.map((familiar: any) => (
               <Card 
                 key={familiar.id}
-                className="bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 dark:from-purple-500/20 dark:via-pink-500/20 dark:to-orange-500/20 border-2 border-purple-300/50 dark:border-purple-500/50 hover:shadow-lg transition-all duration-300"
+                className="bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 dark:from-purple-500/20 dark:via-pink-500/20 dark:to-orange-500/20 border-2 border-purple-300/50 dark:border-purple-500/50 hover:shadow-lg transition-all duration-300 cursor-pointer"
+                onClick={() => {
+                  const cliente = clientes.find(c => c.id === familiar.cliente_id);
+                  if (cliente) {
+                    handleEdit(cliente);
+                  }
+                }}
               >
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
