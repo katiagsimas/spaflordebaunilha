@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar, TrendingUp, TrendingDown, Wallet, Save } from "lucide-react";
@@ -132,36 +132,44 @@ export function ResumoEstoqueMensal() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
       {/* Ano Atual */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Ano Atual</p>
-              <p className="text-2xl font-bold">{dados.ano}</p>
+      <Card className="group hover:shadow-lg transition-all duration-200 border-l-4 border-l-slate-500">
+        <CardHeader className="p-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 flex items-center justify-center shrink-0">
+              <Calendar className="h-4 w-4" />
             </div>
-            <Calendar className="h-8 w-8 text-muted-foreground" />
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-sm font-semibold text-muted-foreground mb-0.5">
+                Ano Atual
+              </CardTitle>
+              <p className="text-xl font-bold truncate">{dados.ano}</p>
+            </div>
           </div>
-        </CardContent>
+        </CardHeader>
       </Card>
 
       {/* Mês Atual */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Mês Atual</p>
-              <p className="text-xl font-bold capitalize">{nomeMes}</p>
+      <Card className="group hover:shadow-lg transition-all duration-200 border-l-4 border-l-slate-500">
+        <CardHeader className="p-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 flex items-center justify-center shrink-0">
+              <Calendar className="h-4 w-4" />
             </div>
-            <Calendar className="h-8 w-8 text-muted-foreground" />
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-sm font-semibold text-muted-foreground mb-0.5">
+                Mês Atual
+              </CardTitle>
+              <p className="text-lg font-bold capitalize truncate">{nomeMes}</p>
+            </div>
           </div>
-        </CardContent>
+        </CardHeader>
       </Card>
 
       {/* Saldo Inicial */}
-      <Card>
-        <CardContent className="pt-6">
+      <Card className="group hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500">
+        <CardHeader className="p-3">
           {editandoSaldoInicial ? (
             <div className="space-y-2">
               <Input
@@ -191,70 +199,86 @@ export function ResumoEstoqueMensal() {
             </div>
           ) : (
             <div 
-              className="cursor-pointer hover:opacity-70 transition-opacity"
+              className="cursor-pointer"
               onClick={() => {
                 setEditandoSaldoInicial(true);
                 setSaldoInicialTemp(dados.saldo_inicial.toFixed(2));
               }}
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Saldo Inicial</p>
-                  <p className="text-2xl font-bold text-blue-600">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                  <Wallet className="h-4 w-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <CardTitle className="text-sm font-semibold text-muted-foreground mb-0.5">
+                    Saldo Inicial
+                  </CardTitle>
+                  <p className="text-lg font-bold text-blue-600 truncate">
                     {formatarMoeda(dados.saldo_inicial)}
                   </p>
                 </div>
-                <Wallet className="h-8 w-8 text-blue-600" />
               </div>
               <p className="text-xs text-muted-foreground mt-1">Clique para editar</p>
             </div>
           )}
-        </CardContent>
+        </CardHeader>
       </Card>
 
       {/* Entradas */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Entradas</p>
-              <p className="text-2xl font-bold text-green-600">
+      <Card className="group hover:shadow-lg transition-all duration-200 border-l-4 border-l-green-500">
+        <CardHeader className="p-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-950 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0">
+              <TrendingUp className="h-4 w-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-sm font-semibold text-muted-foreground mb-0.5">
+                Entradas
+              </CardTitle>
+              <p className="text-lg font-bold text-green-600 truncate">
                 {formatarMoeda(dados.entradas)}
               </p>
             </div>
-            <TrendingUp className="h-8 w-8 text-green-600" />
           </div>
-        </CardContent>
+        </CardHeader>
       </Card>
 
       {/* Saídas */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Saídas</p>
-              <p className="text-2xl font-bold text-red-600">
+      <Card className="group hover:shadow-lg transition-all duration-200 border-l-4 border-l-red-500">
+        <CardHeader className="p-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
+              <TrendingDown className="h-4 w-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-sm font-semibold text-muted-foreground mb-0.5">
+                Saídas
+              </CardTitle>
+              <p className="text-lg font-bold text-red-600 truncate">
                 {formatarMoeda(dados.saidas)}
               </p>
             </div>
-            <TrendingDown className="h-8 w-8 text-red-600" />
           </div>
-        </CardContent>
+        </CardHeader>
       </Card>
 
       {/* Saldo Final */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Saldo Final</p>
-              <p className="text-2xl font-bold text-emerald-600">
+      <Card className="group hover:shadow-lg transition-all duration-200 border-l-4 border-l-emerald-500">
+        <CardHeader className="p-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+              <Wallet className="h-4 w-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-sm font-semibold text-muted-foreground mb-0.5">
+                Saldo Final
+              </CardTitle>
+              <p className="text-lg font-bold text-emerald-600 truncate">
                 {formatarMoeda(dados.saldo_final)}
               </p>
             </div>
-            <Wallet className="h-8 w-8 text-emerald-600" />
           </div>
-        </CardContent>
+        </CardHeader>
       </Card>
     </div>
   );
