@@ -207,6 +207,13 @@ export default function CatalogoItens() {
                       aria-expanded={openCombobox}
                       className="w-full justify-between text-left font-normal"
                       onMouseEnter={() => setOpenCombobox(true)}
+                      onMouseLeave={(e) => {
+                        // Só fecha se não estiver indo para o popover
+                        const relatedTarget = e.relatedTarget as HTMLElement;
+                        if (!relatedTarget?.closest('[role="dialog"]')) {
+                          setTimeout(() => setOpenCombobox(false), 200);
+                        }
+                      }}
                     >
                       {busca ? (
                         <span className="truncate">{busca}</span>
@@ -216,7 +223,17 @@ export default function CatalogoItens() {
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[300px] p-0" align="start">
+                  <PopoverContent 
+                    className="w-[300px] p-0" 
+                    align="start"
+                    onMouseLeave={() => {
+                      // Fecha quando sair do popover se não estiver digitando
+                      const input = document.querySelector('[cmdk-input]') as HTMLInputElement;
+                      if (document.activeElement !== input) {
+                        setTimeout(() => setOpenCombobox(false), 200);
+                      }
+                    }}
+                  >
                     <Command>
                       <CommandInput 
                         placeholder="Digite para buscar..." 
