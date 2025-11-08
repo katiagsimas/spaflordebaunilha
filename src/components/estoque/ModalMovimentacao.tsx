@@ -223,20 +223,18 @@ export function ModalMovimentacao({ aberto, onFechar, onSucesso }: ModalMoviment
       const valor = parseFloat(valorTotal || '0');
       const custoUnitario = valor > 0 ? valor / qtd : itemEncontrado.preco_ativo?.custo_unitario || 0;
 
-      // Registrar movimento
+      // Registrar movimento na tabela CORRETA: movimentos_estoque_v2
       const { error: erroMov } = await supabase
-        .from('movimentacoes_estoque')
+        .from('movimentos_estoque_v2')
         .insert([{
           item_id: itemEncontrado.id,
           usuario_id: user.id,
-          tipo: tipoMovimento.toUpperCase() as 'ENTRADA' | 'SAIDA',
-          tipo_item: itemEncontrado.tipo === 'ingrediente' ? 'INSUMO' : 'EMBALAGEM',
+          tipo: tipoMovimento, // 'entrada' ou 'saida' (minúsculo)
+          subtipo: observacao || null,
           quantidade: qtd,
-          unidade: itemEncontrado.unidade_base,
           custo_unitario: custoUnitario,
-          custo_total: custoUnitario * qtd,
-          data: new Date().toISOString(),
-          observacoes: observacao || null
+          data: new Date().toISOString().split('T')[0],
+          observacao: observacao || null
         }]);
 
       if (erroMov) throw erroMov;
@@ -279,16 +277,15 @@ export function ModalMovimentacao({ aberto, onFechar, onSucesso }: ModalMoviment
       setObservacao('');
       setMostrarSugestoes(false);
 
-      // Fechar modal primeiro
+      // Fechar modal
       onFechar();
 
-      // Chamar onSucesso para atualizar a listagem APÓS fechar
-      if (onSucesso) {
-        // Pequeno delay para garantir que o modal fechou
-        setTimeout(() => {
+      // Aguardar um pouco e atualizar a listagem
+      setTimeout(() => {
+        if (onSucesso) {
           onSucesso();
-        }, 100);
-      }
+        }
+      }, 500);
     } catch (error: any) {
       console.error('Erro ao registrar movimentação:', error);
       toast({
@@ -304,7 +301,8 @@ export function ModalMovimentacao({ aberto, onFechar, onSucesso }: ModalMoviment
   return (
     <>
       <Dialog open={aberto} onOpenChange={onFechar}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
+          <div className="max-h-[75vh] overflow-y-auto pr-2">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Package className="h-5 w-5" />
@@ -544,6 +542,7 @@ export function ModalMovimentacao({ aberto, onFechar, onSucesso }: ModalMoviment
                 </div>
               </div>
             )}
+          </div>
           </div>
         </DialogContent>
       </Dialog>
