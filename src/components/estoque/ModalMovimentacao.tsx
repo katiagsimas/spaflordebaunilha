@@ -266,24 +266,29 @@ export function ModalMovimentacao({ aberto, onFechar, onSucesso }: ModalMoviment
           });
       }
 
+      toast({
+        title: "Movimentação registrada!",
+        description: `${tipoMovimento === 'entrada' ? 'Entrada' : 'Saída'} de ${qtd} ${itemEncontrado.unidade_base} registrada com sucesso.`,
+      });
+
       // Resetar formulário
       setBusca('');
       setItemEncontrado(null);
       setQuantidade('');
       setValorTotal('');
       setObservacao('');
+      setMostrarSugestoes(false);
 
-      // Chamar onSucesso para atualizar a listagem
-      if (onSucesso) {
-        await onSucesso();
-      }
-
-      toast({
-        title: "Movimentação registrada!",
-        description: `${tipoMovimento === 'entrada' ? 'Entrada' : 'Saída'} de ${qtd} ${itemEncontrado.unidade_base} registrada com sucesso.`,
-      });
-
+      // Fechar modal primeiro
       onFechar();
+
+      // Chamar onSucesso para atualizar a listagem APÓS fechar
+      if (onSucesso) {
+        // Pequeno delay para garantir que o modal fechou
+        setTimeout(() => {
+          onSucesso();
+        }, 100);
+      }
     } catch (error: any) {
       console.error('Erro ao registrar movimentação:', error);
       toast({
@@ -299,7 +304,7 @@ export function ModalMovimentacao({ aberto, onFechar, onSucesso }: ModalMoviment
   return (
     <>
       <Dialog open={aberto} onOpenChange={onFechar}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Package className="h-5 w-5" />

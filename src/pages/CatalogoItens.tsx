@@ -213,12 +213,7 @@ export default function CatalogoItens() {
                   return (
                     <TableRow key={item.id}>
                       <TableCell>
-                        <div>
-                          <div className="font-medium">{item.nome}</div>
-                          {item.marca && (
-                            <div className="text-sm text-muted-foreground mt-1">{item.marca}</div>
-                          )}
-                        </div>
+                        <div className="font-medium">{item.nome}</div>
                       </TableCell>
                       <TableCell>
                         {item.tipo === 'ingrediente' ? '🧈 Ingrediente' : '📦 Embalagem'}
