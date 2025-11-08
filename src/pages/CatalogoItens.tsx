@@ -198,7 +198,7 @@ export default function CatalogoItens() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               {/* Busca por Nome */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Nome</Label>
+                <Label className="text-sm font-medium">Busca</Label>
                 <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
                   <PopoverTrigger asChild>
                     <Button
