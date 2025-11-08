@@ -200,14 +200,12 @@ export default function CatalogoItens() {
                     return `${formatarMilhar(qtd)} ${unidade || ''}`;
                   };
 
-                  // Calcular custo unitário (Valor Total / Estoque Atual)
+                  // Calcular custo unitário usando o custo médio da view
                   const calcularCustoUnitario = () => {
                     if (!item.rastrear_estoque || !item.estoque) return '-';
-                    const saldo = item.estoque.saldo || 0;
-                    const valorTotal = item.estoque.valor_estoque || 0;
-                    if (saldo === 0) return '-';
-                    const custoUn = valorTotal / saldo;
-                    return `${formatarValor(custoUn)}/${item.unidade_base}`;
+                    const custoMedio = item.estoque.custo_medio || 0;
+                    if (custoMedio === 0) return '-';
+                    return `${formatarValor(custoMedio)}/${item.unidade_base}`;
                   };
 
                   return (

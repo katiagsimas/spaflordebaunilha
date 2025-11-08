@@ -301,8 +301,8 @@ export function ModalMovimentacao({ aberto, onFechar, onSucesso }: ModalMoviment
   return (
     <>
       <Dialog open={aberto} onOpenChange={onFechar}>
-        <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
-          <div className="max-h-[75vh] overflow-y-auto pr-2">
+        <DialogContent className="max-w-xl min-h-[600px] max-h-[90vh]">
+          <div className="flex flex-col h-full">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Package className="h-5 w-5" />
@@ -336,12 +336,12 @@ export function ModalMovimentacao({ aberto, onFechar, onSucesso }: ModalMoviment
 
                 {/* Lista de sugestões */}
                 {mostrarSugestoes && !itemEncontrado && itensFiltrados.length > 0 && (
-                  <div className="absolute z-50 w-full mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-auto">
+                  <div className="absolute z-50 w-full mt-1 bg-background border rounded-md shadow-lg max-h-[240px] overflow-auto">
                     {itensFiltrados.map((item) => (
                       <button
                         key={item.id}
                         onClick={() => selecionarItem(item)}
-                        className="w-full px-4 py-2 text-left hover:bg-muted flex items-center justify-between border-b last:border-b-0"
+                        className="w-full px-4 py-3 text-left hover:bg-muted flex items-center justify-between border-b last:border-b-0"
                       >
                         <div>
                           <div className="font-medium">{item.nome}</div>
