@@ -24,7 +24,7 @@ export function ResumoEstoqueMensal() {
 
   const mesAtual = new Date().getMonth() + 1;
   const anoAtual = new Date().getFullYear();
-  const nomeMes = new Date(anoAtual, mesAtual - 1).toLocaleDateString('pt-BR', { month: 'long' });
+  const nomeMes = new Date(anoAtual, mesAtual - 1).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
 
   useEffect(() => {
     carregarResumo();
