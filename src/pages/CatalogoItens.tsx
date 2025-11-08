@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Filter, Settings, Package, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { Plus, Search, Filter, Package, MoreVertical, Pencil, Trash2, X, FileDown } from "lucide-react";
+import * as XLSX from 'xlsx';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,20 +23,29 @@ import { AlertasEstoque } from "@/components/estoque/AlertasEstoque";
 import { BadgeStatus } from "@/components/estoque/BadgeStatus";
 import { Badge } from "@/components/ui/badge";
 import { formatarMilhar } from "@/lib/utils";
-import type { Item, ItemComEstoque } from "@/types/estoque";
+import type { Item, ItemComEstoque, StatusEstoque } from "@/types/estoque";
+import { ResumoEstoqueMensal } from "@/components/estoque/ResumoEstoqueMensal";
+import { useCategoriasEstoque } from "@/hooks/useCategoriasEstoque";
 
 export default function CatalogoItens() {
   const [busca, setBusca] = useState("");
   const [filtroTipo, setFiltroTipo] = useState<string>("todos");
+  const [filtroCategoria, setFiltroCategoria] = useState<string>("todos");
+  const [filtroStatus, setFiltroStatus] = useState<string>("todos");
+  const [itensPorPagina, setItensPorPagina] = useState<number>(10);
   const [modalItemAberto, setModalItemAberto] = useState(false);
   const [modalEntradaAberto, setModalEntradaAberto] = useState(false);
   const [modalMovimentacaoAberto, setModalMovimentacaoAberto] = useState(false);
   const [dialogExcluirAberto, setDialogExcluirAberto] = useState(false);
   const [itemSelecionado, setItemSelecionado] = useState<ItemComEstoque | undefined>();
 
+  const { categorias } = useCategoriasEstoque();
+
   const { itens, loading, resumo, criarItem, atualizarItem, registrarMovimento, salvarPreco, ativarRastreamento, carregarItens } = useEstoqueIntegrado({
     busca: busca || undefined,
-    tipo: filtroTipo === "todos" ? undefined : filtroTipo as any
+    tipo: filtroTipo === "todos" ? undefined : filtroTipo as any,
+    categoria: filtroCategoria === "todos" ? undefined : filtroCategoria,
+    status: filtroStatus === "todos" ? undefined : filtroStatus as StatusEstoque
   });
 
   // Contar alertas
@@ -44,6 +54,45 @@ export default function CatalogoItens() {
     baixo: itens.filter(i => i.status === 'baixo').length,
     atencao: itens.filter(i => i.status === 'atencao').length,
     semRastreio: itens.filter(i => !i.rastrear_estoque).length
+  };
+
+  // Paginação
+  const itensPaginados = useMemo(() => {
+    if (itensPorPagina === 0) return itens; // "Todos"
+    return itens.slice(0, itensPorPagina);
+  }, [itens, itensPorPagina]);
+
+  const limparFiltros = () => {
+    setBusca("");
+    setFiltroTipo("todos");
+    setFiltroCategoria("todos");
+    setFiltroStatus("todos");
+  };
+
+  const exportarParaExcel = () => {
+    const dadosExportacao = itens.map(item => ({
+      'Nome': item.nome,
+      'Tipo': item.tipo === 'ingrediente' ? 'Ingrediente' : 'Embalagem',
+      'Categoria': item.categoria || '-',
+      'Status': item.status === 'ok' ? 'OK' : 
+                item.status === 'atencao' ? 'Atenção' :
+                item.status === 'baixo' ? 'Baixo' :
+                item.status === 'zerado' ? 'Zerado' : 'Sem Rastreio',
+      'Estoque Atual': item.rastrear_estoque && item.estoque ? `${item.estoque.saldo} ${item.unidade_base}` : '-',
+      'Custo Unitário': item.rastrear_estoque && item.estoque?.custo_medio 
+        ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.estoque.custo_medio)
+        : '-',
+      'Valor Total': item.rastrear_estoque && item.estoque?.valor_estoque
+        ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.estoque.valor_estoque)
+        : '-'
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dadosExportacao);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Estoque');
+    
+    const dataAtual = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+    XLSX.writeFile(workbook, `estoque_${dataAtual}.xlsx`);
   };
 
   const handleNovoItem = () => {
@@ -104,6 +153,9 @@ export default function CatalogoItens() {
       {/* Alertas */}
       <AlertasEstoque alertas={alertas} />
 
+      {/* Resumo Mensal */}
+      <ResumoEstoqueMensal />
+
       {/* Filtros e Busca */}
       <Card>
         <CardHeader>
@@ -131,23 +183,19 @@ export default function CatalogoItens() {
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Controles de Filtro */}
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col lg:flex-row gap-3">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar item..."
+                placeholder="Buscar por nome..."
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
                 className="pl-9"
               />
             </div>
 
-            <Select
-              value={filtroTipo}
-              onValueChange={setFiltroTipo}
-            >
-              <SelectTrigger className="w-full md:w-[200px]">
-                <Filter className="mr-2 h-4 w-4" />
+            <Select value={filtroTipo} onValueChange={setFiltroTipo}>
+              <SelectTrigger className="w-full lg:w-[180px]">
                 <SelectValue placeholder="Tipo" />
               </SelectTrigger>
               <SelectContent>
@@ -156,6 +204,77 @@ export default function CatalogoItens() {
                 <SelectItem value="embalagem">📦 Embalagens</SelectItem>
               </SelectContent>
             </Select>
+
+            <Select value={filtroCategoria} onValueChange={setFiltroCategoria}>
+              <SelectTrigger className="w-full lg:w-[180px]">
+                <SelectValue placeholder="Categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todas categorias</SelectItem>
+                {categorias.map(cat => (
+                  <SelectItem key={cat.id} value={cat.nome}>
+                    {cat.icone} {cat.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={filtroStatus} onValueChange={setFiltroStatus}>
+              <SelectTrigger className="w-full lg:w-[180px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos status</SelectItem>
+                <SelectItem value="ok">✅ OK</SelectItem>
+                <SelectItem value="atencao">⚠️ Atenção</SelectItem>
+                <SelectItem value="baixo">🔻 Baixo</SelectItem>
+                <SelectItem value="zerado">❌ Zerado</SelectItem>
+                <SelectItem value="sem_rastreio">➖ Sem Rastreio</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Button
+              variant="outline"
+              onClick={limparFiltros}
+              className="w-full lg:w-auto"
+            >
+              <X className="mr-2 h-4 w-4" />
+              Limpar
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={exportarParaExcel}
+              className="w-full lg:w-auto"
+            >
+              <FileDown className="mr-2 h-4 w-4" />
+              Excel
+            </Button>
+          </div>
+
+          {/* Seletor de itens por página */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Mostrar:</span>
+              <Select
+                value={itensPorPagina.toString()}
+                onValueChange={(value) => setItensPorPagina(value === "0" ? 0 : parseInt(value))}
+              >
+                <SelectTrigger className="w-[120px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10 linhas</SelectItem>
+                  <SelectItem value="25">25 linhas</SelectItem>
+                  <SelectItem value="50">50 linhas</SelectItem>
+                  <SelectItem value="100">100 linhas</SelectItem>
+                  <SelectItem value="0">Todos</SelectItem>
+                </SelectContent>
+              </Select>
+              <span className="text-sm text-muted-foreground">
+                {itensPorPagina === 0 ? `Exibindo ${itens.length}` : `Exibindo ${Math.min(itensPorPagina, itens.length)}`} de {itens.length} itens
+              </span>
+            </div>
           </div>
 
           {/* Tabela de Itens */}
@@ -186,7 +305,7 @@ export default function CatalogoItens() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {itens.map((item) => {
+                {itensPaginados.map((item) => {
                   const formatarValor = (valor?: number) => {
                     if (!valor) return '-';
                     return new Intl.NumberFormat('pt-BR', {
