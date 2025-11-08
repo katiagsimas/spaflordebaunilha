@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -187,121 +188,175 @@ export default function CatalogoItens() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Controles de Filtro */}
-          <div className="flex flex-col lg:flex-row gap-3">
-            <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={openCombobox}
-                  className="w-full lg:max-w-xs justify-between text-left font-normal"
-                  onMouseEnter={() => setOpenCombobox(true)}
+          {/* Área de Filtros */}
+          <div className="border rounded-lg p-4 space-y-4 bg-muted/30">
+            <div className="flex items-center gap-2 mb-2">
+              <Filter className="h-4 w-4" />
+              <span className="font-semibold">Filtros</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              {/* Busca por Nome */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Busca</Label>
+                <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={openCombobox}
+                      className="w-full justify-between text-left font-normal"
+                      onMouseEnter={() => setOpenCombobox(true)}
+                    >
+                      {busca ? (
+                        <span className="truncate">{busca}</span>
+                      ) : (
+                        <span className="text-muted-foreground">Buscar por nome...</span>
+                      )}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0" align="start">
+                    <Command>
+                      <CommandInput 
+                        placeholder="Digite para buscar..." 
+                        value={busca}
+                        onValueChange={setBusca}
+                      />
+                      <CommandList>
+                        <CommandEmpty>Nenhum item encontrado.</CommandEmpty>
+                        <CommandGroup>
+                          {itens.map((item) => (
+                            <CommandItem
+                              key={item.id}
+                              value={item.nome}
+                              onSelect={(currentValue) => {
+                                setBusca(currentValue === busca ? "" : currentValue);
+                                setOpenCombobox(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  busca === item.nome ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              <div className="flex-1">
+                                <div className="font-medium">{item.nome}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  {item.tipo === 'ingrediente' ? '🧈 Ingrediente' : '📦 Embalagem'}
+                                  {item.categoria && ` • ${item.categoria}`}
+                                </div>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* Tipo */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Tipo</Label>
+                <Select value={filtroTipo} onValueChange={setFiltroTipo}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todas</SelectItem>
+                    <SelectItem value="ingrediente">🧈 Ingredientes</SelectItem>
+                    <SelectItem value="embalagem">📦 Embalagens</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Categoria */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Categoria</Label>
+                <Select value={filtroCategoria} onValueChange={setFiltroCategoria}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todas</SelectItem>
+                    {categorias.map(cat => (
+                      <SelectItem key={cat.id} value={cat.nome}>
+                        {cat.icone} {cat.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Status */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Status</Label>
+                <Select value={filtroStatus} onValueChange={setFiltroStatus}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos</SelectItem>
+                    <SelectItem value="ok">✅ OK</SelectItem>
+                    <SelectItem value="atencao">⚠️ Atenção</SelectItem>
+                    <SelectItem value="baixo">🔻 Baixo</SelectItem>
+                    <SelectItem value="zerado">❌ Zerado</SelectItem>
+                    <SelectItem value="sem_rastreio">➖ Sem Rastreio</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Ações */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium opacity-0">Ações</Label>
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    onClick={limparFiltros}
+                    className="flex-1"
+                  >
+                    <X className="mr-2 h-4 w-4" />
+                    Limpar
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Contador e Exportação */}
+            <div className="flex items-center justify-between pt-2 border-t">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Mostrar:</span>
+                <Select
+                  value={itensPorPagina.toString()}
+                  onValueChange={(value) => setItensPorPagina(value === "0" ? 0 : parseInt(value))}
                 >
-                  {busca ? (
-                    <span className="truncate">{busca}</span>
-                  ) : (
-                    <span className="text-muted-foreground">Buscar por nome...</span>
-                  )}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[300px] p-0" align="start">
-                <Command>
-                  <CommandInput 
-                    placeholder="Digite para buscar..." 
-                    value={busca}
-                    onValueChange={setBusca}
-                  />
-                  <CommandList>
-                    <CommandEmpty>Nenhum item encontrado.</CommandEmpty>
-                    <CommandGroup>
-                      {itens.map((item) => (
-                        <CommandItem
-                          key={item.id}
-                          value={item.nome}
-                          onSelect={(currentValue) => {
-                            setBusca(currentValue === busca ? "" : currentValue);
-                            setOpenCombobox(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              busca === item.nome ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                          <div className="flex-1">
-                            <div className="font-medium">{item.nome}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {item.tipo === 'ingrediente' ? '🧈 Ingrediente' : '📦 Embalagem'}
-                              {item.categoria && ` • ${item.categoria}`}
-                            </div>
-                          </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-
-            <Select value={filtroTipo} onValueChange={setFiltroTipo}>
-              <SelectTrigger className="w-full lg:w-[160px]">
-                <SelectValue placeholder="Tipo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos os tipos</SelectItem>
-                <SelectItem value="ingrediente">🧈 Ingredientes</SelectItem>
-                <SelectItem value="embalagem">📦 Embalagens</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={filtroCategoria} onValueChange={setFiltroCategoria}>
-              <SelectTrigger className="w-full lg:w-[160px]">
-                <SelectValue placeholder="Categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todas categorias</SelectItem>
-                {categorias.map(cat => (
-                  <SelectItem key={cat.id} value={cat.nome}>
-                    {cat.icone} {cat.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={filtroStatus} onValueChange={setFiltroStatus}>
-              <SelectTrigger className="w-full lg:w-[150px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos status</SelectItem>
-                <SelectItem value="ok">✅ OK</SelectItem>
-                <SelectItem value="atencao">⚠️ Atenção</SelectItem>
-                <SelectItem value="baixo">🔻 Baixo</SelectItem>
-                <SelectItem value="zerado">❌ Zerado</SelectItem>
-                <SelectItem value="sem_rastreio">➖ Sem Rastreio</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button
-              variant="ghost"
-              onClick={limparFiltros}
-              className="w-full lg:w-auto"
-            >
-              <X className="mr-2 h-4 w-4" />
-              Limpar Filtros
-            </Button>
-
-            <Button
-              variant="outline"
-              onClick={exportarParaExcel}
-              className="w-full lg:w-auto lg:min-w-[180px]"
-            >
-              <FileDown className="mr-2 h-4 w-4" />
-              Exportar para Excel
-            </Button>
+                  <SelectTrigger className="w-[120px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10 linhas</SelectItem>
+                    <SelectItem value="25">25 linhas</SelectItem>
+                    <SelectItem value="50">50 linhas</SelectItem>
+                    <SelectItem value="100">100 linhas</SelectItem>
+                    <SelectItem value="0">Todos</SelectItem>
+                  </SelectContent>
+                </Select>
+                <span className="text-sm text-muted-foreground">
+                  Mostrando {itensPorPagina === 0 ? itens.length : Math.min(itensPorPagina, itens.length)} de {itens.length} item(ns)
+                </span>
+              </div>
+              
+              <Button
+                variant="outline"
+                onClick={exportarParaExcel}
+                size="sm"
+              >
+                <FileDown className="mr-2 h-4 w-4" />
+                Exportar Excel
+              </Button>
+            </div>
           </div>
 
           {/* Seletor de itens por página */}
