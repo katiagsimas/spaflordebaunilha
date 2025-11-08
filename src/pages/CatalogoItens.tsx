@@ -211,7 +211,7 @@ export default function CatalogoItens() {
                       {busca ? (
                         <span className="truncate">{busca}</span>
                       ) : (
-                        <span className="text-muted-foreground">nome</span>
+                        <span className="text-muted-foreground">por nome</span>
                       )}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
