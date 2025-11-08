@@ -355,10 +355,10 @@ export default function CatalogoItens() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="10">10 linhas</SelectItem>
-                  <SelectItem value="25">25 linhas</SelectItem>
-                  <SelectItem value="50">50 linhas</SelectItem>
-                  <SelectItem value="100">100 linhas</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
                   <SelectItem value="0">Todos</SelectItem>
                 </SelectContent>
               </Select>
