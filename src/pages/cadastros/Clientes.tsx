@@ -442,7 +442,20 @@ export default function Clientes() {
                 return (
                   <div 
                     key={`${aniv.tipo}-${aniv.cliente_id}-${aniv.nome}`}
-                    className="flex items-center justify-between p-4 bg-white dark:bg-gray-900 rounded-lg border-2 hover:shadow-md transition-all"
+                    className="flex items-center justify-between p-4 bg-white dark:bg-gray-900 rounded-lg border-2 hover:shadow-md transition-all cursor-pointer"
+                    onClick={() => {
+                      if (aniv.tipo === 'cliente') {
+                        const cliente = clientes.find(c => c.id === aniv.cliente_id);
+                        if (cliente) {
+                          handleEdit(cliente);
+                        }
+                      } else {
+                        const cliente = clientes.find(c => c.id === aniv.cliente_id);
+                        if (cliente) {
+                          handleEdit(cliente);
+                        }
+                      }
+                    }}
                   >
                     <div className="flex items-center gap-3 flex-1">
                       {aniv.tipo === 'cliente' ? (
@@ -505,7 +518,8 @@ export default function Clientes() {
             {aniversariantesDoMes.map((cliente) => (
               <Card 
                 key={cliente.id}
-                className="bg-gradient-to-r from-blue-500/10 via-cyan-500/10 to-teal-500/10 dark:from-blue-500/20 dark:via-cyan-500/20 dark:to-teal-500/20 border-2 border-blue-300/50 dark:border-blue-500/50 hover:shadow-lg transition-all duration-300"
+                className="bg-gradient-to-r from-blue-500/10 via-cyan-500/10 to-teal-500/10 dark:from-blue-500/20 dark:via-cyan-500/20 dark:to-teal-500/20 border-2 border-blue-300/50 dark:border-blue-500/50 hover:shadow-lg transition-all duration-300 cursor-pointer"
+                onClick={() => handleEdit(cliente)}
               >
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
