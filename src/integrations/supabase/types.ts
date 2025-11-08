@@ -3939,16 +3939,13 @@ export type Database = {
         }[]
       }
       get_aniversariantes_mes: {
-        Args: { mes_param?: number }
+        Args: { mes_param: number }
         Returns: {
           cliente_id: string
           data_nascimento: string
           dias_ate_aniversario: number
-          email: string
           nome: string
-          observacoes: string
           parentesco: string
-          proximo_aniversario: string
           telefone: string
           tipo: string
         }[]
