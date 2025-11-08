@@ -168,7 +168,7 @@ export default function CatalogoItens() {
             </div>
             <div className="flex gap-2">
               <Button 
-                variant="outline"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
                 onClick={() => setModalMovimentacaoAberto(true)}
               >
                 <Package className="mr-2 h-4 w-4" />
