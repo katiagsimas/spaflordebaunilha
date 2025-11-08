@@ -132,7 +132,7 @@ export function ResumoEstoqueMensal() {
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
       {/* Ano Atual */}
       <Card className="group hover:shadow-lg transition-all duration-200 border-l-4 border-l-slate-500">
         <CardHeader className="p-3">
