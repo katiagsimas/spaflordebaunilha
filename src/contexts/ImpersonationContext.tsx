@@ -25,8 +25,8 @@ const ImpersonationContext = createContext<ImpersonationContextType | undefined>
 
 export function ImpersonationProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<ImpersonationState>(() => {
-    // Carregar do localStorage se existir
-    const saved = localStorage.getItem('impersonation_state');
+    // Carregar do sessionStorage se existir (mais seguro que localStorage)
+    const saved = sessionStorage.getItem('impersonation_state');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -59,7 +59,8 @@ export function ImpersonationProvider({ children }: { children: ReactNode }) {
       reason
     };
     setState(newState);
-    localStorage.setItem('impersonation_state', JSON.stringify({
+    // Usar sessionStorage para tokens serem limpos automaticamente ao fechar o navegador
+    sessionStorage.setItem('impersonation_state', JSON.stringify({
       ...newState,
       expiresAt: expiresAt.toISOString()
     }));
@@ -82,7 +83,7 @@ export function ImpersonationProvider({ children }: { children: ReactNode }) {
       expiresAt: null,
       reason: null
     });
-    localStorage.removeItem('impersonation_state');
+    sessionStorage.removeItem('impersonation_state');
     
     // Recarregar página para voltar à conta admin
     window.location.href = '/admin/usuarios';

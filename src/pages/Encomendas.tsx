@@ -31,6 +31,7 @@ import { PreviewEncomenda } from "@/components/encomendas/PreviewEncomenda";
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from 'xlsx';
 import { z } from 'zod';
+import { encomendaSchema } from '@/schemas/encomendaSchema';
 
 const statusColors = {
   pendente: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -352,24 +353,13 @@ const Encomendas = () => {
           data_entrega: formData.data_entrega || null,
           hora_entrega: formData.hora_entrega || null,
           conta_receber_id: contaReceberId || null,
+          quantidade: 1, // Campo obrigatório do schema
         };
 
-        // Validação básica dos campos essenciais com Zod
-        const basicSchema = z.object({
-          cliente: z.string().trim().min(1, 'Nome do cliente é obrigatório'),
-          data_pedido: z.string().min(1, 'Data do pedido é obrigatória'),
-          status: z.enum(['pendente', 'confirmado', 'em_producao', 'pronto', 'entregue', 'cancelado']),
-          valor: z.number().nonnegative('Valor não pode ser negativo'),
-        });
-
-        basicSchema.parse({
-          cliente: dadosParaSalvar.cliente,
-          data_pedido: dadosParaSalvar.data_pedido,
-          status: dadosParaSalvar.status,
-          valor: dadosParaSalvar.valor,
-        });
+        // Validação completa com encomendaSchema
+        const dadosValidados = encomendaSchema.parse(dadosParaSalvar);
         
-        await updateEncomenda(editingOrder.id, dadosParaSalvar);
+        await updateEncomenda(editingOrder.id, dadosValidados);
         
         // Salvar tags ao atualizar
         // Deletar tags antigas
@@ -409,21 +399,23 @@ const Encomendas = () => {
         return;
       }
 
-      // Validação básica dos campos essenciais
-      const basicSchema = z.object({
-        cliente: z.string().trim().min(1, 'Nome do cliente é obrigatório'),
-        data_pedido: z.string().min(1, 'Data do pedido é obrigatória'),
-        status: z.enum(['pendente', 'confirmado', 'em_producao', 'pronto', 'entregue', 'cancelado']),
-        valor: z.number().nonnegative('Valor não pode ser negativo'),
-      });
-
+      // Validação completa com encomendaSchema
       try {
-        basicSchema.parse({
+        const dadosValidacao = {
           cliente: formData.cliente,
           data_pedido: formData.data_pedido,
+          data_entrega: formData.data_entrega || formData.data_pedido,
           status: formData.status,
           valor: valorFinal,
-        });
+          quantidade: 1, // Campo obrigatório do schema
+          observacoes_cliente: formData.observacoes_cliente || undefined,
+          observacoes_internas: formData.observacoes_internas || undefined,
+          cep: formData.cep || '',
+          endereco: formData.endereco || undefined,
+          telefone: formData.telefone || undefined,
+        };
+
+        encomendaSchema.parse(dadosValidacao);
 
         // Abrir modal de pagamento
         toast.info("Configure o pagamento para finalizar a encomenda");
@@ -725,9 +717,12 @@ const Encomendas = () => {
         data_entrega: formData.data_entrega || null,
         hora_entrega: formData.hora_entrega || null,
         conta_receber_id: contaId,
+        quantidade: 1, // Campo obrigatório do schema
       };
 
-      const novaEncomenda = await createEncomenda(dadosParaSalvar);
+      // Validar dados antes de criar
+      const dadosValidados = encomendaSchema.parse(dadosParaSalvar);
+      const novaEncomenda = await createEncomenda(dadosValidados);
       
       // Salvar produtos temporários na encomenda criada
       if (tempProdutos.length > 0 && novaEncomenda) {
