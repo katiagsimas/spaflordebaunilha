@@ -24,15 +24,37 @@ export function WidgetAniversariantes({}: WidgetAniversariantesProps) {
   const { data: aniversariantes = [], isLoading } = useQuery({
     queryKey: ['todos-aniversariantes-mes'],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('Usuário não autenticado');
+      }
+
       const { data, error } = await supabase
         .rpc('get_todos_aniversariantes', { 
-          p_tenant_id: (await supabase.auth.getUser()).data.user?.id 
+          p_tenant_id: user.id 
         });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao buscar aniversariantes:', error);
+        throw error;
+      }
       
-      // Retornar todos os aniversariantes do mês
-      return data || [];
+      // Filtrar apenas do mês atual e garantir que dias_ate_aniversario é válido
+      const mesAtual = new Date().getMonth() + 1;
+      const aniversariantesFiltrados = (data || [])
+        .filter((aniv: Aniversariante) => {
+          if (!aniv.data_aniversario) return false;
+          const dataAniv = new Date(aniv.data_aniversario + 'T00:00:00');
+          return dataAniv.getMonth() + 1 === mesAtual;
+        })
+        .map((aniv: Aniversariante) => ({
+          ...aniv,
+          dias_ate_aniversario: aniv.dias_ate_aniversario || 0
+        }))
+        .sort((a, b) => a.dias_ate_aniversario - b.dias_ate_aniversario);
+      
+      return aniversariantesFiltrados;
     },
     refetchInterval: 60000 // Recarrega a cada 1 minuto
   });

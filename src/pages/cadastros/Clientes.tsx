@@ -76,23 +76,28 @@ export default function Clientes() {
       // Calcular dias até aniversário
       return familiaresDoMes.map(familiar => {
         const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0); // Zerar horas para comparação precisa
+        
         const nascimento = new Date(familiar.data_nascimento + 'T00:00:00');
         const anoAtual = hoje.getFullYear();
         const aniversarioEsteAno = new Date(anoAtual, nascimento.getMonth(), nascimento.getDate());
+        aniversarioEsteAno.setHours(0, 0, 0, 0);
         
+        // Se o aniversário já passou este ano, calcular para o próximo ano
+        let proximoAniversario = aniversarioEsteAno;
         if (aniversarioEsteAno < hoje) {
-          aniversarioEsteAno.setFullYear(anoAtual + 1);
+          proximoAniversario = new Date(anoAtual + 1, nascimento.getMonth(), nascimento.getDate());
         }
         
-        const diff = aniversarioEsteAno.getTime() - hoje.getTime();
-        const dias = Math.ceil(diff / (1000 * 60 * 60 * 24));
+        const diff = proximoAniversario.getTime() - hoje.getTime();
+        const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
         
         return {
           ...familiar,
-          dias_ate_aniversario: dias,
-          cliente_nome: familiar.clientes?.nome
+          dias_ate_aniversario: Math.max(0, dias), // Garantir que nunca seja negativo ou undefined
+          cliente_nome: familiar.clientes?.nome || 'Cliente não encontrado'
         };
-      }).sort((a, b) => a.dias_ate_aniversario - b.dias_ate_aniversario);
+      }).sort((a, b) => (a.dias_ate_aniversario || 0) - (b.dias_ate_aniversario || 0));
     }
   });
 
@@ -408,12 +413,12 @@ export default function Clientes() {
                         })}
                       </p>
                       <Badge 
-                        variant={familiar.dias_ate_aniversario <= 7 ? 'default' : 'secondary'}
+                        variant={(familiar.dias_ate_aniversario || 0) <= 7 ? 'default' : 'secondary'}
                         className="mt-1"
                       >
                         {familiar.dias_ate_aniversario === 0 ? '🎉 HOJE!' :
                          familiar.dias_ate_aniversario === 1 ? '⭐ Amanhã' :
-                         `Em ${familiar.dias_ate_aniversario} dias`}
+                         `Em ${familiar.dias_ate_aniversario || 0} dias`}
                       </Badge>
                     </div>
                   </div>
@@ -810,52 +815,52 @@ export default function Clientes() {
         </CardHeader>
         
         {/* Card de Controles */}
-        <div className="px-6 pb-4 space-y-4">
-          {/* Filtros */}
-          <div className="flex gap-2 flex-wrap">
-            <Select value={filtroSegmento} onValueChange={setFiltroSegmento}>
-              <SelectTrigger className="w-[180px] bg-popover">
-                <SelectValue placeholder="Todos os segmentos" />
-              </SelectTrigger>
-              <SelectContent className="bg-popover z-50">
-                <SelectItem value="todos">Todos os segmentos</SelectItem>
-                <SelectItem value="vip">⭐ VIP</SelectItem>
-                <SelectItem value="eventual">🔄 Eventual</SelectItem>
-                <SelectItem value="novo">🌟 Novo</SelectItem>
-                <SelectItem value="inativo">😴 Inativo</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={filtroOrigem} onValueChange={setFiltroOrigem}>
-              <SelectTrigger className="w-[180px] bg-popover">
-                <SelectValue placeholder="Todas as origens" />
-              </SelectTrigger>
-              <SelectContent className="bg-popover z-50">
-                <SelectItem value="todos">Todas as origens</SelectItem>
-                <SelectItem value="instagram">📱 Instagram</SelectItem>
-                <SelectItem value="indicacao">🤝 Indicação</SelectItem>
-                <SelectItem value="google">🔍 Google</SelectItem>
-                <SelectItem value="evento">🎉 Evento</SelectItem>
-                <SelectItem value="outro">📝 Outro</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center justify-between gap-4 p-4 bg-muted/30 rounded-lg">
-            {/* Resultados por Página - Esquerda */}
-            <div className="flex items-center gap-2">
-              <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
-                <SelectTrigger className="w-20 bg-popover">
-                  <SelectValue />
+        <div className="px-6 pb-4">
+          {/* Linha única com todos os filtros */}
+          <div className="flex items-center justify-between gap-4 p-4 bg-muted/30 rounded-lg flex-wrap">
+            {/* Filtros à Esquerda */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <Select value={filtroSegmento} onValueChange={setFiltroSegmento}>
+                <SelectTrigger className="w-[180px] bg-popover">
+                  <SelectValue placeholder="Todos os segmentos" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover z-50">
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="25">25</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                  <SelectItem value="100">100</SelectItem>
+                  <SelectItem value="todos">Todos os segmentos</SelectItem>
+                  <SelectItem value="vip">⭐ VIP</SelectItem>
+                  <SelectItem value="eventual">🔄 Eventual</SelectItem>
+                  <SelectItem value="novo">🌟 Novo</SelectItem>
+                  <SelectItem value="inativo">😴 Inativo</SelectItem>
                 </SelectContent>
               </Select>
-              <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
+
+              <Select value={filtroOrigem} onValueChange={setFiltroOrigem}>
+                <SelectTrigger className="w-[180px] bg-popover">
+                  <SelectValue placeholder="Todas as origens" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  <SelectItem value="todos">Todas as origens</SelectItem>
+                  <SelectItem value="instagram">📱 Instagram</SelectItem>
+                  <SelectItem value="indicacao">🤝 Indicação</SelectItem>
+                  <SelectItem value="google">🔍 Google</SelectItem>
+                  <SelectItem value="evento">🎉 Evento</SelectItem>
+                  <SelectItem value="outro">📝 Outro</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <div className="flex items-center gap-2">
+                <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
+                  <SelectTrigger className="w-20 bg-popover">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover z-50">
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+                <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
+              </div>
             </div>
 
             {/* Botão Exportar - Centro */}
