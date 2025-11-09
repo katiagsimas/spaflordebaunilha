@@ -58,10 +58,13 @@ export default function CadastrosBase() {
                 <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
                   Categorias de Receitas
                 </CardTitle>
+                <Badge variant="secondary" className="mt-1 text-[10px] px-1.5 py-0">
+                  🔒 Apenas visualização
+                </Badge>
               </div>
             </div>
             <CardDescription className="text-xs line-clamp-2">
-              Organize seus produtos por categorias
+              Veja as categorias fixas e habilite/desabilite conforme necessário
             </CardDescription>
           </CardHeader>
         </Card>
