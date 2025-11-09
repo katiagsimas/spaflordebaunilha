@@ -203,6 +203,17 @@ export default function Fornecedores() {
               <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
             </div>
 
+            {/* Campo de Busca - Centro */}
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nome..."
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                className="pl-9 bg-popover"
+              />
+            </div>
+
             {/* Botão Exportar - Direita */}
             <Button 
               variant="outline" 
@@ -213,19 +224,6 @@ export default function Fornecedores() {
               <Download className="h-4 w-4" />
               Exportar para Excel
             </Button>
-          </div>
-        </div>
-
-        {/* Campo de Busca */}
-        <div className="px-6 pb-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por nome..."
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-              className="pl-9 bg-popover"
-            />
           </div>
         </div>
 
