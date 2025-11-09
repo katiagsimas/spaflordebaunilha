@@ -17,6 +17,7 @@ interface Contato {
   id?: string;
   nome: string;
   cargo: string;
+  telefone: string;
   email: string;
   data_aniversario: string;
   observacoes?: string;
@@ -35,6 +36,7 @@ export function ContatosFornecedorManager({ fornecedorId, isNewFornecedor = fals
   const [contatoAtual, setContatoAtual] = useState<Contato>({
     nome: '',
     cargo: '',
+    telefone: '',
     email: '',
     data_aniversario: '',
     observacoes: ''
@@ -74,7 +76,7 @@ export function ContatosFornecedorManager({ fornecedorId, isNewFornecedor = fals
         fornecedor_id: fornecedorId,
         nome: contato.nome,
         cargo: contato.cargo || null,
-        telefone: null,
+        telefone: contato.telefone || null,
         email: contato.email || null,
         data_aniversario: contato.data_aniversario || null,
         observacoes: contato.observacoes || null
@@ -142,6 +144,7 @@ export function ContatosFornecedorManager({ fornecedorId, isNewFornecedor = fals
     setContatoAtual({
       nome: '',
       cargo: '',
+      telefone: '',
       email: '',
       data_aniversario: '',
       observacoes: ''
@@ -237,6 +240,16 @@ export function ContatosFornecedorManager({ fornecedorId, isNewFornecedor = fals
                   </div>
 
                   <div className="space-y-2">
+                    <Label htmlFor="telefone">Telefone</Label>
+                    <Input
+                      id="telefone"
+                      value={contatoAtual.telefone}
+                      onChange={(e) => setContatoAtual({ ...contatoAtual, telefone: e.target.value })}
+                      placeholder="(00) 00000-0000"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
                     <Label htmlFor="email">E-mail</Label>
                     <Input
                       id="email"
@@ -299,6 +312,7 @@ export function ContatosFornecedorManager({ fornecedorId, isNewFornecedor = fals
                       <TableRow>
                         <TableHead>Nome</TableHead>
                         <TableHead>Cargo</TableHead>
+                        <TableHead>Telefone</TableHead>
                         <TableHead>E-mail</TableHead>
                         <TableHead>Aniversário</TableHead>
                         <TableHead>Próximo em</TableHead>
@@ -314,6 +328,7 @@ export function ContatosFornecedorManager({ fornecedorId, isNewFornecedor = fals
                             <TableCell>
                               <Badge variant="outline">{contato.cargo || '-'}</Badge>
                             </TableCell>
+                            <TableCell>{contato.telefone || "-"}</TableCell>
                             <TableCell>{contato.email || "-"}</TableCell>
                             <TableCell>
                               {contato.data_aniversario ? (

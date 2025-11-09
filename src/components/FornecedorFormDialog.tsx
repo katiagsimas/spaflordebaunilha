@@ -19,12 +19,9 @@ import { toast } from 'sonner';
 interface FornecedorFormData {
   nome: string;
   tipo: 'PF' | 'PJ';
-  tipo_fornecedor: 'Insumos' | 'Embalagens' | 'Diversos' | 'Papelaria Personalizada' | 'Outros';
   cpf_cnpj: string;
   telefone: string;
   email: string;
-  contato: string;
-  data_aniversario_contato: string;
   observacoes: string;
 }
 
@@ -32,6 +29,7 @@ interface Contato {
   id?: string;
   nome: string;
   cargo: string;
+  telefone: string;
   email: string;
   data_aniversario: string;
   observacoes?: string;
@@ -49,12 +47,9 @@ interface FornecedorFormDialogProps {
 const defaultFormData: FornecedorFormData = {
   nome: '',
   tipo: 'PF',
-  tipo_fornecedor: 'Insumos',
   cpf_cnpj: '',
   telefone: '',
   email: '',
-  contato: '',
-  data_aniversario_contato: '',
   observacoes: '',
 };
 
@@ -71,6 +66,7 @@ export function FornecedorFormDialog({
   const [contatoAtual, setContatoAtual] = useState<Contato>({
     nome: '',
     cargo: '',
+    telefone: '',
     email: '',
     data_aniversario: '',
     observacoes: ''
@@ -134,7 +130,7 @@ export function FornecedorFormDialog({
         fornecedor_id: fornecedorId,
         nome: contato.nome,
         cargo: contato.cargo || null,
-        telefone: null,
+        telefone: contato.telefone || null,
         email: contato.email || null,
         data_aniversario: contato.data_aniversario || null,
         observacoes: contato.observacoes || null
@@ -185,6 +181,7 @@ export function FornecedorFormDialog({
     setContatoAtual({
       nome: '',
       cargo: '',
+      telefone: '',
       email: '',
       data_aniversario: '',
       observacoes: ''
@@ -233,10 +230,11 @@ export function FornecedorFormDialog({
                 value={formData.nome}
                 onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                 required
+                placeholder="Nome do fornecedor"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="tipo">PF ou PJ</Label>
+              <Label htmlFor="tipo">PF ou PJ *</Label>
               <Select
                 value={formData.tipo}
                 onValueChange={(value: 'PF' | 'PJ') => setFormData({ ...formData, tipo: value })}
@@ -281,26 +279,6 @@ export function FornecedorFormDialog({
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="email@exemplo.com"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="contato">Contato</Label>
-              <Input
-                id="contato"
-                value={formData.contato}
-                onChange={(e) => setFormData({ ...formData, contato: e.target.value })}
-                placeholder="Nome do contato"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="data_aniversario_contato">Aniversário do Contato</Label>
-              <Input
-                id="data_aniversario_contato"
-                type="date"
-                value={formData.data_aniversario_contato}
-                onChange={(e) =>
-                  setFormData({ ...formData, data_aniversario_contato: e.target.value })
-                }
               />
             </div>
           </div>
@@ -386,6 +364,16 @@ export function FornecedorFormDialog({
                     </div>
 
                     <div className="space-y-2">
+                      <Label htmlFor="contato_telefone">Telefone</Label>
+                      <Input
+                        id="contato_telefone"
+                        value={contatoAtual.telefone}
+                        onChange={(e) => setContatoAtual({ ...contatoAtual, telefone: e.target.value })}
+                        placeholder="(00) 00000-0000"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
                       <Label htmlFor="contato_email">E-mail</Label>
                       <Input
                         id="contato_email"
@@ -434,9 +422,9 @@ export function FornecedorFormDialog({
                     <Button
                       type="button"
                       onClick={() => salvarContato.mutate(contatoAtual)}
-                      disabled={!contatoAtual.nome}
+                      disabled={!contatoAtual.nome || salvarContato.isPending}
                     >
-                      Salvar Contato
+                      {isEditingContato ? 'Atualizar Contato' : 'Salvar Contato'}
                     </Button>
                   </div>
                 </CardContent>
@@ -455,6 +443,7 @@ export function FornecedorFormDialog({
                       <TableRow>
                         <TableHead>Nome</TableHead>
                         <TableHead>Cargo</TableHead>
+                        <TableHead>Telefone</TableHead>
                         <TableHead>E-mail</TableHead>
                         <TableHead>Aniversário</TableHead>
                         <TableHead className="text-right">Ações</TableHead>
@@ -469,6 +458,7 @@ export function FornecedorFormDialog({
                             <TableCell>
                               <Badge variant="outline" className="text-xs">{contato.cargo || '-'}</Badge>
                             </TableCell>
+                            <TableCell className="text-sm">{contato.telefone || "-"}</TableCell>
                             <TableCell className="text-sm">{contato.email || "-"}</TableCell>
                             <TableCell className="text-sm">
                               {contato.data_aniversario ? (
