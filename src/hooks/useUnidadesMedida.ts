@@ -120,12 +120,6 @@ export function useUnidadesMedida() {
   const toggleAtivo = async (id: string, ativo: boolean) => {
     if (!user) throw new Error('Usuário não autenticado');
 
-    // Verificar se é uma unidade padrão
-    const unidade = unidades.find(u => u.id === id);
-    if (unidade?.e_padrao && !ativo) {
-      throw new Error('Não é possível desabilitar unidades padrão do sistema');
-    }
-
     const { data, error } = await supabase
       .from('unidades_medida')
       .update({ ativo })
@@ -167,6 +161,12 @@ export function useUnidadesMedida() {
 
   const deleteUnidade = async (id: string) => {
     if (!user) throw new Error('Usuário não autenticado');
+
+    // Verificar se é uma unidade padrão
+    const unidade = unidades.find(u => u.id === id);
+    if (unidade?.e_padrao) {
+      throw new Error('Não é possível excluir unidades padrão do sistema');
+    }
 
     const { error } = await supabase
       .from('unidades_medida')
