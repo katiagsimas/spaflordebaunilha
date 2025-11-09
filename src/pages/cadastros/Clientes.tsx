@@ -816,7 +816,7 @@ export default function Clientes() {
         
         {/* Card de Controles */}
         <div className="px-6 pb-4 space-y-3">
-          {/* Primeira linha: Busca, Segmentos, Origens, Exportar */}
+          {/* Primeira linha: Busca, Segmentos, Origens */}
           <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg flex-wrap">
             {/* 1. Busca por Nome */}
             <div className="relative w-64">
@@ -857,33 +857,34 @@ export default function Clientes() {
                 <SelectItem value="outro">📝 Outro</SelectItem>
               </SelectContent>
             </Select>
+          </div>
 
-            {/* 4. Exportar para Excel */}
+          {/* Segunda linha: Resultados por Página (esquerda) e Exportar (direita) */}
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
+                <SelectTrigger className="w-20 bg-popover">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+              <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
+            </div>
+
             <Button 
               variant="outline" 
               size="sm"
               onClick={handleExportarExcel}
-              className="gap-2 ml-auto"
+              className="gap-2"
             >
               <Download className="h-4 w-4" />
               Exportar para Excel
             </Button>
-          </div>
-
-          {/* Segunda linha: Resultados por Página (canto esquerdo) */}
-          <div className="flex items-center gap-2">
-            <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
-              <SelectTrigger className="w-20 bg-popover">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-popover z-50">
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-                <SelectItem value="100">100</SelectItem>
-              </SelectContent>
-            </Select>
-            <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
           </div>
         </div>
 
