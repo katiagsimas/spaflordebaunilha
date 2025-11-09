@@ -816,66 +816,26 @@ export default function Clientes() {
         
         {/* Card de Controles */}
         <div className="px-6 pb-4">
-          {/* Linha única com todos os filtros */}
-          <div className="flex items-center justify-between gap-4 p-4 bg-muted/30 rounded-lg flex-wrap">
-            {/* Filtros à Esquerda */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <Select value={filtroSegmento} onValueChange={setFiltroSegmento}>
-                <SelectTrigger className="w-[180px] bg-popover">
-                  <SelectValue placeholder="Todos os segmentos" />
+          {/* Linha única com todos os controles na ordem: Resultados, Busca, Segmentos, Origens, Exportar */}
+          <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg flex-wrap">
+            {/* 1. Resultados por Página */}
+            <div className="flex items-center gap-2">
+              <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
+                <SelectTrigger className="w-20 bg-popover">
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-popover z-50">
-                  <SelectItem value="todos">Todos os segmentos</SelectItem>
-                  <SelectItem value="vip">⭐ VIP</SelectItem>
-                  <SelectItem value="eventual">🔄 Eventual</SelectItem>
-                  <SelectItem value="novo">🌟 Novo</SelectItem>
-                  <SelectItem value="inativo">😴 Inativo</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
                 </SelectContent>
               </Select>
-
-              <Select value={filtroOrigem} onValueChange={setFiltroOrigem}>
-                <SelectTrigger className="w-[180px] bg-popover">
-                  <SelectValue placeholder="Todas as origens" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover z-50">
-                  <SelectItem value="todos">Todas as origens</SelectItem>
-                  <SelectItem value="instagram">📱 Instagram</SelectItem>
-                  <SelectItem value="indicacao">🤝 Indicação</SelectItem>
-                  <SelectItem value="google">🔍 Google</SelectItem>
-                  <SelectItem value="evento">🎉 Evento</SelectItem>
-                  <SelectItem value="outro">📝 Outro</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <div className="flex items-center gap-2">
-                <Select value={porPagina.toString()} onValueChange={(value) => setPorPagina(Number(value))}>
-                  <SelectTrigger className="w-20 bg-popover">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover z-50">
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="25">25</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                    <SelectItem value="100">100</SelectItem>
-                  </SelectContent>
-                </Select>
-                <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
-              </div>
+              <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
             </div>
 
-            {/* Botão Exportar - Centro */}
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleExportarExcel}
-              className="gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Exportar para Excel
-            </Button>
-
-            {/* Campo de Busca - Direita */}
-            <div className="relative flex-1 max-w-xs">
+            {/* 2. Busca por Nome */}
+            <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar por nome..."
@@ -884,6 +844,46 @@ export default function Clientes() {
                 className="pl-9 bg-popover"
               />
             </div>
+
+            {/* 3. Todos os Segmentos */}
+            <Select value={filtroSegmento} onValueChange={setFiltroSegmento}>
+              <SelectTrigger className="w-[180px] bg-popover">
+                <SelectValue placeholder="Todos os segmentos" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="todos">Todos os segmentos</SelectItem>
+                <SelectItem value="vip">⭐ VIP</SelectItem>
+                <SelectItem value="eventual">🔄 Eventual</SelectItem>
+                <SelectItem value="novo">🌟 Novo</SelectItem>
+                <SelectItem value="inativo">😴 Inativo</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* 4. Todas as Origens */}
+            <Select value={filtroOrigem} onValueChange={setFiltroOrigem}>
+              <SelectTrigger className="w-[180px] bg-popover">
+                <SelectValue placeholder="Todas as origens" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="todos">Todas as origens</SelectItem>
+                <SelectItem value="instagram">📱 Instagram</SelectItem>
+                <SelectItem value="indicacao">🤝 Indicação</SelectItem>
+                <SelectItem value="google">🔍 Google</SelectItem>
+                <SelectItem value="evento">🎉 Evento</SelectItem>
+                <SelectItem value="outro">📝 Outro</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* 5. Exportar para Excel */}
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleExportarExcel}
+              className="gap-2 ml-auto"
+            >
+              <Download className="h-4 w-4" />
+              Exportar para Excel
+            </Button>
           </div>
         </div>
 
