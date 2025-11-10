@@ -53,13 +53,18 @@ export default function FinanceiroPage() {
                 <FileText className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
-                <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
-                  Tipos de Documentos
-                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                    Tipos de Documentos
+                  </CardTitle>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground whitespace-nowrap">
+                    🔒 Apenas visualização
+                  </span>
+                </div>
               </div>
             </div>
             <CardDescription className="text-xs line-clamp-2">
-              Tipos de documentos para lançamentos financeiros
+              Visualize e habilite/desabilite tipos de documentos do sistema
             </CardDescription>
           </CardHeader>
         </Card>
