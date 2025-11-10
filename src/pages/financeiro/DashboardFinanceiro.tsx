@@ -126,48 +126,52 @@ export default function DashboardFinanceiro() {
 
   async function carregarInadimplenciaClientes() {
     if (!user) return;
-    const hoje = new Date();
+    const hoje = new Date().toISOString().split('T')[0];
 
+    // Buscar parcelas em aberto (incluindo pagamento parcial) que estão atrasadas
     const { data } = await supabase
-      .from("contas_receber")
+      .from("vw_contas_receber_parcelas")
       .select(`
         id,
-        valor,
+        valor_parcela,
+        valor_pago,
         data_vencimento,
         cliente_id,
-        cliente_nome
+        cliente_nome,
+        status
       `)
-      .eq("usuario_id", user.id)
-      .eq("status", "pendente")
-      .lt("data_vencimento", hoje.toISOString().split('T')[0])
+      .eq("user_id", user.id)
+      .in("status", ["aberto", "atrasado", "pagamento_parcial"])
+      .lt("data_vencimento", hoje)
       .order("data_vencimento", { ascending: true });
 
     if (!data) return;
 
     const inadimplentesMap = new Map<string, InadimplenciaItem>();
 
-    for (const conta of data) {
-      const vencimento = new Date(conta.data_vencimento!);
-      const diasAtraso = Math.floor((hoje.getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
+    for (const parcela of data) {
+      const vencimento = new Date(parcela.data_vencimento!);
+      const diasAtraso = Math.floor((new Date(hoje).getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
+      const valorRestante = parcela.valor_parcela - (parcela.valor_pago || 0);
 
-      const clienteId = conta.cliente_id || conta.id;
-      const clienteNome = conta.cliente_nome || "Cliente desconhecido";
+      const clienteId = parcela.cliente_id || parcela.id;
+      const clienteNome = parcela.cliente_nome || "Cliente desconhecido";
 
       if (inadimplentesMap.has(clienteId)) {
         const existing = inadimplentesMap.get(clienteId)!;
-        existing.valor += conta.valor || 0;
+        existing.valor += valorRestante;
         existing.dias_atraso = Math.max(existing.dias_atraso, diasAtraso);
       } else {
         const { data: cliente } = await supabase
           .from("clientes")
           .select("telefone")
           .eq("id", clienteId)
-          .single();
+          .maybeSingle();
 
         inadimplentesMap.set(clienteId, {
           id: clienteId,
           nome: clienteNome,
-          valor: conta.valor || 0,
+          valor: valorRestante,
           dias_atraso: diasAtraso,
           telefone: cliente?.telefone
         });

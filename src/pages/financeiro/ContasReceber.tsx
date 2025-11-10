@@ -121,15 +121,21 @@ export default function ContasReceber() {
     fetchConfigJuros();
   }, []);
 
-  const fetchDashboard = async () => {
+  const fetchDashboard = async (parcelasFiltradas?: any[]) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data } = await supabase
-        .from('vw_contas_receber_parcelas')
-        .select('*')
-        .eq('user_id', user.id);
+      // Se houver parcelas filtradas, calcular com base nelas, senão buscar todas
+      let dataParaCalculo = parcelasFiltradas;
+      
+      if (!dataParaCalculo) {
+        const { data } = await supabase
+          .from('vw_contas_receber_parcelas')
+          .select('*')
+          .eq('user_id', user.id);
+        dataParaCalculo = data || [];
+      }
 
       let totalAReceber = 0;
       let totalRecebido = 0;
@@ -137,20 +143,34 @@ export default function ContasReceber() {
       let vencendoHoje = 0;
       const hoje = new Date().toISOString().split('T')[0];
 
-      data?.forEach((p: any) => {
-        if (p.status === 'aberto' || p.status === 'atrasado' || p.status === 'pagamento_parcial') {
-          totalAReceber += (p.valor_parcela - (p.valor_pago || 0));
+      dataParaCalculo?.forEach((p: any) => {
+        // Mapear status conforme as regras
+        let statusMapeado = p.status;
+        if (p.status === 'pagamento_parcial' || p.status === 'atrasado') {
+          statusMapeado = 'aberto';
         }
-        if (p.status === 'pago' || p.status === 'adiantado') {
-          totalRecebido += p.valor_pago || 0;
+        if (p.status === 'adiantado') {
+          statusMapeado = 'pago';
         }
-        if (p.status === 'pagamento_parcial') {
-          totalRecebido += p.valor_pago || 0;
+
+        // Calcular totais com status mapeados
+        if (statusMapeado === 'aberto') {
+          const valorRestante = p.valor_parcela - (p.valor_pago || 0);
+          totalAReceber += valorRestante;
+          
+          // Se estiver com pagamento parcial E vencido, incluir em "Em Atraso"
+          if (p.status === 'pagamento_parcial' || p.status === 'atrasado') {
+            if (p.data_vencimento < hoje) {
+              totalAtrasado += valorRestante;
+            }
+          }
         }
-        if (p.status === 'atrasado') {
-          totalAtrasado += (p.valor_parcela - (p.valor_pago || 0));
+        
+        if (statusMapeado === 'pago') {
+          totalRecebido += p.valor_pago || p.valor_parcela || 0;
         }
-        if (p.data_vencimento === hoje && (p.status === 'aberto' || p.status === 'pagamento_parcial')) {
+        
+        if (p.data_vencimento === hoje && statusMapeado === 'aberto') {
           vencendoHoje += (p.valor_parcela - (p.valor_pago || 0));
         }
       });
@@ -512,77 +532,104 @@ export default function ContasReceber() {
     }
   };
 
-  const parcelasFiltradas = parcelas.filter(p => {
-    // Ocultar contas pagas/adiantadas APENAS quando o filtro está em "aberto" ou em status que não sejam "todos" ou "pago" ou "adiantado"
-    const isFiltroAberto = filtroStatus === 'aberto' || 
-                           (filtroStatus !== 'todos' && filtroStatus !== 'pago' && filtroStatus !== 'adiantado');
-    
-    if (isFiltroAberto && (p.status === 'pago' || p.status === 'adiantado')) {
-      return false;
-    }
-    
-    // Filtro de status
-    if (filtroStatus !== 'todos') {
-      // Tratar "vencido" como sinônimo de "atrasado"
-      if (filtroStatus === 'vencido' && p.status !== 'atrasado') {
-        return false;
-      } else if (filtroStatus !== 'vencido' && p.status !== filtroStatus) {
+  const parcelasFiltradas = parcelas
+    .map(p => {
+      // Mapear status conforme as regras
+      let statusMapeado = p.status;
+      if (p.status === 'pagamento_parcial' || p.status === 'atrasado') {
+        statusMapeado = 'aberto';
+      }
+      if (p.status === 'adiantado') {
+        statusMapeado = 'pago';
+      }
+      return { ...p, status: statusMapeado, statusOriginal: p.status };
+    })
+    .filter(p => {
+      // Ocultar contas pagas quando o filtro está em "aberto"
+      if (filtroStatus === 'aberto' && p.status === 'pago') {
         return false;
       }
-    }
+      
+      // Filtro de status
+      if (filtroStatus !== 'todos') {
+        if (p.status !== filtroStatus) {
+          return false;
+        }
+      }
 
-    // Filtro de Data de Emissão
-    if (dataEmissaoInicial && p.data_emissao) {
-      const dataEmissao = new Date(p.data_emissao + 'T00:00:00');
-      if (dataEmissao < dataEmissaoInicial) return false;
-    }
-    if (dataEmissaoFinal && p.data_emissao) {
-      const dataEmissao = new Date(p.data_emissao + 'T00:00:00');
-      if (dataEmissao > dataEmissaoFinal) return false;
-    }
+      // Filtro de Data de Emissão
+      if (dataEmissaoInicial && p.data_emissao) {
+        const dataEmissao = new Date(p.data_emissao + 'T00:00:00');
+        if (dataEmissao < dataEmissaoInicial) return false;
+      }
+      if (dataEmissaoFinal && p.data_emissao) {
+        const dataEmissao = new Date(p.data_emissao + 'T00:00:00');
+        if (dataEmissao > dataEmissaoFinal) return false;
+      }
 
-    // Filtro de Data de Pagamento
-    if (dataPagamentoInicial && p.data_pagamento) {
-      const dataPagamento = new Date(p.data_pagamento + 'T00:00:00');
-      if (dataPagamento < dataPagamentoInicial) return false;
-    }
-    if (dataPagamentoFinal && p.data_pagamento) {
-      const dataPagamento = new Date(p.data_pagamento + 'T00:00:00');
-      if (dataPagamento > dataPagamentoFinal) return false;
-    }
+      // Filtro de Data de Pagamento
+      if (dataPagamentoInicial && p.data_pagamento) {
+        const dataPagamento = new Date(p.data_pagamento + 'T00:00:00');
+        if (dataPagamento < dataPagamentoInicial) return false;
+      }
+      if (dataPagamentoFinal && p.data_pagamento) {
+        const dataPagamento = new Date(p.data_pagamento + 'T00:00:00');
+        if (dataPagamento > dataPagamentoFinal) return false;
+      }
 
-    // Filtro de Data de Vencimento
-    if (dataVencimentoInicial && p.data_vencimento) {
-      const dataVencimento = new Date(p.data_vencimento + 'T00:00:00');
-      if (dataVencimento < dataVencimentoInicial) return false;
-    }
-    if (dataVencimentoFinal && p.data_vencimento) {
-      const dataVencimento = new Date(p.data_vencimento + 'T00:00:00');
-      if (dataVencimento > dataVencimentoFinal) return false;
-    }
+      // Filtro de Data de Vencimento
+      if (dataVencimentoInicial && p.data_vencimento) {
+        const dataVencimento = new Date(p.data_vencimento + 'T00:00:00');
+        if (dataVencimento < dataVencimentoInicial) return false;
+      }
+      if (dataVencimentoFinal && p.data_vencimento) {
+        const dataVencimento = new Date(p.data_vencimento + 'T00:00:00');
+        if (dataVencimento > dataVencimentoFinal) return false;
+      }
 
-    // Mais opções de busca
-    if (filtroPlanoContasId && p.plano_conta_id !== filtroPlanoContasId) {
-      return false;
-    }
-    if (filtroClienteId && p.cliente_id !== filtroClienteId) {
-      return false;
-    }
-    if (filtroCategoriaId) {
-      const plano = planoContas.find(pc => pc.id === p.plano_conta_id);
-      if (!plano || plano.categoria_id !== filtroCategoriaId) {
+      // Mais opções de busca
+      if (filtroPlanoContasId && filtroPlanoContasId !== 'todos' && p.plano_conta_id !== filtroPlanoContasId) {
         return false;
       }
-    }
-    if (filtroTipoDocId && p.tipo_documento_id !== filtroTipoDocId) {
-      return false;
-    }
-    if (filtroBancoId && p.banco_id !== filtroBancoId) {
-      return false;
-    }
+      if (filtroClienteId && filtroClienteId !== 'todos' && p.cliente_id !== filtroClienteId) {
+        return false;
+      }
+      if (filtroCategoriaId) {
+        const plano = planoContas.find(pc => pc.id === p.plano_conta_id);
+        if (!plano || plano.categoria_id !== filtroCategoriaId) {
+          return false;
+        }
+      }
+      if (filtroTipoDocId && p.tipo_documento_id !== filtroTipoDocId) {
+        return false;
+      }
+      if (filtroBancoId && p.banco_id !== filtroBancoId) {
+        return false;
+      }
 
-    return true;
-  });
+      return true;
+    });
+  
+  // Atualizar dashboard quando os filtros mudarem
+  useEffect(() => {
+    if (!loading && parcelas.length > 0) {
+      fetchDashboard(parcelasFiltradas);
+    }
+  }, [
+    filtroStatus,
+    dataEmissaoInicial,
+    dataEmissaoFinal,
+    dataPagamentoInicial,
+    dataPagamentoFinal,
+    dataVencimentoInicial,
+    dataVencimentoFinal,
+    filtroPlanoContasId,
+    filtroClienteId,
+    filtroCategoriaId,
+    filtroTipoDocId,
+    filtroBancoId,
+    parcelas
+  ]);
   
   // Paginação
   const parcelasPaginadas = parcelasFiltradas.slice(0, porPagina);
@@ -673,12 +720,8 @@ export default function ContasReceber() {
 
   const getBadgeStatus = (status: string) => {
     const badges: Record<string, JSX.Element> = {
-      aberto: <Badge variant="outline">Aberto</Badge>,
+      aberto: <Badge variant="outline">Em Aberto</Badge>,
       pago: <Badge className="bg-green-100 text-green-700 border-green-300">Pago</Badge>,
-      pagamento_parcial: <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">Pagamento Parcial</Badge>,
-      atrasado: <Badge className="bg-red-100 text-red-700 border-red-300">Atrasado</Badge>,
-      vencido: <Badge className="bg-red-100 text-red-700 border-red-300">Vencido</Badge>,
-      adiantado: <Badge className="bg-blue-100 text-blue-700 border-blue-300">Adiantado</Badge>,
     };
     return badges[status] || <Badge variant="outline">{status}</Badge>;
   };
@@ -859,29 +902,6 @@ export default function ContasReceber() {
             Pago
           </Button>
 
-          <Button
-            variant={filtroStatus === 'vencido' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFiltroStatus('vencido')}
-          >
-            Vencido
-          </Button>
-          
-          <Button
-            variant={filtroStatus === 'pagamento_parcial' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFiltroStatus('pagamento_parcial')}
-          >
-            Pago Parcialmente
-          </Button>
-          
-          <Button
-            variant={filtroStatus === 'adiantado' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFiltroStatus('adiantado')}
-          >
-            Adiantado
-          </Button>
 
           {/* Separador visual */}
           <div className="h-8 w-px bg-border mx-1" />
