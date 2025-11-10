@@ -56,6 +56,9 @@ export default function CategoriasPlanoContas() {
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [filtroFaixaDRE, setFiltroFaixaDRE] = useState('todos');
   const [filtroTipo, setFiltroTipo] = useState('todos');
+  
+  // Paginação
+  const [itensPorPagina, setItensPorPagina] = useState(10);
 
   // Modal criar/editar
   const [modalAberto, setModalAberto] = useState(false);
@@ -151,6 +154,12 @@ export default function CategoriasPlanoContas() {
 
     return resultado;
   }, [categorias, filtroIndicador, filtroStatus, filtroFaixaDRE, filtroTipo]);
+
+  // Aplicar paginação
+  const categoriasPaginadas = useMemo(() => {
+    if (itensPorPagina === 0) return categoriasFiltradas; // "Todos"
+    return categoriasFiltradas.slice(0, itensPorPagina);
+  }, [categoriasFiltradas, itensPorPagina]);
 
   // Extrair faixas DRE únicas para o filtro
   const faixasDRE = useMemo(() => {
@@ -434,6 +443,7 @@ export default function CategoriasPlanoContas() {
     setFiltroStatus('todos');
     setFiltroFaixaDRE('todos');
     setFiltroTipo('todos');
+    setItensPorPagina(10);
   };
 
   const getBadgeIndicador = (indicador: 'Credito' | 'Debito') => {
@@ -562,10 +572,30 @@ export default function CategoriasPlanoContas() {
           </div>
         </div>
 
-        {/* Contador de resultados */}
+        {/* Resultados por página e contador */}
         <div className="flex justify-between items-center">
-          <div className="text-sm text-muted-foreground">
-            Mostrando <strong>{categoriasFiltradas.length}</strong> de <strong>{categorias.length}</strong> categoria(s)
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Label className="text-sm">Resultados por página:</Label>
+              <Select 
+                value={itensPorPagina.toString()} 
+                onValueChange={(v) => setItensPorPagina(Number(v))}
+              >
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                  <SelectItem value="0">Todos</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Mostrando <strong>{categoriasPaginadas.length}</strong> de <strong>{categoriasFiltradas.length}</strong> categoria(s)
+            </div>
           </div>
           <Button onClick={handleExportarExcel} variant="outline" size="sm">
             <Download className="mr-2 h-4 w-4" />
@@ -589,7 +619,7 @@ export default function CategoriasPlanoContas() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {categoriasFiltradas.length === 0 ? (
+            {categoriasPaginadas.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                   {filtrosAtivos > 0 
@@ -598,7 +628,7 @@ export default function CategoriasPlanoContas() {
                 </TableCell>
               </TableRow>
             ) : (
-              categoriasFiltradas.map(categoria => (
+              categoriasPaginadas.map(categoria => (
                 <TableRow 
                   key={categoria.id}
                   className={!categoria.ativo ? 'opacity-50 bg-muted/50' : ''}
