@@ -146,32 +146,32 @@ export default function ContasReceber() {
       dataParaCalculo?.forEach((p: any) => {
         // Mapear status conforme as regras
         let statusMapeado = p.status;
-        if (p.status === 'pagamento_parcial' || p.status === 'atrasado') {
+        if (p.status === 'pagamento_parcial') {
           statusMapeado = 'aberto';
         }
         if (p.status === 'adiantado') {
           statusMapeado = 'pago';
         }
+        // Status 'atrasado' permanece como 'atrasado'
 
-        // Calcular totais com status mapeados
-        if (statusMapeado === 'aberto') {
+        // Calcular totais
+        if (statusMapeado === 'aberto' || statusMapeado === 'atrasado') {
           const valorRestante = p.valor_parcela - (p.valor_pago || 0);
           totalAReceber += valorRestante;
           
-          // Se estiver com pagamento parcial E vencido, incluir em "Em Atraso"
-          if (p.status === 'pagamento_parcial' || p.status === 'atrasado') {
-            if (p.data_vencimento < hoje) {
-              totalAtrasado += valorRestante;
-            }
+          // Incluir em "Em Atraso" se vencimento passou
+          if (p.data_vencimento < hoje) {
+            totalAtrasado += valorRestante;
+          }
+          
+          // Vencendo hoje
+          if (p.data_vencimento === hoje) {
+            vencendoHoje += valorRestante;
           }
         }
         
         if (statusMapeado === 'pago') {
           totalRecebido += p.valor_pago || p.valor_parcela || 0;
-        }
-        
-        if (p.data_vencimento === hoje && statusMapeado === 'aberto') {
-          vencendoHoje += (p.valor_parcela - (p.valor_pago || 0));
         }
       });
 
@@ -536,12 +536,13 @@ export default function ContasReceber() {
     .map(p => {
       // Mapear status conforme as regras
       let statusMapeado = p.status;
-      if (p.status === 'pagamento_parcial' || p.status === 'atrasado') {
+      if (p.status === 'pagamento_parcial') {
         statusMapeado = 'aberto';
       }
       if (p.status === 'adiantado') {
         statusMapeado = 'pago';
       }
+      // Status 'atrasado' permanece como 'atrasado'
       return { ...p, status: statusMapeado, statusOriginal: p.status };
     })
     .filter(p => {
@@ -722,6 +723,7 @@ export default function ContasReceber() {
     const badges: Record<string, JSX.Element> = {
       aberto: <Badge variant="outline">Em Aberto</Badge>,
       pago: <Badge className="bg-green-100 text-green-700 border-green-300">Pago</Badge>,
+      atrasado: <Badge className="bg-red-100 text-red-700 border-red-300">Em Atraso</Badge>,
     };
     return badges[status] || <Badge variant="outline">{status}</Badge>;
   };
@@ -900,6 +902,14 @@ export default function ContasReceber() {
             onClick={() => setFiltroStatus('pago')}
           >
             Pago
+          </Button>
+
+          <Button
+            variant={filtroStatus === 'atrasado' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFiltroStatus('atrasado')}
+          >
+            Em Atraso
           </Button>
 
 
