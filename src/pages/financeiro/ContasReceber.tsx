@@ -546,15 +546,18 @@ export default function ContasReceber() {
       return { ...p, status: statusMapeado, statusOriginal: p.status };
     })
     .filter(p => {
-      // Ocultar contas pagas quando o filtro está em "aberto"
-      if (filtroStatus === 'aberto' && p.status === 'pago') {
-        return false;
-      }
-      
       // Filtro de status
       if (filtroStatus !== 'todos') {
-        if (p.status !== filtroStatus) {
-          return false;
+        // "Em Aberto" deve incluir tanto 'aberto' quanto 'atrasado'
+        if (filtroStatus === 'aberto') {
+          if (p.status !== 'aberto' && p.status !== 'atrasado') {
+            return false;
+          }
+        } else {
+          // Para outros filtros, comparação exata
+          if (p.status !== filtroStatus) {
+            return false;
+          }
         }
       }
 
