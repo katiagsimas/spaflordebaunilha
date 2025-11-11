@@ -536,21 +536,28 @@ export default function ContasReceber() {
     .map(p => {
       // Mapear status conforme as regras
       let statusMapeado = p.status;
-      if (p.status === 'pagamento_parcial') {
-        statusMapeado = 'aberto';
-      }
       if (p.status === 'adiantado') {
         statusMapeado = 'pago';
       }
-      // Status 'atrasado' permanece como 'atrasado'
+      // Mantém 'pagamento_parcial', 'atrasado', 'aberto', 'pago' como estão
       return { ...p, status: statusMapeado, statusOriginal: p.status };
     })
     .filter(p => {
       // Filtro de status
       if (filtroStatus !== 'todos') {
-        // "Em Aberto" deve incluir tanto 'aberto' quanto 'atrasado'
-        if (filtroStatus === 'aberto') {
-          if (p.status !== 'aberto' && p.status !== 'atrasado') {
+        if (filtroStatus === 'pago') {
+          // "Pago" mostra apenas contas pagas integralmente
+          if (p.status !== 'pago') {
+            return false;
+          }
+        } else if (filtroStatus === 'aberto') {
+          // "Em Aberto" inclui: aberto, atrasado e pagamento_parcial
+          if (p.status !== 'aberto' && p.status !== 'atrasado' && p.status !== 'pagamento_parcial') {
+            return false;
+          }
+        } else if (filtroStatus === 'atrasado') {
+          // "Em Atraso" mostra apenas contas atrasadas
+          if (p.status !== 'atrasado') {
             return false;
           }
         } else {
@@ -727,6 +734,7 @@ export default function ContasReceber() {
       aberto: <Badge variant="outline">Em Aberto</Badge>,
       pago: <Badge className="bg-green-100 text-green-700 border-green-300">Pago</Badge>,
       atrasado: <Badge className="bg-red-100 text-red-700 border-red-300">Em Atraso</Badge>,
+      pagamento_parcial: <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">Pago Parcialmente</Badge>,
     };
     return badges[status] || <Badge variant="outline">{status}</Badge>;
   };
