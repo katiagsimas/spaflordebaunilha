@@ -137,7 +137,6 @@ export default function DashboardFinanceiro() {
         valor_pago,
         data_vencimento,
         cliente_id,
-        cliente_nome,
         status
       `)
       .eq("user_id", user.id)
@@ -154,23 +153,25 @@ export default function DashboardFinanceiro() {
       const diasAtraso = Math.floor((new Date(hoje).getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
       const valorRestante = parcela.valor_parcela - (parcela.valor_pago || 0);
 
-      const clienteId = parcela.cliente_id || parcela.id;
-      const clienteNome = parcela.cliente_nome || "Cliente desconhecido";
+      const clienteId = parcela.cliente_id;
+      
+      if (!clienteId || valorRestante <= 0) continue;
 
       if (inadimplentesMap.has(clienteId)) {
         const existing = inadimplentesMap.get(clienteId)!;
         existing.valor += valorRestante;
         existing.dias_atraso = Math.max(existing.dias_atraso, diasAtraso);
       } else {
+        // Buscar nome e telefone do cliente
         const { data: cliente } = await supabase
           .from("clientes")
-          .select("telefone")
+          .select("nome, telefone")
           .eq("id", clienteId)
           .maybeSingle();
 
         inadimplentesMap.set(clienteId, {
           id: clienteId,
-          nome: clienteNome,
+          nome: cliente?.nome || "Cliente desconhecido",
           valor: valorRestante,
           dias_atraso: diasAtraso,
           telefone: cliente?.telefone

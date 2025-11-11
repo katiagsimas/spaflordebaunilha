@@ -405,7 +405,6 @@ export default function Financeiro() {
         status,
         contas_receber!inner (
           cliente_id,
-          cliente_nome,
           usuario_id
         )
       `)
@@ -422,8 +421,9 @@ export default function Financeiro() {
       const vencimento = new Date(parcela.data_vencimento!);
       const diasAtraso = Math.floor((hoje.getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
 
-      const clienteId = parcela.contas_receber?.cliente_id || parcela.conta_receber_id;
-      const clienteNome = parcela.contas_receber?.cliente_nome || "Cliente desconhecido";
+      const clienteId = parcela.contas_receber?.cliente_id;
+      
+      if (!clienteId) continue;
 
       // Calcular valor em atraso (valor_parcela - valor_pago)
       const valorEmAtraso = (parcela.valor_parcela || 0) - (parcela.valor_pago || 0);
@@ -434,15 +434,16 @@ export default function Financeiro() {
           existing.valor += valorEmAtraso;
           existing.dias_atraso = Math.max(existing.dias_atraso, diasAtraso);
         } else {
+          // Buscar nome e telefone do cliente
           const { data: cliente } = await supabase
             .from("clientes")
-            .select("telefone")
+            .select("nome, telefone")
             .eq("id", clienteId)
             .maybeSingle();
 
           inadimplentesMap.set(clienteId, {
             id: clienteId,
-            nome: clienteNome,
+            nome: cliente?.nome || "Cliente desconhecido",
             valor: valorEmAtraso,
             dias_atraso: diasAtraso,
             telefone: cliente?.telefone
