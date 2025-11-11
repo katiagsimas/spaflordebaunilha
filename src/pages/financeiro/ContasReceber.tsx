@@ -170,8 +170,9 @@ export default function ContasReceber() {
           }
         }
         
-        if (statusMapeado === 'pago') {
-          totalRecebido += p.valor_pago || p.valor_parcela || 0;
+        // Somar todos os valores pagos (incluindo pagamentos parciais)
+        if (p.valor_pago && p.valor_pago > 0) {
+          totalRecebido += p.valor_pago;
         }
       });
 
