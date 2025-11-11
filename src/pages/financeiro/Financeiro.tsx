@@ -393,14 +393,16 @@ export default function Financeiro() {
     
     const hoje = new Date();
 
-    // Buscar parcelas em atraso que ainda estão em aberto
+    // Buscar parcelas em atraso (status: aberto, atrasado ou pagamento_parcial)
     const { data } = await supabase
       .from("contas_receber_parcelas")
       .select(`
         id,
         valor_parcela,
+        valor_pago,
         data_vencimento,
         conta_receber_id,
+        status,
         contas_receber!inner (
           cliente_id,
           cliente_nome,
@@ -408,7 +410,7 @@ export default function Financeiro() {
         )
       `)
       .eq("contas_receber.usuario_id", user.id)
-      .eq("status", "aberto")
+      .in("status", ["aberto", "atrasado", "pagamento_parcial"])
       .lt("data_vencimento", hoje.toISOString().split('T')[0])
       .order("data_vencimento", { ascending: true });
 
@@ -423,24 +425,29 @@ export default function Financeiro() {
       const clienteId = parcela.contas_receber?.cliente_id || parcela.conta_receber_id;
       const clienteNome = parcela.contas_receber?.cliente_nome || "Cliente desconhecido";
 
-      if (inadimplentesMap.has(clienteId)) {
-        const existing = inadimplentesMap.get(clienteId)!;
-        existing.valor += parcela.valor_parcela || 0;
-        existing.dias_atraso = Math.max(existing.dias_atraso, diasAtraso);
-      } else {
-        const { data: cliente } = await supabase
-          .from("clientes")
-          .select("telefone")
-          .eq("id", clienteId)
-          .maybeSingle();
+      // Calcular valor em atraso (valor_parcela - valor_pago)
+      const valorEmAtraso = (parcela.valor_parcela || 0) - (parcela.valor_pago || 0);
 
-        inadimplentesMap.set(clienteId, {
-          id: clienteId,
-          nome: clienteNome,
-          valor: parcela.valor_parcela || 0,
-          dias_atraso: diasAtraso,
-          telefone: cliente?.telefone
-        });
+      if (valorEmAtraso > 0) {
+        if (inadimplentesMap.has(clienteId)) {
+          const existing = inadimplentesMap.get(clienteId)!;
+          existing.valor += valorEmAtraso;
+          existing.dias_atraso = Math.max(existing.dias_atraso, diasAtraso);
+        } else {
+          const { data: cliente } = await supabase
+            .from("clientes")
+            .select("telefone")
+            .eq("id", clienteId)
+            .maybeSingle();
+
+          inadimplentesMap.set(clienteId, {
+            id: clienteId,
+            nome: clienteNome,
+            valor: valorEmAtraso,
+            dias_atraso: diasAtraso,
+            telefone: cliente?.telefone
+          });
+        }
       }
     }
 
