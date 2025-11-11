@@ -38,7 +38,20 @@ export default function ContasReceberForm() {
 
       if (error) throw error;
 
-      setDadosConta(data);
+      // Buscar também a primeira parcela para pegar a data de vencimento
+      const { data: parcelas } = await supabase
+        .from('contas_receber_parcelas')
+        .select('data_vencimento')
+        .eq('conta_receber_id', id)
+        .order('numero_parcela')
+        .limit(1);
+
+      const primeiroVencimento = parcelas?.[0]?.data_vencimento || data.data_vencimento;
+
+      setDadosConta({
+        ...data,
+        primeiro_vencimento: primeiroVencimento,
+      });
     } catch (error) {
       console.error('Erro ao buscar conta:', error);
       toast({
@@ -98,12 +111,18 @@ export default function ContasReceberForm() {
         </CardHeader>
         <CardContent>
           <ContasReceberFormModal
+            contaReceberId={isEditMode ? id : undefined}
             dataEmissaoInicial={dadosConta?.data_emissao || new Date().toISOString().split('T')[0]}
             clienteIdInicial={dadosConta?.cliente_id || ''}
             clienteNomeInicial={dadosConta?.cliente?.nome || ''}
             descricaoInicial={dadosConta?.descricao || ''}
             valorTotalInicial={dadosConta?.valor || 0}
             planoContasIdInicial={dadosConta?.plano_conta_id || ''}
+            tipoDocumentoIdInicial={dadosConta?.tipo_documento_id || ''}
+            bancoIdInicial={dadosConta?.banco_id || ''}
+            numeroParcelasInicial={dadosConta?.numero_parcelas || 1}
+            primeiroVencimentoInicial={dadosConta?.primeiro_vencimento || ''}
+            tipoLancamentoInicial={dadosConta?.tipo_lancamento || 'unico'}
             onSucesso={handleSucesso}
             onCancelar={handleCancelar}
           />
