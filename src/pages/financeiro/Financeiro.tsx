@@ -415,7 +415,7 @@ export default function Financeiro() {
 
     if (!data) return;
 
-    const inadimplentesMap = new Map<string, InadimplenciaItem>();
+    const parcelas: InadimplenciaItem[] = [];
 
     for (const parcela of data) {
       const vencimento = new Date(parcela.data_vencimento!);
@@ -425,37 +425,31 @@ export default function Financeiro() {
       
       if (!clienteId) continue;
 
-      // Calcular valor em atraso (valor_parcela - valor_pago)
+      // Calcular valor em atraso desta parcela específica
       const valorEmAtraso = (parcela.valor_parcela || 0) - (parcela.valor_pago || 0);
 
       if (valorEmAtraso > 0) {
-        if (inadimplentesMap.has(clienteId)) {
-          const existing = inadimplentesMap.get(clienteId)!;
-          existing.valor += valorEmAtraso;
-          existing.dias_atraso = Math.max(existing.dias_atraso, diasAtraso);
-        } else {
-          // Buscar nome e telefone do cliente
-          const { data: cliente } = await supabase
-            .from("clientes")
-            .select("nome, telefone")
-            .eq("id", clienteId)
-            .maybeSingle();
+        // Buscar nome e telefone do cliente
+        const { data: cliente } = await supabase
+          .from("clientes")
+          .select("nome, telefone")
+          .eq("id", clienteId)
+          .maybeSingle();
 
-          inadimplentesMap.set(clienteId, {
-            id: clienteId,
-            nome: cliente?.nome || "Cliente desconhecido",
-            valor: valorEmAtraso,
-            dias_atraso: diasAtraso,
-            telefone: cliente?.telefone
-          });
-        }
+        parcelas.push({
+          id: parcela.id,
+          nome: cliente?.nome || "Cliente desconhecido",
+          valor: valorEmAtraso,
+          dias_atraso: diasAtraso,
+          telefone: cliente?.telefone
+        });
       }
     }
 
-    const agrupado = Array.from(inadimplentesMap.values());
-    agrupado.sort((a, b) => b.valor - a.valor);
+    // Ordenar por dias de atraso (maior primeiro)
+    parcelas.sort((a, b) => b.dias_atraso - a.dias_atraso);
 
-    setInadimplenciaClientes(agrupado);
+    setInadimplenciaClientes(parcelas);
   }
 
   async function carregarInadimplenciaFornecedores() {
