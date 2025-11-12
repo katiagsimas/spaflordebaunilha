@@ -547,8 +547,8 @@ export default function ContasReceber() {
       // Filtro de status
       if (filtroStatus !== 'todos') {
         if (filtroStatus === 'pago') {
-          // "Pago" mostra apenas contas pagas integralmente
-          if (p.status !== 'pago') {
+          // "Pago" mostra contas pagas integralmente (pago, adiantado, pago_em_atraso)
+          if (p.status !== 'pago' && p.status !== 'adiantado' && p.status !== 'pago_em_atraso') {
             return false;
           }
         } else if (filtroStatus === 'aberto') {
@@ -735,6 +735,7 @@ export default function ContasReceber() {
       aberto: <Badge variant="outline">Em Aberto</Badge>,
       pago: <Badge className="bg-green-100 text-green-700 border-green-300">Pago</Badge>,
       adiantado: <Badge className="bg-emerald-100 text-emerald-700 border-emerald-300">Adiantado</Badge>,
+      pago_em_atraso: <Badge className="bg-orange-100 text-orange-700 border-orange-300">Pago em Atraso</Badge>,
       atrasado: <Badge className="bg-red-100 text-red-700 border-red-300">Em Atraso</Badge>,
       pagamento_parcial: <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">Pago Parcialmente</Badge>,
     };
