@@ -149,7 +149,7 @@ export default function ContasReceber() {
         if (p.status === 'pagamento_parcial') {
           statusMapeado = 'aberto';
         }
-        if (p.status === 'adiantado') {
+        if (p.status === 'adiantado' || p.status === 'pago_em_atraso') {
           statusMapeado = 'pago';
         }
         // Status 'atrasado' permanece como 'atrasado'
