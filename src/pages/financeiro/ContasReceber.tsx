@@ -173,20 +173,12 @@ export default function ContasReceber() {
         // Somar valores recebidos
         if (p.status === 'pago' || p.status === 'adiantado' || p.status === 'pago_em_atraso') {
           // Parcelas totalmente pagas: usar valor_parcela
-          console.log(`[RECEBIDO] Parcela ${p.id} - Status: ${p.status} - Valor: R$ ${p.valor_parcela}`);
           totalRecebido += p.valor_parcela;
         } else if (p.status === 'pagamento_parcial' || (p.valor_pago && p.valor_pago > 0)) {
           // Pagamentos parciais ou qualquer valor pago: usar valor_pago
-          console.log(`[RECEBIDO PARCIAL] Parcela ${p.id} - Status: ${p.status} - Valor Pago: R$ ${p.valor_pago}`);
           totalRecebido += (p.valor_pago || 0);
         }
       });
-
-      console.log('=== DASHBOARD RESUMO ===');
-      console.log('Total Recebido:', totalRecebido);
-      console.log('Total a Receber:', totalAReceber);
-      console.log('Total Atrasado:', totalAtrasado);
-      console.log('Vencendo Hoje:', vencendoHoje);
 
       setDashboard({
         total_a_receber: totalAReceber,
