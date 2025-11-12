@@ -170,8 +170,12 @@ export default function ContasReceber() {
           }
         }
         
-        // Somar todos os valores pagos (incluindo pagamentos parciais)
-        if (p.valor_pago && p.valor_pago > 0) {
+        // Somar valores recebidos
+        if (p.status === 'pago' || p.status === 'adiantado' || p.status === 'pago_em_atraso') {
+          // Parcelas totalmente pagas: usar valor_parcela
+          totalRecebido += p.valor_parcela;
+        } else if (p.valor_pago && p.valor_pago > 0) {
+          // Pagamentos parciais: usar valor_pago
           totalRecebido += p.valor_pago;
         }
       });
