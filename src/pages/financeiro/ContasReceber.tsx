@@ -730,14 +730,17 @@ export default function ContasReceber() {
     });
   };
 
-  const getBadgeStatus = (status: string) => {
+  const getBadgeStatus = (status: string, statusOriginal?: string) => {
     const badges: Record<string, JSX.Element> = {
       aberto: <Badge variant="outline">Em Aberto</Badge>,
       pago: <Badge className="bg-green-100 text-green-700 border-green-300">Pago</Badge>,
+      adiantado: <Badge className="bg-emerald-100 text-emerald-700 border-emerald-300">Adiantado</Badge>,
       atrasado: <Badge className="bg-red-100 text-red-700 border-red-300">Em Atraso</Badge>,
       pagamento_parcial: <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">Pago Parcialmente</Badge>,
     };
-    return badges[status] || <Badge variant="outline">{status}</Badge>;
+    // Usa statusOriginal se disponível para mostrar "Adiantado" ao invés de "Pago"
+    const statusParaBadge = statusOriginal || status;
+    return badges[statusParaBadge] || <Badge variant="outline">{statusParaBadge}</Badge>;
   };
 
   if (loading) return <LoadingState message="Carregando Contas a Receber" submessage="Buscando suas receitas..." />;
@@ -1167,7 +1170,7 @@ export default function ContasReceber() {
                     {parcela.valor_pago ? formatarValor(parcela.valor_pago) : '-'}
                   </TableCell>
                   <TableCell>{formatarData(parcela.data_pagamento)}</TableCell>
-                  <TableCell>{getBadgeStatus(parcela.status)}</TableCell>
+                  <TableCell>{getBadgeStatus(parcela.status, parcela.statusOriginal)}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
