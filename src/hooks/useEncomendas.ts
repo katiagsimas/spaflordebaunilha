@@ -74,7 +74,7 @@ export function useEncomendas() {
         tags: encomenda.tags?.map((t: any) => t.tag).filter(Boolean) || []
       }));
       
-      setEncomendas(encomendasFormatadas as Encomenda[]);
+      setEncomendas(encomendasFormatadas as unknown as Encomenda[]);
     } catch (err: any) {
       console.error('Erro ao buscar encomendas:', err);
       toast.error('Erro ao carregar encomendas: ' + err.message);
@@ -100,7 +100,7 @@ export function useEncomendas() {
       pagamentos: Array.isArray(data.pagamentos) ? data.pagamentos : []
     };
     
-    setEncomendas([encomendaFormatada as Encomenda, ...encomendas]);
+    setEncomendas([encomendaFormatada as unknown as Encomenda, ...encomendas]);
     toast.success('Encomenda criada!');
     return data;
   };
@@ -124,7 +124,7 @@ export function useEncomendas() {
       pagamentos: Array.isArray(data.pagamentos) ? data.pagamentos : []
     };
     
-    setEncomendas(encomendas.map(e => e.id === id ? encomendaFormatada as Encomenda : e));
+    setEncomendas(encomendas.map(e => e.id === id ? encomendaFormatada as unknown as Encomenda : e));
     toast.success('Encomenda atualizada!');
     return data;
   };
