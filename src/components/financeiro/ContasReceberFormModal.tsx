@@ -95,23 +95,29 @@ export default function ContasReceberFormModal({
       setTiposDocumento(dataTipos || []);
 
       // Buscar planos de contas (apenas crédito)
-      const { data: dataPlanos } = await supabase
+      const { data: dataPlanos, error: errorPlanos } = await supabase
         .from('plano_contas')
         .select(`
           id,
           codigo_estruturado,
           descricao,
+          ativo,
+          padrao_sistema,
           categoria:categorias_plano_contas (
             indicador
           )
         `)
-        .eq('user_id', user.id)
+        .or(`user_id.eq.${user.id},padrao_sistema.eq.true`)
         .eq('ativo', true)
         .order('codigo_estruturado');
+
+      console.log('Planos de contas:', dataPlanos, 'Error:', errorPlanos);
 
       const planosCredito = (dataPlanos || []).filter(
         (p: any) => p.categoria?.indicador === 'Credito'
       );
+      
+      console.log('Planos de crédito filtrados:', planosCredito);
       setPlanosContas(planosCredito);
 
       // Buscar bancos habilitados
