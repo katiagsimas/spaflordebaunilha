@@ -439,7 +439,7 @@ export default function MaoDeObra() {
       </AlertDialog>
 
       <Dialog open={historicoOpen} onOpenChange={setHistoricoOpen}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-5xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Histórico de Alterações</DialogTitle>
             <DialogDescription>
@@ -447,83 +447,53 @@ export default function MaoDeObra() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
-            {historicoFiltrado.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
-                Nenhuma alteração registrada
-              </p>
-            ) : (
-              historicoFiltrado.map((item) => (
-                <Card key={item.id}>
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <CardTitle className="text-base">
-                        {item.tipo_alteracao === 'criacao' && 'Criação'}
-                        {item.tipo_alteracao === 'edicao' && 'Edição'}
-                        {item.tipo_alteracao === 'exclusao' && 'Exclusão'}
-                      </CardTitle>
-                      <Badge variant="outline">
-                        {formatarDataHora(item.data_alteracao || item.created_at || '')}
-                      </Badge>
-                    </div>
-                    {item.descricao_alteracao && (
-                      <CardDescription>{item.descricao_alteracao}</CardDescription>
-                    )}
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2 text-sm">
-                      {item.nome_anterior && (
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <span className="text-muted-foreground">Nome anterior:</span>
-                            <p className="font-medium">{item.nome_anterior}</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Nome novo:</span>
-                            <p className="font-medium">{item.nome_novo}</p>
-                          </div>
-                        </div>
-                      )}
-                      {item.valor_anterior !== null && item.valor_anterior !== undefined && (
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <span className="text-muted-foreground">Valor anterior:</span>
-                            <p className="font-medium">
-                              {new Intl.NumberFormat('pt-BR', {
-                                style: 'currency',
-                                currency: 'BRL'
-                              }).format(item.valor_anterior)}
-                            </p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Valor novo:</span>
-                            <p className="font-medium">
-                              {new Intl.NumberFormat('pt-BR', {
-                                style: 'currency',
-                                currency: 'BRL'
-                              }).format(item.valor_novo)}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      {item.descricao_anterior && (
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <span className="text-muted-foreground">Descrição anterior:</span>
-                            <p className="font-medium">{item.descricao_anterior}</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Descrição nova:</span>
-                            <p className="font-medium">{item.descricao_novo || "-"}</p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
+          {historicoFiltrado.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">
+              Nenhuma alteração registrada
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Data da Edição</TableHead>
+                  <TableHead>Nome</TableHead>
+                  <TableHead className="text-right">Valor Anterior</TableHead>
+                  <TableHead>Descrição Nova</TableHead>
+                  <TableHead className="text-right">Valor Novo</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {historicoFiltrado.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="text-sm">
+                      {formatarDataHora(item.data_alteracao || item.created_at || '')}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {item.nome_novo || item.nome_anterior || '-'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {item.valor_anterior !== null && item.valor_anterior !== undefined
+                        ? new Intl.NumberFormat('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL'
+                          }).format(item.valor_anterior)
+                        : '-'
+                      }
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {item.descricao_novo || '-'}
+                    </TableCell>
+                    <TableCell className="text-right font-semibold">
+                      {new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                      }).format(item.valor_novo)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </DialogContent>
       </Dialog>
     </div>
