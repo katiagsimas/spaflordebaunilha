@@ -22,13 +22,28 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Clock, Plus, Pencil, Trash2, Star, ArrowLeft, Info, History, Eye, EyeOff } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Plus, MoreVertical } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useMaoObra, type MaoDeObra } from "@/hooks/useMaoObra";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const coresDisponiveis = [
   { value: "blue", label: "Azul", class: "bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-300" },
@@ -57,6 +72,31 @@ export default function MaoDeObra() {
     ativo: true,
     padrao: false,
   });
+
+  const verificarSeEstaEmUso = async (maoObraId: string): Promise<boolean> => {
+    try {
+      const { data: receitas, error: receitasError } = await supabase
+        .from('receitas')
+        .select('id')
+        .contains('mao_obra_ids', [maoObraId])
+        .limit(1);
+
+      if (receitasError) throw receitasError;
+
+      const { data: subReceitas, error: subReceitasError } = await supabase
+        .from('sub_receitas')
+        .select('id')
+        .contains('mao_obra_ids', [maoObraId])
+        .limit(1);
+
+      if (subReceitasError) throw subReceitasError;
+
+      return (receitas && receitas.length > 0) || (subReceitas && subReceitas.length > 0);
+    } catch (error) {
+      console.error('Erro ao verificar uso:', error);
+      return false;
+    }
+  };
 
   const handleSubmit = async () => {
     if (!formData.nome || !formData.valor_hora) {
@@ -88,14 +128,24 @@ export default function MaoDeObra() {
       nome: valor.nome,
       valor_hora: valor.valor_hora.toString(),
       descricao: valor.descricao || "",
-      cor: valor.cor,
-      ativo: valor.ativo,
-      padrao: valor.padrao,
+      cor: valor.cor || "blue",
+      ativo: valor.ativo ?? true,
+      padrao: valor.padrao ?? false,
     });
     setDialogOpen(true);
   };
 
   const handleDelete = async (id: string) => {
+    const emUso = await verificarSeEstaEmUso(id);
+    
+    if (emUso) {
+      toast.error("Não é possível excluir", {
+        description: "Este valor de mão de obra está sendo utilizado no módulo de Precificação e não pode ser excluído.",
+      });
+      setDeleteDialog(null);
+      return;
+    }
+    
     deleteMaoObra(id);
     setDeleteDialog(null);
   };
@@ -119,12 +169,9 @@ export default function MaoDeObra() {
     }
   };
 
-  const verHistorico = (id: string) => {
-    const valor = valores.find(v => v.id === id);
-    if (valor) {
-      setValorSelecionado(valor);
-      setHistoricoOpen(true);
-    }
+  const verHistorico = (valor: MaoDeObra) => {
+    setValorSelecionado(valor);
+    setHistoricoOpen(true);
   };
 
   const historicoFiltrado = valorSelecionado
@@ -132,47 +179,141 @@ export default function MaoDeObra() {
     : [];
 
   const formatarDataHora = (data: string) => {
-    return new Date(data).toLocaleString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+    return new Date(data).toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
+  const valoresSorted = [...(valores || [])].sort((a, b) => {
+    if (a.padrao && !b.padrao) return -1;
+    if (!a.padrao && b.padrao) return 1;
+    if (a.ativo && !b.ativo) return -1;
+    if (!a.ativo && b.ativo) return 1;
+    return a.nome.localeCompare(b.nome);
+  });
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background p-4 md:p-6">
-        <PageHeader
-          title="Valores de Mão de Obra"
-          description="Carregando..."
-        />
+      <div className="flex items-center justify-center h-96">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <TooltipProvider>
-      <div className="min-h-screen bg-background p-4 md:p-6">
-        <PageHeader
+    <div className="space-y-6">
+      <PageHeader
         title="Valores de Mão de Obra"
-        description="Defina quanto vale sua hora de trabalho"
-        backButton={<BackButton to="/configuracoes/precificacao" />}
+        description="Configure os valores de hora de trabalho para usar na precificação"
         actions={
-          <Button onClick={() => setDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Adicionar Valor
-          </Button>
+          <div className="flex gap-2">
+            <BackButton to="/configuracoes/precificacao" />
+            <Button onClick={() => setDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Adicionar Valor
+            </Button>
+          </div>
         }
       />
 
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Como usar os Valores de Mão de Obra</CardTitle>
+          <CardDescription>
+            Configure diferentes valores de hora de mão de obra para usar nas suas receitas e precificações.
+            Você pode criar valores diferentes para tipos de trabalho ou níveis de complexidade.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+
+      <Card>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nome</TableHead>
+              <TableHead>Descrição</TableHead>
+              <TableHead className="text-right">Valor/Hora</TableHead>
+              <TableHead className="text-center">Status</TableHead>
+              <TableHead className="text-center">Padrão</TableHead>
+              <TableHead className="text-right">Ações</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {valoresSorted.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                  Nenhum valor de mão de obra cadastrado
+                </TableCell>
+              </TableRow>
+            ) : (
+              valoresSorted.map((valor) => (
+                <TableRow key={valor.id} className={!valor.ativo ? "opacity-50" : ""}>
+                  <TableCell className="font-medium">{valor.nome}</TableCell>
+                  <TableCell className="text-muted-foreground">{valor.descricao || "-"}</TableCell>
+                  <TableCell className="text-right font-semibold">
+                    {new Intl.NumberFormat('pt-BR', {
+                      style: 'currency',
+                      currency: 'BRL'
+                    }).format(valor.valor_hora)}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                      valor.ativo 
+                        ? 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300' 
+                        : 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
+                    }`}>
+                      {valor.ativo ? 'Ativo' : 'Inativo'}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {valor.padrao && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300">
+                        Sim
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEdit(valor)}>
+                          Alterar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => verHistorico(valor)}>
+                          Ver histórico das alterações
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => setDeleteDialog(valor.id)}
+                          className="text-destructive"
+                        >
+                          Excluir
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </Card>
+
       <Dialog open={dialogOpen} onOpenChange={handleDialogClose}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{editando ? "Editar" : "Novo"} Valor de Mão de Obra</DialogTitle>
+            <DialogTitle>
+              {editando ? "Editar Valor de Mão de Obra" : "Adicionar Valor de Mão de Obra"}
+            </DialogTitle>
             <DialogDescription>
-              Configure um valor por hora para usar nas suas receitas
+              Configure o valor por hora de trabalho
             </DialogDescription>
           </DialogHeader>
 
@@ -181,254 +322,98 @@ export default function MaoDeObra() {
               <Label htmlFor="nome">Nome *</Label>
               <Input
                 id="nome"
-                placeholder="Ex: Padrão, Decoração, Express"
                 value={formData.nome}
                 onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                placeholder="Ex: Confeiteiro Junior"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="valor">Valor por Hora (R$) *</Label>
+              <Label htmlFor="valor_hora">Valor por Hora (R$) *</Label>
               <Input
-                id="valor"
+                id="valor_hora"
                 type="number"
                 step="0.01"
-                placeholder="20.00"
+                min="0"
                 value={formData.valor_hora}
                 onChange={(e) => setFormData({ ...formData, valor_hora: e.target.value })}
+                placeholder="0.00"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="descricao">Descrição (opcional)</Label>
+              <Label htmlFor="descricao">Descrição</Label>
               <Textarea
                 id="descricao"
-                placeholder="Para que tipo de trabalho é esse valor?"
                 value={formData.descricao}
                 onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                placeholder="Descreva o tipo de mão de obra..."
                 rows={3}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Cor de Identificação</Label>
+              <Label>Cor</Label>
               <div className="grid grid-cols-6 gap-2">
                 {coresDisponiveis.map((cor) => (
                   <button
                     key={cor.value}
                     type="button"
                     onClick={() => setFormData({ ...formData, cor: cor.value })}
-                    className={`
-                      w-full h-12 rounded-lg transition-all
-                      ${cor.class}
-                      ${formData.cor === cor.value ? "ring-2 ring-primary scale-110" : "opacity-50 hover:opacity-100"}
-                    `}
+                    className={`h-10 rounded-md ${cor.class} ${
+                      formData.cor === cor.value ? 'ring-2 ring-primary ring-offset-2' : ''
+                    }`}
                     title={cor.label}
                   />
                 ))}
               </div>
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
-              <div className="flex items-start gap-3">
-                <Star className="h-5 w-5 text-amber-500 mt-0.5" />
-                <div className="space-y-1">
-                  <Label htmlFor="padrao" className="cursor-pointer">
-                    Definir como padrão
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Será selecionado automaticamente em novas receitas
-                  </p>
-                </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="ativo"
+                  checked={formData.ativo}
+                  onCheckedChange={(checked) => setFormData({ ...formData, ativo: checked })}
+                />
+                <Label htmlFor="ativo">Ativo</Label>
               </div>
-              <Switch
-                id="padrao"
-                checked={formData.padrao}
-                onCheckedChange={(checked) => setFormData({ ...formData, padrao: checked })}
-              />
+
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="padrao"
+                  checked={formData.padrao}
+                  onCheckedChange={(checked) => setFormData({ ...formData, padrao: checked })}
+                />
+                <Label htmlFor="padrao">Padrão</Label>
+              </div>
             </div>
           </div>
 
-          <div className="flex gap-3 mt-4">
-            <Button variant="outline" onClick={() => handleDialogClose(false)} className="flex-1">
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => handleDialogClose(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleSubmit} className="flex-1">
-              {editando ? "Atualizar" : "Cadastrar"}
+            <Button onClick={handleSubmit}>
+              {editando ? "Salvar Alterações" : "Adicionar"}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
 
-      <div className="mb-6">
-        <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border-blue-200 dark:border-blue-800">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
-              <div className="space-y-2">
-                <h3 className="font-semibold text-blue-900 dark:text-blue-100">💡 Como funciona?</h3>
-                <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-                  <li>• Configure diferentes valores para tipos de trabalho</li>
-                  <li>• Ao criar uma receita, selecione o tipo de mão de obra</li>
-                  <li>• O sistema calcula automaticamente: Tempo × Valor/hora</li>
-                  <li>• O custo é incluído no CMV da receita</li>
-                </ul>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {valores.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Clock className="h-16 w-16 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">
-              Nenhum valor cadastrado
-            </h3>
-            <p className="text-muted-foreground text-center mb-6">
-              Cadastre seu primeiro valor de mão de obra para começar
-            </p>
-            <Button onClick={() => setDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar Primeiro Valor
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2">
-          {valores.map((valor) => {
-            const corClass = coresDisponiveis.find(c => c.value === valor.cor)?.class || "bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-300";
-            const historicoCount = historico.filter(h => h.mao_obra_id === valor.id).length;
-            
-            return (
-              <Card key={valor.id} className="relative hover:shadow-lg transition-all border-2">
-                {valor.padrao && (
-                  <div className="absolute -top-2 -right-2 bg-amber-500 text-white p-2 rounded-full shadow-lg z-10">
-                    <Star className="w-4 h-4 fill-current" />
-                  </div>
-                )}
-                
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className={`p-3 rounded-lg border-2 ${corClass}`}>
-                      <Clock className="w-6 h-6" />
-                    </div>
-                    <div className="flex gap-1">
-                      {!valor.ativo && (
-                        <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded font-medium">
-                          Inativo
-                        </span>
-                      )}
-                      
-                      {historicoCount > 0 && (
-                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded font-medium">
-                          {historicoCount} alterações
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <CardTitle className="flex items-center gap-2">
-                    {valor.nome}
-                    {valor.padrao && (
-                      <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
-                        Padrão
-                      </span>
-                    )}
-                  </CardTitle>
-                  
-                  <CardDescription>
-                    {valor.descricao || "Sem descrição"}
-                    
-                    {valor.ultima_alteracao && (
-                      <span className="block text-xs text-blue-600 mt-1">
-                        Última alteração: {new Date(valor.ultima_alteracao).toLocaleDateString("pt-BR")}
-                      </span>
-                    )}
-                  </CardDescription>
-                </CardHeader>
-                
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-                      <span className="text-sm text-gray-600 font-medium">Valor/hora:</span>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-primary">
-                          R$ {valor.valor_hora.toFixed(2)}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(valor)}
-                        className="flex-1"
-                      >
-                        <Pencil className="w-4 h-4 mr-1" />
-                        Alterar
-                      </Button>
-                      
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => verHistorico(valor.id)}
-                            className="text-blue-600 hover:bg-blue-50"
-                          >
-                            <History className="w-4 h-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="text-xs">Ver histórico de alterações</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => toggleAtivo({ id: valor.id, ativo: valor.ativo })}
-                            className={valor.ativo ? "text-gray-600 hover:bg-gray-50" : "text-green-600 hover:bg-green-50"}
-                          >
-                            {valor.ativo ? (
-                              <EyeOff className="w-4 h-4" />
-                            ) : (
-                              <Eye className="w-4 h-4" />
-                            )}
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="text-xs">{valor.ativo ? "Desativar valor" : "Ativar valor"}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      )}
-
-      <AlertDialog open={!!deleteDialog} onOpenChange={() => setDeleteDialog(null)}>
+      <AlertDialog open={!!deleteDialog} onOpenChange={(open) => !open && setDeleteDialog(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir valor de mão de obra?</AlertDialogTitle>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Receitas que usam este valor continuarão
-              com o custo calculado, mas você não poderá selecionar este valor em novas receitas.
+              Tem certeza que deseja excluir este valor de mão de obra? Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deleteDialog && handleDelete(deleteDialog)}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Excluir
             </AlertDialogAction>
@@ -437,83 +422,93 @@ export default function MaoDeObra() {
       </AlertDialog>
 
       <Dialog open={historicoOpen} onOpenChange={setHistoricoOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <History className="w-5 h-5 text-blue-600" />
-              Histórico de Alterações
-            </DialogTitle>
+            <DialogTitle>Histórico de Alterações</DialogTitle>
             <DialogDescription>
               {valorSelecionado?.nome}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-3 py-4 max-h-[400px] overflow-y-auto">
+          <div className="space-y-4">
             {historicoFiltrado.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">
                 Nenhuma alteração registrada
               </p>
             ) : (
-              historicoFiltrado.map((item, index) => (
-                <div key={item.id} className="relative pl-8 pb-6">
-                  {index !== historicoFiltrado.length - 1 && (
-                    <div className="absolute left-3 top-6 bottom-0 w-0.5 bg-blue-200" />
-                  )}
-                  
-                  <div className="absolute left-0 top-0 w-6 h-6 rounded-full bg-blue-100 border-2 border-blue-500 flex items-center justify-center">
-                    <div className="w-2 h-2 rounded-full bg-blue-600" />
-                  </div>
-
-                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs text-gray-600">
-                        {formatarDataHora(item.data_alteracao)}
-                      </span>
-                      {index === 0 && (
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-medium">
-                          Atual
-                        </span>
-                      )}
+              historicoFiltrado.map((item) => (
+                <Card key={item.id}>
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <CardTitle className="text-base">
+                        {item.tipo_alteracao === 'criacao' && 'Criação'}
+                        {item.tipo_alteracao === 'edicao' && 'Edição'}
+                        {item.tipo_alteracao === 'exclusao' && 'Exclusão'}
+                      </CardTitle>
+                      <Badge variant="outline">
+                        {formatarDataHora(item.data_alteracao || item.created_at || '')}
+                      </Badge>
                     </div>
-                    
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-700">Valor/hora:</span>
-                        <div className="flex items-center gap-2">
-                          {item.valor_anterior && (
-                            <>
-                              <span className="text-sm text-gray-500 line-through">
-                                R$ {item.valor_anterior.toFixed(2)}
-                              </span>
-                              <span className="text-gray-400">→</span>
-                            </>
-                          )}
-                          <span className="text-sm font-bold text-primary">
-                            R$ {item.valor_novo.toFixed(2)}
-                          </span>
+                    {item.descricao_alteracao && (
+                      <CardDescription>{item.descricao_alteracao}</CardDescription>
+                    )}
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2 text-sm">
+                      {item.nome_anterior && (
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <span className="text-muted-foreground">Nome anterior:</span>
+                            <p className="font-medium">{item.nome_anterior}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Nome novo:</span>
+                            <p className="font-medium">{item.nome_novo}</p>
+                          </div>
                         </div>
-                      </div>
-                      
-                      {item.descricao_alteracao && (
-                        <p className="text-xs text-gray-600 mt-1">
-                          {item.descricao_alteracao}
-                        </p>
+                      )}
+                      {item.valor_anterior !== null && item.valor_anterior !== undefined && (
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <span className="text-muted-foreground">Valor anterior:</span>
+                            <p className="font-medium">
+                              {new Intl.NumberFormat('pt-BR', {
+                                style: 'currency',
+                                currency: 'BRL'
+                              }).format(item.valor_anterior)}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Valor novo:</span>
+                            <p className="font-medium">
+                              {new Intl.NumberFormat('pt-BR', {
+                                style: 'currency',
+                                currency: 'BRL'
+                              }).format(item.valor_novo)}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      {item.descricao_anterior && (
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <span className="text-muted-foreground">Descrição anterior:</span>
+                            <p className="font-medium">{item.descricao_anterior}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Descrição nova:</span>
+                            <p className="font-medium">{item.descricao_novo || "-"}</p>
+                          </div>
+                        </div>
                       )}
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               ))
             )}
           </div>
-
-          <div className="flex justify-end">
-            <Button onClick={() => setHistoricoOpen(false)}>
-              Fechar
-            </Button>
-          </div>
         </DialogContent>
       </Dialog>
-      </div>
-    </TooltipProvider>
+    </div>
   );
 }
