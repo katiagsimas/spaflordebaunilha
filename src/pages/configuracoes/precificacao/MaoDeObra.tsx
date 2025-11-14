@@ -209,14 +209,12 @@ export default function MaoDeObra() {
       <PageHeader
         title="Valores de Mão de Obra"
         description="Configure os valores de hora de trabalho para usar na precificação"
+        backButton={<BackButton to="/configuracoes/precificacao" />}
         actions={
-          <div className="flex gap-2">
-            <BackButton to="/configuracoes/precificacao" />
-            <Button onClick={() => setDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar Valor
-            </Button>
-          </div>
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Adicionar Valor
+          </Button>
         }
       />
 
