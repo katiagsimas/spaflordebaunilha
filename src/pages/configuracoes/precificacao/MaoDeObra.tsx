@@ -336,7 +336,13 @@ export default function MaoDeObra() {
                 value={formData.nome}
                 onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                 placeholder="Ex: Confeiteiro Junior"
+                disabled={!!editando}
               />
+              {editando && (
+                <p className="text-xs text-muted-foreground">
+                  O nome não pode ser alterado após a criação
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
