@@ -55,20 +55,21 @@ export function AppSidebar() {
 
   // Buscar aniversariantes do mês de fornecedores
   const { data: aniversariantesFornecedores = [] } = useQuery({
-    queryKey: ['fornecedores-aniversariantes', user?.id],
+    queryKey: ['fornecedores-contatos-aniversariantes', user?.id],
     queryFn: async () => {
       if (!user) return [];
       const mesAtual = new Date().getMonth();
       const { data } = await supabase
-        .from('fornecedores')
+        .from('fornecedor_contatos')
         .select('*')
-        .eq('usuario_id', user.id);
+        .eq('usuario_id', user.id)
+        .eq('ativo', true);
       
       if (!data) return [];
       
-      return data.filter(fornecedor => {
-        if (!fornecedor.data_aniversario_contato || !fornecedor.contato) return false;
-        const dataAniversario = new Date(fornecedor.data_aniversario_contato + 'T00:00:00');
+      return data.filter(contato => {
+        if (!contato.data_aniversario) return false;
+        const dataAniversario = new Date(contato.data_aniversario + 'T00:00:00');
         return dataAniversario.getMonth() === mesAtual;
       });
     },
