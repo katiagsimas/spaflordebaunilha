@@ -38,7 +38,7 @@ export default function Clientes() {
   const [selectedClienteId, setSelectedClienteId] = useState<string | null>(null);
   const [selectedClienteNome, setSelectedClienteNome] = useState<string>("");
   const [editingFamiliar, setEditingFamiliar] = useState<any>(null);
-  const { familiares: allFamiliares } = useFamiliares();
+  const { familiares: allFamiliares, refetch: refetchFamiliares } = useFamiliares();
 
   const [formData, setFormData] = useState({
     nome: "",
@@ -607,6 +607,7 @@ export default function Clientes() {
           clienteId={selectedClienteId}
           clienteNome={selectedClienteNome}
           editingFamiliar={editingFamiliar}
+          onFamiliarAdded={refetchFamiliares}
         />
       )}
     </div>

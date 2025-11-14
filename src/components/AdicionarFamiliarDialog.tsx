@@ -15,6 +15,7 @@ interface AdicionarFamiliarDialogProps {
   clienteId: string;
   clienteNome: string;
   editingFamiliar?: any;
+  onFamiliarAdded?: () => void;
 }
 
 const grausParentesco = [
@@ -36,6 +37,7 @@ export function AdicionarFamiliarDialog({
   clienteId,
   clienteNome,
   editingFamiliar,
+  onFamiliarAdded,
 }: AdicionarFamiliarDialogProps) {
   const { createFamiliar, updateFamiliar } = useFamiliares(clienteId);
   const [cadastrarOutro, setCadastrarOutro] = useState(false);
@@ -90,9 +92,11 @@ export function AdicionarFamiliarDialog({
 
       if (editingFamiliar) {
         await updateFamiliar(editingFamiliar.id, dadosLimpos);
+        onFamiliarAdded?.();
         onOpenChange(false);
       } else {
         await createFamiliar(dadosLimpos);
+        onFamiliarAdded?.();
         
         // Mostrar pergunta sobre cadastrar outro
         setMostrarPergunta(true);
@@ -108,7 +112,7 @@ export function AdicionarFamiliarDialog({
       resetForm();
       setMostrarPergunta(false);
     } else {
-      // Fechar dialog
+      // Fechar dialog e notificar atualização
       onOpenChange(false);
       resetForm();
     }
