@@ -18,6 +18,7 @@ import { useViaCEP } from "@/hooks/useViaCEP";
 import { Plus, Pencil, Trash2, Users, Search, ChevronDown, Download, Cake, MoreVertical, UserPlus } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AdicionarFamiliarDialog } from "@/components/AdicionarFamiliarDialog";
+import { FamiliaresLista } from "@/components/FamiliaresLista";
 import { useFamiliares } from "@/hooks/useFamiliares";
 import { toast } from "sonner";
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
@@ -39,6 +40,7 @@ export default function Clientes() {
   const [selectedClienteNome, setSelectedClienteNome] = useState<string>("");
   const [editingFamiliar, setEditingFamiliar] = useState<any>(null);
   const { familiares: allFamiliares, refetch: refetchFamiliares } = useFamiliares();
+  const { deleteFamiliar } = useFamiliares(editingCliente?.id);
 
   const [formData, setFormData] = useState({
     nome: "",
@@ -160,6 +162,20 @@ export default function Clientes() {
 
   const handleEdit = (cliente: any) => {
     setEditingCliente(cliente);
+  };
+
+  const handleEditFamiliar = (familiar: any) => {
+    setEditingFamiliar(familiar);
+    setFamiliarDialogOpen(true);
+  };
+
+  const handleDeleteFamiliar = async (id: string) => {
+    try {
+      await deleteFamiliar(id);
+      refetchFamiliares();
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao excluir familiar");
+    }
   };
 
   // Filtrar aniversariantes do mês (clientes e familiares)
@@ -453,6 +469,38 @@ export default function Clientes() {
                     />
                   </CollapsibleContent>
                 </Collapsible>
+
+                {/* Seção de Familiares - apenas ao editar */}
+                {editingCliente && (
+                  <div className="space-y-4 pt-4 border-t">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        <Users className="h-5 w-5" />
+                        Familiares
+                      </h3>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedClienteId(editingCliente.id);
+                          setSelectedClienteNome(editingCliente.nome);
+                          setEditingFamiliar(null);
+                          setFamiliarDialogOpen(true);
+                        }}
+                      >
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        Adicionar Familiar
+                      </Button>
+                    </div>
+                    <FamiliaresLista
+                      clienteId={editingCliente.id}
+                      onEdit={handleEditFamiliar}
+                      onDelete={handleDeleteFamiliar}
+                    />
+                  </div>
+                )}
+
                 <div className="flex gap-2 justify-end">
                   <Button type="button" variant="outline" onClick={resetForm}>
                     Cancelar
@@ -603,11 +651,21 @@ export default function Clientes() {
       {selectedClienteId && (
         <AdicionarFamiliarDialog
           open={familiarDialogOpen}
-          onOpenChange={setFamiliarDialogOpen}
+          onOpenChange={(open) => {
+            setFamiliarDialogOpen(open);
+            if (!open) {
+              setEditingFamiliar(null);
+              setSelectedClienteId(null);
+            }
+          }}
           clienteId={selectedClienteId}
           clienteNome={selectedClienteNome}
           editingFamiliar={editingFamiliar}
-          onFamiliarAdded={refetchFamiliares}
+          onFamiliarAdded={() => {
+            refetchFamiliares();
+            // Forçar atualização dos aniversariantes
+            setTimeout(() => refetchFamiliares(), 500);
+          }}
         />
       )}
     </div>
