@@ -32,7 +32,6 @@ interface FormDataFornecedor {
   cpf_cnpj: string;
   telefone: string;
   email: string;
-  data_aniversario_contato: string;
   observacoes: string;
 }
 
@@ -56,7 +55,6 @@ export default function Fornecedores() {
     cpf_cnpj: "",
     telefone: "",
     email: "",
-    data_aniversario_contato: "",
     observacoes: "",
   });
 
@@ -70,7 +68,6 @@ export default function Fornecedores() {
           cpf_cnpj: fornecedor.cpf_cnpj || "",
           telefone: fornecedor.telefone || "",
           email: fornecedor.email || "",
-          data_aniversario_contato: fornecedor.data_aniversario_contato || "",
           observacoes: fornecedor.observacoes || "",
         });
         setIsDialogOpen(true);
@@ -87,16 +84,10 @@ export default function Fornecedores() {
     }
 
     try {
-      // Converter campos de data vazios para null
-      const dadosLimpos = {
-        ...formData,
-        data_aniversario_contato: formData.data_aniversario_contato || null,
-      };
-      
       if (editingId) {
-        await updateFornecedor(editingId, dadosLimpos);
+        await updateFornecedor(editingId, formData);
       } else {
-        await createFornecedor(dadosLimpos);
+        await createFornecedor(formData);
       }
       resetForm();
     } catch (error: any) {
@@ -111,7 +102,6 @@ export default function Fornecedores() {
       cpf_cnpj: "",
       telefone: "",
       email: "",
-      data_aniversario_contato: "",
       observacoes: "",
     });
     setEditingId(null);
@@ -189,19 +179,6 @@ export default function Fornecedores() {
     }
   };
 
-  // Filtrar aniversariantes do mês (fornecedores)
-  const aniversariantesDoMes = useMemo(() => {
-    const mesAtual = new Date().getMonth();
-    return fornecedores.filter(fornecedor => {
-      if (!fornecedor.data_aniversario_contato || !fornecedor.contato) return false;
-      const dataAniversario = new Date(fornecedor.data_aniversario_contato + 'T00:00:00');
-      return dataAniversario.getMonth() === mesAtual;
-    }).sort((a, b) => {
-      const dataA = new Date(a.data_aniversario_contato! + 'T00:00:00').getDate();
-      const dataB = new Date(b.data_aniversario_contato! + 'T00:00:00').getDate();
-      return dataA - dataB;
-    });
-  }, [fornecedores]);
 
   // Contatos aniversariantes do mês com informação do fornecedor
   const contatosAniversariantes = useMemo(() => {
@@ -237,9 +214,6 @@ export default function Fornecedores() {
       'CPF/CNPJ': fornecedor.cpf_cnpj || '-',
       'Telefone': fornecedor.telefone || '-',
       'E-mail': fornecedor.email || '-',
-      'Aniversário': fornecedor.data_aniversario_contato
-        ? new Date(fornecedor.data_aniversario_contato + 'T00:00:00').toLocaleDateString('pt-BR')
-        : '-',
     }));
 
     const ws = XLSX.utils.json_to_sheet(dadosExport);
@@ -259,44 +233,6 @@ export default function Fornecedores() {
 
       {/* Alerta de aniversariantes de contatos */}
       <AlertaAniversariantesContatos contatos={contatosAniversariantes} />
-
-      {aniversariantesDoMes.length > 0 && (
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <Cake className="h-5 w-5 animate-bounce" />
-            🎉 Aniversariantes do Mês
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {aniversariantesDoMes.map((fornecedor) => (
-              <Card 
-                key={fornecedor.id}
-                className="bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 dark:from-purple-500/20 dark:via-pink-500/20 dark:to-orange-500/20 border-2 border-purple-300/50 dark:border-purple-500/50 hover:shadow-lg transition-all duration-300"
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                        <Cake className="h-6 w-6 text-white animate-bounce" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm truncate">
-                        {fornecedor.contato}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(fornecedor.data_aniversario_contato! + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {fornecedor.nome}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
 
       <Card>
         <CardHeader>
@@ -370,15 +306,6 @@ export default function Fornecedores() {
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       placeholder="email@exemplo.com"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="data_aniversario_contato">Aniversário do Contato</Label>
-                    <Input
-                      id="data_aniversario_contato"
-                      type="date"
-                      value={formData.data_aniversario_contato}
-                      onChange={(e) => setFormData({ ...formData, data_aniversario_contato: e.target.value })}
                     />
                   </div>
                 </div>
@@ -494,7 +421,6 @@ export default function Fornecedores() {
                     <TableHead>Tipo</TableHead>
                     <TableHead>CNPJ/CPF</TableHead>
                     <TableHead>Telefone</TableHead>
-                    <TableHead>Aniversário</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -505,11 +431,6 @@ export default function Fornecedores() {
                       <TableCell>{fornecedor.tipo || "-"}</TableCell>
                       <TableCell>{fornecedor.cpf_cnpj || "-"}</TableCell>
                       <TableCell>{fornecedor.telefone || "-"}</TableCell>
-                      <TableCell>
-                        {fornecedor.data_aniversario_contato 
-                          ? new Date(fornecedor.data_aniversario_contato + 'T00:00:00').toLocaleDateString('pt-BR')
-                          : "-"}
-                      </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
