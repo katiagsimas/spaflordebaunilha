@@ -330,6 +330,7 @@ export default function Bancos() {
             saldo_inicial: 0,
             e_banco_oficial: eBancoOficial,
             e_customizado: eCustomizado,
+            habilitado: true,
           });
 
         if (error) {
