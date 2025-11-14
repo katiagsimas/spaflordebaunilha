@@ -392,25 +392,14 @@ export default function Financeiro() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     
-    const hoje = new Date();
+    const hoje = new Date().toISOString().split('T')[0];
 
-    // Buscar parcelas em atraso que ainda estão em aberto
+    // Buscar parcelas com status "atrasado"
     const { data } = await supabase
-      .from("contas_receber_parcelas")
-      .select(`
-        id,
-        valor_parcela,
-        data_vencimento,
-        conta_receber_id,
-        contas_receber!inner (
-          cliente_id,
-          cliente_nome,
-          usuario_id
-        )
-      `)
-      .eq("contas_receber.usuario_id", user.id)
-      .eq("status", "aberto")
-      .lt("data_vencimento", hoje.toISOString().split('T')[0])
+      .from("vw_contas_receber_parcelas")
+      .select('*')
+      .eq("user_id", user.id)
+      .eq("status", "atrasado")
       .order("data_vencimento", { ascending: true });
 
     if (!data) return;
@@ -418,15 +407,17 @@ export default function Financeiro() {
     const inadimplentesMap = new Map<string, InadimplenciaItem>();
 
     for (const parcela of data) {
-      const vencimento = new Date(parcela.data_vencimento!);
-      const diasAtraso = Math.floor((hoje.getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
+      const vencimento = new Date(parcela.data_vencimento + 'T00:00:00');
+      const hojeDate = new Date(hoje + 'T00:00:00');
+      const diasAtraso = Math.floor((hojeDate.getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
 
-      const clienteId = parcela.contas_receber?.cliente_id || parcela.conta_receber_id;
-      const clienteNome = parcela.contas_receber?.cliente_nome || "Cliente desconhecido";
+      const clienteId = parcela.cliente_id || parcela.id;
+      const clienteNome = parcela.cliente_nome || "Cliente desconhecido";
+      const valorDevido = (parcela.valor_parcela || 0) - (parcela.valor_pago || 0);
 
       if (inadimplentesMap.has(clienteId)) {
         const existing = inadimplentesMap.get(clienteId)!;
-        existing.valor += parcela.valor_parcela || 0;
+        existing.valor += valorDevido;
         existing.dias_atraso = Math.max(existing.dias_atraso, diasAtraso);
       } else {
         const { data: cliente } = await supabase
@@ -438,7 +429,7 @@ export default function Financeiro() {
         inadimplentesMap.set(clienteId, {
           id: clienteId,
           nome: clienteNome,
-          valor: parcela.valor_parcela || 0,
+          valor: valorDevido,
           dias_atraso: diasAtraso,
           telefone: cliente?.telefone
         });
@@ -455,39 +446,41 @@ export default function Financeiro() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     
-    const hoje = new Date();
+    const hoje = new Date().toISOString().split('T')[0];
 
-    // Buscar parcelas em atraso que ainda estão em aberto
-    const { data } = await supabase
+    // Buscar parcelas com status "atrasado"
+    const { data: parcelas } = await supabase
       .from("contas_pagar_parcelas")
       .select(`
-        id,
-        valor_parcela,
-        data_vencimento,
-        conta_pagar_id,
-        contas_pagar!inner (
+        *,
+        conta_pagar:contas_pagar (
           fornecedor_id,
           usuario_id
         )
       `)
-      .eq("contas_pagar.usuario_id", user.id)
-      .eq("status", "aberto")
-      .lt("data_vencimento", hoje.toISOString().split('T')[0])
+      .eq("status", "atrasado")
       .order("data_vencimento", { ascending: true });
 
-    if (!data) return;
+    if (!parcelas) return;
+
+    // Filtrar apenas parcelas do usuário atual
+    const parcelasDoUsuario = parcelas.filter(
+      (p: any) => p.conta_pagar?.usuario_id === user.id
+    );
 
     const inadimplentesMap = new Map<string, InadimplenciaItem>();
 
-    for (const parcela of data) {
-      const vencimento = new Date(parcela.data_vencimento!);
-      const diasAtraso = Math.floor((hoje.getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
+    for (const parcela of parcelasDoUsuario) {
+      const vencimento = new Date(parcela.data_vencimento + 'T00:00:00');
+      const hojeDate = new Date(hoje + 'T00:00:00');
+      const diasAtraso = Math.floor((hojeDate.getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
 
-      const fornecedorId = parcela.contas_pagar?.fornecedor_id || parcela.conta_pagar_id;
+      const fornecedorId = (parcela.conta_pagar as any)?.fornecedor_id || parcela.id;
+      const valorDevido = (parcela.valor_parcela || 0) - (parcela.valor_pago || 0);
 
       if (inadimplentesMap.has(fornecedorId)) {
         const existing = inadimplentesMap.get(fornecedorId)!;
-        existing.valor += parcela.valor_parcela || 0;
+        existing.valor += valorDevido;
         existing.dias_atraso = Math.max(existing.dias_atraso, diasAtraso);
       } else {
         const { data: fornecedor } = await supabase
@@ -499,7 +492,7 @@ export default function Financeiro() {
         inadimplentesMap.set(fornecedorId, {
           id: fornecedorId,
           nome: fornecedor?.nome || "Fornecedor desconhecido",
-          valor: parcela.valor_parcela || 0,
+          valor: valorDevido,
           dias_atraso: diasAtraso,
           telefone: fornecedor?.telefone
         });
