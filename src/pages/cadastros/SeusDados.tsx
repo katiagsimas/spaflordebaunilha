@@ -256,7 +256,7 @@ export default function SeusDados() {
               <Input
                 id="nomeFantasia"
                 {...register("nomeFantasia")}
-                placeholder="Nome fantasia da empresa"
+                placeholder="Razão Social da Empresa"
               />
             </div>
 
