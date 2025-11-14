@@ -3813,6 +3813,10 @@ export type Database = {
         Args: { p_usuario_id: string }
         Returns: undefined
       }
+      criar_bancos_padrao_para_usuario: {
+        Args: { p_usuario_id: string }
+        Returns: undefined
+      }
       criar_categorias_padrao: { Args: { user_id: string }; Returns: undefined }
       criar_categorias_plano_padrao: {
         Args: { p_user_id: string }

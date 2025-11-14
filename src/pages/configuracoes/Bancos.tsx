@@ -124,6 +124,26 @@ export default function Bancos() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // Verificar se usuário já tem bancos
+      const { data: bancosExistentes, error: erroCheck } = await supabase
+        .from('bancos')
+        .select('id')
+        .eq('usuario_id', user.id)
+        .limit(1);
+
+      if (erroCheck) throw erroCheck;
+
+      // Se não tem bancos, criar os padrão
+      if (!bancosExistentes || bancosExistentes.length === 0) {
+        const { error: erroFuncao } = await supabase.rpc('criar_bancos_padrao_para_usuario', {
+          p_usuario_id: user.id
+        });
+        
+        if (erroFuncao) {
+          console.error('Erro ao criar bancos padrão:', erroFuncao);
+        }
+      }
+
       // Buscar bancos - ordenar habilitados primeiro
       const { data, error } = await supabase
         .from('bancos')
@@ -330,7 +350,7 @@ export default function Bancos() {
             saldo_inicial: 0,
             e_banco_oficial: eBancoOficial,
             e_customizado: eCustomizado,
-            habilitado: true,
+            habilitado: false,
           });
 
         if (error) {
