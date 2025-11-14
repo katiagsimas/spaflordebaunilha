@@ -869,20 +869,20 @@ export default function Ingredientes() {
               </div>
 
               {/* Checkbox Controlar Estoque */}
-              <div className="flex items-center space-x-2 p-4 border rounded-lg bg-muted/30">
+              <div className="flex items-center space-x-2 p-4 border-2 border-primary/40 rounded-lg bg-primary/10 hover:bg-primary/15 transition-colors">
                 <Checkbox 
                   id="controlar-estoque" 
                   checked={controlarEstoque}
                   onCheckedChange={(checked) => setControlarEstoque(checked as boolean)}
                 />
                 <div className="flex flex-col">
-                  <Label htmlFor="controlar-estoque" className="cursor-pointer font-medium">
+                  <Label htmlFor="controlar-estoque" className="cursor-pointer font-semibold">
                     <div className="flex items-center gap-2">
                       <Package className="h-4 w-4 text-primary" />
                       Controlar no Estoque
                     </div>
                   </Label>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-primary/80 mt-1">
                     Acompanhar entradas e saídas
                   </p>
                 </div>
