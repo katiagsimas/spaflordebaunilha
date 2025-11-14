@@ -191,11 +191,12 @@ export default function ContasPagarDetalhes() {
           const bancoIds = [...new Set(dataPagamentos.map(p => p.banco_id).filter(Boolean))];
           const tipoDocIds = [...new Set(dataPagamentos.map(p => p.tipo_documento_id).filter(Boolean))];
           
-          // Buscar bancos
+          // Buscar bancos habilitados
           const { data: bancosData } = await supabase
             .from('bancos')
             .select('id, codigo, nome')
-            .in('id', bancoIds);
+            .in('id', bancoIds)
+            .eq('habilitado', true);
           
           // Buscar tipos de documento
           const { data: tiposDocData } = await supabase

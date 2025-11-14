@@ -113,11 +113,12 @@ export default function ContasReceberFormModal({
       );
       setPlanosContas(planosCredito);
 
-      // Buscar bancos
+      // Buscar bancos habilitados
       const { data: dataBancos } = await supabase
         .from('bancos')
         .select('id, codigo, nome')
         .eq('usuario_id', user.id)
+        .eq('habilitado', true)
         .order('nome');
 
       setBancos(dataBancos || []);
