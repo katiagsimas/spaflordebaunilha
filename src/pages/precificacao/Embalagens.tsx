@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoadingState } from '@/components/LoadingState';
+import { useCategoriasEstoque } from '@/hooks/useCategoriasEstoque';
 import {
   Table,
   TableBody,
@@ -51,6 +52,7 @@ import { PageHeader } from '@/components/PageHeader';
 
 export default function Embalagens() {
   const { toast } = useToast();
+  const { categorias } = useCategoriasEstoque();
   const [embalagens, setEmbalagens] = useState<any[]>([]);
   const [tiposDisponiveis, setTiposDisponiveis] = useState<any[]>([]);
   const [unidades, setUnidades] = useState<any[]>([]);
@@ -74,6 +76,8 @@ export default function Embalagens() {
   const [novoTipoDescricao, setNovoTipoDescricao] = useState('');
   const [novoTipoQuantidade, setNovoTipoQuantidade] = useState('');
   const [novoTipoUnidadeId, setNovoTipoUnidadeId] = useState('');
+  const [novoTipoCategoriaEstoqueId, setNovoTipoCategoriaEstoqueId] = useState('');
+  const [novoTipoControlarEstoque, setNovoTipoControlarEstoque] = useState(false);
 
   useEffect(() => {
     fetchEmbalagens();
@@ -346,6 +350,8 @@ export default function Embalagens() {
     setNovoTipoDescricao(termoBuscaTipo);
     setNovoTipoQuantidade('');
     setNovoTipoUnidadeId('');
+    setNovoTipoCategoriaEstoqueId('');
+    setNovoTipoControlarEstoque(false);
     setModalCriarTipoAberto(true);
     setPopoverAberto(false);
   };
@@ -382,6 +388,8 @@ export default function Embalagens() {
           descricao: novoTipoDescricao.trim(),
           quantidade_embalagem: qtd,
           unidade_medida_id: novoTipoUnidadeId,
+          categoria_estoque_id: novoTipoCategoriaEstoqueId || null,
+          controlar_estoque: novoTipoControlarEstoque,
         })
         .select(`
           id,
@@ -759,15 +767,15 @@ export default function Embalagens() {
       <Dialog open={modalCriarTipoAberto} onOpenChange={setModalCriarTipoAberto}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Criar Novo Tipo de Embalagem</DialogTitle>
+            <DialogTitle>Nova Embalagem</DialogTitle>
             <DialogDescription>
-              Cadastre o tipo base que será usado em Configurações e aqui
+              Cadastre o tipo base da embalagem com sua quantidade padrão
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="novo-tipo-descricao">Descrição *</Label>
+              <Label htmlFor="novo-tipo-descricao">Nome da Embalagem *</Label>
               <Input
                 id="novo-tipo-descricao"
                 placeholder="Ex: Caixa de Papelão"
@@ -776,40 +784,70 @@ export default function Embalagens() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="novo-tipo-quantidade">Quantidade na Embalagem *</Label>
-              <Input
-                id="novo-tipo-quantidade"
-                type="text"
-                placeholder="Ex: 1"
-                value={novoTipoQuantidade}
-                onChange={(e) => {
-                  const valor = e.target.value.replace(/[^\d,]/g, '');
-                  setNovoTipoQuantidade(valor);
-                }}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="novo-tipo-quantidade">Qtde na Embalagem *</Label>
+                <Input
+                  id="novo-tipo-quantidade"
+                  type="text"
+                  placeholder="Ex: 1"
+                  value={novoTipoQuantidade}
+                  onChange={(e) => {
+                    const valor = e.target.value.replace(/[^\d,]/g, '');
+                    setNovoTipoQuantidade(valor);
+                  }}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="novo-tipo-unidade">Unidade de Medida *</Label>
+                <Select value={novoTipoUnidadeId} onValueChange={setNovoTipoUnidadeId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {unidades.map((unidade: any) => (
+                      <SelectItem key={unidade.id} value={unidade.id}>
+                        {unidade.nome} ({unidade.sigla})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="novo-tipo-unidade">Unidade de Medida *</Label>
-              <Select value={novoTipoUnidadeId} onValueChange={setNovoTipoUnidadeId}>
+              <Label htmlFor="novo-tipo-categoria">Categoria de Estoque</Label>
+              <Select value={novoTipoCategoriaEstoqueId} onValueChange={setNovoTipoCategoriaEstoqueId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione..." />
+                  <SelectValue placeholder="Selecione uma categoria..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {unidades.map((unidade: any) => (
-                    <SelectItem key={unidade.id} value={unidade.id}>
-                      {unidade.nome} ({unidade.sigla})
+                  {categorias.map((categoria: any) => (
+                    <SelectItem key={categoria.id} value={categoria.id}>
+                      {categoria.nome}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
+            <div className="flex items-center space-x-3 p-4 rounded-lg bg-primary">
+              <Checkbox 
+                id="novo-tipo-controlar-estoque" 
+                checked={novoTipoControlarEstoque}
+                onCheckedChange={(checked) => setNovoTipoControlarEstoque(checked as boolean)}
+                className="border-primary-foreground data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary"
+              />
+              <Label htmlFor="novo-tipo-controlar-estoque" className="text-sm font-semibold cursor-pointer text-primary-foreground">
+                Controle de Estoque
+              </Label>
+            </div>
+
             <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800">
               <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               <AlertDescription className="text-sm">
-                Este tipo será salvo em Configurações e ficará disponível para usar aqui.
+                Esta embalagem será salva e ficará disponível para usar.
               </AlertDescription>
             </Alert>
           </div>
@@ -819,7 +857,7 @@ export default function Embalagens() {
               Cancelar
             </Button>
             <Button onClick={handleSalvarNovoTipo}>
-              Criar Tipo
+              Cadastrar
             </Button>
           </DialogFooter>
         </DialogContent>
