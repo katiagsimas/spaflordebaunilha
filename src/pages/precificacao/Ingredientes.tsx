@@ -731,7 +731,7 @@ export default function Ingredientes() {
             {/* Picklist Tipo */}
             {!editando && (
               <div className="space-y-2">
-                <Label>Tipo de Ingrediente *</Label>
+                <Label>Nome do Ingrediente *</Label>
                 <Popover open={popoverAberto} onOpenChange={setPopoverAberto}>
                   <PopoverTrigger asChild>
                     <Button
