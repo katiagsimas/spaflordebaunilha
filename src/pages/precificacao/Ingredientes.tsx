@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useReceitas } from '@/hooks/useReceitas';
+import { useCategoriasEstoque } from '@/hooks/useCategoriasEstoque';
 import { LoadingState } from '@/components/LoadingState';
 import {
   Table,
@@ -55,6 +56,7 @@ export default function Ingredientes() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { todasReceitas } = useReceitas();
+  const { categorias } = useCategoriasEstoque();
   const [ingredientes, setIngredientes] = useState<any[]>([]);
   const [tiposDisponiveis, setTiposDisponiveis] = useState<any[]>([]);
   const [unidades, setUnidades] = useState<any[]>([]);
@@ -69,6 +71,7 @@ export default function Ingredientes() {
   const [tipoSelecionado, setTipoSelecionado] = useState('');
   const [marca, setMarca] = useState('');
   const [preco, setPreco] = useState('');
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState('');
   const [controlarEstoque, setControlarEstoque] = useState(false);
   const [popoverAberto, setPopoverAberto] = useState(false);
   const [termoBuscaTipo, setTermoBuscaTipo] = useState('');
@@ -312,12 +315,14 @@ export default function Ingredientes() {
       setTipoSelecionado(ingrediente.tipo_insumo_id);
       setMarca(ingrediente.marca || '');
       setPreco(ingrediente.preco.toString().replace('.', ','));
+      setCategoriaSelecionada(ingrediente.categoria || '');
       setControlarEstoque(ingrediente.controlar_estoque || false);
     } else {
       setEditando(null);
       setTipoSelecionado('');
       setMarca('');
       setPreco('');
+      setCategoriaSelecionada('');
       setControlarEstoque(false);
     }
     setModalAberto(true);
@@ -354,6 +359,7 @@ export default function Ingredientes() {
             marca: marca.trim() || null,
             preco: precoNum,
             data_atualizacao: new Date().toISOString().split('T')[0],
+            categoria: categoriaSelecionada || null,
             controlar_estoque: controlarEstoque,
           })
           .eq('id', editando.id);
@@ -373,6 +379,7 @@ export default function Ingredientes() {
             marca: marca.trim() || null,
             preco: precoNum,
             data_atualizacao: new Date().toISOString().split('T')[0],
+            categoria: categoriaSelecionada || null,
             controlar_estoque: controlarEstoque,
           });
 
@@ -836,23 +843,49 @@ export default function Ingredientes() {
               />
             </div>
 
-            {/* Checkbox Controlar Estoque */}
-            <div className="flex items-center space-x-2 p-4 border rounded-lg bg-muted/30">
-              <Checkbox 
-                id="controlar-estoque" 
-                checked={controlarEstoque}
-                onCheckedChange={(checked) => setControlarEstoque(checked as boolean)}
-              />
-              <div className="flex flex-col">
-                <Label htmlFor="controlar-estoque" className="cursor-pointer font-medium">
-                  <div className="flex items-center gap-2">
-                    <Package className="h-4 w-4 text-primary" />
-                    Controlar no Estoque
-                  </div>
-                </Label>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Marque para acompanhar entradas e saídas deste item no módulo de Estoque
-                </p>
+            {/* Categoria e Controlar Estoque - mesma linha */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Select Categoria de Estoque */}
+              <div className="space-y-2">
+                <Label htmlFor="categoria">Categoria de Estoque</Label>
+                <Select
+                  value={categoriaSelecionada}
+                  onValueChange={setCategoriaSelecionada}
+                >
+                  <SelectTrigger id="categoria">
+                    <SelectValue placeholder="Selecione uma categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categorias.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        <div className="flex items-center gap-2">
+                          <span>{cat.icone}</span>
+                          <span>{cat.nome}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Checkbox Controlar Estoque */}
+              <div className="flex items-center space-x-2 p-4 border rounded-lg bg-muted/30">
+                <Checkbox 
+                  id="controlar-estoque" 
+                  checked={controlarEstoque}
+                  onCheckedChange={(checked) => setControlarEstoque(checked as boolean)}
+                />
+                <div className="flex flex-col">
+                  <Label htmlFor="controlar-estoque" className="cursor-pointer font-medium">
+                    <div className="flex items-center gap-2">
+                      <Package className="h-4 w-4 text-primary" />
+                      Controlar no Estoque
+                    </div>
+                  </Label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Acompanhar entradas e saídas
+                  </p>
+                </div>
               </div>
             </div>
           </div>
