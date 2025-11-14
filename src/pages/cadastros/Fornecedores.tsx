@@ -187,6 +187,7 @@ export default function Fornecedores() {
       return {
         ...contato,
         fornecedor_nome: fornecedor?.nome,
+        fornecedor_id: contato.fornecedor_id,
       };
     });
   }, [contatos, fornecedores]);
@@ -232,7 +233,10 @@ export default function Fornecedores() {
       </div>
 
       {/* Aniversariantes do Mês */}
-      <AlertaAniversariantesContatos contatos={contatosAniversariantes} />
+      <AlertaAniversariantesContatos 
+        contatos={contatosAniversariantes} 
+        onContatoClick={(fornecedorId) => setEditingId(fornecedorId)}
+      />
 
       <Card>
         <CardHeader>

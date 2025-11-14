@@ -205,6 +205,7 @@ export default function Clientes() {
         tipo_aniversariante: 'familiar' as const,
         parentesco: familiar.parentesco,
         cliente_nome: cliente?.nome,
+        cliente_id: familiar.cliente_id,
       };
     });
 
@@ -271,7 +272,17 @@ export default function Clientes() {
             {aniversariantesDoMes.map((item) => (
               <Card 
                 key={item.id}
-                className="bg-gradient-to-r from-blue-500/10 via-cyan-500/10 to-teal-500/10 dark:from-blue-500/20 dark:via-cyan-500/20 dark:to-teal-500/20 border-2 border-blue-300/50 dark:border-blue-500/50 hover:shadow-lg transition-all duration-300"
+                className="bg-gradient-to-r from-blue-500/10 via-cyan-500/10 to-teal-500/10 dark:from-blue-500/20 dark:via-cyan-500/20 dark:to-teal-500/20 border-2 border-blue-300/50 dark:border-blue-500/50 hover:shadow-lg transition-all duration-300 cursor-pointer"
+                onClick={() => {
+                  if ('tipo_aniversariante' in item && item.tipo_aniversariante === 'cliente') {
+                    const cliente = clientes.find(c => c.id === item.id);
+                    if (cliente) setEditingCliente(cliente);
+                  } else if ('cliente_id' in item) {
+                    // Se é familiar, abre o cliente
+                    const cliente = clientes.find(c => c.id === item.cliente_id);
+                    if (cliente) setEditingCliente(cliente);
+                  }
+                }}
               >
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
