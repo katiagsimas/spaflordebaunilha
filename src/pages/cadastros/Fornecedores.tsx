@@ -32,7 +32,6 @@ interface FormDataFornecedor {
   cpf_cnpj: string;
   telefone: string;
   email: string;
-  contato: string;
   data_aniversario_contato: string;
   observacoes: string;
 }
@@ -57,7 +56,6 @@ export default function Fornecedores() {
     cpf_cnpj: "",
     telefone: "",
     email: "",
-    contato: "",
     data_aniversario_contato: "",
     observacoes: "",
   });
@@ -72,7 +70,6 @@ export default function Fornecedores() {
           cpf_cnpj: fornecedor.cpf_cnpj || "",
           telefone: fornecedor.telefone || "",
           email: fornecedor.email || "",
-          contato: fornecedor.contato || "",
           data_aniversario_contato: fornecedor.data_aniversario_contato || "",
           observacoes: fornecedor.observacoes || "",
         });
@@ -114,7 +111,6 @@ export default function Fornecedores() {
       cpf_cnpj: "",
       telefone: "",
       email: "",
-      contato: "",
       data_aniversario_contato: "",
       observacoes: "",
     });
@@ -241,8 +237,7 @@ export default function Fornecedores() {
       'CPF/CNPJ': fornecedor.cpf_cnpj || '-',
       'Telefone': fornecedor.telefone || '-',
       'E-mail': fornecedor.email || '-',
-      'Contato': fornecedor.contato || '-',
-      'Aniversário': fornecedor.data_aniversario_contato 
+      'Aniversário': fornecedor.data_aniversario_contato
         ? new Date(fornecedor.data_aniversario_contato + 'T00:00:00').toLocaleDateString('pt-BR')
         : '-',
     }));
@@ -378,15 +373,6 @@ export default function Fornecedores() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="contato">Contato</Label>
-                    <Input
-                      id="contato"
-                      value={formData.contato}
-                      onChange={(e) => setFormData({ ...formData, contato: e.target.value })}
-                      placeholder="Nome do contato"
-                    />
-                  </div>
-                  <div className="space-y-2">
                     <Label htmlFor="data_aniversario_contato">Aniversário do Contato</Label>
                     <Input
                       id="data_aniversario_contato"
@@ -508,7 +494,6 @@ export default function Fornecedores() {
                     <TableHead>Tipo</TableHead>
                     <TableHead>CNPJ/CPF</TableHead>
                     <TableHead>Telefone</TableHead>
-                    <TableHead>Contato</TableHead>
                     <TableHead>Aniversário</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
@@ -520,7 +505,6 @@ export default function Fornecedores() {
                       <TableCell>{fornecedor.tipo || "-"}</TableCell>
                       <TableCell>{fornecedor.cpf_cnpj || "-"}</TableCell>
                       <TableCell>{fornecedor.telefone || "-"}</TableCell>
-                      <TableCell>{fornecedor.contato || "-"}</TableCell>
                       <TableCell>
                         {fornecedor.data_aniversario_contato 
                           ? new Date(fornecedor.data_aniversario_contato + 'T00:00:00').toLocaleDateString('pt-BR')
