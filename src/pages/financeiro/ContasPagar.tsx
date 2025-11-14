@@ -819,9 +819,7 @@ export default function ContasPagar() {
             { value: 'todos', label: 'Todos' },
             { value: 'aberto', label: 'Em Aberto' },
             { value: 'vencido', label: 'Vencido' },
-            { value: 'pagamento_parcial', label: 'Pago Parcialmente' },
             { value: 'pago', label: 'Pago' },
-            { value: 'adiantado', label: 'Adiantado' },
           ].map(filtro => (
             <Button
               key={filtro.value}

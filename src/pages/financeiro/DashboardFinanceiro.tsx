@@ -126,48 +126,43 @@ export default function DashboardFinanceiro() {
 
   async function carregarInadimplenciaClientes() {
     if (!user) return;
-    const hoje = new Date();
+    const hoje = new Date().toISOString().split('T')[0];
 
     const { data } = await supabase
-      .from("contas_receber")
-      .select(`
-        id,
-        valor,
-        data_vencimento,
-        cliente_id,
-        cliente_nome
-      `)
-      .eq("usuario_id", user.id)
-      .eq("status", "pendente")
-      .lt("data_vencimento", hoje.toISOString().split('T')[0])
+      .from("vw_contas_receber_parcelas")
+      .select('*')
+      .eq("user_id", user.id)
+      .eq("status", "atrasado")
       .order("data_vencimento", { ascending: true });
 
     if (!data) return;
 
     const inadimplentesMap = new Map<string, InadimplenciaItem>();
 
-    for (const conta of data) {
-      const vencimento = new Date(conta.data_vencimento!);
-      const diasAtraso = Math.floor((hoje.getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
+    for (const parcela of data) {
+      const vencimento = new Date(parcela.data_vencimento + 'T00:00:00');
+      const hojeDate = new Date(hoje + 'T00:00:00');
+      const diasAtraso = Math.floor((hojeDate.getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
 
-      const clienteId = conta.cliente_id || conta.id;
-      const clienteNome = conta.cliente_nome || "Cliente desconhecido";
+      const clienteId = parcela.cliente_id || parcela.id;
+      const clienteNome = parcela.cliente_nome || "Cliente desconhecido";
+      const valorDevido = (parcela.valor_parcela || 0) - (parcela.valor_pago || 0);
 
       if (inadimplentesMap.has(clienteId)) {
         const existing = inadimplentesMap.get(clienteId)!;
-        existing.valor += conta.valor || 0;
+        existing.valor += valorDevido;
         existing.dias_atraso = Math.max(existing.dias_atraso, diasAtraso);
       } else {
         const { data: cliente } = await supabase
           .from("clientes")
           .select("telefone")
           .eq("id", clienteId)
-          .single();
+          .maybeSingle();
 
         inadimplentesMap.set(clienteId, {
           id: clienteId,
           nome: clienteNome,
-          valor: conta.valor || 0,
+          valor: valorDevido,
           dias_atraso: diasAtraso,
           telefone: cliente?.telefone
         });
@@ -182,46 +177,53 @@ export default function DashboardFinanceiro() {
 
   async function carregarInadimplenciaFornecedores() {
     if (!user) return;
-    const hoje = new Date();
+    const hoje = new Date().toISOString().split('T')[0];
 
-    const { data } = await supabase
-      .from("contas_pagar")
+    // Buscar parcelas atrasadas com informações da conta
+    const { data: parcelas } = await supabase
+      .from("contas_pagar_parcelas")
       .select(`
-        id,
-        valor_total,
-        data_vencimento,
-        fornecedor_id
+        *,
+        conta_pagar:contas_pagar (
+          fornecedor_id,
+          usuario_id
+        )
       `)
-      .eq("usuario_id", user.id)
-      .eq("status", "pendente")
-      .lt("data_vencimento", hoje.toISOString().split('T')[0])
+      .eq("status", "atrasado")
       .order("data_vencimento", { ascending: true });
 
-    if (!data) return;
+    if (!parcelas) return;
+
+    // Filtrar apenas parcelas do usuário atual
+    const parcelasDoUsuario = parcelas.filter(
+      (p: any) => p.conta_pagar?.usuario_id === user.id
+    );
 
     const inadimplentesMap = new Map<string, InadimplenciaItem>();
 
-    for (const conta of data) {
-      const vencimento = new Date(conta.data_vencimento!);
-      const diasAtraso = Math.floor((hoje.getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
+    for (const parcela of parcelasDoUsuario) {
+      const vencimento = new Date(parcela.data_vencimento + 'T00:00:00');
+      const hojeDate = new Date(hoje + 'T00:00:00');
+      const diasAtraso = Math.floor((hojeDate.getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
 
-      const fornecedorId = conta.fornecedor_id || conta.id;
+      const fornecedorId = (parcela.conta_pagar as any)?.fornecedor_id || parcela.id;
+      const valorDevido = (parcela.valor_parcela || 0) - (parcela.valor_pago || 0);
 
       if (inadimplentesMap.has(fornecedorId)) {
         const existing = inadimplentesMap.get(fornecedorId)!;
-        existing.valor += conta.valor_total || 0;
+        existing.valor += valorDevido;
         existing.dias_atraso = Math.max(existing.dias_atraso, diasAtraso);
       } else {
         const { data: fornecedor } = await supabase
           .from("fornecedores")
           .select("nome, telefone")
           .eq("id", fornecedorId)
-          .single();
+          .maybeSingle();
 
         inadimplentesMap.set(fornecedorId, {
           id: fornecedorId,
           nome: fornecedor?.nome || "Fornecedor desconhecido",
-          valor: conta.valor_total || 0,
+          valor: valorDevido,
           dias_atraso: diasAtraso,
           telefone: fornecedor?.telefone
         });
