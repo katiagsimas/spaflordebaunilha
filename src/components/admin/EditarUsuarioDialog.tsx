@@ -93,7 +93,6 @@ export function EditarUsuarioDialog({
     categorias: false,
     unidadesMedida: false,
     custosFixos: false,
-    maoObra: false,
     tiposInsumos: false,
     ingredientes: false,
     embalagens: false,
@@ -132,7 +131,6 @@ export function EditarUsuarioDialog({
         categoriasRes,
         unidadesMedidaRes,
         custosFixosRes,
-        maoObraRes,
         tiposInsumosRes,
         ingredientesRes,
         embalagensRes,
@@ -151,7 +149,7 @@ export function EditarUsuarioDialog({
         supabase.from('categorias').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
         supabase.from('unidades_medida').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
         supabase.from('custos_fixos').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        supabase.from('configuracao_mao_obra').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+        
         supabase.from('tipos_insumos').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
         supabase.from('ingredientes').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
         supabase.from('embalagens').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
@@ -174,7 +172,7 @@ export function EditarUsuarioDialog({
         total_categorias: categoriasRes.count || 0,
         total_unidades_medida: unidadesMedidaRes.count || 0,
         total_custos_fixos: custosFixosRes.count || 0,
-        total_mao_obra: maoObraRes.count || 0,
+        
         total_tipos_insumos: tiposInsumosRes.count || 0,
         total_ingredientes: ingredientesRes.count || 0,
         total_embalagens: embalagensRes.count || 0,
@@ -311,9 +309,6 @@ export function EditarUsuarioDialog({
       }
       if (itensSelecionados.custosFixos) {
         deletePromises.push(supabase.from('custos_fixos').delete().eq('usuario_id', userId));
-      }
-      if (itensSelecionados.maoObra) {
-        deletePromises.push(supabase.from('configuracao_mao_obra').delete().eq('user_id', userId));
       }
       if (itensSelecionados.tiposInsumos) {
         deletePromises.push(supabase.from('tipos_insumos').delete().eq('usuario_id', userId));
@@ -907,23 +902,6 @@ export function EditarUsuarioDialog({
                   </Badge>
                 </div>
 
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="maoObra"
-                      checked={itensSelecionados.maoObra}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, maoObra: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="maoObra" className="text-sm cursor-pointer">
-                      Mão de Obra
-                    </label>
-                  </div>
-                  <Badge variant="secondary">
-                    {stats?.total_mao_obra || 0}
-                  </Badge>
-                </div>
 
                 <div className="flex items-center justify-between p-2 bg-muted rounded">
                   <div className="flex items-center gap-2">

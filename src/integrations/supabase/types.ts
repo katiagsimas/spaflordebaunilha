@@ -897,51 +897,6 @@ export type Database = {
         }
         Relationships: []
       }
-      configuracao_mao_obra: {
-        Row: {
-          ativo: boolean | null
-          cor: string | null
-          created_at: string | null
-          descricao: string | null
-          id: string
-          nome: string
-          padrao: boolean | null
-          ultima_alteracao: string | null
-          updated_at: string | null
-          user_id: string
-          valor_hora: number
-          versao: number | null
-        }
-        Insert: {
-          ativo?: boolean | null
-          cor?: string | null
-          created_at?: string | null
-          descricao?: string | null
-          id?: string
-          nome: string
-          padrao?: boolean | null
-          ultima_alteracao?: string | null
-          updated_at?: string | null
-          user_id: string
-          valor_hora: number
-          versao?: number | null
-        }
-        Update: {
-          ativo?: boolean | null
-          cor?: string | null
-          created_at?: string | null
-          descricao?: string | null
-          id?: string
-          nome?: string
-          padrao?: boolean | null
-          ultima_alteracao?: string | null
-          updated_at?: string | null
-          user_id?: string
-          valor_hora?: number
-          versao?: number | null
-        }
-        Relationships: []
-      }
       configuracoes_juros: {
         Row: {
           cobrar_juros: boolean | null
@@ -2158,62 +2113,6 @@ export type Database = {
         }
         Relationships: []
       }
-      mao_obra_historico: {
-        Row: {
-          created_at: string | null
-          data_alteracao: string | null
-          descricao_alteracao: string | null
-          descricao_anterior: string | null
-          descricao_novo: string | null
-          id: string
-          mao_obra_id: string
-          nome_anterior: string | null
-          nome_novo: string | null
-          tipo_alteracao: string | null
-          user_id: string
-          valor_anterior: number | null
-          valor_novo: number
-        }
-        Insert: {
-          created_at?: string | null
-          data_alteracao?: string | null
-          descricao_alteracao?: string | null
-          descricao_anterior?: string | null
-          descricao_novo?: string | null
-          id?: string
-          mao_obra_id: string
-          nome_anterior?: string | null
-          nome_novo?: string | null
-          tipo_alteracao?: string | null
-          user_id: string
-          valor_anterior?: number | null
-          valor_novo: number
-        }
-        Update: {
-          created_at?: string | null
-          data_alteracao?: string | null
-          descricao_alteracao?: string | null
-          descricao_anterior?: string | null
-          descricao_novo?: string | null
-          id?: string
-          mao_obra_id?: string
-          nome_anterior?: string | null
-          nome_novo?: string | null
-          tipo_alteracao?: string | null
-          user_id?: string
-          valor_anterior?: number | null
-          valor_novo?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "mao_obra_historico_mao_obra_id_fkey"
-            columns: ["mao_obra_id"]
-            isOneToOne: false
-            referencedRelation: "configuracao_mao_obra"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       movimentacoes_estoque: {
         Row: {
           created_at: string
@@ -2850,7 +2749,6 @@ export type Database = {
           cardapio: string | null
           categoria: string | null
           created_at: string
-          custo_mao_obra: number | null
           custo_total: number
           id: string
           modo_preparo: string | null
@@ -2858,7 +2756,6 @@ export type Database = {
           rendimento: number
           tempo_preparo: number
           tipo: string | null
-          tipo_mao_obra_id: string | null
           unidade_rendimento: string
           unidade_tempo: string
           updated_at: string
@@ -2869,7 +2766,6 @@ export type Database = {
           cardapio?: string | null
           categoria?: string | null
           created_at?: string
-          custo_mao_obra?: number | null
           custo_total?: number
           id?: string
           modo_preparo?: string | null
@@ -2877,7 +2773,6 @@ export type Database = {
           rendimento: number
           tempo_preparo: number
           tipo?: string | null
-          tipo_mao_obra_id?: string | null
           unidade_rendimento: string
           unidade_tempo: string
           updated_at?: string
@@ -2888,7 +2783,6 @@ export type Database = {
           cardapio?: string | null
           categoria?: string | null
           created_at?: string
-          custo_mao_obra?: number | null
           custo_total?: number
           id?: string
           modo_preparo?: string | null
@@ -2896,22 +2790,13 @@ export type Database = {
           rendimento?: number
           tempo_preparo?: number
           tipo?: string | null
-          tipo_mao_obra_id?: string | null
           unidade_rendimento?: string
           unidade_tempo?: string
           updated_at?: string
           usuario_id?: string
           valor_venda?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "receitas_tipo_mao_obra_id_fkey"
-            columns: ["tipo_mao_obra_id"]
-            isOneToOne: false
-            referencedRelation: "configuracao_mao_obra"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       receitas_despesas_venda: {
         Row: {
