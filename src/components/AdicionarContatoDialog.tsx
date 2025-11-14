@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -114,58 +114,57 @@ export function AdicionarContatoDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
             {initialData ? 'Editar Contato' : 'Adicionar Contato'}
-            {fornecedorNome && <span className="text-sm text-muted-foreground block mt-1">Fornecedor: {fornecedorNome}</span>}
           </DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            Fornecedor: {fornecedorNome}
+          </p>
         </DialogHeader>
 
         {!showCadastrarOutro ? (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="nome">Nome *</Label>
-                <Input
-                  id="nome"
-                  value={formData.nome}
-                  onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                  required
-                  placeholder="Nome do contato"
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="nome">Nome *</Label>
+              <Input
+                id="nome"
+                value={formData.nome}
+                onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                required
+              />
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="cargo">Cargo</Label>
-                <Input
-                  id="cargo"
-                  value={formData.cargo}
-                  onChange={(e) => setFormData({ ...formData, cargo: e.target.value })}
-                  placeholder="Ex: Gerente, Vendedor"
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="cargo">Cargo</Label>
+              <Input
+                id="cargo"
+                value={formData.cargo}
+                onChange={(e) => setFormData({ ...formData, cargo: e.target.value })}
+                placeholder="Ex: Gerente, Vendedor"
+              />
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="data_aniversario">Data de Aniversário *</Label>
-                <Input
-                  id="data_aniversario"
-                  type="date"
-                  value={formData.data_aniversario}
-                  onChange={(e) => setFormData({ ...formData, data_aniversario: e.target.value })}
-                  required
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="data_aniversario">Data de Aniversário *</Label>
+              <Input
+                id="data_aniversario"
+                type="date"
+                value={formData.data_aniversario}
+                onChange={(e) => setFormData({ ...formData, data_aniversario: e.target.value })}
+                required
+              />
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="telefone">Telefone/WhatsApp</Label>
-                <Input
-                  id="telefone"
-                  value={formData.telefone}
-                  onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
-                  placeholder="(00) 00000-0000"
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="telefone">Telefone/WhatsApp</Label>
+              <Input
+                id="telefone"
+                value={formData.telefone}
+                onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
+                placeholder="(00) 00000-0000"
+              />
             </div>
 
             <div className="space-y-2">
@@ -174,53 +173,43 @@ export function AdicionarContatoDialog({
                 id="observacoes"
                 value={formData.observacoes}
                 onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
-                placeholder="Observações sobre o contato"
                 rows={3}
               />
             </div>
 
-            <DialogFooter>
+            <div className="flex gap-2 justify-end">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? 'Salvando...' : initialData ? 'Atualizar' : 'Continuar'}
+              <Button type="submit">
+                {initialData ? 'Atualizar' : 'Cadastrar'}
               </Button>
-            </DialogFooter>
+            </div>
           </form>
         ) : (
-          <div className="space-y-6">
-            <div className="bg-muted p-4 rounded-lg">
-              <p className="text-sm font-medium mb-2">Contato salvo com sucesso!</p>
-              <p className="text-sm text-muted-foreground">Deseja cadastrar outro contato?</p>
+          <div className="space-y-4">
+            <p className="text-center">Deseja cadastrar outro contato?</p>
+            <div className="flex items-center justify-center space-x-6">
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <Checkbox
+                  checked={cadastrarOutro === true}
+                  onCheckedChange={() => setCadastrarOutro(true)}
+                />
+                <span>SIM</span>
+              </label>
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <Checkbox
+                  checked={cadastrarOutro === false}
+                  onCheckedChange={() => setCadastrarOutro(false)}
+                />
+                <span>NÃO</span>
+              </label>
             </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="cadastrar-outro"
-                checked={cadastrarOutro}
-                onCheckedChange={(checked) => setCadastrarOutro(checked === true)}
-              />
-              <Label htmlFor="cadastrar-outro" className="cursor-pointer">
-                Sim, desejo cadastrar outro contato
-              </Label>
+            <div className="flex justify-center">
+              <Button onClick={handleConfirmarCadastro}>
+                Confirmar
+              </Button>
             </div>
-
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setCadastrarOutro(false);
-                  handleConfirmarCadastro();
-                }}
-                disabled={loading}
-              >
-                Não, finalizar
-              </Button>
-              <Button onClick={handleConfirmarCadastro} disabled={loading}>
-                {loading ? 'Salvando...' : 'Confirmar'}
-              </Button>
-            </DialogFooter>
           </div>
         )}
       </DialogContent>
