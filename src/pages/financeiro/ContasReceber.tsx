@@ -205,6 +205,7 @@ export default function ContasReceber() {
         .from('tipos_documento')
         .select('*')
         .eq('usuario_id', user.id)
+        .eq('habilitado', true)
         .eq('ativo', true)
         .order('descricao');
       

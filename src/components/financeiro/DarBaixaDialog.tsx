@@ -178,6 +178,7 @@ export default function DarBaixaDialog({
         .from('tipos_documento')
         .select('id, descricao')
         .eq('usuario_id', user.id)
+        .eq('habilitado', true)
         .eq('ativo', true)
         .order('descricao');
 
