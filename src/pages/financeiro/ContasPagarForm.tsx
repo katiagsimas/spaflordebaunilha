@@ -270,9 +270,14 @@ export default function ContasPagarForm() {
         const dataVenc = new Date(dataBase);
         dataVenc.setDate(dataVenc.getDate() + (i * 30)); // 30 dias após a anterior
 
+        // Data de emissão: primeira parcela usa dataEmissao, as seguintes são 30 dias após a anterior
+        const dataEmissaoBase = new Date(dataEmissao + 'T00:00:00');
+        const dataEmissaoParcela = new Date(dataEmissaoBase);
+        dataEmissaoParcela.setDate(dataEmissaoParcela.getDate() + (i * 30));
+
         parcelas_geradas.push({
           numero_parcela: i + 1,
-          data_emissao: dataEmissao, // Mesma data de emissão para todas
+          data_emissao: dataEmissaoParcela.toISOString().split('T')[0],
           data_vencimento: dataVenc.toISOString().split('T')[0],
           valor_total: valor,
           valor_parcela: valor, // Valor total para cada parcela
