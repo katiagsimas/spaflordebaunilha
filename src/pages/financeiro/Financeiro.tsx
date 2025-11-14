@@ -448,34 +448,47 @@ export default function Financeiro() {
     
     const hoje = new Date().toISOString().split('T')[0];
 
-    // Buscar parcelas com status "atrasado"
+    // Buscar parcelas com status "atrasado" das contas a pagar do usuário
     const { data: parcelas } = await supabase
       .from("contas_pagar_parcelas")
       .select(`
-        *,
-        conta_pagar:contas_pagar (
+        id,
+        valor_parcela,
+        valor_pago,
+        data_vencimento,
+        status,
+        contas_pagar!inner (
           fornecedor_id,
-          usuario_id
+          usuario_id,
+          fornecedores (
+            id,
+            nome,
+            telefone
+          )
         )
       `)
       .eq("status", "atrasado")
+      .eq("contas_pagar.usuario_id", user.id)
       .order("data_vencimento", { ascending: true });
 
-    if (!parcelas) return;
-
-    // Filtrar apenas parcelas do usuário atual
-    const parcelasDoUsuario = parcelas.filter(
-      (p: any) => p.conta_pagar?.usuario_id === user.id
-    );
+    if (!parcelas || parcelas.length === 0) {
+      setInadimplenciaFornecedores([]);
+      return;
+    }
 
     const inadimplentesMap = new Map<string, InadimplenciaItem>();
 
-    for (const parcela of parcelasDoUsuario) {
+    for (const parcela of parcelas) {
       const vencimento = new Date(parcela.data_vencimento + 'T00:00:00');
       const hojeDate = new Date(hoje + 'T00:00:00');
       const diasAtraso = Math.floor((hojeDate.getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
 
-      const fornecedorId = (parcela.conta_pagar as any)?.fornecedor_id || parcela.id;
+      const contaPagar = parcela.contas_pagar as any;
+      const fornecedor = contaPagar?.fornecedores;
+      const fornecedorId = contaPagar?.fornecedor_id;
+      
+      if (!fornecedorId) continue;
+
       const valorDevido = (parcela.valor_parcela || 0) - (parcela.valor_pago || 0);
 
       if (inadimplentesMap.has(fornecedorId)) {
@@ -483,12 +496,6 @@ export default function Financeiro() {
         existing.valor += valorDevido;
         existing.dias_atraso = Math.max(existing.dias_atraso, diasAtraso);
       } else {
-        const { data: fornecedor } = await supabase
-          .from("fornecedores")
-          .select("nome, telefone")
-          .eq("id", fornecedorId)
-          .maybeSingle();
-
         inadimplentesMap.set(fornecedorId, {
           id: fornecedorId,
           nome: fornecedor?.nome || "Fornecedor desconhecido",
