@@ -432,7 +432,7 @@ export default function TiposInsumosIngredientes() {
               </Select>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3 p-4 rounded-lg border-2 border-primary/20 bg-primary/5">
               <Checkbox
                 id="controlar-estoque"
                 checked={controlarEstoque}
@@ -440,7 +440,7 @@ export default function TiposInsumosIngredientes() {
               />
               <Label
                 htmlFor="controlar-estoque"
-                className="text-sm font-normal cursor-pointer"
+                className="text-sm font-semibold cursor-pointer text-primary"
               >
                 Controle de Estoque
               </Label>
