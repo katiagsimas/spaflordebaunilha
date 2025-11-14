@@ -122,8 +122,18 @@ export default function ReceitaForm() {
   const [embalagensCadastradas, setEmbalagensCadastradas] = useState<any[]>([]);
   const { custosFixos } = useCustosFixos();
   const { valores: valoresMaoObra } = useMaoObra();
-  const { categorias } = useCategorias();
+  const { categorias, fetchCategoriasAtivas } = useCategorias();
   const { unidades } = useUnidadesMedida();
+  const [categoriasAtivas, setCategoriasAtivas] = useState<any[]>([]);
+
+  // Carregar apenas categorias ativas para o formulário
+  useEffect(() => {
+    const carregarCategoriasAtivas = async () => {
+      const ativas = await fetchCategoriasAtivas();
+      setCategoriasAtivas(ativas);
+    };
+    carregarCategoriasAtivas();
+  }, []);
 
   // Buscar ingredientes e embalagens do Supabase
   useEffect(() => {
@@ -791,19 +801,19 @@ export default function ReceitaForm() {
                   <SelectValue placeholder="Selecione uma categoria" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categorias.length === 0 && (
+                  {categoriasAtivas.length === 0 && (
                     <div className="p-2 text-sm text-muted-foreground text-center">
-                      Nenhuma categoria cadastrada.{" "}
+                      Nenhuma categoria habilitada.{" "}
                       <Button
                         variant="link"
                         className="p-0 h-auto"
-                        onClick={() => navigate("/cadastros/categorias")}
+                        onClick={() => navigate("/configuracoes/categorias-receitas")}
                       >
-                        Cadastrar agora
+                        Habilitar agora
                       </Button>
                     </div>
                   )}
-                  {categorias.map((categoria) => (
+                  {categoriasAtivas.map((categoria) => (
                     <SelectItem key={categoria.id} value={categoria.nome}>
                       {categoria.nome}
                     </SelectItem>
