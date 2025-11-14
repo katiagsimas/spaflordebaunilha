@@ -32,6 +32,9 @@ export function PlanoContasAutocomplete({
   const [searchValue, setSearchValue] = useState("");
 
   const filteredPlanos = planosContas.filter((plano) => {
+    // Apenas mostrar contas ativas
+    if (!plano.ativo) return false;
+    
     const searchText = searchValue.toLowerCase();
     const codigoMatch = plano.codigo_estruturado?.toLowerCase().includes(searchText);
     const descricaoMatch = plano.descricao?.toLowerCase().includes(searchText);

@@ -30,7 +30,14 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2 } from 'lucide-react';
+import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2, MoreVertical } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import * as XLSX from 'xlsx';
 import { BackButton } from '@/components/BackButton';
 import { PageHeader } from '@/components/PageHeader';
@@ -54,6 +61,10 @@ export default function PlanoContas() {
   const [descricao, setDescricao] = useState('');
   const [codigoSugerido, setCodigoSugerido] = useState('');
   const [codigoEstruturadoSugerido, setCodigoEstruturadoSugerido] = useState('');
+  
+  // Confirm Dialog
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [contaParaExcluir, setContaParaExcluir] = useState(null);
 
   useEffect(() => {
     fetchDados();
@@ -318,33 +329,76 @@ export default function PlanoContas() {
     }
   };
 
-  const handleDeletar = async (id, ePadrao) => {
+  const verificarUsoPlano = async (planoId) => {
     try {
-      if (ePadrao) {
-        toast.error('Planos padrão não podem ser deletados.');
+      // Verificar em contas_receber
+      const { data: contasReceber, error: errorReceber } = await supabase
+        .from('contas_receber')
+        .select('id')
+        .eq('plano_conta_id', planoId)
+        .limit(1);
+
+      if (errorReceber) throw errorReceber;
+      if (contasReceber && contasReceber.length > 0) {
+        return { emUso: true, modulo: 'Contas a Receber' };
+      }
+
+      // Verificar em contas_pagar
+      const { data: contasPagar, error: errorPagar } = await supabase
+        .from('contas_pagar')
+        .select('id')
+        .eq('plano_contas_id', planoId)
+        .limit(1);
+
+      if (errorPagar) throw errorPagar;
+      if (contasPagar && contasPagar.length > 0) {
+        return { emUso: true, modulo: 'Contas a Pagar' };
+      }
+
+      return { emUso: false, modulo: null };
+    } catch (error) {
+      console.error('Erro ao verificar uso:', error);
+      throw error;
+    }
+  };
+
+  const handleSolicitarExclusao = (plano) => {
+    setContaParaExcluir(plano);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmarExclusao = async () => {
+    if (!contaParaExcluir) return;
+
+    try {
+      // Verificar se está em uso
+      const { emUso, modulo } = await verificarUsoPlano(contaParaExcluir.id);
+
+      if (emUso) {
+        toast.error(
+          `Esta conta está sendo utilizada no módulo "${modulo}". Para removê-la, desabilite-a ao invés de excluí-la.`,
+          { duration: 5000 }
+        );
+        setConfirmOpen(false);
         return;
       }
 
-      if (!confirm('Deletar este plano de contas?')) return;
-
+      // Se não está em uso, pode excluir
       const { error } = await supabase
         .from('plano_contas')
         .delete()
-        .eq('id', id)
-        .eq('e_padrao', false);
+        .eq('id', contaParaExcluir.id);
 
-      if (error) {
-        if (error.code === '23503') {
-          throw new Error('Este plano está sendo usado e não pode ser deletado.');
-        }
-        throw error;
-      }
+      if (error) throw error;
 
       toast.success('Plano deletado com sucesso!');
       fetchDados();
     } catch (error) {
       console.error('Erro:', error);
-      toast.error(error.message);
+      toast.error('Não foi possível excluir o plano de contas.');
+    } finally {
+      setConfirmOpen(false);
+      setContaParaExcluir(null);
     }
   };
 
@@ -581,38 +635,39 @@ export default function PlanoContas() {
                     )}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleAbrirModal(plano)}
-                        title="Editar"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      {!plano.e_padrao && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeletar(plano.id, plano.e_padrao)}
-                          title="Deletar"
-                        >
-                          <Trash2 className="h-4 w-4 text-red-600" />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreVertical className="h-4 w-4" />
                         </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleToggleAtivo(plano.id, plano.ativo)}
-                        title={plano.ativo ? 'Desativar' : 'Ativar'}
-                      >
-                        {plano.ativo ? (
-                          <PowerOff className="h-4 w-4 text-red-600" />
-                        ) : (
-                          <Power className="h-4 w-4 text-green-600" />
-                        )}
-                      </Button>
-                    </div>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleAbrirModal(plano)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleSolicitarExclusao(plano)}
+                          className="text-red-600"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Excluir
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleToggleAtivo(plano.id, plano.ativo)}>
+                          {plano.ativo ? (
+                            <>
+                              <PowerOff className="mr-2 h-4 w-4" />
+                              Desabilitar
+                            </>
+                          ) : (
+                            <>
+                              <Power className="mr-2 h-4 w-4" />
+                              Habilitar
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))
@@ -694,6 +749,17 @@ export default function PlanoContas() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        onConfirm={handleConfirmarExclusao}
+        title="Confirmar Exclusão"
+        description={`Deseja realmente excluir o plano "${contaParaExcluir?.codigo_estruturado} - ${contaParaExcluir?.descricao}"?`}
+        confirmLabel="Excluir"
+        cancelLabel="Cancelar"
+      />
     </div>
   );
 }
