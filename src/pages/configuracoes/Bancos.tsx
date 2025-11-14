@@ -35,6 +35,7 @@ interface Banco {
   tipo: string;
   e_banco_oficial?: boolean;
   e_customizado?: boolean;
+  habilitado?: boolean;
 }
 
 // Lista de bancos oficiais brasileiros com códigos BACEN
@@ -117,7 +118,7 @@ export default function Bancos() {
       // Buscar bancos
       const { data, error } = await supabase
         .from('bancos')
-        .select('id, codigo, nome, tipo')
+        .select('id, codigo, nome, tipo, e_banco_oficial, e_customizado, habilitado')
         .eq('usuario_id', user.id)
         .order('codigo');
 
@@ -128,8 +129,9 @@ export default function Bancos() {
         codigo: b.codigo,
         nome: b.nome,
         tipo: b.tipo,
-        e_banco_oficial: false,
-        e_customizado: false,
+        e_banco_oficial: b.e_banco_oficial || false,
+        e_customizado: b.e_customizado || false,
+        habilitado: b.habilitado || false,
       }));
       
       setBancos(bancosFormatados);
@@ -337,6 +339,31 @@ export default function Bancos() {
     }
   };
 
+  const handleToggleHabilitado = async (id: string, habilitado: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('bancos')
+        .update({ habilitado })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: habilitado ? '✅ Habilitado' : '⚠️ Desabilitado',
+        description: `Banco ${habilitado ? 'habilitado' : 'desabilitado'} com sucesso!`,
+      });
+
+      fetchBancos();
+    } catch (error: any) {
+      console.error('Erro:', error);
+      toast({
+        title: 'Erro',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleDeletar = async (id: string) => {
     try {
       if (!confirm('Deletar este banco?')) return;
@@ -420,18 +447,14 @@ export default function Bancos() {
           <Download className="mr-2 h-4 w-4" />
           Exportar Excel
         </Button>
-        <Button onClick={() => handleAbrirModal()}>
-          <Plus className="mr-2 h-4 w-4" />
-          Adicionar Banco
-        </Button>
       </div>
 
       {/* Alert */}
       <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-950">
         <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
         <AlertDescription className="text-blue-800 dark:text-blue-200">
-          <strong>Dica:</strong> Cadastre os bancos que você utiliza para melhor controle financeiro.
-          Use códigos de 3 dígitos conforme padrão bancário brasileiro.
+          <strong>Dica:</strong> Habilite apenas os bancos que você utiliza para melhor organização.
+          Os bancos desabilitados não aparecerão nas listagens de seleção.
         </AlertDescription>
       </Alert>
 
@@ -456,29 +479,44 @@ export default function Bancos() {
               <TableHead className="w-32">Código</TableHead>
               <TableHead>Nome do Banco</TableHead>
               <TableHead className="w-40">Tipo</TableHead>
+              <TableHead className="w-32">Status</TableHead>
               <TableHead className="text-right w-32">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {bancosFiltrados.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                   {termoBusca 
                     ? 'Nenhum banco encontrado.' 
-                    : 'Nenhum banco cadastrado. Clique em "Adicionar Banco" para começar.'}
+                    : 'Nenhum banco cadastrado.'}
                 </TableCell>
               </TableRow>
             ) : (
               bancosFiltrados.map(banco => (
-                <TableRow key={banco.id}>
+                <TableRow key={banco.id} className={!banco.habilitado ? 'opacity-50' : ''}>
                   <TableCell className="font-mono font-bold">
                     {banco.codigo}
+                    {banco.e_banco_oficial && (
+                      <Badge variant="secondary" className="ml-2 text-xs">Oficial</Badge>
+                    )}
                   </TableCell>
                   <TableCell className="font-medium">{banco.nome}</TableCell>
                   <TableCell>
                     <Badge variant="outline">
                       {banco.tipo}
                     </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {banco.habilitado ? (
+                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
+                        ✅ Habilitado
+                      </Badge>
+                    ) : (
+                      <Badge variant="secondary">
+                        ⚠️ Desabilitado
+                      </Badge>
+                    )}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
@@ -493,11 +531,15 @@ export default function Bancos() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDeletar(banco.id)}
-                        title="Deletar"
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                        onClick={() => handleToggleHabilitado(banco.id, !banco.habilitado)}
+                        title={banco.habilitado ? 'Desabilitar' : 'Habilitar'}
+                        className={banco.habilitado ? 'text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:hover:bg-orange-950' : 'text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-950'}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        {banco.habilitado ? (
+                          <Trash2 className="h-4 w-4" />
+                        ) : (
+                          <Plus className="h-4 w-4" />
+                        )}
                       </Button>
                     </div>
                   </TableCell>

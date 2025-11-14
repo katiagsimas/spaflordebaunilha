@@ -242,6 +242,7 @@ export type Database = {
           created_at: string
           e_banco_oficial: boolean | null
           e_customizado: boolean | null
+          habilitado: boolean | null
           id: string
           nome: string
           saldo_inicial: number
@@ -254,6 +255,7 @@ export type Database = {
           created_at?: string
           e_banco_oficial?: boolean | null
           e_customizado?: boolean | null
+          habilitado?: boolean | null
           id?: string
           nome: string
           saldo_inicial?: number
@@ -266,6 +268,7 @@ export type Database = {
           created_at?: string
           e_banco_oficial?: boolean | null
           e_customizado?: boolean | null
+          habilitado?: boolean | null
           id?: string
           nome?: string
           saldo_inicial?: number
@@ -3801,6 +3804,10 @@ export type Database = {
       }
       criar_banco_caixa_empresa_padrao: {
         Args: { p_user_id: string }
+        Returns: undefined
+      }
+      criar_bancos_oficiais_usuario: {
+        Args: { p_usuario_id: string }
         Returns: undefined
       }
       criar_categorias_padrao: { Args: { user_id: string }; Returns: undefined }
