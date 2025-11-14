@@ -7,6 +7,8 @@ interface Categoria {
   id: string;
   usuario_id: string;
   nome: string;
+  ativo: boolean;
+  padrao_sistema: boolean;
   created_at?: string;
   updated_at?: string;
 }
