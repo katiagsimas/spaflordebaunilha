@@ -3268,6 +3268,8 @@ export type Database = {
       }
       tipos_insumos: {
         Row: {
+          categoria_estoque_id: string | null
+          controlar_estoque: boolean | null
           created_at: string | null
           descricao: string
           id: string
@@ -3279,6 +3281,8 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
+          categoria_estoque_id?: string | null
+          controlar_estoque?: boolean | null
           created_at?: string | null
           descricao: string
           id?: string
@@ -3290,6 +3294,8 @@ export type Database = {
           usuario_id: string
         }
         Update: {
+          categoria_estoque_id?: string | null
+          controlar_estoque?: boolean | null
           created_at?: string | null
           descricao?: string
           id?: string
@@ -3301,6 +3307,13 @@ export type Database = {
           usuario_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tipos_insumos_categoria_estoque_id_fkey"
+            columns: ["categoria_estoque_id"]
+            isOneToOne: false
+            referencedRelation: "categorias_estoque"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tipos_insumos_pre_preparo_id_fkey"
             columns: ["pre_preparo_id"]
