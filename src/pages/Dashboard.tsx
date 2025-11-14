@@ -17,7 +17,8 @@ import {
   TrendingDown,
   ChevronLeft,
   ChevronRight,
-  DollarSign
+  DollarSign,
+  Cake
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -104,6 +105,9 @@ export default function Dashboard() {
     anual: 0
   });
   const [modoVisualizacao, setModoVisualizacao] = useState<'mensal' | 'anual'>('mensal');
+  
+  // Estado para aniversariantes
+  const [aniversariantes, setAniversariantes] = useState<any[]>([]);
 
   const meses = [
     "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -117,6 +121,7 @@ export default function Dashboard() {
       carregarDados();
       carregarCalendarioAnterior();
       carregarCalendarioSeguinte();
+      carregarAniversariantes();
     }
   }, [mesSelecionado, anoSelecionado, user]);
 
@@ -794,6 +799,101 @@ export default function Dashboard() {
     }
   }
 
+  async function carregarAniversariantes() {
+    if (!user) return;
+    
+    try {
+      const mesAtual = new Date().getMonth();
+      
+      // Buscar clientes aniversariantes
+      const { data: clientes } = await supabase
+        .from('clientes')
+        .select('*')
+        .eq('usuario_id', user.id);
+      
+      const clientesAniversariantes = (clientes || [])
+        .filter(cliente => {
+          if (!cliente.data_aniversario) return false;
+          const dataAniversario = new Date(cliente.data_aniversario + 'T00:00:00');
+          return dataAniversario.getMonth() === mesAtual;
+        })
+        .map(cliente => ({
+          ...cliente,
+          tipo: 'cliente' as const,
+        }));
+
+      // Buscar familiares aniversariantes
+      const { data: familiares } = await supabase
+        .from('cliente_familiares')
+        .select(`
+          *,
+          clientes!inner (
+            id,
+            nome,
+            usuario_id
+          )
+        `)
+        .eq('clientes.usuario_id', user.id);
+      
+      const familiaresAniversariantes = (familiares || [])
+        .filter(familiar => {
+          if (!familiar.data_nascimento) return false;
+          const dataAniversario = new Date(familiar.data_nascimento + 'T00:00:00');
+          return dataAniversario.getMonth() === mesAtual;
+        })
+        .map(familiar => ({
+          id: familiar.id,
+          nome: familiar.nome,
+          data_aniversario: familiar.data_nascimento,
+          tipo: 'familiar' as const,
+          parentesco: familiar.parentesco,
+          cliente_nome: (familiar as any).clientes?.nome,
+          cliente_id: familiar.cliente_id,
+        }));
+
+      // Buscar contatos de fornecedores aniversariantes
+      const { data: contatos } = await supabase
+        .from('fornecedor_contatos')
+        .select(`
+          *,
+          fornecedores!inner (
+            id,
+            nome,
+            usuario_id
+          )
+        `)
+        .eq('fornecedores.usuario_id', user.id);
+      
+      const contatosAniversariantes = (contatos || [])
+        .filter(contato => {
+          if (!contato.data_aniversario) return false;
+          const dataAniversario = new Date(contato.data_aniversario + 'T00:00:00');
+          return dataAniversario.getMonth() === mesAtual;
+        })
+        .map(contato => ({
+          id: contato.id,
+          nome: contato.nome,
+          data_aniversario: contato.data_aniversario,
+          tipo: 'contato_fornecedor' as const,
+          cargo: contato.cargo,
+          fornecedor_nome: (contato as any).fornecedores?.nome,
+          fornecedor_id: contato.fornecedor_id,
+        }));
+
+      // Combinar todos e ordenar por dia
+      const todos = [...clientesAniversariantes, ...familiaresAniversariantes, ...contatosAniversariantes];
+      todos.sort((a, b) => {
+        const diaA = new Date(a.data_aniversario! + 'T00:00:00').getDate();
+        const diaB = new Date(b.data_aniversario! + 'T00:00:00').getDate();
+        return diaA - diaB;
+      });
+
+      setAniversariantes(todos);
+    } catch (error) {
+      console.error("Erro ao carregar aniversariantes:", error);
+    }
+  }
+
   function selecionarDia(dados: DadosDia) {
     setDiaSelecionado(dados.dia);
     setEncomendasDia(dados.encomendas);
@@ -888,6 +988,61 @@ export default function Dashboard() {
           </Select>
         </div>
       </div>
+
+      {/* Alertas de Aniversariantes */}
+      {aniversariantes.length > 0 && (
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <Cake className="h-5 w-5 animate-bounce" />
+            🎉 Aniversariantes do Mês
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {aniversariantes.map((item) => (
+              <Card 
+                key={item.id}
+                className="bg-gradient-to-r from-blue-500/10 via-cyan-500/10 to-teal-500/10 dark:from-blue-500/20 dark:via-cyan-500/20 dark:to-teal-500/20 border-2 border-blue-300/50 dark:border-blue-500/50 hover:shadow-lg transition-all duration-300 cursor-pointer"
+                onClick={() => {
+                  if (item.tipo === 'cliente') {
+                    navigate('/cadastros/clientes');
+                  } else if (item.tipo === 'familiar' && item.cliente_id) {
+                    navigate('/cadastros/clientes');
+                  } else if (item.tipo === 'contato_fornecedor' && item.fornecedor_id) {
+                    navigate('/fornecedores');
+                  }
+                }}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                        <Cake className="h-6 w-6 text-white animate-bounce" />
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm truncate">
+                        {item.nome}
+                      </p>
+                      {item.tipo === 'familiar' && (
+                        <p className="text-xs text-blue-600 dark:text-blue-400">
+                          {item.parentesco} de {item.cliente_nome}
+                        </p>
+                      )}
+                      {item.tipo === 'contato_fornecedor' && (
+                        <p className="text-xs text-purple-600 dark:text-purple-400">
+                          {item.cargo ? `${item.cargo} - ` : ''}{item.fornecedor_nome}
+                        </p>
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(item.data_aniversario! + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* FINANCEIRO E ALERTAS */}
       <div className="grid gap-3 md:grid-cols-4">
