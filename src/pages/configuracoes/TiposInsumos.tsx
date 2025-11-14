@@ -10,7 +10,7 @@ export default function TiposInsumos() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Tipos de Insumos e Embalagens"
+        title="Insumos e Embalagens"
         description="Cadastre os tipos base de ingredientes e embalagens"
         backButton={<BackButton to="/configuracoes/cadastros-base" />}
       />

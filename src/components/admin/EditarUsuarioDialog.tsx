@@ -913,7 +913,7 @@ export function EditarUsuarioDialog({
                       }
                     />
                     <label htmlFor="tiposInsumos" className="text-sm cursor-pointer">
-                      Tipos de Insumos
+                      Insumos e Embalagens
                     </label>
                   </div>
                   <Badge variant="secondary">
