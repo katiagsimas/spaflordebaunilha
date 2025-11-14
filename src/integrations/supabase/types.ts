@@ -3347,6 +3347,7 @@ export type Database = {
           created_at: string
           descricao: string
           e_padrao: boolean | null
+          habilitado: boolean | null
           id: string
           updated_at: string
           usuario_id: string
@@ -3358,6 +3359,7 @@ export type Database = {
           created_at?: string
           descricao: string
           e_padrao?: boolean | null
+          habilitado?: boolean | null
           id?: string
           updated_at?: string
           usuario_id: string
@@ -3369,6 +3371,7 @@ export type Database = {
           created_at?: string
           descricao?: string
           e_padrao?: boolean | null
+          habilitado?: boolean | null
           id?: string
           updated_at?: string
           usuario_id?: string
@@ -4092,6 +4095,10 @@ export type Database = {
         }[]
       }
       validate_admin_token: { Args: { p_token: string }; Returns: Json }
+      verificar_tipo_documento_em_uso: {
+        Args: { p_tipo_documento_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "user"

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoadingState } from '@/components/LoadingState';
+import { Switch } from '@/components/ui/switch';
 import {
   Dialog,
   DialogContent,
@@ -34,6 +35,7 @@ interface TipoDocumento {
   codigo: number;
   descricao: string;
   e_padrao?: boolean;
+  habilitado?: boolean;
   ativo?: boolean;
   created_at?: string;
   updated_at?: string;
@@ -85,11 +87,12 @@ export default function TiposDocumentos() {
         }
       }
 
-      // Buscar tipos ordenados alfabeticamente
+      // Buscar tipos ordenados: padrão primeiro, depois customizados
       const { data, error } = await supabase
         .from('tipos_documento')
         .select('*')
         .eq('usuario_id', user.id)
+        .order('e_padrao', { ascending: false })
         .order('descricao');
 
       if (error) throw error;
@@ -220,21 +223,58 @@ export default function TiposDocumentos() {
     }
   };
 
-  const handleDeletar = async (id: string) => {
+  const handleToggleHabilitado = async (tipo: TipoDocumento) => {
     try {
-      if (!confirm('Deletar este tipo de documento?')) return;
+      const novoStatus = !tipo.habilitado;
+      
+      const { error } = await supabase
+        .from('tipos_documento')
+        .update({ habilitado: novoStatus })
+        .eq('id', tipo.id);
+
+      if (error) throw error;
+
+      toast({
+        title: '✅ Atualizado',
+        description: `Tipo ${novoStatus ? 'habilitado' : 'desabilitado'} com sucesso!`,
+      });
+
+      fetchTipos();
+    } catch (error: any) {
+      console.error('Erro ao atualizar:', error);
+      toast({
+        title: 'Erro ao atualizar',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDeletar = async (id: string, descricao: string) => {
+    try {
+      // Verificar se está em uso
+      const { data: emUso, error: errorVerif } = await supabase
+        .rpc('verificar_tipo_documento_em_uso', { p_tipo_documento_id: id });
+
+      if (errorVerif) throw errorVerif;
+
+      if (emUso) {
+        toast({
+          title: 'Não é possível deletar',
+          description: `O tipo "${descricao}" está em uso. Você pode apenas desabilitá-lo.`,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!confirm(`Deletar o tipo "${descricao}"?`)) return;
 
       const { error } = await supabase
         .from('tipos_documento')
         .delete()
         .eq('id', id);
 
-      if (error) {
-        if (error.code === '23503') {
-          throw new Error('Este tipo está sendo usado e não pode ser deletado.');
-        }
-        throw error;
-      }
+      if (error) throw error;
 
       toast({
         title: '✅ Deletado',
@@ -305,13 +345,14 @@ export default function TiposDocumentos() {
               <TableHead className="w-32">Tipo</TableHead>
               <TableHead className="w-32">Código</TableHead>
               <TableHead>Descrição</TableHead>
-              <TableHead className="text-right w-32">Ações</TableHead>
+              <TableHead className="w-32">Status</TableHead>
+              <TableHead className="text-right w-40">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {tiposFiltrados.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                   {termoBusca 
                     ? 'Nenhum tipo encontrado.' 
                     : 'Nenhum tipo cadastrado.'}
@@ -335,24 +376,43 @@ export default function TiposDocumentos() {
                     {tipo.codigo}
                   </TableCell>
                   <TableCell className="font-medium">{tipo.descricao}</TableCell>
+                  <TableCell>
+                    <Badge variant={tipo.habilitado ? "default" : "secondary"}>
+                      {tipo.habilitado ? 'Habilitado' : 'Desabilitado'}
+                    </Badge>
+                  </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleAbrirModal(tipo)}
-                        title="Editar"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeletar(tipo.id)}
-                        title="Deletar"
-                      >
-                        <Trash2 className="h-4 w-4 text-red-600" />
-                      </Button>
+                    <div className="flex justify-end gap-1 items-center">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor={`switch-${tipo.id}`} className="text-xs cursor-pointer">
+                          {tipo.habilitado ? 'Habilitado' : 'Desabilitado'}
+                        </Label>
+                        <Switch
+                          id={`switch-${tipo.id}`}
+                          checked={tipo.habilitado ?? true}
+                          onCheckedChange={() => handleToggleHabilitado(tipo)}
+                        />
+                      </div>
+                      {!tipo.e_padrao && (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleAbrirModal(tipo)}
+                            title="Editar"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeletar(tipo.id, tipo.descricao)}
+                            title="Deletar"
+                          >
+                            <Trash2 className="h-4 w-4 text-red-600" />
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -426,8 +486,8 @@ export default function TiposDocumentos() {
       <Alert>
         <Info className="h-4 w-4" />
         <AlertDescription className="text-sm">
-          <strong>Dica:</strong> Tipos padrão e customizados podem ser editados ou deletados. 
-          O código é gerado automaticamente e não pode ser alterado.
+          <strong>Importante:</strong> Tipos padrão podem apenas ser habilitados/desabilitados. 
+          Tipos customizados podem ser editados e deletados (se não estiverem em uso).
         </AlertDescription>
       </Alert>
     </div>
