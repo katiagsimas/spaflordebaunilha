@@ -1,9 +1,5 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Cake, Phone } from 'lucide-react';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { formatPhone } from '@/lib/utils';
+import { Cake } from 'lucide-react';
 
 interface Contato {
   id: string;
@@ -19,8 +15,7 @@ interface AlertaAniversariantesContatosProps {
 }
 
 export function AlertaAniversariantesContatos({ contatos }: AlertaAniversariantesContatosProps) {
-  const hoje = new Date();
-  const mesAtual = hoje.getMonth();
+  const mesAtual = new Date().getMonth();
   
   const aniversariantesDoMes = contatos.filter((contato) => {
     if (!contato.data_aniversario) return false;
@@ -37,50 +32,52 @@ export function AlertaAniversariantesContatos({ contatos }: AlertaAniversariante
   }
 
   return (
-    <Card className="bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-950/20 dark:to-purple-950/20 border-pink-200 dark:border-pink-800">
-      <CardContent className="pt-6">
-        <div className="flex items-start gap-4">
-          <div className="rounded-full bg-pink-100 dark:bg-pink-900 p-3">
-            <Cake className="h-6 w-6 text-pink-600 dark:text-pink-400" />
-          </div>
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-              Aniversariantes do Mês - Contatos de Fornecedores
-              <Badge variant="secondary">{aniversariantesDoMes.length}</Badge>
-            </h3>
-            <div className="space-y-3">
-              {aniversariantesDoMes.map((contato) => (
-                <div
-                  key={contato.id}
-                  className="flex items-center justify-between bg-background/50 backdrop-blur-sm rounded-lg p-3 border"
-                >
-                  <div className="flex-1">
-                    <p className="font-medium">{contato.nome}</p>
-                    <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
-                      {contato.fornecedor_nome && (
-                        <span>Fornecedor: {contato.fornecedor_nome}</span>
-                      )}
-                      {contato.cargo && <span>• {contato.cargo}</span>}
-                      {contato.data_aniversario && (
-                        <span className="flex items-center gap-1">
-                          <Cake className="h-3 w-3" />
-                          {format(new Date(contato.data_aniversario + 'T00:00:00'), "dd 'de' MMMM", { locale: ptBR })}
-                        </span>
-                      )}
-                    </div>
+    <div className="space-y-2">
+      <h3 className="text-lg font-semibold flex items-center gap-2">
+        <Cake className="h-5 w-5 animate-bounce" />
+        🎉 Aniversariantes do Mês
+      </h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        {aniversariantesDoMes.map((contato) => (
+          <Card 
+            key={contato.id}
+            className="bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 dark:from-purple-500/20 dark:via-pink-500/20 dark:to-orange-500/20 border-2 border-purple-300/50 dark:border-purple-500/50 hover:shadow-lg transition-all duration-300"
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                    <Cake className="h-6 w-6 text-white animate-bounce" />
                   </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm truncate">
+                    {contato.nome}
+                  </p>
+                  {contato.cargo && (
+                    <p className="text-xs text-purple-600 dark:text-purple-400">
+                      {contato.cargo} - {contato.fornecedor_nome}
+                    </p>
+                  )}
+                  {!contato.cargo && contato.fornecedor_nome && (
+                    <p className="text-xs text-purple-600 dark:text-purple-400">
+                      {contato.fornecedor_nome}
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(contato.data_aniversario! + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })}
+                  </p>
                   {contato.telefone && (
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Phone className="h-3 w-3" />
-                      {formatPhone(contato.telefone)}
-                    </div>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {contato.telefone}
+                    </p>
                   )}
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
   );
 }
