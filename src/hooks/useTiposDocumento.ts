@@ -9,6 +9,7 @@ interface TipoDocumento {
   codigo: number;
   descricao: string;
   e_padrao?: boolean;
+  habilitado?: boolean;
   ativo?: boolean;
   created_at?: string;
   updated_at?: string;
