@@ -80,10 +80,16 @@ export default function Fornecedores() {
     }
 
     try {
+      // Converter campos de data vazios para null
+      const dadosLimpos = {
+        ...formData,
+        data_aniversario_contato: formData.data_aniversario_contato || null,
+      };
+      
       if (editingId) {
-        await updateFornecedor(editingId, formData);
+        await updateFornecedor(editingId, dadosLimpos);
       } else {
-        await createFornecedor(formData);
+        await createFornecedor(dadosLimpos);
       }
       resetForm();
     } catch (error: any) {
