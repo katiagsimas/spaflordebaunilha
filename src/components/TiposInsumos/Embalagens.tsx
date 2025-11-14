@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { LoadingState } from '@/components/LoadingState';
 import {
   Table,
@@ -29,11 +30,13 @@ import {
 } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
+import { useCategoriasEstoque } from '@/hooks/useCategoriasEstoque';
 import { Plus, Edit, Trash2, Info, Search, Download } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 export default function TiposInsumosEmbalagens() {
   const { toast } = useToast();
+  const { categorias, loading: loadingCategorias } = useCategoriasEstoque();
   const [tipos, setTipos] = useState<any[]>([]);
   const [unidades, setUnidades] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,6 +47,8 @@ export default function TiposInsumosEmbalagens() {
   const [descricao, setDescricao] = useState('');
   const [quantidade, setQuantidade] = useState('');
   const [unidadeId, setUnidadeId] = useState('');
+  const [categoriaEstoqueId, setCategoriaEstoqueId] = useState('');
+  const [controlarEstoque, setControlarEstoque] = useState(false);
 
   useEffect(() => {
     fetchTipos();
@@ -61,6 +66,8 @@ export default function TiposInsumosEmbalagens() {
           id,
           descricao,
           quantidade_embalagem,
+          categoria_estoque_id,
+          controlar_estoque,
           unidade_medida:unidades_medida (
             id,
             nome,
@@ -105,11 +112,15 @@ export default function TiposInsumosEmbalagens() {
       setDescricao(tipo.descricao);
       setQuantidade(tipo.quantidade_embalagem.toString());
       setUnidadeId(tipo.unidade_medida.id);
+      setCategoriaEstoqueId(tipo.categoria_estoque_id || '');
+      setControlarEstoque(tipo.controlar_estoque || false);
     } else {
       setEditando(null);
       setDescricao('');
       setQuantidade('');
       setUnidadeId('');
+      setCategoriaEstoqueId('');
+      setControlarEstoque(false);
     }
     setModalAberto(true);
   };
@@ -119,7 +130,7 @@ export default function TiposInsumosEmbalagens() {
       if (!descricao.trim() || !quantidade || !unidadeId) {
         toast({
           title: 'Erro',
-          description: 'Preencha todos os campos!',
+          description: 'Preencha todos os campos obrigatórios!',
           variant: 'destructive',
         });
         return;
@@ -138,43 +149,45 @@ export default function TiposInsumosEmbalagens() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Não autenticado');
 
+      const dadosEmbalagem = {
+        descricao: descricao.trim(),
+        quantidade_embalagem: qtd,
+        unidade_medida_id: unidadeId,
+        categoria_estoque_id: categoriaEstoqueId || null,
+        controlar_estoque: controlarEstoque,
+      };
+
       if (editando) {
         const { error } = await supabase
           .from('tipos_insumos')
-          .update({
-            descricao: descricao.trim(),
-            quantidade_embalagem: qtd,
-            unidade_medida_id: unidadeId,
-          })
+          .update(dadosEmbalagem)
           .eq('id', editando.id);
 
         if (error) throw error;
 
         toast({
           title: '✅ Atualizado',
-          description: 'Tipo atualizado com sucesso!',
+          description: 'Embalagem atualizada com sucesso!',
         });
       } else {
         const { error } = await supabase
           .from('tipos_insumos')
           .insert({
+            ...dadosEmbalagem,
             usuario_id: user.id,
             tipo: 'embalagem',
-            descricao: descricao.trim(),
-            quantidade_embalagem: qtd,
-            unidade_medida_id: unidadeId,
           });
 
         if (error) {
           if (error.code === '23505') {
-            throw new Error('Este tipo já foi cadastrado!');
+            throw new Error('Esta embalagem já foi cadastrada!');
           }
           throw error;
         }
 
         toast({
           title: '✅ Cadastrado',
-          description: 'Tipo cadastrado com sucesso!',
+          description: 'Embalagem cadastrada com sucesso!',
         });
       }
 
@@ -354,7 +367,7 @@ export default function TiposInsumosEmbalagens() {
       <Dialog open={modalAberto} onOpenChange={setModalAberto}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editando ? 'Editar Tipo' : 'Novo Tipo'}</DialogTitle>
+            <DialogTitle>{editando ? 'Editar Embalagem' : 'Nova Embalagem'}</DialogTitle>
             <DialogDescription>
               Cadastre o tipo base da embalagem com sua quantidade padrão
             </DialogDescription>
@@ -362,7 +375,7 @@ export default function TiposInsumosEmbalagens() {
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="descricao">Descrição *</Label>
+              <Label htmlFor="descricao">Nome da Embalagem *</Label>
               <Input
                 id="descricao"
                 placeholder="Ex: Caixa de Papelão"
@@ -371,34 +384,67 @@ export default function TiposInsumosEmbalagens() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="quantidade">Quantidade na Embalagem *</Label>
-              <Input
-                id="quantidade"
-                type="text"
-                placeholder="Ex: 1"
-                value={quantidade}
-                onChange={(e) => {
-                  const valor = e.target.value.replace(/[^\d,]/g, '');
-                  setQuantidade(valor);
-                }}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="quantidade">Qtde na Embalagem *</Label>
+                <Input
+                  id="quantidade"
+                  type="text"
+                  placeholder="Ex: 1"
+                  value={quantidade}
+                  onChange={(e) => {
+                    const valor = e.target.value.replace(/[^\d,]/g, '');
+                    setQuantidade(valor);
+                  }}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="unidade">Unidade de Medida *</Label>
+                <Select value={unidadeId} onValueChange={setUnidadeId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {unidades.map((unidade) => (
+                      <SelectItem key={unidade.id} value={unidade.id}>
+                        {unidade.nome} ({unidade.sigla})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="unidade">Unidade de Medida *</Label>
-              <Select value={unidadeId} onValueChange={setUnidadeId}>
+              <Label htmlFor="categoria">Categoria de Estoque</Label>
+              <Select value={categoriaEstoqueId} onValueChange={setCategoriaEstoqueId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione..." />
+                  <SelectValue placeholder="Selecione uma categoria..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {unidades.map((unidade) => (
-                    <SelectItem key={unidade.id} value={unidade.id}>
-                      {unidade.nome} ({unidade.sigla})
+                  {categorias.map((categoria) => (
+                    <SelectItem key={categoria.id} value={categoria.id}>
+                      {categoria.nome}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="flex items-center space-x-3 p-4 rounded-lg bg-primary">
+              <Checkbox
+                id="controlar-estoque"
+                checked={controlarEstoque}
+                onCheckedChange={(checked) => setControlarEstoque(checked as boolean)}
+                className="border-primary-foreground data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary"
+              />
+              <Label
+                htmlFor="controlar-estoque"
+                className="text-sm font-semibold cursor-pointer text-primary-foreground"
+              >
+                Controle de Estoque
+              </Label>
             </div>
           </div>
 
