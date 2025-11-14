@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Cake, Phone } from 'lucide-react';
-import { format, isSameMonth } from 'date-fns';
+import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { formatPhone } from '@/lib/utils';
 
@@ -20,11 +20,16 @@ interface AlertaAniversariantesContatosProps {
 
 export function AlertaAniversariantesContatos({ contatos }: AlertaAniversariantesContatosProps) {
   const hoje = new Date();
+  const mesAtual = hoje.getMonth();
   
   const aniversariantesDoMes = contatos.filter((contato) => {
     if (!contato.data_aniversario) return false;
     const dataAniversario = new Date(contato.data_aniversario + 'T00:00:00');
-    return isSameMonth(dataAniversario, hoje);
+    return dataAniversario.getMonth() === mesAtual;
+  }).sort((a, b) => {
+    const diaA = new Date(a.data_aniversario! + 'T00:00:00').getDate();
+    const diaB = new Date(b.data_aniversario! + 'T00:00:00').getDate();
+    return diaA - diaB;
   });
 
   if (aniversariantesDoMes.length === 0) {
@@ -59,7 +64,7 @@ export function AlertaAniversariantesContatos({ contatos }: AlertaAniversariante
                       {contato.data_aniversario && (
                         <span className="flex items-center gap-1">
                           <Cake className="h-3 w-3" />
-                          {format(new Date(contato.data_aniversario + 'T00:00:00'), 'dd/MM', { locale: ptBR })}
+                          {format(new Date(contato.data_aniversario + 'T00:00:00'), "dd 'de' MMMM", { locale: ptBR })}
                         </span>
                       )}
                     </div>
