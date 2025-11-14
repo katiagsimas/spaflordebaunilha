@@ -57,8 +57,8 @@ export default function Clientes() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.nome || !formData.telefone) {
-      toast.error("Nome e telefone são obrigatórios!");
+    if (!formData.nome) {
+      toast.error("Nome é obrigatório!");
       return;
     }
 
@@ -276,14 +276,13 @@ export default function Clientes() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="telefone">Telefone/WhatsApp *</Label>
+                    <Label htmlFor="telefone">Telefone/WhatsApp</Label>
                     <Input
                       id="telefone"
                       value={formData.telefone}
                       onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
                       onBlur={(e) => setFormData({ ...formData, telefone: formatPhone(e.target.value) })}
                       placeholder="(00) 00000-0000"
-                      required
                     />
                   </div>
                   <div className="space-y-2">
