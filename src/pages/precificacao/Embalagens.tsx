@@ -614,7 +614,7 @@ export default function Embalagens() {
             {/* Picklist Tipo */}
             {!editando && (
               <div className="space-y-2">
-                <Label>Tipo de Embalagem *</Label>
+                <Label>Nome da Embalagem *</Label>
                 <Popover open={popoverAberto} onOpenChange={setPopoverAberto}>
                   <PopoverTrigger asChild>
                     <Button
