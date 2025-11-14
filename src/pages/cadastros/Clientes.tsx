@@ -15,7 +15,10 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useClientes } from "@/hooks/useClientes";
 import { useViaCEP } from "@/hooks/useViaCEP";
-import { Plus, Pencil, Trash2, Users, Search, ChevronDown, Download, Cake } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, Search, ChevronDown, Download, Cake, MoreVertical, UserPlus } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AdicionarFamiliarDialog } from "@/components/AdicionarFamiliarDialog";
+import { useFamiliares } from "@/hooks/useFamiliares";
 import { toast } from "sonner";
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +34,11 @@ export default function Clientes() {
   const { buscarCEP, loading: loadingCEP } = useViaCEP();
   const [busca, setBusca] = useState("");
   const [porPagina, setPorPagina] = useState(10);
+  const [familiarDialogOpen, setFamiliarDialogOpen] = useState(false);
+  const [selectedClienteId, setSelectedClienteId] = useState<string | null>(null);
+  const [selectedClienteNome, setSelectedClienteNome] = useState<string>("");
+  const [editingFamiliar, setEditingFamiliar] = useState<any>(null);
+  const { familiares: allFamiliares } = useFamiliares();
 
   const [formData, setFormData] = useState({
     nome: "",
@@ -114,11 +122,10 @@ export default function Clientes() {
 
   const handleDelete = async (id: string) => {
     try {
-      // Buscar o nome do cliente
       const cliente = clientes.find(c => c.id === id);
+      const { supabase } = await import('@/integrations/supabase/client');
       
       // Verificar se o cliente possui encomendas
-      const { supabase } = await import('@/integrations/supabase/client');
       const { data: encomendas } = await supabase
         .from('encomendas')
         .select('id')
@@ -127,6 +134,19 @@ export default function Clientes() {
       
       if (encomendas && encomendas.length > 0) {
         toast.error('Não é possível excluir este cliente pois ele possui encomendas cadastradas.');
+        setDeleteId(null);
+        return;
+      }
+
+      // Verificar se o cliente possui contas a receber
+      const { data: contasReceber } = await supabase
+        .from('contas_receber')
+        .select('id')
+        .eq('cliente_id', id)
+        .limit(1);
+      
+      if (contasReceber && contasReceber.length > 0) {
+        toast.error('Não é possível excluir este cliente pois existem informações financeiras vinculadas a ele.');
         setDeleteId(null);
         return;
       }
@@ -142,19 +162,44 @@ export default function Clientes() {
     setEditingCliente(cliente);
   };
 
-  // Filtrar aniversariantes do mês
+  // Filtrar aniversariantes do mês (clientes e familiares)
   const aniversariantesDoMes = useMemo(() => {
     const mesAtual = new Date().getMonth();
-    return clientes.filter(cliente => {
+    
+    const clientesAniversariantes = clientes.filter(cliente => {
       if (!cliente.data_aniversario) return false;
       const dataAniversario = new Date(cliente.data_aniversario + 'T00:00:00');
       return dataAniversario.getMonth() === mesAtual;
-    }).sort((a, b) => {
+    }).map(cliente => ({
+      ...cliente,
+      tipo_aniversariante: 'cliente' as const,
+    }));
+
+    const familiaresAniversariantes = allFamiliares.filter(familiar => {
+      if (!familiar.data_nascimento) return false;
+      const dataAniversario = new Date(familiar.data_nascimento + 'T00:00:00');
+      return dataAniversario.getMonth() === mesAtual;
+    }).map(familiar => {
+      const cliente = clientes.find(c => c.id === familiar.cliente_id);
+      return {
+        id: familiar.id,
+        nome: familiar.nome,
+        data_aniversario: familiar.data_nascimento,
+        telefone: cliente?.telefone,
+        tipo_aniversariante: 'familiar' as const,
+        parentesco: familiar.parentesco,
+        cliente_nome: cliente?.nome,
+      };
+    });
+
+    const todos = [...clientesAniversariantes, ...familiaresAniversariantes];
+    
+    return todos.sort((a, b) => {
       const dataA = new Date(a.data_aniversario! + 'T00:00:00').getDate();
       const dataB = new Date(b.data_aniversario! + 'T00:00:00').getDate();
       return dataA - dataB;
     });
-  }, [clientes]);
+  }, [clientes, allFamiliares]);
 
   // Filtrar clientes por busca
   const clientesFiltrados = clientes.filter(cliente =>
@@ -207,9 +252,9 @@ export default function Clientes() {
             🎉 Aniversariantes do Mês
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {aniversariantesDoMes.map((cliente) => (
+            {aniversariantesDoMes.map((item) => (
               <Card 
-                key={cliente.id}
+                key={item.id}
                 className="bg-gradient-to-r from-blue-500/10 via-cyan-500/10 to-teal-500/10 dark:from-blue-500/20 dark:via-cyan-500/20 dark:to-teal-500/20 border-2 border-blue-300/50 dark:border-blue-500/50 hover:shadow-lg transition-all duration-300"
               >
                 <CardContent className="p-4">
@@ -221,14 +266,19 @@ export default function Clientes() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-sm truncate">
-                        {cliente.nome}
+                        {item.nome}
                       </p>
+                      {'tipo_aniversariante' in item && item.tipo_aniversariante === 'familiar' && (
+                        <p className="text-xs text-blue-600 dark:text-blue-400">
+                          {item.parentesco} de {item.cliente_nome}
+                        </p>
+                      )}
                       <p className="text-xs text-muted-foreground">
-                        {new Date(cliente.data_aniversario! + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })}
+                        {new Date(item.data_aniversario! + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })}
                       </p>
-                      {cliente.telefone && (
+                      {item.telefone && (
                         <p className="text-xs text-muted-foreground truncate">
-                          {cliente.telefone}
+                          {item.telefone}
                         </p>
                       )}
                     </div>
@@ -485,7 +535,7 @@ export default function Clientes() {
                     <TableHead>Telefone</TableHead>
                     <TableHead>E-mail</TableHead>
                     <TableHead>Aniversário</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -500,23 +550,38 @@ export default function Clientes() {
                           ? new Date(cliente.data_aniversario + 'T00:00:00').toLocaleDateString('pt-BR')
                           : "-"}
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex gap-2 justify-end">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEdit(cliente)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setDeleteId(cliente.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-background">
+                            <DropdownMenuItem onClick={() => handleEdit(cliente)}>
+                              <Pencil className="h-4 w-4 mr-2" />
+                              Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => {
+                                setSelectedClienteId(cliente.id);
+                                setSelectedClienteNome(cliente.nome);
+                                setEditingFamiliar(null);
+                                setFamiliarDialogOpen(true);
+                              }}
+                            >
+                              <UserPlus className="h-4 w-4 mr-2" />
+                              Adicionar Familiares
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => setDeleteId(cliente.id)}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Excluir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -534,6 +599,16 @@ export default function Clientes() {
         title="Excluir Cliente"
         description="Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita."
       />
+
+      {selectedClienteId && (
+        <AdicionarFamiliarDialog
+          open={familiarDialogOpen}
+          onOpenChange={setFamiliarDialogOpen}
+          clienteId={selectedClienteId}
+          clienteNome={selectedClienteNome}
+          editingFamiliar={editingFamiliar}
+        />
+      )}
     </div>
   );
 }
