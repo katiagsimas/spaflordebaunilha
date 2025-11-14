@@ -350,41 +350,69 @@ export default function Financeiro() {
     const hoje = new Date().toISOString().split('T')[0];
     const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
 
-    const { data: aReceber } = await supabase
-      .from("contas_receber")
-      .select("valor")
-      .eq("usuario_id", user.id)
-      .neq("status", "pago");
+    // Buscar todas as parcelas a receber
+    const { data: parcelasReceber } = await supabase
+      .from("vw_contas_receber_parcelas")
+      .select("*")
+      .eq("user_id", user.id);
 
-    const { data: aPagar } = await supabase
-      .from("contas_pagar")
-      .select("valor_total")
-      .eq("usuario_id", user.id)
-      .neq("status", "pago");
-
-    const { data: receitasRecebidas } = await supabase
-      .from("contas_receber_parcelas")
-      .select("valor_pago")
-      .eq("status", "pago")
-      .gte("data_pagamento", inicioMes);
-
-    const { data: despesasPagas } = await supabase
+    // Buscar todas as parcelas a pagar
+    const { data: parcelasPagar } = await supabase
       .from("contas_pagar_parcelas")
-      .select("valor_pago")
-      .eq("status", "pago")
-      .gte("data_pagamento", inicioMes);
+      .select(`
+        *,
+        conta:contas_pagar!inner (
+          usuario_id
+        )
+      `)
+      .eq("conta.usuario_id", user.id);
 
-    const totalReceber = aReceber?.reduce((sum, c) => sum + (c.valor || 0), 0) || 0;
-    const totalPagar = aPagar?.reduce((sum, c) => sum + (c.valor_total || 0), 0) || 0;
-    const receitas = receitasRecebidas?.reduce((sum, r) => sum + (r.valor_pago || 0), 0) || 0;
-    const despesas = despesasPagas?.reduce((sum, d) => sum + (d.valor_pago || 0), 0) || 0;
+    let totalReceber = 0;
+    let receitasRecebidas = 0;
+
+    parcelasReceber?.forEach((p: any) => {
+      if (p.status === 'aberto' || p.status === 'atrasado') {
+        // Parcelas em aberto ou atrasadas: soma valor total pendente
+        totalReceber += (p.valor_parcela || 0) - (p.valor_pago || 0);
+      } else if (p.status === 'pagamento_parcial') {
+        // Parcelas parcialmente pagas: desmembra os valores
+        const valorPago = p.valor_pago || 0;
+        const valorPendente = (p.valor_parcela || 0) - valorPago;
+        
+        totalReceber += valorPendente; // Valor pendente vai para "Em Aberto"
+        receitasRecebidas += valorPago; // Valor pago vai para "Recebido"
+      } else if ((p.status === 'pago' || p.status === 'adiantado') && p.data_pagamento >= inicioMes) {
+        // Parcelas totalmente pagas no mês: soma para recebido
+        receitasRecebidas += p.valor_pago || 0;
+      }
+    });
+
+    let totalPagar = 0;
+    let despesasPagas = 0;
+
+    parcelasPagar?.forEach((p: any) => {
+      if (p.status === 'aberto' || p.status === 'atrasado') {
+        // Parcelas em aberto ou atrasadas: soma valor total pendente
+        totalPagar += (p.valor_parcela || 0) - (p.valor_pago || 0);
+      } else if (p.status === 'pagamento_parcial') {
+        // Parcelas parcialmente pagas: desmembra os valores
+        const valorPago = p.valor_pago || 0;
+        const valorPendente = (p.valor_parcela || 0) - valorPago;
+        
+        totalPagar += valorPendente; // Valor pendente vai para "Em Aberto"
+        despesasPagas += valorPago; // Valor pago vai para "Pago"
+      } else if ((p.status === 'pago' || p.status === 'adiantado') && p.data_pagamento >= inicioMes) {
+        // Parcelas totalmente pagas no mês: soma para pago
+        despesasPagas += p.valor_pago || 0;
+      }
+    });
 
     setResumoDashboard({
       totalReceber,
       totalPagar,
-      receitasRecebidas: receitas,
-      despesasPagas: despesas,
-      saldoLiquido: receitas - despesas
+      receitasRecebidas,
+      despesasPagas,
+      saldoLiquido: receitasRecebidas - despesasPagas
     });
   }
 
