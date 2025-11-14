@@ -239,13 +239,14 @@ export default function MaoDeObra() {
               <TableHead className="text-right">Valor/Hora</TableHead>
               <TableHead className="text-center">Status</TableHead>
               <TableHead className="text-center">Padrão</TableHead>
+              <TableHead className="text-center">Última Atualização</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {valoresSorted.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                   Nenhum valor de mão de obra cadastrado
                 </TableCell>
               </TableRow>
@@ -275,6 +276,16 @@ export default function MaoDeObra() {
                         Sim
                       </span>
                     )}
+                  </TableCell>
+                  <TableCell className="text-center text-sm text-muted-foreground">
+                    {valor.updated_at 
+                      ? new Date(valor.updated_at).toLocaleDateString('pt-BR', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric'
+                        })
+                      : '-'
+                    }
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
