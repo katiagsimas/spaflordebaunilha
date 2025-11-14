@@ -27,6 +27,13 @@ import { useToast } from '@/hooks/use-toast';
 import { Info, Search, Download, Plus, Edit, Trash2, Loader2 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { BackButton } from '@/components/BackButton';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface Banco {
   id: string;
@@ -96,12 +103,14 @@ export default function Bancos() {
 
   // Filtros
   const [termoBusca, setTermoBusca] = useState('');
+  const [filtroStatus, setFiltroStatus] = useState<'todos' | 'habilitado' | 'desabilitado'>('todos');
 
   // Modal criar/editar
   const [modalAberto, setModalAberto] = useState(false);
   const [editando, setEditando] = useState<Banco | null>(null);
   const [codigo, setCodigo] = useState('');
   const [nome, setNome] = useState('');
+  const [tipo, setTipo] = useState('Conta Corrente');
   const [salvando, setSalvando] = useState(false);
   const [mostrarAlertaCustomizado, setMostrarAlertaCustomizado] = useState(false);
   const [codigoOficialEncontrado, setCodigoOficialEncontrado] = useState(false);
@@ -115,11 +124,12 @@ export default function Bancos() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Buscar bancos
+      // Buscar bancos - ordenar habilitados primeiro
       const { data, error } = await supabase
         .from('bancos')
         .select('id, codigo, nome, tipo, e_banco_oficial, e_customizado, habilitado')
         .eq('usuario_id', user.id)
+        .order('habilitado', { ascending: false })
         .order('codigo');
 
       if (error) throw error;
@@ -149,25 +159,38 @@ export default function Bancos() {
 
   // Filtrar bancos
   const bancosFiltrados = useMemo(() => {
-    if (!termoBusca.trim()) return bancos;
+    let resultado = bancos;
 
-    const termo = termoBusca.toLowerCase();
-    return bancos.filter(b => 
-      b.codigo.toLowerCase().includes(termo) ||
-      b.nome.toLowerCase().includes(termo)
-    );
-  }, [bancos, termoBusca]);
+    // Filtro de status
+    if (filtroStatus !== 'todos') {
+      const statusDesejado = filtroStatus === 'habilitado';
+      resultado = resultado.filter(b => b.habilitado === statusDesejado);
+    }
+
+    // Filtro de busca
+    if (termoBusca.trim()) {
+      const termo = termoBusca.toLowerCase();
+      resultado = resultado.filter(b => 
+        b.codigo.toLowerCase().includes(termo) ||
+        b.nome.toLowerCase().includes(termo)
+      );
+    }
+
+    return resultado;
+  }, [bancos, termoBusca, filtroStatus]);
 
   const handleAbrirModal = (banco: Banco | null = null) => {
     if (banco) {
       setEditando(banco);
       setCodigo(banco.codigo);
       setNome(banco.nome);
+      setTipo(banco.tipo);
       setCodigoOficialEncontrado(!!banco.e_banco_oficial);
     } else {
       setEditando(null);
       setCodigo('');
       setNome('');
+      setTipo('Conta Corrente');
       setCodigoOficialEncontrado(false);
     }
     setMostrarAlertaCustomizado(false);
@@ -265,6 +288,7 @@ export default function Bancos() {
           .update({
             nome: nome.trim(),
             codigo: codigoFinal,
+            tipo: tipo,
           })
           .eq('id', editando.id);
 
@@ -302,7 +326,7 @@ export default function Bancos() {
             usuario_id: user.id,
             codigo: codigoFinal,
             nome: nome.trim(),
-            tipo: 'Conta Corrente',
+            tipo: tipo,
             saldo_inicial: 0,
             e_banco_oficial: eBancoOficial,
             e_customizado: eCustomizado,
@@ -443,6 +467,10 @@ export default function Bancos() {
       </div>
 
       <div className="flex justify-end gap-2">
+        <Button onClick={() => handleAbrirModal()} variant="default">
+          <Plus className="mr-2 h-4 w-4" />
+          Adicionar Novo Banco
+        </Button>
         <Button onClick={handleExportar} variant="outline">
           <Download className="mr-2 h-4 w-4" />
           Exportar Excel
@@ -458,7 +486,7 @@ export default function Bancos() {
         </AlertDescription>
       </Alert>
 
-      {/* Busca */}
+      {/* Busca e Filtros */}
       <div className="flex gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -469,6 +497,16 @@ export default function Bancos() {
             className="pl-10"
           />
         </div>
+        <Select value={filtroStatus} onValueChange={(value: any) => setFiltroStatus(value)}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Filtrar por status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os Status</SelectItem>
+            <SelectItem value="habilitado">Habilitados</SelectItem>
+            <SelectItem value="desabilitado">Desabilitados</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Tabela */}
@@ -601,6 +639,21 @@ export default function Bancos() {
                   Código customizado
                 </p>
               )}
+            </div>
+
+            {/* Tipo */}
+            <div className="space-y-2">
+              <Label htmlFor="tipo">Tipo de Conta</Label>
+              <Select value={tipo} onValueChange={setTipo}>
+                <SelectTrigger id="tipo">
+                  <SelectValue placeholder="Selecione o tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Conta Corrente">Conta Corrente</SelectItem>
+                  <SelectItem value="Conta Poupança">Conta Poupança</SelectItem>
+                  <SelectItem value="Investimento">Investimento</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Alerta de banco não oficial */}
