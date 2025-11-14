@@ -76,6 +76,8 @@ export default function Embalagens() {
   const [novoTipoDescricao, setNovoTipoDescricao] = useState('');
   const [novoTipoQuantidade, setNovoTipoQuantidade] = useState('');
   const [novoTipoUnidadeId, setNovoTipoUnidadeId] = useState('');
+  const [novoTipoCategoriaEstoqueId, setNovoTipoCategoriaEstoqueId] = useState('');
+  const [novoTipoControlarEstoque, setNovoTipoControlarEstoque] = useState(false);
 
   useEffect(() => {
     fetchEmbalagens();
@@ -348,6 +350,8 @@ export default function Embalagens() {
     setNovoTipoDescricao(termoBuscaTipo);
     setNovoTipoQuantidade('');
     setNovoTipoUnidadeId('');
+    setNovoTipoCategoriaEstoqueId('');
+    setNovoTipoControlarEstoque(false);
     setModalCriarTipoAberto(true);
     setPopoverAberto(false);
   };
@@ -383,7 +387,9 @@ export default function Embalagens() {
           tipo: 'embalagem',
           descricao: novoTipoDescricao.trim(),
           quantidade_embalagem: qtd,
-          unidade_medida_id: novoTipoUnidadeId
+          unidade_medida_id: novoTipoUnidadeId,
+          categoria_estoque_id: novoTipoCategoriaEstoqueId || null,
+          controlar_estoque: novoTipoControlarEstoque,
         })
         .select(`
           id,
@@ -810,6 +816,33 @@ export default function Embalagens() {
               </div>
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="novo-tipo-categoria">Categoria de Estoque</Label>
+              <Select value={novoTipoCategoriaEstoqueId} onValueChange={setNovoTipoCategoriaEstoqueId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma categoria..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {categorias.map((categoria: any) => (
+                    <SelectItem key={categoria.id} value={categoria.id}>
+                      {categoria.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center space-x-3 p-4 rounded-lg bg-primary">
+              <Checkbox 
+                id="novo-tipo-controlar-estoque" 
+                checked={novoTipoControlarEstoque}
+                onCheckedChange={(checked) => setNovoTipoControlarEstoque(checked as boolean)}
+                className="border-primary-foreground data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary"
+              />
+              <Label htmlFor="novo-tipo-controlar-estoque" className="text-sm font-semibold cursor-pointer text-primary-foreground">
+                Controle de Estoque
+              </Label>
+            </div>
 
             <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800">
               <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
