@@ -46,7 +46,6 @@ export default function CategoriasPlanoContas() {
   // Filtros
   const [termoBusca, setTermoBusca] = useState('');
   const [filtroIndicador, setFiltroIndicador] = useState('todos');
-  const [filtroStatus, setFiltroStatus] = useState('todos');
   const [filtroFaixaDRE, setFiltroFaixaDRE] = useState('todos');
   const [filtroTipo, setFiltroTipo] = useState('todos');
 
@@ -119,12 +118,6 @@ export default function CategoriasPlanoContas() {
       resultado = resultado.filter(cat => cat.indicador === filtroIndicador);
     }
 
-    // Filtro de status
-    if (filtroStatus !== 'todos') {
-      const ativo = filtroStatus === 'ativo';
-      resultado = resultado.filter(cat => cat.ativo === ativo);
-    }
-
     // Filtro de faixa DRE
     if (filtroFaixaDRE !== 'todos') {
       resultado = resultado.filter(cat => cat.faixa_dre === filtroFaixaDRE);
@@ -144,7 +137,7 @@ export default function CategoriasPlanoContas() {
     });
 
     return resultado;
-  }, [categorias, termoBusca, filtroIndicador, filtroStatus, filtroFaixaDRE, filtroTipo]);
+  }, [categorias, termoBusca, filtroIndicador, filtroFaixaDRE, filtroTipo]);
 
   // Extrair faixas DRE únicas para o filtro
   const faixasDRE = useMemo(() => {
@@ -199,7 +192,6 @@ export default function CategoriasPlanoContas() {
   const handleLimparFiltros = () => {
     setTermoBusca('');
     setFiltroIndicador('todos');
-    setFiltroStatus('todos');
     setFiltroFaixaDRE('todos');
     setFiltroTipo('todos');
   };
@@ -215,7 +207,6 @@ export default function CategoriasPlanoContas() {
   const filtrosAtivos = [
     termoBusca.trim() !== '',
     filtroIndicador !== 'todos',
-    filtroStatus !== 'todos',
     filtroFaixaDRE !== 'todos',
     filtroTipo !== 'todos',
   ].filter(Boolean).length;
@@ -257,7 +248,7 @@ export default function CategoriasPlanoContas() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Busca */}
           <div className="space-y-2">
             <Label htmlFor="busca">Buscar</Label>
@@ -299,21 +290,6 @@ export default function CategoriasPlanoContas() {
                 <SelectItem value="todos">Todos</SelectItem>
                 <SelectItem value="Credito">Crédito</SelectItem>
                 <SelectItem value="Debito">Débito</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Filtro Status */}
-          <div className="space-y-2">
-            <Label>Status</Label>
-            <Select value={filtroStatus} onValueChange={setFiltroStatus}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos</SelectItem>
-                <SelectItem value="ativo">Ativos</SelectItem>
-                <SelectItem value="inativo">Inativos</SelectItem>
               </SelectContent>
             </Select>
           </div>
