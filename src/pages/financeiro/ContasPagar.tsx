@@ -333,17 +333,24 @@ export default function ContasPagar() {
   };
 
   const parcelasFiltradas = parcelas.filter((p: any) => {
-    // Ocultar contas pagas/adiantadas APENAS quando o filtro está em "aberto" ou em status que não sejam "todos" ou "pago" ou "adiantado"
-    const isFiltroAberto = filtroStatus === 'aberto' || 
-                           (filtroStatus !== 'todos' && filtroStatus !== 'pago' && filtroStatus !== 'adiantado');
-    
-    if (isFiltroAberto && (p.status === 'pago' || p.status === 'adiantado')) {
-      return false;
-    }
-    
     // Filtro de status
-    if (filtroStatus !== 'todos' && p.status !== filtroStatus) {
-      return false;
+    if (filtroStatus !== 'todos') {
+      if (filtroStatus === 'aberto') {
+        // "Em Aberto" inclui: aberto, atrasado e pagamento_parcial (todas que ainda não foram totalmente pagas)
+        if (!['aberto', 'atrasado', 'pagamento_parcial'].includes(p.status)) {
+          return false;
+        }
+      } else if (filtroStatus === 'vencido') {
+        // "Vencido" mostra apenas atrasadas
+        if (p.status !== 'atrasado') {
+          return false;
+        }
+      } else {
+        // Para outros filtros específicos (pago, adiantado, pagamento_parcial)
+        if (p.status !== filtroStatus) {
+          return false;
+        }
+      }
     }
 
     // Filtros de data
@@ -811,9 +818,9 @@ export default function ContasPagar() {
           {[
             { value: 'todos', label: 'Todos' },
             { value: 'aberto', label: 'Em Aberto' },
+            { value: 'vencido', label: 'Vencido' },
             { value: 'pagamento_parcial', label: 'Pago Parcialmente' },
             { value: 'pago', label: 'Pago' },
-            { value: 'atrasado', label: 'Atrasado' },
             { value: 'adiantado', label: 'Adiantado' },
           ].map(filtro => (
             <Button

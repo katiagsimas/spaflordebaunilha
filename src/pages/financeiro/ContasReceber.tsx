@@ -515,21 +515,23 @@ export default function ContasReceber() {
   };
 
   const parcelasFiltradas = parcelas.filter(p => {
-    // Ocultar contas pagas/adiantadas APENAS quando o filtro está em "aberto" ou em status que não sejam "todos" ou "pago" ou "adiantado"
-    const isFiltroAberto = filtroStatus === 'aberto' || 
-                           (filtroStatus !== 'todos' && filtroStatus !== 'pago' && filtroStatus !== 'adiantado');
-    
-    if (isFiltroAberto && (p.status === 'pago' || p.status === 'adiantado')) {
-      return false;
-    }
-    
     // Filtro de status
     if (filtroStatus !== 'todos') {
-      // Tratar "vencido" como sinônimo de "atrasado"
-      if (filtroStatus === 'vencido' && p.status !== 'atrasado') {
-        return false;
-      } else if (filtroStatus !== 'vencido' && p.status !== filtroStatus) {
-        return false;
+      if (filtroStatus === 'aberto') {
+        // "Em Aberto" inclui: aberto, atrasado e pagamento_parcial (todas que ainda não foram totalmente pagas)
+        if (!['aberto', 'atrasado', 'pagamento_parcial'].includes(p.status)) {
+          return false;
+        }
+      } else if (filtroStatus === 'vencido') {
+        // "Vencido" mostra apenas atrasadas
+        if (p.status !== 'atrasado') {
+          return false;
+        }
+      } else {
+        // Para outros filtros específicos (pago, adiantado, pagamento_parcial)
+        if (p.status !== filtroStatus) {
+          return false;
+        }
       }
     }
 
