@@ -22,20 +22,25 @@ export function useFamiliares(clienteId?: string) {
   const [loading, setLoading] = useState(true);
 
   const fetchFamiliares = async () => {
-    if (!user || !clienteId) {
+    if (!user) {
       setLoading(false);
       return;
     }
     
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      let query = supabase
         .from('cliente_familiares')
         .select('*')
         .eq('usuario_id', user.id)
-        .eq('cliente_id', clienteId)
-        .eq('ativo', true)
-        .order('nome');
+        .eq('ativo', true);
+      
+      // Se clienteId for fornecido, filtra por ele
+      if (clienteId) {
+        query = query.eq('cliente_id', clienteId);
+      }
+      
+      const { data, error } = await query.order('nome');
 
       if (error) throw error;
       setFamiliares(data || []);
@@ -94,7 +99,7 @@ export function useFamiliares(clienteId?: string) {
   };
 
   useEffect(() => {
-    if (user && clienteId) fetchFamiliares();
+    if (user) fetchFamiliares();
   }, [user, clienteId]);
 
   return {
