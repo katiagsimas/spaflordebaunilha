@@ -432,15 +432,16 @@ export default function TiposInsumosIngredientes() {
               </Select>
             </div>
 
-            <div className="flex items-center space-x-3 p-4 rounded-lg border-2 border-primary/20 bg-primary/5">
+            <div className="flex items-center space-x-3 p-4 rounded-lg bg-primary">
               <Checkbox
                 id="controlar-estoque"
                 checked={controlarEstoque}
                 onCheckedChange={(checked) => setControlarEstoque(checked as boolean)}
+                className="border-primary-foreground data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary"
               />
               <Label
                 htmlFor="controlar-estoque"
-                className="text-sm font-semibold cursor-pointer text-primary"
+                className="text-sm font-semibold cursor-pointer text-primary-foreground"
               >
                 Controle de Estoque
               </Label>
