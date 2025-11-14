@@ -13,7 +13,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useFornecedores } from "@/hooks/useFornecedores";
-import { Plus, Pencil, Trash2, Truck, ChevronDown, Cake, Search, Download } from "lucide-react";
+import { Plus, Pencil, Trash2, Truck, ChevronDown, Cake, Search, Download, MoreVertical, UserPlus } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { useFornecedorContatos } from "@/hooks/useFornecedorContatos";
+import { AdicionarContatoDialog } from "@/components/AdicionarContatoDialog";
+import { ContatosLista } from "@/components/ContatosLista";
+import { AlertaAniversariantesContatos } from "@/components/AlertaAniversariantesContatos";
+import { supabase } from "@/integrations/supabase/client";
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Badge } from "@/components/ui/badge";
@@ -34,12 +40,16 @@ interface FormDataFornecedor {
 export default function Fornecedores() {
   const navigate = useNavigate();
   const { fornecedores, loading, createFornecedor, updateFornecedor, deleteFornecedor } = useFornecedores();
+  const { contatos, createContato, updateContato, deleteContato, refetch: refetchContatos } = useFornecedorContatos();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [observacoesOpen, setObservacoesOpen] = useState(false);
   const [busca, setBusca] = useState("");
   const [porPagina, setPorPagina] = useState(10);
+  const [contatoDialogOpen, setContatoDialogOpen] = useState(false);
+  const [selectedFornecedorId, setSelectedFornecedorId] = useState<string | null>(null);
+  const [editingContato, setEditingContato] = useState<any>(null);
 
   const [formData, setFormData] = useState<FormDataFornecedor>({
     nome: "",
@@ -113,20 +123,77 @@ export default function Fornecedores() {
     setObservacoesOpen(false);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async () => {
+    if (!deleteId) return;
     try {
-      await deleteFornecedor(id);
+      // Verificar se o fornecedor está sendo usado no módulo Financeiro
+      const { data: contasPagar, error: errorPagar } = await supabase
+        .from('contas_pagar')
+        .select('id')
+        .eq('fornecedor_id', deleteId)
+        .limit(1);
+
+      if (errorPagar) throw errorPagar;
+
+      if (contasPagar && contasPagar.length > 0) {
+        toast.error('Não é possível excluir este fornecedor. Existem informações financeiras (Contas a Pagar) vinculadas a ele.');
+        setDeleteId(null);
+        return;
+      }
+
+      await deleteFornecedor(deleteId);
       setDeleteId(null);
     } catch (error: any) {
-      console.error('Erro ao deletar fornecedor:', error);
+      console.error('Erro ao excluir:', error);
+      toast.error('Erro ao excluir fornecedor: ' + error.message);
     }
   };
 
-  const handleEdit = (id: string) => {
-    setEditingId(id);
+  const handleAdicionarContato = (fornecedorId: string) => {
+    setSelectedFornecedorId(fornecedorId);
+    setEditingContato(null);
+    setContatoDialogOpen(true);
   };
 
-  // Filtrar aniversariantes do mês
+  const handleEditContato = (contato: any) => {
+    setEditingContato(contato);
+    setSelectedFornecedorId(contato.fornecedor_id);
+    setContatoDialogOpen(true);
+  };
+
+  const handleDeleteContato = async (id: string) => {
+    if (confirm('Deseja realmente excluir este contato?')) {
+      try {
+        await deleteContato(id);
+      } catch (error: any) {
+        console.error('Erro ao excluir contato:', error);
+      }
+    }
+  };
+
+  const handleSubmitContato = async (data: any, cadastrarOutro: boolean) => {
+    try {
+      if (editingContato) {
+        await updateContato(editingContato.id, data);
+        setContatoDialogOpen(false);
+      } else {
+        await createContato({
+          ...data,
+          fornecedor_id: selectedFornecedorId!,
+        });
+        
+        if (!cadastrarOutro) {
+          setContatoDialogOpen(false);
+        }
+      }
+      refetchContatos();
+    } catch (error: any) {
+      console.error('Erro ao salvar contato:', error);
+      throw error;
+    }
+  };
+
+  // Filtrar aniversariantes do mês (fornecedores)
   const aniversariantesDoMes = useMemo(() => {
     const mesAtual = new Date().getMonth();
     return fornecedores.filter(fornecedor => {
@@ -139,6 +206,17 @@ export default function Fornecedores() {
       return dataA - dataB;
     });
   }, [fornecedores]);
+
+  // Contatos aniversariantes do mês com informação do fornecedor
+  const contatosAniversariantes = useMemo(() => {
+    return contatos.map(contato => {
+      const fornecedor = fornecedores.find(f => f.id === contato.fornecedor_id);
+      return {
+        ...contato,
+        fornecedor_nome: fornecedor?.nome,
+      };
+    });
+  }, [contatos, fornecedores]);
 
   // Filtrar fornecedores por busca
   const fornecedoresFiltrados = useMemo(() => {
@@ -183,6 +261,9 @@ export default function Fornecedores() {
           {fornecedores.length} {fornecedores.length === 1 ? 'fornecedor cadastrado' : 'fornecedores cadastrados'}
         </Badge>
       </div>
+
+      {/* Alerta de aniversariantes de contatos */}
+      <AlertaAniversariantesContatos contatos={contatosAniversariantes} />
 
       {aniversariantesDoMes.length > 0 && (
         <div className="space-y-2">
@@ -333,6 +414,19 @@ export default function Fornecedores() {
                     />
                   </CollapsibleContent>
                 </Collapsible>
+                
+                {/* Lista de Contatos - apenas ao editar */}
+                {editingId && (
+                  <div className="mt-4">
+                    <ContatosLista
+                      contatos={contatos.filter(c => c.fornecedor_id === editingId)}
+                      onEdit={handleEditContato}
+                      onDelete={handleDeleteContato}
+                      loading={loading}
+                    />
+                  </div>
+                )}
+
                 <div className="flex gap-2 justify-end">
                   <Button type="button" variant="outline" onClick={resetForm}>
                     Cancelar
@@ -433,22 +527,31 @@ export default function Fornecedores() {
                           : "-"}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex gap-2 justify-end">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEdit(fornecedor.id)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setDeleteId(fornecedor.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => setEditingId(fornecedor.id)}>
+                              <Pencil className="h-4 w-4 mr-2" />
+                              Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAdicionarContato(fornecedor.id)}>
+                              <UserPlus className="h-4 w-4 mr-2" />
+                              Adicionar Contato
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => setDeleteId(fornecedor.id)}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Excluir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -462,9 +565,18 @@ export default function Fornecedores() {
       <ConfirmDialog
         open={!!deleteId}
         onOpenChange={(open) => !open && setDeleteId(null)}
-        onConfirm={() => deleteId && handleDelete(deleteId)}
+        onConfirm={handleDelete}
         title="Excluir Fornecedor"
         description="Tem certeza que deseja excluir este fornecedor? Esta ação não pode ser desfeita."
+      />
+
+      <AdicionarContatoDialog
+        open={contatoDialogOpen}
+        onOpenChange={setContatoDialogOpen}
+        onSubmit={handleSubmitContato}
+        initialData={editingContato}
+        fornecedorId={selectedFornecedorId || ''}
+        fornecedorNome={fornecedores.find(f => f.id === selectedFornecedorId)?.nome}
       />
     </div>
   );
