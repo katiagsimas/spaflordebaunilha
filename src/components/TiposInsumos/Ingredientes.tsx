@@ -296,7 +296,7 @@ export default function TiposInsumosIngredientes() {
         </div>
         <Button onClick={() => handleAbrirModal()}>
           <Plus className="mr-2 h-4 w-4" />
-          Novo Tipo
+          + Novo Ingrediente
         </Button>
         <Button variant="outline" onClick={handleExportarExcel}>
           <Download className="mr-2 h-4 w-4" />
