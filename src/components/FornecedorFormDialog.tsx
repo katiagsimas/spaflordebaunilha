@@ -64,6 +64,11 @@ export function FornecedorFormDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.nome) {
+      return; // O campo nome já tem required, mas adiciona validação extra
+    }
+    
     await onSubmit(formData);
   };
 

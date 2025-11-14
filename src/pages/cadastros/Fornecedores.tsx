@@ -17,6 +17,7 @@ import { Plus, Pencil, Trash2, Truck, ChevronDown, Cake, Search, Download } from
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 import * as XLSX from 'xlsx';
 
 interface FormDataFornecedor {
@@ -72,6 +73,11 @@ export default function Fornecedores() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.nome) {
+      toast.error("Nome é obrigatório!");
+      return;
+    }
 
     try {
       if (editingId) {
