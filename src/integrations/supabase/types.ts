@@ -2002,6 +2002,7 @@ export type Database = {
       }
       ingredientes: {
         Row: {
+          categoria: string | null
           controlar_estoque: boolean
           created_at: string | null
           data_atualizacao: string
@@ -2014,6 +2015,7 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
+          categoria?: string | null
           controlar_estoque?: boolean
           created_at?: string | null
           data_atualizacao?: string
@@ -2026,6 +2028,7 @@ export type Database = {
           usuario_id: string
         }
         Update: {
+          categoria?: string | null
           controlar_estoque?: boolean
           created_at?: string | null
           data_atualizacao?: string
