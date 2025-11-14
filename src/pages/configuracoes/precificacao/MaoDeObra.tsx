@@ -369,23 +369,6 @@ export default function MaoDeObra() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label>Cor</Label>
-              <div className="grid grid-cols-6 gap-2">
-                {coresDisponiveis.map((cor) => (
-                  <button
-                    key={cor.value}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, cor: cor.value })}
-                    className={`h-10 rounded-md ${cor.class} ${
-                      formData.cor === cor.value ? 'ring-2 ring-primary ring-offset-2' : ''
-                    }`}
-                    title={cor.label}
-                  />
-                ))}
-              </div>
-            </div>
-
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Switch
