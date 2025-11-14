@@ -393,63 +393,61 @@ export default function Financeiro() {
     
     const hoje = new Date();
 
-    // Buscar parcelas em atraso (status: aberto, atrasado ou pagamento_parcial)
+    // Buscar parcelas em atraso que ainda estão em aberto
     const { data } = await supabase
       .from("contas_receber_parcelas")
       .select(`
         id,
         valor_parcela,
-        valor_pago,
         data_vencimento,
         conta_receber_id,
-        status,
         contas_receber!inner (
           cliente_id,
+          cliente_nome,
           usuario_id
         )
       `)
       .eq("contas_receber.usuario_id", user.id)
-      .in("status", ["aberto", "atrasado", "pagamento_parcial"])
+      .eq("status", "aberto")
       .lt("data_vencimento", hoje.toISOString().split('T')[0])
       .order("data_vencimento", { ascending: true });
 
     if (!data) return;
 
-    const parcelas: InadimplenciaItem[] = [];
+    const inadimplentesMap = new Map<string, InadimplenciaItem>();
 
     for (const parcela of data) {
       const vencimento = new Date(parcela.data_vencimento!);
       const diasAtraso = Math.floor((hoje.getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
 
-      const clienteId = parcela.contas_receber?.cliente_id;
-      
-      if (!clienteId) continue;
+      const clienteId = parcela.contas_receber?.cliente_id || parcela.conta_receber_id;
+      const clienteNome = parcela.contas_receber?.cliente_nome || "Cliente desconhecido";
 
-      // Calcular valor em atraso desta parcela específica
-      const valorEmAtraso = (parcela.valor_parcela || 0) - (parcela.valor_pago || 0);
-
-      if (valorEmAtraso > 0) {
-        // Buscar nome e telefone do cliente
+      if (inadimplentesMap.has(clienteId)) {
+        const existing = inadimplentesMap.get(clienteId)!;
+        existing.valor += parcela.valor_parcela || 0;
+        existing.dias_atraso = Math.max(existing.dias_atraso, diasAtraso);
+      } else {
         const { data: cliente } = await supabase
           .from("clientes")
-          .select("nome, telefone")
+          .select("telefone")
           .eq("id", clienteId)
           .maybeSingle();
 
-        parcelas.push({
-          id: parcela.id,
-          nome: cliente?.nome || "Cliente desconhecido",
-          valor: valorEmAtraso,
+        inadimplentesMap.set(clienteId, {
+          id: clienteId,
+          nome: clienteNome,
+          valor: parcela.valor_parcela || 0,
           dias_atraso: diasAtraso,
           telefone: cliente?.telefone
         });
       }
     }
 
-    // Ordenar por dias de atraso (maior primeiro)
-    parcelas.sort((a, b) => b.dias_atraso - a.dias_atraso);
+    const agrupado = Array.from(inadimplentesMap.values());
+    agrupado.sort((a, b) => b.valor - a.valor);
 
-    setInadimplenciaClientes(parcelas);
+    setInadimplenciaClientes(agrupado);
   }
 
   async function carregarInadimplenciaFornecedores() {
@@ -542,8 +540,9 @@ export default function Financeiro() {
     <div className="container mx-auto p-6 space-y-6">
       {/* Título da Página */}
       <div className="mb-6">
-        <h1 className="text-xl md:text-2xl font-bold tracking-tight">
-          CONTROLE FINANCEIRO
+        <h1 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2 whitespace-nowrap">
+          <DollarSign className="w-6 h-6 md:w-7 md:h-7 text-primary flex-shrink-0" />
+          MOVIMENTAÇÕES E RELATÓRIOS FINANCEIROS
         </h1>
       </div>
 

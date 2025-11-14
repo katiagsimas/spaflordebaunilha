@@ -22,16 +22,10 @@ import { useEncomendaItens } from "@/hooks/useEncomendaItens";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import ContasReceberFormModal from "@/components/financeiro/ContasReceberFormModal";
 import { useNavigate } from "react-router-dom";
-import { SeletorTags } from "@/components/encomendas/SeletorTags";
-import { useValidacaoEstoque } from "@/hooks/useValidacaoEstoque";
-import { AlertaEstoque } from "@/components/encomendas/AlertaEstoque";
-import { CalculadoraValor } from "@/components/encomendas/CalculadoraValor";
-import { PreviewEncomenda } from "@/components/encomendas/PreviewEncomenda";
 
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from 'xlsx';
 import { z } from 'zod';
-import { encomendaSchema } from '@/schemas/encomendaSchema';
 
 const statusColors = {
   pendente: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -65,6 +59,7 @@ const Encomendas = () => {
   const [clienteFilter, setClienteFilter] = useState("Todos");
   const [dataEntregaFilter, setDataEntregaFilter] = useState("");
   const [horaEntregaFilter, setHoraEntregaFilter] = useState("");
+  const [tagFilter, setTagFilter] = useState("todos");
   const [modalPagamentoAberto, setModalPagamentoAberto] = useState(false);
   const [contaReceberId, setContaReceberId] = useState<string | null>(null);
   const [planoContasVendaId, setPlanoContasVendaId] = useState<string>('');
@@ -92,7 +87,8 @@ const Encomendas = () => {
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
   ];
   
-  // Estados para tags (novo sistema categorizado)
+  // Estados para tags
+  const [tagsDisponiveis, setTagsDisponiveis] = useState<any[]>([]);
   const [tagsSelecionadas, setTagsSelecionadas] = useState<any[]>([]);
   const [tempProdutos, setTempProdutos] = useState<Array<{
     id: string;
@@ -112,9 +108,7 @@ const Encomendas = () => {
     hora_entrega: "",
     status: "pendente",
     valor: 0,
-    valorManual: false, // Controla se o valor foi definido manualmente
-    observacoes_cliente: "",
-    observacoes_internas: "",
+    observacoes: "",
     telefone: "",
     endereco: "",
     numero: "",
@@ -143,16 +137,6 @@ const Encomendas = () => {
 
   const { itens: produtosEncomenda, createItem, deleteItem } = useEncomendaItens(editingOrder?.id || null);
 
-  // Hook de validação de estoque
-  const { 
-    data: validacaoEstoque, 
-    isLoading: validandoEstoque 
-  } = useValidacaoEstoque({
-    receitaId: produtoForm.receita_id || undefined,
-    quantidade: parseFloat(produtoForm.quantidade || "0"),
-    enabled: !!produtoForm.receita_id && parseFloat(produtoForm.quantidade || "0") > 0,
-  });
-
   // Usar produtos temporários quando criando nova encomenda, ou produtos salvos quando editando
   const produtosExibidos = editingOrder ? produtosEncomenda : tempProdutos;
 
@@ -166,22 +150,8 @@ const Encomendas = () => {
   }, [valorTotalProdutos, formData.desconto_percentual, formData.desconto_valor]);
 
   const valorFinal = useMemo(() => {
-    // Se o valor foi definido manualmente, usar o valor manual
-    if (formData.valorManual) {
-      return formData.valor;
-    }
-    // Caso contrário, calcular automaticamente
     return valorTotalProdutos - valorDesconto + formData.taxa_entrega + formData.topo_bolo + formData.outros;
-  }, [formData.valorManual, formData.valor, valorTotalProdutos, valorDesconto, formData.taxa_entrega, formData.topo_bolo, formData.outros]);
-
-  // Handler para atualizar o valor da calculadora
-  const handleValorChange = (valor: number, isManual: boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      valor,
-      valorManual: isManual,
-    }));
-  };
+  }, [valorTotalProdutos, valorDesconto, formData.taxa_entrega, formData.topo_bolo, formData.outros]);
 
   // Verificar se há um ID na URL para abrir automaticamente o formulário de edição
   useEffect(() => {
@@ -267,7 +237,7 @@ const Encomendas = () => {
     });
   }
 
-  // Buscar o ID do plano de contas "Venda de Produtos" ao carregar
+  // Buscar o ID do plano de contas "Venda de Produtos" e tags ao carregar
   useEffect(() => {
     const fetchPlanoContasVenda = async () => {
       try {
@@ -291,7 +261,27 @@ const Encomendas = () => {
       }
     };
 
+    const fetchTags = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data, error } = await supabase
+          .from('tags_encomendas')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('ativo', true)
+          .order('nome');
+
+        if (error) throw error;
+        setTagsDisponiveis(data || []);
+      } catch (error) {
+        console.error('Erro ao buscar tags:', error);
+      }
+    };
+
     fetchPlanoContasVenda();
+    fetchTags();
   }, []);
 
   const resetForm = () => {
@@ -303,9 +293,7 @@ const Encomendas = () => {
       hora_entrega: "",
       status: "pendente",
       valor: 0,
-      valorManual: false,
-      observacoes_cliente: "",
-      observacoes_internas: "",
+      observacoes: "",
       telefone: "",
       endereco: "",
       numero: "",
@@ -353,13 +341,24 @@ const Encomendas = () => {
           data_entrega: formData.data_entrega || null,
           hora_entrega: formData.hora_entrega || null,
           conta_receber_id: contaReceberId || null,
-          quantidade: 1, // Campo obrigatório do schema
         };
 
-        // Validação completa com encomendaSchema
-        const dadosValidados = encomendaSchema.parse(dadosParaSalvar);
+        // Validação básica dos campos essenciais com Zod
+        const basicSchema = z.object({
+          cliente: z.string().trim().min(1, 'Nome do cliente é obrigatório'),
+          data_pedido: z.string().min(1, 'Data do pedido é obrigatória'),
+          status: z.enum(['pendente', 'confirmado', 'em_producao', 'pronto', 'entregue', 'cancelado']),
+          valor: z.number().nonnegative('Valor não pode ser negativo'),
+        });
+
+        basicSchema.parse({
+          cliente: dadosParaSalvar.cliente,
+          data_pedido: dadosParaSalvar.data_pedido,
+          status: dadosParaSalvar.status,
+          valor: dadosParaSalvar.valor,
+        });
         
-        await updateEncomenda(editingOrder.id, dadosValidados);
+        await updateEncomenda(editingOrder.id, dadosParaSalvar);
         
         // Salvar tags ao atualizar
         // Deletar tags antigas
@@ -399,23 +398,21 @@ const Encomendas = () => {
         return;
       }
 
-      // Validação completa com encomendaSchema
+      // Validação básica dos campos essenciais
+      const basicSchema = z.object({
+        cliente: z.string().trim().min(1, 'Nome do cliente é obrigatório'),
+        data_pedido: z.string().min(1, 'Data do pedido é obrigatória'),
+        status: z.enum(['pendente', 'confirmado', 'em_producao', 'pronto', 'entregue', 'cancelado']),
+        valor: z.number().nonnegative('Valor não pode ser negativo'),
+      });
+
       try {
-        const dadosValidacao = {
+        basicSchema.parse({
           cliente: formData.cliente,
           data_pedido: formData.data_pedido,
-          data_entrega: formData.data_entrega || formData.data_pedido,
           status: formData.status,
           valor: valorFinal,
-          quantidade: 1, // Campo obrigatório do schema
-          observacoes_cliente: formData.observacoes_cliente || undefined,
-          observacoes_internas: formData.observacoes_internas || undefined,
-          cep: formData.cep || '',
-          endereco: formData.endereco || undefined,
-          telefone: formData.telefone || undefined,
-        };
-
-        encomendaSchema.parse(dadosValidacao);
+        });
 
         // Abrir modal de pagamento
         toast.info("Configure o pagamento para finalizar a encomenda");
@@ -441,9 +438,7 @@ const Encomendas = () => {
       hora_entrega: encomenda.hora_entrega || "",
       status: encomenda.status,
       valor: encomenda.valor,
-      valorManual: false, // Reset ao editar
-      observacoes_cliente: encomenda.observacoes_cliente || encomenda.observacoes || "",
-      observacoes_internas: encomenda.observacoes_internas || "",
+      observacoes: encomenda.observacoes || "",
       telefone: encomenda.telefone || "",
       endereco: encomenda.endereco || "",
       numero: encomenda.numero || "",
@@ -462,17 +457,16 @@ const Encomendas = () => {
     // Carregar o ID da conta a receber vinculada, se existir
     setContaReceberId(encomenda.conta_receber_id || null);
     
-    // Buscar tags da encomenda (novo sistema)
+    // Buscar tags da encomenda
     try {
       const { data: tagsData } = await supabase
         .from('encomendas_tags')
         .select(`
           tag_id,
-          tag:tags (
+          tag:tags_encomendas (
             id,
             nome,
-            cor,
-            categoria_id
+            cor
           )
         `)
         .eq('encomenda_id', encomenda.id);
@@ -717,12 +711,9 @@ const Encomendas = () => {
         data_entrega: formData.data_entrega || null,
         hora_entrega: formData.hora_entrega || null,
         conta_receber_id: contaId,
-        quantidade: 1, // Campo obrigatório do schema
       };
 
-      // Validar dados antes de criar
-      const dadosValidados = encomendaSchema.parse(dadosParaSalvar);
-      const novaEncomenda = await createEncomenda(dadosValidados);
+      const novaEncomenda = await createEncomenda(dadosParaSalvar);
       
       // Salvar produtos temporários na encomenda criada
       if (tempProdutos.length > 0 && novaEncomenda) {
@@ -888,10 +879,13 @@ const Encomendas = () => {
       const matchesDataEntrega = !dataEntregaFilter || e.data_entrega === dataEntregaFilter;
       const matchesHoraEntrega = !horaEntregaFilter || (e.hora_entrega && e.hora_entrega.slice(0, 5) === horaEntregaFilter);
       
+      // Filtro por tag
+      const matchesTag = tagFilter === "todos" || (e.tags && e.tags.some((t: any) => t.id === tagFilter));
+      
       // Filtro por busca de nome
       const matchesBusca = !buscaNome || e.cliente.toLowerCase().includes(buscaNome.toLowerCase());
       
-      return matchesStatus && matchesCliente && matchesDataEntrega && matchesHoraEntrega && matchesBusca;
+      return matchesStatus && matchesCliente && matchesDataEntrega && matchesHoraEntrega && matchesTag && matchesBusca;
     })
     .sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime());
 
@@ -1079,12 +1073,7 @@ const Encomendas = () => {
 
                           <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <Label htmlFor="quantidade">Quantidade *</Label>
-                                {validacaoEstoque?.tem_estoque && produtoForm.quantidade && parseFloat(produtoForm.quantidade) > 0 && (
-                                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                                )}
-                              </div>
+                              <Label htmlFor="quantidade">Quantidade *</Label>
                               <Input
                                 id="quantidade"
                                 type="number"
@@ -1132,11 +1121,6 @@ const Encomendas = () => {
                             </div>
                           </div>
 
-                          {/* Alerta de Estoque */}
-                          {validacaoEstoque && !validandoEstoque && (
-                            <AlertaEstoque itensFaltantes={validacaoEstoque.itens_faltantes || []} />
-                          )}
-
                           <div className="flex gap-2 justify-end">
                             <Button
                               type="button"
@@ -1145,12 +1129,8 @@ const Encomendas = () => {
                             >
                               Cancelar
                             </Button>
-                            <Button 
-                              type="button" 
-                              onClick={handleAddProduto}
-                              disabled={validandoEstoque}
-                            >
-                              {validandoEstoque ? "Validando..." : "Adicionar"}
+                            <Button type="button" onClick={handleAddProduto}>
+                              Adicionar
                             </Button>
                           </div>
                         </div>
@@ -1466,61 +1446,19 @@ const Encomendas = () => {
                       </Dialog>
                     </div>
                   )}
+                </div>
+
+                 <div className="space-y-2">
+                    <Label htmlFor="observacoes">Observações</Label>
+                    <Textarea
+                      id="observacoes"
+                      rows={3}
+                      value={formData.observacoes}
+                      onChange={(e) =>
+                        setFormData({ ...formData, observacoes: e.target.value })
+                      }
+                    />
                   </div>
-
-                  {/* Seção de Observações - Separadas */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base">Observações</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {/* Observações do Cliente */}
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Label htmlFor="observacoes_cliente">Observações do Cliente</Label>
-                          <span className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-950 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-300">
-                            Visível no recibo
-                          </span>
-                        </div>
-                        <Textarea
-                          id="observacoes_cliente"
-                          rows={3}
-                          value={formData.observacoes_cliente}
-                          onChange={(e) =>
-                            setFormData({ ...formData, observacoes_cliente: e.target.value })
-                          }
-                          placeholder="Ex: Bolo tema Frozen, decoração em azul e branco..."
-                          className="resize-none"
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          ℹ️ O cliente verá estas informações no recibo e contrato
-                        </p>
-                      </div>
-
-                      {/* Observações Internas */}
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Label htmlFor="observacoes_internas">Observações Internas</Label>
-                          <span className="inline-flex items-center rounded-full bg-amber-50 dark:bg-amber-950 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-300">
-                            Apenas equipe
-                          </span>
-                        </div>
-                        <Textarea
-                          id="observacoes_internas"
-                          rows={3}
-                          value={formData.observacoes_internas}
-                          onChange={(e) =>
-                            setFormData({ ...formData, observacoes_internas: e.target.value })
-                          }
-                          placeholder="Ex: Cobrar na entrega, cliente pediu desconto..."
-                          className="resize-none border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20 focus:border-amber-400 dark:focus:border-amber-600"
-                        />
-                        <p className="text-xs text-amber-600 dark:text-amber-400">
-                          🔒 Apenas você e sua equipe verão estas observações
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
 
                   {/* Seção de Tags */}
                   <Card>
@@ -1555,49 +1493,42 @@ const Encomendas = () => {
 
                       {/* Tags Disponíveis */}
                       <div>
-                        <Label className="mb-2 block text-sm">Tags da Encomenda:</Label>
-                        <SeletorTags
-                          tagsSelecionadas={tagsSelecionadas}
-                          onChange={setTagsSelecionadas}
-                        />
+                        <Label className="mb-2 block text-sm">Tags Disponíveis:</Label>
+                        <div className="flex flex-wrap gap-2">
+                          {tagsDisponiveis.map(tag => {
+                            const selecionada = tagsSelecionadas.find(t => t.id === tag.id);
+                            return (
+                              <Badge
+                                key={tag.id}
+                                style={{ 
+                                  backgroundColor: selecionada ? tag.cor : 'transparent',
+                                  color: selecionada ? '#fff' : tag.cor,
+                                  borderColor: tag.cor,
+                                }}
+                                className="cursor-pointer border-2 hover:scale-105 transition-transform"
+                                onClick={() => {
+                                  if (selecionada) {
+                                    setTagsSelecionadas(tagsSelecionadas.filter(t => t.id !== tag.id));
+                                  } else {
+                                    setTagsSelecionadas([...tagsSelecionadas, tag]);
+                                  }
+                                }}
+                              >
+                                {tag.nome}
+                              </Badge>
+                            );
+                          })}
+                        </div>
+                        {tagsDisponiveis.length === 0 && (
+                          <p className="text-sm text-muted-foreground">
+                            Nenhuma tag cadastrada. Crie tags em Configurações.
+                          </p>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
 
-                  {/* Calculadora de Valor */}
-                  {produtosExibidos.length > 0 && (
-                    <CalculadoraValor
-                      itens={produtosExibidos.map(item => ({
-                        receita_id: item.receita_id,
-                        quantidade: item.quantidade,
-                        valor_unitario: item.valor_unitario,
-                      }))}
-                      valorManual={formData.valorManual ? formData.valor : undefined}
-                      onChange={handleValorChange}
-                    />
-                  )}
-
-                  {/* Preview da Encomenda */}
-                  {formData.cliente && produtosExibidos.length > 0 && formData.data_entrega && (
-                    <div className="mt-4">
-                      <PreviewEncomenda
-                        dados={{
-                          cliente: formData.cliente,
-                          data_pedido: formData.data_pedido,
-                          data_entrega: formData.data_entrega,
-                          hora_entrega: formData.hora_entrega,
-                          valor: valorFinal,
-                          itens: produtosExibidos,
-                          tags: tagsSelecionadas,
-                          observacoes_cliente: formData.observacoes_cliente,
-                          observacoes_internas: formData.observacoes_internas,
-                        }}
-                        validacaoEstoque={validacaoEstoque}
-                      />
-                    </div>
-                  )}
-
-                  <div className="flex gap-2 justify-end mt-6">
+                  <div className="flex gap-2 justify-end">
                   <Button
                     type="button"
                     variant="outline"
@@ -1782,6 +1713,32 @@ const Encomendas = () => {
           </CardContent>
         </Card>
 
+        {/* Filtro de Tags */}
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
+          <CardContent className="p-4">
+            <Label htmlFor="filtro-tag" className="text-sm font-medium mb-2 block">Tag</Label>
+            <Select value={tagFilter} onValueChange={setTagFilter}>
+              <SelectTrigger id="filtro-tag" className="bg-background">
+                <SelectValue placeholder="Todas as tags" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="todos">Todas as tags</SelectItem>
+                {tagsDisponiveis.map(tag => (
+                  <SelectItem key={tag.id} value={tag.id}>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: tag.cor }}
+                      />
+                      {tag.nome}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardContent>
+        </Card>
+
         {/* Filtro de Data da Entrega */}
         <Card className="shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="p-4">
@@ -1819,6 +1776,7 @@ const Encomendas = () => {
               onClick={() => {
                 setClienteFilter("Todos");
                 setStatusFilter("Todos");
+                setTagFilter("todos");
                 setDataEntregaFilter("");
                 setHoraEntregaFilter("");
                 setBuscaNome("");

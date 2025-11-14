@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { incrementarUsoTipoDocumento } from '@/utils/tipoDocumentoUtils';
 import { supabase } from '@/integrations/supabase/client';
 import {
   Dialog,
@@ -323,9 +322,6 @@ export default function DarBaixaPagarDialog({
         .single();
 
       if (errorPagamento) throw errorPagamento;
-
-      // Incrementar contador de uso do tipo de documento
-      await incrementarUsoTipoDocumento(tipoDocumentoId);
 
       // Upload de comprovante (se houver)
       if (arquivoComprovante) {

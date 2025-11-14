@@ -46,7 +46,7 @@ export function PlanoContasAutocomplete({
 
   const selectedPlano = planosContas.find((p) => p.id === value);
   const displayValue = selectedPlano
-    ? selectedPlano.descricao
+    ? `${selectedPlano.codigo_estruturado} - ${selectedPlano.descricao}`
     : "";
 
   return (

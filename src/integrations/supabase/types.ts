@@ -14,195 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      _backup_embalagens: {
-        Row: {
-          controlar_estoque: boolean | null
-          created_at: string | null
-          data_atualizacao: string | null
-          id: string | null
-          marca: string | null
-          preco: number | null
-          tipo_insumo_id: string | null
-          updated_at: string | null
-          usuario_id: string | null
-        }
-        Insert: {
-          controlar_estoque?: boolean | null
-          created_at?: string | null
-          data_atualizacao?: string | null
-          id?: string | null
-          marca?: string | null
-          preco?: number | null
-          tipo_insumo_id?: string | null
-          updated_at?: string | null
-          usuario_id?: string | null
-        }
-        Update: {
-          controlar_estoque?: boolean | null
-          created_at?: string | null
-          data_atualizacao?: string | null
-          id?: string | null
-          marca?: string | null
-          preco?: number | null
-          tipo_insumo_id?: string | null
-          updated_at?: string | null
-          usuario_id?: string | null
-        }
-        Relationships: []
-      }
-      _backup_ingredientes: {
-        Row: {
-          controlar_estoque: boolean | null
-          created_at: string | null
-          data_atualizacao: string | null
-          e_pre_preparo: boolean | null
-          id: string | null
-          marca: string | null
-          preco: number | null
-          tipo_insumo_id: string | null
-          updated_at: string | null
-          usuario_id: string | null
-        }
-        Insert: {
-          controlar_estoque?: boolean | null
-          created_at?: string | null
-          data_atualizacao?: string | null
-          e_pre_preparo?: boolean | null
-          id?: string | null
-          marca?: string | null
-          preco?: number | null
-          tipo_insumo_id?: string | null
-          updated_at?: string | null
-          usuario_id?: string | null
-        }
-        Update: {
-          controlar_estoque?: boolean | null
-          created_at?: string | null
-          data_atualizacao?: string | null
-          e_pre_preparo?: boolean | null
-          id?: string | null
-          marca?: string | null
-          preco?: number | null
-          tipo_insumo_id?: string | null
-          updated_at?: string | null
-          usuario_id?: string | null
-        }
-        Relationships: []
-      }
-      _backup_tipos_insumos: {
-        Row: {
-          created_at: string | null
-          descricao: string | null
-          id: string | null
-          pre_preparo_id: string | null
-          quantidade_embalagem: number | null
-          tipo: string | null
-          unidade_medida_id: string | null
-          updated_at: string | null
-          usuario_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          descricao?: string | null
-          id?: string | null
-          pre_preparo_id?: string | null
-          quantidade_embalagem?: number | null
-          tipo?: string | null
-          unidade_medida_id?: string | null
-          updated_at?: string | null
-          usuario_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          descricao?: string | null
-          id?: string | null
-          pre_preparo_id?: string | null
-          quantidade_embalagem?: number | null
-          tipo?: string | null
-          unidade_medida_id?: string | null
-          updated_at?: string | null
-          usuario_id?: string | null
-        }
-        Relationships: []
-      }
-      admin_access_tokens: {
-        Row: {
-          admin_id: string
-          created_at: string
-          expires_at: string
-          id: string
-          reason: string
-          revoked_at: string | null
-          target_user_id: string
-          token: string
-        }
-        Insert: {
-          admin_id: string
-          created_at?: string
-          expires_at: string
-          id?: string
-          reason: string
-          revoked_at?: string | null
-          target_user_id: string
-          token: string
-        }
-        Update: {
-          admin_id?: string
-          created_at?: string
-          expires_at?: string
-          id?: string
-          reason?: string
-          revoked_at?: string | null
-          target_user_id?: string
-          token?: string
-        }
-        Relationships: []
-      }
-      admin_audit_log: {
-        Row: {
-          action: string
-          admin_id: string
-          created_at: string
-          id: string
-          ip_address: unknown
-          module: string | null
-          new_value: Json | null
-          old_value: Json | null
-          reason: string | null
-          record_id: string | null
-          target_user_id: string | null
-          user_agent: string | null
-        }
-        Insert: {
-          action: string
-          admin_id: string
-          created_at?: string
-          id?: string
-          ip_address?: unknown
-          module?: string | null
-          new_value?: Json | null
-          old_value?: Json | null
-          reason?: string | null
-          record_id?: string | null
-          target_user_id?: string | null
-          user_agent?: string | null
-        }
-        Update: {
-          action?: string
-          admin_id?: string
-          created_at?: string
-          id?: string
-          ip_address?: unknown
-          module?: string | null
-          new_value?: Json | null
-          old_value?: Json | null
-          reason?: string | null
-          record_id?: string | null
-          target_user_id?: string | null
-          user_agent?: string | null
-        }
-        Relationships: []
-      }
       admin_logs: {
         Row: {
           acao: string
@@ -275,214 +86,8 @@ export type Database = {
         }
         Relationships: []
       }
-      bank_entries: {
-        Row: {
-          amount: number
-          created_at: string
-          date: string
-          description: string
-          fit_id: string | null
-          hash_key: string
-          id: string
-          import_id: string
-          kind: string
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          amount: number
-          created_at?: string
-          date: string
-          description: string
-          fit_id?: string | null
-          hash_key: string
-          id?: string
-          import_id: string
-          kind: string
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          amount?: number
-          created_at?: string
-          date?: string
-          description?: string
-          fit_id?: string | null
-          hash_key?: string
-          id?: string
-          import_id?: string
-          kind?: string
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bank_entries_import_id_fkey"
-            columns: ["import_id"]
-            isOneToOne: false
-            referencedRelation: "bank_imports"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      bank_imports: {
-        Row: {
-          created_at: string
-          filename: string
-          id: string
-          rows_count: number
-          status: string
-          updated_at: string
-          uploaded_by: string
-          usuario_id: string
-        }
-        Insert: {
-          created_at?: string
-          filename: string
-          id?: string
-          rows_count?: number
-          status?: string
-          updated_at?: string
-          uploaded_by: string
-          usuario_id: string
-        }
-        Update: {
-          created_at?: string
-          filename?: string
-          id?: string
-          rows_count?: number
-          status?: string
-          updated_at?: string
-          uploaded_by?: string
-          usuario_id?: string
-        }
-        Relationships: []
-      }
-      bank_matches: {
-        Row: {
-          bank_entry_id: string
-          confirmed_at: string | null
-          confirmed_by: string | null
-          created_at: string
-          id: string
-          score: number
-          status: string
-          transaction_id: string
-          transaction_type: string
-        }
-        Insert: {
-          bank_entry_id: string
-          confirmed_at?: string | null
-          confirmed_by?: string | null
-          created_at?: string
-          id?: string
-          score?: number
-          status?: string
-          transaction_id: string
-          transaction_type: string
-        }
-        Update: {
-          bank_entry_id?: string
-          confirmed_at?: string | null
-          confirmed_by?: string | null
-          created_at?: string
-          id?: string
-          score?: number
-          status?: string
-          transaction_id?: string
-          transaction_type?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bank_matches_bank_entry_id_fkey"
-            columns: ["bank_entry_id"]
-            isOneToOne: false
-            referencedRelation: "bank_entries"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bank_matches_bank_entry_id_fkey"
-            columns: ["bank_entry_id"]
-            isOneToOne: false
-            referencedRelation: "vw_bank_differences"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      bank_raw_entries: {
-        Row: {
-          created_at: string
-          hash_key: string
-          id: string
-          import_id: string
-          line_number: number
-          raw_data: Json
-        }
-        Insert: {
-          created_at?: string
-          hash_key: string
-          id?: string
-          import_id: string
-          line_number: number
-          raw_data: Json
-        }
-        Update: {
-          created_at?: string
-          hash_key?: string
-          id?: string
-          import_id?: string
-          line_number?: number
-          raw_data?: Json
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bank_raw_entries_import_id_fkey"
-            columns: ["import_id"]
-            isOneToOne: false
-            referencedRelation: "bank_imports"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      bank_rules: {
-        Row: {
-          bank_name: string
-          column_map: Json
-          created_at: string
-          csv_delimiter: string
-          date_format: string
-          decimal_comma: boolean
-          id: string
-          updated_at: string
-          usuario_id: string
-        }
-        Insert: {
-          bank_name: string
-          column_map: Json
-          created_at?: string
-          csv_delimiter?: string
-          date_format?: string
-          decimal_comma?: boolean
-          id?: string
-          updated_at?: string
-          usuario_id: string
-        }
-        Update: {
-          bank_name?: string
-          column_map?: Json
-          created_at?: string
-          csv_delimiter?: string
-          date_format?: string
-          decimal_comma?: boolean
-          id?: string
-          updated_at?: string
-          usuario_id?: string
-        }
-        Relationships: []
-      }
       categorias: {
         Row: {
-          ativo: boolean
           created_at: string
           id: string
           nome: string
@@ -490,7 +95,6 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
-          ativo?: boolean
           created_at?: string
           id?: string
           nome: string
@@ -498,7 +102,6 @@ export type Database = {
           usuario_id: string
         }
         Update: {
-          ativo?: boolean
           created_at?: string
           id?: string
           nome?: string
@@ -510,36 +113,33 @@ export type Database = {
       categorias_estoque: {
         Row: {
           ativo: boolean
-          cor: string
-          criado_em: string
-          descricao: string
-          editavel: boolean
-          icone: string
+          cor: string | null
+          created_at: string
+          icone: string | null
           id: string
           nome: string
-          ordem: number
+          updated_at: string
+          usuario_id: string
         }
         Insert: {
           ativo?: boolean
-          cor: string
-          criado_em?: string
-          descricao: string
-          editavel?: boolean
-          icone: string
+          cor?: string | null
+          created_at?: string
+          icone?: string | null
           id?: string
           nome: string
-          ordem: number
+          updated_at?: string
+          usuario_id: string
         }
         Update: {
           ativo?: boolean
-          cor?: string
-          criado_em?: string
-          descricao?: string
-          editavel?: boolean
-          icone?: string
+          cor?: string | null
+          created_at?: string
+          icone?: string | null
           id?: string
           nome?: string
-          ordem?: number
+          updated_at?: string
+          usuario_id?: string
         }
         Relationships: []
       }
@@ -587,7 +187,6 @@ export type Database = {
           id: string
           indicador: string
           ordem: number
-          padrao_sistema: boolean
           updated_at: string | null
           user_id: string
         }
@@ -601,7 +200,6 @@ export type Database = {
           id?: string
           indicador: string
           ordem?: number
-          padrao_sistema?: boolean
           updated_at?: string | null
           user_id: string
         }
@@ -615,155 +213,15 @@ export type Database = {
           id?: string
           indicador?: string
           ordem?: number
-          padrao_sistema?: boolean
           updated_at?: string | null
           user_id?: string
         }
         Relationships: []
       }
-      categorias_tags: {
-        Row: {
-          ativo: boolean
-          criado_em: string
-          descricao: string | null
-          icone: string | null
-          id: string
-          nome: string
-          ordem: number
-        }
-        Insert: {
-          ativo?: boolean
-          criado_em?: string
-          descricao?: string | null
-          icone?: string | null
-          id?: string
-          nome: string
-          ordem: number
-        }
-        Update: {
-          ativo?: boolean
-          criado_em?: string
-          descricao?: string | null
-          icone?: string | null
-          id?: string
-          nome?: string
-          ordem?: number
-        }
-        Relationships: []
-      }
-      cliente_familiares: {
-        Row: {
-          ativo: boolean | null
-          cliente_id: string
-          created_at: string | null
-          data_nascimento: string
-          id: string
-          nome: string
-          observacoes: string | null
-          parentesco: string
-          updated_at: string | null
-          usuario_id: string
-        }
-        Insert: {
-          ativo?: boolean | null
-          cliente_id: string
-          created_at?: string | null
-          data_nascimento: string
-          id?: string
-          nome: string
-          observacoes?: string | null
-          parentesco: string
-          updated_at?: string | null
-          usuario_id: string
-        }
-        Update: {
-          ativo?: boolean | null
-          cliente_id?: string
-          created_at?: string | null
-          data_nascimento?: string
-          id?: string
-          nome?: string
-          observacoes?: string | null
-          parentesco?: string
-          updated_at?: string | null
-          usuario_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "cliente_familiares_cliente_id_fkey"
-            columns: ["cliente_id"]
-            isOneToOne: false
-            referencedRelation: "clientes"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      cliente_nps: {
-        Row: {
-          categoria: string | null
-          cliente_id: string
-          comentario: string | null
-          created_at: string | null
-          encomenda_id: string | null
-          enviado_em: string | null
-          id: string
-          nota: number
-          respondido_em: string | null
-          usuario_id: string
-        }
-        Insert: {
-          categoria?: string | null
-          cliente_id: string
-          comentario?: string | null
-          created_at?: string | null
-          encomenda_id?: string | null
-          enviado_em?: string | null
-          id?: string
-          nota: number
-          respondido_em?: string | null
-          usuario_id: string
-        }
-        Update: {
-          categoria?: string | null
-          cliente_id?: string
-          comentario?: string | null
-          created_at?: string | null
-          encomenda_id?: string | null
-          enviado_em?: string | null
-          id?: string
-          nota?: number
-          respondido_em?: string | null
-          usuario_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "cliente_nps_cliente_id_fkey"
-            columns: ["cliente_id"]
-            isOneToOne: false
-            referencedRelation: "clientes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cliente_nps_encomenda_id_fkey"
-            columns: ["encomenda_id"]
-            isOneToOne: false
-            referencedRelation: "encomendas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cliente_nps_encomenda_id_fkey"
-            columns: ["encomenda_id"]
-            isOneToOne: false
-            referencedRelation: "vw_encomendas_com_tags"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       clientes: {
         Row: {
           cep: string | null
           cidade: string | null
-          como_conheceu: string | null
           cpf_cnpj: string | null
           created_at: string
           data_aniversario: string | null
@@ -774,20 +232,14 @@ export type Database = {
           nome: string
           numero: string | null
           observacoes: string | null
-          preferencias_alergias: string | null
-          quantidade_pedidos: number | null
-          segmento: string | null
           telefone: string | null
           tipo: string | null
-          total_compras: number | null
-          ultima_compra: string | null
           updated_at: string
           usuario_id: string
         }
         Insert: {
           cep?: string | null
           cidade?: string | null
-          como_conheceu?: string | null
           cpf_cnpj?: string | null
           created_at?: string
           data_aniversario?: string | null
@@ -798,20 +250,14 @@ export type Database = {
           nome: string
           numero?: string | null
           observacoes?: string | null
-          preferencias_alergias?: string | null
-          quantidade_pedidos?: number | null
-          segmento?: string | null
           telefone?: string | null
           tipo?: string | null
-          total_compras?: number | null
-          ultima_compra?: string | null
           updated_at?: string
           usuario_id: string
         }
         Update: {
           cep?: string | null
           cidade?: string | null
-          como_conheceu?: string | null
           cpf_cnpj?: string | null
           created_at?: string
           data_aniversario?: string | null
@@ -822,13 +268,8 @@ export type Database = {
           nome?: string
           numero?: string | null
           observacoes?: string | null
-          preferencias_alergias?: string | null
-          quantidade_pedidos?: number | null
-          segmento?: string | null
           telefone?: string | null
           tipo?: string | null
-          total_compras?: number | null
-          ultima_compra?: string | null
           updated_at?: string
           usuario_id?: string
         }
@@ -837,56 +278,38 @@ export type Database = {
       cmv_mensal: {
         Row: {
           ano: number
-          cmv_percentual_estimado: number | null
           compras: number
           created_at: string
-          custos_fixos_estimado: number | null
           estoque_final: number
           estoque_inicial: number
           faturamento: number
           id: string
           mes: number
-          observacao: string | null
-          ticket_medio_estimado: number | null
-          tipo_dado: string | null
           updated_at: string
-          usa_dados_sistema: boolean
           usuario_id: string
         }
         Insert: {
           ano: number
-          cmv_percentual_estimado?: number | null
           compras?: number
           created_at?: string
-          custos_fixos_estimado?: number | null
           estoque_final?: number
           estoque_inicial?: number
           faturamento?: number
           id?: string
           mes: number
-          observacao?: string | null
-          ticket_medio_estimado?: number | null
-          tipo_dado?: string | null
           updated_at?: string
-          usa_dados_sistema?: boolean
           usuario_id: string
         }
         Update: {
           ano?: number
-          cmv_percentual_estimado?: number | null
           compras?: number
           created_at?: string
-          custos_fixos_estimado?: number | null
           estoque_final?: number
           estoque_inicial?: number
           faturamento?: number
           id?: string
           mes?: number
-          observacao?: string | null
-          ticket_medio_estimado?: number | null
-          tipo_dado?: string | null
           updated_at?: string
-          usa_dados_sistema?: boolean
           usuario_id?: string
         }
         Relationships: []
@@ -1582,33 +1005,6 @@ export type Database = {
         }
         Relationships: []
       }
-      deleted_data_backup: {
-        Row: {
-          data: Json
-          deleted_at: string
-          deleted_by: string
-          id: string
-          permanent_delete_at: string
-          user_id: string
-        }
-        Insert: {
-          data: Json
-          deleted_at?: string
-          deleted_by: string
-          id?: string
-          permanent_delete_at: string
-          user_id: string
-        }
-        Update: {
-          data?: Json
-          deleted_at?: string
-          deleted_by?: string
-          id?: string
-          permanent_delete_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       embalagens: {
         Row: {
           controlar_estoque: boolean
@@ -1710,8 +1106,6 @@ export type Database = {
           id: string
           numero: string | null
           observacoes: string | null
-          observacoes_cliente: string | null
-          observacoes_internas: string | null
           outros: number | null
           pagamentos: Json | null
           saldo_restante: number | null
@@ -1742,8 +1136,6 @@ export type Database = {
           id?: string
           numero?: string | null
           observacoes?: string | null
-          observacoes_cliente?: string | null
-          observacoes_internas?: string | null
           outros?: number | null
           pagamentos?: Json | null
           saldo_restante?: number | null
@@ -1774,8 +1166,6 @@ export type Database = {
           id?: string
           numero?: string | null
           observacoes?: string | null
-          observacoes_cliente?: string | null
-          observacoes_internas?: string | null
           outros?: number | null
           pagamentos?: Json | null
           saldo_restante?: number | null
@@ -1931,66 +1321,6 @@ export type Database = {
         }
         Relationships: []
       }
-      fornecedor_contatos: {
-        Row: {
-          ativo: boolean | null
-          cargo: string | null
-          created_at: string | null
-          data_aniversario: string | null
-          email: string | null
-          fornecedor_id: string
-          id: string
-          nome: string
-          observacoes: string | null
-          telefone: string | null
-          updated_at: string | null
-          usuario_id: string
-        }
-        Insert: {
-          ativo?: boolean | null
-          cargo?: string | null
-          created_at?: string | null
-          data_aniversario?: string | null
-          email?: string | null
-          fornecedor_id: string
-          id?: string
-          nome: string
-          observacoes?: string | null
-          telefone?: string | null
-          updated_at?: string | null
-          usuario_id: string
-        }
-        Update: {
-          ativo?: boolean | null
-          cargo?: string | null
-          created_at?: string | null
-          data_aniversario?: string | null
-          email?: string | null
-          fornecedor_id?: string
-          id?: string
-          nome?: string
-          observacoes?: string | null
-          telefone?: string | null
-          updated_at?: string | null
-          usuario_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_fornecedor_contato"
-            columns: ["fornecedor_id"]
-            isOneToOne: false
-            referencedRelation: "fornecedores"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fornecedor_contatos_fornecedor_id_fkey"
-            columns: ["fornecedor_id"]
-            isOneToOne: false
-            referencedRelation: "fornecedores"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       fornecedores: {
         Row: {
           contato: string | null
@@ -2098,7 +1428,6 @@ export type Database = {
           id: string
           imagem_url: string | null
           localizacao: string | null
-          marca: string | null
           nome: string
           observacoes: string | null
           ponto_de_pedido: number | null
@@ -2119,7 +1448,6 @@ export type Database = {
           id?: string
           imagem_url?: string | null
           localizacao?: string | null
-          marca?: string | null
           nome: string
           observacoes?: string | null
           ponto_de_pedido?: number | null
@@ -2140,7 +1468,6 @@ export type Database = {
           id?: string
           imagem_url?: string | null
           localizacao?: string | null
-          marca?: string | null
           nome?: string
           observacoes?: string | null
           ponto_de_pedido?: number | null
@@ -2334,96 +1661,6 @@ export type Database = {
           },
         ]
       }
-      planejamento_produtos: {
-        Row: {
-          created_at: string | null
-          id: string
-          percentual_participacao: number
-          planejamento_id: string
-          receita_id: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          percentual_participacao: number
-          planejamento_id: string
-          receita_id: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          percentual_participacao?: number
-          planejamento_id?: string
-          receita_id?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "planejamento_produtos_planejamento_id_fkey"
-            columns: ["planejamento_id"]
-            isOneToOne: false
-            referencedRelation: "planejamento_vendas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "planejamento_produtos_receita_id_fkey"
-            columns: ["receita_id"]
-            isOneToOne: false
-            referencedRelation: "receitas"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      planejamento_vendas: {
-        Row: {
-          ano: number
-          created_at: string | null
-          id: string
-          mes: number
-          meta_faturamento_anual: number | null
-          meta_faturamento_mensal: number
-          meta_lucro_anual: number | null
-          meta_lucro_mensal: number
-          meta_pedidos: number
-          meta_ticket_medio: number
-          pct_lucro_selecionado: number | null
-          updated_at: string | null
-          usuario_id: string
-        }
-        Insert: {
-          ano: number
-          created_at?: string | null
-          id?: string
-          mes: number
-          meta_faturamento_anual?: number | null
-          meta_faturamento_mensal: number
-          meta_lucro_anual?: number | null
-          meta_lucro_mensal: number
-          meta_pedidos: number
-          meta_ticket_medio: number
-          pct_lucro_selecionado?: number | null
-          updated_at?: string | null
-          usuario_id: string
-        }
-        Update: {
-          ano?: number
-          created_at?: string | null
-          id?: string
-          mes?: number
-          meta_faturamento_anual?: number | null
-          meta_faturamento_mensal?: number
-          meta_lucro_anual?: number | null
-          meta_lucro_mensal?: number
-          meta_pedidos?: number
-          meta_ticket_medio?: number
-          pct_lucro_selecionado?: number | null
-          updated_at?: string | null
-          usuario_id?: string
-        }
-        Relationships: []
-      }
       plano_contas: {
         Row: {
           ativo: boolean | null
@@ -2434,7 +1671,6 @@ export type Database = {
           descricao: string
           e_padrao: boolean | null
           id: string
-          padrao_sistema: boolean
           updated_at: string | null
           user_id: string
         }
@@ -2447,7 +1683,6 @@ export type Database = {
           descricao: string
           e_padrao?: boolean | null
           id?: string
-          padrao_sistema?: boolean
           updated_at?: string | null
           user_id: string
         }
@@ -2460,7 +1695,6 @@ export type Database = {
           descricao?: string
           e_padrao?: boolean | null
           id?: string
-          padrao_sistema?: boolean
           updated_at?: string | null
           user_id?: string
         }
@@ -2532,7 +1766,6 @@ export type Database = {
       }
       pre_preparos: {
         Row: {
-          categoria_id: string | null
           created_at: string | null
           custo_por_unidade: number | null
           custo_total: number | null
@@ -2549,7 +1782,6 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
-          categoria_id?: string | null
           created_at?: string | null
           custo_por_unidade?: number | null
           custo_total?: number | null
@@ -2566,7 +1798,6 @@ export type Database = {
           usuario_id: string
         }
         Update: {
-          categoria_id?: string | null
           created_at?: string | null
           custo_por_unidade?: number | null
           custo_total?: number | null
@@ -2583,13 +1814,6 @@ export type Database = {
           usuario_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "pre_preparos_categoria_id_fkey"
-            columns: ["categoria_id"]
-            isOneToOne: false
-            referencedRelation: "categorias"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "pre_preparos_rendimento_unidade_id_fkey"
             columns: ["rendimento_unidade_id"]
@@ -3223,44 +2447,6 @@ export type Database = {
           },
         ]
       }
-      tags: {
-        Row: {
-          ativo: boolean
-          categoria_id: string
-          cor: string | null
-          criado_em: string
-          id: string
-          nome: string
-          ordem: number
-        }
-        Insert: {
-          ativo?: boolean
-          categoria_id: string
-          cor?: string | null
-          criado_em?: string
-          id?: string
-          nome: string
-          ordem: number
-        }
-        Update: {
-          ativo?: boolean
-          categoria_id?: string
-          cor?: string | null
-          criado_em?: string
-          id?: string
-          nome?: string
-          ordem?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "tags_categoria_id_fkey"
-            columns: ["categoria_id"]
-            isOneToOne: false
-            referencedRelation: "categorias_tags"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       tags_contas_receber: {
         Row: {
           cor: string
@@ -3337,7 +2523,6 @@ export type Database = {
         Row: {
           ativo: boolean | null
           codigo: number
-          contador_uso: number | null
           created_at: string
           descricao: string
           e_padrao: boolean | null
@@ -3348,7 +2533,6 @@ export type Database = {
         Insert: {
           ativo?: boolean | null
           codigo: number
-          contador_uso?: number | null
           created_at?: string
           descricao: string
           e_padrao?: boolean | null
@@ -3359,7 +2543,6 @@ export type Database = {
         Update: {
           ativo?: boolean | null
           codigo?: number
-          contador_uso?: number | null
           created_at?: string
           descricao?: string
           e_padrao?: boolean | null
@@ -3479,41 +2662,6 @@ export type Database = {
       }
     }
     Views: {
-      admin_dashboard_metrics: {
-        Row: {
-          active_users_today: number | null
-          active_users_week: number | null
-          pending_deletions: number | null
-          recent_errors: number | null
-          total_storage_used: number | null
-          total_users: number | null
-        }
-        Relationships: []
-      }
-      admin_recent_activity: {
-        Row: {
-          action: string | null
-          admin_email: string | null
-          admin_id: string | null
-          created_at: string | null
-          id: string | null
-          module: string | null
-          reason: string | null
-          target_user_email: string | null
-          target_user_id: string | null
-        }
-        Relationships: []
-      }
-      custos_por_categoria: {
-        Row: {
-          categoria: string | null
-          itens_rastreados: number | null
-          total_itens: number | null
-          valor_medio_por_item: number | null
-          valor_total_estoque: number | null
-        }
-        Relationships: []
-      }
       estoque_atual_v2: {
         Row: {
           categoria: string | null
@@ -3527,17 +2675,6 @@ export type Database = {
           unidade_base: string | null
           usuario_id: string | null
           valor_estoque: number | null
-        }
-        Relationships: []
-      }
-      user_admin_access_history: {
-        Row: {
-          access_date: string | null
-          actions_performed: Json | null
-          admin_email: string | null
-          duration: string | null
-          module: string | null
-          reason: string | null
         }
         Relationships: []
       }
@@ -3560,61 +2697,6 @@ export type Database = {
           valor_total_encomendas: number | null
         }
         Relationships: []
-      }
-      v_aniversariantes_completa: {
-        Row: {
-          cliente_id: string | null
-          data_nascimento: string | null
-          dia_aniversario: number | null
-          email: string | null
-          mes_aniversario: number | null
-          nome: string | null
-          observacoes: string | null
-          parentesco: string | null
-          proximo_aniversario: string | null
-          telefone: string | null
-          tipo: string | null
-          usuario_id: string | null
-        }
-        Relationships: []
-      }
-      v_aniversariantes_fornecedores: {
-        Row: {
-          cargo: string | null
-          data_aniversario: string | null
-          dia_aniversario: number | null
-          email: string | null
-          fornecedor_id: string | null
-          mes_aniversario: number | null
-          nome: string | null
-          observacoes: string | null
-          proximo_aniversario: string | null
-          telefone: string | null
-          tipo: string | null
-          usuario_id: string | null
-        }
-        Relationships: []
-      }
-      vw_bank_differences: {
-        Row: {
-          amount: number | null
-          date: string | null
-          description: string | null
-          id: string | null
-          import_id: string | null
-          kind: string | null
-          status: string | null
-          usuario_id: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bank_entries_import_id_fkey"
-            columns: ["import_id"]
-            isOneToOne: false
-            referencedRelation: "bank_imports"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       vw_contas_receber_dashboard: {
         Row: {
@@ -3820,67 +2902,9 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
-      deletar_cadastros_seletivo: {
-        Args: { p_selecao: Json; p_user_id: string }
-        Returns: Json
-      }
       deletar_cadastros_usuario: {
         Args: { p_user_id: string }
         Returns: undefined
-      }
-      fn_bank_entry_hash: {
-        Args: {
-          entry_amount: number
-          entry_date: string
-          entry_description: string
-        }
-        Returns: string
-      }
-      fn_confirm_match: {
-        Args: {
-          p_bank_entry_id: string
-          p_confirmed_by: string
-          p_transaction_id: string
-          p_transaction_type: string
-        }
-        Returns: undefined
-      }
-      fn_ingest_bank_csv: {
-        Args: { p_import_id: string; p_rules_id: string }
-        Returns: {
-          duplicate_count: number
-          inserted_count: number
-        }[]
-      }
-      fn_make_hash: { Args: { input_text: string }; Returns: string }
-      fn_normalize_decimal: {
-        Args: { decimal_comma: boolean; value_text: string }
-        Returns: number
-      }
-      fn_parse_date: {
-        Args: { date_text: string; format_text: string }
-        Returns: string
-      }
-      fn_reconcile_import: {
-        Args: { p_import_id: string; p_reconciled_by: string }
-        Returns: {
-          reconciled_count: number
-        }[]
-      }
-      fn_reject_match: { Args: { p_bank_entry_id: string }; Returns: undefined }
-      fn_split_match: {
-        Args: { p_bank_entry_id: string; p_transactions: Json }
-        Returns: undefined
-      }
-      fn_suggest_matches: {
-        Args: { p_from_date?: string; p_import_id: string; p_to_date?: string }
-        Returns: {
-          suggested_count: number
-        }[]
-      }
-      generate_admin_access_token: {
-        Args: { p_admin_id: string; p_reason: string; p_target_user_id: string }
-        Returns: Json
       }
       gerar_proximo_codigo_categoria: {
         Args: { p_user_id: string }
@@ -3898,149 +2922,9 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: number
       }
-      get_admin_dashboard_metrics: {
-        Args: never
-        Returns: {
-          active_users_today: number
-          active_users_week: number
-          pending_deletions: number
-          recent_errors: number
-          total_storage_used: number
-          total_users: number
-        }[]
-      }
-      get_admin_recent_activity: {
-        Args: never
-        Returns: {
-          action: string
-          admin_email: string
-          admin_id: string
-          created_at: string
-          id: string
-          module: string
-          reason: string
-          target_user_email: string
-          target_user_id: string
-        }[]
-      }
-      get_aniversariantes_fornecedores_mes: {
-        Args: { mes_param?: number }
-        Returns: {
-          cargo: string
-          data_aniversario: string
-          dias_ate_aniversario: number
-          email: string
-          fornecedor_id: string
-          nome: string
-          observacoes: string
-          proximo_aniversario: string
-          telefone: string
-          tipo: string
-        }[]
-      }
-      get_aniversariantes_mes: {
-        Args: { mes_param: number }
-        Returns: {
-          cliente_id: string
-          data_nascimento: string
-          dias_ate_aniversario: number
-          nome: string
-          parentesco: string
-          telefone: string
-          tipo: string
-        }[]
-      }
-      get_cmv_anual: {
-        Args: { p_ano: number; p_usuario_id: string }
-        Returns: {
-          cmv: number
-          compras: number
-          editavel: boolean
-          estoque_final: number
-          estoque_inicial: number
-          faturamento: number
-          mes: number
-          mes_nome: string
-          percentual_cmv: number
-          tem_historico: boolean
-        }[]
-      }
-      get_compras_mes: {
-        Args: { p_ano: number; p_mes: number; p_usuario_id: string }
-        Returns: number
-      }
-      get_custos_fixos_mes: {
-        Args: { p_ano: number; p_mes: number; p_usuario_id: string }
-        Returns: number
-      }
-      get_estoque_final_mes: {
-        Args: { p_ano: number; p_mes: number; p_usuario_id: string }
-        Returns: number
-      }
-      get_faturamento_mes: {
-        Args: { p_ano: number; p_mes: number; p_usuario_id: string }
-        Returns: number
-      }
-      get_insights_cruzados: {
-        Args: { dias: number; user_id_param: string }
-        Returns: {
-          evento: string
-          origem: string
-          percentual: number
-          ticket_medio: number
-          total_vendas: number
-          valor_total: number
-        }[]
-      }
-      get_ponto_equilibrio_mes: {
-        Args: { p_ano: number; p_mes: number; p_usuario_id: string }
-        Returns: {
-          ano: number
-          cmv: number
-          cmv_percentual: number
-          custos_fixos: number
-          editavel: boolean
-          faturamento: number
-          margem_contribuicao_percentual: number
-          mes: number
-          mes_nome: string
-          percentual_acima_pe: number
-          ponto_equilibrio_reais: number
-          ponto_equilibrio_unidades: number
-          quantidade_vendas_real: number
-          resultado_mes: number
-          status: string
-          ticket_medio: number
-          tipo_dado: string
-        }[]
-      }
-      get_quantidade_vendas_mes: {
-        Args: { p_ano: number; p_mes: number; p_usuario_id: string }
-        Returns: number
-      }
       get_status_estoque: {
         Args: { p_ponto_pedido: number; p_saldo: number }
         Returns: string
-      }
-      get_ticket_medio_mes: {
-        Args: { p_ano: number; p_mes: number; p_usuario_id: string }
-        Returns: number
-      }
-      get_todos_aniversariantes: {
-        Args: { p_tenant_id: string }
-        Returns: {
-          cliente_nome: string
-          data_aniversario: string
-          dias_ate_aniversario: number
-          id: string
-          nome: string
-          telefone: string
-          tipo: string
-        }[]
-      }
-      hard_delete_user_data: {
-        Args: { p_admin_id: string; p_user_id: string }
-        Returns: Json
       }
       has_role: {
         Args: {
@@ -4049,38 +2933,6 @@ export type Database = {
         }
         Returns: boolean
       }
-      incrementar_uso_tipo_documento: {
-        Args: { p_tipo_documento_id: string }
-        Returns: undefined
-      }
-      is_admin: { Args: { check_user_id: string }; Returns: boolean }
-      log_admin_action: {
-        Args: {
-          p_action: string
-          p_admin_id: string
-          p_details?: Json
-          p_module?: string
-          p_target_user_id?: string
-        }
-        Returns: undefined
-      }
-      revoke_admin_token: { Args: { p_token: string }; Returns: undefined }
-      soft_delete_user: {
-        Args: { p_admin_id: string; p_user_id: string }
-        Returns: undefined
-      }
-      validar_estoque_receita: {
-        Args: {
-          p_quantidade: number
-          p_receita_id: string
-          p_usuario_id: string
-        }
-        Returns: {
-          itens_faltantes: Json
-          tem_estoque: boolean
-        }[]
-      }
-      validate_admin_token: { Args: { p_token: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "user"

@@ -48,6 +48,9 @@ export function BadgeStatus({ status, saldo }: BadgeStatusProps) {
     <Badge variant={config.variant} className={config.className}>
       <Icon className="mr-1 h-3 w-3" />
       {config.label}
+      {saldo !== undefined && status !== 'sem_rastreio' && (
+        <span className="ml-1 font-mono">({saldo})</span>
+      )}
     </Badge>
   );
 }

@@ -12,8 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useCategorias } from '@/hooks/useCategorias';
-import { CategoriaReceitaAutocomplete } from '@/components/CategoriaReceitaAutocomplete';
 import {
   Table,
   TableBody,
@@ -44,8 +42,7 @@ import {
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Trash2, Upload, X, Info } from 'lucide-react';
-import { BackButton } from '@/components/BackButton';
+import { Plus, Trash2, Upload, X, Info, ArrowLeft } from 'lucide-react';
 
 export default function PrePreparoForm() {
   const navigate = useNavigate();
@@ -55,14 +52,11 @@ export default function PrePreparoForm() {
 
   // Campos básicos
   const [nome, setNome] = useState('');
-  const [categoriaId, setCategoriaId] = useState('');
   const [tempoPreparo, setTempoPreparo] = useState('');
   const [tempoUnidade, setTempoUnidade] = useState('minutos');
   const [rendimentoQtd, setRendimentoQtd] = useState('');
   const [rendimentoUnidadeId, setRendimentoUnidadeId] = useState('');
   const [modoPreparo, setModoPreparo] = useState('');
-
-  const { categorias } = useCategorias();
 
   // Ingredientes
   const [ingredientesSelecionados, setIngredientesSelecionados] = useState<any[]>([]);
@@ -223,7 +217,6 @@ export default function PrePreparoForm() {
       if (error) throw error;
 
       setNome(data.nome);
-      setCategoriaId(data.categoria_id || '');
       setTempoPreparo(data.tempo_preparo.toString());
       setTempoUnidade(data.tempo_preparo_unidade);
       setRendimentoQtd(data.rendimento_quantidade.toString());
@@ -564,7 +557,6 @@ export default function PrePreparoForm() {
       const dadosPrePreparo = {
         usuario_id: user.id,
         nome: nome.trim(),
-        categoria_id: categoriaId || null,
         tempo_preparo: tempo,
         tempo_preparo_unidade: tempoUnidade,
         rendimento_quantidade: rendimento,
@@ -673,7 +665,9 @@ export default function PrePreparoForm() {
     <div className="container mx-auto p-6 space-y-6 max-w-5xl">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <BackButton to="/precificacao/pre-preparos" />
+        <Button variant="ghost" size="icon" onClick={() => navigate('/precificacao/pre-preparos')}>
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
         <div>
           <h1 className="text-3xl font-bold">
             {isEditMode ? 'Editar Pré-Preparo' : 'Novo Pré-Preparo'}
@@ -699,16 +693,6 @@ export default function PrePreparoForm() {
                 placeholder="Ex: Massa de Bolo Base"
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="categoria">Categoria de Receita</Label>
-              <CategoriaReceitaAutocomplete
-                value={categoriaId}
-                categorias={categorias}
-                onSelect={setCategoriaId}
-                placeholder="Selecione uma categoria..."
               />
             </div>
 

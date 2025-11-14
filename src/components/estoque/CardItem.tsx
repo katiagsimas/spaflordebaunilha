@@ -1,16 +1,9 @@
 import { useState } from "react";
-import { Package, DollarSign, MoreVertical, TrendingUp, Pencil, Trash2 } from "lucide-react";
+import { Package, DollarSign, MoreVertical, TrendingUp, Settings } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { BadgeStatus } from "./BadgeStatus";
-import { DialogExcluirItem } from "./DialogExcluirItem";
 import type { ItemComEstoque } from "@/types/estoque";
 
 interface CardItemProps {
@@ -18,11 +11,9 @@ interface CardItemProps {
   onEntrada: (item: ItemComEstoque) => void;
   onEditar: (item: ItemComEstoque) => void;
   onAtivarRastreio: (item: ItemComEstoque) => void;
-  onExcluir?: () => void;
 }
 
-export function CardItem({ item, onEntrada, onEditar, onAtivarRastreio, onExcluir }: CardItemProps) {
-  const [dialogExcluirAberto, setDialogExcluirAberto] = useState(false);
+export function CardItem({ item, onEntrada, onEditar, onAtivarRastreio }: CardItemProps) {
   const formatarValor = (valor?: number) => {
     if (!valor) return 'R$ -';
     return new Intl.NumberFormat('pt-BR', {
@@ -99,46 +90,25 @@ export function CardItem({ item, onEntrada, onEditar, onAtivarRastreio, onExclui
       </CardContent>
 
       <CardFooter className="flex gap-2 pt-3 border-t">
-        {!item.rastrear_estoque ? (
+        {item.rastrear_estoque ? (
           <>
             <Button
               variant="outline"
               size="sm"
               className="flex-1"
-              onClick={(e) => {
-                e.stopPropagation();
-                onAtivarRastreio(item);
-              }}
+              onClick={() => onEntrada(item)}
             >
-              🎯 Ativar Rastreio
+              ➕ Entrada
             </Button>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" onClick={(e) => e.stopPropagation()}>
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={(e) => {
-                  e.stopPropagation();
-                  onEditar(item);
-                }}>
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Alterar
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className="text-destructive focus:text-destructive"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setDialogExcluirAberto(true);
-                  }}
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Excluir
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1"
+              onClick={() => onEditar(item)}
+            >
+              <Settings className="mr-1 h-3 w-3" />
+              Editar
+            </Button>
           </>
         ) : (
           <>
@@ -146,53 +116,20 @@ export function CardItem({ item, onEntrada, onEditar, onAtivarRastreio, onExclui
               variant="outline"
               size="sm"
               className="flex-1"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEntrada(item);
-              }}
+              onClick={() => onAtivarRastreio(item)}
             >
-              ➕ Entrada
+              🎯 Ativar Rastreio
             </Button>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" onClick={(e) => e.stopPropagation()}>
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={(e) => {
-                  e.stopPropagation();
-                  onEditar(item);
-                }}>
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Alterar
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className="text-destructive focus:text-destructive"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setDialogExcluirAberto(true);
-                  }}
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Excluir
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onEditar(item)}
+            >
+              <MoreVertical className="h-4 w-4" />
+            </Button>
           </>
         )}
       </CardFooter>
-      
-      <DialogExcluirItem
-        item={item}
-        aberto={dialogExcluirAberto}
-        onFechar={() => setDialogExcluirAberto(false)}
-        onExcluir={() => {
-          setDialogExcluirAberto(false);
-          if (onExcluir) onExcluir();
-        }}
-      />
     </Card>
   );
 }

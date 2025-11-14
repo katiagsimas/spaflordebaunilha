@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { BackButton } from '@/components/BackButton';
+import { ArrowLeft } from 'lucide-react';
 import ContasReceberFormModal from '@/components/financeiro/ContasReceberFormModal';
 
 export default function ContasReceberForm() {
@@ -38,20 +39,7 @@ export default function ContasReceberForm() {
 
       if (error) throw error;
 
-      // Buscar também a primeira parcela para pegar a data de vencimento
-      const { data: parcelas } = await supabase
-        .from('contas_receber_parcelas')
-        .select('data_vencimento')
-        .eq('conta_receber_id', id)
-        .order('numero_parcela')
-        .limit(1);
-
-      const primeiroVencimento = parcelas?.[0]?.data_vencimento || data.data_vencimento;
-
-      setDadosConta({
-        ...data,
-        primeiro_vencimento: primeiroVencimento,
-      });
+      setDadosConta(data);
     } catch (error) {
       console.error('Erro ao buscar conta:', error);
       toast({
@@ -81,10 +69,16 @@ export default function ContasReceberForm() {
   if (isEditMode && loading) {
     return (
       <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
-      <div className="flex items-center gap-4">
-        <BackButton to="/financeiro/contas-receber" />
-        <h1 className="text-2xl font-bold">Carregando...</h1>
-      </div>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/financeiro/contas-receber')}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-2xl font-bold">Carregando...</h1>
+        </div>
       </div>
     );
   }
@@ -97,7 +91,13 @@ export default function ContasReceberForm() {
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
       <div className="flex items-center gap-4">
-        <BackButton to="/financeiro/contas-receber" />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate('/financeiro/contas-receber')}
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
         <h1 className="text-2xl font-bold">
           {isEditMode ? 'Editar Conta a Receber' : 'Nova Conta a Receber'}
         </h1>
@@ -111,18 +111,12 @@ export default function ContasReceberForm() {
         </CardHeader>
         <CardContent>
           <ContasReceberFormModal
-            contaReceberId={isEditMode ? id : undefined}
             dataEmissaoInicial={dadosConta?.data_emissao || new Date().toISOString().split('T')[0]}
             clienteIdInicial={dadosConta?.cliente_id || ''}
             clienteNomeInicial={dadosConta?.cliente?.nome || ''}
             descricaoInicial={dadosConta?.descricao || ''}
             valorTotalInicial={dadosConta?.valor || 0}
             planoContasIdInicial={dadosConta?.plano_conta_id || ''}
-            tipoDocumentoIdInicial={dadosConta?.tipo_documento_id || ''}
-            bancoIdInicial={dadosConta?.banco_id || ''}
-            numeroParcelasInicial={dadosConta?.numero_parcelas || 1}
-            primeiroVencimentoInicial={dadosConta?.primeiro_vencimento || ''}
-            tipoLancamentoInicial={dadosConta?.tipo_lancamento || 'unico'}
             onSucesso={handleSucesso}
             onCancelar={handleCancelar}
           />

@@ -779,7 +779,7 @@ export default function ContasPagarDetalhes() {
             <div>
               <p className="text-sm text-muted-foreground">Plano de Contas</p>
               <p className="text-sm font-medium mt-1">
-                {conta.plano_contas?.descricao}
+                {conta.plano_contas?.codigo_estruturado} - {conta.plano_contas?.descricao}
               </p>
             </div>
           </CardContent>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,17 +10,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { EmptyState } from "@/components/EmptyState";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useUnidadesMedida, UnidadeMedida } from "@/hooks/useUnidadesMedida";
-import { Plus, Pencil, Ban, CheckCircle, Ruler, Trash2 } from "lucide-react";
+import { Plus, Pencil, Ban, CheckCircle, Ruler } from "lucide-react";
 import { toast } from "sonner";
 
 
 export default function UnidadesMedida() {
-  const { unidades, loading, createUnidade, updateUnidade, toggleAtivo, deleteUnidade, refetch } = useUnidadesMedida();
+  const { unidades, loading, createUnidade, updateUnidade, toggleAtivo, refetch } = useUnidadesMedida();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUnidade, setEditingUnidade] = useState<UnidadeMedida | null>(null);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [filtroStatus, setFiltroStatus] = useState<'todos' | 'ativos' | 'inativos'>('ativos');
 
   const [formData, setFormData] = useState({
@@ -74,8 +72,26 @@ export default function UnidadesMedida() {
   };
 
   const handleToggleAtivo = async (unidade: UnidadeMedida) => {
+    // Impedir desabilitar unidades padrão
+    if (unidade.e_padrao && unidade.ativo !== false) {
+      toast.error('Não é possível desabilitar unidades padrão do sistema');
+      return;
+    }
+
     const novoStatus = !unidade.ativo;
     
+    if (!novoStatus) {
+      // Desabilitando - confirmar
+      if (!confirm(`Desabilitar "${unidade.nome}"?\n\nEsta unidade não poderá mais ser selecionada em novos cadastros.`)) {
+        return;
+      }
+    } else {
+      // Reativando
+      if (!confirm(`Reativar "${unidade.nome}"?`)) {
+        return;
+      }
+    }
+
     try {
       await toggleAtivo(unidade.id, novoStatus);
     } catch (error: any) {
@@ -87,33 +103,11 @@ export default function UnidadesMedida() {
     setEditingUnidade(unidade);
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteUnidade(id);
-      setDeleteId(null);
-    } catch (error: any) {
-      toast.error(error.message || 'Erro ao excluir unidade');
-    }
-  };
-
-  // Remover duplicatas usando Map com id como chave
-  const unidadesUnicas = useMemo(() => {
-    const map = new Map<string, UnidadeMedida>();
-    unidades.forEach(unidade => {
-      if (!map.has(unidade.id)) {
-        map.set(unidade.id, unidade);
-      }
-    });
-    return Array.from(map.values());
-  }, [unidades]);
-
-  const dadosFiltrados = useMemo(() => {
-    return unidadesUnicas.filter(item => {
-      if (filtroStatus === 'ativos') return item.ativo !== false;
-      if (filtroStatus === 'inativos') return item.ativo === false;
-      return true;
-    });
-  }, [unidadesUnicas, filtroStatus]);
+  const dadosFiltrados = unidades.filter(item => {
+    if (filtroStatus === 'ativos') return item.ativo !== false;
+    if (filtroStatus === 'inativos') return item.ativo === false;
+    return true;
+  });
 
   return (
     <div className="space-y-6">
@@ -238,57 +232,34 @@ export default function UnidadesMedida() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex gap-2 justify-end">
-                          {/* Unidades padrão: apenas editar sigla e desabilitar/reativar */}
-                          {unidade.e_padrao ? (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleEdit(unidade)}
-                                title="Editar sigla"
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                              {unidade.ativo !== false ? (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => handleToggleAtivo(unidade)}
-                                  title="Desabilitar"
-                                >
-                                  <Ban className="h-4 w-4 text-orange-500" />
-                                </Button>
-                              ) : (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => handleToggleAtivo(unidade)}
-                                  title="Reativar"
-                                >
-                                  <CheckCircle className="h-4 w-4 text-green-500" />
-                                </Button>
-                              )}
-                            </>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(unidade)}
+                            title="Editar"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          {unidade.ativo !== false ? (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleToggleAtivo(unidade)}
+                              title={unidade.e_padrao ? "Unidades padrão não podem ser desabilitadas" : "Desabilitar"}
+                              disabled={unidade.e_padrao}
+                              className={unidade.e_padrao ? 'opacity-50 cursor-not-allowed' : ''}
+                            >
+                              <Ban className="h-4 w-4 text-orange-500" />
+                            </Button>
                           ) : (
-                            /* Unidades customizadas: editar e excluir */
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleEdit(unidade)}
-                                title="Editar"
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => setDeleteId(unidade.id)}
-                                title="Excluir"
-                              >
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
-                            </>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleToggleAtivo(unidade)}
+                              title="Reativar"
+                            >
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            </Button>
                           )}
                         </div>
                       </TableCell>
@@ -300,14 +271,6 @@ export default function UnidadesMedida() {
           )}
         </CardContent>
       </Card>
-
-      <ConfirmDialog
-        open={!!deleteId}
-        onOpenChange={(open) => !open && setDeleteId(null)}
-        onConfirm={() => deleteId && handleDelete(deleteId)}
-        title="Excluir Unidade de Medida"
-        description="Tem certeza que deseja excluir esta unidade? Esta ação não pode ser desfeita."
-      />
     </div>
   );
 }

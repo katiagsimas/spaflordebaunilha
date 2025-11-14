@@ -28,8 +28,7 @@ export function useTiposDocumento() {
         .from('tipos_documento')
         .select('*')
         .eq('usuario_id', user.id)
-        .order('contador_uso', { ascending: false })
-        .order('descricao', { ascending: true });
+        .order('codigo');
 
       if (error) throw error;
       setTiposDocumento(data || []);

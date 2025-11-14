@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { incrementarUsoTipoDocumento } from '@/utils/tipoDocumentoUtils';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { BackButton } from '@/components/BackButton';
 import {
   Select,
   SelectContent,
@@ -31,7 +29,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { FornecedorAutocomplete } from '@/components/FornecedorAutocomplete';
-import { Info, Check, ChevronsUpDown } from 'lucide-react';
+import { ArrowLeft, Info, Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function ContasPagarForm() {
@@ -369,9 +367,6 @@ export default function ContasPagarForm() {
 
         if (errorParcelas) throw errorParcelas;
 
-        // Incrementar contador de uso do tipo de documento
-        await incrementarUsoTipoDocumento(tipoDocumentoId);
-
         toast({
           title: '✅ Conta atualizada',
           description: 'A conta foi atualizada com sucesso!',
@@ -400,9 +395,6 @@ export default function ContasPagarForm() {
           .insert(parcelasParaInserir);
 
         if (errorParcelas) throw errorParcelas;
-
-        // Incrementar contador de uso do tipo de documento
-        await incrementarUsoTipoDocumento(tipoDocumentoId);
 
         toast({
           title: '✅ Conta criada',
@@ -475,7 +467,9 @@ export default function ContasPagarForm() {
     <div className="container mx-auto p-6 space-y-6 max-w-4xl">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <BackButton to="/financeiro/contas-pagar" />
+        <Button variant="ghost" size="icon" onClick={() => navigate('/financeiro/contas-pagar')}>
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
         <div>
           <h1 className="text-3xl font-bold">
             {isEdicao ? 'Editar Conta a Pagar' : 'Nova Conta a Pagar'}
@@ -562,7 +556,7 @@ export default function ContasPagarForm() {
                     {planoContasId
                       ? (() => {
                           const plano = planosContas.find((p: any) => p.id === planoContasId);
-                          return plano ? plano.descricao : 'Selecione...';
+                          return plano ? `${plano.codigo_estruturado} - ${plano.descricao}` : 'Selecione...';
                         })()
                       : 'Selecione...'}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -601,7 +595,7 @@ export default function ContasPagarForm() {
                                 planoContasId === plano.id ? 'opacity-100' : 'opacity-0'
                               )}
                             />
-                            {plano.descricao}
+                            {plano.codigo_estruturado} - {plano.descricao}
                           </CommandItem>
                         ))}
                     </CommandGroup>

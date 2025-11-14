@@ -126,57 +126,58 @@ export default function DashboardFinanceiro() {
 
   async function carregarInadimplenciaClientes() {
     if (!user) return;
-    const hoje = new Date().toISOString().split('T')[0];
+    const hoje = new Date();
 
-    // Buscar parcelas em aberto (incluindo pagamento parcial) que estão atrasadas
     const { data } = await supabase
-      .from("vw_contas_receber_parcelas")
+      .from("contas_receber")
       .select(`
         id,
-        valor_parcela,
-        valor_pago,
+        valor,
         data_vencimento,
         cliente_id,
-        status
+        cliente_nome
       `)
-      .eq("user_id", user.id)
-      .in("status", ["aberto", "atrasado", "pagamento_parcial"])
-      .lt("data_vencimento", hoje)
+      .eq("usuario_id", user.id)
+      .eq("status", "pendente")
+      .lt("data_vencimento", hoje.toISOString().split('T')[0])
       .order("data_vencimento", { ascending: true });
 
     if (!data) return;
 
-    const parcelas: InadimplenciaItem[] = [];
+    const inadimplentesMap = new Map<string, InadimplenciaItem>();
 
-    for (const parcela of data) {
-      const vencimento = new Date(parcela.data_vencimento!);
-      const diasAtraso = Math.floor((new Date(hoje).getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
-      const valorRestante = parcela.valor_parcela - (parcela.valor_pago || 0);
+    for (const conta of data) {
+      const vencimento = new Date(conta.data_vencimento!);
+      const diasAtraso = Math.floor((hoje.getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24));
 
-      const clienteId = parcela.cliente_id;
-      
-      if (!clienteId || valorRestante <= 0) continue;
+      const clienteId = conta.cliente_id || conta.id;
+      const clienteNome = conta.cliente_nome || "Cliente desconhecido";
 
-      // Buscar nome e telefone do cliente
-      const { data: cliente } = await supabase
-        .from("clientes")
-        .select("nome, telefone")
-        .eq("id", clienteId)
-        .maybeSingle();
+      if (inadimplentesMap.has(clienteId)) {
+        const existing = inadimplentesMap.get(clienteId)!;
+        existing.valor += conta.valor || 0;
+        existing.dias_atraso = Math.max(existing.dias_atraso, diasAtraso);
+      } else {
+        const { data: cliente } = await supabase
+          .from("clientes")
+          .select("telefone")
+          .eq("id", clienteId)
+          .single();
 
-      parcelas.push({
-        id: parcela.id,
-        nome: cliente?.nome || "Cliente desconhecido",
-        valor: valorRestante,
-        dias_atraso: diasAtraso,
-        telefone: cliente?.telefone
-      });
+        inadimplentesMap.set(clienteId, {
+          id: clienteId,
+          nome: clienteNome,
+          valor: conta.valor || 0,
+          dias_atraso: diasAtraso,
+          telefone: cliente?.telefone
+        });
+      }
     }
 
-    // Ordenar por dias de atraso (maior primeiro)
-    parcelas.sort((a, b) => b.dias_atraso - a.dias_atraso);
+    const agrupado = Array.from(inadimplentesMap.values());
+    agrupado.sort((a, b) => b.valor - a.valor);
 
-    setInadimplenciaClientes(parcelas);
+    setInadimplenciaClientes(agrupado);
   }
 
   async function carregarInadimplenciaFornecedores() {

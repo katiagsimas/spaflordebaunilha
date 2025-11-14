@@ -1,17 +1,21 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
-import { FornecedorFormDialog } from "@/components/FornecedorFormDialog";
 import { useFornecedores } from "@/hooks/useFornecedores";
-import { Plus, Pencil, Trash2, Truck, Cake, Search, Download, MoreVertical } from "lucide-react";
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { Plus, Pencil, Trash2, Truck, ChevronDown, Cake, Search, Download } from "lucide-react";
+import { formatPhone, formatCpfCnpj } from "@/lib/utils";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Badge } from "@/components/ui/badge";
 import * as XLSX from 'xlsx';
 
@@ -21,35 +25,80 @@ interface FormDataFornecedor {
   cpf_cnpj: string;
   telefone: string;
   email: string;
+  contato: string;
+  data_aniversario_contato: string;
   observacoes: string;
 }
 
 export default function Fornecedores() {
+  const navigate = useNavigate();
   const { fornecedores, loading, createFornecedor, updateFornecedor, deleteFornecedor } = useFornecedores();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [observacoesOpen, setObservacoesOpen] = useState(false);
   const [busca, setBusca] = useState("");
   const [porPagina, setPorPagina] = useState(10);
 
-  const handleSubmit = async (data: FormDataFornecedor) => {
+  const [formData, setFormData] = useState<FormDataFornecedor>({
+    nome: "",
+    tipo: "PF",
+    cpf_cnpj: "",
+    telefone: "",
+    email: "",
+    contato: "",
+    data_aniversario_contato: "",
+    observacoes: "",
+  });
+
+  useEffect(() => {
+    if (editingId) {
+      const fornecedor = fornecedores.find(f => f.id === editingId);
+      if (fornecedor) {
+        setFormData({
+          nome: fornecedor.nome,
+          tipo: (fornecedor.tipo as "PF" | "PJ") || "PF",
+          cpf_cnpj: fornecedor.cpf_cnpj || "",
+          telefone: fornecedor.telefone || "",
+          email: fornecedor.email || "",
+          contato: fornecedor.contato || "",
+          data_aniversario_contato: fornecedor.data_aniversario_contato || "",
+          observacoes: fornecedor.observacoes || "",
+        });
+        setIsDialogOpen(true);
+      }
+    }
+  }, [editingId, fornecedores]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     try {
       if (editingId) {
-        await updateFornecedor(editingId, data);
-        setIsDialogOpen(false);
-        setEditingId(null);
+        await updateFornecedor(editingId, formData);
       } else {
-        const newFornecedor = await createFornecedor(data);
-        // Após criar, abre o dialog novamente em modo de edição para poder adicionar contatos
-        if (newFornecedor?.id) {
-          setEditingId(newFornecedor.id);
-          return;
-        }
-        setIsDialogOpen(false);
+        await createFornecedor(formData);
       }
+      resetForm();
     } catch (error: any) {
       console.error('Erro ao salvar fornecedor:', error);
     }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      nome: "",
+      tipo: "PF",
+      cpf_cnpj: "",
+      telefone: "",
+      email: "",
+      contato: "",
+      data_aniversario_contato: "",
+      observacoes: "",
+    });
+    setEditingId(null);
+    setIsDialogOpen(false);
+    setObservacoesOpen(false);
   };
 
   const handleDelete = async (id: string) => {
@@ -63,25 +112,21 @@ export default function Fornecedores() {
 
   const handleEdit = (id: string) => {
     setEditingId(id);
-    setIsDialogOpen(true);
   };
 
-  const handleNovo = () => {
-    setEditingId(null);
-    setIsDialogOpen(true);
-  };
-
-  // Buscar aniversariantes do mês (agora dos contatos)
-  const { data: aniversariantesDoMes = [] } = useQuery({
-    queryKey: ['aniversariantes-fornecedores-mes'],
-    queryFn: async () => {
-      const mesAtual = new Date().getMonth() + 1;
-      const { data, error } = await supabase
-        .rpc('get_aniversariantes_fornecedores_mes', { mes_param: mesAtual });
-      if (error) throw error;
-      return data || [];
-    }
-  });
+  // Filtrar aniversariantes do mês
+  const aniversariantesDoMes = useMemo(() => {
+    const mesAtual = new Date().getMonth();
+    return fornecedores.filter(fornecedor => {
+      if (!fornecedor.data_aniversario_contato || !fornecedor.contato) return false;
+      const dataAniversario = new Date(fornecedor.data_aniversario_contato + 'T00:00:00');
+      return dataAniversario.getMonth() === mesAtual;
+    }).sort((a, b) => {
+      const dataA = new Date(a.data_aniversario_contato! + 'T00:00:00').getDate();
+      const dataB = new Date(b.data_aniversario_contato! + 'T00:00:00').getDate();
+      return dataA - dataB;
+    });
+  }, [fornecedores]);
 
   // Filtrar fornecedores por busca
   const fornecedoresFiltrados = useMemo(() => {
@@ -106,6 +151,10 @@ export default function Fornecedores() {
       'CPF/CNPJ': fornecedor.cpf_cnpj || '-',
       'Telefone': fornecedor.telefone || '-',
       'E-mail': fornecedor.email || '-',
+      'Contato': fornecedor.contato || '-',
+      'Aniversário': fornecedor.data_aniversario_contato 
+        ? new Date(fornecedor.data_aniversario_contato + 'T00:00:00').toLocaleDateString('pt-BR')
+        : '-',
     }));
 
     const ws = XLSX.utils.json_to_sheet(dadosExport);
@@ -113,17 +162,6 @@ export default function Fornecedores() {
     XLSX.utils.book_append_sheet(wb, ws, 'Fornecedores');
     XLSX.writeFile(wb, `fornecedores_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
-
-  // Buscar dados do fornecedor sendo editado
-  const fornecedorData = fornecedores.find(f => f.id === editingId);
-  const initialData = fornecedorData ? {
-    nome: fornecedorData.nome,
-    tipo: (fornecedorData.tipo as "PF" | "PJ") || "PF",
-    cpf_cnpj: fornecedorData.cpf_cnpj || "",
-    telefone: fornecedorData.telefone || "",
-    email: fornecedorData.email || "",
-    observacoes: fornecedorData.observacoes || "",
-  } : undefined;
 
   return (
     <div className="space-y-6">
@@ -141,11 +179,10 @@ export default function Fornecedores() {
             🎉 Aniversariantes do Mês
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {aniversariantesDoMes.map((aniversariante: any) => (
+            {aniversariantesDoMes.map((fornecedor) => (
               <Card 
-                key={aniversariante.fornecedor_id + '-' + aniversariante.nome}
-                className="bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 dark:from-purple-500/20 dark:via-pink-500/20 dark:to-orange-500/20 border-2 border-purple-300/50 dark:border-purple-500/50 hover:shadow-lg transition-all duration-300 cursor-pointer"
-                onClick={() => handleEdit(aniversariante.fornecedor_id)}
+                key={fornecedor.id}
+                className="bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 dark:from-purple-500/20 dark:via-pink-500/20 dark:to-orange-500/20 border-2 border-purple-300/50 dark:border-purple-500/50 hover:shadow-lg transition-all duration-300"
               >
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
@@ -156,13 +193,13 @@ export default function Fornecedores() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-sm truncate">
-                        {aniversariante.nome}
+                        {fornecedor.contato}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {new Date(aniversariante.data_aniversario + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })}
+                        {new Date(fornecedor.data_aniversario_contato! + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })}
                       </p>
                       <p className="text-xs text-muted-foreground truncate">
-                        {aniversariante.tipo} {aniversariante.cargo && `• ${aniversariante.cargo}`}
+                        {fornecedor.nome}
                       </p>
                     </div>
                   </div>
@@ -177,10 +214,124 @@ export default function Fornecedores() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Lista de Fornecedores</CardTitle>
-            <Button onClick={handleNovo}>
-              <Plus className="h-4 w-4 mr-2" />
-              Novo Fornecedor
-            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => setEditingId(null)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Novo Fornecedor
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>{editingId ? "Editar Fornecedor" : "Novo Fornecedor"}</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="nome">Nome *</Label>
+                    <Input
+                      id="nome"
+                      value={formData.nome}
+                      onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tipo">PF ou PJ</Label>
+                    <Select
+                      value={formData.tipo}
+                      onValueChange={(value: "PF" | "PJ") => setFormData({ ...formData, tipo: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PF">Pessoa Física</SelectItem>
+                        <SelectItem value="PJ">Pessoa Jurídica</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cpf_cnpj">CNPJ/CPF</Label>
+                    <Input
+                      id="cpf_cnpj"
+                      value={formData.cpf_cnpj}
+                      onChange={(e) => setFormData({ ...formData, cpf_cnpj: e.target.value })}
+                      onBlur={(e) => setFormData({ ...formData, cpf_cnpj: formatCpfCnpj(e.target.value) })}
+                      placeholder="00.000.000/0000-00"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="telefone">Telefone/WhatsApp</Label>
+                    <Input
+                      id="telefone"
+                      value={formData.telefone}
+                      onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
+                      onBlur={(e) => setFormData({ ...formData, telefone: formatPhone(e.target.value) })}
+                      placeholder="(00) 00000-0000"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">E-mail</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="email@exemplo.com"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="contato">Contato</Label>
+                    <Input
+                      id="contato"
+                      value={formData.contato}
+                      onChange={(e) => setFormData({ ...formData, contato: e.target.value })}
+                      placeholder="Nome do contato"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="data_aniversario_contato">Aniversário do Contato</Label>
+                    <Input
+                      id="data_aniversario_contato"
+                      type="date"
+                      value={formData.data_aniversario_contato}
+                      onChange={(e) => setFormData({ ...formData, data_aniversario_contato: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <Collapsible open={observacoesOpen} onOpenChange={setObservacoesOpen}>
+                  <CollapsibleTrigger asChild>
+                    <Button type="button" variant="outline" className="w-full">
+                      <ChevronDown className="h-4 w-4 mr-2" />
+                      Observações
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-2">
+                    <Textarea
+                      id="observacoes"
+                      value={formData.observacoes}
+                      onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+                      placeholder="Digite aqui observações sobre o fornecedor..."
+                      rows={4}
+                    />
+                  </CollapsibleContent>
+                </Collapsible>
+                <div className="flex gap-2 justify-end">
+                  <Button type="button" variant="outline" onClick={resetForm}>
+                    Cancelar
+                  </Button>
+                  <Button type="submit" disabled={loading}>
+                    {editingId ? "Atualizar" : "Cadastrar"}
+                  </Button>
+                </div>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
         </CardHeader>
         
@@ -203,18 +354,7 @@ export default function Fornecedores() {
               <span className="text-sm text-muted-foreground whitespace-nowrap">Resultados por Página</span>
             </div>
 
-            {/* Campo de Busca - Centro */}
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por nome..."
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-                className="pl-9 bg-popover"
-              />
-            </div>
-
-            {/* Botão Exportar - Direita */}
+            {/* Botão Exportar - Centro */}
             <Button 
               variant="outline" 
               size="sm"
@@ -224,6 +364,17 @@ export default function Fornecedores() {
               <Download className="h-4 w-4" />
               Exportar para Excel
             </Button>
+
+            {/* Campo de Busca - Direita */}
+            <div className="relative flex-1 max-w-xs">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nome..."
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                className="pl-9 bg-popover"
+              />
+            </div>
           </div>
         </div>
 
@@ -251,7 +402,8 @@ export default function Fornecedores() {
                     <TableHead>Tipo</TableHead>
                     <TableHead>CNPJ/CPF</TableHead>
                     <TableHead>Telefone</TableHead>
-                    <TableHead>E-mail</TableHead>
+                    <TableHead>Contato</TableHead>
+                    <TableHead>Aniversário</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -262,28 +414,29 @@ export default function Fornecedores() {
                       <TableCell>{fornecedor.tipo || "-"}</TableCell>
                       <TableCell>{fornecedor.cpf_cnpj || "-"}</TableCell>
                       <TableCell>{fornecedor.telefone || "-"}</TableCell>
-                      <TableCell>{fornecedor.email || "-"}</TableCell>
+                      <TableCell>{fornecedor.contato || "-"}</TableCell>
+                      <TableCell>
+                        {fornecedor.data_aniversario_contato 
+                          ? new Date(fornecedor.data_aniversario_contato + 'T00:00:00').toLocaleDateString('pt-BR')
+                          : "-"}
+                      </TableCell>
                       <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleEdit(fornecedor.id)}>
-                              <Pencil className="h-4 w-4 mr-2" />
-                              Editar
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => setDeleteId(fornecedor.id)}
-                              className="text-destructive"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Excluir
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className="flex gap-2 justify-end">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(fornecedor.id)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setDeleteId(fornecedor.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -293,15 +446,6 @@ export default function Fornecedores() {
           )}
         </CardContent>
       </Card>
-
-      <FornecedorFormDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        onSubmit={handleSubmit}
-        initialData={initialData}
-        loading={loading}
-        fornecedorId={editingId}
-      />
 
       <ConfirmDialog
         open={!!deleteId}

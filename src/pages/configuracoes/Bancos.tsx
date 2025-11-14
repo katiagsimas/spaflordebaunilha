@@ -132,48 +132,6 @@ export default function Bancos() {
         e_customizado: false,
       }));
       
-      // Se não há bancos, criar automaticamente o "Caixa Empresa"
-      if (!bancosFormatados || bancosFormatados.length === 0) {
-        console.log('Nenhum banco encontrado. Criando "Caixa Empresa" automaticamente...');
-        
-        const { error: insertError } = await supabase
-          .from('bancos')
-          .insert({
-            usuario_id: user.id,
-            codigo: '000',
-            nome: 'Caixa Empresa',
-            tipo: 'Caixa',
-            saldo_inicial: 0,
-            e_banco_oficial: true,
-            e_customizado: false,
-          });
-        
-        if (insertError) {
-          console.error('Erro ao criar Caixa Empresa:', insertError);
-        } else {
-          console.log('Caixa Empresa criado com sucesso!');
-          // Recarregar bancos
-          const { data: novosData } = await supabase
-            .from('bancos')
-            .select('id, codigo, nome, tipo')
-            .eq('usuario_id', user.id)
-            .order('codigo');
-          
-          if (novosData) {
-            const novosBancosFormatados = novosData.map(b => ({
-              id: b.id,
-              codigo: b.codigo,
-              nome: b.nome,
-              tipo: b.tipo,
-              e_banco_oficial: false,
-              e_customizado: false,
-            }));
-            setBancos(novosBancosFormatados);
-            return;
-          }
-        }
-      }
-      
       setBancos(bancosFormatados);
     } catch (error) {
       console.error('Erro ao buscar bancos:', error);
@@ -380,72 +338,20 @@ export default function Bancos() {
   };
 
   const handleDeletar = async (id: string) => {
-    setLoading(true);
     try {
-      // Verificar se o banco está sendo usado
-      let countContasPagar = 0;
-      let countContasReceber = 0;
-      let countPagamentos = 0;
-
-      try {
-        const { count } = await supabase
-          .from("contas_pagar")
-          .select("id", { count: "exact", head: true })
-          .eq("banco_id", id);
-        countContasPagar = count || 0;
-      } catch (e) {
-        console.error("Erro ao verificar contas_pagar:", e);
-      }
-
-      try {
-        const { count } = await supabase
-          .from("contas_receber")
-          .select("id", { count: "exact", head: true })
-          .eq("banco_id", id);
-        countContasReceber = count || 0;
-      } catch (e) {
-        console.error("Erro ao verificar contas_receber:", e);
-      }
-
-      try {
-        const { count } = await supabase
-          .from("contas_pagar_pagamentos")
-          .select("id", { count: "exact", head: true })
-          .eq("banco_id", id);
-        countPagamentos = count || 0;
-      } catch (e) {
-        console.error("Erro ao verificar pagamentos:", e);
-      }
-
-      const totalUsos = countContasPagar + countContasReceber + countPagamentos;
-
-      if (totalUsos > 0) {
-        const mensagens = [];
-        if (countContasPagar) mensagens.push(`${countContasPagar} conta(s) a pagar`);
-        if (countContasReceber) mensagens.push(`${countContasReceber} conta(s) a receber`);
-        if (countPagamentos) mensagens.push(`${countPagamentos} pagamento(s)`);
-
-        toast({
-          title: "Não é possível excluir este banco",
-          description: `Este banco está sendo utilizado em: ${mensagens.join(", ")}.`,
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
-
-      // Se não está sendo usado, pedir confirmação
-      if (!confirm('Deletar este banco?')) {
-        setLoading(false);
-        return;
-      }
+      if (!confirm('Deletar este banco?')) return;
 
       const { error } = await supabase
         .from('bancos')
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === '23503') {
+          throw new Error('Este banco está sendo usado e não pode ser deletado.');
+        }
+        throw error;
+      }
 
       toast({
         title: '✅ Deletado',
@@ -460,8 +366,6 @@ export default function Bancos() {
         description: error.message,
         variant: 'destructive',
       });
-    } finally {
-      setLoading(false);
     }
   };
 

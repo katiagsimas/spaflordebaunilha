@@ -52,13 +52,11 @@ export default function CategoriasPlanoContas() {
   const [loading, setLoading] = useState(true);
 
   // Filtros
+  const [termoBusca, setTermoBusca] = useState('');
   const [filtroIndicador, setFiltroIndicador] = useState('todos');
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [filtroFaixaDRE, setFiltroFaixaDRE] = useState('todos');
   const [filtroTipo, setFiltroTipo] = useState('todos');
-  
-  // Paginação
-  const [itensPorPagina, setItensPorPagina] = useState(10);
 
   // Modal criar/editar
   const [modalAberto, setModalAberto] = useState(false);
@@ -123,6 +121,15 @@ export default function CategoriasPlanoContas() {
   const categoriasFiltradas = useMemo(() => {
     let resultado = [...categorias];
 
+    // Filtro de busca (código ou descrição)
+    if (termoBusca.trim()) {
+      const termo = termoBusca.toLowerCase();
+      resultado = resultado.filter(cat => 
+        cat.codigo.toLowerCase().includes(termo) ||
+        cat.descricao.toLowerCase().includes(termo)
+      );
+    }
+
     // Filtro de indicador
     if (filtroIndicador !== 'todos') {
       resultado = resultado.filter(cat => cat.indicador === filtroIndicador);
@@ -153,13 +160,7 @@ export default function CategoriasPlanoContas() {
     });
 
     return resultado;
-  }, [categorias, filtroIndicador, filtroStatus, filtroFaixaDRE, filtroTipo]);
-
-  // Aplicar paginação
-  const categoriasPaginadas = useMemo(() => {
-    if (itensPorPagina === 0) return categoriasFiltradas; // "Todos"
-    return categoriasFiltradas.slice(0, itensPorPagina);
-  }, [categoriasFiltradas, itensPorPagina]);
+  }, [categorias, termoBusca, filtroIndicador, filtroStatus, filtroFaixaDRE, filtroTipo]);
 
   // Extrair faixas DRE únicas para o filtro
   const faixasDRE = useMemo(() => {
@@ -439,11 +440,11 @@ export default function CategoriasPlanoContas() {
   };
 
   const handleLimparFiltros = () => {
+    setTermoBusca('');
     setFiltroIndicador('todos');
     setFiltroStatus('todos');
     setFiltroFaixaDRE('todos');
     setFiltroTipo('todos');
-    setItensPorPagina(10);
   };
 
   const getBadgeIndicador = (indicador: 'Credito' | 'Debito') => {
@@ -455,6 +456,7 @@ export default function CategoriasPlanoContas() {
 
   // Contar filtros ativos
   const filtrosAtivos = [
+    termoBusca.trim() !== '',
     filtroIndicador !== 'todos',
     filtroStatus !== 'todos',
     filtroFaixaDRE !== 'todos',
@@ -507,7 +509,22 @@ export default function CategoriasPlanoContas() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          {/* Busca */}
+          <div className="space-y-2">
+            <Label htmlFor="busca">Buscar</Label>
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="busca"
+                placeholder="Código ou descrição..."
+                value={termoBusca}
+                onChange={(e) => setTermoBusca(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
           {/* Filtro Tipo */}
           <div className="space-y-2">
             <Label>Tipo</Label>
@@ -572,30 +589,10 @@ export default function CategoriasPlanoContas() {
           </div>
         </div>
 
-        {/* Resultados por página e contador */}
+        {/* Contador de resultados */}
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Label className="text-sm">Resultados por página:</Label>
-              <Select 
-                value={itensPorPagina.toString()} 
-                onValueChange={(v) => setItensPorPagina(Number(v))}
-              >
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="25">25</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                  <SelectItem value="100">100</SelectItem>
-                  <SelectItem value="0">Todos</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Mostrando <strong>{categoriasPaginadas.length}</strong> de <strong>{categoriasFiltradas.length}</strong> categoria(s)
-            </div>
+          <div className="text-sm text-muted-foreground">
+            Mostrando <strong>{categoriasFiltradas.length}</strong> de <strong>{categorias.length}</strong> categoria(s)
           </div>
           <Button onClick={handleExportarExcel} variant="outline" size="sm">
             <Download className="mr-2 h-4 w-4" />
@@ -619,16 +616,16 @@ export default function CategoriasPlanoContas() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {categoriasPaginadas.length === 0 ? (
+            {categoriasFiltradas.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                  {filtrosAtivos > 0 
+                  {termoBusca || filtrosAtivos > 0 
                     ? 'Nenhuma categoria encontrada com esses filtros.' 
                     : 'Nenhuma categoria encontrada.'}
                 </TableCell>
               </TableRow>
             ) : (
-              categoriasPaginadas.map(categoria => (
+              categoriasFiltradas.map(categoria => (
                 <TableRow 
                   key={categoria.id}
                   className={!categoria.ativo ? 'opacity-50 bg-muted/50' : ''}

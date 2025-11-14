@@ -18,12 +18,6 @@ interface Cliente {
   cpf_cnpj?: string;
   data_aniversario?: string;
   observacoes?: string;
-  como_conheceu?: string;
-  preferencias_alergias?: string;
-  segmento?: string;
-  ultima_compra?: string;
-  total_compras?: number;
-  quantidade_pedidos?: number;
   created_at?: string;
   updated_at?: string;
 }

@@ -1,4 +1,4 @@
-import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake, Shield, FileText, BarChart3, Factory, Landmark, Upload, PieChart, Target } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake, Shield, FileText } from "lucide-react";
 import donnasBoxLogo from "@/assets/donnas-box-logo.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -23,15 +23,12 @@ import { Button } from "@/components/ui/button";
 
 const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, active: true },
-  { title: "Precificação", url: "/precificacao", icon: Calculator, active: true },
-  { title: "Estoque", url: "/estoque", icon: Package, active: true },
   { title: "Encomendas", url: "/encomendas", icon: ShoppingBag, active: true },
-  { title: "Produção", url: "/producao", icon: Factory, active: true },
   { title: "Clientes", url: "/clientes", icon: User, active: true },
-  { title: "Financeiro", url: "/financeiro", icon: DollarSign, active: true },
-  { title: "Inteligência", url: "/relatorios/inteligencia", icon: BarChart3, active: true },
   { title: "Fornecedores", url: "/fornecedores", icon: Truck, active: true },
-  { title: "Banco", url: "/banco/regras", icon: Landmark, active: true },
+  { title: "Estoque", url: "/estoque", icon: Package, active: true },
+  { title: "Financeiro", url: "/financeiro", icon: DollarSign, active: true },
+  { title: "Precificação", url: "/precificacao", icon: Calculator, active: true },
   { title: "Configurações", url: "/configuracoes", icon: Settings, active: true },
 ];
 
@@ -56,49 +53,46 @@ export function AppSidebar() {
     enabled: !!user,
   });
 
-  // Buscar aniversariantes do mês de fornecedores (contatos)
+  // Buscar aniversariantes do mês de fornecedores
   const { data: aniversariantesFornecedores = [] } = useQuery({
-    queryKey: ['fornecedores-aniversariantes-mes'],
+    queryKey: ['fornecedores-aniversariantes', user?.id],
     queryFn: async () => {
       if (!user) return [];
-      const mesAtual = new Date().getMonth() + 1;
-      const { data, error } = await supabase
-        .rpc('get_aniversariantes_fornecedores_mes', { mes_param: mesAtual });
-      if (error) {
-        console.error('Erro ao buscar aniversariantes fornecedores:', error);
-        return [];
-      }
-      return data || [];
+      const mesAtual = new Date().getMonth();
+      const { data } = await supabase
+        .from('fornecedores')
+        .select('*')
+        .eq('usuario_id', user.id);
+      
+      if (!data) return [];
+      
+      return data.filter(fornecedor => {
+        if (!fornecedor.data_aniversario_contato || !fornecedor.contato) return false;
+        const dataAniversario = new Date(fornecedor.data_aniversario_contato + 'T00:00:00');
+        return dataAniversario.getMonth() === mesAtual;
+      });
     },
     enabled: !!user,
   });
 
-  // Buscar aniversariantes do mês de clientes (familiares)
+  // Buscar aniversariantes do mês de clientes
   const { data: aniversariantesClientes = [] } = useQuery({
-    queryKey: ['familiares-aniversariantes-mes'],
+    queryKey: ['clientes-aniversariantes', user?.id],
     queryFn: async () => {
       if (!user) return [];
-      const mesAtual = new Date().getMonth() + 1;
-      
-      const { data, error } = await supabase
-        .from('cliente_familiares')
+      const mesAtual = new Date().getMonth();
+      const { data } = await supabase
+        .from('clientes')
         .select('*')
-        .eq('usuario_id', user.id)
-        .eq('ativo', true)
-        .not('data_nascimento', 'is', null);
+        .eq('usuario_id', user.id);
       
-      if (error) {
-        console.error('Erro ao buscar aniversariantes clientes:', error);
-        return [];
-      }
+      if (!data) return [];
       
-      // Filtrar pelo mês atual
-      const familiaresDoMes = (data || []).filter(familiar => {
-        const dataNasc = new Date(familiar.data_nascimento + 'T00:00:00');
-        return dataNasc.getMonth() + 1 === mesAtual;
+      return data.filter(cliente => {
+        if (!cliente.data_aniversario) return false;
+        const dataAniversario = new Date(cliente.data_aniversario + 'T00:00:00');
+        return dataAniversario.getMonth() === mesAtual;
       });
-      
-      return familiaresDoMes;
     },
     enabled: !!user,
   });

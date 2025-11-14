@@ -7,8 +7,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { ImpersonationProvider, useImpersonation } from "@/contexts/ImpersonationContext";
-import { ImpersonateBanner } from "@/components/admin/ImpersonateBanner";
 import { FirstAccessRedirect } from "@/components/FirstAccessRedirect";
 import { Loader2 } from "lucide-react";
 import Dashboard from "./pages/Dashboard";
@@ -20,13 +18,8 @@ import RelatorioMovimentacoes from "./pages/estoque/RelatorioMovimentacoes";
 import RelatorioConsumoMedio from "./pages/estoque/RelatorioConsumoMedio";
 import RelatorioCMVGlobal from "./pages/estoque/RelatorioCMVGlobal";
 import Precificacao from "./pages/Precificacao";
-import BankRulesPage from "./pages/banco/Regras";
-import BankImportPage from "./pages/banco/Importar";
-import ReconcilePage from "./pages/banco/Reconciliar";
-import BankReportsPage from "./pages/banco/Relatorios";
 import Planejamento from "./pages/Planejamento";
 import CMVGlobal from "./pages/CMVGlobal";
-import PontoEquilibrio from "./pages/relatorios/PontoEquilibrio";
 import Cadastros from "./pages/Cadastros";
 import ClientesFornecedores from "./pages/ClientesFornecedores";
 import SeusDados from "./pages/cadastros/SeusDados";
@@ -46,6 +39,7 @@ import Receitas from "./pages/Receitas";
 import ReceitaForm from "./pages/ReceitaForm";
 import ComingSoon from "./pages/ComingSoon";
 import Configuracoes from "./pages/Configuracoes";
+import TiposInsumos from "./pages/configuracoes/TiposInsumos";
 import CategoriasPlanoContas from "./pages/configuracoes/CategoriasPlanoContas";
 import PlanoContas from "./pages/configuracoes/PlanoContas";
 import Bancos from "./pages/configuracoes/Bancos";
@@ -75,9 +69,6 @@ import MigrationStatus from "./pages/MigrationStatus";
 import NotFound from "./pages/NotFound";
 import Usuarios from "./pages/admin/Usuarios";
 import LogsAdmin from "./pages/admin/Logs";
-import InteligenciaNegocios from "./pages/relatorios/InteligenciaNegocios";
-import CustosPorCategoria from "./pages/relatorios/CustosPorCategoria";
-import PlanejamentoVendas from "./pages/relatorios/PlanejamentoVendas";
 
 const queryClient = new QueryClient();
 
@@ -99,40 +90,34 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const Layout = ({ children }: { children: React.ReactNode }) => {
-  const { isImpersonating } = useImpersonation();
-  
-  return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full" style={{ paddingTop: isImpersonating ? '70px' : '0' }}>
-        <AppSidebar />
-        <div className="flex-1 flex flex-col">
-          <header className="sticky top-0 z-10 h-14 border-b bg-background/80 backdrop-blur-md shadow-sm supports-[backdrop-filter]:bg-background/70">
-            <div className="flex h-full items-center px-6 gap-3">
-              <SidebarTrigger className="hover:bg-accent/50 transition-colors" />
-              <div className="h-6 w-px bg-border" />
-            </div>
-          </header>
-          <main className="flex-1 p-6 md:p-8 bg-muted/20">
-            <FirstAccessRedirect />
-            {children}
-          </main>
-        </div>
+const Layout = ({ children }: { children: React.ReactNode }) => (
+  <SidebarProvider>
+    <div className="flex min-h-screen w-full">
+      <AppSidebar />
+      <div className="flex-1 flex flex-col">
+        <header className="sticky top-0 z-10 h-14 border-b bg-background/80 backdrop-blur-md shadow-sm supports-[backdrop-filter]:bg-background/70">
+          <div className="flex h-full items-center px-6 gap-3">
+            <SidebarTrigger className="hover:bg-accent/50 transition-colors" />
+            <div className="h-6 w-px bg-border" />
+          </div>
+        </header>
+        <main className="flex-1 p-6 md:p-8 bg-muted/20">
+          <FirstAccessRedirect />
+          {children}
+        </main>
       </div>
-    </SidebarProvider>
-  );
-};
+    </div>
+  </SidebarProvider>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <ImpersonationProvider>
-        <TooltipProvider>
-          <ImpersonateBanner />
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
             {/* Auth routes */}
             <Route path="/auth/login" element={<AuthLogin />} />
             <Route path="/auth/signup" element={<SignUp />} />
@@ -145,7 +130,6 @@ const App = () => (
           
           {/* Páginas Diretas */}
           <Route path="/encomendas" element={<ProtectedRoute><Layout><Encomendas /></Layout></ProtectedRoute>} />
-          <Route path="/producao" element={<ProtectedRoute><Layout><Producao /></Layout></ProtectedRoute>} />
           <Route path="/clientes" element={<ProtectedRoute><Layout><Clientes /></Layout></ProtectedRoute>} />
           <Route path="/fornecedores" element={<ProtectedRoute><Layout><Fornecedores /></Layout></ProtectedRoute>} />
           
@@ -173,6 +157,7 @@ const App = () => (
           <Route path="/configuracoes/financeiro" element={<ProtectedRoute><Layout><FinanceiroPage /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/precificacao/mao-obra" element={<ProtectedRoute><Layout><MaoDeObra /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/precificacao/custos-fixos" element={<ProtectedRoute><Layout><CustosFixos /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/tipos-insumos" element={<ProtectedRoute><Layout><TiposInsumos /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/categorias-plano-contas" element={<ProtectedRoute><Layout><CategoriasPlanoContas /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/plano-contas" element={<ProtectedRoute><Layout><PlanoContas /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/bancos" element={<ProtectedRoute><Layout><Bancos /></Layout></ProtectedRoute>} />
@@ -210,8 +195,8 @@ const App = () => (
           <Route path="/financeiro/contas-pagar/detalhes/:id" element={<ProtectedRoute><Layout><ContasPagarDetalhes /></Layout></ProtectedRoute>} />
           
           {/* Financeiro - Fluxo de Caixa */}
-          <Route path="/financeiro/fluxo-caixa" element={<ProtectedRoute><Layout><FluxoCaixaDiario /></Layout></ProtectedRoute>} />
-          <Route path="/financeiro/fluxo-caixa/hub" element={<ProtectedRoute><Layout><FluxoCaixaHub /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/fluxo-caixa" element={<ProtectedRoute><Layout><FluxoCaixaHub /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/fluxo-caixa/diario" element={<ProtectedRoute><Layout><FluxoCaixaDiario /></Layout></ProtectedRoute>} />
           <Route path="/financeiro/fluxo-caixa/mensal" element={<ProtectedRoute><Layout><FluxoCaixaMensal /></Layout></ProtectedRoute>} />
           
           {/* Financeiro - DRE */}
@@ -221,24 +206,10 @@ const App = () => (
           <Route path="/admin/usuarios" element={<ProtectedRoute><Layout><Usuarios /></Layout></ProtectedRoute>} />
           <Route path="/admin/logs" element={<ProtectedRoute><Layout><LogsAdmin /></Layout></ProtectedRoute>} />
           
-          {/* Relatórios - Inteligência de Negócios */}
-          <Route path="/relatorios/inteligencia" element={<ProtectedRoute><Layout><InteligenciaNegocios /></Layout></ProtectedRoute>} />
-          <Route path="/relatorios/custos-categorias" element={<ProtectedRoute><Layout><CustosPorCategoria /></Layout></ProtectedRoute>} />
-          <Route path="/relatorios/cmv-global" element={<ProtectedRoute><Layout><CMVGlobal /></Layout></ProtectedRoute>} />
-              <Route path="/relatorios/ponto-equilibrio" element={<ProtectedRoute><Layout><PontoEquilibrio /></Layout></ProtectedRoute>} />
-              <Route path="/relatorios/planejamento-vendas" element={<ProtectedRoute><Layout><PlanejamentoVendas /></Layout></ProtectedRoute>} />
-           
-           {/* Conciliação Bancária */}
-           <Route path="/banco/regras" element={<ProtectedRoute><Layout><BankRulesPage /></Layout></ProtectedRoute>} />
-           <Route path="/banco/importar" element={<ProtectedRoute><Layout><BankImportPage /></Layout></ProtectedRoute>} />
-           <Route path="/banco/reconciliar/:importId" element={<ProtectedRoute><Layout><ReconcilePage /></Layout></ProtectedRoute>} />
-           <Route path="/banco/relatorios" element={<ProtectedRoute><Layout><BankReportsPage /></Layout></ProtectedRoute>} />
-           
-           <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
-      </ImpersonationProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

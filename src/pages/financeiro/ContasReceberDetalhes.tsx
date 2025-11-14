@@ -842,7 +842,7 @@ export default function ContasReceberDetalhes() {
               <div className="flex-1">
                 <p className="text-sm text-muted-foreground">Plano de Contas</p>
                 <p className="font-medium">
-                  {conta.plano_contas?.descricao}
+                  {conta.plano_contas?.codigo_estruturado} - {conta.plano_contas?.descricao}
                 </p>
               </div>
             </div>

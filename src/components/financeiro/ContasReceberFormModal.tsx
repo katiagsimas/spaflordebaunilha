@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { incrementarUsoTipoDocumento } from '@/utils/tipoDocumentoUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,52 +25,39 @@ import {
 } from '@/components/ui/table';
 
 interface ContasReceberFormModalProps {
-  contaReceberId?: string; // Se presente, está em modo de edição
   dataEmissaoInicial: string;
   clienteIdInicial: string;
   clienteNomeInicial: string;
   descricaoInicial: string;
   valorTotalInicial: number;
   planoContasIdInicial?: string;
-  tipoDocumentoIdInicial?: string;
-  bancoIdInicial?: string;
-  numeroParcelasInicial?: number;
-  primeiroVencimentoInicial?: string;
-  tipoLancamentoInicial?: string;
   onSucesso: (contaReceberId: string) => void;
   onCancelar: () => void;
 }
 
 export default function ContasReceberFormModal({
-  contaReceberId,
   dataEmissaoInicial,
   clienteIdInicial,
   clienteNomeInicial,
   descricaoInicial,
   valorTotalInicial,
   planoContasIdInicial,
-  tipoDocumentoIdInicial,
-  bancoIdInicial,
-  numeroParcelasInicial,
-  primeiroVencimentoInicial,
-  tipoLancamentoInicial,
   onSucesso,
   onCancelar,
 }: ContasReceberFormModalProps) {
   const { toast } = useToast();
-  const isEditMode = !!contaReceberId;
 
   const [dataEmissao, setDataEmissao] = useState(dataEmissaoInicial);
   const [clienteId, setClienteId] = useState(clienteIdInicial);
   const [clienteNome, setClienteNome] = useState(clienteNomeInicial);
-  const [tipoDocumentoId, setTipoDocumentoId] = useState(tipoDocumentoIdInicial || '');
+  const [tipoDocumentoId, setTipoDocumentoId] = useState('');
   const [planoContasId, setPlanoContasId] = useState(planoContasIdInicial || '');
-  const [bancoId, setBancoId] = useState(bancoIdInicial || '');
+  const [bancoId, setBancoId] = useState('');
   const [descricao, setDescricao] = useState(descricaoInicial);
   const [valorTotal, setValorTotal] = useState(valorTotalInicial.toFixed(2).replace('.', ','));
-  const [numeroParcelas, setNumeroParcelas] = useState((numeroParcelasInicial || 1).toString());
-  const [primeiroVencimento, setPrimeiroVencimento] = useState(primeiroVencimentoInicial || '');
-  const [tipoLancamento, setTipoLancamento] = useState(tipoLancamentoInicial || 'unico');
+  const [numeroParcelas, setNumeroParcelas] = useState('1');
+  const [primeiroVencimento, setPrimeiroVencimento] = useState('');
+  const [tipoLancamento, setTipoLancamento] = useState('unico');
 
   const [tiposDocumento, setTiposDocumento] = useState<any[]>([]);
   const [planosContas, setPlanosContas] = useState<any[]>([]);
@@ -290,109 +276,52 @@ export default function ContasReceberFormModal({
 
       const valor = parseFloat(valorTotal.replace(',', '.'));
 
-      if (isEditMode && contaReceberId) {
-        // Modo de edição - atualizar conta existente
-        const { error: errorConta } = await supabase
-          .from('contas_receber')
-          .update({
-            cliente_id: clienteId,
-            data_emissao: dataEmissao,
-            tipo_documento_id: tipoDocumentoId,
-            plano_conta_id: planoContasId,
-            banco_id: bancoId,
-            descricao: descricao.trim() || null,
-            valor: valor,
-            numero_parcelas: parcelasGeradas.length,
-            tipo_lancamento: tipoLancamento,
-            e_recorrente: tipoLancamento === 'recorrente',
-            data_vencimento: parcelasGeradas[0].data_vencimento,
-          })
-          .eq('id', contaReceberId);
+      // Criar conta a receber
+      const { data: conta, error: errorConta } = await supabase
+        .from('contas_receber')
+        .insert({
+          usuario_id: user.id,
+          cliente_id: clienteId,
+          data_emissao: dataEmissao,
+          tipo_documento_id: tipoDocumentoId,
+          plano_conta_id: planoContasId,
+          banco_id: bancoId,
+          descricao: descricao.trim() || null,
+          valor: valor,
+          numero_parcelas: parcelasGeradas.length,
+          tipo_lancamento: tipoLancamento,
+          e_recorrente: tipoLancamento === 'recorrente',
+          status: 'pendente',
+          data_vencimento: parcelasGeradas[0].data_vencimento,
+        })
+        .select()
+        .single();
 
-        if (errorConta) throw errorConta;
+      if (errorConta) throw errorConta;
 
-        // Deletar parcelas antigas
-        const { error: errorDelete } = await supabase
-          .from('contas_receber_parcelas')
-          .delete()
-          .eq('conta_receber_id', contaReceberId);
+      // Salvar parcelas editadas
+      const parcelas_data = parcelasGeradas.map(p => ({
+        conta_receber_id: conta.id,
+        numero_parcela: p.numero_parcela,
+        data_emissao: p.data_emissao,
+        data_vencimento: p.data_vencimento,
+        valor_total: p.valor_total,
+        valor_parcela: p.valor_parcela,
+        status: 'aberto',
+      }));
 
-        if (errorDelete) throw errorDelete;
+      const { error: errorParcelas } = await supabase
+        .from('contas_receber_parcelas')
+        .insert(parcelas_data);
 
-        // Inserir novas parcelas
-        const parcelas_data = parcelasGeradas.map(p => ({
-          conta_receber_id: contaReceberId,
-          numero_parcela: p.numero_parcela,
-          data_emissao: p.data_emissao,
-          data_vencimento: p.data_vencimento,
-          valor_total: p.valor_total,
-          valor_parcela: p.valor_parcela,
-          status: 'aberto',
-        }));
+      if (errorParcelas) throw errorParcelas;
 
-        const { error: errorParcelas } = await supabase
-          .from('contas_receber_parcelas')
-          .insert(parcelas_data);
+      toast({
+        title: '✅ Conta a receber criada',
+        description: `${parcelasGeradas.length} parcela(s) salva(s) com sucesso!`,
+      });
 
-        if (errorParcelas) throw errorParcelas;
-
-        toast({
-          title: '✅ Conta atualizada',
-          description: `${parcelasGeradas.length} parcela(s) atualizada(s) com sucesso!`,
-        });
-
-        onSucesso(contaReceberId);
-      } else {
-        // Modo de criação - criar nova conta
-        const { data: conta, error: errorConta } = await supabase
-          .from('contas_receber')
-          .insert({
-            usuario_id: user.id,
-            cliente_id: clienteId,
-            data_emissao: dataEmissao,
-            tipo_documento_id: tipoDocumentoId,
-            plano_conta_id: planoContasId,
-            banco_id: bancoId,
-            descricao: descricao.trim() || null,
-            valor: valor,
-            numero_parcelas: parcelasGeradas.length,
-            tipo_lancamento: tipoLancamento,
-            e_recorrente: tipoLancamento === 'recorrente',
-            status: 'pendente',
-            data_vencimento: parcelasGeradas[0].data_vencimento,
-          })
-          .select()
-          .single();
-
-        if (errorConta) throw errorConta;
-
-        // Incrementar contador de uso do tipo de documento
-        await incrementarUsoTipoDocumento(tipoDocumentoId);
-
-        // Salvar parcelas
-        const parcelas_data = parcelasGeradas.map(p => ({
-          conta_receber_id: conta.id,
-          numero_parcela: p.numero_parcela,
-          data_emissao: p.data_emissao,
-          data_vencimento: p.data_vencimento,
-          valor_total: p.valor_total,
-          valor_parcela: p.valor_parcela,
-          status: 'aberto',
-        }));
-
-        const { error: errorParcelas } = await supabase
-          .from('contas_receber_parcelas')
-          .insert(parcelas_data);
-
-        if (errorParcelas) throw errorParcelas;
-
-        toast({
-          title: '✅ Conta a receber criada',
-          description: `${parcelasGeradas.length} parcela(s) salva(s) com sucesso!`,
-        });
-
-        onSucesso(conta.id);
-      }
+      onSucesso(conta.id);
     } catch (error: any) {
       console.error('Erro ao salvar:', error);
       toast({

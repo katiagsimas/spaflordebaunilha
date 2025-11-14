@@ -1,94 +1,491 @@
+import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MiniCalendar } from "@/components/MiniCalendar";
+import { ProductionCard } from "@/components/ProductionCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, AlertTriangle, Package } from "lucide-react";
-import { useProducao } from "@/hooks/useProducao";
-import { useIngredientesDia } from "@/hooks/useIngredientesDia";
-import { ResumoProducao } from "@/components/producao/ResumoProducao";
-import { CardTarefaProducao } from "@/components/producao/CardTarefaProducao";
+import { useProducaoTarefas } from "@/hooks/useProducaoTarefas";
+import { useEncomendas } from "@/hooks/useEncomendas";
+import { toast } from "sonner";
+import { 
+  CalendarClock, 
+  AlertCircle, 
+  CheckSquare, 
+  Trash2, 
+  CheckCircle,
+  CalendarDays,
+  ChevronDown
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+
+interface Order {
+  id: string;
+  orderNumber: number;
+  client: string;
+  phone?: string;
+  product: string;
+  quantity: number;
+  status: string;
+  deliveryDate: string;
+  deliveryTime: string;
+  totalValue?: number;
+  remainingBalance?: number;
+  observations?: string;
+  producao?: {
+    iniciada: boolean;
+    pronta: boolean;
+    embalada: boolean;
+    prontoEntrega: boolean;
+  };
+}
 
 export default function Producao() {
-  const { tarefasPorCategoria, stats, isLoading, gerarTarefas, marcarProduzido, isGerando, isMarcando } = useProducao();
-  const { data: ingredientes = [], isLoading: isLoadingIngredientes } = useIngredientesDia();
+  const { encomendas = [] } = useEncomendas();
+  const { tarefas, createTarefa, updateTarefa, deleteTarefa, deleteCompletedTarefas } = useProducaoTarefas();
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [newTaskText, setNewTaskText] = useState("");
+  const [showCompleted, setShowCompleted] = useState(false);
+  
+  // Converter encomendas para formato Order
+  const orders: Order[] = encomendas.map(e => ({
+    id: e.id,
+    orderNumber: 0,
+    client: e.cliente,
+    phone: e.telefone || "",
+    product: "",
+    quantity: 0,
+    status: e.status,
+    deliveryDate: e.data_entrega || "",
+    deliveryTime: e.hora_entrega || "",
+    totalValue: e.valor,
+    remainingBalance: e.saldo_restante,
+    observations: e.observacoes,
+  }));
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+  // Atualizar checklist de uma encomenda
+  const updateOrderChecklist = (orderId: string, checklist: any) => {
+    // Esta função será implementada quando integrarmos com o sistema de encomendas
+    toast.success("Checklist atualizado!");
+  };
 
-  const ingredientesFaltando = ingredientes.filter(i => !i.tem_suficiente);
+  // Marcar como entregue
+  const markAsDelivered = (orderId: string) => {
+    toast.success("Encomenda marcada como entregue!");
+  };
+
+  // Funções de tarefas
+  const addTask = () => {
+    if (!newTaskText.trim()) return;
+    
+    createTarefa({ descricao: newTaskText });
+    setNewTaskText("");
+  };
+
+  const toggleTask = (taskId: string) => {
+    const tarefa = tarefas.find(t => t.id === taskId);
+    if (tarefa) {
+      updateTarefa({ id: taskId, updates: { concluida: !tarefa.concluida } });
+    }
+  };
+
+  const removeTask = (taskId: string) => {
+    deleteTarefa(taskId);
+  };
+
+  const clearCompletedTasks = () => {
+    deleteCompletedTarefas();
+  };
+
+  // Filtrar encomendas por data
+  const getOrdersForDate = (date: Date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    return orders.filter(o => 
+      o.deliveryDate === dateStr && 
+      o.status !== "Entregue" && 
+      o.status !== "Cancelado"
+    ).sort((a, b) => (a.deliveryTime || "").localeCompare(b.deliveryTime || ""));
+  };
+
+  const selectedDateOrders = getOrdersForDate(selectedDate);
+
+  // Gerar mapa de datas com encomendas
+  const getDatesWithOrders = () => {
+    const datesMap: Record<string, { count: number; status: string }> = {};
+    
+    orders.filter(o => o.status !== "Entregue" && o.status !== "Cancelado")
+      .forEach(order => {
+        if (!datesMap[order.deliveryDate]) {
+          datesMap[order.deliveryDate] = { count: 0, status: 'pronto' };
+        }
+        datesMap[order.deliveryDate].count++;
+        
+        // Determinar status pior
+        if (order.status.toLowerCase() === 'pendente') {
+          datesMap[order.deliveryDate].status = 'pendente';
+        } else if (order.status.toLowerCase() === 'em produção' && datesMap[order.deliveryDate].status !== 'pendente') {
+          datesMap[order.deliveryDate].status = 'producao';
+        }
+      });
+    
+    return datesMap;
+  };
+
+  const datesWithOrders = getDatesWithOrders();
+
+  // Alertas
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  const todayOrders = orders.filter(o => {
+    const deliveryDate = new Date(o.deliveryDate + 'T00:00:00');
+    deliveryDate.setHours(0, 0, 0, 0);
+    return deliveryDate.getTime() === today.getTime() && 
+      o.status !== "Entregue" && 
+      o.status !== "Cancelado";
+  });
+
+  const tomorrowOrders = orders.filter(o => {
+    const deliveryDate = new Date(o.deliveryDate + 'T00:00:00');
+    deliveryDate.setHours(0, 0, 0, 0);
+    return deliveryDate.getTime() === tomorrow.getTime() && 
+      o.status !== "Entregue" && 
+      o.status !== "Cancelado";
+  });
+
+  const pendingSaldos = todayOrders.reduce((acc, o) => acc + (o.remainingBalance || 0), 0);
+
+  const pendingTasks = tarefas.filter(t => !t.concluida);
+  const completedTasks = tarefas.filter(t => t.concluida);
+
+  // Resumo da semana
+  const getWeekRange = () => {
+    const start = new Date(today);
+    start.setDate(today.getDate() - today.getDay());
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    return { start, end };
+  };
+
+  const weekRange = getWeekRange();
+  const weekOrders = orders.filter(o => {
+    const deliveryDate = new Date(o.deliveryDate + 'T00:00:00');
+    return deliveryDate >= weekRange.start && 
+      deliveryDate <= weekRange.end && 
+      o.status !== "Cancelado";
+  });
+
+  const uniqueProducts = new Set(weekOrders.map(o => o.product)).size;
+  const weekRevenue = weekOrders.reduce((acc, o) => acc + (o.remainingBalance || 0), 0);
 
   return (
     <div className="space-y-6">
-      <PageHeader 
-        title="Produção"
-        actions={
-          <Button onClick={() => gerarTarefas(3)} disabled={isGerando}>
-            {isGerando && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            Gerar Tarefas
-          </Button>
-        }
+      <PageHeader
+        title="Planejamento de Produção"
+        description="Organize sua produção e entregas"
       />
 
-      <ResumoProducao totalPedidos={stats.total} totalItens={stats.totalItens} tempoTotal={stats.tempoTotal} />
+      {/* Layout responsivo 2 colunas */}
+      <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-6">
+        {/* COLUNA ESQUERDA */}
+        <div className="space-y-6">
+          {/* Mini Calendário */}
+          <MiniCalendar
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+            datesWithOrders={datesWithOrders}
+          />
 
-      <Tabs defaultValue="hoje">
-        <TabsList>
-          <TabsTrigger value="hoje">Hoje {(tarefasPorCategoria.urgente.length + tarefasPorCategoria.hoje.length) > 0 && <Badge variant="secondary" className="ml-2">{tarefasPorCategoria.urgente.length + tarefasPorCategoria.hoje.length}</Badge>}</TabsTrigger>
-          <TabsTrigger value="amanha">Amanhã {tarefasPorCategoria.amanha.length > 0 && <Badge variant="secondary" className="ml-2">{tarefasPorCategoria.amanha.length}</Badge>}</TabsTrigger>
-          <TabsTrigger value="proximos">Próximos Dias {tarefasPorCategoria.futuro.length > 0 && <Badge variant="secondary" className="ml-2">{tarefasPorCategoria.futuro.length}</Badge>}</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="hoje" className="space-y-4">
-          {tarefasPorCategoria.urgente.length > 0 && (
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold text-red-600 flex items-center gap-2"><AlertTriangle className="h-5 w-5" />🔴 URGENTE</h3>
-              {tarefasPorCategoria.urgente.map(t => <CardTarefaProducao key={t.id} tarefa={t} onMarcarProduzido={id => marcarProduzido({ tarefaId: id })} isLoading={isMarcando} />)}
-            </div>
-          )}
-          {tarefasPorCategoria.hoje.length > 0 && (
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold flex items-center gap-2"><Package className="h-5 w-5" />📋 HOJE</h3>
-              {tarefasPorCategoria.hoje.map(t => <CardTarefaProducao key={t.id} tarefa={t} onMarcarProduzido={id => marcarProduzido({ tarefaId: id })} isLoading={isMarcando} />)}
-            </div>
-          )}
-          {tarefasPorCategoria.urgente.length === 0 && tarefasPorCategoria.hoje.length === 0 && <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma tarefa para hoje</CardContent></Card>}
-        </TabsContent>
-
-        <TabsContent value="amanha">
-          {tarefasPorCategoria.amanha.length > 0 ? tarefasPorCategoria.amanha.map(t => <CardTarefaProducao key={t.id} tarefa={t} onMarcarProduzido={id => marcarProduzido({ tarefaId: id })} isLoading={isMarcando} />) : <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma tarefa para amanhã</CardContent></Card>}
-        </TabsContent>
-
-        <TabsContent value="proximos">
-          {tarefasPorCategoria.futuro.length > 0 ? tarefasPorCategoria.futuro.map(t => <CardTarefaProducao key={t.id} tarefa={t} onMarcarProduzido={id => marcarProduzido({ tarefaId: id })} isLoading={isMarcando} />) : <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma tarefa futura</CardContent></Card>}
-        </TabsContent>
-      </Tabs>
-
-      <Card>
-        <CardHeader><CardTitle>Ingredientes Necessários Hoje</CardTitle></CardHeader>
-        <CardContent>
-          {isLoadingIngredientes ? <div className="flex items-center justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div> : ingredientes.length === 0 ? <p className="text-center text-muted-foreground py-4">✅ Todos ingredientes disponíveis!</p> : (
-            <div className="space-y-2">
-              {ingredientes.map(i => (
-                <div key={i.ingrediente_id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex-1">
-                    <p className="font-medium">{i.ingrediente_nome}</p>
-                    <p className="text-sm text-muted-foreground">Necessário: {i.quantidade_total.toFixed(2)} {i.unidade} | Disponível: {i.estoque_disponivel.toFixed(2)} {i.unidade}</p>
-                  </div>
-                  {!i.tem_suficiente && <Badge variant="destructive">Falta: {i.faltam.toFixed(2)} {i.unidade}</Badge>}
+          {/* Lista de Produção */}
+          <Card className="shadow-lg">
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="text-lg font-semibold text-[#6B5047]">
+                    Produção para {selectedDate.toLocaleDateString('pt-BR', { 
+                      day: '2-digit', 
+                      month: 'short' 
+                    })}
+                  </CardTitle>
+                  <p className="text-sm text-[#9C8B82] mt-1">
+                    ({selectedDateOrders.length} {selectedDateOrders.length === 1 ? 'item' : 'itens'})
+                  </p>
                 </div>
-              ))}
-              {ingredientesFaltando.length > 0 && <Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertDescription>{ingredientesFaltando.length} ingrediente(s) com estoque insuficiente</AlertDescription></Alert>}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {selectedDateOrders.length === 0 ? (
+                <div className="py-12 text-center">
+                  <CalendarClock className="h-16 w-16 mx-auto mb-4 text-[#D89B8C] opacity-30" />
+                  <h3 className="text-lg font-medium text-[#6B5047] mb-2">
+                    Nenhuma entrega programada
+                  </h3>
+                  <p className="text-[#9C8B82] mb-4">
+                    para este dia
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setSelectedDate(new Date())}
+                  >
+                    Ver todas as datas
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {selectedDateOrders.map(order => (
+                    <ProductionCard
+                      key={order.id}
+                      order={order}
+                      onUpdateChecklist={updateOrderChecklist}
+                      onMarkAsDelivered={markAsDelivered}
+                    />
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* COLUNA DIREITA */}
+        <div className="space-y-6">
+          {/* Alertas Importantes */}
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg font-semibold text-[#6B5047]">
+                <AlertCircle className="h-5 w-5 text-[#E5C89F]" />
+                Alertas
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {todayOrders.length === 0 && tomorrowOrders.length === 0 && pendingSaldos === 0 ? (
+                <div className="py-8 text-center">
+                  <CheckCircle className="h-12 w-12 mx-auto mb-3 text-[#8BA888]" />
+                  <p className="text-[#9C8B82]">
+                    ✓ Tudo tranquilo por aqui!
+                    <br />
+                    <span className="text-sm">Nenhum alerta no momento.</span>
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {todayOrders.length > 0 && (
+                    <Alert className="bg-[#FFEBEE] border-l-4 border-[#D88B8B]">
+                      <AlertDescription className="text-sm">
+                        🔴 <Badge className="bg-[#D88B8B] text-white">{todayOrders.length}</Badge>{' '}
+                        {todayOrders.length === 1 ? 'entrega' : 'entregas'} para <strong>HOJE</strong>!
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
+                  {tomorrowOrders.length > 0 && (
+                    <Alert className="bg-[#FEF3E2] border-l-4 border-[#E5C89F]">
+                      <AlertDescription className="text-sm">
+                        🟡 <Badge className="bg-[#E5C89F] text-[#6B5047]">{tomorrowOrders.length}</Badge>{' '}
+                        {tomorrowOrders.length === 1 ? 'entrega' : 'entregas'} amanhã
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
+                  {pendingSaldos > 0 && (
+                    <Alert className="bg-[#E8F5E9] border-l-4 border-[#8BA888]">
+                      <AlertDescription className="text-sm">
+                        💰 R$ {pendingSaldos.toFixed(2)} em saldos a receber hoje
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Minhas Tarefas */}
+          <Card className="shadow-lg">
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle className="flex items-center gap-2 text-lg font-semibold text-[#6B5047]">
+                  <CheckSquare className="h-5 w-5 text-[#D89B8C]" />
+                  Minhas Tarefas
+                </CardTitle>
+                <span className="text-sm text-[#9C8B82]">
+                  {new Date().toLocaleDateString('pt-BR', { 
+                    weekday: 'long', 
+                    day: '2-digit', 
+                    month: 'short' 
+                  })}
+                </span>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Input para adicionar tarefa */}
+              <div className="relative">
+                <Input
+                  placeholder="+ Adicionar nova tarefa..."
+                  value={newTaskText}
+                  onChange={(e) => setNewTaskText(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && addTask()}
+                  className="border-2 border-dashed border-[#E8E3DF] focus:border-[#D89B8C] focus:border-solid"
+                />
+              </div>
+
+              {/* Lista de tarefas */}
+              {tarefas.length === 0 ? (
+                <div className="py-8 text-center">
+                  <p className="text-[#9C8B82]">
+                    📝 Nenhuma tarefa para hoje
+                    <br />
+                    <span className="text-sm">Adicione suas tarefas acima!</span>
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Tarefas Pendentes */}
+                  {pendingTasks.length > 0 && (
+                    <div className="space-y-2">
+                      {pendingTasks.map(task => (
+                        <div
+                          key={task.id}
+                          className="flex items-center justify-between py-3 border-b border-[#E8E3DF] last:border-b-0 hover:bg-[#FAF7F5] transition-colors group"
+                        >
+                          <div className="flex items-center space-x-3 flex-1">
+                            <Checkbox
+                              id={`task-${task.id}`}
+                              checked={task.concluida}
+                              onCheckedChange={() => toggleTask(task.id)}
+                              className="accent-[#D89B8C]"
+                            />
+                            <label
+                              htmlFor={`task-${task.id}`}
+                              className="text-base text-[#6B5047] cursor-pointer flex-1"
+                            >
+                              {task.descricao}
+                            </label>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeTask(task.id)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Trash2 className="h-4 w-4 text-[#D88B8B]" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Tarefas Concluídas */}
+                  {completedTasks.length > 0 && (
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => setShowCompleted(!showCompleted)}
+                        className="flex items-center justify-between w-full text-sm text-[#9C8B82] hover:text-[#D89B8C] transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <ChevronDown className={cn(
+                            "h-4 w-4 transition-transform",
+                            showCompleted && "rotate-180"
+                          )} />
+                          <span>Concluídas ({completedTasks.length})</span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            clearCompletedTasks();
+                          }}
+                          className="text-xs text-[#9C8B82] hover:text-[#D89B8C]"
+                        >
+                          Limpar todas
+                        </Button>
+                      </button>
+                      
+                      {showCompleted && (
+                        <div className="space-y-2">
+                          {completedTasks.map(task => (
+                            <div
+                              key={task.id}
+                              className="flex items-center justify-between py-3"
+                            >
+                              <div className="flex items-center space-x-3 flex-1">
+                                <Checkbox
+                                  id={`task-${task.id}`}
+                                  checked={task.concluida}
+                                  onCheckedChange={() => toggleTask(task.id)}
+                                  disabled
+                                />
+                                <label
+                                  className="text-base text-[#9C8B82] line-through opacity-50 flex-1"
+                                >
+                                  {task.descricao}
+                                </label>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeTask(task.id)}
+                              >
+                                <Trash2 className="h-4 w-4 text-[#D88B8B]" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Resumo da Semana */}
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg font-semibold text-[#6B5047]">
+                <CalendarDays className="h-5 w-5 text-[#D89B8C]" />
+                Resumo da Semana
+              </CardTitle>
+              <p className="text-sm text-[#9C8B82]">
+                {weekRange.start.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} - {' '}
+                {weekRange.end.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="bg-[#F5E6E0] rounded-lg p-4">
+                <div className="text-2xl font-bold text-[#D89B8C]">
+                  🎂 {weekOrders.length}
+                </div>
+                <div className="text-sm text-[#9C8B82]">
+                  entregas programadas
+                </div>
+              </div>
+              
+              <div className="bg-[#F5E6E0] rounded-lg p-4">
+                <div className="text-2xl font-bold text-[#D89B8C]">
+                  🧁 {uniqueProducts}
+                </div>
+                <div className="text-sm text-[#9C8B82]">
+                  produtos diferentes
+                </div>
+              </div>
+              
+              <div className="bg-[#F5E6E0] rounded-lg p-4">
+                <div className="text-2xl font-bold text-[#8BA888]">
+                  💰 R$ {weekRevenue.toFixed(2)}
+                </div>
+                <div className="text-sm text-[#9C8B82]">
+                  a receber
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

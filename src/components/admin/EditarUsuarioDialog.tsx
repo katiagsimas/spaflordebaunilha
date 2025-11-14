@@ -84,51 +84,24 @@ export function EditarUsuarioDialog({
   const [mostrarPreview, setMostrarPreview] = useState(false);
   const [emailConfirmacao, setEmailConfirmacao] = useState("");
   const [itensSelecionados, setItensSelecionados] = useState({
-    // PRECIFICAÇÃO
-    ingredientes: false,
-    embalagens: false,
-    prePreparos: false,
-    subReceitas: false,
-    receitas: false,
+    clientes: true,
+    encomendas: true,
+    receitas: true,
+    fornecedores: true,
+    contasReceber: true,
+    contasPagar: true,
+    categorias: false,
+    unidadesMedida: false,
     custosFixos: false,
     maoObra: false,
     tiposInsumos: false,
-    
-    // ESTOQUE
-    movimentacoesEstoque: false,
-    estoqueAtual: false,
-    entradasDetalhadas: false,
-    categoriasEstoque: false,
-    
-    // ENCOMENDAS
-    encomendas: false,
-    tagsEncomendas: false,
-    
-    // PRODUÇÃO
-    producao: false,
-    
-    // CLIENTES
-    clientes: false,
-    
-    // FORNECEDORES
-    fornecedores: false,
-    
-    // FINANCEIRO
-    contasReceber: false,
-    contasPagar: false,
-    planoContas: false,
-    categoriasPlanoContas: false,
-    categoriasReceita: false,
-    cmvMensal: false,
-    
-    // BANCO
-    banco: false,
+    ingredientes: false,
+    embalagens: false,
     bancos: false,
-    
-    // CONFIGURAÇÕES
-    categorias: false,
-    unidadesMedida: false,
     tiposDocumento: false,
+    planoContas: false,
+    categoriasFinanceiras: false,
+    tagsEncomendas: false,
   });
   const queryClient = useQueryClient();
 
@@ -149,136 +122,68 @@ export function EditarUsuarioDialog({
     queryFn: async () => {
       if (!userId) return null;
       
-      const results: any[] = await Promise.all([
-        supabase.from('ingredientes').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        supabase.from('embalagens').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        supabase.from('pre_preparos').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        supabase.from('sub_receitas').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        supabase.from('receitas').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        supabase.from('custos_fixos').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        supabase.from('configuracao_mao_obra').select('*', { count: 'exact', head: true }).eq('user_id', userId),
-        supabase.from('tipos_insumos').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        
-        supabase.from('movimentacoes_estoque').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        supabase.from('estoque_atual').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        supabase.from('entradas_detalhadas').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        // @ts-expect-error - TypeScript type inference issue with complex queries
-        supabase.from('categorias_estoque').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        
-        supabase.from('encomendas').select('valor', { count: 'exact' }).eq('usuario_id', userId),
-        // @ts-expect-error - TypeScript type inference issue with complex queries
-        supabase.from('categorias_tags').select('*', { count: 'exact', head: true }).eq('user_id', userId),
-        
-        supabase.from('producao_tarefas').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        
-        supabase.from('clientes').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        
-        supabase.from('fornecedores').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        
-        supabase.from('contas_receber').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        supabase.from('contas_pagar').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        supabase.from('plano_contas').select('*', { count: 'exact', head: true }).eq('user_id', userId),
-        supabase.from('categorias_plano_contas').select('*', { count: 'exact', head: true }).eq('user_id', userId),
-        supabase.from('categorias_financeiras').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        supabase.from('cmv_mensal').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        
-        // @ts-expect-error - TypeScript type inference issue with complex queries
-        supabase.from('bank_imports').select('*', { count: 'exact', head: true }).eq('user_id', userId),
-        supabase.from('bancos').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        
-        supabase.from('categorias').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        supabase.from('unidades_medida').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-        supabase.from('tipos_documento').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
-      ]);
-      
       const [
-        ingredientesRes,
-        embalagensRes,
-        prePreparosRes,
-        subReceitasRes,
+        clientesRes,
+        encomendasRes,
         receitasRes,
+        fornecedoresRes,
+        contasReceberRes,
+        contasPagarRes,
+        categoriasRes,
+        unidadesMedidaRes,
         custosFixosRes,
         maoObraRes,
         tiposInsumosRes,
-        
-        movimentacoesRes,
-        estoqueAtualRes,
-        entradasDetalhadasRes,
-        categoriasEstoqueRes,
-        
-        encomendasRes,
-        tagsRes,
-        
-        producaoRes,
-        
-        clientesRes,
-        
-        fornecedoresRes,
-        
-        contasReceberRes,
-        contasPagarRes,
-        planoContasRes,
+        ingredientesRes,
+        embalagensRes,
+        bancosRes,
+        tiposDocumentoRes,
         categoriasPlanoRes,
         categoriasFinanceirasRes,
-        cmvMensalRes,
-        
-        bankImportsRes,
-        bancosRes,
-        
-        categoriasRes,
-        unidadesMedidaRes,
-        tiposDocumentoRes,
-      ] = results;
+        tagsEncomendasRes,
+      ] = await Promise.all([
+        supabase.from('clientes').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('encomendas').select('valor', { count: 'exact' }).eq('usuario_id', userId),
+        supabase.from('receitas').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('fornecedores').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('contas_receber').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('contas_pagar').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('categorias').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('unidades_medida').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('custos_fixos').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('configuracao_mao_obra').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+        supabase.from('tipos_insumos').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('ingredientes').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('embalagens').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('bancos').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('tipos_documento').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('categorias_plano_contas').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+        supabase.from('categorias_financeiras').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
+        supabase.from('tags_encomendas').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+      ]);
 
       const valorTotalEncomendas = encomendasRes.data?.reduce((acc: number, enc: any) => acc + (Number(enc.valor) || 0), 0) || 0;
       
       return {
-        // PRECIFICAÇÃO
-        total_ingredientes: ingredientesRes.count || 0,
-        total_embalagens: embalagensRes.count || 0,
-        total_pre_preparos: prePreparosRes.count || 0,
-        total_sub_receitas: subReceitasRes.count || 0,
+        total_clientes: clientesRes.count || 0,
+        total_encomendas: encomendasRes.count || 0,
         total_receitas: receitasRes.count || 0,
+        total_fornecedores: fornecedoresRes.count || 0,
+        total_contas_receber: contasReceberRes.count || 0,
+        total_contas_pagar: contasPagarRes.count || 0,
+        total_categorias: categoriasRes.count || 0,
+        total_unidades_medida: unidadesMedidaRes.count || 0,
         total_custos_fixos: custosFixosRes.count || 0,
         total_mao_obra: maoObraRes.count || 0,
         total_tipos_insumos: tiposInsumosRes.count || 0,
-        
-        // ESTOQUE
-        total_movimentacoes: movimentacoesRes.count || 0,
-        total_estoque_atual: estoqueAtualRes.count || 0,
-        total_entradas_detalhadas: entradasDetalhadasRes.count || 0,
-        total_categorias_estoque: categoriasEstoqueRes.count || 0,
-        
-        // ENCOMENDAS
-        total_encomendas: encomendasRes.count || 0,
-        total_tags: tagsRes.count || 0,
-        valor_total_encomendas: valorTotalEncomendas,
-        
-        // PRODUÇÃO
-        total_producao: producaoRes.count || 0,
-        
-        // CLIENTES
-        total_clientes: clientesRes.count || 0,
-        
-        // FORNECEDORES
-        total_fornecedores: fornecedoresRes.count || 0,
-        
-        // FINANCEIRO
-        total_contas_receber: contasReceberRes.count || 0,
-        total_contas_pagar: contasPagarRes.count || 0,
-        total_plano_contas: planoContasRes.count || 0,
-        total_categorias_plano: categoriasPlanoRes.count || 0,
-        total_categorias_financeiras: categoriasFinanceirasRes.count || 0,
-        total_cmv_mensal: cmvMensalRes.count || 0,
-        
-        // BANCO
-        total_bank_imports: bankImportsRes.count || 0,
+        total_ingredientes: ingredientesRes.count || 0,
+        total_embalagens: embalagensRes.count || 0,
         total_bancos: bancosRes.count || 0,
-        
-        // CONFIGURAÇÕES
-        total_categorias: categoriasRes.count || 0,
-        total_unidades_medida: unidadesMedidaRes.count || 0,
         total_tipos_documento: tiposDocumentoRes.count || 0,
+        total_plano_contas: categoriasPlanoRes.count || 0,
+        total_categorias_financeiras: categoriasFinanceirasRes.count || 0,
+        total_tags_encomendas: tagsEncomendasRes.count || 0,
+        valor_total_encomendas: valorTotalEncomendas
       };
     },
     enabled: !!userId && open,
@@ -377,16 +282,72 @@ export function EditarUsuarioDialog({
       }
 
       const { data: { user } } = await supabase.auth.getUser();
-      
-      // Chamar função RPC para deletar seletivamente
-      const { data, error } = await supabase.rpc('deletar_cadastros_seletivo', {
-        p_user_id: userId,
-        p_selecao: itensSelecionados
-      });
-      
-      if (error) throw error;
+      const deletePromises = [];
 
-      // Registrar log
+      if (itensSelecionados.clientes) {
+        deletePromises.push(supabase.from('clientes').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.encomendas) {
+        deletePromises.push(supabase.from('encomenda_itens').delete().eq('usuario_id', userId));
+        deletePromises.push(supabase.from('encomendas').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.receitas) {
+        deletePromises.push(supabase.from('receitas').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.fornecedores) {
+        deletePromises.push(supabase.from('fornecedores').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.contasReceber) {
+        deletePromises.push(supabase.from('contas_receber').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.contasPagar) {
+        deletePromises.push(supabase.from('contas_pagar').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.categorias) {
+        deletePromises.push(supabase.from('categorias').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.unidadesMedida) {
+        deletePromises.push(supabase.from('unidades_medida').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.custosFixos) {
+        deletePromises.push(supabase.from('custos_fixos').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.maoObra) {
+        deletePromises.push(supabase.from('configuracao_mao_obra').delete().eq('user_id', userId));
+      }
+      if (itensSelecionados.tiposInsumos) {
+        deletePromises.push(supabase.from('tipos_insumos').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.ingredientes) {
+        deletePromises.push(supabase.from('ingredientes').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.embalagens) {
+        deletePromises.push(supabase.from('embalagens').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.bancos) {
+        deletePromises.push(supabase.from('bancos').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.tiposDocumento) {
+        deletePromises.push(supabase.from('tipos_documento').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.planoContas) {
+        deletePromises.push(supabase.from('categorias_plano_contas').delete().eq('user_id', userId));
+      }
+      if (itensSelecionados.categoriasFinanceiras) {
+        deletePromises.push(supabase.from('categorias_financeiras').delete().eq('usuario_id', userId));
+      }
+      if (itensSelecionados.tagsEncomendas) {
+        deletePromises.push(supabase.from('tags_encomendas').delete().eq('user_id', userId));
+      }
+
+      const deleteResults = await Promise.allSettled(deletePromises);
+      
+      const errors = deleteResults.filter(r => r.status === 'rejected');
+      if (errors.length > 0) {
+        console.error('Erros ao deletar:', errors);
+        throw new Error('Alguns registros não puderam ser deletados');
+      }
+
       if (user && userData) {
         await supabase.from('admin_logs').insert({
           admin_id: user.id,
@@ -395,7 +356,7 @@ export function EditarUsuarioDialog({
           usuario_afetado_id: userId,
           usuario_afetado_email: userData.email,
           detalhes: {
-            registros_deletados: data,
+            registros_deletados: stats,
             itens_selecionados: itensSelecionados,
             data_acao: new Date().toISOString()
           }
@@ -652,8 +613,8 @@ export function EditarUsuarioDialog({
               <AlertTriangle className="h-5 w-5" />
               Confirmar Exclusão de Cadastros
             </DialogTitle>
-            <DialogDescription className="bg-black text-white border border-destructive rounded-lg p-4 animate-pulse shadow-lg">
-              <span className="font-bold text-base">⚠️ ATENÇÃO: Esta ação NÃO PODE ser desfeita. Os dados selecionados serão PERMANENTEMENTE DELETADOS do sistema.</span>
+            <DialogDescription className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 animate-pulse">
+              <span className="text-destructive font-semibold">Esta ação NÃO PODE ser desfeita. Os dados selecionados serão permanentemente deletados.</span>
             </DialogDescription>
           </DialogHeader>
 
@@ -663,87 +624,50 @@ export function EditarUsuarioDialog({
               <AlertDescription>
                 <strong>Atenção!</strong>
                 <p className="mt-1">
-                  Selecione os módulos e cadastros que deseja DELETAR PERMANENTEMENTE (incluindo dados padrão do sistema):
+                  Selecione os cadastros que deseja DELETAR PERMANENTEMENTE:
                 </p>
               </AlertDescription>
             </Alert>
 
-            {/* MÓDULO: PRECIFICAÇÃO */}
             <div className="space-y-3">
-              <h4 className="text-sm font-semibold flex items-center gap-2 bg-primary/10 p-2 rounded">
-                <Tag className="h-4 w-4" />
-                MÓDULO: PRECIFICAÇÃO
+              <h4 className="text-sm font-semibold flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Cadastros Principais
               </h4>
-              <div className="grid gap-2 ml-4">
+              <div className="grid gap-2">
                 <div className="flex items-center justify-between p-2 bg-muted rounded">
                   <div className="flex items-center gap-2">
                     <Checkbox
-                      id="ingredientes"
-                      checked={itensSelecionados.ingredientes}
+                      id="clientes"
+                      checked={itensSelecionados.clientes}
                       onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, ingredientes: checked as boolean })
+                        setItensSelecionados({ ...itensSelecionados, clientes: checked as boolean })
                       }
                     />
-                    <label htmlFor="ingredientes" className="text-sm cursor-pointer">
-                      Ingredientes
+                    <label htmlFor="clientes" className="text-sm cursor-pointer">
+                      Clientes
                     </label>
                   </div>
-                  <Badge variant={(stats?.total_ingredientes || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_ingredientes || 0}
+                  <Badge variant={(stats?.total_clientes || 0) > 0 ? "destructive" : "secondary"}>
+                    {stats?.total_clientes || 0}
                   </Badge>
                 </div>
 
                 <div className="flex items-center justify-between p-2 bg-muted rounded">
                   <div className="flex items-center gap-2">
                     <Checkbox
-                      id="embalagens"
-                      checked={itensSelecionados.embalagens}
+                      id="encomendas"
+                      checked={itensSelecionados.encomendas}
                       onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, embalagens: checked as boolean })
+                        setItensSelecionados({ ...itensSelecionados, encomendas: checked as boolean })
                       }
                     />
-                    <label htmlFor="embalagens" className="text-sm cursor-pointer">
-                      Embalagens
+                    <label htmlFor="encomendas" className="text-sm cursor-pointer">
+                      Encomendas
                     </label>
                   </div>
-                  <Badge variant={(stats?.total_embalagens || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_embalagens || 0}
-                  </Badge>
-                </div>
-
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="prePreparos"
-                      checked={itensSelecionados.prePreparos}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, prePreparos: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="prePreparos" className="text-sm cursor-pointer">
-                      Pré-Preparos
-                    </label>
-                  </div>
-                  <Badge variant={(stats?.total_pre_preparos || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_pre_preparos || 0}
-                  </Badge>
-                </div>
-
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="subReceitas"
-                      checked={itensSelecionados.subReceitas}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, subReceitas: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="subReceitas" className="text-sm cursor-pointer">
-                      Sub-Receitas
-                    </label>
-                  </div>
-                  <Badge variant={(stats?.total_sub_receitas || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_sub_receitas || 0}
+                  <Badge variant={(stats?.total_encomendas || 0) > 0 ? "destructive" : "secondary"}>
+                    {stats?.total_encomendas || 0}
                   </Badge>
                 </div>
 
@@ -768,259 +692,6 @@ export function EditarUsuarioDialog({
                 <div className="flex items-center justify-between p-2 bg-muted rounded">
                   <div className="flex items-center gap-2">
                     <Checkbox
-                      id="custosFixos"
-                      checked={itensSelecionados.custosFixos}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, custosFixos: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="custosFixos" className="text-sm cursor-pointer">
-                      Custos Fixos
-                    </label>
-                  </div>
-                  <Badge variant={(stats?.total_custos_fixos || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_custos_fixos || 0}
-                  </Badge>
-                </div>
-
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="maoObra"
-                      checked={itensSelecionados.maoObra}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, maoObra: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="maoObra" className="text-sm cursor-pointer">
-                      Mão de Obra
-                    </label>
-                  </div>
-                  <Badge variant={(stats?.total_mao_obra || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_mao_obra || 0}
-                  </Badge>
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* MÓDULO: ESTOQUE */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-semibold flex items-center gap-2 bg-primary/10 p-2 rounded">
-                <FileText className="h-4 w-4" />
-                MÓDULO: ESTOQUE
-              </h4>
-              <div className="grid gap-2 ml-4">
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="tiposInsumos"
-                      checked={itensSelecionados.tiposInsumos}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, tiposInsumos: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="tiposInsumos" className="text-sm cursor-pointer">
-                      Itens de Estoque (Tipos de Insumos)
-                    </label>
-                  </div>
-                  <Badge variant={(stats?.total_tipos_insumos || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_tipos_insumos || 0}
-                  </Badge>
-                </div>
-
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="movimentacoesEstoque"
-                      checked={itensSelecionados.movimentacoesEstoque}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, movimentacoesEstoque: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="movimentacoesEstoque" className="text-sm cursor-pointer">
-                      Movimentações de Estoque
-                    </label>
-                  </div>
-                  <Badge variant={(stats?.total_movimentacoes || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_movimentacoes || 0}
-                  </Badge>
-                </div>
-
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="estoqueAtual"
-                      checked={itensSelecionados.estoqueAtual}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, estoqueAtual: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="estoqueAtual" className="text-sm cursor-pointer">
-                      Estoque Atual
-                    </label>
-                  </div>
-                  <Badge variant={(stats?.total_estoque_atual || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_estoque_atual || 0}
-                  </Badge>
-                </div>
-
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="entradasDetalhadas"
-                      checked={itensSelecionados.entradasDetalhadas}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, entradasDetalhadas: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="entradasDetalhadas" className="text-sm cursor-pointer">
-                      Entradas Detalhadas
-                    </label>
-                  </div>
-                  <Badge variant={(stats?.total_entradas_detalhadas || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_entradas_detalhadas || 0}
-                  </Badge>
-                </div>
-
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="categoriasEstoque"
-                      checked={itensSelecionados.categoriasEstoque}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, categoriasEstoque: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="categoriasEstoque" className="text-sm cursor-pointer">
-                      Categorias de Estoque
-                    </label>
-                  </div>
-                  <Badge variant={(stats?.total_categorias_estoque || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_categorias_estoque || 0}
-                  </Badge>
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* MÓDULO: ENCOMENDAS */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-semibold flex items-center gap-2 bg-primary/10 p-2 rounded">
-                <ShoppingBag className="h-4 w-4" />
-                MÓDULO: ENCOMENDAS
-              </h4>
-              <div className="grid gap-2 ml-4">
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="encomendas"
-                      checked={itensSelecionados.encomendas}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, encomendas: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="encomendas" className="text-sm cursor-pointer">
-                      Encomendas
-                    </label>
-                  </div>
-                  <Badge variant={(stats?.total_encomendas || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_encomendas || 0}
-                  </Badge>
-                </div>
-
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="tagsEncomendas"
-                      checked={itensSelecionados.tagsEncomendas}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, tagsEncomendas: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="tagsEncomendas" className="text-sm cursor-pointer">
-                      Tags de Encomendas
-                    </label>
-                  </div>
-                  <Badge variant={(stats?.total_tags || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_tags || 0}
-                  </Badge>
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* MÓDULO: PRODUÇÃO */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-semibold flex items-center gap-2 bg-primary/10 p-2 rounded">
-                <Settings className="h-4 w-4" />
-                MÓDULO: PRODUÇÃO
-              </h4>
-              <div className="grid gap-2 ml-4">
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="producao"
-                      checked={itensSelecionados.producao}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, producao: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="producao" className="text-sm cursor-pointer">
-                      Tarefas de Produção
-                    </label>
-                  </div>
-                  <Badge variant={(stats?.total_producao || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_producao || 0}
-                  </Badge>
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* MÓDULO: CLIENTES */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-semibold flex items-center gap-2 bg-primary/10 p-2 rounded">
-                <Users className="h-4 w-4" />
-                MÓDULO: CLIENTES
-              </h4>
-              <div className="grid gap-2 ml-4">
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="clientes"
-                      checked={itensSelecionados.clientes}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, clientes: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="clientes" className="text-sm cursor-pointer">
-                      Clientes (inclui Familiares e NPS)
-                    </label>
-                  </div>
-                  <Badge variant={(stats?.total_clientes || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_clientes || 0}
-                  </Badge>
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* MÓDULO: FORNECEDORES */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-semibold flex items-center gap-2 bg-primary/10 p-2 rounded">
-                <Building2 className="h-4 w-4" />
-                MÓDULO: FORNECEDORES
-              </h4>
-              <div className="grid gap-2 ml-4">
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
                       id="fornecedores"
                       checked={itensSelecionados.fornecedores}
                       onCheckedChange={(checked) =>
@@ -1028,25 +699,14 @@ export function EditarUsuarioDialog({
                       }
                     />
                     <label htmlFor="fornecedores" className="text-sm cursor-pointer">
-                      Fornecedores (inclui Contatos)
+                      Fornecedores
                     </label>
                   </div>
                   <Badge variant={(stats?.total_fornecedores || 0) > 0 ? "destructive" : "secondary"}>
                     {stats?.total_fornecedores || 0}
                   </Badge>
                 </div>
-              </div>
-            </div>
 
-            <Separator />
-
-            {/* MÓDULO: FINANCEIRO */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-semibold flex items-center gap-2 bg-primary/10 p-2 rounded">
-                <DollarSign className="h-4 w-4" />
-                MÓDULO: FINANCEIRO
-              </h4>
-              <div className="grid gap-2 ml-4">
                 <div className="flex items-center justify-between p-2 bg-muted rounded">
                   <div className="flex items-center gap-2">
                     <Checkbox
@@ -1082,137 +742,17 @@ export function EditarUsuarioDialog({
                     {stats?.total_contas_pagar || 0}
                   </Badge>
                 </div>
-
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="planoContas"
-                      checked={itensSelecionados.planoContas}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, planoContas: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="planoContas" className="text-sm cursor-pointer">
-                      Plano de Contas (TODOS, incluindo padrão)
-                    </label>
-                  </div>
-                  <Badge variant={(stats?.total_plano_contas || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_plano_contas || 0}
-                  </Badge>
-                </div>
-
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="categoriasPlanoContas"
-                      checked={itensSelecionados.categoriasPlanoContas}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, categoriasPlanoContas: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="categoriasPlanoContas" className="text-sm cursor-pointer">
-                      Categorias Plano de Contas (TODAS, incluindo padrão)
-                    </label>
-                  </div>
-                  <Badge variant={(stats?.total_categorias_plano || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_categorias_plano || 0}
-                  </Badge>
-                </div>
-
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="categoriasReceita"
-                      checked={itensSelecionados.categoriasReceita}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, categoriasReceita: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="categoriasReceita" className="text-sm cursor-pointer">
-                      Categorias de Receita
-                    </label>
-                  </div>
-                  <Badge variant={(stats?.total_categorias_financeiras || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_categorias_financeiras || 0}
-                  </Badge>
-                </div>
-
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="cmvMensal"
-                      checked={itensSelecionados.cmvMensal}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, cmvMensal: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="cmvMensal" className="text-sm cursor-pointer">
-                      CMV Mensal
-                    </label>
-                  </div>
-                  <Badge variant={(stats?.total_cmv_mensal || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_cmv_mensal || 0}
-                  </Badge>
-                </div>
               </div>
             </div>
 
             <Separator />
 
-            {/* MÓDULO: BANCO */}
             <div className="space-y-3">
-              <h4 className="text-sm font-semibold flex items-center gap-2 bg-primary/10 p-2 rounded">
-                <Building2 className="h-4 w-4" />
-                MÓDULO: BANCO
-              </h4>
-              <div className="grid gap-2 ml-4">
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="banco"
-                      checked={itensSelecionados.banco}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, banco: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="banco" className="text-sm cursor-pointer">
-                      Importações e Conciliações Bancárias
-                    </label>
-                  </div>
-                  <Badge variant={(stats?.total_bank_imports || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_bank_imports || 0}
-                  </Badge>
-                </div>
-
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="bancos"
-                      checked={itensSelecionados.bancos}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, bancos: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="bancos" className="text-sm cursor-pointer">
-                      Bancos Cadastrados (TODOS, incluindo Caixa Empresa)
-                    </label>
-                  </div>
-                  <Badge variant={(stats?.total_bancos || 0) > 0 ? "destructive" : "secondary"}>
-                    {stats?.total_bancos || 0}
-                  </Badge>
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* MÓDULO: CONFIGURAÇÕES */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-semibold flex items-center gap-2 bg-primary/10 p-2 rounded">
+              <h4 className="text-sm font-semibold flex items-center gap-2">
                 <Settings className="h-4 w-4" />
-                MÓDULO: CONFIGURAÇÕES
+                Configurações
               </h4>
-              <div className="grid gap-2 ml-4">
+              <div className="grid gap-2">
                 <div className="flex items-center justify-between p-2 bg-muted rounded">
                   <div className="flex items-center gap-2">
                     <Checkbox
@@ -1223,10 +763,10 @@ export function EditarUsuarioDialog({
                       }
                     />
                     <label htmlFor="categorias" className="text-sm cursor-pointer">
-                      Categorias de Receitas
+                      Categorias
                     </label>
                   </div>
-                  <Badge variant={(stats?.total_categorias || 0) > 0 ? "destructive" : "secondary"}>
+                  <Badge variant="secondary">
                     {stats?.total_categorias || 0}
                   </Badge>
                 </div>
@@ -1241,11 +781,29 @@ export function EditarUsuarioDialog({
                       }
                     />
                     <label htmlFor="unidadesMedida" className="text-sm cursor-pointer">
-                      Unidades de Medida (TODAS, incluindo padrão)
+                      Unidades de Medida
                     </label>
                   </div>
-                  <Badge variant={(stats?.total_unidades_medida || 0) > 0 ? "destructive" : "secondary"}>
+                  <Badge variant="secondary">
                     {stats?.total_unidades_medida || 0}
+                  </Badge>
+                </div>
+
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="bancos"
+                      checked={itensSelecionados.bancos}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, bancos: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="bancos" className="text-sm cursor-pointer">
+                      Bancos
+                    </label>
+                  </div>
+                  <Badge variant="secondary">
+                    {stats?.total_bancos || 0}
                   </Badge>
                 </div>
 
@@ -1259,11 +817,165 @@ export function EditarUsuarioDialog({
                       }
                     />
                     <label htmlFor="tiposDocumento" className="text-sm cursor-pointer">
-                      Tipos de Documento (TODOS, incluindo padrão)
+                      Tipos de Documento
                     </label>
                   </div>
-                  <Badge variant={(stats?.total_tipos_documento || 0) > 0 ? "destructive" : "secondary"}>
+                  <Badge variant="secondary">
                     {stats?.total_tipos_documento || 0}
+                  </Badge>
+                </div>
+
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="planoContas"
+                      checked={itensSelecionados.planoContas}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, planoContas: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="planoContas" className="text-sm cursor-pointer">
+                      Plano de Contas
+                    </label>
+                  </div>
+                  <Badge variant="secondary">
+                    {stats?.total_plano_contas || 0}
+                  </Badge>
+                </div>
+
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="categoriasFinanceiras"
+                      checked={itensSelecionados.categoriasFinanceiras}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, categoriasFinanceiras: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="categoriasFinanceiras" className="text-sm cursor-pointer">
+                      Categorias Financeiras
+                    </label>
+                  </div>
+                  <Badge variant="secondary">
+                    {stats?.total_categorias_financeiras || 0}
+                  </Badge>
+                </div>
+
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="tagsEncomendas"
+                      checked={itensSelecionados.tagsEncomendas}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, tagsEncomendas: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="tagsEncomendas" className="text-sm cursor-pointer">
+                      Tags de Encomendas
+                    </label>
+                  </div>
+                  <Badge variant="secondary">
+                    {stats?.total_tags_encomendas || 0}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-3">
+              <h4 className="text-sm font-semibold flex items-center gap-2">
+                <Tag className="h-4 w-4" />
+                Precificação
+              </h4>
+              <div className="grid gap-2">
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="custosFixos"
+                      checked={itensSelecionados.custosFixos}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, custosFixos: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="custosFixos" className="text-sm cursor-pointer">
+                      Custos Fixos
+                    </label>
+                  </div>
+                  <Badge variant="secondary">
+                    {stats?.total_custos_fixos || 0}
+                  </Badge>
+                </div>
+
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="maoObra"
+                      checked={itensSelecionados.maoObra}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, maoObra: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="maoObra" className="text-sm cursor-pointer">
+                      Mão de Obra
+                    </label>
+                  </div>
+                  <Badge variant="secondary">
+                    {stats?.total_mao_obra || 0}
+                  </Badge>
+                </div>
+
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="tiposInsumos"
+                      checked={itensSelecionados.tiposInsumos}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, tiposInsumos: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="tiposInsumos" className="text-sm cursor-pointer">
+                      Tipos de Insumos
+                    </label>
+                  </div>
+                  <Badge variant="secondary">
+                    {stats?.total_tipos_insumos || 0}
+                  </Badge>
+                </div>
+
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="ingredientes"
+                      checked={itensSelecionados.ingredientes}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, ingredientes: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="ingredientes" className="text-sm cursor-pointer">
+                      Ingredientes
+                    </label>
+                  </div>
+                  <Badge variant="secondary">
+                    {stats?.total_ingredientes || 0}
+                  </Badge>
+                </div>
+
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="embalagens"
+                      checked={itensSelecionados.embalagens}
+                      onCheckedChange={(checked) =>
+                        setItensSelecionados({ ...itensSelecionados, embalagens: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="embalagens" className="text-sm cursor-pointer">
+                      Embalagens
+                    </label>
+                  </div>
+                  <Badge variant="secondary">
+                    {stats?.total_embalagens || 0}
                   </Badge>
                 </div>
               </div>

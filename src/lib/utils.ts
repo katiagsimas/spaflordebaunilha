@@ -41,10 +41,3 @@ export function formatarNumero(valor: number): string {
     maximumFractionDigits: 3
   });
 }
-
-export function formatarMilhar(valor: number, decimais: number = 2): string {
-  return valor.toLocaleString('pt-BR', {
-    minimumFractionDigits: decimais,
-    maximumFractionDigits: decimais
-  });
-}

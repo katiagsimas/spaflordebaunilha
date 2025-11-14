@@ -29,27 +29,8 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from '@/components/ui/command';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
-import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2, Lock, MoreVertical, Check, ChevronsUpDown } from 'lucide-react';
+import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { BackButton } from '@/components/BackButton';
 import { PageHeader } from '@/components/PageHeader';
@@ -62,14 +43,9 @@ export default function PlanoContas() {
 
   // Filtros
   const [termoBusca, setTermoBusca] = useState('');
-  const [contaSelecionada, setContaSelecionada] = useState('');
-  const [buscaAberta, setBuscaAberta] = useState(false);
   const [filtroCategoria, setFiltroCategoria] = useState('todos');
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [filtroTipo, setFiltroTipo] = useState('todos');
-  
-  // Paginação
-  const [itensPorPagina, setItensPorPagina] = useState(10);
 
   // Modal
   const [modalAberto, setModalAberto] = useState(false);
@@ -88,7 +64,7 @@ export default function PlanoContas() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Buscar categorias ativas do usuário
+      // Buscar categorias ativas
       const { data: dataCategorias, error: errorCat } = await supabase
         .from('categorias_plano_contas')
         .select('*')
@@ -120,7 +96,7 @@ export default function PlanoContas() {
         }
       }
 
-      // Buscar planos do usuário atual
+      // Buscar planos
       const { data: dataPlanos, error: errorPlanos } = await supabase
         .from('plano_contas')
         .select(`
@@ -150,9 +126,14 @@ export default function PlanoContas() {
   const planosFiltrados = useMemo(() => {
     let resultado = [...planos];
 
-    // Filtro por conta selecionada
-    if (contaSelecionada) {
-      resultado = resultado.filter(p => p.id === contaSelecionada);
+    // Busca
+    if (termoBusca.trim()) {
+      const termo = termoBusca.toLowerCase();
+      resultado = resultado.filter(p => 
+        p.codigo_estruturado.toLowerCase().includes(termo) ||
+        p.descricao.toLowerCase().includes(termo) ||
+        p.categoria?.descricao.toLowerCase().includes(termo)
+      );
     }
 
     // Categoria
@@ -166,13 +147,10 @@ export default function PlanoContas() {
       resultado = resultado.filter(p => p.ativo === ativo);
     }
 
-    // Tipo (usar e_padrao)
+    // Tipo
     if (filtroTipo !== 'todos') {
-      if (filtroTipo === 'padrao') {
-        resultado = resultado.filter(p => p.e_padrao === true);
-      } else {
-        resultado = resultado.filter(p => p.e_padrao === false);
-      }
+      const ePadrao = filtroTipo === 'padrao';
+      resultado = resultado.filter(p => p.e_padrao === ePadrao);
     }
 
     // Ordenar numericamente por código estruturado (ex: 1.01, 1.02, 2.01, 10.01)
@@ -188,22 +166,11 @@ export default function PlanoContas() {
     });
 
     return resultado;
-  }, [planos, contaSelecionada, filtroCategoria, filtroStatus, filtroTipo]);
-
-  // Aplicar paginação
-  const planosPaginados = useMemo(() => {
-    if (itensPorPagina === 0) return planosFiltrados; // "Todos"
-    return planosFiltrados.slice(0, itensPorPagina);
-  }, [planosFiltrados, itensPorPagina]);
+  }, [planos, termoBusca, filtroCategoria, filtroStatus, filtroTipo]);
 
   const handleAbrirModal = async (plano = null) => {
     if (plano) {
-      // Bloquear edição de contas padrão do sistema
-      if (plano.e_padrao) {
-        toast.error('Contas padrão do sistema não podem ser editadas. Use o botão de ativar/desativar.');
-        return;
-      }
-      // Editar
+      // Editar (permite edição de planos padrão)
       setEditando(plano);
       setCategoriaId(plano.categoria_id);
       setDescricao(plano.descricao);
@@ -354,7 +321,7 @@ export default function PlanoContas() {
   const handleDeletar = async (id, ePadrao) => {
     try {
       if (ePadrao) {
-        toast.error('Planos padrão do sistema não podem ser deletados. Use o botão de ativar/desativar.');
+        toast.error('Planos padrão não podem ser deletados.');
         return;
       }
 
@@ -416,11 +383,9 @@ export default function PlanoContas() {
 
   const handleLimparFiltros = () => {
     setTermoBusca('');
-    setContaSelecionada('');
     setFiltroCategoria('todos');
     setFiltroStatus('todos');
     setFiltroTipo('todos');
-    setItensPorPagina(10);
   };
 
   const getBadgeIndicador = (indicador) => {
@@ -431,7 +396,7 @@ export default function PlanoContas() {
   };
 
   const filtrosAtivos = [
-    contaSelecionada !== '',
+    termoBusca.trim() !== '',
     filtroCategoria !== 'todos',
     filtroStatus !== 'todos',
     filtroTipo !== 'todos',
@@ -447,16 +412,14 @@ export default function PlanoContas() {
         backButton={<BackButton to="/configuracoes/financeiro" />}
       />
 
-      {/* Alerts */}
-      <div className="space-y-3">
-        <Alert className="bg-amber-50 border-amber-200">
-          <Lock className="h-4 w-4 text-amber-600" />
-          <AlertDescription>
-            <strong>{planos.filter(p => p.e_padrao).length} contas padrão do sistema</strong> estão disponíveis e protegidas. 
-            Você pode criar contas personalizadas conforme sua necessidade.
-          </AlertDescription>
-        </Alert>
-      </div>
+      {/* Alert */}
+      <Alert className="bg-blue-50 border-blue-200">
+        <Info className="h-4 w-4 text-blue-600" />
+        <AlertDescription>
+          O sistema criou automaticamente {planos.filter(p => p.e_padrao).length} planos de contas padrão 
+          para confeitaria. Você pode criar planos personalizados conforme sua necessidade.
+        </AlertDescription>
+      </Alert>
 
       {/* Botão Criar */}
       <div className="flex justify-center">
@@ -484,73 +447,18 @@ export default function PlanoContas() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Busca com Autocompletar */}
+          {/* Busca */}
           <div className="space-y-2">
-            <Label>Buscar Conta</Label>
-            <Popover open={buscaAberta} onOpenChange={setBuscaAberta}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={buscaAberta}
-                  className="w-full justify-between"
-                >
-                  {contaSelecionada
-                    ? planos.find((p) => p.id === contaSelecionada)?.codigo_estruturado + ' - ' + 
-                      planos.find((p) => p.id === contaSelecionada)?.descricao
-                    : "Selecione uma conta..."}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0" align="start">
-                <Command shouldFilter={false}>
-                  <CommandInput 
-                    placeholder="Digite para buscar..." 
-                    value={termoBusca}
-                    onValueChange={setTermoBusca}
-                  />
-                  <CommandEmpty>Nenhuma conta encontrada.</CommandEmpty>
-                  <CommandGroup className="max-h-64 overflow-auto">
-                    {planos
-                      .filter(p => {
-                        if (!termoBusca) return true;
-                        const termo = termoBusca.toLowerCase();
-                        return (
-                          p.codigo_estruturado.toLowerCase().includes(termo) ||
-                          p.descricao.toLowerCase().includes(termo) ||
-                          p.categoria?.descricao.toLowerCase().includes(termo)
-                        );
-                      })
-                      .map((plano) => (
-                        <CommandItem
-                          key={plano.id}
-                          value={plano.id}
-                          onSelect={(currentValue) => {
-                            setContaSelecionada(currentValue === contaSelecionada ? "" : currentValue);
-                            setBuscaAberta(false);
-                            setTermoBusca('');
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              contaSelecionada === plano.id ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                          <div className="flex flex-col">
-                            <span className="font-medium">
-                              {plano.codigo_estruturado} - {plano.descricao}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {plano.categoria?.descricao}
-                            </span>
-                          </div>
-                        </CommandItem>
-                      ))}
-                  </CommandGroup>
-                </Command>
-              </PopoverContent>
-            </Popover>
+            <Label>Buscar</Label>
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Código ou descrição..."
+                value={termoBusca}
+                onChange={(e) => setTermoBusca(e.target.value)}
+                className="pl-10"
+              />
+            </div>
           </div>
 
           {/* Tipo */}
@@ -562,8 +470,8 @@ export default function PlanoContas() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todos">Todos</SelectItem>
-                <SelectItem value="padrao">Sistema</SelectItem>
-                <SelectItem value="customizado">Personalizados</SelectItem>
+                <SelectItem value="padrao">Padrão</SelectItem>
+                <SelectItem value="customizado">Customizados</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -602,30 +510,9 @@ export default function PlanoContas() {
           </div>
         </div>
 
-        {/* Resultados por página e contador */}
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Label className="text-sm">Resultados por página:</Label>
-              <Select 
-                value={itensPorPagina.toString()} 
-                onValueChange={(v) => setItensPorPagina(Number(v))}
-              >
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="25">25</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                  <SelectItem value="100">100</SelectItem>
-                  <SelectItem value="0">Todos</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Mostrando <strong>{planosPaginados.length}</strong> de <strong>{planosFiltrados.length}</strong> plano(s)
-            </div>
+          <div className="text-sm text-muted-foreground">
+            Mostrando <strong>{planosFiltrados.length}</strong> de <strong>{planos.length}</strong> plano(s)
           </div>
           <Button onClick={handleExportar} variant="outline" size="sm">
             <Download className="mr-2 h-4 w-4" />
@@ -649,16 +536,16 @@ export default function PlanoContas() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {planosPaginados.length === 0 ? (
+            {planosFiltrados.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                  {contaSelecionada || filtrosAtivos > 0 
+                  {termoBusca || filtrosAtivos > 0 
                     ? 'Nenhum plano encontrado.' 
                     : 'Nenhum plano cadastrado.'}
                 </TableCell>
               </TableRow>
             ) : (
-              planosPaginados.map(plano => (
+              planosFiltrados.map(plano => (
                 <TableRow 
                   key={plano.id}
                   className={!plano.ativo ? 'opacity-50 bg-muted/50' : ''}
@@ -677,9 +564,7 @@ export default function PlanoContas() {
                   <TableCell className="font-mono font-bold">
                     {plano.codigo_estruturado}
                   </TableCell>
-                  <TableCell>
-                    <span className="font-medium">{plano.descricao}</span>
-                  </TableCell>
+                  <TableCell className="font-medium">{plano.descricao}</TableCell>
                   <TableCell className="text-sm">
                     {plano.categoria?.codigo} - {plano.categoria?.descricao}
                   </TableCell>
@@ -697,65 +582,36 @@ export default function PlanoContas() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
-                      {plano.e_padrao ? (
-                        // Apenas toggle ativo/inativo para contas padrão
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleAbrirModal(plano)}
+                        title="Editar"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      {!plano.e_padrao && (
                         <Button
-                          variant={plano.ativo ? "outline" : "default"}
+                          variant="ghost"
                           size="sm"
-                          onClick={() => handleToggleAtivo(plano.id, plano.ativo)}
-                          title={plano.ativo ? 'Desativar conta' : 'Ativar conta'}
-                          className="gap-2"
+                          onClick={() => handleDeletar(plano.id, plano.e_padrao)}
+                          title="Deletar"
                         >
-                          {plano.ativo ? (
-                            <>
-                              <PowerOff className="h-4 w-4" />
-                              Desativar
-                            </>
-                          ) : (
-                            <>
-                              <Power className="h-4 w-4" />
-                              Ativar
-                            </>
-                          )}
+                          <Trash2 className="h-4 w-4 text-red-600" />
                         </Button>
-                      ) : (
-                        // Menu dropdown com 3 pontos verticais para contas personalizadas
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleAbrirModal(plano)}>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Editar
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleToggleAtivo(plano.id, plano.ativo)}>
-                              {plano.ativo ? (
-                                <>
-                                  <PowerOff className="h-4 w-4 mr-2" />
-                                  Desabilitar
-                                </>
-                              ) : (
-                                <>
-                                  <Power className="h-4 w-4 mr-2" />
-                                  Habilitar
-                                </>
-                              )}
-                            </DropdownMenuItem>
-                            {!plano.e_padrao && (
-                              <DropdownMenuItem
-                                className="text-destructive"
-                                onClick={() => handleDeletar(plano.id, plano.e_padrao)}
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Excluir
-                              </DropdownMenuItem>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
                       )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleToggleAtivo(plano.id, plano.ativo)}
+                        title={plano.ativo ? 'Desativar' : 'Ativar'}
+                      >
+                        {plano.ativo ? (
+                          <PowerOff className="h-4 w-4 text-red-600" />
+                        ) : (
+                          <Power className="h-4 w-4 text-green-600" />
+                        )}
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>

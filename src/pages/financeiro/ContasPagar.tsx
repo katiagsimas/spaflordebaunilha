@@ -411,7 +411,7 @@ export default function ContasPagar() {
       'Documento': p.tipo_documento_descricao || '',
       'Nº Documento': p.numero_documento || '',
       'Data Emissão': formatarData(p.data_emissao),
-      'Plano de Contas': p.plano_contas_descricao,
+      'Plano de Contas': `${p.plano_contas_codigo} - ${p.plano_contas_descricao}`,
       'Fornecedor': p.fornecedor_nome || '',
       'Data Vencimento': formatarData(p.data_vencimento),
       'Valor Total': p.valor_total,
@@ -625,7 +625,7 @@ export default function ContasPagar() {
       const csvData = parcelasExportar.map((p: any) => ({
         'Documento': p.tipo_documento_descricao || '',
         'Data Emissão': formatarData(p.data_emissao),
-        'Plano de Contas': p.plano_contas_descricao,
+        'Plano de Contas': `${p.plano_contas_codigo} - ${p.plano_contas_descricao}`,
         'Fornecedor': p.fornecedor_nome || '',
         'Data Vencimento': formatarData(p.data_vencimento),
         'Valor Total': p.valor_total,
@@ -986,7 +986,7 @@ export default function ContasPagar() {
                 <SelectItem value="todos">Todos</SelectItem>
                 {planosContas.map((p: any) => (
                   <SelectItem key={p.id} value={p.id}>
-                    {p.descricao}
+                    {p.codigo_estruturado} - {p.descricao}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -1179,7 +1179,7 @@ export default function ContasPagar() {
                   <TableCell>{parcela.tipo_documento_descricao || 'N/A'}</TableCell>
                   <TableCell>{formatarData(parcela.data_emissao)}</TableCell>
                   <TableCell className="text-sm">
-                    {parcela.plano_contas_descricao}
+                    {parcela.plano_contas_codigo} - {parcela.plano_contas_descricao}
                   </TableCell>
                   <TableCell className="font-medium">{parcela.fornecedor_nome || 'N/A'}</TableCell>
                   <TableCell>{formatarData(parcela.data_vencimento)}</TableCell>
