@@ -77,7 +77,13 @@ export function AdicionarClienteDialog({ open, onOpenChange, onClienteAdicionado
     }
 
     try {
-      const novoCliente = await createCliente(formData);
+      // Converter campos de data vazios para null
+      const dadosLimpos = {
+        ...formData,
+        data_aniversario: formData.data_aniversario || null,
+      };
+      
+      const novoCliente = await createCliente(dadosLimpos);
       toast.success("Cliente cadastrado com sucesso!");
       
       // Notifica o componente pai com o cliente criado

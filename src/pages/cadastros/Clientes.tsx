@@ -63,10 +63,16 @@ export default function Clientes() {
     }
 
     try {
+      // Converter campos de data vazios para null
+      const dadosLimpos = {
+        ...formData,
+        data_aniversario: formData.data_aniversario || null,
+      };
+      
       if (editingCliente) {
-        await updateCliente(editingCliente.id, formData);
+        await updateCliente(editingCliente.id, dadosLimpos);
       } else {
-        await createCliente(formData);
+        await createCliente(dadosLimpos);
       }
       resetForm();
     } catch (error: any) {

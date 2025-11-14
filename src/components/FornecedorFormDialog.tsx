@@ -69,7 +69,13 @@ export function FornecedorFormDialog({
       return; // O campo nome já tem required, mas adiciona validação extra
     }
     
-    await onSubmit(formData);
+    // Converter campos de data vazios para null
+    const dadosLimpos = {
+      ...formData,
+      data_aniversario_contato: formData.data_aniversario_contato || null,
+    };
+    
+    await onSubmit(dadosLimpos);
   };
 
   const handleCancel = () => {
