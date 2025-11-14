@@ -241,11 +241,12 @@ export default function ContasReceberDetalhes() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Buscar bancos
+      // Buscar bancos habilitados
       const { data: dataBancos } = await supabase
         .from('bancos')
         .select('id, codigo, nome')
         .eq('usuario_id', user.id)
+        .eq('habilitado', true)
         .order('nome');
 
       setBancos(dataBancos || []);

@@ -101,6 +101,7 @@ export default function FluxoCaixa() {
         .from('bancos')
         .select('id, codigo, nome')
         .eq('usuario_id', user.id)
+        .eq('habilitado', true)
         .order('nome');
 
       setBancos(data || []);

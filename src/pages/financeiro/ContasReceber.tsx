@@ -210,11 +210,12 @@ export default function ContasReceber() {
       
       setTiposDocumento(tiposData || []);
 
-      // Buscar bancos
+      // Buscar bancos habilitados
       const { data: bancosData } = await supabase
         .from('bancos')
         .select('*')
         .eq('usuario_id', user.id)
+        .eq('habilitado', true)
         .order('nome');
       
       setBancos(bancosData || []);
