@@ -231,7 +231,7 @@ export default function Fornecedores() {
         </Badge>
       </div>
 
-      {/* Alerta de aniversariantes de contatos */}
+      {/* Aniversariantes do Mês */}
       <AlertaAniversariantesContatos contatos={contatosAniversariantes} />
 
       <Card>
