@@ -39,6 +39,26 @@ export function useCategorias() {
     }
   };
 
+  // Função para buscar apenas categorias ativas (para uso em formulários)
+  const fetchCategoriasAtivas = async () => {
+    if (!user) return [];
+    
+    try {
+      const { data, error } = await supabase
+        .from('categorias')
+        .select('*')
+        .eq('usuario_id', user.id)
+        .eq('ativo', true)
+        .order('nome');
+
+      if (error) throw error;
+      return data || [];
+    } catch (err: any) {
+      console.error('Erro ao buscar categorias ativas:', err);
+      return [];
+    }
+  };
+
   const createCategoria = async (categoria: Omit<Categoria, 'id' | 'usuario_id' | 'created_at' | 'updated_at'>) => {
     if (!user) throw new Error('Usuário não autenticado');
 
@@ -96,5 +116,6 @@ export function useCategorias() {
     updateCategoria,
     deleteCategoria,
     refetch: fetchCategorias,
+    fetchCategoriasAtivas,
   };
 }
