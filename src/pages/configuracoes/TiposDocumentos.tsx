@@ -89,8 +89,8 @@ export default function TiposDocumentos() {
       // Se não tem, criar padrão
       if (!tiposExistentes || tiposExistentes.length === 0) {
         console.log('Criando tipos de documentos padrão...');
-        const { error: errorCriar } = await supabase.rpc('criar_tipos_documentos_padrao', {
-          p_user_id: user.id
+        const { error: errorCriar } = await supabase.rpc('criar_tipos_documento_padrao_para_usuario', {
+          p_usuario_id: user.id
         });
 
         if (errorCriar) {

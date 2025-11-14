@@ -3830,6 +3830,10 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
+      criar_tipos_documento_padrao_para_usuario: {
+        Args: { p_usuario_id: string }
+        Returns: undefined
+      }
       criar_tipos_documentos_padrao: {
         Args: { p_user_id: string }
         Returns: undefined
