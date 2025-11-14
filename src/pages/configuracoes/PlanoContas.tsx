@@ -53,6 +53,7 @@ export default function PlanoContas() {
   const [filtroCategoria, setFiltroCategoria] = useState('todos');
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [filtroTipo, setFiltroTipo] = useState('todos');
+  const [resultadosPorPagina, setResultadosPorPagina] = useState('todos');
 
   // Modal
   const [modalAberto, setModalAberto] = useState(false);
@@ -178,6 +179,15 @@ export default function PlanoContas() {
 
     return resultado;
   }, [planos, termoBusca, filtroCategoria, filtroStatus, filtroTipo]);
+
+  // Aplicar limite de resultados por página
+  const planosPaginados = useMemo(() => {
+    if (resultadosPorPagina === 'todos') {
+      return planosFiltrados;
+    }
+    const limite = parseInt(resultadosPorPagina);
+    return planosFiltrados.slice(0, limite);
+  }, [planosFiltrados, resultadosPorPagina]);
 
   const handleAbrirModal = async (plano = null) => {
     if (plano) {
@@ -564,9 +574,26 @@ export default function PlanoContas() {
           </div>
         </div>
 
-        <div className="flex justify-between items-center">
-          <div className="text-sm text-muted-foreground">
-            Mostrando <strong>{planosFiltrados.length}</strong> de <strong>{planos.length}</strong> plano(s)
+        <div className="flex justify-between items-center gap-4">
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-muted-foreground">
+              Mostrando <strong>{planosPaginados.length}</strong> de <strong>{planosFiltrados.length}</strong> plano(s)
+            </div>
+            <div className="flex items-center gap-2">
+              <Label className="text-sm whitespace-nowrap">Resultados por página:</Label>
+              <Select value={resultadosPorPagina} onValueChange={setResultadosPorPagina}>
+                <SelectTrigger className="w-24">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                  <SelectItem value="todos">Todos</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <Button onClick={handleExportar} variant="outline" size="sm">
             <Download className="mr-2 h-4 w-4" />
@@ -590,7 +617,7 @@ export default function PlanoContas() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {planosFiltrados.length === 0 ? (
+            {planosPaginados.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                   {termoBusca || filtrosAtivos > 0 
@@ -599,7 +626,7 @@ export default function PlanoContas() {
                 </TableCell>
               </TableRow>
             ) : (
-              planosFiltrados.map(plano => (
+              planosPaginados.map(plano => (
                 <TableRow 
                   key={plano.id}
                   className={!plano.ativo ? 'opacity-50 bg-muted/50' : ''}
