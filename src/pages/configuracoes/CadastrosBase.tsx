@@ -12,7 +12,7 @@ export default function CadastrosBase() {
     <div className="min-h-screen bg-background">
       <PageHeader
         title="Cadastros Base"
-        description="Gerencie categorias, tipos de insumos e dados da confeitaria"
+        description="Gerencie categorias, insumos e embalagens e dados da confeitaria"
         backButton={<BackButton to="/configuracoes" />}
       />
       
@@ -65,7 +65,7 @@ export default function CadastrosBase() {
           </CardHeader>
         </Card>
 
-        {/* Card: Tipos de Insumos */}
+        {/* Card: Insumos e Embalagens */}
         <Card 
           className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-green-500"
           onClick={() => navigate("/configuracoes/tipos-insumos")}
@@ -77,7 +77,7 @@ export default function CadastrosBase() {
               </div>
               <div className="min-w-0 flex-1">
                 <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
-                  Tipos de Insumos
+                  Insumos e Embalagens
                 </CardTitle>
               </div>
             </div>

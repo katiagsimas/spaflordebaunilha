@@ -58,7 +58,7 @@ export default function Configuracoes() {
               </div>
             </div>
             <CardDescription className="text-xs line-clamp-2">
-              Gerencie categorias, tipos de insumos e dados da confeitaria
+              Gerencie categorias, insumos e embalagens e dados da confeitaria
             </CardDescription>
           </CardHeader>
         </Card>
