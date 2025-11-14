@@ -24,7 +24,14 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Info, Search, Plus, Edit, Trash2 } from 'lucide-react';
+import { Info, Search, Plus, Edit, Trash2, Filter } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { BackButton } from '@/components/BackButton';
 import { PageHeader } from '@/components/PageHeader';
@@ -49,6 +56,10 @@ export default function TiposDocumentos() {
 
   // Busca
   const [termoBusca, setTermoBusca] = useState('');
+  
+  // Filtros
+  const [filtroTipo, setFiltroTipo] = useState<'todos' | 'padrao' | 'custom'>('todos');
+  const [filtroStatus, setFiltroStatus] = useState<'todos' | 'habilitado' | 'desabilitado'>('todos');
 
   // Modal
   const [modalAberto, setModalAberto] = useState(false);
@@ -87,11 +98,12 @@ export default function TiposDocumentos() {
         }
       }
 
-      // Buscar tipos ordenados: padrão primeiro, depois customizados
+      // Buscar tipos ordenados: habilitados primeiro, depois padrão, depois alfabético
       const { data, error } = await supabase
         .from('tipos_documento')
         .select('*')
         .eq('usuario_id', user.id)
+        .order('habilitado', { ascending: false })
         .order('e_padrao', { ascending: false })
         .order('descricao');
 
@@ -109,16 +121,35 @@ export default function TiposDocumentos() {
     }
   };
 
-  // Filtrar por busca
+  // Filtrar por busca, tipo e status
   const tiposFiltrados = useMemo(() => {
-    if (!termoBusca.trim()) return tipos;
+    let resultado = tipos;
 
-    const termo = termoBusca.toLowerCase();
-    return tipos.filter(t => 
-      t.descricao.toLowerCase().includes(termo) ||
-      t.codigo.toString().includes(termo)
-    );
-  }, [tipos, termoBusca]);
+    // Filtro de busca
+    if (termoBusca.trim()) {
+      const termo = termoBusca.toLowerCase();
+      resultado = resultado.filter(t => 
+        t.descricao.toLowerCase().includes(termo) ||
+        t.codigo.toString().includes(termo)
+      );
+    }
+
+    // Filtro de tipo (Padrão ou Custom)
+    if (filtroTipo !== 'todos') {
+      resultado = resultado.filter(t => 
+        filtroTipo === 'padrao' ? t.e_padrao : !t.e_padrao
+      );
+    }
+
+    // Filtro de status (Habilitado ou Desabilitado)
+    if (filtroStatus !== 'todos') {
+      resultado = resultado.filter(t => 
+        filtroStatus === 'habilitado' ? t.habilitado : !t.habilitado
+      );
+    }
+
+    return resultado;
+  }, [tipos, termoBusca, filtroTipo, filtroStatus]);
 
   const handleAbrirModal = async (tipo: TipoDocumento | null = null) => {
     if (tipo) {
@@ -193,6 +224,7 @@ export default function TiposDocumentos() {
             codigo: parseInt(codigoSugerido),
             descricao: descricao.trim(),
             e_padrao: false,
+            habilitado: false,
           });
 
         if (error) {
@@ -317,7 +349,7 @@ export default function TiposDocumentos() {
         </AlertDescription>
       </Alert>
 
-      {/* Busca */}
+      {/* Busca e Filtros */}
       <div className="flex gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -328,10 +360,34 @@ export default function TiposDocumentos() {
             className="pl-10"
           />
         </div>
+        
+        <Select value={filtroTipo} onValueChange={(value: any) => setFiltroTipo(value)}>
+          <SelectTrigger className="w-48">
+            <Filter className="mr-2 h-4 w-4" />
+            <SelectValue placeholder="Tipo" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os Tipos</SelectItem>
+            <SelectItem value="padrao">Padrão</SelectItem>
+            <SelectItem value="custom">Custom</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={filtroStatus} onValueChange={(value: any) => setFiltroStatus(value)}>
+          <SelectTrigger className="w-48">
+            <Filter className="mr-2 h-4 w-4" />
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os Status</SelectItem>
+            <SelectItem value="habilitado">Habilitado</SelectItem>
+            <SelectItem value="desabilitado">Desabilitado</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Contador */}
-      {termoBusca && (
+      {(termoBusca || filtroTipo !== 'todos' || filtroStatus !== 'todos') && (
         <div className="text-sm text-muted-foreground">
           Mostrando <strong>{tiposFiltrados.length}</strong> de <strong>{tipos.length}</strong> tipo(s)
         </div>
