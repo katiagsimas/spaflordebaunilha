@@ -12,14 +12,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
   Table,
   TableBody,
   TableCell,
@@ -30,7 +22,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2 } from 'lucide-react';
+import { Info, Search, Download, Filter } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { BackButton } from '@/components/BackButton';
 import * as XLSX from 'xlsx';
@@ -57,14 +49,6 @@ export default function CategoriasPlanoContas() {
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [filtroFaixaDRE, setFiltroFaixaDRE] = useState('todos');
   const [filtroTipo, setFiltroTipo] = useState('todos');
-
-  // Modal criar/editar
-  const [modalAberto, setModalAberto] = useState(false);
-  const [editando, setEditando] = useState<Categoria | null>(null);
-  const [codigoSugerido, setCodigoSugerido] = useState('');
-  const [descricao, setDescricao] = useState('');
-  const [indicador, setIndicador] = useState('');
-  const [faixaDRE, setFaixaDRE] = useState('');
 
   useEffect(() => {
     fetchCategorias();
@@ -168,233 +152,6 @@ export default function CategoriasPlanoContas() {
     return faixas.sort();
   }, [categorias]);
 
-  const handleAbrirModal = async (categoria: Categoria | null = null) => {
-    if (categoria) {
-      // Editar
-      if (categoria.e_padrao) {
-        toast({
-          title: 'Não editável',
-          description: 'Categorias padrão não podem ser editadas.',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      setEditando(categoria);
-      setDescricao(categoria.descricao);
-      setIndicador(categoria.indicador);
-      setFaixaDRE(categoria.faixa_dre);
-      setCodigoSugerido('');
-    } else {
-      // Criar nova - gerar código automaticamente
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        const { data, error } = await supabase.rpc('gerar_proximo_codigo_categoria', {
-          p_user_id: user.id
-        });
-
-        if (error) {
-          console.error('Erro ao gerar código:', error);
-          setCodigoSugerido('200'); // Fallback
-        } else {
-          setCodigoSugerido(data);
-        }
-      } catch (error) {
-        console.error('Erro:', error);
-        setCodigoSugerido('200');
-      }
-
-      setEditando(null);
-      setDescricao('');
-      setIndicador('');
-      setFaixaDRE('');
-    }
-    setModalAberto(true);
-  };
-
-  const handleSalvar = async () => {
-    try {
-      // Validações
-      if (!descricao.trim()) {
-        toast({
-          title: 'Erro',
-          description: 'Informe a descrição da categoria!',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (!indicador) {
-        toast({
-          title: 'Erro',
-          description: 'Selecione o indicador (Crédito ou Débito)!',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (!faixaDRE) {
-        toast({
-          title: 'Erro',
-          description: 'Selecione a faixa no DRE!',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Não autenticado');
-
-      if (editando) {
-        // Atualizar categoria customizada
-        const { error } = await supabase
-          .from('categorias_plano_contas')
-          .update({
-            descricao: descricao.trim(),
-            indicador,
-            faixa_dre: faixaDRE,
-          })
-          .eq('id', editando.id)
-          .eq('e_padrao', false);
-
-        if (error) throw error;
-
-        toast({
-          title: '✅ Atualizado',
-          description: 'Categoria atualizada com sucesso!',
-        });
-      } else {
-        // Criar nova categoria com código gerado
-        const codigoFinal = codigoSugerido;
-
-        // Verificar se código já existe (segurança extra)
-        const { data: existente } = await supabase
-          .from('categorias_plano_contas')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('codigo', codigoFinal)
-          .maybeSingle();
-
-        if (existente) {
-          throw new Error('Código já existe. Por favor, tente novamente.');
-        }
-
-        // Pegar maior ordem e adicionar 1
-        const maxOrdem = Math.max(...categorias.map(c => c.ordem), 0);
-
-        const { error } = await supabase
-          .from('categorias_plano_contas')
-          .insert({
-            user_id: user.id,
-            codigo: codigoFinal,
-            descricao: descricao.trim(),
-            indicador,
-            faixa_dre: faixaDRE,
-            e_padrao: false,
-            ativo: true,
-            ordem: maxOrdem + 1,
-          });
-
-        if (error) {
-          if (error.code === '23505') {
-            throw new Error('Código já existe. Por favor, tente novamente.');
-          }
-          throw error;
-        }
-
-        toast({
-          title: '✅ Cadastrado',
-          description: `Categoria criada com código ${codigoFinal}!`,
-        });
-      }
-
-      setModalAberto(false);
-      fetchCategorias();
-    } catch (error: any) {
-      console.error('Erro ao salvar:', error);
-      toast({
-        title: 'Erro ao salvar',
-        description: error.message,
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleToggleAtivo = async (id: string, ativoAtual: boolean) => {
-    try {
-      const novoStatus = !ativoAtual;
-
-      const { error } = await supabase
-        .from('categorias_plano_contas')
-        .update({ ativo: novoStatus })
-        .eq('id', id);
-
-      if (error) throw error;
-
-      toast({
-        title: novoStatus ? '✅ Categoria ativada' : '⚠️ Categoria desativada',
-        description: novoStatus 
-          ? 'Categoria reativada com sucesso!' 
-          : 'Categoria desativada. Não aparecerá mais nas opções.',
-      });
-
-      fetchCategorias();
-    } catch (error) {
-      console.error('Erro ao alterar status:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível alterar o status.',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleDeletar = async (id: string, ePadrao: boolean) => {
-    try {
-      if (ePadrao) {
-        toast({
-          title: 'Não permitido',
-          description: 'Categorias padrão não podem ser deletadas. Apenas desative-as.',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (!confirm('Tem certeza que deseja deletar esta categoria? Esta ação não pode ser desfeita.')) {
-        return;
-      }
-
-      const { error } = await supabase
-        .from('categorias_plano_contas')
-        .delete()
-        .eq('id', id)
-        .eq('e_padrao', false); // Garantir que não deleta padrão
-
-      if (error) {
-        if (error.code === '23503') {
-          throw new Error('Esta categoria está sendo usada e não pode ser deletada. Desative-a ao invés disso.');
-        }
-        throw error;
-      }
-
-      toast({
-        title: '✅ Deletado',
-        description: 'Categoria deletada com sucesso!',
-      });
-
-      fetchCategorias();
-    } catch (error: any) {
-      console.error('Erro ao deletar:', error);
-      toast({
-        title: 'Erro ao deletar',
-        description: error.message,
-        variant: 'destructive',
-      });
-    }
-  };
-
   const handleExportarExcel = () => {
     try {
       const dadosExport = categoriasFiltradas.map(categoria => ({
@@ -479,18 +236,9 @@ export default function CategoriasPlanoContas() {
       <Alert className="bg-blue-50 border-blue-200">
         <Info className="h-4 w-4 text-blue-600" />
         <AlertDescription>
-          O sistema possui 17 categorias padrão. Você pode criar categorias personalizadas 
-          conforme sua necessidade e editar apenas as customizadas.
+          Esta página é apenas para visualização. O sistema possui 17 categorias padrão para classificação de receitas e despesas no DRE.
         </AlertDescription>
       </Alert>
-
-      {/* Botão Criar Nova Categoria */}
-      <div className="flex justify-center">
-        <Button onClick={() => handleAbrirModal()} size="lg">
-          <Plus className="mr-2 h-5 w-5" />
-          Criar Nova Categoria
-        </Button>
-      </div>
 
       {/* Filtros */}
       <div className="border rounded-lg p-4 space-y-4 bg-muted/30">
@@ -612,13 +360,12 @@ export default function CategoriasPlanoContas() {
               <TableHead className="w-32">Indicador</TableHead>
               <TableHead>Faixa no DRE</TableHead>
               <TableHead className="w-32">Status</TableHead>
-              <TableHead className="text-right w-40">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {categoriasFiltradas.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                   {termoBusca || filtrosAtivos > 0 
                     ? 'Nenhuma categoria encontrada com esses filtros.' 
                     : 'Nenhuma categoria encontrada.'}
@@ -656,42 +403,6 @@ export default function CategoriasPlanoContas() {
                       </Badge>
                     )}
                   </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      {!categoria.e_padrao && (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleAbrirModal(categoria)}
-                            title="Editar categoria"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeletar(categoria.id, categoria.e_padrao)}
-                            title="Deletar categoria"
-                          >
-                            <Trash2 className="h-4 w-4 text-red-600" />
-                          </Button>
-                        </>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleToggleAtivo(categoria.id, categoria.ativo)}
-                        title={categoria.ativo ? 'Desativar' : 'Ativar'}
-                      >
-                        {categoria.ativo ? (
-                          <PowerOff className="h-4 w-4 text-red-600" />
-                        ) : (
-                          <Power className="h-4 w-4 text-green-600" />
-                        )}
-                      </Button>
-                    </div>
-                  </TableCell>
                 </TableRow>
               ))
             )}
@@ -699,104 +410,12 @@ export default function CategoriasPlanoContas() {
         </Table>
       </div>
 
-      {/* Modal Criar/Editar */}
-      <Dialog open={modalAberto} onOpenChange={setModalAberto}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {editando ? 'Editar Categoria' : 'Criar Nova Categoria'}
-            </DialogTitle>
-            <DialogDescription>
-              {editando 
-                ? 'Edite os dados da categoria customizada' 
-                : 'Crie uma categoria personalizada para suas necessidades'}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-4">
-            {/* Mostrar código gerado (somente ao criar) */}
-            {!editando && codigoSugerido && (
-              <Alert className="bg-blue-50 border-blue-200">
-                <Info className="h-4 w-4 text-blue-600" />
-                <AlertDescription>
-                  <strong>Código gerado automaticamente:</strong> {codigoSugerido}
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {/* Mostrar código atual (somente ao editar) */}
-            {editando && (
-              <div className="p-3 bg-muted rounded-lg">
-                <Label className="text-xs text-muted-foreground">Código</Label>
-                <p className="font-mono font-bold text-lg">{editando.codigo}</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  O código não pode ser alterado
-                </p>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="descricao">Descrição *</Label>
-              <Input
-                id="descricao"
-                placeholder="Ex: Marketing Digital"
-                value={descricao}
-                onChange={(e) => setDescricao(e.target.value)}
-                autoFocus
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Indicador *</Label>
-              <Select value={indicador} onValueChange={setIndicador}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Credito">Crédito (Receitas)</SelectItem>
-                  <SelectItem value="Debito">Débito (Despesas)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Faixa no DRE *</Label>
-              <Select value={faixaDRE} onValueChange={setFaixaDRE}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Receitas">Receitas</SelectItem>
-                  <SelectItem value="Deduções sobre vendas">Deduções sobre vendas</SelectItem>
-                  <SelectItem value="Custos variáveis">Custos variáveis</SelectItem>
-                  <SelectItem value="Custos fixos">Custos fixos</SelectItem>
-                  <SelectItem value="Resultado operacional">Resultado operacional</SelectItem>
-                  <SelectItem value="Resultado não operacional">Resultado não operacional</SelectItem>
-                  <SelectItem value="Resultado financeiro">Resultado financeiro</SelectItem>
-                  <SelectItem value="Investimento">Investimento</SelectItem>
-                  <SelectItem value="Não listar no DRE">Não listar no DRE</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setModalAberto(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleSalvar}>
-              {editando ? 'Atualizar' : 'Criar Categoria'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Alerta informativo */}
+      {/* Informativo rodapé */}
       <Alert>
         <Info className="h-4 w-4" />
-        <AlertDescription className="text-sm">
-          <strong>Dica:</strong> Categorias padrão não podem ser editadas ou deletadas. 
-          Crie categorias customizadas para suas necessidades específicas.
+        <AlertDescription>
+          <strong>Dica:</strong> Use os filtros para encontrar categorias específicas. 
+          Exporte para Excel para análise externa.
         </AlertDescription>
       </Alert>
     </div>
