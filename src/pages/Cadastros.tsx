@@ -2,17 +2,8 @@ import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { DollarSign } from "lucide-react";
 
-const cadastros = [
-  {
-    title: "Custos Fixos",
-    description: "Despesas mensais fixas",
-    icon: DollarSign,
-    url: "/cadastros/custos-fixos",
-    color: "text-red-600 bg-red-50 dark:bg-red-950",
-  },
-];
+const cadastros: any[] = [];
 
 export default function Cadastros() {
   const navigate = useNavigate();
@@ -26,38 +17,45 @@ export default function Cadastros() {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-        {cadastros.map((cadastro, index) => {
-          const Icon = cadastro.icon;
-          return (
-            <Card
-              key={cadastro.url}
-              className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 animate-fade-in border-l-4"
-              style={{ 
-                animationDelay: `${index * 0.05}s`,
-                borderLeftColor: cadastro.color.includes('red') ? 'hsl(var(--destructive))' :
-                                cadastro.color.includes('orange') ? 'hsl(var(--warning))' :
-                                'hsl(var(--primary))'
-              }}
-              onClick={() => navigate(cadastro.url)}
-            >
-              <CardHeader className="p-4 space-y-2">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-lg ${cadastro.color} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
-                    <Icon className="h-5 w-5" />
+        {cadastros.length === 0 ? (
+          <div className="col-span-full text-center py-12 text-muted-foreground">
+            <p>Todos os cadastros foram movidos para a seção de Configurações.</p>
+            <p className="text-sm mt-2">Acesse o menu Configurações para gerenciar seus dados.</p>
+          </div>
+        ) : (
+          cadastros.map((cadastro, index) => {
+            const Icon = cadastro.icon;
+            return (
+              <Card
+                key={cadastro.url}
+                className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 animate-fade-in border-l-4"
+                style={{ 
+                  animationDelay: `${index * 0.05}s`,
+                  borderLeftColor: cadastro.color.includes('red') ? 'hsl(var(--destructive))' :
+                                  cadastro.color.includes('orange') ? 'hsl(var(--warning))' :
+                                  'hsl(var(--primary))'
+                }}
+                onClick={() => navigate(cadastro.url)}
+              >
+                <CardHeader className="p-4 space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-lg ${cadastro.color} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                        {cadastro.title}
+                      </CardTitle>
+                    </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
-                      {cadastro.title}
-                    </CardTitle>
-                  </div>
-                </div>
-                <CardDescription className="text-xs line-clamp-2">
-                  {cadastro.description}
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          );
-        })}
+                  <CardDescription className="text-xs line-clamp-2">
+                    {cadastro.description}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            );
+          })
+        )}
       </div>
     </div>
   );

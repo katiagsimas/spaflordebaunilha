@@ -23,7 +23,6 @@ import CMVGlobal from "./pages/CMVGlobal";
 import Cadastros from "./pages/Cadastros";
 import ClientesFornecedores from "./pages/ClientesFornecedores";
 import SeusDados from "./pages/cadastros/SeusDados";
-import CustosFixos from "./pages/configuracoes/precificacao/CustosFixos";
 import MaoDeObra from "./pages/configuracoes/precificacao/MaoDeObra";
 
 import CadastrosBase from "./pages/configuracoes/CadastrosBase";
@@ -143,7 +142,6 @@ const App = () => (
           
           {/* Precificação - Página Container + Sub-rotas */}
           <Route path="/precificacao" element={<ProtectedRoute><Layout><Precificacao /></Layout></ProtectedRoute>} />
-          <Route path="/precificacao/custos-fixos" element={<ProtectedRoute><Layout><CustosFixos /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/pre-preparo" element={<ProtectedRoute><Layout><SubReceitas /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/pre-preparo/nova" element={<ProtectedRoute><Layout><SubReceitaForm /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/pre-preparo/editar/:id" element={<ProtectedRoute><Layout><SubReceitaForm /></Layout></ProtectedRoute>} />
@@ -157,7 +155,6 @@ const App = () => (
           <Route path="/configuracoes/precificacao" element={<ProtectedRoute><Layout><PrecificacaoPage /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/financeiro" element={<ProtectedRoute><Layout><FinanceiroPage /></Layout></ProtectedRoute>} />
           
-          <Route path="/configuracoes/precificacao/custos-fixos" element={<ProtectedRoute><Layout><CustosFixos /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/precificacao/mao-de-obra" element={<ProtectedRoute><Layout><MaoDeObra /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/tipos-insumos" element={<ProtectedRoute><Layout><TiposInsumos /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/categorias-plano-contas" element={<ProtectedRoute><Layout><CategoriasPlanoContas /></Layout></ProtectedRoute>} />

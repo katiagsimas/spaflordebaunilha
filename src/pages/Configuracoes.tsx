@@ -80,7 +80,7 @@ export default function Configuracoes() {
               </div>
             </div>
             <CardDescription className="text-xs line-clamp-2">
-              Configure custos fixos, mão de obra, unidades de medida e categorias de receitas
+              Configure mão de obra, unidades de medida e categorias de receitas
             </CardDescription>
           </CardHeader>
         </Card>

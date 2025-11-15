@@ -12,7 +12,7 @@ export default function PrecificacaoPage() {
     <div className="min-h-screen bg-background">
       <PageHeader
         title="Precificação"
-        description="Configure custos fixos, mão de obra e unidades de medida"
+        description="Configure mão de obra, unidades de medida e categorias de receitas"
         backButton={<BackButton to="/configuracoes" />}
       />
       
