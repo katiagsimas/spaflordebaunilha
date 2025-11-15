@@ -266,17 +266,57 @@ export default function Receitas() {
     }
   };
 
-  // Verificar alertas de CMV e Margem
+  // Verificar alertas de CMV e Margem com informações detalhadas
   const verificarAlertas = (receita: Receita) => {
     const percentualCMV = calcularPercentualCMV(receita);
     const percentualMargem = calcularPercentualMargem(receita);
-    const alertas: string[] = [];
+    
+    const alertas: Array<{
+      texto: string;
+      percentual: number;
+      tipo: 'cmv' | 'margem';
+      cor: string;
+    }> = [];
 
+    // Alerta de CMV (seguindo mesma lógica da ficha técnica)
     if (percentualCMV > 45) {
-      alertas.push("CMV muito alto");
+      alertas.push({
+        texto: "CMV Crítico",
+        percentual: percentualCMV,
+        tipo: 'cmv',
+        cor: "bg-red-100 text-red-700 border-red-300 dark:bg-red-950 dark:text-red-400 dark:border-red-800"
+      });
+    } else if (percentualCMV > 35) {
+      alertas.push({
+        texto: "CMV Atenção",
+        percentual: percentualCMV,
+        tipo: 'cmv',
+        cor: "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800"
+      });
+    } else if (percentualCMV > 25) {
+      alertas.push({
+        texto: "CMV Bom",
+        percentual: percentualCMV,
+        tipo: 'cmv',
+        cor: "bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-800"
+      });
+    } else {
+      alertas.push({
+        texto: "CMV Excelente",
+        percentual: percentualCMV,
+        tipo: 'cmv',
+        cor: "bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-800"
+      });
     }
+
+    // Alerta de Margem
     if (percentualMargem < 30) {
-      alertas.push("Margem muito baixa");
+      alertas.push({
+        texto: "Margem muito baixa",
+        percentual: percentualMargem,
+        tipo: 'margem',
+        cor: "bg-red-100 text-red-700 border-red-300 dark:bg-red-950 dark:text-red-400 dark:border-red-800"
+      });
     }
 
     return alertas;
@@ -430,20 +470,18 @@ export default function Receitas() {
                       R$ {lucro.toFixed(2)}
                     </TableCell>
                     <TableCell className="text-center">
-                      {temAlerta && (
-                        <div className="flex flex-col gap-1">
-                          {alertas.map((alerta, index) => (
-                            <Badge 
-                              key={index}
-                              variant="outline" 
-                              className="bg-red-100 text-red-700 border-red-300 dark:bg-red-950 dark:text-red-400 dark:border-red-800"
-                            >
-                              <AlertTriangle className="h-3 w-3 mr-1" />
-                              {alerta}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
+                      <div className="flex flex-col gap-1">
+                        {alertas.map((alerta, index) => (
+                          <Badge 
+                            key={index}
+                            variant="outline" 
+                            className={alerta.cor}
+                          >
+                            <AlertTriangle className="h-3 w-3 mr-1" />
+                            {alerta.texto}: {alerta.percentual.toFixed(1)}%
+                          </Badge>
+                        ))}
+                      </div>
                     </TableCell>
                      <TableCell>
                        <div className="flex gap-0 justify-center">
