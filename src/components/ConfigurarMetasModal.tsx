@@ -304,17 +304,6 @@ export function ConfigurarMetasModal({ open, onOpenChange }: ConfigurarMetasModa
                 R$ {totalCustosFixos.toFixed(2)}
               </span>
             </div>
-
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/cadastros/custos-fixos")}
-              className="w-full"
-            >
-              Gerenciar custos fixos
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
           </div>
 
           {/* Footer */}
