@@ -68,7 +68,7 @@ export function MaoObraSection({ maosObra, onChange }: MaoObraSectionProps) {
     <div className="space-y-4 p-4 rounded-lg bg-card border">
       <div className="flex justify-between items-center">
         <h4 className="font-semibold text-sm">Mão de Obra desta Receita</h4>
-        <Button type="button" variant="outline" size="sm" onClick={adicionarLinha}>
+        <Button type="button" variant="default" size="sm" onClick={adicionarLinha}>
           <Plus className="h-4 w-4 mr-2" />
           Adicionar Mão de Obra
         </Button>
