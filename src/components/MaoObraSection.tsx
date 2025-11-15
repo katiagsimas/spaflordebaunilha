@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,7 +35,6 @@ export function MaoObraSection({ maosObra, onChange }: MaoObraSectionProps) {
   };
 
   const removerLinha = (id: string) => {
-    if (maosObra.length === 1) return; // Manter pelo menos uma linha
     onChange(maosObra.filter((linha) => linha.id !== id));
   };
 
@@ -74,106 +72,112 @@ export function MaoObraSection({ maosObra, onChange }: MaoObraSectionProps) {
         </Button>
       </div>
 
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Tipo de Valor</TableHead>
-              <TableHead>Perfil</TableHead>
-              <TableHead className="w-[120px]">Horas</TableHead>
-              <TableHead className="w-[120px]">Valor/Hora</TableHead>
-              <TableHead className="w-[120px]">Custo Total</TableHead>
-              <TableHead className="w-[80px]">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {maosObra.map((linha) => (
-              <TableRow key={linha.id}>
-                <TableCell>
-                  <RadioGroup
-                    value={linha.usar_valor_padrao ? "padrao" : "perfil"}
-                    onValueChange={(value) => {
-                      atualizarLinha(linha.id, "usar_valor_padrao", value === "padrao");
-                      if (value === "padrao") {
-                        atualizarLinha(linha.id, "perfil_id", null);
-                      }
-                    }}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="padrao" id={`padrao-${linha.id}`} />
-                      <Label htmlFor={`padrao-${linha.id}`} className="cursor-pointer">
-                        Valor padrão
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="perfil" id={`perfil-${linha.id}`} />
-                      <Label htmlFor={`perfil-${linha.id}`} className="cursor-pointer">
-                        Perfil específico
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </TableCell>
-                <TableCell>
-                  {linha.usar_valor_padrao ? (
-                    <span className="text-muted-foreground text-sm">
-                      Padrão (R$ {(profile?.valor_hora || 0).toFixed(2)}/h)
-                    </span>
-                  ) : (
-                    <Select
-                      value={linha.perfil_id || ""}
-                      onValueChange={(value) => atualizarLinha(linha.id, "perfil_id", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {perfis.filter(p => p.ativo).map((perfil) => (
-                          <SelectItem key={perfil.id} value={perfil.id}>
-                            {perfil.nome} (R$ {perfil.valor_hora.toFixed(2)}/h)
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <Input
-                    type="number"
-                    min="0"
-                    step="0.25"
-                    value={linha.horas}
-                    onChange={(e) =>
-                      atualizarLinha(linha.id, "horas", parseFloat(e.target.value) || 0)
-                    }
-                    placeholder="1.00"
-                  />
-                </TableCell>
-                <TableCell className="text-right">
-                  R$ {calcularValorHora(linha).toFixed(2)}
-                </TableCell>
-                <TableCell className="text-right font-medium">
-                  R$ {calcularCustoLinha(linha).toFixed(2)}
-                </TableCell>
-                <TableCell>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removerLinha(linha.id)}
-                    disabled={maosObra.length === 1}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      {maosObra.length > 0 && (
+        <>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Tipo de Valor</TableHead>
+                  <TableHead>Perfil</TableHead>
+                  <TableHead className="w-[120px]">Horas</TableHead>
+                  <TableHead className="w-[120px]">Valor/Hora</TableHead>
+                  <TableHead className="w-[120px]">Custo Total</TableHead>
+                  <TableHead className="w-[80px]">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {maosObra.map((linha) => (
+                  <TableRow key={linha.id}>
+                    <TableCell>
+                      <RadioGroup
+                        value={linha.usar_valor_padrao ? "padrao" : "perfil"}
+                        onValueChange={(value) => {
+                          atualizarLinha(linha.id, "usar_valor_padrao", value === "padrao");
+                          if (value === "padrao") {
+                            atualizarLinha(linha.id, "perfil_id", null);
+                          }
+                        }}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="padrao" id={`padrao-${linha.id}`} />
+                          <Label htmlFor={`padrao-${linha.id}`} className="cursor-pointer">
+                            Valor padrão
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="perfil" id={`perfil-${linha.id}`} />
+                          <Label htmlFor={`perfil-${linha.id}`} className="cursor-pointer">
+                            Perfil específico
+                          </Label>
+                        </div>
+                      </RadioGroup>
+                    </TableCell>
+                    <TableCell>
+                      {linha.usar_valor_padrao ? (
+                        <span className="text-muted-foreground text-sm">
+                          Padrão (R$ {(profile?.valor_hora || 0).toFixed(2)}/h)
+                        </span>
+                      ) : (
+                        <Select
+                          value={linha.perfil_id || ""}
+                          onValueChange={(value) => atualizarLinha(linha.id, "perfil_id", value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {perfis.filter(p => p.ativo).map((perfil) => (
+                              <SelectItem key={perfil.id} value={perfil.id}>
+                                {perfil.nome} (R$ {perfil.valor_hora.toFixed(2)}/h)
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.25"
+                        value={linha.horas}
+                        onChange={(e) =>
+                          atualizarLinha(linha.id, "horas", parseFloat(e.target.value) || 0)
+                        }
+                        placeholder="1.00"
+                      />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      R$ {calcularValorHora(linha).toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      R$ {calcularCustoLinha(linha).toFixed(2)}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removerLinha(linha.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
 
-      <div className="flex justify-end pt-2 border-t text-sm font-bold">
-        Custo Total de Mão de Obra: R$ {custoTotal.toFixed(2)}
-      </div>
+          <div className="flex justify-end">
+            <div className="text-right">
+              <span className="text-sm text-muted-foreground">Custo Total de Mão de Obra: </span>
+              <span className="font-semibold text-lg">R$ {custoTotal.toFixed(2)}</span>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -236,14 +236,7 @@ export default function ReceitaForm() {
     fetchDados();
   }, []);
 
-  const [maosObra, setMaosObra] = useState<MaoObraLinha[]>([
-    {
-      id: "temp-default",
-      usar_valor_padrao: true,
-      perfil_id: null,
-      horas: 1,
-    },
-  ]);
+  const [maosObra, setMaosObra] = useState<MaoObraLinha[]>([]);
   
   const [formData, setFormData] = useState({
     nome: "",
