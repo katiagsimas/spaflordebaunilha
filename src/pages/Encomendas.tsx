@@ -13,7 +13,6 @@ import { format, isToday, isTomorrow, isWithinInterval, addDays } from "date-fns
 import { ptBR } from "date-fns/locale";
 import { useEncomendas } from "@/hooks/useEncomendas";
 import { Badge } from "@/components/ui/badge";
-import { Toggle } from "@/components/ui/toggle";
 import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ClienteAutocomplete } from "@/components/ClienteAutocomplete";
@@ -61,8 +60,7 @@ const Encomendas = () => {
   const [clienteFilter, setClienteFilter] = useState("Todos");
   const [dataEntregaFilter, setDataEntregaFilter] = useState("");
   const [horaEntregaFilter, setHoraEntregaFilter] = useState("");
-  const [tagsOrigemFilter, setTagsOrigemFilter] = useState<string[]>([]);
-  const [tagsEventoFilter, setTagsEventoFilter] = useState<string[]>([]);
+  const [tagFilter, setTagFilter] = useState("todos");
   const [modalPagamentoAberto, setModalPagamentoAberto] = useState(false);
   const [contaReceberId, setContaReceberId] = useState<string | null>(null);
   const [planoContasVendaId, setPlanoContasVendaId] = useState<string>('');
@@ -884,19 +882,13 @@ const Encomendas = () => {
       const matchesDataEntrega = !dataEntregaFilter || e.data_entrega === dataEntregaFilter;
       const matchesHoraEntrega = !horaEntregaFilter || (e.hora_entrega && e.hora_entrega.slice(0, 5) === horaEntregaFilter);
       
-      // Filtro por tags de origem
-      const matchesTagsOrigem = tagsOrigemFilter.length === 0 || 
-        (e.tags && e.tags.some((t: any) => tagsOrigemFilter.includes(t.id)));
-      
-      // Filtro por tags de evento
-      const matchesTagsEvento = tagsEventoFilter.length === 0 || 
-        (e.tags && e.tags.some((t: any) => tagsEventoFilter.includes(t.id)));
+      // Filtro por tag
+      const matchesTag = tagFilter === "todos" || (e.tags && e.tags.some((t: any) => t.id === tagFilter));
       
       // Filtro por busca de nome
       const matchesBusca = !buscaNome || e.cliente.toLowerCase().includes(buscaNome.toLowerCase());
       
-      return matchesStatus && matchesCliente && matchesDataEntrega && matchesHoraEntrega && 
-             matchesTagsOrigem && matchesTagsEvento && matchesBusca;
+      return matchesStatus && matchesCliente && matchesDataEntrega && matchesHoraEntrega && matchesTag && matchesBusca;
     })
     .sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime());
 
@@ -1670,74 +1662,29 @@ const Encomendas = () => {
           </CardContent>
         </Card>
 
-        {/* Filtro de Origem do Pedido */}
+        {/* Filtro de Tags */}
         <Card className="shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="p-4">
-            <Label className="text-sm font-medium mb-2 block">Origem do Pedido</Label>
-            <div className="flex flex-wrap gap-2">
-              {tagsDisponiveis
-                .filter(tag => 
-                  ['instagram', 'whatsapp', 'indicação', 'google maps', 'fidelização interna', 'parceria local']
-                    .includes(tag.nome.toLowerCase())
-                )
-                .map(tag => (
-                  <Toggle
-                    key={tag.id}
-                    pressed={tagsOrigemFilter.includes(tag.id)}
-                    onPressedChange={() => {
-                      if (tagsOrigemFilter.includes(tag.id)) {
-                        setTagsOrigemFilter(tagsOrigemFilter.filter(id => id !== tag.id));
-                      } else {
-                        setTagsOrigemFilter([...tagsOrigemFilter, tag.id]);
-                      }
-                    }}
-                    className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                    style={
-                      tagsOrigemFilter.includes(tag.id)
-                        ? { backgroundColor: tag.cor, color: '#fff', borderColor: tag.cor }
-                        : {}
-                    }
-                  >
-                    {tag.nome}
-                  </Toggle>
+            <Label htmlFor="filtro-tag" className="text-sm font-medium mb-2 block">Tag</Label>
+            <Select value={tagFilter} onValueChange={setTagFilter}>
+              <SelectTrigger id="filtro-tag" className="bg-background">
+                <SelectValue placeholder="Todas as tags" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="todos">Todas as tags</SelectItem>
+                {tagsDisponiveis.map(tag => (
+                  <SelectItem key={tag.id} value={tag.id}>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: tag.cor }}
+                      />
+                      {tag.nome}
+                    </div>
+                  </SelectItem>
                 ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Filtro de Tipo de Evento */}
-        <Card className="shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <Label className="text-sm font-medium mb-2 block">Tipo de Evento</Label>
-            <div className="flex flex-wrap gap-2">
-              {tagsDisponiveis
-                .filter(tag => 
-                  ['aniversário infantil', 'aniversário adulto', 'mesversário', 'batizado', 
-                   'casamento', 'noivado', 'chá de bebê', 'chá de fraldas', 'empresarial']
-                    .includes(tag.nome.toLowerCase())
-                )
-                .map(tag => (
-                  <Toggle
-                    key={tag.id}
-                    pressed={tagsEventoFilter.includes(tag.id)}
-                    onPressedChange={() => {
-                      if (tagsEventoFilter.includes(tag.id)) {
-                        setTagsEventoFilter(tagsEventoFilter.filter(id => id !== tag.id));
-                      } else {
-                        setTagsEventoFilter([...tagsEventoFilter, tag.id]);
-                      }
-                    }}
-                    className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                    style={
-                      tagsEventoFilter.includes(tag.id)
-                        ? { backgroundColor: tag.cor, color: '#fff', borderColor: tag.cor }
-                        : {}
-                    }
-                  >
-                    {tag.nome}
-                  </Toggle>
-                ))}
-            </div>
+              </SelectContent>
+            </Select>
           </CardContent>
         </Card>
 
@@ -1778,8 +1725,7 @@ const Encomendas = () => {
               onClick={() => {
                 setClienteFilter("Todos");
                 setStatusFilter("Todos");
-                setTagsOrigemFilter([]);
-                setTagsEventoFilter([]);
+                setTagFilter("todos");
                 setDataEntregaFilter("");
                 setHoraEntregaFilter("");
                 setBuscaNome("");
