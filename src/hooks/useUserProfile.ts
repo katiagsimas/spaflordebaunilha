@@ -19,6 +19,7 @@ interface UserProfile {
   whatsapp?: string;
   dias_trabalho_mes: number;
   horas_diaria_trabalho: number;
+  valor_hora?: number;
   primeiro_acesso?: boolean;
   meta_faturamento_mensal?: number;
   meta_faturamento_anual?: number;

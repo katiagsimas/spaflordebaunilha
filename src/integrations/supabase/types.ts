@@ -2677,6 +2677,7 @@ export type Database = {
           tags: string[] | null
           telefone: string | null
           updated_at: string | null
+          valor_hora: number | null
           whatsapp: string | null
         }
         Insert: {
@@ -2710,6 +2711,7 @@ export type Database = {
           tags?: string[] | null
           telefone?: string | null
           updated_at?: string | null
+          valor_hora?: number | null
           whatsapp?: string | null
         }
         Update: {
@@ -2743,6 +2745,7 @@ export type Database = {
           tags?: string[] | null
           telefone?: string | null
           updated_at?: string | null
+          valor_hora?: number | null
           whatsapp?: string | null
         }
         Relationships: []

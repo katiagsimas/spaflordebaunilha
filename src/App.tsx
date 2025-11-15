@@ -24,6 +24,7 @@ import Cadastros from "./pages/Cadastros";
 import ClientesFornecedores from "./pages/ClientesFornecedores";
 import SeusDados from "./pages/cadastros/SeusDados";
 import CustosFixos from "./pages/configuracoes/precificacao/CustosFixos";
+import MaoDeObra from "./pages/configuracoes/precificacao/MaoDeObra";
 
 import CadastrosBase from "./pages/configuracoes/CadastrosBase";
 import PrecificacaoPage from "./pages/configuracoes/PrecificacaoPage";
@@ -157,6 +158,7 @@ const App = () => (
           <Route path="/configuracoes/financeiro" element={<ProtectedRoute><Layout><FinanceiroPage /></Layout></ProtectedRoute>} />
           
           <Route path="/configuracoes/precificacao/custos-fixos" element={<ProtectedRoute><Layout><CustosFixos /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/precificacao/mao-de-obra" element={<ProtectedRoute><Layout><MaoDeObra /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/tipos-insumos" element={<ProtectedRoute><Layout><TiposInsumos /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/categorias-plano-contas" element={<ProtectedRoute><Layout><CategoriasPlanoContas /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/plano-contas" element={<ProtectedRoute><Layout><PlanoContas /></Layout></ProtectedRoute>} />
