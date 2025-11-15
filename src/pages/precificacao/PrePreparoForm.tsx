@@ -47,6 +47,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useCategoriasEstoque } from '@/hooks/useCategoriasEstoque';
 import { Plus, Trash2, Upload, X, Info, ArrowLeft } from 'lucide-react';
+import { MaoObraSection, MaoObraLinha } from '@/components/MaoObraSection';
+import { usePrePreparosMaoObra } from '@/hooks/usePrePreparosMaoObra';
 
 export default function PrePreparoForm() {
   const navigate = useNavigate();
@@ -91,6 +93,9 @@ export default function PrePreparoForm() {
   const [imagem2, setImagem2] = useState<File | null>(null);
   const [imagem1Preview, setImagem1Preview] = useState('');
   const [imagem2Preview, setImagem2Preview] = useState('');
+
+  // Mão de obra
+  const [maosObra, setMaosObra] = useState<MaoObraLinha[]>([]);
 
   const [loading, setLoading] = useState(false);
   const [custoTotal, setCustoTotal] = useState(0);
@@ -248,6 +253,22 @@ export default function PrePreparoForm() {
       }));
 
       setIngredientesSelecionados(ingredientesFormatados);
+
+      // Buscar mão de obra
+      const { data: maosObraData } = await supabase
+        .from('pre_preparos_mao_obra')
+        .select('*')
+        .eq('pre_preparo_id', id);
+
+      if (maosObraData) {
+        const maosObraFormatadas = maosObraData.map((mo: any) => ({
+          id: mo.id,
+          perfil_id: mo.perfil_id,
+          usar_valor_padrao: mo.usar_valor_padrao,
+          horas: mo.horas,
+        }));
+        setMaosObra(maosObraFormatadas);
+      }
     } catch (error) {
       console.error('Erro ao buscar pré-preparo:', error);
       toast({
@@ -644,6 +665,31 @@ export default function PrePreparoForm() {
 
       if (errorIngredientes) throw errorIngredientes;
 
+      // Salvar mão de obra
+      if (maosObra.length > 0) {
+        const maosObraParaSalvar = maosObra.map(mo => ({
+          perfil_id: mo.perfil_id,
+          usar_valor_padrao: mo.usar_valor_padrao,
+          horas: mo.horas,
+        }));
+
+        await supabase
+          .from('pre_preparos_mao_obra')
+          .delete()
+          .eq('pre_preparo_id', prePreparoId);
+
+        const { error: errorMaoObra } = await supabase
+          .from('pre_preparos_mao_obra')
+          .insert(
+            maosObraParaSalvar.map(mo => ({
+              pre_preparo_id: prePreparoId,
+              ...mo,
+            }))
+          );
+
+        if (errorMaoObra) throw errorMaoObra;
+      }
+
       // Criar/atualizar na tabela ingredientes (usando custo total)
       await criarComoIngrediente(prePreparoId, nome, custoTotal);
 
@@ -923,6 +969,22 @@ export default function PrePreparoForm() {
                 )}
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Card Mão de Obra */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Mão de Obra</CardTitle>
+            <CardDescription>
+              Adicione os custos de mão de obra para este pré-preparo
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <MaoObraSection
+              maosObra={maosObra}
+              onChange={setMaosObra}
+            />
           </CardContent>
         </Card>
 
