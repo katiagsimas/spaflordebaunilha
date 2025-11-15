@@ -104,9 +104,9 @@ export default function Receitas() {
     return (receita.despesasVenda || []).reduce((acc, despesa) => acc + despesa.valor, 0);
   };
 
-  // Função para calcular CMV Real (igual ao formulário)
+  // Função para calcular CMV Real (EXATAMENTE igual ao formulário)
+  // CMV = Custo Total + Despesas de Venda
   const calcularCMV = (receita: Receita) => {
-    // CMV = Custo Total (já inclui ingredientes + embalagens + custos fixos + outros gastos) + Despesas de Venda
     const custoTotal = receita.custoTotal || 0;
     const despesasVenda = calcularDespesasVenda(receita);
     return custoTotal + despesasVenda;
@@ -266,7 +266,7 @@ export default function Receitas() {
     }
   };
 
-  // Verificar alertas de CMV e Margem com informações detalhadas
+  // Verificar alertas de CMV (EXATAMENTE como na ficha técnica)
   const verificarAlertas = (receita: Receita) => {
     const percentualCMV = calcularPercentualCMV(receita);
     const percentualMargem = calcularPercentualMargem(receita);
@@ -278,38 +278,34 @@ export default function Receitas() {
       cor: string;
     }> = [];
 
-    // Alerta de CMV (seguindo mesma lógica da ficha técnica)
-    if (percentualCMV > 45) {
-      alertas.push({
-        texto: "CMV Crítico",
-        percentual: percentualCMV,
-        tipo: 'cmv',
-        cor: "bg-red-100 text-red-700 border-red-300 dark:bg-red-950 dark:text-red-400 dark:border-red-800"
-      });
-    } else if (percentualCMV > 35) {
-      alertas.push({
-        texto: "CMV Atenção",
-        percentual: percentualCMV,
-        tipo: 'cmv',
-        cor: "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800"
-      });
-    } else if (percentualCMV > 25) {
-      alertas.push({
-        texto: "CMV Bom",
-        percentual: percentualCMV,
-        tipo: 'cmv',
-        cor: "bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-800"
-      });
-    } else {
+    // Alertas de CMV (seguindo EXATAMENTE a lógica da ficha técnica)
+    // <=35: Excelente (verde)
+    // 35-45: Aceitável/Atenção (amarelo)
+    // >45: CMV muito alto/Crítico (vermelho)
+    if (percentualCMV <= 35) {
       alertas.push({
         texto: "CMV Excelente",
         percentual: percentualCMV,
         tipo: 'cmv',
         cor: "bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-800"
       });
+    } else if (percentualCMV <= 45) {
+      alertas.push({
+        texto: "CMV Aceitável",
+        percentual: percentualCMV,
+        tipo: 'cmv',
+        cor: "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800"
+      });
+    } else {
+      alertas.push({
+        texto: "ATENÇÃO! CMV muito alto",
+        percentual: percentualCMV,
+        tipo: 'cmv',
+        cor: "bg-red-100 text-red-700 border-red-300 dark:bg-red-950 dark:text-red-400 dark:border-red-800"
+      });
     }
 
-    // Alerta de Margem
+    // Alerta de Margem baixa
     if (percentualMargem < 30) {
       alertas.push({
         texto: "Margem muito baixa",
@@ -403,70 +399,35 @@ export default function Receitas() {
                 const temAlerta = alertas.length > 0;
 
                 return (
-                  <TableRow 
-                    key={receita.id}
-                    className={cn(
-                      temAlerta && "bg-red-50/50 dark:bg-red-950/20"
-                    )}
-                  >
-                    <TableCell className={cn(
-                      "font-medium",
-                      temAlerta && "text-red-700 dark:text-red-400 font-semibold"
-                    )}>
+                  <TableRow key={receita.id}>
+                    <TableCell className="font-medium">
                       {receita.nome}
                     </TableCell>
-                    <TableCell className={cn(
-                      "text-center",
-                      temAlerta && "text-red-700 dark:text-red-400"
-                    )}>
+                    <TableCell className="text-center">
                       {receita.categoria || "-"}
                     </TableCell>
-                    <TableCell className={cn(
-                      "text-center",
-                      temAlerta && "text-red-700 dark:text-red-400"
-                    )}>
+                    <TableCell className="text-center">
                       {receita.cardapio === "ativo" ? "Ativo" : "Fora"}
                     </TableCell>
-                    <TableCell className={cn(
-                      "text-right",
-                      temAlerta && "text-red-700 dark:text-red-400"
-                    )}>
+                    <TableCell className="text-right">
                       R$ {(receita.valorVenda || 0).toFixed(2)}
                     </TableCell>
-                    <TableCell className={cn(
-                      "text-right",
-                      temAlerta && "text-red-700 dark:text-red-400"
-                    )}>
+                    <TableCell className="text-right">
                       R$ {custoInsumosEmbalagens.toFixed(2)}
                     </TableCell>
-                    <TableCell className={cn(
-                      "text-right",
-                      percentualCMV > 45 && "font-bold text-red-600 dark:text-red-400"
-                    )}>
+                    <TableCell className="text-right">
                       {percentualCMV.toFixed(1)}%
                     </TableCell>
-                    <TableCell className={cn(
-                      "text-right",
-                      temAlerta && "text-red-700 dark:text-red-400"
-                    )}>
+                    <TableCell className="text-right">
                       R$ {margemContribuicao.toFixed(2)}
                     </TableCell>
-                    <TableCell className={cn(
-                      "text-right",
-                      percentualMargem < 30 && "font-bold text-red-600 dark:text-red-400"
-                    )}>
+                    <TableCell className="text-right">
                       {percentualMargem.toFixed(1)}%
                     </TableCell>
-                    <TableCell className={cn(
-                      "text-right",
-                      temAlerta && "text-red-700 dark:text-red-400"
-                    )}>
+                    <TableCell className="text-right">
                       R$ {despesasVenda.toFixed(2)}
                     </TableCell>
-                    <TableCell className={cn(
-                      "text-right font-semibold",
-                      temAlerta && "text-red-700 dark:text-red-400"
-                    )}>
+                    <TableCell className="text-right font-semibold">
                       R$ {lucro.toFixed(2)}
                     </TableCell>
                     <TableCell className="text-center">
