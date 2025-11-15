@@ -33,6 +33,7 @@ interface CustoFixo {
   id: string;
   nome: string;
   valor: number;
+  tipo: 'fixo' | 'mao_obra_indireta' | 'outros';
 }
 
 type StatusCMV = 'otimo' | 'bom' | 'atencao' | 'critico';
