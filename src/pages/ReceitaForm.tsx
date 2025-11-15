@@ -108,8 +108,6 @@ interface Receita {
   categoria?: string;
   tipo?: "produto_avulso" | "produto_combo";
   cardapio?: "ativo" | "fora";
-  tempoPreparo: number;
-  unidadeTempo: "minutos" | "horas";
   rendimento: number;
   unidadeRendimento: string;
   ingredientes: IngredienteReceita[];
@@ -252,8 +250,6 @@ export default function ReceitaForm() {
     categoria: "",
     tipo: "produto_avulso" as "produto_avulso" | "produto_combo",
     cardapio: "ativo" as "ativo" | "fora",
-    tempoPreparo: "",
-    unidadeTempo: "minutos" as "minutos" | "horas",
     rendimento: "",
     unidadeRendimentoId: "",
     perfilMaoObraId: "default" as string,
@@ -343,8 +339,6 @@ export default function ReceitaForm() {
             categoria: receitaData.categoria || "",
             tipo: (receitaData.tipo as "produto_avulso" | "produto_combo") || "produto_avulso",
             cardapio: (receitaData.cardapio as "ativo" | "fora") || "ativo",
-            tempoPreparo: "0", // Campo mantido por compatibilidade mas não usado
-            unidadeTempo: "minutos",
             rendimento: receitaData.rendimento.toString(),
             unidadeRendimentoId: receitaData.unidade_rendimento,
             perfilMaoObraId: "default", // Campo mantido por compatibilidade mas não usado
@@ -918,32 +912,6 @@ export default function ReceitaForm() {
               </Select>
             </div>
 
-            <div>
-              <Label htmlFor="tempoPreparo">Tempo de Preparo *</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="tempoPreparo"
-                  type="number"
-                  min="1"
-                  value={formData.tempoPreparo}
-                  onChange={(e) => setFormData({ ...formData, tempoPreparo: e.target.value })}
-                  placeholder="Ex: 30"
-                  className="flex-1"
-                />
-                <Select
-                  value={formData.unidadeTempo}
-                  onValueChange={(value: "minutos" | "horas") => setFormData({ ...formData, unidadeTempo: value })}
-                >
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="minutos">Minutos</SelectItem>
-                    <SelectItem value="horas">Horas</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div>
