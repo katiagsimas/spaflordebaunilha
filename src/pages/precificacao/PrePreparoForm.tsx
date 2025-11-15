@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -39,10 +40,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useCategorias } from '@/hooks/useCategorias';
+import { useCategoriasEstoque } from '@/hooks/useCategoriasEstoque';
 import { Plus, Trash2, Upload, X, Info, ArrowLeft } from 'lucide-react';
 
 export default function PrePreparoForm() {
@@ -50,6 +53,7 @@ export default function PrePreparoForm() {
   const { id } = useParams();
   const { toast } = useToast();
   const { categorias } = useCategorias();
+  const { categorias: categoriasEstoque } = useCategoriasEstoque();
   const isEditMode = !!id;
 
   // Campos básicos
@@ -73,6 +77,8 @@ export default function PrePreparoForm() {
   const [novoTipoDescricao, setNovoTipoDescricao] = useState('');
   const [novoTipoQuantidade, setNovoTipoQuantidade] = useState('');
   const [novoTipoUnidadeId, setNovoTipoUnidadeId] = useState('');
+  const [novoTipoCategoriaEstoqueId, setNovoTipoCategoriaEstoqueId] = useState('');
+  const [novoTipoControlarEstoque, setNovoTipoControlarEstoque] = useState(false);
   const [novoIngredienteMarca, setNovoIngredienteMarca] = useState('');
   const [novoIngredientePreco, setNovoIngredientePreco] = useState('');
   const [tipoRecemCriado, setTipoRecemCriado] = useState<any>(null);
@@ -1046,43 +1052,51 @@ export default function PrePreparoForm() {
         </div>
       </div>
 
-      {/* Dialog - Criar Tipo de Insumo */}
+      {/* Dialog - Criar Tipo de Ingrediente */}
       <Dialog open={modalCriarTipoAberto} onOpenChange={setModalCriarTipoAberto}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Novo Tipo de Ingrediente</DialogTitle>
+            <DialogTitle>Novo Ingrediente</DialogTitle>
+            <DialogDescription>
+              Cadastre o tipo base do ingrediente com sua quantidade padrão
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          
+          <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Descrição *</Label>
+              <Label htmlFor="descricao">Nome do Ingrediente *</Label>
               <Input
+                id="descricao"
+                placeholder="Ex: Farinha de Trigo"
                 value={novoTipoDescricao}
                 onChange={(e) => setNovoTipoDescricao(e.target.value)}
-                placeholder="Ex: Farinha de Trigo"
                 autoFocus
               />
             </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Quantidade *</Label>
+                <Label htmlFor="quantidade">Qtde na Embalagem *</Label>
                 <Input
+                  id="quantidade"
                   type="text"
+                  placeholder="Ex: 1000"
                   value={novoTipoQuantidade}
                   onChange={(e) => {
                     const valor = e.target.value.replace(/[^\d,]/g, '');
                     setNovoTipoQuantidade(valor);
                   }}
-                  placeholder="Ex: 1"
                 />
               </div>
+
               <div className="space-y-2">
-                <Label>Unidade *</Label>
+                <Label htmlFor="unidade">Unidade de Medida *</Label>
                 <Select value={novoTipoUnidadeId} onValueChange={setNovoTipoUnidadeId}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {unidades.map(unidade => (
+                    {unidades.map((unidade) => (
                       <SelectItem key={unidade.id} value={unidade.id}>
                         {unidade.nome} ({unidade.sigla})
                       </SelectItem>
@@ -1091,7 +1105,39 @@ export default function PrePreparoForm() {
                 </Select>
               </div>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="categoria">Categoria de Estoque</Label>
+              <Select value={novoTipoCategoriaEstoqueId} onValueChange={setNovoTipoCategoriaEstoqueId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma categoria..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoriasEstoque.map((categoria) => (
+                    <SelectItem key={categoria.id} value={categoria.id}>
+                      {categoria.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center space-x-3 p-4 rounded-lg bg-primary">
+              <Checkbox
+                id="controlar-estoque"
+                checked={novoTipoControlarEstoque}
+                onCheckedChange={(checked) => setNovoTipoControlarEstoque(checked as boolean)}
+                className="border-primary-foreground data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary"
+              />
+              <Label
+                htmlFor="controlar-estoque"
+                className="text-sm font-semibold cursor-pointer text-primary-foreground"
+              >
+                Controle de Estoque
+              </Label>
+            </div>
           </div>
+          
           <DialogFooter>
             <Button variant="outline" onClick={() => setModalCriarTipoAberto(false)}>
               Cancelar
@@ -1128,6 +1174,8 @@ export default function PrePreparoForm() {
                     descricao: novoTipoDescricao.trim(),
                     quantidade_embalagem: qtd,
                     unidade_medida_id: novoTipoUnidadeId,
+                    categoria_estoque_id: novoTipoCategoriaEstoqueId || null,
+                    controlar_estoque: novoTipoControlarEstoque,
                   })
                   .select(`
                     id,

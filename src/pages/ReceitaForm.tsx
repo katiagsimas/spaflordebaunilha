@@ -8,6 +8,7 @@ import { Plus, Trash2, ChefHat, Upload, X } from "lucide-react";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { useCategorias } from "@/hooks/useCategorias";
 import { useCustosFixos } from "@/hooks/useCustosFixos";
+import { useCategoriasEstoque } from "@/hooks/useCategoriasEstoque";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Command,
   CommandEmpty,
@@ -34,6 +36,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { toast } from "sonner";
 import { EmbalagemAutocomplete } from "@/components/EmbalagemAutocomplete";
@@ -123,6 +126,7 @@ export default function ReceitaForm() {
   const { custosFixos } = useCustosFixos();
   const { categorias, fetchCategoriasAtivas } = useCategorias();
   const { unidades } = useUnidadesMedida();
+  const { categorias: categoriasEstoque } = useCategoriasEstoque();
   const [categoriasAtivas, setCategoriasAtivas] = useState<any[]>([]);
 
   // Carregar apenas categorias ativas para o formulário
@@ -251,6 +255,8 @@ export default function ReceitaForm() {
   const [novoTipoIngDescricao, setNovoTipoIngDescricao] = useState('');
   const [novoTipoIngQuantidade, setNovoTipoIngQuantidade] = useState('');
   const [novoTipoIngUnidadeId, setNovoTipoIngUnidadeId] = useState('');
+  const [novoTipoIngCategoriaEstoqueId, setNovoTipoIngCategoriaEstoqueId] = useState('');
+  const [novoTipoIngControlarEstoque, setNovoTipoIngControlarEstoque] = useState(false);
   const [novoIngMarca, setNovoIngMarca] = useState('');
   const [novoIngPreco, setNovoIngPreco] = useState('');
   const [tipoIngRecemCriado, setTipoIngRecemCriado] = useState<any>(null);
@@ -263,6 +269,8 @@ export default function ReceitaForm() {
   const [novoTipoEmbDescricao, setNovoTipoEmbDescricao] = useState('');
   const [novoTipoEmbQuantidade, setNovoTipoEmbQuantidade] = useState('');
   const [novoTipoEmbUnidadeId, setNovoTipoEmbUnidadeId] = useState('');
+  const [novoTipoEmbCategoriaEstoqueId, setNovoTipoEmbCategoriaEstoqueId] = useState('');
+  const [novoTipoEmbControlarEstoque, setNovoTipoEmbControlarEstoque] = useState(false);
   const [novoEmbMarca, setNovoEmbMarca] = useState('');
   const [novoEmbPreco, setNovoEmbPreco] = useState('');
   const [tipoEmbRecemCriado, setTipoEmbRecemCriado] = useState<any>(null);
@@ -1675,39 +1683,47 @@ export default function ReceitaForm() {
       <Dialog open={modalCriarTipoIngAberto} onOpenChange={setModalCriarTipoIngAberto}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Novo Tipo de Ingrediente</DialogTitle>
+            <DialogTitle>Novo Ingrediente</DialogTitle>
+            <DialogDescription>
+              Cadastre o tipo base do ingrediente com sua quantidade padrão
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          
+          <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Descrição *</Label>
+              <Label htmlFor="descricao-ing">Nome do Ingrediente *</Label>
               <Input
+                id="descricao-ing"
+                placeholder="Ex: Farinha de Trigo"
                 value={novoTipoIngDescricao}
                 onChange={(e) => setNovoTipoIngDescricao(e.target.value)}
-                placeholder="Ex: Farinha de Trigo"
                 autoFocus
               />
             </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Quantidade *</Label>
+                <Label htmlFor="quantidade-ing">Qtde na Embalagem *</Label>
                 <Input
+                  id="quantidade-ing"
                   type="text"
+                  placeholder="Ex: 1000"
                   value={novoTipoIngQuantidade}
                   onChange={(e) => {
                     const valor = e.target.value.replace(/[^\d,]/g, '');
                     setNovoTipoIngQuantidade(valor);
                   }}
-                  placeholder="Ex: 1"
                 />
               </div>
+
               <div className="space-y-2">
-                <Label>Unidade *</Label>
+                <Label htmlFor="unidade-ing">Unidade de Medida *</Label>
                 <Select value={novoTipoIngUnidadeId} onValueChange={setNovoTipoIngUnidadeId}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {unidades.map(unidade => (
+                    {unidades.map((unidade) => (
                       <SelectItem key={unidade.id} value={unidade.id}>
                         {unidade.nome} ({unidade.sigla})
                       </SelectItem>
@@ -1716,7 +1732,39 @@ export default function ReceitaForm() {
                 </Select>
               </div>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="categoria-ing">Categoria de Estoque</Label>
+              <Select value={novoTipoIngCategoriaEstoqueId} onValueChange={setNovoTipoIngCategoriaEstoqueId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma categoria..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoriasEstoque.map((categoria) => (
+                    <SelectItem key={categoria.id} value={categoria.id}>
+                      {categoria.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center space-x-3 p-4 rounded-lg bg-primary">
+              <Checkbox
+                id="controlar-estoque-ing"
+                checked={novoTipoIngControlarEstoque}
+                onCheckedChange={(checked) => setNovoTipoIngControlarEstoque(checked as boolean)}
+                className="border-primary-foreground data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary"
+              />
+              <Label
+                htmlFor="controlar-estoque-ing"
+                className="text-sm font-semibold cursor-pointer text-primary-foreground"
+              >
+                Controle de Estoque
+              </Label>
+            </div>
           </div>
+          
           <DialogFooter>
             <Button variant="outline" onClick={() => setModalCriarTipoIngAberto(false)}>
               Cancelar
@@ -1745,6 +1793,8 @@ export default function ReceitaForm() {
                     descricao: novoTipoIngDescricao.trim(),
                     quantidade_embalagem: qtd,
                     unidade_medida_id: novoTipoIngUnidadeId,
+                    categoria_estoque_id: novoTipoIngCategoriaEstoqueId || null,
+                    controlar_estoque: novoTipoIngControlarEstoque,
                   })
                   .select(`
                     id,
@@ -1787,39 +1837,47 @@ export default function ReceitaForm() {
       <Dialog open={modalCriarTipoEmbAberto} onOpenChange={setModalCriarTipoEmbAberto}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Novo Tipo de Embalagem</DialogTitle>
+            <DialogTitle>Nova Embalagem</DialogTitle>
+            <DialogDescription>
+              Cadastre o tipo base da embalagem com sua quantidade padrão
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          
+          <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Descrição *</Label>
+              <Label htmlFor="descricao-emb">Nome da Embalagem *</Label>
               <Input
+                id="descricao-emb"
+                placeholder="Ex: Caixa de Papelão"
                 value={novoTipoEmbDescricao}
                 onChange={(e) => setNovoTipoEmbDescricao(e.target.value)}
-                placeholder="Ex: Caixa de Papelão"
                 autoFocus
               />
             </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Quantidade *</Label>
+                <Label htmlFor="quantidade-emb">Qtde na Embalagem *</Label>
                 <Input
+                  id="quantidade-emb"
                   type="text"
+                  placeholder="Ex: 1"
                   value={novoTipoEmbQuantidade}
                   onChange={(e) => {
                     const valor = e.target.value.replace(/[^\d,]/g, '');
                     setNovoTipoEmbQuantidade(valor);
                   }}
-                  placeholder="Ex: 1"
                 />
               </div>
+
               <div className="space-y-2">
-                <Label>Unidade *</Label>
+                <Label htmlFor="unidade-emb">Unidade de Medida *</Label>
                 <Select value={novoTipoEmbUnidadeId} onValueChange={setNovoTipoEmbUnidadeId}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {unidades.map(unidade => (
+                    {unidades.map((unidade) => (
                       <SelectItem key={unidade.id} value={unidade.id}>
                         {unidade.nome} ({unidade.sigla})
                       </SelectItem>
@@ -1828,7 +1886,39 @@ export default function ReceitaForm() {
                 </Select>
               </div>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="categoria-emb">Categoria de Estoque</Label>
+              <Select value={novoTipoEmbCategoriaEstoqueId} onValueChange={setNovoTipoEmbCategoriaEstoqueId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma categoria..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoriasEstoque.map((categoria) => (
+                    <SelectItem key={categoria.id} value={categoria.id}>
+                      {categoria.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center space-x-3 p-4 rounded-lg bg-primary">
+              <Checkbox
+                id="controlar-estoque-emb"
+                checked={novoTipoEmbControlarEstoque}
+                onCheckedChange={(checked) => setNovoTipoEmbControlarEstoque(checked as boolean)}
+                className="border-primary-foreground data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary"
+              />
+              <Label
+                htmlFor="controlar-estoque-emb"
+                className="text-sm font-semibold cursor-pointer text-primary-foreground"
+              >
+                Controle de Estoque
+              </Label>
+            </div>
           </div>
+          
           <DialogFooter>
             <Button variant="outline" onClick={() => setModalCriarTipoEmbAberto(false)}>
               Cancelar
@@ -1857,6 +1947,8 @@ export default function ReceitaForm() {
                     descricao: novoTipoEmbDescricao.trim(),
                     quantidade_embalagem: qtd,
                     unidade_medida_id: novoTipoEmbUnidadeId,
+                    categoria_estoque_id: novoTipoEmbCategoriaEstoqueId || null,
+                    controlar_estoque: novoTipoEmbControlarEstoque,
                   })
                   .select(`
                     id,
