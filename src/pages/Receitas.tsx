@@ -99,7 +99,7 @@ export default function Receitas() {
           <Button onClick={() => navigate("/precificacao/ficha-tecnica/nova")}><Plus className="mr-2 h-4 w-4" />Nova Ficha Técnica</Button>
         </div>
         {resumosOrdenados.length === 0 ? (
-          <EmptyState icon={CookingPot} title="Nenhuma ficha técnica cadastrada" description="Crie sua primeira ficha técnica" action={{ label: "Nova Ficha Técnica", onClick: () => navigate("/precificacao/ficha-tecnica/nova") }} />
+          <EmptyState icon={CookingPot} title="Nenhuma ficha técnica cadastrada" description="Crie sua primeira ficha técnica" actionLabel="Nova Ficha Técnica" onAction={() => navigate("/precificacao/ficha-tecnica/nova")} />
         ) : (
           <div className="rounded-md border overflow-x-auto">
             <Table>
