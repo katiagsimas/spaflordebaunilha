@@ -1,6 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Toggle } from "@/components/ui/toggle";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 
 const TAG_GROUPS = {
   origem: [
@@ -62,6 +65,21 @@ export function EncomendaTagsSection({
   onTagToggle 
 }: EncomendaTagsSectionProps) {
   
+  // Estados para controlar abertura de cada grupo
+  const [gruposAbertos, setGruposAbertos] = useState<Record<string, boolean>>({
+    tipoEvento: false,
+    origem: false,
+    tipoEntrega: false,
+    recorrencia: false,
+  });
+
+  const toggleGrupo = (grupo: string) => {
+    setGruposAbertos(prev => ({
+      ...prev,
+      [grupo]: !prev[grupo]
+    }));
+  };
+  
   // Agrupar tags disponíveis por tipo
   const tagsPorGrupo = {
     origem: [] as Tag[],
@@ -90,6 +108,12 @@ export function EncomendaTagsSection({
 
   const isTagSelecionada = (tagId: string) => {
     return tagsSelecionadas.some(t => t.id === tagId);
+  };
+
+  // Contar tags selecionadas por grupo
+  const contarTagsGrupo = (grupo: keyof typeof tagsPorGrupo) => {
+    const tagsGrupo = tagsPorGrupo[grupo];
+    return tagsGrupo.filter(tag => isTagSelecionada(tag.id)).length;
   };
 
   return (
@@ -121,42 +145,69 @@ export function EncomendaTagsSection({
           </div>
         )}
 
-        {/* Grupos de Tags em Cards */}
+        {/* Grupos de Tags - Collapsibles em linha */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
           {GROUP_ORDER.map(grupo => {
             const tags = tagsPorGrupo[grupo];
             if (tags.length === 0) return null;
 
+            const tagsCount = contarTagsGrupo(grupo);
+            const isOpen = gruposAbertos[grupo];
+
             return (
-              <Card key={grupo} className="shadow-sm">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <div className="w-1 h-5 bg-primary rounded-full" />
-                    {GROUP_LABELS[grupo]}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {tags.map(tag => (
-                    <Toggle
-                      key={tag.id}
-                      pressed={isTagSelecionada(tag.id)}
-                      onPressedChange={() => onTagToggle(tag)}
-                      className="w-full justify-start text-sm data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                      style={
-                        isTagSelecionada(tag.id)
-                          ? {
-                              backgroundColor: tag.cor,
-                              color: '#fff',
-                              borderColor: tag.cor,
-                            }
-                          : {}
-                      }
-                    >
-                      {tag.nome}
-                    </Toggle>
-                  ))}
-                </CardContent>
-              </Card>
+              <Collapsible
+                key={grupo}
+                open={isOpen}
+                onOpenChange={() => toggleGrupo(grupo)}
+                className="border rounded-lg bg-card shadow-sm"
+              >
+                <CollapsibleTrigger className="w-full p-3 hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1 h-5 bg-primary rounded-full" />
+                      <span className="text-sm font-semibold text-foreground">
+                        {GROUP_LABELS[grupo]}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {tagsCount > 0 && (
+                        <Badge variant="secondary" className="h-5 min-w-5 px-1.5">
+                          {tagsCount}
+                        </Badge>
+                      )}
+                      <ChevronDown 
+                        className={`h-4 w-4 text-muted-foreground transition-transform ${
+                          isOpen ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </div>
+                  </div>
+                </CollapsibleTrigger>
+                
+                <CollapsibleContent className="px-3 pb-3">
+                  <div className="space-y-2 pt-2 border-t">
+                    {tags.map(tag => (
+                      <Toggle
+                        key={tag.id}
+                        pressed={isTagSelecionada(tag.id)}
+                        onPressedChange={() => onTagToggle(tag)}
+                        className="w-full justify-start text-sm data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                        style={
+                          isTagSelecionada(tag.id)
+                            ? {
+                                backgroundColor: tag.cor,
+                                color: '#fff',
+                                borderColor: tag.cor,
+                              }
+                            : {}
+                        }
+                      >
+                        {tag.nome}
+                      </Toggle>
+                    ))}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             );
           })}
         </div>
