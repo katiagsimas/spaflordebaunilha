@@ -530,13 +530,12 @@ export default function Ingredientes() {
               <TableHead>Unidade</TableHead>
               <TableHead>Preço</TableHead>
               <TableHead>Data Atualização</TableHead>
-              <TableHead className="text-center">Estoque</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {ingredientesFiltrados.length === 0 ? <TableRow>
-                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                   {termoBusca ? 'Nenhum ingrediente encontrado com esse termo.' : 'Nenhum ingrediente cadastrado. Clique em "Novo Ingrediente".'}
                 </TableCell>
               </TableRow> : ingredientesFiltrados.map((ingrediente: any) => {
@@ -567,11 +566,6 @@ export default function Ingredientes() {
                     </TableCell>
                     <TableCell className={cn(eReceita && "text-pink-700 dark:text-pink-400", ePrePreparo && "text-purple-700 dark:text-purple-400", !eReceita && !ePrePreparo && desatualizado && 'text-amber-700 font-medium dark:text-amber-400')}>
                       {formatarData(ingrediente.data_atualizacao)}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <span className={cn("font-medium", ingrediente.controlar_estoque ? "text-green-700 dark:text-green-400" : "text-muted-foreground")}>
-                        {ingrediente.controlar_estoque ? "SIM" : "NÃO"}
-                      </span>
                     </TableCell>
                     <TableCell className="text-right">
                       {eReceita ? <Button variant="ghost" size="sm" onClick={() => navigate(`/precificacao/ficha-tecnica/editar/${ingrediente.id}`)}>
