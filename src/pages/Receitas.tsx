@@ -135,8 +135,10 @@ export default function Receitas() {
                     <TableCell>
                       {r.alertas.includes("Prejuízo") ? (
                         <Badge variant="destructive" className="gap-1"><AlertTriangle className="h-3 w-3" />{r.alertas}</Badge>
-                      ) : r.alertas.includes("CMV Muito Alto") || r.alertas.includes("Margem Baixa") ? (
-                        <Badge variant="secondary" className="gap-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">{r.alertas}</Badge>
+                      ) : r.alertas.includes("CMV Muito Alto") || r.alertas.includes("Margem Baixa") || r.alertas.includes("CMV em Atenção") ? (
+                        <Badge className="gap-1 bg-yellow-500/10 text-yellow-700 border-yellow-500/20 dark:bg-yellow-500/10 dark:text-yellow-400 dark:border-yellow-500/30">{r.alertas}</Badge>
+                      ) : r.alertas.includes("CMV Excelente") || r.alertas.includes("CMV Aceitável") ? (
+                        <Badge className="gap-1 bg-green-500/10 text-green-700 border-green-500/20 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/30">{r.alertas}</Badge>
                       ) : (
                         <Badge variant="outline">{r.alertas}</Badge>
                       )}

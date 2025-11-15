@@ -142,8 +142,10 @@ export default function Precificacao() {
                       <TableCell>
                         {resumo.alertas.includes("Prejuízo") ? (
                           <Badge variant="destructive" className="gap-1"><AlertTriangle className="h-3 w-3" />{resumo.alertas}</Badge>
-                        ) : resumo.alertas.includes("CMV Muito Alto") || resumo.alertas.includes("Margem Baixa") ? (
-                          <Badge variant="secondary" className="gap-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">{resumo.alertas}</Badge>
+                        ) : resumo.alertas.includes("CMV Muito Alto") || resumo.alertas.includes("Margem Baixa") || resumo.alertas.includes("CMV em Atenção") ? (
+                          <Badge className="gap-1 bg-yellow-500/10 text-yellow-700 border-yellow-500/20 dark:bg-yellow-500/10 dark:text-yellow-400 dark:border-yellow-500/30">{resumo.alertas}</Badge>
+                        ) : resumo.alertas.includes("CMV Excelente") || resumo.alertas.includes("CMV Aceitável") ? (
+                          <Badge className="gap-1 bg-green-500/10 text-green-700 border-green-500/20 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/30">{resumo.alertas}</Badge>
                         ) : (
                           <Badge variant="outline">{resumo.alertas}</Badge>
                         )}
