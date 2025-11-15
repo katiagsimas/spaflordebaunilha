@@ -244,7 +244,7 @@ export default function ReceitaForm() {
     unidadeTempo: "minutos" as "minutos" | "horas",
     rendimento: "",
     unidadeRendimentoId: "",
-    perfilMaoObraId: "" as string,
+    perfilMaoObraId: "default" as string,
   });
 
   const [ingredientes, setIngredientes] = useState<IngredienteReceita[]>([]);
@@ -335,7 +335,7 @@ export default function ReceitaForm() {
             unidadeTempo: receitaData.unidade_tempo as "minutos" | "horas",
             rendimento: receitaData.rendimento.toString(),
             unidadeRendimentoId: receitaData.unidade_rendimento,
-            perfilMaoObraId: receitaData.perfil_mao_obra_id || "",
+            perfilMaoObraId: receitaData.perfil_mao_obra_id || "default",
           });
 
           // Mapear ingredientes
@@ -540,7 +540,7 @@ export default function ReceitaForm() {
   // Calcular custo de mão de obra usando o perfil selecionado ou o valor_hora padrão
   // IMPORTANTE: Custos fixos NÃO devem ser incluídos no CMV de receitas (fichas técnicas)
   // Custos fixos são utilizados apenas em análises gerenciais (DRE, CMV Global, etc.)
-  const perfilSelecionado = formData.perfilMaoObraId 
+  const perfilSelecionado = (formData.perfilMaoObraId && formData.perfilMaoObraId !== "default")
     ? perfis.find(p => p.id === formData.perfilMaoObraId)
     : null;
   const valorHora = perfilSelecionado?.valor_hora || profile?.valor_hora || 0;
@@ -661,7 +661,7 @@ export default function ReceitaForm() {
         custo_total: custoParaSalvar,
         valor_venda: valorVenda || null,
         modo_preparo: modoPreparo || null,
-        perfil_mao_obra_id: formData.perfilMaoObraId || null,
+        perfil_mao_obra_id: (formData.perfilMaoObraId && formData.perfilMaoObraId !== "default") ? formData.perfilMaoObraId : null,
       };
 
       let receitaId: string;
@@ -943,7 +943,7 @@ export default function ReceitaForm() {
                   <SelectValue placeholder="Padrão (valor-hora principal)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Padrão (R$ {(profile?.valor_hora || 0).toFixed(2)}/hora)</SelectItem>
+                  <SelectItem value="default">Padrão (R$ {(profile?.valor_hora || 0).toFixed(2)}/hora)</SelectItem>
                   {perfis.filter(p => p.ativo).map((perfil) => (
                     <SelectItem key={perfil.id} value={perfil.id}>
                       {perfil.nome} (R$ {perfil.valor_hora.toFixed(2)}/hora)
