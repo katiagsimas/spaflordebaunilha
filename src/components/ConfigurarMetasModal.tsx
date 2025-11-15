@@ -21,7 +21,6 @@ const configuracaoSchema = z.object({
   margemLucroAlvo: z.number().min(20, "Margem mínima: 20%").max(200, "Margem máxima: 200%"),
   metaEncomendas: z.number().min(0, "Meta de encomendas deve ser maior ou igual a zero"),
   diasUteisPorMes: z.number().min(1, "Mínimo 1 dia").max(31, "Máximo 31 dias"),
-  alertaCMV: z.number().min(30, "CMV mínimo: 30%").max(70, "CMV máximo: 70%"),
   incluirCustosFixos: z.boolean(),
   custoFixoMensal: z.number().min(0, "Custo fixo deve ser maior ou igual a zero"),
 });
@@ -45,7 +44,6 @@ export function ConfigurarMetasModal({ open, onOpenChange }: ConfigurarMetasModa
     margemLucroAlvo: 60,
     metaEncomendas: 30,
     diasUteisPorMes: 22,
-    alertaCMV: profile?.alerta_cmv || 50,
     incluirCustosFixos: true,
     custoFixoMensal: profile?.custo_fixo_mensal || 2000,
   };
@@ -110,7 +108,6 @@ export function ConfigurarMetasModal({ open, onOpenChange }: ConfigurarMetasModa
       updateProfile({
         meta_faturamento_mensal: data.metaFaturamentoMensal,
         meta_faturamento_anual: data.metaFaturamentoAnual,
-        alerta_cmv: data.alertaCMV,
         custo_fixo_mensal: data.custoFixoMensal,
       });
 
@@ -271,35 +268,6 @@ export function ConfigurarMetasModal({ open, onOpenChange }: ConfigurarMetasModa
             </p>
             {form.formState.errors.diasUteisPorMes && (
               <p className="text-sm text-error">{form.formState.errors.diasUteisPorMes.message}</p>
-            )}
-          </div>
-
-          {/* Alerta de CMV Crítico */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-warning" />
-              <Label htmlFor="alertaCMV" className="text-base font-semibold">
-                Alerta de CMV Crítico
-              </Label>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Avisar quando CMV ultrapassar:
-            </p>
-            <div className="flex items-center gap-2">
-              <Input
-                id="alertaCMV"
-                type="number"
-                placeholder="50"
-                {...form.register("alertaCMV", { valueAsNumber: true })}
-                className="flex-1"
-              />
-              <span className="text-lg font-semibold">%</span>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Recomendado: 45-50% para confeitaria
-            </p>
-            {form.formState.errors.alertaCMV && (
-              <p className="text-sm text-error">{form.formState.errors.alertaCMV.message}</p>
             )}
           </div>
 
