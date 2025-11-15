@@ -3205,8 +3205,9 @@ export type Database = {
           descricao: string | null
           id: string
           nome: string
+          padrao_sistema: boolean | null
           updated_at: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           ativo?: boolean | null
@@ -3215,8 +3216,9 @@ export type Database = {
           descricao?: string | null
           id?: string
           nome: string
+          padrao_sistema?: boolean | null
           updated_at?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           ativo?: boolean | null
@@ -3225,8 +3227,9 @@ export type Database = {
           descricao?: string | null
           id?: string
           nome?: string
+          padrao_sistema?: boolean | null
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }

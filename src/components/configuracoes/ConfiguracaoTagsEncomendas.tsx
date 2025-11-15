@@ -28,11 +28,12 @@ import { Tag, Plus, Edit2, Trash2 } from 'lucide-react';
 
 interface TagEncomenda {
   id: string;
-  user_id: string;
+  user_id: string | null;
   nome: string;
   cor: string;
   descricao?: string;
   ativo: boolean;
+  padrao_sistema?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -72,10 +73,13 @@ export default function ConfiguracaoTagsEncomendas() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // Buscar tags do sistema (user_id = null) e tags do usuário
       const { data, error } = await supabase
         .from('tags_encomendas')
         .select('*')
-        .eq('user_id', user.id)
+        .or(`user_id.is.null,user_id.eq.${user.id}`)
+        .eq('ativo', true)
+        .order('padrao_sistema', { ascending: false })
         .order('nome');
 
       if (error) throw error;
@@ -93,6 +97,16 @@ export default function ConfiguracaoTagsEncomendas() {
   };
 
   const handleAbrirModal = (tag: TagEncomenda | null = null) => {
+    // Não permitir edição de tags de sistema
+    if (tag?.padrao_sistema) {
+      toast({
+        title: 'Ação não permitida',
+        description: 'Tags padrão do sistema não podem ser editadas.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     if (tag) {
       setTagEditando(tag);
       setNomeTag(tag.nome);
@@ -271,9 +285,16 @@ export default function ConfiguracaoTagsEncomendas() {
               tags.map(tag => (
                 <TableRow key={tag.id}>
                   <TableCell>
-                    <Badge style={{ backgroundColor: tag.cor, color: '#fff' }}>
-                      {tag.nome}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge style={{ backgroundColor: tag.cor, color: '#fff' }}>
+                        {tag.nome}
+                      </Badge>
+                      {tag.padrao_sistema && (
+                        <Badge variant="outline" className="text-xs">
+                          Sistema
+                        </Badge>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
@@ -288,23 +309,29 @@ export default function ConfiguracaoTagsEncomendas() {
                     {tag.descricao || '-'}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleAbrirModal(tag)}
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleExcluir(tag)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    {tag.padrao_sistema ? (
+                      <span className="text-xs text-muted-foreground">
+                        Tags do sistema não podem ser editadas
+                      </span>
+                    ) : (
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleAbrirModal(tag)}
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleExcluir(tag)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
                   </TableCell>
                 </TableRow>
               ))
