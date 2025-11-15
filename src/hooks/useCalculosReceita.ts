@@ -47,10 +47,10 @@ export function useCalculosReceita() {
       if (receitasError) throw receitasError;
       if (!receitas) return [];
 
-      // Buscar ingredientes, embalagens e despesas de todas as receitas
+      // Buscar ingredientes, embalagens, despesas e mãos de obra de todas as receitas
       const receitasIds = receitas.map((r) => r.id);
 
-      const [ingredientesRes, embalagensRes, despesasRes] = await Promise.all([
+      const [ingredientesRes, embalagensRes, despesasRes, maosObraRes] = await Promise.all([
         supabase
           .from("receitas_ingredientes")
           .select("*")
@@ -63,11 +63,16 @@ export function useCalculosReceita() {
           .from("receitas_despesas_venda")
           .select("*")
           .in("receita_id", receitasIds),
+        supabase
+          .from("receitas_mao_obra")
+          .select("*")
+          .in("receita_id", receitasIds),
       ]);
 
       if (ingredientesRes.error) throw ingredientesRes.error;
       if (embalagensRes.error) throw embalagensRes.error;
       if (despesasRes.error) throw despesasRes.error;
+      if (maosObraRes.error) throw maosObraRes.error;
 
       // Calcular resumo para cada receita
       const resumos: ResumoReceita[] = receitas.map((receita) => {
@@ -89,17 +94,23 @@ export function useCalculosReceita() {
           0
         );
 
-        // 3.3 Custo de Mão de Obra Direta
-        const perfilSelecionado =
-          receita.perfil_mao_obra_id
-            ? perfis.find((p) => p.id === receita.perfil_mao_obra_id)
-            : null;
-        const valorHora = perfilSelecionado?.valor_hora || profile?.valor_hora || 0;
-        const tempoPreparoHoras =
-          receita.unidade_tempo === "horas"
-            ? receita.tempo_preparo
-            : receita.tempo_preparo / 60;
-        const custoMaoObra = valorHora * tempoPreparoHoras;
+        // 3.3 Custo de Mão de Obra Direta (NOVO SISTEMA)
+        const maosObra = maosObraRes.data?.filter(
+          (mo) => mo.receita_id === receita.id
+        ) || [];
+        
+        const custoMaoObra = maosObra.reduce((sum, mo) => {
+          let valorHora: number;
+          if (mo.usar_valor_padrao) {
+            valorHora = profile?.valor_hora || 0;
+          } else if (mo.perfil_id) {
+            const perfil = perfis.find((p) => p.id === mo.perfil_id);
+            valorHora = perfil?.valor_hora || 0;
+          } else {
+            valorHora = 0;
+          }
+          return sum + (valorHora * mo.horas);
+        }, 0);
 
         // 3.4 Despesas de Venda
         const despesas = despesasRes.data?.filter(

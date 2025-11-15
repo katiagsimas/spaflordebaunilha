@@ -11,6 +11,8 @@ import { useCustosFixos } from "@/hooks/useCustosFixos";
 import { useCategoriasEstoque } from "@/hooks/useCategoriasEstoque";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useMaoObraPerfis } from "@/hooks/useMaoObraPerfis";
+import { useReceitasMaoObra } from "@/hooks/useReceitasMaoObra";
+import { MaoObraSection, type MaoObraLinha } from "@/components/MaoObraSection";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -128,6 +130,7 @@ export default function ReceitaForm() {
   const { custosFixos } = useCustosFixos();
   const { categorias, fetchCategoriasAtivas } = useCategorias();
   const { unidades } = useUnidadesMedida();
+  const { salvarMaosObra } = useReceitasMaoObra(id);
   const { categorias: categoriasEstoque } = useCategoriasEstoque();
   const { profile } = useUserProfile();
   const { perfis } = useMaoObraPerfis();
@@ -235,6 +238,15 @@ export default function ReceitaForm() {
     fetchDados();
   }, []);
 
+  const [maosObra, setMaosObra] = useState<MaoObraLinha[]>([
+    {
+      id: "temp-default",
+      usar_valor_padrao: true,
+      perfil_id: null,
+      horas: 1,
+    },
+  ]);
+  
   const [formData, setFormData] = useState({
     nome: "",
     categoria: "",
@@ -246,7 +258,7 @@ export default function ReceitaForm() {
     unidadeRendimentoId: "",
     perfilMaoObraId: "default" as string,
   });
-
+  
   const [ingredientes, setIngredientes] = useState<IngredienteReceita[]>([]);
   const [embalagens, setEmbalagens] = useState<EmbalagemReceita[]>([]);
   const [modoPreparo, setModoPreparo] = useState("");
@@ -331,12 +343,29 @@ export default function ReceitaForm() {
             categoria: receitaData.categoria || "",
             tipo: (receitaData.tipo as "produto_avulso" | "produto_combo") || "produto_avulso",
             cardapio: (receitaData.cardapio as "ativo" | "fora") || "ativo",
-            tempoPreparo: receitaData.tempo_preparo.toString(),
-            unidadeTempo: receitaData.unidade_tempo as "minutos" | "horas",
+            tempoPreparo: "0", // Campo mantido por compatibilidade mas não usado
+            unidadeTempo: "minutos",
             rendimento: receitaData.rendimento.toString(),
             unidadeRendimentoId: receitaData.unidade_rendimento,
-            perfilMaoObraId: receitaData.perfil_mao_obra_id || "default",
+            perfilMaoObraId: "default", // Campo mantido por compatibilidade mas não usado
           });
+          
+          // Carregar mãos de obra
+          const { data: maosObraData } = await supabase
+            .from("receitas_mao_obra")
+            .select("*")
+            .eq("receita_id", id);
+            
+          if (maosObraData && maosObraData.length > 0) {
+            setMaosObra(
+              maosObraData.map((mo) => ({
+                id: mo.id,
+                usar_valor_padrao: mo.usar_valor_padrao,
+                perfil_id: mo.perfil_id,
+                horas: mo.horas,
+              }))
+            );
+          }
 
           // Mapear ingredientes
           const ingredientesFormatados = (ingredientesRes.data || []).map((ing: any) => ({
@@ -534,23 +563,23 @@ export default function ReceitaForm() {
   const custoIngredientes = ingredientes.reduce((total, ing) => total + ing.custoReceita, 0);
   const custoEmbalagens = embalagens.reduce((total, emb) => total + emb.custoReceita, 0);
   
-  // ======================================
-  // CUSTO DE MÃO DE OBRA DIRETA
-  // ======================================
-  // Calcular custo de mão de obra usando o perfil selecionado ou o valor_hora padrão
-  // IMPORTANTE: Custos fixos NÃO devem ser incluídos no CMV de receitas (fichas técnicas)
-  // Custos fixos são utilizados apenas em análises gerenciais (DRE, CMV Global, etc.)
-  const perfilSelecionado = (formData.perfilMaoObraId && formData.perfilMaoObraId !== "default")
-    ? perfis.find(p => p.id === formData.perfilMaoObraId)
-    : null;
-  const valorHora = perfilSelecionado?.valor_hora || profile?.valor_hora || 0;
-  const tempoPreparoHoras = formData.unidadeTempo === "horas" 
-    ? Number(formData.tempoPreparo) 
-    : Number(formData.tempoPreparo) / 60;
-  const custoMaoDeObra = valorHora * tempoPreparoHoras;
+  // Custo de Mão de Obra Direta (NOVO SISTEMA)
+  const custoMaoObra = maosObra.reduce((sum, mo) => {
+    let valorHora: number;
+    if (mo.usar_valor_padrao) {
+      valorHora = profile?.valor_hora || 0;
+    } else if (mo.perfil_id) {
+      const perfil = perfis.find((p) => p.id === mo.perfil_id);
+      valorHora = perfil?.valor_hora || 0;
+    } else {
+      valorHora = 0;
+    }
+    return sum + (valorHora * mo.horas);
+  }, 0);
   
-  // Compatibilidade: manter variável com nome antigo apontando para o novo cálculo
-  const custoFixoReceita = custoMaoDeObra;
+  // Compatibilidade: manter variável com nome antigo
+  const custoMaoDeObra = custoMaoObra;
+  const custoFixoReceita = custoMaoObra;
   
   // Calcular outros gastos personalizados
   const handleOutroGastoChange = (index: number, field: 'nome' | 'valor', value: string | number) => {
@@ -628,13 +657,19 @@ export default function ReceitaForm() {
       return;
     }
 
-    if (!formData.tempoPreparo || Number(formData.tempoPreparo) <= 0) {
-      toast.error("Por favor, informe um tempo de preparo válido");
-      return;
-    }
-
     if (!formData.rendimento || Number(formData.rendimento) <= 0) {
       toast.error("Por favor, informe um rendimento válido");
+      return;
+    }
+    
+    if (maosObra.length === 0) {
+      toast.error("Por favor, adicione pelo menos uma mão de obra");
+      return;
+    }
+    
+    const totalHoras = maosObra.reduce((sum, mo) => sum + mo.horas, 0);
+    if (totalHoras <= 0) {
+      toast.error("Por favor, informe horas válidas para pelo menos uma mão de obra");
       return;
     }
 
@@ -654,14 +689,14 @@ export default function ReceitaForm() {
         categoria: formData.categoria || null,
         tipo: formData.tipo,
         cardapio: formData.cardapio,
-        tempo_preparo: Number(formData.tempoPreparo),
-        unidade_tempo: formData.unidadeTempo,
+        tempo_preparo: 0, // Mantém campo por compatibilidade mas não usa mais
+        unidade_tempo: "minutos",
         rendimento: Number(formData.rendimento),
         unidade_rendimento: formData.unidadeRendimentoId,
         custo_total: custoParaSalvar,
         valor_venda: valorVenda || null,
         modo_preparo: modoPreparo || null,
-        perfil_mao_obra_id: (formData.perfilMaoObraId && formData.perfilMaoObraId !== "default") ? formData.perfilMaoObraId : null,
+        perfil_mao_obra_id: null, // Não usa mais este campo
       };
 
       let receitaId: string;
@@ -775,6 +810,16 @@ export default function ReceitaForm() {
 
         if (imagensError) throw imagensError;
       }
+      
+      // Salvar mãos de obra
+      await salvarMaosObra({
+        receitaId,
+        maosObra: maosObra.map((mo) => ({
+          perfil_id: mo.perfil_id,
+          usar_valor_padrao: mo.usar_valor_padrao,
+          horas: mo.horas,
+        })),
+      });
 
       if (id) {
         toast.success("Receita atualizada com sucesso!");
@@ -959,6 +1004,9 @@ export default function ReceitaForm() {
               )}
             </div>
           </div>
+
+          {/* Seção de Mão de Obra */}
+          <MaoObraSection maosObra={maosObra} onChange={setMaosObra} />
 
           <div className="space-y-4">
             <div className="flex justify-start items-center gap-2">
