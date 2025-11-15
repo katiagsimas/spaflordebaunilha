@@ -569,10 +569,9 @@ export default function Ingredientes() {
                       {formatarData(ingrediente.data_atualizacao)}
                     </TableCell>
                     <TableCell className="text-center">
-                      {ingrediente.controlar_estoque ? <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-400">
-                          <Package className="h-3 w-3 mr-1" />
-                          Sim
-                        </Badge> : <span className="text-muted-foreground text-xs">-</span>}
+                      <span className={cn("font-medium", ingrediente.controlar_estoque ? "text-green-700 dark:text-green-400" : "text-muted-foreground")}>
+                        {ingrediente.controlar_estoque ? "SIM" : "NÃO"}
+                      </span>
                     </TableCell>
                     <TableCell className="text-right">
                       {eReceita ? <Button variant="ghost" size="sm" onClick={() => navigate(`/precificacao/ficha-tecnica/editar/${ingrediente.id}`)}>
