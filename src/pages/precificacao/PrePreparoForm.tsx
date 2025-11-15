@@ -42,16 +42,19 @@ import {
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
+import { useCategorias } from '@/hooks/useCategorias';
 import { Plus, Trash2, Upload, X, Info, ArrowLeft } from 'lucide-react';
 
 export default function PrePreparoForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
+  const { categorias } = useCategorias();
   const isEditMode = !!id;
 
   // Campos básicos
   const [nome, setNome] = useState('');
+  const [categoriaId, setCategoriaId] = useState('');
   const [tempoPreparo, setTempoPreparo] = useState('');
   const [tempoUnidade, setTempoUnidade] = useState('minutos');
   const [rendimentoQtd, setRendimentoQtd] = useState('');
@@ -217,6 +220,7 @@ export default function PrePreparoForm() {
       if (error) throw error;
 
       setNome(data.nome);
+      setCategoriaId(data.categoria_id || '');
       setTempoPreparo(data.tempo_preparo.toString());
       setTempoUnidade(data.tempo_preparo_unidade);
       setRendimentoQtd(data.rendimento_quantidade.toString());
@@ -557,6 +561,7 @@ export default function PrePreparoForm() {
       const dadosPrePreparo = {
         usuario_id: user.id,
         nome: nome.trim(),
+        categoria_id: categoriaId || null,
         tempo_preparo: tempo,
         tempo_preparo_unidade: tempoUnidade,
         rendimento_quantidade: rendimento,
@@ -686,14 +691,31 @@ export default function PrePreparoForm() {
             <CardTitle>Informações Básicas</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="nome">Nome do Pré-Preparo *</Label>
-              <Input
-                id="nome"
-                placeholder="Ex: Massa de Bolo Base"
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="nome">Nome do Pré-Preparo *</Label>
+                <Input
+                  id="nome"
+                  placeholder="Ex: Massa de Bolo Base"
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="categoria">Categoria de Receita</Label>
+                <Select value={categoriaId} onValueChange={setCategoriaId}>
+                  <SelectTrigger id="categoria">
+                    <SelectValue placeholder="Selecione..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categorias.filter(c => c.ativo).map((categoria) => (
+                      <SelectItem key={categoria.id} value={categoria.id}>
+                        {categoria.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
