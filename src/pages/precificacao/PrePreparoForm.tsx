@@ -518,16 +518,6 @@ export default function PrePreparoForm() {
         return;
       }
 
-      const tempo = parseFloat(tempoPreparo.replace(',', '.'));
-      if (!tempo || tempo <= 0) {
-        toast({
-          title: 'Erro',
-          description: 'Informe um tempo de preparo válido!',
-          variant: 'destructive',
-        });
-        return;
-      }
-
       const rendimento = parseFloat(rendimentoQtd.replace(',', '.'));
       if (!rendimento || rendimento <= 0) {
         toast({
@@ -589,8 +579,8 @@ export default function PrePreparoForm() {
         usuario_id: user.id,
         nome: nome.trim(),
         categoria_id: categoriaId || null,
-        tempo_preparo: tempo,
-        tempo_preparo_unidade: tempoUnidade,
+        tempo_preparo: 0,
+        tempo_preparo_unidade: 'minutos',
         rendimento_quantidade: rendimento,
         rendimento_unidade_id: rendimentoUnidadeId,
         modo_preparo: modoPreparo.trim() || null,
@@ -772,34 +762,6 @@ export default function PrePreparoForm() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="tempo">Tempo de Preparo *</Label>
-                <Input
-                  id="tempo"
-                  type="text"
-                  placeholder="Ex: 30"
-                  value={tempoPreparo}
-                  onChange={(e) => {
-                    const valor = e.target.value.replace(/[^\d,]/g, '');
-                    setTempoPreparo(valor);
-                  }}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Unidade</Label>
-                <Select value={tempoUnidade} onValueChange={setTempoUnidade}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="minutos">Minutos</SelectItem>
-                    <SelectItem value="horas">Horas</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
                 <Label htmlFor="rendimento">Rendimento *</Label>
                 <Input
                   id="rendimento"
@@ -828,6 +790,22 @@ export default function PrePreparoForm() {
                 </Select>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Card Mão de Obra */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Mão de Obra</CardTitle>
+            <CardDescription>
+              Adicione os custos de mão de obra para este pré-preparo
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <MaoObraSection
+              maosObra={maosObra}
+              onChange={setMaosObra}
+            />
           </CardContent>
         </Card>
 
@@ -969,22 +947,6 @@ export default function PrePreparoForm() {
                 )}
               </div>
             )}
-          </CardContent>
-        </Card>
-
-        {/* Card Mão de Obra */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Mão de Obra</CardTitle>
-            <CardDescription>
-              Adicione os custos de mão de obra para este pré-preparo
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <MaoObraSection
-              maosObra={maosObra}
-              onChange={setMaosObra}
-            />
           </CardContent>
         </Card>
 
