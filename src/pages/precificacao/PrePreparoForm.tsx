@@ -49,6 +49,8 @@ import { useCategoriasEstoque } from '@/hooks/useCategoriasEstoque';
 import { Plus, Trash2, Upload, X, Info, ArrowLeft } from 'lucide-react';
 import { MaoObraSection, MaoObraLinha } from '@/components/MaoObraSection';
 import { usePrePreparosMaoObra } from '@/hooks/usePrePreparosMaoObra';
+import { useMaoObraPerfis } from '@/hooks/useMaoObraPerfis';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 export default function PrePreparoForm() {
   const navigate = useNavigate();
@@ -56,6 +58,8 @@ export default function PrePreparoForm() {
   const { toast } = useToast();
   const { categorias } = useCategorias();
   const { categorias: categoriasEstoque } = useCategoriasEstoque();
+  const { perfis } = useMaoObraPerfis();
+  const { profile } = useUserProfile();
   const isEditMode = !!id;
 
   // Campos básicos
@@ -98,6 +102,8 @@ export default function PrePreparoForm() {
   const [maosObra, setMaosObra] = useState<MaoObraLinha[]>([]);
 
   const [loading, setLoading] = useState(false);
+  const [custoIngredientes, setCustoIngredientes] = useState(0);
+  const [custoMaoObra, setCustoMaoObra] = useState(0);
   const [custoTotal, setCustoTotal] = useState(0);
   const [custoPorUnidade, setCustoPorUnidade] = useState(0);
 
@@ -116,7 +122,7 @@ export default function PrePreparoForm() {
 
   useEffect(() => {
     calcularCustos();
-  }, [ingredientesSelecionados, rendimentoQtd]);
+  }, [ingredientesSelecionados, rendimentoQtd, maosObra, perfis, profile]);
 
   const fetchIngredientes = async () => {
     try {
@@ -337,8 +343,34 @@ export default function PrePreparoForm() {
     setIngredientesSelecionados(novosIngredientes);
   };
 
+  const calcularCustoMaoObra = () => {
+    let custoTotal = 0;
+    
+    maosObra.forEach((maoObra) => {
+      let valorHora = 0;
+      
+      if (maoObra.usar_valor_padrao) {
+        // Usar valor padrão do perfil do usuário
+        valorHora = profile?.valor_hora || 0;
+      } else if (maoObra.perfil_id) {
+        // Usar valor do perfil específico
+        const perfil = perfis.find(p => p.id === maoObra.perfil_id);
+        valorHora = perfil?.valor_hora || 0;
+      }
+      
+      custoTotal += valorHora * maoObra.horas;
+    });
+    
+    return custoTotal;
+  };
+
   const calcularCustos = () => {
-    const total = ingredientesSelecionados.reduce((acc, ing) => acc + (ing.custo || 0), 0);
+    const totalIngredientes = ingredientesSelecionados.reduce((acc, ing) => acc + (ing.custo || 0), 0);
+    const totalMaoObra = calcularCustoMaoObra();
+    const total = totalIngredientes + totalMaoObra;
+
+    setCustoIngredientes(totalIngredientes);
+    setCustoMaoObra(totalMaoObra);
     setCustoTotal(total);
 
     const rendimento = parseFloat(rendimentoQtd.replace(',', '.')) || 1;
@@ -933,9 +965,21 @@ export default function PrePreparoForm() {
             </Popover>
 
             {/* Totais */}
-            {ingredientesSelecionados.length > 0 && (
+            {(ingredientesSelecionados.length > 0 || maosObra.length > 0) && (
               <div className="border-t pt-4 space-y-2">
-                <div className="flex justify-between text-lg font-semibold">
+                {ingredientesSelecionados.length > 0 && (
+                  <div className="flex justify-between text-base">
+                    <span>Total de Ingredientes:</span>
+                    <span>{formatarPreco(custoIngredientes)}</span>
+                  </div>
+                )}
+                {maosObra.length > 0 && (
+                  <div className="flex justify-between text-base">
+                    <span>Total de Mão de Obra:</span>
+                    <span>{formatarPreco(custoMaoObra)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-lg font-semibold border-t pt-2">
                   <span>Custo Total:</span>
                   <span className="text-primary">{formatarPreco(custoTotal)}</span>
                 </div>
