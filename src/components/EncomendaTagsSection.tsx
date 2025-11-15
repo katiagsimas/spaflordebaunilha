@@ -100,10 +100,10 @@ export function EncomendaTagsSection({
           Categorize esta encomenda para análises e relatórios
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4">
         {/* Tags Selecionadas - Resumo */}
         {tagsSelecionadas.length > 0 && (
-          <div className="flex flex-wrap gap-2 p-3 bg-muted rounded-lg border border-border">
+          <div className="flex flex-wrap gap-2 p-3 bg-muted/50 rounded-lg border border-border">
             {tagsSelecionadas.map(tag => (
               <Badge
                 key={tag.id}
@@ -113,6 +113,7 @@ export function EncomendaTagsSection({
                   cursor: 'pointer'
                 }}
                 onClick={() => onTagToggle(tag)}
+                className="hover:opacity-80 transition-opacity"
               >
                 {tag.nome}
               </Badge>
@@ -120,26 +121,27 @@ export function EncomendaTagsSection({
           </div>
         )}
 
-        {/* Grupos de Tags em 4 Colunas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Grupos de Tags em Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
           {GROUP_ORDER.map(grupo => {
             const tags = tagsPorGrupo[grupo];
             if (tags.length === 0) return null;
 
             return (
-              <div key={grupo} className="space-y-3">
-                <div className="bg-muted border-l-4 border-primary px-3 py-2 rounded">
-                  <h4 className="text-sm font-semibold text-foreground">
+              <Card key={grupo} className="shadow-sm">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <div className="w-1 h-5 bg-primary rounded-full" />
                     {GROUP_LABELS[grupo]}
-                  </h4>
-                </div>
-                <div className="flex flex-col gap-2">
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
                   {tags.map(tag => (
                     <Toggle
                       key={tag.id}
                       pressed={isTagSelecionada(tag.id)}
                       onPressedChange={() => onTagToggle(tag)}
-                      className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground justify-start"
+                      className="w-full justify-start text-sm data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
                       style={
                         isTagSelecionada(tag.id)
                           ? {
@@ -153,8 +155,8 @@ export function EncomendaTagsSection({
                       {tag.nome}
                     </Toggle>
                   ))}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             );
           })}
         </div>
