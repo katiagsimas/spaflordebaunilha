@@ -2119,6 +2119,77 @@ export type Database = {
         }
         Relationships: []
       }
+      mao_obra_perfis: {
+        Row: {
+          ativo: boolean | null
+          atualizado_em: string | null
+          criado_em: string | null
+          id: string
+          nome: string
+          padrao: boolean | null
+          user_id: string
+          valor_hora: number
+        }
+        Insert: {
+          ativo?: boolean | null
+          atualizado_em?: string | null
+          criado_em?: string | null
+          id?: string
+          nome: string
+          padrao?: boolean | null
+          user_id: string
+          valor_hora: number
+        }
+        Update: {
+          ativo?: boolean | null
+          atualizado_em?: string | null
+          criado_em?: string | null
+          id?: string
+          nome?: string
+          padrao?: boolean | null
+          user_id?: string
+          valor_hora?: number
+        }
+        Relationships: []
+      }
+      mao_obra_perfis_historico: {
+        Row: {
+          acao: string
+          id: string
+          perfil_id: string
+          registrado_em: string | null
+          user_id: string
+          valor_antigo: number | null
+          valor_novo: number | null
+        }
+        Insert: {
+          acao: string
+          id?: string
+          perfil_id: string
+          registrado_em?: string | null
+          user_id: string
+          valor_antigo?: number | null
+          valor_novo?: number | null
+        }
+        Update: {
+          acao?: string
+          id?: string
+          perfil_id?: string
+          registrado_em?: string | null
+          user_id?: string
+          valor_antigo?: number | null
+          valor_novo?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mao_obra_perfis_historico_perfil_id_fkey"
+            columns: ["perfil_id"]
+            isOneToOne: false
+            referencedRelation: "mao_obra_perfis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       movimentacoes_estoque: {
         Row: {
           created_at: string
@@ -2762,6 +2833,7 @@ export type Database = {
           id: string
           modo_preparo: string | null
           nome: string
+          perfil_mao_obra_id: string | null
           rendimento: number
           tempo_preparo: number
           tipo: string | null
@@ -2779,6 +2851,7 @@ export type Database = {
           id?: string
           modo_preparo?: string | null
           nome: string
+          perfil_mao_obra_id?: string | null
           rendimento: number
           tempo_preparo: number
           tipo?: string | null
@@ -2796,6 +2869,7 @@ export type Database = {
           id?: string
           modo_preparo?: string | null
           nome?: string
+          perfil_mao_obra_id?: string | null
           rendimento?: number
           tempo_preparo?: number
           tipo?: string | null
@@ -2805,7 +2879,15 @@ export type Database = {
           usuario_id?: string
           valor_venda?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "receitas_perfil_mao_obra_id_fkey"
+            columns: ["perfil_mao_obra_id"]
+            isOneToOne: false
+            referencedRelation: "mao_obra_perfis"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       receitas_despesas_venda: {
         Row: {

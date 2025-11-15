@@ -10,6 +10,7 @@ import { useCategorias } from "@/hooks/useCategorias";
 import { useCustosFixos } from "@/hooks/useCustosFixos";
 import { useCategoriasEstoque } from "@/hooks/useCategoriasEstoque";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useMaoObraPerfis } from "@/hooks/useMaoObraPerfis";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -129,6 +130,7 @@ export default function ReceitaForm() {
   const { unidades } = useUnidadesMedida();
   const { categorias: categoriasEstoque } = useCategoriasEstoque();
   const { profile } = useUserProfile();
+  const { perfis } = useMaoObraPerfis();
   const [categoriasAtivas, setCategoriasAtivas] = useState<any[]>([]);
 
   // Carregar apenas categorias ativas para o formulário
@@ -242,6 +244,7 @@ export default function ReceitaForm() {
     unidadeTempo: "minutos" as "minutos" | "horas",
     rendimento: "",
     unidadeRendimentoId: "",
+    perfilMaoObraId: "" as string,
   });
 
   const [ingredientes, setIngredientes] = useState<IngredienteReceita[]>([]);
@@ -332,6 +335,7 @@ export default function ReceitaForm() {
             unidadeTempo: receitaData.unidade_tempo as "minutos" | "horas",
             rendimento: receitaData.rendimento.toString(),
             unidadeRendimentoId: receitaData.unidade_rendimento,
+            perfilMaoObraId: receitaData.perfil_mao_obra_id || "",
           });
 
           // Mapear ingredientes
@@ -533,10 +537,13 @@ export default function ReceitaForm() {
   // ======================================
   // CUSTO DE MÃO DE OBRA DIRETA
   // ======================================
-  // Calcular custo de mão de obra usando APENAS o valor_hora do perfil do usuário
+  // Calcular custo de mão de obra usando o perfil selecionado ou o valor_hora padrão
   // IMPORTANTE: Custos fixos NÃO devem ser incluídos no CMV de receitas (fichas técnicas)
   // Custos fixos são utilizados apenas em análises gerenciais (DRE, CMV Global, etc.)
-  const valorHora = profile?.valor_hora || 0;
+  const perfilSelecionado = formData.perfilMaoObraId 
+    ? perfis.find(p => p.id === formData.perfilMaoObraId)
+    : null;
+  const valorHora = perfilSelecionado?.valor_hora || profile?.valor_hora || 0;
   const tempoPreparoHoras = formData.unidadeTempo === "horas" 
     ? Number(formData.tempoPreparo) 
     : Number(formData.tempoPreparo) / 60;
@@ -654,6 +661,7 @@ export default function ReceitaForm() {
         custo_total: custoParaSalvar,
         valor_venda: valorVenda || null,
         modo_preparo: modoPreparo || null,
+        perfil_mao_obra_id: formData.perfilMaoObraId || null,
       };
 
       let receitaId: string;
@@ -922,6 +930,33 @@ export default function ReceitaForm() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+            
+            {/* Campo de Perfil de Mão de Obra */}
+            <div>
+              <Label htmlFor="perfilMaoObra">Quem produz este produto?</Label>
+              <Select
+                value={formData.perfilMaoObraId}
+                onValueChange={(value) => setFormData({ ...formData, perfilMaoObraId: value })}
+              >
+                <SelectTrigger id="perfilMaoObra">
+                  <SelectValue placeholder="Padrão (valor-hora principal)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Padrão (R$ {(profile?.valor_hora || 0).toFixed(2)}/hora)</SelectItem>
+                  {perfis.filter(p => p.ativo).map((perfil) => (
+                    <SelectItem key={perfil.id} value={perfil.id}>
+                      {perfil.nome} (R$ {perfil.valor_hora.toFixed(2)}/hora)
+                      {perfil.padrao && " - Padrão"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {perfis.length === 0 && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Configure perfis avançados em Configurações → Precificação → Mão de Obra
+                </p>
+              )}
             </div>
           </div>
 
