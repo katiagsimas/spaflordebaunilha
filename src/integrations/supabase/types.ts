@@ -2626,6 +2626,51 @@ export type Database = {
           },
         ]
       }
+      pre_preparos_mao_obra: {
+        Row: {
+          atualizado_em: string | null
+          criado_em: string | null
+          horas: number
+          id: string
+          perfil_id: string | null
+          pre_preparo_id: string
+          usar_valor_padrao: boolean
+        }
+        Insert: {
+          atualizado_em?: string | null
+          criado_em?: string | null
+          horas: number
+          id?: string
+          perfil_id?: string | null
+          pre_preparo_id: string
+          usar_valor_padrao?: boolean
+        }
+        Update: {
+          atualizado_em?: string | null
+          criado_em?: string | null
+          horas?: number
+          id?: string
+          perfil_id?: string | null
+          pre_preparo_id?: string
+          usar_valor_padrao?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pre_preparos_mao_obra_perfil_id_fkey"
+            columns: ["perfil_id"]
+            isOneToOne: false
+            referencedRelation: "mao_obra_perfis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pre_preparos_mao_obra_pre_preparo_id_fkey"
+            columns: ["pre_preparo_id"]
+            isOneToOne: false
+            referencedRelation: "pre_preparos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       precos: {
         Row: {
           ativo: boolean
@@ -3058,6 +3103,51 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "receitas_ingredientes_receita_id_fkey"
+            columns: ["receita_id"]
+            isOneToOne: false
+            referencedRelation: "receitas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      receitas_mao_obra: {
+        Row: {
+          atualizado_em: string | null
+          criado_em: string | null
+          horas: number
+          id: string
+          perfil_id: string | null
+          receita_id: string
+          usar_valor_padrao: boolean
+        }
+        Insert: {
+          atualizado_em?: string | null
+          criado_em?: string | null
+          horas: number
+          id?: string
+          perfil_id?: string | null
+          receita_id: string
+          usar_valor_padrao?: boolean
+        }
+        Update: {
+          atualizado_em?: string | null
+          criado_em?: string | null
+          horas?: number
+          id?: string
+          perfil_id?: string | null
+          receita_id?: string
+          usar_valor_padrao?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receitas_mao_obra_perfil_id_fkey"
+            columns: ["perfil_id"]
+            isOneToOne: false
+            referencedRelation: "mao_obra_perfis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receitas_mao_obra_receita_id_fkey"
             columns: ["receita_id"]
             isOneToOne: false
             referencedRelation: "receitas"
