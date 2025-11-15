@@ -1,12 +1,10 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Pencil } from "lucide-react";
 import { useMaoObraPerfis } from "@/hooks/useMaoObraPerfis";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { AdicionarMaoObraDialog } from "./AdicionarMaoObraDialog";
 
 export interface MaoObraLinha {
   id: string;
@@ -23,27 +21,42 @@ interface MaoObraSectionProps {
 export function MaoObraSection({ maosObra, onChange }: MaoObraSectionProps) {
   const { perfis } = useMaoObraPerfis();
   const { profile } = useUserProfile();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [maoObraEditando, setMaoObraEditando] = useState<MaoObraLinha | null>(null);
 
-  const adicionarLinha = () => {
-    const novaLinha: MaoObraLinha = {
-      id: `temp-${Date.now()}`,
-      usar_valor_padrao: true,
-      perfil_id: null,
-      horas: 1,
-    };
-    onChange([...maosObra, novaLinha]);
+  const handleSaveMaoObra = (maoObra: Omit<MaoObraLinha, "id">) => {
+    if (maoObraEditando) {
+      // Editando existente
+      onChange(
+        maosObra.map((linha) =>
+          linha.id === maoObraEditando.id
+            ? { ...linha, ...maoObra }
+            : linha
+        )
+      );
+      setMaoObraEditando(null);
+    } else {
+      // Adicionando nova
+      const novaLinha: MaoObraLinha = {
+        id: `temp-${Date.now()}`,
+        ...maoObra,
+      };
+      onChange([...maosObra, novaLinha]);
+    }
+  };
+
+  const handleEditarLinha = (linha: MaoObraLinha) => {
+    setMaoObraEditando(linha);
+    setDialogOpen(true);
   };
 
   const removerLinha = (id: string) => {
     onChange(maosObra.filter((linha) => linha.id !== id));
   };
 
-  const atualizarLinha = (id: string, campo: keyof MaoObraLinha, valor: any) => {
-    onChange(
-      maosObra.map((linha) =>
-        linha.id === id ? { ...linha, [campo]: valor } : linha
-      )
-    );
+  const handleOpenDialog = () => {
+    setMaoObraEditando(null);
+    setDialogOpen(true);
   };
 
   const calcularValorHora = (linha: MaoObraLinha): number => {
@@ -64,14 +77,20 @@ export function MaoObraSection({ maosObra, onChange }: MaoObraSectionProps) {
 
   return (
     <div className="space-y-4">
-      <Button type="button" variant="default" size="sm" onClick={adicionarLinha}>
+      <Button type="button" variant="default" size="sm" onClick={handleOpenDialog}>
         <Plus className="h-4 w-4 mr-2" />
         Adicionar Mão de Obra
       </Button>
 
       {maosObra.length > 0 && (
         <div className="p-4 rounded-lg bg-card border space-y-4">
-          <h4 className="font-semibold text-sm">Mão de Obra desta Receita</h4>
+          <div className="flex justify-between items-center">
+            <h4 className="font-semibold text-sm">Mão de Obra desta Receita</h4>
+            <Button type="button" variant="default" size="sm" onClick={handleOpenDialog}>
+              <Plus className="h-4 w-4 mr-2" />
+              Outra Mão de Obra
+            </Button>
+          </div>
           
           <div className="overflow-x-auto">
             <Table>
@@ -82,89 +101,60 @@ export function MaoObraSection({ maosObra, onChange }: MaoObraSectionProps) {
                   <TableHead className="w-[120px]">Horas</TableHead>
                   <TableHead className="w-[120px]">Valor/Hora</TableHead>
                   <TableHead className="w-[120px]">Custo Total</TableHead>
-                  <TableHead className="w-[80px]">Ações</TableHead>
+                  <TableHead className="w-[100px]">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {maosObra.map((linha) => (
-                  <TableRow key={linha.id}>
-                    <TableCell>
-                      <RadioGroup
-                        value={linha.usar_valor_padrao ? "padrao" : "perfil"}
-                        onValueChange={(value) => {
-                          atualizarLinha(linha.id, "usar_valor_padrao", value === "padrao");
-                          if (value === "padrao") {
-                            atualizarLinha(linha.id, "perfil_id", null);
-                          }
-                        }}
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="padrao" id={`padrao-${linha.id}`} />
-                          <Label htmlFor={`padrao-${linha.id}`} className="cursor-pointer">
-                            Valor padrão
-                          </Label>
+                {maosObra.map((linha) => {
+                  const perfil = perfis.find((p) => p.id === linha.perfil_id);
+                  return (
+                    <TableRow key={linha.id}>
+                      <TableCell>
+                        {linha.usar_valor_padrao ? "Valor padrão" : "Perfil específico"}
+                      </TableCell>
+                      <TableCell>
+                        {linha.usar_valor_padrao ? (
+                          <span className="text-muted-foreground text-sm">
+                            Padrão (R$ {(profile?.valor_hora || 0).toFixed(2)}/h)
+                          </span>
+                        ) : (
+                          <span className="text-sm">
+                            {perfil?.nome || "N/A"} (R$ {(perfil?.valor_hora || 0).toFixed(2)}/h)
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {linha.horas.toFixed(2)}h
+                      </TableCell>
+                      <TableCell className="text-right">
+                        R$ {calcularValorHora(linha).toFixed(2)}
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        R$ {calcularCustoLinha(linha).toFixed(2)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEditarLinha(linha)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removerLinha(linha.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="perfil" id={`perfil-${linha.id}`} />
-                          <Label htmlFor={`perfil-${linha.id}`} className="cursor-pointer">
-                            Perfil específico
-                          </Label>
-                        </div>
-                      </RadioGroup>
-                    </TableCell>
-                    <TableCell>
-                      {linha.usar_valor_padrao ? (
-                        <span className="text-muted-foreground text-sm">
-                          Padrão (R$ {(profile?.valor_hora || 0).toFixed(2)}/h)
-                        </span>
-                      ) : (
-                        <Select
-                          value={linha.perfil_id || ""}
-                          onValueChange={(value) => atualizarLinha(linha.id, "perfil_id", value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {perfis.filter(p => p.ativo).map((perfil) => (
-                              <SelectItem key={perfil.id} value={perfil.id}>
-                                {perfil.nome} (R$ {perfil.valor_hora.toFixed(2)}/h)
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        type="number"
-                        min="0"
-                        step="0.25"
-                        value={linha.horas}
-                        onChange={(e) =>
-                          atualizarLinha(linha.id, "horas", parseFloat(e.target.value) || 0)
-                        }
-                        placeholder="1.00"
-                      />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      R$ {calcularValorHora(linha).toFixed(2)}
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      R$ {calcularCustoLinha(linha).toFixed(2)}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removerLinha(linha.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
@@ -177,6 +167,14 @@ export function MaoObraSection({ maosObra, onChange }: MaoObraSectionProps) {
           </div>
         </div>
       )}
+
+      <AdicionarMaoObraDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onSave={handleSaveMaoObra}
+        maosObraExistentes={maosObra}
+        maoObraEditando={maoObraEditando}
+      />
     </div>
   );
 }
