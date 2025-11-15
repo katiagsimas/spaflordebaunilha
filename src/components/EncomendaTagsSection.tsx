@@ -128,9 +128,11 @@ export function EncomendaTagsSection({
 
             return (
               <div key={grupo} className="space-y-3">
-                <h4 className="text-sm font-semibold text-foreground">
-                  {GROUP_LABELS[grupo]}
-                </h4>
+                <div className="bg-muted border-l-4 border-primary px-3 py-2 rounded">
+                  <h4 className="text-sm font-semibold text-foreground">
+                    {GROUP_LABELS[grupo]}
+                  </h4>
+                </div>
                 <div className="flex flex-col gap-2">
                   {tags.map(tag => (
                     <Toggle
