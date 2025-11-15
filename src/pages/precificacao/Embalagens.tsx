@@ -525,14 +525,13 @@ export default function Embalagens() {
               <TableHead>Unidade</TableHead>
               <TableHead>Preço</TableHead>
               <TableHead>Data Atualização</TableHead>
-              <TableHead className="text-center">Estoque</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {embalagensFiltradas.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                   {termoBusca ? 'Nenhuma embalagem encontrada com esse termo.' : 'Nenhuma embalagem cadastrada. Clique em "Nova Embalagem".'}
                 </TableCell>
               </TableRow>
@@ -572,11 +571,6 @@ export default function Embalagens() {
                     </TableCell>
                     <TableCell className={desatualizado ? 'text-amber-700 font-medium dark:text-amber-400' : ''}>
                       {formatarData(embalagem.data_atualizacao)}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <span className={cn("font-medium", embalagem.controlar_estoque ? "text-green-700 dark:text-green-400" : "text-muted-foreground")}>
-                        {embalagem.controlar_estoque ? "SIM" : "NÃO"}
-                      </span>
                     </TableCell>
                     <TableCell className="text-right">
                       <Button
