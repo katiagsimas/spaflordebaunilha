@@ -39,12 +39,12 @@ export default function MaoDeObra() {
   const [perfilToDelete, setPerfilToDelete] = useState<string | null>(null);
 
   // Estados para filtros de histórico
-  const [filtroPerfilId, setFiltroPerfilId] = useState<string>("");
+  const [filtroPerfilId, setFiltroPerfilId] = useState<string>("all");
   const [filtroDataInicial, setFiltroDataInicial] = useState<string>("");
   const [filtroDataFinal, setFiltroDataFinal] = useState<string>("");
 
   const { historico, isLoading: historicoLoading } = useMaoObraHistorico(
-    filtroPerfilId || undefined,
+    filtroPerfilId === "all" ? undefined : filtroPerfilId,
     filtroDataInicial || undefined,
     filtroDataFinal || undefined
   );
@@ -405,7 +405,7 @@ export default function MaoDeObra() {
                       <SelectValue placeholder="Todos os perfis" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todos os perfis</SelectItem>
+                      <SelectItem value="all">Todos os perfis</SelectItem>
                       {perfis.map((perfil) => (
                         <SelectItem key={perfil.id} value={perfil.id}>
                           {perfil.nome}
