@@ -63,17 +63,16 @@ export function MaoObraSection({ maosObra, onChange }: MaoObraSectionProps) {
   const custoTotal = maosObra.reduce((sum, linha) => sum + calcularCustoLinha(linha), 0);
 
   return (
-    <div className="space-y-4 p-4 rounded-lg bg-card border">
-      <div className="flex justify-between items-center">
-        <h4 className="font-semibold text-sm">Mão de Obra desta Receita</h4>
-        <Button type="button" variant="default" size="sm" onClick={adicionarLinha}>
-          <Plus className="h-4 w-4 mr-2" />
-          Adicionar Mão de Obra
-        </Button>
-      </div>
+    <div className="space-y-4">
+      <Button type="button" variant="default" size="sm" onClick={adicionarLinha}>
+        <Plus className="h-4 w-4 mr-2" />
+        Adicionar Mão de Obra
+      </Button>
 
       {maosObra.length > 0 && (
-        <>
+        <div className="p-4 rounded-lg bg-card border space-y-4">
+          <h4 className="font-semibold text-sm">Mão de Obra desta Receita</h4>
+          
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -176,7 +175,7 @@ export function MaoObraSection({ maosObra, onChange }: MaoObraSectionProps) {
               <span className="font-semibold text-lg">R$ {custoTotal.toFixed(2)}</span>
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
