@@ -32,6 +32,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useCategoriasEstoque } from '@/hooks/useCategoriasEstoque';
 import { Plus, Edit, Trash2, Info, Search, Download } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import * as XLSX from 'xlsx';
 
 export default function TiposInsumosIngredientes() {
@@ -267,6 +268,7 @@ export default function TiposInsumosIngredientes() {
       'Descrição': tipo.descricao,
       'Quantidade': tipo.quantidade_embalagem,
       'Unidade': tipo.unidade_medida?.nome,
+      'Estoque': tipo.controlar_estoque ? 'SIM' : 'NÃO',
     }));
 
     const ws = XLSX.utils.json_to_sheet(dadosExport);
@@ -324,13 +326,14 @@ export default function TiposInsumosIngredientes() {
               <TableHead>Descrição</TableHead>
               <TableHead>Quantidade</TableHead>
               <TableHead>Unidade</TableHead>
+              <TableHead className="text-center">Estoque</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {tiposFiltrados.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                   {busca ? 'Nenhum tipo encontrado.' : 'Nenhum tipo cadastrado. Clique em "Novo Tipo" para começar.'}
                 </TableCell>
               </TableRow>
@@ -340,6 +343,11 @@ export default function TiposInsumosIngredientes() {
                   <TableCell className="font-medium">{tipo.descricao}</TableCell>
                   <TableCell>{tipo.quantidade_embalagem.toLocaleString('pt-BR')}</TableCell>
                   <TableCell>{tipo.unidade_medida?.nome}</TableCell>
+                  <TableCell className="text-center">
+                    <span className={cn("font-medium", tipo.controlar_estoque ? "text-green-700 dark:text-green-400" : "text-muted-foreground")}>
+                      {tipo.controlar_estoque ? "SIM" : "NÃO"}
+                    </span>
+                  </TableCell>
                   <TableCell className="text-right space-x-2">
                     <Button
                       variant="ghost"
