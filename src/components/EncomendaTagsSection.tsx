@@ -34,11 +34,13 @@ const TAG_GROUPS = {
 } as const;
 
 const GROUP_LABELS = {
+  tipoEvento: "Tipo de evento",
   origem: "Origem do pedido",
   tipoEntrega: "Tipo de entrega",
   recorrencia: "Recorrência",
-  tipoEvento: "Tipo de evento",
 } as const;
+
+const GROUP_ORDER = ['tipoEvento', 'origem', 'tipoEntrega', 'recorrencia'] as const;
 
 interface Tag {
   id: string;
@@ -118,40 +120,42 @@ export function EncomendaTagsSection({
           </div>
         )}
 
-        {/* Grupos de Tags */}
-        {Object.entries(tagsPorGrupo).map(([grupo, tags]) => {
-          // Não exibir grupos vazios (exceto "outros" que sempre escondemos)
-          if (tags.length === 0 || grupo === 'outros') return null;
+        {/* Grupos de Tags em 4 Colunas */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {GROUP_ORDER.map(grupo => {
+            const tags = tagsPorGrupo[grupo];
+            if (tags.length === 0) return null;
 
-          return (
-            <div key={grupo} className="space-y-2">
-              <h4 className="text-sm font-semibold text-foreground">
-                {GROUP_LABELS[grupo as keyof typeof GROUP_LABELS]}
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {tags.map(tag => (
-                  <Toggle
-                    key={tag.id}
-                    pressed={isTagSelecionada(tag.id)}
-                    onPressedChange={() => onTagToggle(tag)}
-                    className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                    style={
-                      isTagSelecionada(tag.id)
-                        ? {
-                            backgroundColor: tag.cor,
-                            color: '#fff',
-                            borderColor: tag.cor,
-                          }
-                        : {}
-                    }
-                  >
-                    {tag.nome}
-                  </Toggle>
-                ))}
+            return (
+              <div key={grupo} className="space-y-3">
+                <h4 className="text-sm font-semibold text-foreground">
+                  {GROUP_LABELS[grupo]}
+                </h4>
+                <div className="flex flex-col gap-2">
+                  {tags.map(tag => (
+                    <Toggle
+                      key={tag.id}
+                      pressed={isTagSelecionada(tag.id)}
+                      onPressedChange={() => onTagToggle(tag)}
+                      className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground justify-start"
+                      style={
+                        isTagSelecionada(tag.id)
+                          ? {
+                              backgroundColor: tag.cor,
+                              color: '#fff',
+                              borderColor: tag.cor,
+                            }
+                          : {}
+                      }
+                    >
+                      {tag.nome}
+                    </Toggle>
+                  ))}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </CardContent>
     </Card>
   );
