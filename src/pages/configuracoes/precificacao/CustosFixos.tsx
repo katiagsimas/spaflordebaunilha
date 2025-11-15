@@ -21,6 +21,7 @@ interface CustoFixo {
   id: string;
   nome: string;
   valor: number;
+  tipo: 'fixo' | 'mao_obra_indireta' | 'outros';
 }
 
 export default function CustosFixos() {
@@ -387,6 +388,7 @@ export default function CustosFixos() {
             <TableHeader>
               <TableRow>
                 <TableHead>Nome</TableHead>
+                <TableHead>Tipo</TableHead>
                 <TableHead className="text-right">Valor</TableHead>
                 <TableHead className="text-center w-[200px]">Opções</TableHead>
               </TableRow>
@@ -395,6 +397,15 @@ export default function CustosFixos() {
               {custosFixos.map((custo) => (
                 <TableRow key={custo.id}>
                   <TableCell className="font-medium">{custo.nome}</TableCell>
+                  <TableCell>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      custo.tipo === 'mao_obra_indireta' 
+                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' 
+                        : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
+                    }`}>
+                      {custo.tipo === 'mao_obra_indireta' ? 'Mão de Obra Indireta' : 'Custo Fixo'}
+                    </span>
+                  </TableCell>
                   <TableCell className="text-right font-semibold text-primary">
                     R$ {custo.valor.toFixed(2)}
                   </TableCell>

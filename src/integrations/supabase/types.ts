@@ -1521,6 +1521,7 @@ export type Database = {
           created_at: string
           id: string
           nome: string
+          tipo: string
           updated_at: string
           usuario_id: string
           valor: number
@@ -1529,6 +1530,7 @@ export type Database = {
           created_at?: string
           id?: string
           nome: string
+          tipo?: string
           updated_at?: string
           usuario_id: string
           valor: number
@@ -1537,6 +1539,7 @@ export type Database = {
           created_at?: string
           id?: string
           nome?: string
+          tipo?: string
           updated_at?: string
           usuario_id?: string
           valor?: number

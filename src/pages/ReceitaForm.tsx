@@ -9,6 +9,7 @@ import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { useCategorias } from "@/hooks/useCategorias";
 import { useCustosFixos } from "@/hooks/useCustosFixos";
 import { useCategoriasEstoque } from "@/hooks/useCategoriasEstoque";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -127,6 +128,7 @@ export default function ReceitaForm() {
   const { categorias, fetchCategoriasAtivas } = useCategorias();
   const { unidades } = useUnidadesMedida();
   const { categorias: categoriasEstoque } = useCategoriasEstoque();
+  const { profile } = useUserProfile();
   const [categoriasAtivas, setCategoriasAtivas] = useState<any[]>([]);
 
   // Carregar apenas categorias ativas para o formulário
@@ -528,14 +530,20 @@ export default function ReceitaForm() {
   const custoIngredientes = ingredientes.reduce((total, ing) => total + ing.custoReceita, 0);
   const custoEmbalagens = embalagens.reduce((total, emb) => total + emb.custoReceita, 0);
   
-  // Calcular custo fixo baseado no tempo de preparo
-  const totalCustosFixosMensal = custosFixos.reduce((acc, custo) => acc + custo.valor, 0);
-  const horasTrabalhadasMes = 176; // ~22 dias * 8 horas
-  const custoFixoPorHora = totalCustosFixosMensal / horasTrabalhadasMes;
+  // ======================================
+  // CUSTO DE MÃO DE OBRA DIRETA
+  // ======================================
+  // Calcular custo de mão de obra usando APENAS o valor_hora do perfil do usuário
+  // IMPORTANTE: Custos fixos NÃO devem ser incluídos no CMV de receitas (fichas técnicas)
+  // Custos fixos são utilizados apenas em análises gerenciais (DRE, CMV Global, etc.)
+  const valorHora = profile?.valor_hora || 0;
   const tempoPreparoHoras = formData.unidadeTempo === "horas" 
     ? Number(formData.tempoPreparo) 
     : Number(formData.tempoPreparo) / 60;
-  const custoFixoReceita = custoFixoPorHora * tempoPreparoHoras;
+  const custoMaoDeObra = valorHora * tempoPreparoHoras;
+  
+  // Compatibilidade: manter variável com nome antigo apontando para o novo cálculo
+  const custoFixoReceita = custoMaoDeObra;
   
   // Calcular outros gastos personalizados
   const handleOutroGastoChange = (index: number, field: 'nome' | 'valor', value: string | number) => {

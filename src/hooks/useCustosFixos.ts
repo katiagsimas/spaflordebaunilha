@@ -8,9 +8,34 @@ interface CustoFixo {
   usuario_id: string;
   nome: string;
   valor: number;
+  tipo: 'fixo' | 'mao_obra_indireta' | 'outros';
   created_at?: string;
   updated_at?: string;
 }
+
+// Função para categorizar automaticamente o tipo de custo baseado no nome
+const categorizarCustoFixo = (nome: string): 'fixo' | 'mao_obra_indireta' | 'outros' => {
+  const nomeNormalizado = nome.toLowerCase().trim();
+  
+  const termosMaoObraIndireta = [
+    'salário',
+    'salario',
+    'pro labore',
+    'pró-labore',
+    'pró labore',
+    'pro-labore',
+    'encargos',
+    'folha',
+    'mão de obra',
+    'mao de obra'
+  ];
+  
+  const contemTermo = termosMaoObraIndireta.some(termo => 
+    nomeNormalizado.includes(termo)
+  );
+  
+  return contemTermo ? 'mao_obra_indireta' : 'fixo';
+};
 
 export function useCustosFixos() {
   const { user } = useAuth();
@@ -29,7 +54,8 @@ export function useCustosFixos() {
         .order('nome');
 
       if (error) throw error;
-      setCustosFixos(data || []);
+      // Type assertion para garantir que o tipo seja reconhecido corretamente
+      setCustosFixos((data || []) as CustoFixo[]);
     } catch (err: any) {
       console.error('Erro ao buscar custos fixos:', err);
       toast.error('Erro ao carregar custos fixos: ' + err.message);
@@ -38,17 +64,20 @@ export function useCustosFixos() {
     }
   };
 
-  const createCustoFixo = async (custo: Omit<CustoFixo, 'id' | 'usuario_id' | 'created_at' | 'updated_at'>) => {
+  const createCustoFixo = async (custo: Omit<CustoFixo, 'id' | 'usuario_id' | 'created_at' | 'updated_at' | 'tipo'>) => {
     if (!user) throw new Error('Usuário não autenticado');
+
+    // Categorizar automaticamente o tipo baseado no nome
+    const tipo = categorizarCustoFixo(custo.nome);
 
     const { data, error } = await supabase
       .from('custos_fixos')
-      .insert({ ...custo, usuario_id: user.id })
+      .insert({ ...custo, tipo, usuario_id: user.id })
       .select()
       .single();
 
     if (error) throw error;
-    setCustosFixos([...custosFixos, data]);
+    setCustosFixos([...custosFixos, data as CustoFixo]);
     toast.success('Custo fixo criado com sucesso!');
     return data;
   };
@@ -56,16 +85,21 @@ export function useCustosFixos() {
   const updateCustoFixo = async (id: string, updates: Partial<CustoFixo>) => {
     if (!user) throw new Error('Usuário não autenticado');
 
+    // Se o nome está sendo atualizado, recategorizar o tipo
+    const updatesComTipo = updates.nome 
+      ? { ...updates, tipo: categorizarCustoFixo(updates.nome) }
+      : updates;
+
     const { data, error } = await supabase
       .from('custos_fixos')
-      .update(updates)
+      .update(updatesComTipo)
       .eq('id', id)
       .eq('usuario_id', user.id)
       .select()
       .single();
 
     if (error) throw error;
-    setCustosFixos(custosFixos.map(c => c.id === id ? data : c));
+    setCustosFixos(custosFixos.map(c => c.id === id ? data as CustoFixo : c));
     toast.success('Custo fixo atualizado!');
     return data;
   };
