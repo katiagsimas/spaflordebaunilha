@@ -49,6 +49,8 @@ import { useCategoriasEstoque } from '@/hooks/useCategoriasEstoque';
 import { Plus, Trash2, Upload, X, Info, ArrowLeft } from 'lucide-react';
 import { MaoObraSection, MaoObraLinha } from '@/components/MaoObraSection';
 import { usePrePreparosMaoObra } from '@/hooks/usePrePreparosMaoObra';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { useMaoObraPerfis } from '@/hooks/useMaoObraPerfis';
 
 export default function PrePreparoForm() {
   const navigate = useNavigate();
@@ -56,6 +58,8 @@ export default function PrePreparoForm() {
   const { toast } = useToast();
   const { categorias } = useCategorias();
   const { categorias: categoriasEstoque } = useCategoriasEstoque();
+  const { profile } = useUserProfile();
+  const { perfis } = useMaoObraPerfis();
   const isEditMode = !!id;
 
   // Campos básicos
@@ -116,7 +120,7 @@ export default function PrePreparoForm() {
 
   useEffect(() => {
     calcularCustos();
-  }, [ingredientesSelecionados, rendimentoQtd]);
+  }, [ingredientesSelecionados, rendimentoQtd, maosObra, profile, perfis]);
 
   const fetchIngredientes = async () => {
     try {
@@ -338,7 +342,22 @@ export default function PrePreparoForm() {
   };
 
   const calcularCustos = () => {
-    const total = ingredientesSelecionados.reduce((acc, ing) => acc + (ing.custo || 0), 0);
+    // Custo dos ingredientes
+    const totalIngredientes = ingredientesSelecionados.reduce((acc, ing) => acc + (ing.custo || 0), 0);
+    
+    // Custo de mão de obra
+    const totalMaoObra = maosObra.reduce((acc, linha) => {
+      let valorHora = 0;
+      if (linha.usar_valor_padrao) {
+        valorHora = profile?.valor_hora || 0;
+      } else if (linha.perfil_id) {
+        const perfil = perfis.find((p) => p.id === linha.perfil_id);
+        valorHora = perfil?.valor_hora || 0;
+      }
+      return acc + (valorHora * linha.horas);
+    }, 0);
+
+    const total = totalIngredientes + totalMaoObra;
     setCustoTotal(total);
 
     const rendimento = parseFloat(rendimentoQtd.replace(',', '.')) || 1;
@@ -931,22 +950,6 @@ export default function PrePreparoForm() {
                 </Command>
               </PopoverContent>
             </Popover>
-
-            {/* Totais */}
-            {ingredientesSelecionados.length > 0 && (
-              <div className="border-t pt-4 space-y-2">
-                <div className="flex justify-between text-lg font-semibold">
-                  <span>Custo Total:</span>
-                  <span className="text-primary">{formatarPreco(custoTotal)}</span>
-                </div>
-                {rendimentoQtd && (
-                  <div className="flex justify-between text-lg font-semibold">
-                    <span>Custo por Unidade:</span>
-                    <span className="text-primary">{formatarPreco(custoPorUnidade)}</span>
-                  </div>
-                )}
-              </div>
-            )}
           </CardContent>
         </Card>
 
@@ -1051,6 +1054,53 @@ export default function PrePreparoForm() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Card Resumo de Custos */}
+        {(ingredientesSelecionados.length > 0 || maosObra.length > 0) && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Resumo de Custos</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex justify-between text-base">
+                <span className="text-muted-foreground">Custo de Ingredientes:</span>
+                <span className="font-medium">
+                  {formatarPreco(ingredientesSelecionados.reduce((acc, ing) => acc + (ing.custo || 0), 0))}
+                </span>
+              </div>
+              
+              {maosObra.length > 0 && (
+                <div className="flex justify-between text-base">
+                  <span className="text-muted-foreground">Custo de Mão de Obra:</span>
+                  <span className="font-medium">
+                    {formatarPreco(maosObra.reduce((acc, linha) => {
+                      let valorHora = 0;
+                      if (linha.usar_valor_padrao) {
+                        valorHora = profile?.valor_hora || 0;
+                      } else if (linha.perfil_id) {
+                        const perfil = perfis.find((p) => p.id === linha.perfil_id);
+                        valorHora = perfil?.valor_hora || 0;
+                      }
+                      return acc + (valorHora * linha.horas);
+                    }, 0))}
+                  </span>
+                </div>
+              )}
+              
+              <div className="border-t pt-3 flex justify-between text-lg font-semibold">
+                <span>Custo Total:</span>
+                <span className="text-primary">{formatarPreco(custoTotal)}</span>
+              </div>
+              
+              {rendimentoQtd && (
+                <div className="flex justify-between text-lg font-semibold">
+                  <span>Custo por Unidade:</span>
+                  <span className="text-primary">{formatarPreco(custoPorUnidade)}</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Alerta */}
         <Alert className="bg-blue-50 border-blue-200">
