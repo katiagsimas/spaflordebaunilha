@@ -30,7 +30,7 @@ interface Encomenda {
   pagamentos?: Array<{ valor: number; data: string; tipo_pagamento: string; pago?: boolean; banco_id?: string }>;
   saldo_restante?: number;
   conta_receber_id?: string | null;
-  tags?: Array<{ id: string; nome: string; cor: string }>;
+  tags?: Array<{ id: string; nome: string; cor: string; padrao_sistema?: boolean }>;
   created_at?: string;
   updated_at?: string;
 }
@@ -53,7 +53,8 @@ export function useEncomendas() {
             tag:tags_encomendas (
               id,
               nome,
-              cor
+              cor,
+              padrao_sistema
             )
           )
         `)
