@@ -146,7 +146,7 @@ export function EncomendaTagsSection({
         )}
 
         {/* Grupos de Tags - Collapsibles em linha */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+        <div className="flex gap-3 overflow-x-auto pb-2">
           {GROUP_ORDER.map(grupo => {
             const tags = tagsPorGrupo[grupo];
             if (tags.length === 0) return null;
@@ -159,7 +159,7 @@ export function EncomendaTagsSection({
                 key={grupo}
                 open={isOpen}
                 onOpenChange={() => toggleGrupo(grupo)}
-                className="border rounded-lg bg-card shadow-sm"
+                className="border rounded-lg bg-card shadow-sm flex-1 min-w-[200px]"
               >
                 <CollapsibleTrigger className="w-full p-3 hover:bg-muted/50 transition-colors">
                   <div className="flex items-center justify-between">
