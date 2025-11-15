@@ -944,33 +944,6 @@ export default function ReceitaForm() {
                 </Select>
               </div>
             </div>
-            
-            {/* Campo de Perfil de Mão de Obra */}
-            <div>
-              <Label htmlFor="perfilMaoObra">Quem produz este produto?</Label>
-              <Select
-                value={formData.perfilMaoObraId}
-                onValueChange={(value) => setFormData({ ...formData, perfilMaoObraId: value })}
-              >
-                <SelectTrigger id="perfilMaoObra">
-                  <SelectValue placeholder="Padrão (valor-hora principal)" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="default">Padrão (R$ {(profile?.valor_hora || 0).toFixed(2)}/hora)</SelectItem>
-                  {perfis.filter(p => p.ativo).map((perfil) => (
-                    <SelectItem key={perfil.id} value={perfil.id}>
-                      {perfil.nome} (R$ {perfil.valor_hora.toFixed(2)}/hora)
-                      {perfil.padrao && " - Padrão"}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {perfis.length === 0 && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Configure perfis avançados em Configurações → Precificação → Mão de Obra
-                </p>
-              )}
-            </div>
           </div>
 
           {/* Seção de Mão de Obra */}
