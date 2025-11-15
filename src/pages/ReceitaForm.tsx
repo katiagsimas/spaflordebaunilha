@@ -1424,7 +1424,7 @@ export default function ReceitaForm() {
                                     type="number"
                                     min="0"
                                     step="0.01"
-                                    value={despesa.valor || ""}
+                                    value={despesa.valor ? despesa.valor.toFixed(2) : ""}
                                     onChange={(e) => handleDespesaChange(index, 'valor', parseFloat(e.target.value) || 0)}
                                     placeholder="0.00"
                                     className="w-full"
