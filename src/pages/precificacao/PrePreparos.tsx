@@ -34,7 +34,8 @@ export default function PrePreparos() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase
+      // Buscar pré-preparos com rendimento
+      const { data: preparosData, error: preparosError } = await supabase
         .from('pre_preparos')
         .select(`
           *,
@@ -46,8 +47,46 @@ export default function PrePreparos() {
         .eq('usuario_id', user.id)
         .order('nome');
 
-      if (error) throw error;
-      setPreparos(data || []);
+      if (preparosError) throw preparosError;
+
+      // Buscar mão de obra de todos os pré-preparos
+      const { data: maosObraData, error: maosObraError } = await supabase
+        .from('pre_preparos_mao_obra')
+        .select(`
+          *,
+          perfil:mao_obra_perfis(valor_hora)
+        `);
+
+      if (maosObraError) throw maosObraError;
+
+      // Buscar perfil do usuário para valor padrão
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('valor_hora')
+        .eq('id', user.id)
+        .single();
+
+      // Calcular custo total incluindo mão de obra
+      const preparosComCustoTotal = preparosData?.map((preparo) => {
+        const maosObraPreparo = maosObraData?.filter(
+          (mo) => mo.pre_preparo_id === preparo.id
+        ) || [];
+
+        let custoMaoObra = 0;
+        maosObraPreparo.forEach((mo) => {
+          const valorHora = mo.usar_valor_padrao 
+            ? (profileData?.valor_hora || 0)
+            : (mo.perfil?.valor_hora || 0);
+          custoMaoObra += valorHora * mo.horas;
+        });
+
+        return {
+          ...preparo,
+          custo_total_com_mao_obra: preparo.custo_total + custoMaoObra,
+        };
+      });
+
+      setPreparos(preparosComCustoTotal || []);
     } catch (error) {
       console.error('Erro ao buscar pré-preparos:', error);
       toast({
@@ -133,7 +172,7 @@ export default function PrePreparos() {
                     </div>
                   </TableCell>
                   <TableCell className="font-medium">
-                    {formatarPreco(preparo.custo_total || 0)}
+                    {formatarPreco(preparo.custo_total_com_mao_obra || preparo.custo_total || 0)}
                   </TableCell>
                   <TableCell className="text-right">
                     <Button
