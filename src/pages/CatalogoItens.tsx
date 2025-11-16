@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Filter, MoreVertical, Pencil, Trash2, Package, X, Calendar, AlertTriangle } from "lucide-react";
-import { useEstoqueIntegrado } from "@/hooks/useEstoqueIntegrado";
+import { useEstoqueSimplificado } from "@/hooks/useEstoqueSimplificado";
 import { ModalItem } from "@/components/estoque/ModalItem";
 import { EntradaRapida } from "@/components/estoque/EntradaRapida";
 import { AlertasEstoque } from "@/components/estoque/AlertasEstoque";
@@ -40,10 +40,16 @@ export default function CatalogoItens() {
   const [itemSelecionado, setItemSelecionado] = useState<ItemComEstoque | undefined>();
   const [itensComValidade, setItensComValidade] = useState<ItemComValidade[]>([]);
 
-  const { itens, loading, resumo, criarItem, atualizarItem, registrarMovimento, salvarPreco, ativarRastreamento, carregarItens } = useEstoqueIntegrado({
+  const { itens, loading, criarItem, atualizarItem, carregarItens, registrarMovimentacao, salvarPreco, ativarRastreamento } = useEstoqueSimplificado({
     busca: busca || undefined,
     tipo: filtroTipo === "todos" ? undefined : filtroTipo as any
   });
+
+  // Calcular resumo simples dos itens
+  const resumo = {
+    total_itens: itens.length,
+    itens_rastreados: itens.filter(i => i.rastrear_estoque).length
+  };
 
   // Buscar validades dos itens
   useEffect(() => {
@@ -205,7 +211,7 @@ export default function CatalogoItens() {
     if (!itemSelecionado) return { success: false };
 
     // Registrar movimento
-    const resultMovimento = await registrarMovimento(data.movimento);
+    const resultMovimento = await registrarMovimentacao(data.movimento);
     if (!resultMovimento.success) return { success: false };
 
     // Atualizar preço se solicitado
