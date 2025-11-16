@@ -185,6 +185,7 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
                 <SelectContent>
                   <SelectItem value="ingrediente">Ingrediente</SelectItem>
                   <SelectItem value="embalagem">Embalagem</SelectItem>
+                  <SelectItem value="outros">Outros</SelectItem>
                 </SelectContent>
               </Select>
             </div>
