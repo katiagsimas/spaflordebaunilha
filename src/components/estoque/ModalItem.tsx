@@ -91,7 +91,7 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
               ? parseFloat(valorEntrada) / parseFloat(quantidadeEntrada)
               : 0;
 
-            await supabase.from('movimentacoes_estoque').insert({
+            const { error: movError } = await supabase.from('movimentacoes_estoque').insert({
               item_id: novoItem.id,
               usuario_id: user.id,
               tipo: 'ENTRADA',
@@ -102,6 +102,16 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
               unidade: formData.unidade_base || 'un',
               data: new Date().toISOString(),
             });
+
+            if (movError) {
+              console.error('Erro ao criar movimentação:', movError);
+              toast({
+                title: "Erro ao registrar entrada",
+                description: movError.message,
+                variant: "destructive"
+              });
+              return;
+            }
           }
         }
         
@@ -109,6 +119,9 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
           title: "Item cadastrado",
           description: "O item foi salvo com sucesso e o estoque foi atualizado.",
         });
+        
+        // Aguardar um pouco para o trigger processar
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         // Forçar recarregamento da listagem
         window.dispatchEvent(new CustomEvent('estoque-atualizado'));
