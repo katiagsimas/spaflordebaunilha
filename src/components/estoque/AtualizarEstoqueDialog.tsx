@@ -29,6 +29,8 @@ export function AtualizarEstoqueDialog({
   onSuccess 
 }: AtualizarEstoqueDialogProps) {
   const [tipoMovimento, setTipoMovimento] = useState<"entrada" | "saida" | "ajuste">("entrada");
+  const [dataMovimentacao, setDataMovimentacao] = useState<Date>(new Date());
+  const [dataMovimentacaoInput, setDataMovimentacaoInput] = useState(format(new Date(), "dd/MM/yyyy"));
   const [quantidade, setQuantidade] = useState("");
   const [valor, setValor] = useState("");
   const [dataValidade, setDataValidade] = useState<Date | undefined>();
@@ -37,6 +39,7 @@ export function AtualizarEstoqueDialog({
   const [observacaoAberta, setObservacaoAberta] = useState(false);
   const [loading, setLoading] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const [popoverMovimentacaoOpen, setPopoverMovimentacaoOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,6 +56,8 @@ export function AtualizarEstoqueDialog({
       
       onSuccess();
       onOpenChange(false);
+      setDataMovimentacao(new Date());
+      setDataMovimentacaoInput(format(new Date(), "dd/MM/yyyy"));
       setQuantidade("");
       setValor("");
       setDataValidade(undefined);
@@ -67,6 +72,31 @@ export function AtualizarEstoqueDialog({
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDataMovimentacaoInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, "");
+    let formatted = value;
+    
+    if (value.length >= 2) {
+      formatted = value.slice(0, 2) + "/" + value.slice(2);
+    }
+    if (value.length >= 4) {
+      formatted = value.slice(0, 2) + "/" + value.slice(2, 4) + "/" + value.slice(4, 8);
+    }
+    
+    setDataMovimentacaoInput(formatted);
+    
+    if (value.length === 8) {
+      try {
+        const parsedDate = parse(formatted, "dd/MM/yyyy", new Date());
+        if (!isNaN(parsedDate.getTime())) {
+          setDataMovimentacao(parsedDate);
+        }
+      } catch (error) {
+        // Invalid date format
+      }
     }
   };
 
@@ -93,6 +123,14 @@ export function AtualizarEstoqueDialog({
         // Invalid date format
       }
     }
+  };
+
+  const handleDataMovimentacaoSelect = (date: Date | undefined) => {
+    if (date) {
+      setDataMovimentacao(date);
+      setDataMovimentacaoInput(format(date, "dd/MM/yyyy"));
+    }
+    setPopoverMovimentacaoOpen(false);
   };
 
   const handleDateSelect = (date: Date | undefined) => {
@@ -122,6 +160,35 @@ export function AtualizarEstoqueDialog({
               disabled 
               className="bg-muted"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Data de Movimentação</Label>
+            <Popover open={popoverMovimentacaoOpen} onOpenChange={setPopoverMovimentacaoOpen}>
+              <PopoverTrigger asChild>
+                <div className="relative">
+                  <Input
+                    type="text"
+                    placeholder="DD/MM/AAAA"
+                    value={dataMovimentacaoInput}
+                    onChange={handleDataMovimentacaoInputChange}
+                    maxLength={10}
+                    className="pr-10"
+                    required
+                  />
+                  <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                </div>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={dataMovimentacao}
+                  onSelect={handleDataMovimentacaoSelect}
+                  initialFocus
+                  className="pointer-events-auto p-2"
+                />
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div className="space-y-3">
@@ -202,75 +269,79 @@ export function AtualizarEstoqueDialog({
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="valor">Valor</Label>
-              <Input
-                id="valor"
-                type="number"
-                step="0.01"
-                value={valor}
-                onChange={(e) => setValor(e.target.value)}
-                placeholder="R$ 0,00"
-              />
-            </div>
+            {tipoMovimento !== "saida" && (
+              <div className="space-y-2">
+                <Label htmlFor="valor">Valor</Label>
+                <Input
+                  id="valor"
+                  type="number"
+                  step="0.01"
+                  value={valor}
+                  onChange={(e) => setValor(e.target.value)}
+                  placeholder="R$ 0,00"
+                />
+              </div>
+            )}
           </div>
 
-          <div className="space-y-2">
-            <Label>Data de Validade (opcional)</Label>
-            <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-              <PopoverTrigger asChild>
-                <div className="relative">
-                  <Input
-                    type="text"
-                    placeholder="DD/MM/AAAA"
-                    value={dataValidadeInput}
-                    onChange={handleDateInputChange}
-                    maxLength={10}
-                    className="pr-10"
+          {tipoMovimento !== "saida" && (
+            <div className="space-y-2">
+              <Label>Data de Validade (opcional)</Label>
+              <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <div className="relative">
+                    <Input
+                      type="text"
+                      placeholder="DD/MM/AAAA"
+                      value={dataValidadeInput}
+                      onChange={handleDateInputChange}
+                      maxLength={10}
+                      className="pr-10"
+                    />
+                    <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dataValidade}
+                    onSelect={handleDateSelect}
+                    initialFocus
+                    className="pointer-events-auto p-2"
+                    classNames={{
+                      months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                      month: "space-y-3",
+                      caption: "flex justify-center pt-1 relative items-center px-1",
+                      caption_label: "text-sm font-medium",
+                      nav: "space-x-1 flex items-center",
+                      nav_button: cn(
+                        "h-6 w-6 bg-transparent p-0 opacity-50 hover:opacity-100"
+                      ),
+                      nav_button_previous: "absolute left-1",
+                      nav_button_next: "absolute right-1",
+                      table: "w-full border-collapse space-y-1",
+                      head_row: "flex",
+                      head_cell: "text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]",
+                      row: "flex w-full mt-1",
+                      cell: cn(
+                        "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent",
+                        "h-8 w-8"
+                      ),
+                      day: cn(
+                        "h-8 w-8 p-0 font-normal aria-selected:opacity-100"
+                      ),
+                      day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                      day_today: "bg-accent text-accent-foreground",
+                      day_outside: "text-muted-foreground opacity-50",
+                      day_disabled: "text-muted-foreground opacity-50",
+                      day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                      day_hidden: "invisible",
+                    }}
                   />
-                  <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                </div>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={dataValidade}
-                  onSelect={handleDateSelect}
-                  initialFocus
-                  className="pointer-events-auto p-2"
-                  classNames={{
-                    months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                    month: "space-y-3",
-                    caption: "flex justify-center pt-1 relative items-center px-1",
-                    caption_label: "text-sm font-medium",
-                    nav: "space-x-1 flex items-center",
-                    nav_button: cn(
-                      "h-6 w-6 bg-transparent p-0 opacity-50 hover:opacity-100"
-                    ),
-                    nav_button_previous: "absolute left-1",
-                    nav_button_next: "absolute right-1",
-                    table: "w-full border-collapse space-y-1",
-                    head_row: "flex",
-                    head_cell: "text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]",
-                    row: "flex w-full mt-1",
-                    cell: cn(
-                      "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent",
-                      "h-8 w-8"
-                    ),
-                    day: cn(
-                      "h-8 w-8 p-0 font-normal aria-selected:opacity-100"
-                    ),
-                    day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-                    day_today: "bg-accent text-accent-foreground",
-                    day_outside: "text-muted-foreground opacity-50",
-                    day_disabled: "text-muted-foreground opacity-50",
-                    day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
-                    day_hidden: "invisible",
-                  }}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+          )}
 
           <Collapsible open={observacaoAberta} onOpenChange={setObservacaoAberta}>
             <CollapsibleTrigger asChild>
