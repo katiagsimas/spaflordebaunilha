@@ -804,57 +804,6 @@ export type Database = {
         }
         Relationships: []
       }
-      cmv_mensal: {
-        Row: {
-          ano: number
-          cmv_percentual_estimado: number | null
-          compras: number
-          created_at: string
-          custos_fixos_estimado: number | null
-          faturamento: number
-          id: string
-          mes: number
-          observacao: string | null
-          ticket_medio_estimado: number | null
-          tipo_dado: string | null
-          updated_at: string
-          usa_dados_sistema: boolean
-          usuario_id: string
-        }
-        Insert: {
-          ano: number
-          cmv_percentual_estimado?: number | null
-          compras?: number
-          created_at?: string
-          custos_fixos_estimado?: number | null
-          faturamento?: number
-          id?: string
-          mes: number
-          observacao?: string | null
-          ticket_medio_estimado?: number | null
-          tipo_dado?: string | null
-          updated_at?: string
-          usa_dados_sistema?: boolean
-          usuario_id: string
-        }
-        Update: {
-          ano?: number
-          cmv_percentual_estimado?: number | null
-          compras?: number
-          created_at?: string
-          custos_fixos_estimado?: number | null
-          faturamento?: number
-          id?: string
-          mes?: number
-          observacao?: string | null
-          ticket_medio_estimado?: number | null
-          tipo_dado?: string | null
-          updated_at?: string
-          usa_dados_sistema?: boolean
-          usuario_id?: string
-        }
-        Relationships: []
-      }
       configuracoes_juros: {
         Row: {
           cobrar_juros: boolean | null
@@ -3617,28 +3566,6 @@ export type Database = {
           ticket_medio: number
           total_vendas: number
           valor_total: number
-        }[]
-      }
-      get_ponto_equilibrio_mes: {
-        Args: { p_ano: number; p_mes: number; p_usuario_id: string }
-        Returns: {
-          ano: number
-          cmv: number
-          cmv_percentual: number
-          custos_fixos: number
-          editavel: boolean
-          faturamento: number
-          margem_contribuicao_percentual: number
-          mes: number
-          mes_nome: string
-          percentual_acima_pe: number
-          ponto_equilibrio_reais: number
-          ponto_equilibrio_unidades: number
-          quantidade_vendas_real: number
-          resultado_mes: number
-          status: string
-          ticket_medio: number
-          tipo_dado: string
         }[]
       }
       get_quantidade_vendas_mes: {

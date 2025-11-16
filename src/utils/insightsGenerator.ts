@@ -11,9 +11,6 @@ export interface Insight {
 interface GerarInsightsParams {
   metaFaturamentoMensal: number;
   previsaoFaturamento: number;
-  cmvPercentual: number;
-  alertaCMV: number;
-  pontoEquilibrio: number;
   faturamentoMesAnterior: number;
   projecaoVendas: number;
 }
@@ -23,9 +20,6 @@ export function gerarInsights(params: GerarInsightsParams): Insight[] {
   const {
     metaFaturamentoMensal,
     previsaoFaturamento,
-    cmvPercentual,
-    alertaCMV,
-    pontoEquilibrio,
     faturamentoMesAnterior,
     projecaoVendas,
   } = params;
@@ -56,40 +50,7 @@ export function gerarInsights(params: GerarInsightsParams): Insight[] {
     }
   }
 
-  // Insight 2: CMV
-  if (cmvPercentual > 0) {
-    if (cmvPercentual > alertaCMV) {
-      insights.push({
-        type: 'critical',
-        text: `CMV em ${cmvPercentual.toFixed(0)}% - revise preços ou reduza custos`,
-        icon: XCircle,
-      });
-    } else if (cmvPercentual > 40) {
-      insights.push({
-        type: 'warning',
-        text: `CMV está em ${cmvPercentual.toFixed(0)}%, considere revisar precificação`,
-        icon: AlertTriangle,
-      });
-    } else if (cmvPercentual < 35) {
-      insights.push({
-        type: 'success',
-        text: `CMV saudável em ${cmvPercentual.toFixed(0)}% - ótima margem!`,
-        icon: CheckCircle,
-      });
-    }
-  }
-
-  // Insight 3: Ponto de Equilíbrio
-  if (pontoEquilibrio > 0 && previsaoFaturamento >= pontoEquilibrio) {
-    const margem = ((previsaoFaturamento / pontoEquilibrio) - 1) * 100;
-    insights.push({
-      type: 'success',
-      text: `Ponto de equilíbrio atingido com ${margem.toFixed(0)}% de margem de segurança`,
-      icon: CheckCircle,
-    });
-  }
-
-  // Insight 4: Tendência
+  // Insight 2: Tendência
   if (faturamentoMesAnterior > 0 && previsaoFaturamento > 0) {
     const crescimento = ((previsaoFaturamento / faturamentoMesAnterior) - 1) * 100;
     if (crescimento > 0) {
@@ -107,7 +68,7 @@ export function gerarInsights(params: GerarInsightsParams): Insight[] {
     }
   }
 
-  // Insight 5: Projeção
+  // Insight 3: Projeção
   if (metaFaturamentoMensal > 0 && projecaoVendas > 0) {
     const diferenca = projecaoVendas - metaFaturamentoMensal;
     const percentualMeta = Math.abs(diferenca / metaFaturamentoMensal) * 100;
