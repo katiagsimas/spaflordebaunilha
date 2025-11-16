@@ -2311,6 +2311,13 @@ export type Database = {
             foreignKeyName: "movimentos_estoque_v2_item_id_fkey"
             columns: ["item_id"]
             isOneToOne: false
+            referencedRelation: "estoque_simplificado"
+            referencedColumns: ["item_id"]
+          },
+          {
+            foreignKeyName: "movimentos_estoque_v2_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
             referencedRelation: "itens"
             referencedColumns: ["id"]
           },
@@ -2723,6 +2730,13 @@ export type Database = {
             columns: ["item_id"]
             isOneToOne: false
             referencedRelation: "estoque_atual_v2"
+            referencedColumns: ["item_id"]
+          },
+          {
+            foreignKeyName: "precos_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "estoque_simplificado"
             referencedColumns: ["item_id"]
           },
           {
@@ -3621,6 +3635,22 @@ export type Database = {
         }
         Relationships: []
       }
+      estoque_simplificado: {
+        Row: {
+          categoria: string | null
+          custo_medio: number | null
+          item_id: string | null
+          item_nome: string | null
+          ponto_de_pedido: number | null
+          saldo_atual: number | null
+          tipo: string | null
+          ultima_movimentacao: string | null
+          unidade_base: string | null
+          usuario_id: string | null
+          valor_total_estoque: number | null
+        }
+        Relationships: []
+      }
       user_admin_access_history: {
         Row: {
           access_date: string | null
@@ -4194,7 +4224,7 @@ export type Database = {
       app_role: "admin" | "user"
       status_entrada: "ATIVO" | "CONSUMIDO"
       tipo_item_estoque: "INSUMO" | "EMBALAGEM" | "outros"
-      tipo_movimentacao: "ENTRADA" | "SAIDA"
+      tipo_movimentacao: "ENTRADA" | "SAIDA" | "PERDA" | "AJUSTE"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4325,7 +4355,7 @@ export const Constants = {
       app_role: ["admin", "user"],
       status_entrada: ["ATIVO", "CONSUMIDO"],
       tipo_item_estoque: ["INSUMO", "EMBALAGEM", "outros"],
-      tipo_movimentacao: ["ENTRADA", "SAIDA"],
+      tipo_movimentacao: ["ENTRADA", "SAIDA", "PERDA", "AJUSTE"],
     },
   },
 } as const
