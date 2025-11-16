@@ -13,6 +13,7 @@ import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import type { ItemComEstoque } from "@/types/estoque";
 
 interface AtualizarEstoqueDialogProps {
@@ -45,10 +46,57 @@ export function AtualizarEstoqueDialog({
     e.preventDefault();
     if (!item) return;
 
+    if (!quantidade || parseFloat(quantidade) <= 0) {
+      toast({
+        title: "Quantidade inválida",
+        description: "Informe uma quantidade válida maior que zero.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validar quantidade disponível para saída
+    if (tipoMovimento === "saida") {
+      const saldoAtual = (item as any).estoque?.saldo || 0;
+      if (parseFloat(quantidade) > saldoAtual) {
+        toast({
+          title: "Quantidade indisponível",
+          description: `Você tem apenas ${saldoAtual} ${item.unidade_base} disponíveis`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     setLoading(true);
     try {
-      // Aqui você pode chamar a função de registrar movimento do hook useEstoqueIntegrado
-      // Por enquanto, apenas mostramos sucesso
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuário não autenticado');
+
+      const qtd = parseFloat(quantidade);
+      const valorNum = valor ? parseFloat(valor) : null;
+      const custoUnitario = valorNum && qtd > 0 ? valorNum / qtd : null;
+
+      // Determinar o tipo correto baseado no movimento
+      let tipoMovimentacao: 'ENTRADA' | 'SAIDA' | 'AJUSTE' = 'ENTRADA';
+      if (tipoMovimento === 'saida') tipoMovimentacao = 'SAIDA';
+      if (tipoMovimento === 'ajuste') tipoMovimentacao = 'AJUSTE';
+
+      // Inserir movimentação
+      const { error } = await supabase
+        .from('movimentacoes_estoque')
+        .insert([{
+          item_id: item.id,
+          tipo: tipoMovimentacao,
+          quantidade: qtd,
+          custo_unitario: custoUnitario,
+          custo_total: valorNum,
+          data: format(dataMovimentacao, 'yyyy-MM-dd'),
+          observacoes: observacao || null,
+        }]);
+
+      if (error) throw error;
+
       toast({
         title: "Estoque atualizado",
         description: `${tipoMovimento === "entrada" ? "Entrada" : tipoMovimento === "saida" ? "Saída" : "Ajuste"} de ${quantidade} ${item.unidade_base} registrado com sucesso.`,
