@@ -10,6 +10,8 @@ import type { Item, TipoItem } from "@/types/estoque";
 import { useCategoriasEstoque } from "@/hooks/useCategoriasEstoque";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { ItemNomeAutocomplete } from "@/components/ItemNomeAutocomplete";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 interface ModalItemProps {
   open: boolean;
@@ -30,9 +32,11 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
     quantidade_por_embalagem: item?.quantidade_por_embalagem || 1,
     rastrear_estoque: true,
     ponto_de_pedido: item?.ponto_de_pedido,
-    localizacao: item?.localizacao || '',
     observacoes: item?.observacoes || '',
   });
+  const [marca, setMarca] = useState('');
+  const [quantidadeEntrada, setQuantidadeEntrada] = useState('');
+  const [valorEntrada, setValorEntrada] = useState('');
 
   // Resetar nome quando o tipo mudar
   useEffect(() => {
@@ -48,6 +52,63 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
     try {
       const result = await onSave(formData);
       if (result.success) {
+        // Se é um novo item e tem entrada de estoque
+        if (!item && quantidadeEntrada && parseFloat(quantidadeEntrada) > 0) {
+          // Buscar o item recém-criado para pegar o ID
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return;
+
+          const { data: novoItem } = await supabase
+            .from('itens')
+            .select('id')
+            .eq('usuario_id', user.id)
+            .eq('nome', formData.nome)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+          if (novoItem) {
+            // Criar preço se marca foi informada
+            if (marca) {
+              const custoUnitario = valorEntrada && quantidadeEntrada 
+                ? parseFloat(valorEntrada) / parseFloat(quantidadeEntrada)
+                : 0;
+
+              await supabase.from('precos').insert({
+                item_id: novoItem.id,
+                usuario_id: user.id,
+                marca: marca,
+                preco_total_embalagem: valorEntrada ? parseFloat(valorEntrada) : 0,
+                quantidade_embalagem: formData.quantidade_por_embalagem || 1,
+                custo_unitario: custoUnitario,
+                ativo: true,
+                data_coleta: new Date().toISOString(),
+              });
+            }
+
+            // Registrar entrada de estoque
+            const custoUnitario = valorEntrada && quantidadeEntrada 
+              ? parseFloat(valorEntrada) / parseFloat(quantidadeEntrada)
+              : 0;
+
+            await supabase.from('movimentacoes_estoque').insert({
+              item_id: novoItem.id,
+              usuario_id: user.id,
+              tipo: 'ENTRADA',
+              tipo_item: formData.tipo === 'ingrediente' ? 'INSUMO' : 'EMBALAGEM',
+              quantidade: parseFloat(quantidadeEntrada),
+              custo_unitario: custoUnitario,
+              custo_total: valorEntrada ? parseFloat(valorEntrada) : 0,
+              unidade: formData.unidade_base || 'un',
+              data: new Date().toISOString(),
+            });
+          }
+        }
+        
+        toast({
+          title: "Item cadastrado",
+          description: "O item foi salvo com sucesso.",
+        });
         onOpenChange(false);
       }
     } finally {
@@ -163,30 +224,62 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
             </div>
           </div>
 
-          {/* Controle de Estoque */}
+          {/* Marca e Estoque Mínimo */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="ponto_pedido">Ponto de Pedido</Label>
+              <Label htmlFor="marca">Marca</Label>
+              <Input
+                id="marca"
+                value={marca}
+                onChange={(e) => setMarca(e.target.value)}
+                placeholder="Ex: Marca X"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="ponto_pedido">Estoque Mínimo</Label>
               <Input
                 id="ponto_pedido"
                 type="number"
                 step="0.01"
                 value={formData.ponto_de_pedido || ''}
                 onChange={(e) => setFormData({ ...formData, ponto_de_pedido: parseFloat(e.target.value) || undefined })}
-                placeholder="Quantidade mínima"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="localizacao">Localização</Label>
-              <Input
-                id="localizacao"
-                value={formData.localizacao}
-                onChange={(e) => setFormData({ ...formData, localizacao: e.target.value })}
-                placeholder="Ex: Prateleira A2"
+                placeholder="0"
               />
             </div>
           </div>
+
+          {/* Entrada de Estoque */}
+          {!item && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Entrada de Estoque</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="quantidadeEntrada">Quantidade</Label>
+                  <Input
+                    id="quantidadeEntrada"
+                    type="number"
+                    step="0.01"
+                    value={quantidadeEntrada}
+                    onChange={(e) => setQuantidadeEntrada(e.target.value)}
+                    placeholder="0"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="valorEntrada">Valor</Label>
+                  <Input
+                    id="valorEntrada"
+                    type="number"
+                    step="0.01"
+                    value={valorEntrada}
+                    onChange={(e) => setValorEntrada(e.target.value)}
+                    placeholder="0,00"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Observações */}
           <div className="space-y-2">
