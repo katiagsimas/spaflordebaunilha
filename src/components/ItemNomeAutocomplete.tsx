@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -41,10 +41,9 @@ export function ItemNomeAutocomplete({
   value,
   tipo,
   onSelect,
-  placeholder = "Digite para buscar ou criar novo...",
+  placeholder = "Selecione um item...",
 }: ItemNomeAutocompleteProps) {
   const [open, setOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
   const [itens, setItens] = useState<TipoInsumo[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -84,10 +83,6 @@ export function ItemNomeAutocomplete({
     }
   };
 
-  const filteredItens = itens.filter((item) =>
-    item.descricao.toLowerCase().includes(searchValue.toLowerCase())
-  );
-
   const handleSelect = (item: TipoInsumo) => {
     onSelect(
       item.descricao,
@@ -96,48 +91,39 @@ export function ItemNomeAutocomplete({
       item.quantidade_embalagem
     );
     setOpen(false);
-    setSearchValue("");
-  };
-
-  const handleInputChange = (newValue: string) => {
-    setSearchValue(newValue);
-    // Se o usuário digitar e não abrir o popover, permitir texto livre
-    if (!open) {
-      onSelect(newValue);
-    }
   };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <div className="relative">
-          <Input
-            value={value}
-            onChange={(e) => onSelect(e.target.value)}
-            onFocus={() => setOpen(true)}
-            placeholder={placeholder}
-            className="pr-10"
-          />
-          <ChevronsUpDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />
-        </div>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between font-normal"
+        >
+          {value || placeholder}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0" align="start">
+      <PopoverContent className="w-full p-0 bg-background" align="start">
         <Command>
           <CommandInput
             placeholder="Buscar item..."
-            value={searchValue}
-            onValueChange={handleInputChange}
+            value={value}
+            onValueChange={(searchValue) => onSelect(searchValue)}
           />
           <CommandList>
             <CommandEmpty>
-              {loading ? "Carregando..." : "Nenhum item encontrado."}
+              {loading ? "Carregando..." : "Nenhum item encontrado. Digite um nome para criar novo."}
             </CommandEmpty>
             <CommandGroup>
-              {filteredItens.map((item) => (
+              {itens.map((item) => (
                 <CommandItem
                   key={item.id}
                   value={item.descricao}
                   onSelect={() => handleSelect(item)}
+                  className="cursor-pointer"
                 >
                   <Check
                     className={cn(
