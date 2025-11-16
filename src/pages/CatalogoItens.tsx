@@ -5,22 +5,28 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Filter } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Plus, Search, Filter, MoreVertical, Pencil, Trash2, Package } from "lucide-react";
 import { useEstoqueIntegrado } from "@/hooks/useEstoqueIntegrado";
 import { ModalItem } from "@/components/estoque/ModalItem";
 import { EntradaRapida } from "@/components/estoque/EntradaRapida";
 import { AlertasEstoque } from "@/components/estoque/AlertasEstoque";
-import { CardItem } from "@/components/estoque/CardItem";
+import { AtualizarEstoqueDialog } from "@/components/estoque/AtualizarEstoqueDialog";
+import { BadgeStatus } from "@/components/estoque/BadgeStatus";
 import type { Item, ItemComEstoque } from "@/types/estoque";
+import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function CatalogoItens() {
   const [busca, setBusca] = useState("");
   const [filtroTipo, setFiltroTipo] = useState<string>("todos");
   const [modalItemAberto, setModalItemAberto] = useState(false);
   const [modalEntradaAberto, setModalEntradaAberto] = useState(false);
+  const [modalAtualizarAberto, setModalAtualizarAberto] = useState(false);
   const [itemSelecionado, setItemSelecionado] = useState<ItemComEstoque | undefined>();
 
-  const { itens, loading, resumo, criarItem, atualizarItem, registrarMovimento, salvarPreco, ativarRastreamento } = useEstoqueIntegrado({
+  const { itens, loading, resumo, criarItem, atualizarItem, registrarMovimento, salvarPreco, ativarRastreamento, carregarItens } = useEstoqueIntegrado({
     busca: busca || undefined,
     tipo: filtroTipo === "todos" ? undefined : filtroTipo as any
   });
@@ -52,6 +58,37 @@ export default function CatalogoItens() {
     const pontoMinimo = prompt('Digite o ponto de pedido mínimo:', '10');
     if (pontoMinimo && !isNaN(Number(pontoMinimo))) {
       await ativarRastreamento(item.id, Number(pontoMinimo));
+    }
+  };
+
+  const handleAtualizarEstoque = (item: ItemComEstoque) => {
+    setItemSelecionado(item);
+    setModalAtualizarAberto(true);
+  };
+
+  const handleExcluirItem = async (item: ItemComEstoque) => {
+    if (!confirm(`Tem certeza que deseja excluir "${item.nome}"?`)) return;
+
+    try {
+      const { error } = await supabase
+        .from('itens')
+        .delete()
+        .eq('id', item.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Item excluído",
+        description: "O item foi removido com sucesso.",
+      });
+
+      await carregarItens();
+    } catch (error) {
+      toast({
+        title: "Erro ao excluir item",
+        description: "Ocorreu um erro ao excluir o item.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -136,23 +173,11 @@ export default function CatalogoItens() {
             </Select>
           </div>
 
-          {/* Grid de Cards */}
+          {/* Tabela de Itens */}
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <Card key={i}>
-                  <CardHeader>
-                    <Skeleton className="h-5 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-2/3" />
-                    </div>
-                  </CardContent>
-                </Card>
+            <div className="space-y-2">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-12 w-full" />
               ))}
             </div>
           ) : itens.length === 0 ? (
@@ -163,16 +188,68 @@ export default function CatalogoItens() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {itens.map((item) => (
-                <CardItem
-                  key={item.id}
-                  item={item}
-                  onEntrada={handleEntradaRapida}
-                  onEditar={handleEditarItem}
-                  onAtivarRastreio={handleAtivarRastreio}
-                />
-              ))}
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Tipo</TableHead>
+                    <TableHead>Categoria</TableHead>
+                    <TableHead>Estoque</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="w-[80px]">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {itens.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell className="font-medium">
+                        {item.nome}
+                        {item.preco_ativo?.marca && <span className="text-muted-foreground text-sm ml-2">({item.preco_ativo.marca})</span>}
+                      </TableCell>
+                      <TableCell>
+                        {item.tipo === 'ingrediente' ? '🧈 Ingrediente' : '📦 Embalagem'}
+                      </TableCell>
+                      <TableCell>{item.categoria || '-'}</TableCell>
+                      <TableCell>
+                        {item.rastrear_estoque 
+                          ? `${item.estoque?.saldo || 0} ${item.unidade_base}`
+                          : 'Não rastreado'
+                        }
+                      </TableCell>
+                      <TableCell>
+                        {item.rastrear_estoque && <BadgeStatus status={item.status} />}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleEditarItem(item)}>
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAtualizarEstoque(item)}>
+                              <Package className="mr-2 h-4 w-4" />
+                              Atualizar Estoque
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleExcluirItem(item)}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Excluir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           )}
         </CardContent>
@@ -194,6 +271,13 @@ export default function CatalogoItens() {
           onSave={handleSalvarEntrada}
         />
       )}
+
+      <AtualizarEstoqueDialog
+        open={modalAtualizarAberto}
+        onOpenChange={setModalAtualizarAberto}
+        item={itemSelecionado || null}
+        onSuccess={() => carregarItens()}
+      />
     </div>
   );
 }
