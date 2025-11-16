@@ -82,6 +82,11 @@ export function AtualizarEstoqueDialog({
       if (tipoMovimento === 'saida') tipoMovimentacao = 'SAIDA';
       if (tipoMovimento === 'ajuste') tipoMovimentacao = 'AJUSTE';
 
+      // Converter tipo do item para o enum correto
+      let tipoItemEnum: 'INSUMO' | 'EMBALAGEM' | 'outros' = 'outros';
+      if (item.tipo === 'ingrediente') tipoItemEnum = 'INSUMO';
+      else if (item.tipo === 'embalagem') tipoItemEnum = 'EMBALAGEM';
+
       // Inserir movimentação
       const { error } = await supabase
         .from('movimentacoes_estoque')
@@ -94,7 +99,7 @@ export function AtualizarEstoqueDialog({
           data: format(dataMovimentacao, 'yyyy-MM-dd'),
           observacoes: observacao || null,
           usuario_id: user.id,
-          tipo_item: item.tipo as any,
+          tipo_item: tipoItemEnum,
           unidade: item.unidade_base,
         }]);
 
