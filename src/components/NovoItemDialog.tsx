@@ -88,6 +88,13 @@ export function NovoItemDialog({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // Buscar o nome da categoria pelo ID
+      let categoriaNome = null;
+      if (categoriaEstoqueId) {
+        const categoriaEncontrada = categorias.find(cat => cat.id === categoriaEstoqueId);
+        categoriaNome = categoriaEncontrada?.nome || null;
+      }
+
       // Criar o item
       const { data: itemData, error: itemError } = await supabase
         .from('itens')
@@ -97,7 +104,7 @@ export function NovoItemDialog({
           nome: descricao,
           unidade_base: unidadeId,
           quantidade_por_embalagem: parseFloat(quantidade),
-          categoria: categoriaEstoqueId || null,
+          categoria: categoriaNome,
           rastrear_estoque: true,
           ponto_de_pedido: estoqueMinimo ? parseFloat(estoqueMinimo) : null,
           observacoes: observacoes || null,
