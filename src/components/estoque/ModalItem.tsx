@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Loader2, Package2 } from "lucide-react";
 import type { Item, TipoItem } from "@/types/estoque";
 import { useCategoriasEstoque } from "@/hooks/useCategoriasEstoque";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
+import { ItemNomeAutocomplete } from "@/components/ItemNomeAutocomplete";
 
 interface ModalItemProps {
   open: boolean;
@@ -32,6 +33,13 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
     localizacao: item?.localizacao || '',
     observacoes: item?.observacoes || '',
   });
+
+  // Resetar nome quando o tipo mudar
+  useEffect(() => {
+    if (!item) {
+      setFormData(prev => ({ ...prev, nome: '' }));
+    }
+  }, [formData.tipo, item]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,12 +111,18 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
           {/* Nome */}
           <div className="space-y-2">
             <Label htmlFor="nome">Nome do Item *</Label>
-            <Input
-              id="nome"
+            <ItemNomeAutocomplete
               value={formData.nome}
-              onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-              placeholder="Ex: Farinha de Trigo, Caixa de Papelão..."
-              required
+              tipo={formData.tipo as TipoItem}
+              onSelect={(nome, tipoInsumoId, unidade, qtdEmbalagem) => {
+                setFormData({
+                  ...formData,
+                  nome,
+                  ...(unidade && { unidade_base: unidade as any }),
+                  ...(qtdEmbalagem && { quantidade_por_embalagem: qtdEmbalagem }),
+                });
+              }}
+              placeholder="Digite para buscar ou criar novo..."
             />
           </div>
 
