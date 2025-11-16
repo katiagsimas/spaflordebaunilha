@@ -49,7 +49,7 @@ export default function MigrationStatus() {
         'clientes', 'fornecedores', 'categorias', 'unidades_medida',
         'custos_fixos', 'embalagens', 'ingredientes', 'encomendas',
         'categorias_financeiras', 'contas_receber', 'contas_pagar', 
-        'bancos', 'movimentacoes_estoque', 'estoque_atual'
+        'bancos'
       ];
       
       const stats: TableStats[] = [];
