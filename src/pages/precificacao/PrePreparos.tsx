@@ -12,18 +12,36 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Clock, Scale, Info } from 'lucide-react';
+import { Plus, Edit, Clock, Scale, Info, MoreVertical, Trash2 } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { ChefHat } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { BackButton } from '@/components/BackButton';
 import { PageHeader } from '@/components/PageHeader';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export default function PrePreparos() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [preparos, setPreparos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [prepairoParaExcluir, setPreparoParaExcluir] = useState<any>(null);
+  const [dialogExcluirAberto, setDialogExcluirAberto] = useState(false);
 
   useEffect(() => {
     fetchPreparos();
@@ -110,6 +128,127 @@ export default function PrePreparos() {
     });
   };
 
+  const verificarPreparoEmUso = async (preparoId: string): Promise<boolean> => {
+    try {
+      // Verificar se o pré-preparo está sendo usado em receitas_ingredientes
+      const { data: ingredientes } = await supabase
+        .from('ingredientes')
+        .select('tipo_insumo_id')
+        .eq('e_pre_preparo', true);
+
+      if (!ingredientes || ingredientes.length === 0) return false;
+
+      const tiposInsumosIds = ingredientes.map(ing => ing.tipo_insumo_id);
+
+      // Verificar se algum tipo_insumo corresponde ao pré-preparo
+      const { data: tiposInsumos } = await supabase
+        .from('tipos_insumos')
+        .select('id')
+        .eq('pre_preparo_id', preparoId)
+        .in('id', tiposInsumosIds);
+
+      if (!tiposInsumos || tiposInsumos.length === 0) return false;
+
+      // Verificar se está sendo usado em receitas
+      const { data: receitasUsando, error } = await supabase
+        .from('receitas_ingredientes')
+        .select('id')
+        .in('ingrediente_id', tiposInsumos.map(t => t.id))
+        .limit(1);
+
+      if (error) throw error;
+
+      return receitasUsando && receitasUsando.length > 0;
+    } catch (error) {
+      console.error('Erro ao verificar uso do pré-preparo:', error);
+      return true; // Em caso de erro, previne a exclusão por segurança
+    }
+  };
+
+  const handleConfirmarExclusao = async () => {
+    if (!prepairoParaExcluir) return;
+
+    try {
+      // Verificar se está em uso
+      const emUso = await verificarPreparoEmUso(prepairoParaExcluir.id);
+
+      if (emUso) {
+        toast({
+          title: 'Não é possível excluir',
+          description: 'Este pré-preparo está sendo utilizado em uma ou mais fichas técnicas. Remova-o das receitas antes de excluir.',
+          variant: 'destructive',
+        });
+        setDialogExcluirAberto(false);
+        setPreparoParaExcluir(null);
+        return;
+      }
+
+      // Excluir ingredientes relacionados
+      const { data: ingredientesRelacionados } = await supabase
+        .from('ingredientes')
+        .select('tipo_insumo_id')
+        .eq('e_pre_preparo', true);
+
+      if (ingredientesRelacionados) {
+        const { data: tiposInsumosParaExcluir } = await supabase
+          .from('tipos_insumos')
+          .select('id')
+          .eq('pre_preparo_id', prepairoParaExcluir.id);
+
+        if (tiposInsumosParaExcluir && tiposInsumosParaExcluir.length > 0) {
+          const idsParaExcluir = tiposInsumosParaExcluir.map(t => t.id);
+          
+          await supabase
+            .from('ingredientes')
+            .delete()
+            .in('tipo_insumo_id', idsParaExcluir);
+        }
+      }
+
+      // Excluir ingredientes do pré-preparo
+      await supabase
+        .from('pre_preparos_ingredientes')
+        .delete()
+        .eq('pre_preparo_id', prepairoParaExcluir.id);
+
+      // Excluir mão de obra do pré-preparo
+      await supabase
+        .from('pre_preparos_mao_obra')
+        .delete()
+        .eq('pre_preparo_id', prepairoParaExcluir.id);
+
+      // Excluir o pré-preparo
+      const { error: deleteError } = await supabase
+        .from('pre_preparos')
+        .delete()
+        .eq('id', prepairoParaExcluir.id);
+
+      if (deleteError) throw deleteError;
+
+      toast({
+        title: 'Pré-preparo excluído',
+        description: 'O pré-preparo foi excluído com sucesso.',
+      });
+
+      fetchPreparos();
+    } catch (error: any) {
+      console.error('Erro ao excluir pré-preparo:', error);
+      toast({
+        title: 'Erro ao excluir',
+        description: error.message || 'Não foi possível excluir o pré-preparo.',
+        variant: 'destructive',
+      });
+    } finally {
+      setDialogExcluirAberto(false);
+      setPreparoParaExcluir(null);
+    }
+  };
+
+  const handleExcluir = (preparo: any) => {
+    setPreparoParaExcluir(preparo);
+    setDialogExcluirAberto(true);
+  };
+
   if (loading) return <LoadingState message="Carregando Pré-Preparos" submessage="Listando pré-preparos..." />;
 
   return (
@@ -175,13 +314,28 @@ export default function PrePreparos() {
                     {formatarPreco(preparo.custo_total_com_mao_obra || preparo.custo_total || 0)}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => navigate(`/precificacao/pre-preparos/${preparo.id}`)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => navigate(`/precificacao/pre-preparos/${preparo.id}`)}
+                        >
+                          <Edit className="mr-2 h-4 w-4" />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleExcluir(preparo)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Excluir
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}
@@ -189,6 +343,27 @@ export default function PrePreparos() {
           </Table>
         </div>
       )}
+
+      <AlertDialog open={dialogExcluirAberto} onOpenChange={setDialogExcluirAberto}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o pré-preparo "{prepairoParaExcluir?.nome}"?
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmarExclusao}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
