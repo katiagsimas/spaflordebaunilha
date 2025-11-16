@@ -71,17 +71,17 @@ export function ItemNomeAutocomplete({
 
       if (itensError) throw itensError;
 
-      // Buscar unidades de medida
-      const unidadeIds = [...new Set(itensData?.map(item => item.unidade_base) || [])];
+      // Buscar unidades de medida pela sigla (unidade_base é a sigla, não o ID)
+      const siglasUnidades = [...new Set(itensData?.map(item => item.unidade_base) || [])];
       const { data: unidadesData, error: unidadesError } = await supabase
         .from('unidades_medida')
         .select('id, sigla')
-        .in('id', unidadeIds);
+        .in('sigla', siglasUnidades);
 
       if (unidadesError) throw unidadesError;
 
-      // Criar mapa de unidades
-      const unidadesMap = new Map(unidadesData?.map(u => [u.id, u.sigla]) || []);
+      // Criar mapa de unidades por sigla
+      const unidadesMap = new Map(unidadesData?.map(u => [u.sigla, u.sigla]) || []);
 
       // Adaptar formato para compatibilidade
       const itensAdaptados = (itensData || []).map(item => ({
@@ -91,7 +91,7 @@ export function ItemNomeAutocomplete({
         unidade_medida_id: item.unidade_base,
         quantidade_embalagem: item.quantidade_por_embalagem,
         unidades_medida: {
-          sigla: unidadesMap.get(item.unidade_base) || ''
+          sigla: item.unidade_base
         }
       }));
       
@@ -128,18 +128,11 @@ export function ItemNomeAutocomplete({
     // Recarregar lista
     await carregarItens();
     
-    // Buscar a sigla da unidade
-    const { data: unidadeData } = await supabase
-      .from('unidades_medida')
-      .select('sigla')
-      .eq('id', novoItem.unidade_base)
-      .single();
-    
-    // Selecionar o item recém-criado (adaptar formato novo para antigo)
+    // O novoItem.unidade_base agora já é a sigla
     onSelect(
       novoItem.nome,
       novoItem.id,
-      unidadeData?.sigla,
+      novoItem.unidade_base,
       novoItem.quantidade_por_embalagem
     );
     

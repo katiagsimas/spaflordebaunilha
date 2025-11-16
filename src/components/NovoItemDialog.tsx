@@ -91,6 +91,13 @@ export function NovoItemDialog({
         categoriaNome = categoriaEncontrada?.nome || null;
       }
 
+      // Buscar a sigla da unidade de medida
+      const unidadeSelecionada = unidades.find(u => u.id === unidadeId);
+      if (!unidadeSelecionada) {
+        toast.error('Unidade de medida não encontrada');
+        return;
+      }
+
       // Criar o item na tabela itens
       const { data: itemData, error: itemError } = await supabase
         .from('itens')
@@ -98,7 +105,7 @@ export function NovoItemDialog({
           usuario_id: user.id,
           tipo: tipo,
           nome: descricao,
-          unidade_base: unidadeId,
+          unidade_base: unidadeSelecionada.sigla,
           quantidade_por_embalagem: parseFloat(quantidade.replace(',', '.')),
           categoria: categoriaNome,
           rastrear_estoque: controlarEstoque,
