@@ -83,7 +83,16 @@ export function AtualizarEstoqueDialog({
 
       const qtd = parseFloat(quantidade);
       const valorNum = valor ? parseFloat(valor) : null;
-      const custoUnitario = valorNum && qtd > 0 ? valorNum / qtd : null;
+      
+      // Para saídas, custo é sempre null pois não alteramos o custo médio
+      // Para entradas e ajustes, calcular custo unitário se valor foi informado
+      const custoUnitario = tipoMovimento !== 'saida' && valorNum && qtd > 0 
+        ? valorNum / qtd 
+        : null;
+      
+      const custoTotal = tipoMovimento !== 'saida' && valorNum 
+        ? valorNum 
+        : null;
 
       // Determinar o tipo correto baseado no movimento
       let tipoMovimentacao: 'ENTRADA' | 'SAIDA' | 'AJUSTE' = 'ENTRADA';
@@ -103,7 +112,7 @@ export function AtualizarEstoqueDialog({
           tipo: tipoMovimentacao,
           quantidade: qtd,
           custo_unitario: custoUnitario,
-          custo_total: valorNum,
+          custo_total: custoTotal,
           data: format(dataMovimentacao, 'yyyy-MM-dd'),
           validade: dataValidade ? format(dataValidade, 'yyyy-MM-dd') : null,
           observacoes: observacao || null,
@@ -112,7 +121,10 @@ export function AtualizarEstoqueDialog({
           unidade: item.unidade_base,
         }]);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro detalhado ao inserir movimentação:', error);
+        throw error;
+      }
 
       // Atualizar marca do item se fornecida
       if (marca && marca.trim() !== '') {
@@ -142,10 +154,11 @@ export function AtualizarEstoqueDialog({
       setMarca("");
       setObservacao("");
       setObservacaoAberta(false);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Erro completo ao atualizar estoque:', error);
       toast({
         title: "Erro ao atualizar estoque",
-        description: "Ocorreu um erro ao processar a movimentação.",
+        description: error?.message || "Ocorreu um erro ao processar a movimentação.",
         variant: "destructive",
       });
     } finally {
