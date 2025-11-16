@@ -324,12 +324,10 @@ export default function CatalogoItens() {
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-foreground">Limpar</label>
               <Button 
-                variant="outline" 
-                size="icon"
                 onClick={limparFiltros}
-                title="Limpar Filtros"
               >
-                <X className="h-4 w-4" />
+                <X className="mr-2 h-4 w-4" />
+                Limpar Filtros
               </Button>
             </div>
           </div>
