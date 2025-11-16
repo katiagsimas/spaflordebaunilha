@@ -93,6 +93,9 @@ export function AtualizarEstoqueDialog({
           custo_total: valorNum,
           data: format(dataMovimentacao, 'yyyy-MM-dd'),
           observacoes: observacao || null,
+          usuario_id: user.id,
+          tipo_item: item.tipo as any,
+          unidade: item.unidade_base,
         }]);
 
       if (error) throw error;
