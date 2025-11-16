@@ -17,7 +17,7 @@ interface ModalItemProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   item?: Item;
-  onSave: (item: Partial<Item>) => Promise<{ success: boolean }>;
+  onSave: (item: Partial<Item>, extraData?: { marca?: string; quantidadeEntrada?: string; valorEntrada?: string }) => Promise<{ success: boolean }>;
 }
 
 export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) {
@@ -50,61 +50,13 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
     setLoading(true);
 
     try {
-      const result = await onSave(formData);
+      const result = await onSave(formData, {
+        marca,
+        quantidadeEntrada,
+        valorEntrada
+      });
+      
       if (result.success) {
-        // Se é um novo item e tem entrada de estoque
-        if (!item && quantidadeEntrada && parseFloat(quantidadeEntrada) > 0) {
-          // Buscar o item recém-criado para pegar o ID
-          const { data: { user } } = await supabase.auth.getUser();
-          if (!user) return;
-
-          const { data: novoItem } = await supabase
-            .from('itens')
-            .select('id')
-            .eq('usuario_id', user.id)
-            .eq('nome', formData.nome)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
-
-          if (novoItem) {
-            // Criar preço se marca foi informada
-            if (marca) {
-              const custoUnitario = valorEntrada && quantidadeEntrada 
-                ? parseFloat(valorEntrada) / parseFloat(quantidadeEntrada)
-                : 0;
-
-              await supabase.from('precos').insert({
-                item_id: novoItem.id,
-                usuario_id: user.id,
-                marca: marca,
-                preco_total_embalagem: valorEntrada ? parseFloat(valorEntrada) : 0,
-                quantidade_embalagem: formData.quantidade_por_embalagem || 1,
-                custo_unitario: custoUnitario,
-                ativo: true,
-                data_coleta: new Date().toISOString(),
-              });
-            }
-
-            // Registrar entrada de estoque
-            const custoUnitario = valorEntrada && quantidadeEntrada 
-              ? parseFloat(valorEntrada) / parseFloat(quantidadeEntrada)
-              : 0;
-
-            await supabase.from('movimentacoes_estoque').insert({
-              item_id: novoItem.id,
-              usuario_id: user.id,
-              tipo: 'ENTRADA',
-              tipo_item: formData.tipo === 'ingrediente' ? 'INSUMO' : 'EMBALAGEM',
-              quantidade: parseFloat(quantidadeEntrada),
-              custo_unitario: custoUnitario,
-              custo_total: valorEntrada ? parseFloat(valorEntrada) : 0,
-              unidade: formData.unidade_base || 'un',
-              data: new Date().toISOString(),
-            });
-          }
-        }
-        
         toast({
           title: "Item cadastrado",
           description: "O item foi salvo com sucesso.",
