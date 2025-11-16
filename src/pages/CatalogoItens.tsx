@@ -321,8 +321,7 @@ export default function CatalogoItens() {
               </Select>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-foreground">Limpar</label>
+            <div className="flex items-end">
               <Button 
                 onClick={limparFiltros}
               >
