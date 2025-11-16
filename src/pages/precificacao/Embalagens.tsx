@@ -73,7 +73,6 @@ export default function Embalagens() {
   const [novoTipoDescricao, setNovoTipoDescricao] = useState('');
   const [novoTipoQuantidade, setNovoTipoQuantidade] = useState('');
   const [novoTipoUnidadeId, setNovoTipoUnidadeId] = useState('');
-  const [novoTipoControlarEstoque, setNovoTipoControlarEstoque] = useState(false);
 
   useEffect(() => {
     fetchEmbalagens();
@@ -342,7 +341,6 @@ export default function Embalagens() {
     setNovoTipoDescricao(termoBuscaTipo);
     setNovoTipoQuantidade('');
     setNovoTipoUnidadeId('');
-    setNovoTipoControlarEstoque(false);
     setModalCriarTipoAberto(true);
     setPopoverAberto(false);
   };
@@ -379,7 +377,6 @@ export default function Embalagens() {
           descricao: novoTipoDescricao.trim(),
           quantidade_embalagem: qtd,
           unidade_medida_id: novoTipoUnidadeId,
-          controlar_estoque: novoTipoControlarEstoque,
         })
         .select(`
           id,
@@ -712,8 +709,6 @@ export default function Embalagens() {
                 }}
               />
             </div>
-
-            {/* Checkbox Controlar Estoque */}
           </div>
 
           <DialogFooter>
@@ -778,18 +773,6 @@ export default function Embalagens() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-
-            <div className="flex items-center space-x-3 p-4 rounded-lg bg-primary">
-              <Checkbox 
-                id="novo-tipo-controlar-estoque" 
-                checked={novoTipoControlarEstoque}
-                onCheckedChange={(checked) => setNovoTipoControlarEstoque(checked as boolean)}
-                className="border-primary-foreground data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary"
-              />
-              <Label htmlFor="novo-tipo-controlar-estoque" className="text-sm font-semibold cursor-pointer text-primary-foreground">
-                Controle de Estoque
-              </Label>
             </div>
 
             <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800">

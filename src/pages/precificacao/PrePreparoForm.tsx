@@ -81,7 +81,6 @@ export default function PrePreparoForm() {
   const [novoTipoDescricao, setNovoTipoDescricao] = useState('');
   const [novoTipoQuantidade, setNovoTipoQuantidade] = useState('');
   const [novoTipoUnidadeId, setNovoTipoUnidadeId] = useState('');
-  const [novoTipoControlarEstoque, setNovoTipoControlarEstoque] = useState(false);
   const [novoIngredienteMarca, setNovoIngredienteMarca] = useState('');
   const [novoIngredientePreco, setNovoIngredientePreco] = useState('');
   const [tipoRecemCriado, setTipoRecemCriado] = useState<any>(null);
@@ -1170,21 +1169,6 @@ export default function PrePreparoForm() {
                 </Select>
               </div>
             </div>
-
-            <div className="flex items-center space-x-3 p-4 rounded-lg bg-primary">
-              <Checkbox
-                id="controlar-estoque"
-                checked={novoTipoControlarEstoque}
-                onCheckedChange={(checked) => setNovoTipoControlarEstoque(checked as boolean)}
-                className="border-primary-foreground data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary"
-              />
-              <Label
-                htmlFor="controlar-estoque"
-                className="text-sm font-semibold cursor-pointer text-primary-foreground"
-              >
-                Controle de Estoque
-              </Label>
-            </div>
           </div>
           
           <DialogFooter>
@@ -1223,7 +1207,6 @@ export default function PrePreparoForm() {
                     descricao: novoTipoDescricao.trim(),
                     quantidade_embalagem: qtd,
                     unidade_medida_id: novoTipoUnidadeId,
-                    controlar_estoque: novoTipoControlarEstoque,
                   })
                   .select(`
                     id,
