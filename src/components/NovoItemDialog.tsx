@@ -159,23 +159,23 @@ export function NovoItemDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
-            Novo {tipo === 'ingrediente' ? 'Ingrediente' : 'Embalagem'}
+            Novo Item
           </DialogTitle>
           <DialogDescription>
-            Cadastre o tipo base {tipo === 'ingrediente' ? 'do ingrediente' : 'da embalagem'} com sua quantidade padrão
+            Cadastre o item com sua quantidade padrão
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="descricao">
-              Nome {tipo === 'ingrediente' ? 'do Ingrediente' : 'da Embalagem'} *
+              Nome do Item *
             </Label>
             <Input
               id="descricao"
               value={descricao}
               onChange={(e) => setDescricao(e.target.value)}
-              placeholder={tipo === 'ingrediente' ? 'Ex: Farinha de Trigo' : 'Ex: Caixa de Papelão'}
+              placeholder="Ex: Farinha de Trigo, Caixa de Papelão, etc."
             />
           </div>
 

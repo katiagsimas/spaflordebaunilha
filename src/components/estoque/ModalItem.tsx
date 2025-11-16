@@ -147,11 +147,6 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
           description: "O item foi salvo com sucesso e o estoque foi atualizado.",
         });
         
-        // Aguardar um pouco para o trigger processar
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Forçar recarregamento da listagem
-        window.dispatchEvent(new CustomEvent('estoque-atualizado'));
         onOpenChange(false);
       }
     } finally {
