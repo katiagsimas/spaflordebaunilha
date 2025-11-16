@@ -8,7 +8,6 @@ import { Plus, Trash2, ChefHat, Upload, X } from "lucide-react";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { useCategorias } from "@/hooks/useCategorias";
 import { useCustosFixos } from "@/hooks/useCustosFixos";
-import { useCategoriasEstoque } from "@/hooks/useCategoriasEstoque";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useMaoObraPerfis } from "@/hooks/useMaoObraPerfis";
 import { useReceitasMaoObra } from "@/hooks/useReceitasMaoObra";
@@ -129,7 +128,6 @@ export default function ReceitaForm() {
   const { categorias, fetchCategoriasAtivas } = useCategorias();
   const { unidades } = useUnidadesMedida();
   const { salvarMaosObra } = useReceitasMaoObra(id);
-  const { categorias: categoriasEstoque } = useCategoriasEstoque();
   const { profile } = useUserProfile();
   const { perfis } = useMaoObraPerfis();
   const [categoriasAtivas, setCategoriasAtivas] = useState<any[]>([]);
@@ -261,7 +259,6 @@ export default function ReceitaForm() {
   const [novoTipoIngDescricao, setNovoTipoIngDescricao] = useState('');
   const [novoTipoIngQuantidade, setNovoTipoIngQuantidade] = useState('');
   const [novoTipoIngUnidadeId, setNovoTipoIngUnidadeId] = useState('');
-  const [novoTipoIngCategoriaEstoqueId, setNovoTipoIngCategoriaEstoqueId] = useState('');
   const [novoTipoIngControlarEstoque, setNovoTipoIngControlarEstoque] = useState(false);
   const [novoIngMarca, setNovoIngMarca] = useState('');
   const [novoIngPreco, setNovoIngPreco] = useState('');
@@ -275,7 +272,6 @@ export default function ReceitaForm() {
   const [novoTipoEmbDescricao, setNovoTipoEmbDescricao] = useState('');
   const [novoTipoEmbQuantidade, setNovoTipoEmbQuantidade] = useState('');
   const [novoTipoEmbUnidadeId, setNovoTipoEmbUnidadeId] = useState('');
-  const [novoTipoEmbCategoriaEstoqueId, setNovoTipoEmbCategoriaEstoqueId] = useState('');
   const [novoTipoEmbControlarEstoque, setNovoTipoEmbControlarEstoque] = useState(false);
   const [novoEmbMarca, setNovoEmbMarca] = useState('');
   const [novoEmbPreco, setNovoEmbPreco] = useState('');
@@ -1758,22 +1754,6 @@ export default function ReceitaForm() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="categoria-ing">Categoria de Estoque</Label>
-              <Select value={novoTipoIngCategoriaEstoqueId} onValueChange={setNovoTipoIngCategoriaEstoqueId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione uma categoria..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {categoriasEstoque.map((categoria) => (
-                    <SelectItem key={categoria.id} value={categoria.id}>
-                      {categoria.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
             <div className="flex items-center space-x-3 p-4 rounded-lg bg-primary">
               <Checkbox
                 id="controlar-estoque-ing"
@@ -1818,7 +1798,6 @@ export default function ReceitaForm() {
                     descricao: novoTipoIngDescricao.trim(),
                     quantidade_embalagem: qtd,
                     unidade_medida_id: novoTipoIngUnidadeId,
-                    categoria_estoque_id: novoTipoIngCategoriaEstoqueId || null,
                     controlar_estoque: novoTipoIngControlarEstoque,
                   })
                   .select(`
@@ -1912,22 +1891,6 @@ export default function ReceitaForm() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="categoria-emb">Categoria de Estoque</Label>
-              <Select value={novoTipoEmbCategoriaEstoqueId} onValueChange={setNovoTipoEmbCategoriaEstoqueId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione uma categoria..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {categoriasEstoque.map((categoria) => (
-                    <SelectItem key={categoria.id} value={categoria.id}>
-                      {categoria.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
             <div className="flex items-center space-x-3 p-4 rounded-lg bg-primary">
               <Checkbox
                 id="controlar-estoque-emb"
@@ -1972,7 +1935,6 @@ export default function ReceitaForm() {
                     descricao: novoTipoEmbDescricao.trim(),
                     quantidade_embalagem: qtd,
                     unidade_medida_id: novoTipoEmbUnidadeId,
-                    categoria_estoque_id: novoTipoEmbCategoriaEstoqueId || null,
                     controlar_estoque: novoTipoEmbControlarEstoque,
                   })
                   .select(`

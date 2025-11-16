@@ -26,7 +26,7 @@ const menuItems = [
   { title: "Encomendas", url: "/encomendas", icon: ShoppingBag, active: true },
   { title: "Clientes", url: "/clientes", icon: User, active: true },
   { title: "Fornecedores", url: "/fornecedores", icon: Truck, active: true },
-  { title: "Estoque", url: "/estoque", icon: Package, active: true },
+  
   { title: "Financeiro", url: "/financeiro", icon: DollarSign, active: true },
   { title: "Precificação", url: "/precificacao", icon: Calculator, active: true },
   { title: "Configurações", url: "/configuracoes", icon: Settings, active: true },
