@@ -60,24 +60,42 @@ export function ItemNomeAutocomplete({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase
-        .from('tipos_insumos')
-        .select(`
-          id,
-          descricao,
-          tipo,
-          unidade_medida_id,
-          quantidade_embalagem,
-          unidades_medida:unidade_medida_id (
-            sigla
-          )
-        `)
+      // Buscar itens
+      const { data: itensData, error: itensError } = await supabase
+        .from('itens')
+        .select('id, nome, tipo, unidade_base, quantidade_por_embalagem')
         .eq('usuario_id', user.id)
         .eq('tipo', tipo)
-        .order('descricao');
+        .eq('ativo', true)
+        .order('nome');
 
-      if (error) throw error;
-      setItens(data || []);
+      if (itensError) throw itensError;
+
+      // Buscar unidades de medida
+      const unidadeIds = [...new Set(itensData?.map(item => item.unidade_base) || [])];
+      const { data: unidadesData, error: unidadesError } = await supabase
+        .from('unidades_medida')
+        .select('id, sigla')
+        .in('id', unidadeIds);
+
+      if (unidadesError) throw unidadesError;
+
+      // Criar mapa de unidades
+      const unidadesMap = new Map(unidadesData?.map(u => [u.id, u.sigla]) || []);
+
+      // Adaptar formato para compatibilidade
+      const itensAdaptados = (itensData || []).map(item => ({
+        id: item.id,
+        descricao: item.nome,
+        tipo: item.tipo,
+        unidade_medida_id: item.unidade_base,
+        quantidade_embalagem: item.quantidade_por_embalagem,
+        unidades_medida: {
+          sigla: unidadesMap.get(item.unidade_base) || ''
+        }
+      }));
+      
+      setItens(itensAdaptados);
     } catch (error) {
       console.error('Erro ao carregar itens:', error);
       toast.error('Erro ao carregar lista de itens');
@@ -106,16 +124,23 @@ export function ItemNomeAutocomplete({
     setNovoItemDialogOpen(true);
   };
 
-  const handleNovoItemSuccess = (novoItem: any) => {
+  const handleNovoItemSuccess = async (novoItem: any) => {
     // Recarregar lista
-    carregarItens();
+    await carregarItens();
     
-    // Selecionar o item recém-criado
+    // Buscar a sigla da unidade
+    const { data: unidadeData } = await supabase
+      .from('unidades_medida')
+      .select('sigla')
+      .eq('id', novoItem.unidade_base)
+      .single();
+    
+    // Selecionar o item recém-criado (adaptar formato novo para antigo)
     onSelect(
-      novoItem.descricao,
+      novoItem.nome,
       novoItem.id,
-      novoItem.unidade_medida?.sigla,
-      novoItem.quantidade_embalagem
+      unidadeData?.sigla,
+      novoItem.quantidade_por_embalagem
     );
     
     setSearchValue("");
