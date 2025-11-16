@@ -225,13 +225,13 @@ export function AtualizarEstoqueDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle>Atualizar Estoque - {item.nome}</DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="space-y-1">
             <Label>Estoque Atual</Label>
             <Input 
               value={`${item.estoque?.saldo || 0} ${item.unidade_base}`} 
@@ -240,7 +240,7 @@ export function AtualizarEstoqueDialog({
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1">
             <Label>Data de Movimentação</Label>
             <Popover open={popoverMovimentacaoOpen} onOpenChange={setPopoverMovimentacaoOpen}>
               <PopoverTrigger asChild>
@@ -269,14 +269,14 @@ export function AtualizarEstoqueDialog({
             </Popover>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2">
             <Label className="text-base font-semibold">Tipo de Movimentação</Label>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => setTipoMovimento("entrada")}
                 className={cn(
-                  "flex items-center justify-center gap-2 p-4 rounded-lg border-2 transition-all duration-200 font-semibold",
+                  "flex items-center justify-center gap-2 p-2 rounded-lg border-2 transition-all duration-200 font-semibold",
                   tipoMovimento === "entrada"
                     ? "bg-primary text-primary-foreground border-primary shadow-[0_2px_4px_rgba(216,155,140,0.3)]"
                     : "border-border bg-background hover:bg-secondary"
@@ -293,7 +293,7 @@ export function AtualizarEstoqueDialog({
                 type="button"
                 onClick={() => setTipoMovimento("saida")}
                 className={cn(
-                  "flex items-center justify-center gap-2 p-4 rounded-lg border-2 transition-all duration-200 font-semibold",
+                  "flex items-center justify-center gap-2 p-2 rounded-lg border-2 transition-all duration-200 font-semibold",
                   tipoMovimento === "saida"
                     ? "bg-primary text-primary-foreground border-primary shadow-[0_2px_4px_rgba(216,155,140,0.3)]"
                     : "border-border bg-background hover:bg-secondary"
@@ -310,7 +310,7 @@ export function AtualizarEstoqueDialog({
                 type="button"
                 onClick={() => setTipoMovimento("ajuste")}
                 className={cn(
-                  "flex items-center justify-center gap-2 p-4 rounded-lg border-2 transition-all duration-200 font-semibold",
+                  "flex items-center justify-center gap-2 p-2 rounded-lg border-2 transition-all duration-200 font-semibold",
                   tipoMovimento === "ajuste"
                     ? "bg-primary text-primary-foreground border-primary shadow-[0_2px_4px_rgba(216,155,140,0.3)]"
                     : "border-border bg-background hover:bg-secondary"
@@ -325,8 +325,8 @@ export function AtualizarEstoqueDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
               <Label htmlFor="quantidade">Quantidade</Label>
               <div className="flex gap-2">
                 <Input
@@ -348,7 +348,7 @@ export function AtualizarEstoqueDialog({
             </div>
 
             {tipoMovimento !== "saida" && (
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Label htmlFor="valor">Valor</Label>
                 <Input
                   id="valor"
@@ -363,7 +363,7 @@ export function AtualizarEstoqueDialog({
           </div>
 
           {tipoMovimento !== "saida" && (
-            <div className="space-y-2">
+            <div className="space-y-1">
               <Label>Data de Validade (opcional)</Label>
               <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                 <PopoverTrigger asChild>
@@ -422,7 +422,7 @@ export function AtualizarEstoqueDialog({
           )}
 
           {tipoMovimento !== "saida" && (
-            <div className="space-y-2">
+            <div className="space-y-1">
               <Label htmlFor="marca">Marca (opcional)</Label>
               <Input
                 id="marca"
@@ -449,18 +449,18 @@ export function AtualizarEstoqueDialog({
                 />
               </Button>
             </CollapsibleTrigger>
-            <CollapsibleContent className="mt-2">
+            <CollapsibleContent className="mt-1">
               <Textarea
                 id="observacao"
                 value={observacao}
                 onChange={(e) => setObservacao(e.target.value)}
                 placeholder="Motivo da movimentação..."
-                rows={3}
+                rows={2}
               />
             </CollapsibleContent>
           </Collapsible>
 
-          <div className="flex justify-end gap-2 pt-4">
+          <div className="flex justify-end gap-2 pt-2">
             <Button
               type="button"
               variant="outline"
