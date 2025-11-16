@@ -25,25 +25,52 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
   const { categorias } = useCategoriasEstoque();
   const { unidades } = useUnidadesMedida();
   const [formData, setFormData] = useState<Partial<Item>>({
-    tipo: item?.tipo || 'ingrediente',
-    categoria: item?.categoria || '',
-    nome: item?.nome || '',
-    unidade_base: item?.unidade_base || 'g',
-    quantidade_por_embalagem: item?.quantidade_por_embalagem || 1,
+    tipo: 'ingrediente',
+    categoria: '',
+    nome: '',
+    unidade_base: 'g',
+    quantidade_por_embalagem: 1,
     rastrear_estoque: true,
-    ponto_de_pedido: item?.ponto_de_pedido,
-    observacoes: item?.observacoes || '',
+    ponto_de_pedido: undefined,
+    observacoes: '',
   });
   const [marca, setMarca] = useState('');
   const [quantidadeEntrada, setQuantidadeEntrada] = useState('');
   const [valorEntrada, setValorEntrada] = useState('');
 
-  // Resetar nome quando o tipo mudar
+  // Atualizar formData quando o item mudar ou o modal abrir
   useEffect(() => {
-    if (!item) {
-      setFormData(prev => ({ ...prev, nome: '' }));
+    if (open) {
+      if (item) {
+        // Modo edição - carregar dados do item
+        setFormData({
+          tipo: item.tipo || 'ingrediente',
+          categoria: item.categoria || '',
+          nome: item.nome || '',
+          unidade_base: item.unidade_base || 'g',
+          quantidade_por_embalagem: item.quantidade_por_embalagem || 1,
+          rastrear_estoque: item.rastrear_estoque !== undefined ? item.rastrear_estoque : true,
+          ponto_de_pedido: item.ponto_de_pedido,
+          observacoes: item.observacoes || '',
+        });
+      } else {
+        // Modo criação - limpar formulário
+        setFormData({
+          tipo: 'ingrediente',
+          categoria: '',
+          nome: '',
+          unidade_base: 'g',
+          quantidade_por_embalagem: 1,
+          rastrear_estoque: true,
+          ponto_de_pedido: undefined,
+          observacoes: '',
+        });
+        setMarca('');
+        setQuantidadeEntrada('');
+        setValorEntrada('');
+      }
     }
-  }, [formData.tipo, item]);
+  }, [open, item]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
