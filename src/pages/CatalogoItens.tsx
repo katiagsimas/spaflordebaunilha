@@ -354,7 +354,7 @@ export default function CatalogoItens() {
                   <TableRow>
                     <TableHead className="min-w-[180px]">Nome</TableHead>
                     <TableHead>Tipo</TableHead>
-                    <TableHead>Categoria</TableHead>
+                    <TableHead>Categoria de Estoque</TableHead>
                     <TableHead>Estoque Mín.</TableHead>
                     <TableHead>Marca</TableHead>
                     <TableHead>Validade</TableHead>
