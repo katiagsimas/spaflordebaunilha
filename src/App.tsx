@@ -14,7 +14,6 @@ import Encomendas from "./pages/Encomendas";
 import Producao from "./pages/Producao";
 import Precificacao from "./pages/Precificacao";
 import Planejamento from "./pages/Planejamento";
-import CMVGlobal from "./pages/CMVGlobal";
 import Cadastros from "./pages/Cadastros";
 import ClientesFornecedores from "./pages/ClientesFornecedores";
 import SeusDados from "./pages/cadastros/SeusDados";
