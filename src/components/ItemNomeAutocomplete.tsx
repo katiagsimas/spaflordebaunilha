@@ -52,7 +52,7 @@ export function ItemNomeAutocomplete({
 
   useEffect(() => {
     carregarItens();
-  }, [tipo]);
+  }, []);
 
   const carregarItens = async () => {
     try {
@@ -60,39 +60,24 @@ export function ItemNomeAutocomplete({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Buscar itens
-      const { data: itensData, error: itensError } = await supabase
-        .from('itens')
-        .select('id, nome, tipo, unidade_base, quantidade_por_embalagem')
+      // Buscar de tipos_insumos (todos os tipos: ingrediente, embalagem, outros)
+      const { data: tiposData, error: tiposError } = await supabase
+        .from('tipos_insumos')
+        .select('id, descricao, tipo, unidade_medida_id, quantidade_embalagem, unidades_medida(sigla)')
         .eq('usuario_id', user.id)
-        .eq('tipo', tipo)
-        .eq('ativo', true)
-        .order('nome');
+        .in('tipo', ['ingrediente', 'embalagem', 'outros'])
+        .order('descricao');
 
-      if (itensError) throw itensError;
+      if (tiposError) throw tiposError;
 
-      // Buscar unidades de medida pela sigla (unidade_base é a sigla, não o ID)
-      const siglasUnidades = [...new Set(itensData?.map(item => item.unidade_base) || [])];
-      const { data: unidadesData, error: unidadesError } = await supabase
-        .from('unidades_medida')
-        .select('id, sigla')
-        .in('sigla', siglasUnidades);
-
-      if (unidadesError) throw unidadesError;
-
-      // Criar mapa de unidades por sigla
-      const unidadesMap = new Map(unidadesData?.map(u => [u.sigla, u.sigla]) || []);
-
-      // Adaptar formato para compatibilidade
-      const itensAdaptados = (itensData || []).map(item => ({
+      // Adaptar formato
+      const itensAdaptados = (tiposData || []).map(item => ({
         id: item.id,
-        descricao: item.nome,
+        descricao: item.descricao,
         tipo: item.tipo,
-        unidade_medida_id: item.unidade_base,
-        quantidade_embalagem: item.quantidade_por_embalagem,
-        unidades_medida: {
-          sigla: item.unidade_base
-        }
+        unidade_medida_id: item.unidade_medida_id,
+        quantidade_embalagem: item.quantidade_embalagem,
+        unidades_medida: item.unidades_medida
       }));
       
       setItens(itensAdaptados);
@@ -128,12 +113,14 @@ export function ItemNomeAutocomplete({
     // Recarregar lista
     await carregarItens();
     
-    // O novoItem.unidade_base agora já é a sigla
+    // Buscar a sigla da unidade de medida
+    const unidadeSigla = novoItem.unidades_medida?.sigla || novoItem.unidade_medida_id;
+    
     onSelect(
-      novoItem.nome,
+      novoItem.descricao,
       novoItem.id,
-      novoItem.unidade_base,
-      novoItem.quantidade_por_embalagem
+      unidadeSigla,
+      novoItem.quantidade_embalagem
     );
     
     setSearchValue("");
@@ -167,7 +154,7 @@ export function ItemNomeAutocomplete({
                     {loading 
                       ? "Carregando..." 
                       : searchValue 
-                        ? `Nenhum ${tipo === 'ingrediente' ? 'ingrediente' : 'embalagem'} encontrado com "${searchValue}"`
+                        ? `Nenhum item encontrado com "${searchValue}"`
                         : "Nenhum item encontrado"
                     }
                   </p>
