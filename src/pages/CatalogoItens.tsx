@@ -92,11 +92,60 @@ export default function CatalogoItens() {
     }
   };
 
-  const handleSalvarItem = async (item: Partial<Item>) => {
+  const handleSalvarItem = async (item: Partial<Item>, extraData?: { marca?: string; quantidadeEntrada?: string; valorEntrada?: string }) => {
     if (itemSelecionado) {
       return await atualizarItem(itemSelecionado.id, item);
     } else {
-      return await criarItem(item as any);
+      const result = await criarItem(item as any);
+      
+      // Se criou com sucesso e tem dados extras de entrada de estoque
+      if (result.success && result.data && extraData) {
+        const { marca, quantidadeEntrada, valorEntrada } = extraData;
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return result;
+
+        // Criar preço se marca foi informada
+        if (marca) {
+          const custoUnitario = valorEntrada && quantidadeEntrada 
+            ? parseFloat(valorEntrada) / parseFloat(quantidadeEntrada)
+            : 0;
+
+          await supabase.from('precos').insert({
+            item_id: result.data.id,
+            usuario_id: user.id,
+            marca: marca,
+            preco_total_embalagem: valorEntrada ? parseFloat(valorEntrada) : 0,
+            quantidade_embalagem: item.quantidade_por_embalagem || 1,
+            custo_unitario: custoUnitario,
+            ativo: true,
+            data_coleta: new Date().toISOString(),
+          });
+        }
+
+        // Registrar entrada de estoque se quantidade foi informada
+        if (quantidadeEntrada && parseFloat(quantidadeEntrada) > 0) {
+          const custoUnitario = valorEntrada && quantidadeEntrada 
+            ? parseFloat(valorEntrada) / parseFloat(quantidadeEntrada)
+            : 0;
+
+          await supabase.from('movimentacoes_estoque').insert({
+            item_id: result.data.id,
+            usuario_id: user.id,
+            tipo: 'ENTRADA',
+            tipo_item: item.tipo === 'ingrediente' ? 'INSUMO' : 'EMBALAGEM',
+            quantidade: parseFloat(quantidadeEntrada),
+            custo_unitario: custoUnitario,
+            custo_total: valorEntrada ? parseFloat(valorEntrada) : 0,
+            unidade: item.unidade_base || 'un',
+            data: new Date().toISOString(),
+          });
+
+          // Recarregar itens para refletir o novo estoque
+          await carregarItens();
+        }
+      }
+      
+      return result;
     }
   };
 
