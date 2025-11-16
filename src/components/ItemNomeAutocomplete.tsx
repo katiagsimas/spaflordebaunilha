@@ -13,11 +13,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { TipoItem } from "@/types/estoque";
+import { NovoItemDialog } from "./NovoItemDialog";
 
 interface ItemNomeAutocompleteProps {
   value: string;
@@ -46,6 +47,8 @@ export function ItemNomeAutocomplete({
   const [open, setOpen] = useState(false);
   const [itens, setItens] = useState<TipoInsumo[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const [novoItemDialogOpen, setNovoItemDialogOpen] = useState(false);
 
   useEffect(() => {
     carregarItens();
@@ -83,6 +86,10 @@ export function ItemNomeAutocomplete({
     }
   };
 
+  const filteredItens = itens.filter((item) =>
+    item.descricao.toLowerCase().includes(searchValue.toLowerCase())
+  );
+
   const handleSelect = (item: TipoInsumo) => {
     onSelect(
       item.descricao,
@@ -91,58 +98,109 @@ export function ItemNomeAutocomplete({
       item.quantidade_embalagem
     );
     setOpen(false);
+    setSearchValue("");
+  };
+
+  const handleNovoItem = () => {
+    setOpen(false);
+    setNovoItemDialogOpen(true);
+  };
+
+  const handleNovoItemSuccess = (novoItem: any) => {
+    // Recarregar lista
+    carregarItens();
+    
+    // Selecionar o item recém-criado
+    onSelect(
+      novoItem.descricao,
+      novoItem.id,
+      novoItem.unidade_medida?.sigla,
+      novoItem.quantidade_embalagem
+    );
+    
+    setSearchValue("");
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between font-normal"
-        >
-          {value || placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-full p-0 bg-background" align="start">
-        <Command>
-          <CommandInput
-            placeholder="Buscar item..."
-            value={value}
-            onValueChange={(searchValue) => onSelect(searchValue)}
-          />
-          <CommandList>
-            <CommandEmpty>
-              {loading ? "Carregando..." : "Nenhum item encontrado. Digite um nome para criar novo."}
-            </CommandEmpty>
-            <CommandGroup>
-              {itens.map((item) => (
-                <CommandItem
-                  key={item.id}
-                  value={item.descricao}
-                  onSelect={() => handleSelect(item)}
-                  className="cursor-pointer"
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === item.descricao ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  <div className="flex flex-col">
-                    <span>{item.descricao}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {item.quantidade_embalagem} {item.unidades_medida?.sigla}
-                    </span>
-                  </div>
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+    <>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between font-normal"
+          >
+            {value || placeholder}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-full p-0 bg-popover" align="start">
+          <Command>
+            <CommandInput
+              placeholder="Buscar item..."
+              value={searchValue}
+              onValueChange={setSearchValue}
+            />
+            <CommandList>
+              <CommandEmpty>
+                <div className="flex flex-col items-center gap-3 py-6 px-4 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    {loading 
+                      ? "Carregando..." 
+                      : searchValue 
+                        ? `Nenhum ${tipo === 'ingrediente' ? 'ingrediente' : 'embalagem'} encontrado com "${searchValue}"`
+                        : "Nenhum item encontrado"
+                    }
+                  </p>
+                  {!loading && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleNovoItem}
+                      className="gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Adicionar Novo Item
+                    </Button>
+                  )}
+                </div>
+              </CommandEmpty>
+              <CommandGroup>
+                {filteredItens.map((item) => (
+                  <CommandItem
+                    key={item.id}
+                    value={item.descricao}
+                    onSelect={() => handleSelect(item)}
+                    className="cursor-pointer"
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === item.descricao ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    <div className="flex flex-col">
+                      <span>{item.descricao}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {item.quantidade_embalagem} {item.unidades_medida?.sigla}
+                      </span>
+                    </div>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+
+      <NovoItemDialog
+        open={novoItemDialogOpen}
+        onOpenChange={setNovoItemDialogOpen}
+        tipo={tipo}
+        nomeInicial={searchValue}
+        onSuccess={handleNovoItemSuccess}
+      />
+    </>
   );
 }
