@@ -97,6 +97,7 @@ export function AtualizarEstoqueDialog({
           custo_unitario: custoUnitario,
           custo_total: valorNum,
           data: format(dataMovimentacao, 'yyyy-MM-dd'),
+          validade: dataValidade ? format(dataValidade, 'yyyy-MM-dd') : null,
           observacoes: observacao || null,
           usuario_id: user.id,
           tipo_item: tipoItemEnum,
