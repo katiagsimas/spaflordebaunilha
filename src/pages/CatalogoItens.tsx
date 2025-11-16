@@ -247,73 +247,91 @@ export default function CatalogoItens() {
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Controles de Filtro */}
-          <div className="flex flex-wrap gap-2">
-          <div className="w-[250px] relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar item..."
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-              className="pl-9"
-            />
-          </div>
+          <div className="flex flex-wrap gap-4">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">Buscar Item</label>
+              <div className="w-[250px] relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar item..."
+                  value={busca}
+                  onChange={(e) => setBusca(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+            </div>
 
-            <Select value={filtroTipo} onValueChange={setFiltroTipo}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Tipo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos</SelectItem>
-                <SelectItem value="ingrediente">Ingrediente</SelectItem>
-                <SelectItem value="embalagem">Embalagem</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">Tipo</label>
+              <Select value={filtroTipo} onValueChange={setFiltroTipo}>
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="Tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  <SelectItem value="ingrediente">Ingrediente</SelectItem>
+                  <SelectItem value="embalagem">Embalagem</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-            <Select value={filtroCategoria} onValueChange={setFiltroCategoria}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todas">Todas</SelectItem>
-                {categorias.map(cat => (
-                  <SelectItem key={cat} value={cat!}>{cat}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">Categoria</label>
+              <Select value={filtroCategoria} onValueChange={setFiltroCategoria}>
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="Categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todas">Todas</SelectItem>
+                  {categorias.map(cat => (
+                    <SelectItem key={cat} value={cat!}>{cat}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-            <Select value={filtroStatus} onValueChange={setFiltroStatus}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos</SelectItem>
-                <SelectItem value="ok">OK</SelectItem>
-                <SelectItem value="atencao">Atenção</SelectItem>
-                <SelectItem value="baixo">Baixo</SelectItem>
-                <SelectItem value="zerado">Zerado</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">Status</label>
+              <Select value={filtroStatus} onValueChange={setFiltroStatus}>
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  <SelectItem value="ok">OK</SelectItem>
+                  <SelectItem value="atencao">Atenção</SelectItem>
+                  <SelectItem value="baixo">Baixo</SelectItem>
+                  <SelectItem value="zerado">Zerado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-            <Select value={filtroAlerta} onValueChange={setFiltroAlerta}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Alertas" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos</SelectItem>
-                <SelectItem value="vencido">Vencido</SelectItem>
-                <SelectItem value="critico">Crítico</SelectItem>
-                <SelectItem value="vencendo">Vencendo</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">Alertas</label>
+              <Select value={filtroAlerta} onValueChange={setFiltroAlerta}>
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="Alertas" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  <SelectItem value="vencido">Vencido</SelectItem>
+                  <SelectItem value="critico">Crítico</SelectItem>
+                  <SelectItem value="vencendo">Vencendo</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-            <Button 
-              variant="outline" 
-              size="icon"
-              onClick={limparFiltros}
-              title="Limpar Filtros"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">Limpar</label>
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={limparFiltros}
+                title="Limpar Filtros"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           {/* Tabela de Itens */}
