@@ -9,7 +9,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { CalendarIcon, ChevronDown } from "lucide-react";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
@@ -32,9 +32,11 @@ export function AtualizarEstoqueDialog({
   const [quantidade, setQuantidade] = useState("");
   const [valor, setValor] = useState("");
   const [dataValidade, setDataValidade] = useState<Date | undefined>();
+  const [dataValidadeInput, setDataValidadeInput] = useState("");
   const [observacao, setObservacao] = useState("");
   const [observacaoAberta, setObservacaoAberta] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,6 +56,7 @@ export function AtualizarEstoqueDialog({
       setQuantidade("");
       setValor("");
       setDataValidade(undefined);
+      setDataValidadeInput("");
       setObservacao("");
       setObservacaoAberta(false);
     } catch (error) {
@@ -65,6 +68,41 @@ export function AtualizarEstoqueDialog({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, "");
+    let formatted = value;
+    
+    if (value.length >= 2) {
+      formatted = value.slice(0, 2) + "/" + value.slice(2);
+    }
+    if (value.length >= 4) {
+      formatted = value.slice(0, 2) + "/" + value.slice(2, 4) + "/" + value.slice(4, 8);
+    }
+    
+    setDataValidadeInput(formatted);
+    
+    if (value.length === 8) {
+      try {
+        const parsedDate = parse(formatted, "dd/MM/yyyy", new Date());
+        if (!isNaN(parsedDate.getTime())) {
+          setDataValidade(parsedDate);
+        }
+      } catch (error) {
+        // Invalid date format
+      }
+    }
+  };
+
+  const handleDateSelect = (date: Date | undefined) => {
+    setDataValidade(date);
+    if (date) {
+      setDataValidadeInput(format(date, "dd/MM/yyyy"));
+    } else {
+      setDataValidadeInput("");
+    }
+    setPopoverOpen(false);
   };
 
   if (!item) return null;
@@ -179,27 +217,56 @@ export function AtualizarEstoqueDialog({
 
           <div className="space-y-2">
             <Label>Data de Validade (opcional)</Label>
-            <Popover>
+            <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
               <PopoverTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !dataValidade && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dataValidade ? format(dataValidade, "PPP", { locale: ptBR }) : "Selecione uma data"}
-                </Button>
+                <div className="relative">
+                  <Input
+                    type="text"
+                    placeholder="DD/MM/AAAA"
+                    value={dataValidadeInput}
+                    onChange={handleDateInputChange}
+                    maxLength={10}
+                    className="pr-10"
+                  />
+                  <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                </div>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
                   selected={dataValidade}
-                  onSelect={setDataValidade}
+                  onSelect={handleDateSelect}
                   initialFocus
-                  className="pointer-events-auto"
+                  className="pointer-events-auto p-2"
+                  classNames={{
+                    months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                    month: "space-y-3",
+                    caption: "flex justify-center pt-1 relative items-center px-1",
+                    caption_label: "text-sm font-medium",
+                    nav: "space-x-1 flex items-center",
+                    nav_button: cn(
+                      "h-6 w-6 bg-transparent p-0 opacity-50 hover:opacity-100"
+                    ),
+                    nav_button_previous: "absolute left-1",
+                    nav_button_next: "absolute right-1",
+                    table: "w-full border-collapse space-y-1",
+                    head_row: "flex",
+                    head_cell: "text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]",
+                    row: "flex w-full mt-1",
+                    cell: cn(
+                      "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent",
+                      "h-8 w-8"
+                    ),
+                    day: cn(
+                      "h-8 w-8 p-0 font-normal aria-selected:opacity-100"
+                    ),
+                    day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                    day_today: "bg-accent text-accent-foreground",
+                    day_outside: "text-muted-foreground opacity-50",
+                    day_disabled: "text-muted-foreground opacity-50",
+                    day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                    day_hidden: "invisible",
+                  }}
                 />
               </PopoverContent>
             </Popover>
