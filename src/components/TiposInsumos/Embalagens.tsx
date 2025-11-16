@@ -30,14 +30,12 @@ import {
 } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { useCategoriasEstoque } from '@/hooks/useCategoriasEstoque';
 import { Plus, Edit, Trash2, Info, Search, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import * as XLSX from 'xlsx';
 
 export default function TiposInsumosEmbalagens() {
   const { toast } = useToast();
-  const { categorias, loading: loadingCategorias } = useCategoriasEstoque();
   const [tipos, setTipos] = useState<any[]>([]);
   const [unidades, setUnidades] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,7 +46,6 @@ export default function TiposInsumosEmbalagens() {
   const [descricao, setDescricao] = useState('');
   const [quantidade, setQuantidade] = useState('');
   const [unidadeId, setUnidadeId] = useState('');
-  const [categoriaEstoqueId, setCategoriaEstoqueId] = useState('');
   const [controlarEstoque, setControlarEstoque] = useState(false);
 
   useEffect(() => {
@@ -126,14 +123,12 @@ export default function TiposInsumosEmbalagens() {
       setDescricao(tipo.descricao);
       setQuantidade(tipo.quantidade_embalagem.toString());
       setUnidadeId(tipo.unidade_medida.id);
-      setCategoriaEstoqueId(tipo.categoria_estoque_id || '');
       setControlarEstoque(tipo.controlar_estoque || false);
     } else {
       setEditando(null);
       setDescricao('');
       setQuantidade('');
       setUnidadeId('');
-      setCategoriaEstoqueId('');
       setControlarEstoque(false);
     }
     setModalAberto(true);
@@ -167,7 +162,6 @@ export default function TiposInsumosEmbalagens() {
         descricao: descricao.trim(),
         quantidade_embalagem: qtd,
         unidade_medida_id: unidadeId,
-        categoria_estoque_id: categoriaEstoqueId || null,
         controlar_estoque: controlarEstoque,
       };
 
@@ -435,22 +429,6 @@ export default function TiposInsumosEmbalagens() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="categoria">Categoria de Estoque</Label>
-              <Select value={categoriaEstoqueId} onValueChange={setCategoriaEstoqueId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione uma categoria..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {categorias.map((categoria) => (
-                    <SelectItem key={categoria.id} value={categoria.id}>
-                      {categoria.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="flex items-center space-x-3 p-4 rounded-lg bg-primary">

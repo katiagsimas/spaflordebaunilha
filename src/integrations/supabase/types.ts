@@ -513,42 +513,6 @@ export type Database = {
         }
         Relationships: []
       }
-      categorias_estoque: {
-        Row: {
-          ativo: boolean
-          cor: string
-          criado_em: string
-          descricao: string
-          editavel: boolean
-          icone: string
-          id: string
-          nome: string
-          ordem: number
-        }
-        Insert: {
-          ativo?: boolean
-          cor: string
-          criado_em?: string
-          descricao: string
-          editavel?: boolean
-          icone: string
-          id?: string
-          nome: string
-          ordem: number
-        }
-        Update: {
-          ativo?: boolean
-          cor?: string
-          criado_em?: string
-          descricao?: string
-          editavel?: boolean
-          icone?: string
-          id?: string
-          nome?: string
-          ordem?: number
-        }
-        Relationships: []
-      }
       categorias_financeiras: {
         Row: {
           cor: string | null
@@ -1809,92 +1773,6 @@ export type Database = {
           },
         ]
       }
-      entradas_detalhadas: {
-        Row: {
-          created_at: string
-          custo_unitario: number
-          data_entrada: string
-          id: string
-          item_id: string
-          movimentacao_entrada_id: string | null
-          quantidade_inicial: number
-          quantidade_restante: number
-          status: Database["public"]["Enums"]["status_entrada"]
-          tipo_item: Database["public"]["Enums"]["tipo_item_estoque"]
-          usuario_id: string
-          validade: string | null
-        }
-        Insert: {
-          created_at?: string
-          custo_unitario: number
-          data_entrada: string
-          id?: string
-          item_id: string
-          movimentacao_entrada_id?: string | null
-          quantidade_inicial: number
-          quantidade_restante: number
-          status?: Database["public"]["Enums"]["status_entrada"]
-          tipo_item: Database["public"]["Enums"]["tipo_item_estoque"]
-          usuario_id: string
-          validade?: string | null
-        }
-        Update: {
-          created_at?: string
-          custo_unitario?: number
-          data_entrada?: string
-          id?: string
-          item_id?: string
-          movimentacao_entrada_id?: string | null
-          quantidade_inicial?: number
-          quantidade_restante?: number
-          status?: Database["public"]["Enums"]["status_entrada"]
-          tipo_item?: Database["public"]["Enums"]["tipo_item_estoque"]
-          usuario_id?: string
-          validade?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "entradas_detalhadas_movimentacao_entrada_id_fkey"
-            columns: ["movimentacao_entrada_id"]
-            isOneToOne: false
-            referencedRelation: "movimentacoes_estoque"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      estoque_atual: {
-        Row: {
-          custo_medio: number | null
-          id: string
-          item_id: string
-          quantidade_atual: number
-          tipo_item: Database["public"]["Enums"]["tipo_item_estoque"]
-          ultima_atualizacao: string
-          usuario_id: string
-          valor_total: number
-        }
-        Insert: {
-          custo_medio?: number | null
-          id?: string
-          item_id: string
-          quantidade_atual?: number
-          tipo_item: Database["public"]["Enums"]["tipo_item_estoque"]
-          ultima_atualizacao?: string
-          usuario_id: string
-          valor_total?: number
-        }
-        Update: {
-          custo_medio?: number | null
-          id?: string
-          item_id?: string
-          quantidade_atual?: number
-          tipo_item?: Database["public"]["Enums"]["tipo_item_estoque"]
-          ultima_atualizacao?: string
-          usuario_id?: string
-          valor_total?: number
-        }
-        Relationships: []
-      }
       fornecedor_contatos: {
         Row: {
           ativo: boolean | null
@@ -2053,72 +1931,6 @@ export type Database = {
           },
         ]
       }
-      itens: {
-        Row: {
-          ativo: boolean
-          atualizado_em: string
-          categoria: string | null
-          conversoes: Json | null
-          criado_em: string
-          descricao: string | null
-          fornecedor_padrao: string | null
-          id: string
-          imagem_url: string | null
-          localizacao: string | null
-          marca: string | null
-          nome: string
-          observacoes: string | null
-          ponto_de_pedido: number | null
-          quantidade_por_embalagem: number
-          rastrear_estoque: boolean
-          tipo: string
-          unidade_base: string
-          usuario_id: string
-        }
-        Insert: {
-          ativo?: boolean
-          atualizado_em?: string
-          categoria?: string | null
-          conversoes?: Json | null
-          criado_em?: string
-          descricao?: string | null
-          fornecedor_padrao?: string | null
-          id?: string
-          imagem_url?: string | null
-          localizacao?: string | null
-          marca?: string | null
-          nome: string
-          observacoes?: string | null
-          ponto_de_pedido?: number | null
-          quantidade_por_embalagem?: number
-          rastrear_estoque?: boolean
-          tipo: string
-          unidade_base: string
-          usuario_id: string
-        }
-        Update: {
-          ativo?: boolean
-          atualizado_em?: string
-          categoria?: string | null
-          conversoes?: Json | null
-          criado_em?: string
-          descricao?: string | null
-          fornecedor_padrao?: string | null
-          id?: string
-          imagem_url?: string | null
-          localizacao?: string | null
-          marca?: string | null
-          nome?: string
-          observacoes?: string | null
-          ponto_de_pedido?: number | null
-          quantidade_por_embalagem?: number
-          rastrear_estoque?: boolean
-          tipo?: string
-          unidade_base?: string
-          usuario_id?: string
-        }
-        Relationships: []
-      }
       mao_obra_perfis: {
         Row: {
           ativo: boolean | null
@@ -2190,66 +2002,6 @@ export type Database = {
           },
         ]
       }
-      movimentacoes_estoque: {
-        Row: {
-          created_at: string
-          custo_total: number
-          custo_unitario: number
-          data: string
-          id: string
-          item_id: string
-          local_compra: string | null
-          motivo: string | null
-          observacoes: string | null
-          quantidade: number
-          tipo: Database["public"]["Enums"]["tipo_movimentacao"]
-          tipo_item: Database["public"]["Enums"]["tipo_item_estoque"]
-          unidade: string
-          updated_at: string
-          usuario_id: string
-          validade: string | null
-          vinculo_pedido_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          custo_total: number
-          custo_unitario: number
-          data: string
-          id?: string
-          item_id: string
-          local_compra?: string | null
-          motivo?: string | null
-          observacoes?: string | null
-          quantidade: number
-          tipo: Database["public"]["Enums"]["tipo_movimentacao"]
-          tipo_item: Database["public"]["Enums"]["tipo_item_estoque"]
-          unidade: string
-          updated_at?: string
-          usuario_id: string
-          validade?: string | null
-          vinculo_pedido_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          custo_total?: number
-          custo_unitario?: number
-          data?: string
-          id?: string
-          item_id?: string
-          local_compra?: string | null
-          motivo?: string | null
-          observacoes?: string | null
-          quantidade?: number
-          tipo?: Database["public"]["Enums"]["tipo_movimentacao"]
-          tipo_item?: Database["public"]["Enums"]["tipo_item_estoque"]
-          unidade?: string
-          updated_at?: string
-          usuario_id?: string
-          validade?: string | null
-          vinculo_pedido_id?: string | null
-        }
-        Relationships: []
-      }
       movimentos_estoque_v2: {
         Row: {
           criado_em: string
@@ -2299,29 +2051,7 @@ export type Database = {
           usuario_id?: string
           valor_total?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "movimentos_estoque_v2_item_id_fkey"
-            columns: ["item_id"]
-            isOneToOne: false
-            referencedRelation: "estoque_atual_v2"
-            referencedColumns: ["item_id"]
-          },
-          {
-            foreignKeyName: "movimentos_estoque_v2_item_id_fkey"
-            columns: ["item_id"]
-            isOneToOne: false
-            referencedRelation: "estoque_simplificado"
-            referencedColumns: ["item_id"]
-          },
-          {
-            foreignKeyName: "movimentos_estoque_v2_item_id_fkey"
-            columns: ["item_id"]
-            isOneToOne: false
-            referencedRelation: "itens"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       planejamento_produtos: {
         Row: {
@@ -2674,76 +2404,6 @@ export type Database = {
             columns: ["pre_preparo_id"]
             isOneToOne: false
             referencedRelation: "pre_preparos"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      precos: {
-        Row: {
-          ativo: boolean
-          criado_em: string
-          custo_unitario: number | null
-          data_coleta: string
-          fornecedor: string | null
-          id: string
-          item_id: string
-          link_compra: string | null
-          marca: string
-          observacao: string | null
-          preco_total_embalagem: number
-          quantidade_embalagem: number
-          usuario_id: string
-        }
-        Insert: {
-          ativo?: boolean
-          criado_em?: string
-          custo_unitario?: number | null
-          data_coleta?: string
-          fornecedor?: string | null
-          id?: string
-          item_id: string
-          link_compra?: string | null
-          marca: string
-          observacao?: string | null
-          preco_total_embalagem: number
-          quantidade_embalagem: number
-          usuario_id: string
-        }
-        Update: {
-          ativo?: boolean
-          criado_em?: string
-          custo_unitario?: number | null
-          data_coleta?: string
-          fornecedor?: string | null
-          id?: string
-          item_id?: string
-          link_compra?: string | null
-          marca?: string
-          observacao?: string | null
-          preco_total_embalagem?: number
-          quantidade_embalagem?: number
-          usuario_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "precos_item_id_fkey"
-            columns: ["item_id"]
-            isOneToOne: false
-            referencedRelation: "estoque_atual_v2"
-            referencedColumns: ["item_id"]
-          },
-          {
-            foreignKeyName: "precos_item_id_fkey"
-            columns: ["item_id"]
-            isOneToOne: false
-            referencedRelation: "estoque_simplificado"
-            referencedColumns: ["item_id"]
-          },
-          {
-            foreignKeyName: "precos_item_id_fkey"
-            columns: ["item_id"]
-            isOneToOne: false
-            referencedRelation: "itens"
             referencedColumns: ["id"]
           },
         ]
@@ -3503,13 +3163,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "tipos_insumos_categoria_estoque_id_fkey"
-            columns: ["categoria_estoque_id"]
-            isOneToOne: false
-            referencedRelation: "categorias_estoque"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "tipos_insumos_pre_preparo_id_fkey"
             columns: ["pre_preparo_id"]
             isOneToOne: false
@@ -3584,17 +3237,6 @@ export type Database = {
       }
     }
     Views: {
-      admin_dashboard_metrics: {
-        Row: {
-          active_users_today: number | null
-          active_users_week: number | null
-          pending_deletions: number | null
-          recent_errors: number | null
-          total_storage_used: number | null
-          total_users: number | null
-        }
-        Relationships: []
-      }
       admin_recent_activity: {
         Row: {
           action: string | null
@@ -3606,48 +3248,6 @@ export type Database = {
           reason: string | null
           target_user_email: string | null
           target_user_id: string | null
-        }
-        Relationships: []
-      }
-      custos_por_categoria: {
-        Row: {
-          categoria: string | null
-          itens_rastreados: number | null
-          total_itens: number | null
-          valor_medio_por_item: number | null
-          valor_total_estoque: number | null
-        }
-        Relationships: []
-      }
-      estoque_atual_v2: {
-        Row: {
-          categoria: string | null
-          custo_medio: number | null
-          item_id: string | null
-          nome: string | null
-          ponto_de_pedido: number | null
-          saldo: number | null
-          tipo: string | null
-          ultima_movimentacao: string | null
-          unidade_base: string | null
-          usuario_id: string | null
-          valor_estoque: number | null
-        }
-        Relationships: []
-      }
-      estoque_simplificado: {
-        Row: {
-          categoria: string | null
-          custo_medio: number | null
-          item_id: string | null
-          item_nome: string | null
-          ponto_de_pedido: number | null
-          saldo_atual: number | null
-          tipo: string | null
-          ultima_movimentacao: string | null
-          unidade_base: string | null
-          usuario_id: string | null
-          valor_total_estoque: number | null
         }
         Relationships: []
       }

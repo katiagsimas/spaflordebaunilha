@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoadingState } from '@/components/LoadingState';
-import { useCategoriasEstoque } from '@/hooks/useCategoriasEstoque';
 import {
   Table,
   TableBody,
@@ -52,7 +51,6 @@ import { PageHeader } from '@/components/PageHeader';
 
 export default function Embalagens() {
   const { toast } = useToast();
-  const { categorias } = useCategoriasEstoque();
   const [embalagens, setEmbalagens] = useState<any[]>([]);
   const [tiposDisponiveis, setTiposDisponiveis] = useState<any[]>([]);
   const [unidades, setUnidades] = useState<any[]>([]);
@@ -75,7 +73,6 @@ export default function Embalagens() {
   const [novoTipoDescricao, setNovoTipoDescricao] = useState('');
   const [novoTipoQuantidade, setNovoTipoQuantidade] = useState('');
   const [novoTipoUnidadeId, setNovoTipoUnidadeId] = useState('');
-  const [novoTipoCategoriaEstoqueId, setNovoTipoCategoriaEstoqueId] = useState('');
   const [novoTipoControlarEstoque, setNovoTipoControlarEstoque] = useState(false);
 
   useEffect(() => {
@@ -345,7 +342,6 @@ export default function Embalagens() {
     setNovoTipoDescricao(termoBuscaTipo);
     setNovoTipoQuantidade('');
     setNovoTipoUnidadeId('');
-    setNovoTipoCategoriaEstoqueId('');
     setNovoTipoControlarEstoque(false);
     setModalCriarTipoAberto(true);
     setPopoverAberto(false);
@@ -383,7 +379,6 @@ export default function Embalagens() {
           descricao: novoTipoDescricao.trim(),
           quantidade_embalagem: qtd,
           unidade_medida_id: novoTipoUnidadeId,
-          categoria_estoque_id: novoTipoCategoriaEstoqueId || null,
           controlar_estoque: novoTipoControlarEstoque,
         })
         .select(`
@@ -783,22 +778,6 @@ export default function Embalagens() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="novo-tipo-categoria">Categoria de Estoque</Label>
-              <Select value={novoTipoCategoriaEstoqueId} onValueChange={setNovoTipoCategoriaEstoqueId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione uma categoria..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {categorias.map((categoria: any) => (
-                    <SelectItem key={categoria.id} value={categoria.id}>
-                      {categoria.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="flex items-center space-x-3 p-4 rounded-lg bg-primary">

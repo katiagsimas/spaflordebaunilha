@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useReceitas } from '@/hooks/useReceitas';
-import { useCategoriasEstoque } from '@/hooks/useCategoriasEstoque';
 import { LoadingState } from '@/components/LoadingState';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -29,9 +28,6 @@ export default function Ingredientes() {
   const {
     todasReceitas
   } = useReceitas();
-  const {
-    categorias
-  } = useCategoriasEstoque();
   const [ingredientes, setIngredientes] = useState<any[]>([]);
   const [tiposDisponiveis, setTiposDisponiveis] = useState<any[]>([]);
   const [unidades, setUnidades] = useState<any[]>([]);
@@ -54,7 +50,6 @@ export default function Ingredientes() {
   const [novoTipoDescricao, setNovoTipoDescricao] = useState('');
   const [novoTipoQuantidade, setNovoTipoQuantidade] = useState('');
   const [novoTipoUnidadeId, setNovoTipoUnidadeId] = useState('');
-  const [novoTipoCategoriaEstoqueId, setNovoTipoCategoriaEstoqueId] = useState('');
   const [novoTipoControlarEstoque, setNovoTipoControlarEstoque] = useState(false);
   useEffect(() => {
     fetchIngredientes();
@@ -376,7 +371,6 @@ export default function Ingredientes() {
     setNovoTipoDescricao(termoBuscaTipo);
     setNovoTipoQuantidade('');
     setNovoTipoUnidadeId('');
-    setNovoTipoCategoriaEstoqueId('');
     setNovoTipoControlarEstoque(false);
     setModalCriarTipoAberto(true);
     setPopoverAberto(false);
@@ -415,7 +409,6 @@ export default function Ingredientes() {
         descricao: novoTipoDescricao.trim(),
         quantidade_embalagem: qtd,
         unidade_medida_id: novoTipoUnidadeId,
-        categoria_estoque_id: novoTipoCategoriaEstoqueId || null,
         controlar_estoque: novoTipoControlarEstoque
       }).select(`
           id,
@@ -719,20 +712,6 @@ export default function Ingredientes() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="novo-tipo-categoria">Categoria de Estoque</Label>
-              <Select value={novoTipoCategoriaEstoqueId} onValueChange={setNovoTipoCategoriaEstoqueId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione uma categoria..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {categorias.map((categoria: any) => <SelectItem key={categoria.id} value={categoria.id}>
-                      {categoria.nome}
-                    </SelectItem>)}
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="flex items-center space-x-3 p-4 rounded-lg bg-primary">

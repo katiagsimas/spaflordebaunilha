@@ -12,11 +12,6 @@ import { Loader2 } from "lucide-react";
 import Dashboard from "./pages/Dashboard";
 import Encomendas from "./pages/Encomendas";
 import Producao from "./pages/Producao";
-import CatalogoItens from "./pages/CatalogoItens";
-import RelatoriosEstoque from "./pages/estoque/RelatoriosEstoque";
-import RelatorioMovimentacoes from "./pages/estoque/RelatorioMovimentacoes";
-import RelatorioConsumoMedio from "./pages/estoque/RelatorioConsumoMedio";
-import RelatorioCMVGlobal from "./pages/estoque/RelatorioCMVGlobal";
 import Precificacao from "./pages/Precificacao";
 import Planejamento from "./pages/Planejamento";
 import CMVGlobal from "./pages/CMVGlobal";
@@ -32,7 +27,7 @@ import Clientes from "./pages/cadastros/Clientes";
 import Fornecedores from "./pages/cadastros/Fornecedores";
 import UnidadesMedida from "./pages/cadastros/UnidadesMedida";
 import Categorias from "./pages/cadastros/Categorias";
-import CategoriasEstoque from "./pages/configuracoes/CategoriasEstoque";
+
 import SubReceitas from "./pages/SubReceitas";
 import SubReceitaForm from "./pages/SubReceitaForm";
 import Receitas from "./pages/Receitas";
@@ -133,12 +128,6 @@ const App = () => (
           <Route path="/clientes" element={<ProtectedRoute><Layout><Clientes /></Layout></ProtectedRoute>} />
           <Route path="/fornecedores" element={<ProtectedRoute><Layout><Fornecedores /></Layout></ProtectedRoute>} />
           
-          {/* Estoque */}
-          <Route path="/estoque" element={<ProtectedRoute><Layout><CatalogoItens /></Layout></ProtectedRoute>} />
-          <Route path="/estoque/relatorios" element={<ProtectedRoute><Layout><RelatoriosEstoque /></Layout></ProtectedRoute>} />
-          <Route path="/estoque/movimentacoes" element={<ProtectedRoute><Layout><RelatorioMovimentacoes /></Layout></ProtectedRoute>} />
-          <Route path="/estoque/consumo-medio" element={<ProtectedRoute><Layout><RelatorioConsumoMedio /></Layout></ProtectedRoute>} />
-          <Route path="/estoque/cmv-global" element={<ProtectedRoute><Layout><RelatorioCMVGlobal /></Layout></ProtectedRoute>} />
           
           {/* Precificação - Página Container + Sub-rotas */}
           <Route path="/precificacao" element={<ProtectedRoute><Layout><Precificacao /></Layout></ProtectedRoute>} />
@@ -165,7 +154,7 @@ const App = () => (
           <Route path="/configuracoes/tags-encomendas" element={<ProtectedRoute><Layout><TagsEncomendasPage /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/dados-confeitaria" element={<ProtectedRoute><Layout><SeusDados /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/categorias-receitas" element={<ProtectedRoute><Layout><Categorias /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/categorias-estoque" element={<ProtectedRoute><Layout><CategoriasEstoque /></Layout></ProtectedRoute>} />
+          
           <Route path="/configuracoes/unidades-medida" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
           
           {/* Precificação - Ingredientes e Embalagens */}

@@ -45,7 +45,6 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useCategorias } from '@/hooks/useCategorias';
-import { useCategoriasEstoque } from '@/hooks/useCategoriasEstoque';
 import { Plus, Trash2, Upload, X, Info, ArrowLeft } from 'lucide-react';
 import { MaoObraSection, MaoObraLinha } from '@/components/MaoObraSection';
 import { usePrePreparosMaoObra } from '@/hooks/usePrePreparosMaoObra';
@@ -57,7 +56,6 @@ export default function PrePreparoForm() {
   const { id } = useParams();
   const { toast } = useToast();
   const { categorias } = useCategorias();
-  const { categorias: categoriasEstoque } = useCategoriasEstoque();
   const { perfis } = useMaoObraPerfis();
   const { profile } = useUserProfile();
   const isEditMode = !!id;
@@ -83,7 +81,6 @@ export default function PrePreparoForm() {
   const [novoTipoDescricao, setNovoTipoDescricao] = useState('');
   const [novoTipoQuantidade, setNovoTipoQuantidade] = useState('');
   const [novoTipoUnidadeId, setNovoTipoUnidadeId] = useState('');
-  const [novoTipoCategoriaEstoqueId, setNovoTipoCategoriaEstoqueId] = useState('');
   const [novoTipoControlarEstoque, setNovoTipoControlarEstoque] = useState(false);
   const [novoIngredienteMarca, setNovoIngredienteMarca] = useState('');
   const [novoIngredientePreco, setNovoIngredientePreco] = useState('');
@@ -1174,22 +1171,6 @@ export default function PrePreparoForm() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="categoria">Categoria de Estoque</Label>
-              <Select value={novoTipoCategoriaEstoqueId} onValueChange={setNovoTipoCategoriaEstoqueId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione uma categoria..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {categoriasEstoque.map((categoria) => (
-                    <SelectItem key={categoria.id} value={categoria.id}>
-                      {categoria.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
             <div className="flex items-center space-x-3 p-4 rounded-lg bg-primary">
               <Checkbox
                 id="controlar-estoque"
@@ -1242,7 +1223,6 @@ export default function PrePreparoForm() {
                     descricao: novoTipoDescricao.trim(),
                     quantidade_embalagem: qtd,
                     unidade_medida_id: novoTipoUnidadeId,
-                    categoria_estoque_id: novoTipoCategoriaEstoqueId || null,
                     controlar_estoque: novoTipoControlarEstoque,
                   })
                   .select(`
