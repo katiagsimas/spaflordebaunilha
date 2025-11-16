@@ -20,15 +20,6 @@ export interface PrevisaoFaturamento {
   status: StatusPrevisao;
 }
 
-export interface DadosCMV {
-  mes: string;
-  estoqueInicial: number;
-  compras: number;
-  estoqueFinal: number;
-  custoMensal: number;
-  faturamento: number;
-  cmvPercentual: number;
-}
 
 const meses = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",

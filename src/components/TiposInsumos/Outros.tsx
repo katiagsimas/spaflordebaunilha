@@ -46,7 +46,7 @@ export default function TiposInsumosOutros() {
   const [descricao, setDescricao] = useState('');
   const [quantidade, setQuantidade] = useState('');
   const [unidadeId, setUnidadeId] = useState('');
-  const [controlarEstoque, setControlarEstoque] = useState(false);
+  
 
   useEffect(() => {
     fetchTipos();
@@ -123,13 +123,13 @@ export default function TiposInsumosOutros() {
       setDescricao(tipo.descricao);
       setQuantidade(tipo.quantidade_embalagem?.toString() || '');
       setUnidadeId(tipo.unidade_medida?.id || '');
-      setControlarEstoque(tipo.controlar_estoque || false);
+      
     } else {
       setEditando(null);
       setDescricao('');
       setQuantidade('');
       setUnidadeId('');
-      setControlarEstoque(false);
+      
     }
     setModalAberto(true);
   };
@@ -154,7 +154,6 @@ export default function TiposInsumosOutros() {
         descricao,
         quantidade_embalagem: parseFloat(quantidade),
         unidade_medida_id: unidadeId,
-        controlar_estoque: controlarEstoque,
       };
 
       let error;
@@ -226,7 +225,7 @@ export default function TiposInsumosOutros() {
       'Descrição': tipo.descricao,
       'Quantidade por Embalagem': tipo.quantidade_embalagem,
       'Unidade': tipo.unidade_medida?.sigla || '',
-      'Controlar Estoque': tipo.controlar_estoque ? 'Sim' : 'Não',
+      
     }));
 
     const ws = XLSX.utils.json_to_sheet(dadosExportar);
@@ -287,7 +286,7 @@ export default function TiposInsumosOutros() {
               <TableHead>Qtd. por Embalagem</TableHead>
               <TableHead>Unidade</TableHead>
               <TableHead>Categoria</TableHead>
-              <TableHead>Controlar Estoque</TableHead>
+              
               <TableHead className="w-[100px]">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -304,9 +303,6 @@ export default function TiposInsumosOutros() {
                   <TableCell className="font-medium">{tipo.descricao}</TableCell>
                   <TableCell>{tipo.quantidade_embalagem}</TableCell>
                   <TableCell>{tipo.unidade_medida?.sigla}</TableCell>
-                  <TableCell>
-                    {tipo.controlar_estoque ? 'Sim' : 'Não'}
-                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Button
@@ -390,16 +386,6 @@ export default function TiposInsumosOutros() {
               </div>
             </div>
 
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="controlar"
-                checked={controlarEstoque}
-                onCheckedChange={(checked) => setControlarEstoque(checked as boolean)}
-              />
-              <Label htmlFor="controlar" className="cursor-pointer">
-                Controlar estoque deste item
-              </Label>
-            </div>
           </div>
 
           <DialogFooter>

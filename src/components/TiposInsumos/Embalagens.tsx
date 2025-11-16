@@ -46,7 +46,7 @@ export default function TiposInsumosEmbalagens() {
   const [descricao, setDescricao] = useState('');
   const [quantidade, setQuantidade] = useState('');
   const [unidadeId, setUnidadeId] = useState('');
-  const [controlarEstoque, setControlarEstoque] = useState(false);
+  
 
   useEffect(() => {
     fetchTipos();
@@ -123,13 +123,13 @@ export default function TiposInsumosEmbalagens() {
       setDescricao(tipo.descricao);
       setQuantidade(tipo.quantidade_embalagem.toString());
       setUnidadeId(tipo.unidade_medida.id);
-      setControlarEstoque(tipo.controlar_estoque || false);
+      
     } else {
       setEditando(null);
       setDescricao('');
       setQuantidade('');
       setUnidadeId('');
-      setControlarEstoque(false);
+      
     }
     setModalAberto(true);
   };
@@ -162,7 +162,6 @@ export default function TiposInsumosEmbalagens() {
         descricao: descricao.trim(),
         quantidade_embalagem: qtd,
         unidade_medida_id: unidadeId,
-        controlar_estoque: controlarEstoque,
       };
 
       if (editando) {
@@ -275,7 +274,7 @@ export default function TiposInsumosEmbalagens() {
       'Descrição': tipo.descricao,
       'Quantidade': tipo.quantidade_embalagem,
       'Unidade': tipo.unidade_medida?.nome,
-      'Estoque': tipo.controlar_estoque ? 'SIM' : 'NÃO',
+      
     }));
 
     const ws = XLSX.utils.json_to_sheet(dadosExport);
@@ -333,7 +332,7 @@ export default function TiposInsumosEmbalagens() {
               <TableHead>Descrição</TableHead>
               <TableHead>Quantidade</TableHead>
               <TableHead>Unidade</TableHead>
-              <TableHead className="text-center">Estoque</TableHead>
+              
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -350,11 +349,6 @@ export default function TiposInsumosEmbalagens() {
                   <TableCell className="font-medium">{tipo.descricao}</TableCell>
                   <TableCell>{tipo.quantidade_embalagem.toLocaleString('pt-BR')}</TableCell>
                   <TableCell>{tipo.unidade_medida?.nome}</TableCell>
-                  <TableCell className="text-center">
-                    <span className={cn("font-medium", tipo.controlar_estoque ? "text-green-700 dark:text-green-400" : "text-muted-foreground")}>
-                      {tipo.controlar_estoque ? "SIM" : "NÃO"}
-                    </span>
-                  </TableCell>
                   <TableCell className="text-right space-x-2">
                     <Button
                       variant="ghost"
@@ -429,21 +423,6 @@ export default function TiposInsumosEmbalagens() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-
-            <div className="flex items-center space-x-3 p-4 rounded-lg bg-primary">
-              <Checkbox
-                id="controlar-estoque"
-                checked={controlarEstoque}
-                onCheckedChange={(checked) => setControlarEstoque(checked as boolean)}
-                className="border-primary-foreground data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary"
-              />
-              <Label
-                htmlFor="controlar-estoque"
-                className="text-sm font-semibold cursor-pointer text-primary-foreground"
-              >
-                Controle de Estoque
-              </Label>
             </div>
           </div>
 

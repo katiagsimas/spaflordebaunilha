@@ -811,8 +811,6 @@ export type Database = {
           compras: number
           created_at: string
           custos_fixos_estimado: number | null
-          estoque_final: number
-          estoque_inicial: number
           faturamento: number
           id: string
           mes: number
@@ -829,8 +827,6 @@ export type Database = {
           compras?: number
           created_at?: string
           custos_fixos_estimado?: number | null
-          estoque_final?: number
-          estoque_inicial?: number
           faturamento?: number
           id?: string
           mes: number
@@ -847,8 +843,6 @@ export type Database = {
           compras?: number
           created_at?: string
           custos_fixos_estimado?: number | null
-          estoque_final?: number
-          estoque_inicial?: number
           faturamento?: number
           id?: string
           mes?: number
@@ -1539,7 +1533,6 @@ export type Database = {
       }
       embalagens: {
         Row: {
-          controlar_estoque: boolean
           created_at: string | null
           data_atualizacao: string
           id: string
@@ -1550,7 +1543,6 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
-          controlar_estoque?: boolean
           created_at?: string | null
           data_atualizacao?: string
           id?: string
@@ -1561,7 +1553,6 @@ export type Database = {
           usuario_id: string
         }
         Update: {
-          controlar_estoque?: boolean
           created_at?: string | null
           data_atualizacao?: string
           id?: string
@@ -1884,7 +1875,6 @@ export type Database = {
       ingredientes: {
         Row: {
           categoria: string | null
-          controlar_estoque: boolean
           created_at: string | null
           data_atualizacao: string
           e_pre_preparo: boolean | null
@@ -1897,7 +1887,6 @@ export type Database = {
         }
         Insert: {
           categoria?: string | null
-          controlar_estoque?: boolean
           created_at?: string | null
           data_atualizacao?: string
           e_pre_preparo?: boolean | null
@@ -1910,7 +1899,6 @@ export type Database = {
         }
         Update: {
           categoria?: string | null
-          controlar_estoque?: boolean
           created_at?: string | null
           data_atualizacao?: string
           e_pre_preparo?: boolean | null
@@ -2001,57 +1989,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      movimentos_estoque_v2: {
-        Row: {
-          criado_em: string
-          custo_unitario: number | null
-          data: string
-          id: string
-          item_id: string
-          observacao: string | null
-          quantidade: number
-          referencia_id: string | null
-          referencia_tipo: string | null
-          responsavel: string | null
-          subtipo: string | null
-          tipo: string
-          usuario_id: string
-          valor_total: number | null
-        }
-        Insert: {
-          criado_em?: string
-          custo_unitario?: number | null
-          data?: string
-          id?: string
-          item_id: string
-          observacao?: string | null
-          quantidade: number
-          referencia_id?: string | null
-          referencia_tipo?: string | null
-          responsavel?: string | null
-          subtipo?: string | null
-          tipo: string
-          usuario_id: string
-          valor_total?: number | null
-        }
-        Update: {
-          criado_em?: string
-          custo_unitario?: number | null
-          data?: string
-          id?: string
-          item_id?: string
-          observacao?: string | null
-          quantidade?: number
-          referencia_id?: string | null
-          referencia_tipo?: string | null
-          responsavel?: string | null
-          subtipo?: string | null
-          tipo?: string
-          usuario_id?: string
-          valor_total?: number | null
-        }
-        Relationships: []
       }
       planejamento_produtos: {
         Row: {
@@ -3123,8 +3060,6 @@ export type Database = {
       }
       tipos_insumos: {
         Row: {
-          categoria_estoque_id: string | null
-          controlar_estoque: boolean | null
           created_at: string | null
           descricao: string
           id: string
@@ -3136,8 +3071,6 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
-          categoria_estoque_id?: string | null
-          controlar_estoque?: boolean | null
           created_at?: string | null
           descricao: string
           id?: string
@@ -3149,8 +3082,6 @@ export type Database = {
           usuario_id: string
         }
         Update: {
-          categoria_estoque_id?: string | null
-          controlar_estoque?: boolean | null
           created_at?: string | null
           descricao?: string
           id?: string
@@ -3699,15 +3630,7 @@ export type Database = {
           tem_historico: boolean
         }[]
       }
-      get_compras_mes: {
-        Args: { p_ano: number; p_mes: number; p_usuario_id: string }
-        Returns: number
-      }
       get_custos_fixos_mes: {
-        Args: { p_ano: number; p_mes: number; p_usuario_id: string }
-        Returns: number
-      }
-      get_estoque_final_mes: {
         Args: { p_ano: number; p_mes: number; p_usuario_id: string }
         Returns: number
       }
@@ -3751,10 +3674,6 @@ export type Database = {
       get_quantidade_vendas_mes: {
         Args: { p_ano: number; p_mes: number; p_usuario_id: string }
         Returns: number
-      }
-      get_status_estoque: {
-        Args: { p_ponto_pedido: number; p_saldo: number }
-        Returns: string
       }
       get_ticket_medio_mes: {
         Args: { p_ano: number; p_mes: number; p_usuario_id: string }
