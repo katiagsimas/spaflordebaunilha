@@ -232,20 +232,22 @@ export default function CatalogoItens() {
       {/* Filtros e Busca */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Itens Cadastrados</CardTitle>
-              <CardDescription>
-                {resumo?.total_itens || 0} itens • {resumo?.itens_rastreados || 0} com rastreamento
-              </CardDescription>
-            </div>
+          <div>
+            <CardTitle>Itens Cadastrados</CardTitle>
+            <CardDescription>
+              {resumo?.total_itens || 0} itens • {resumo?.itens_rastreados || 0} com rastreamento
+            </CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Botão Adicionar Item */}
+          <div>
             <Button onClick={handleNovoItem}>
               <Plus className="mr-2 h-4 w-4" />
               Adicionar Item
             </Button>
           </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
+
           {/* Controles de Filtro */}
           <div className="flex flex-wrap gap-4">
             <div className="space-y-1.5">
