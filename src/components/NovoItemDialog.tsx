@@ -91,7 +91,7 @@ export function NovoItemDialog({
         categoriaNome = categoriaEncontrada?.nome || null;
       }
 
-      // Criar o item
+      // Criar o item na tabela itens
       const { data: itemData, error: itemError } = await supabase
         .from('itens')
         .insert({
@@ -109,6 +109,19 @@ export function NovoItemDialog({
         .single();
 
       if (itemError) throw itemError;
+
+      // Também criar na tabela tipos_insumos para compatibilidade com a página Insumos e Embalagens
+      await supabase
+        .from('tipos_insumos')
+        .insert({
+          usuario_id: user.id,
+          tipo: tipo,
+          descricao: descricao,
+          unidade_medida_id: unidadeId,
+          quantidade_embalagem: parseFloat(quantidade.replace(',', '.')),
+          categoria_estoque_id: categoriaEstoqueId || null,
+          controlar_estoque: controlarEstoque,
+        });
 
       toast.success('Item cadastrado');
       
