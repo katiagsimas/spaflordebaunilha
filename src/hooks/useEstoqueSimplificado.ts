@@ -34,6 +34,7 @@ export function useEstoqueSimplificado(filtros?: FiltrosEstoque) {
         .eq('ativo', true)
         .order('nome');
 
+      // Aplicar filtros se existirem
       if (filtros?.tipo) {
         queryItens = queryItens.eq('tipo', filtros.tipo);
       }
@@ -92,7 +93,7 @@ export function useEstoqueSimplificado(filtros?: FiltrosEstoque) {
         } as ItemComEstoque;
       });
 
-      // Aplicar filtro de status
+      // Aplicar filtro de status se existir
       let itensFiltrados = itensCompletos;
       if (filtros?.status) {
         itensFiltrados = itensCompletos.filter(item => item.status === filtros.status);
@@ -109,7 +110,7 @@ export function useEstoqueSimplificado(filtros?: FiltrosEstoque) {
     } finally {
       setLoading(false);
     }
-  }, [filtros, toast, getStatusEstoque]);
+  }, [toast, getStatusEstoque]); // Removido 'filtros' das dependências
 
   // Registrar movimentação (ENTRADA, SAIDA, PERDA, AJUSTE)
   const registrarMovimentacao = useCallback(async (dados: {
@@ -286,9 +287,17 @@ export function useEstoqueSimplificado(filtros?: FiltrosEstoque) {
     return await atualizarItem(itemId, updates);
   }, [atualizarItem]);
 
+  // Carregar na montagem
   useEffect(() => {
     carregarItens();
-  }, [carregarItens]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Recarregar quando filtros mudarem
+  useEffect(() => {
+    if (!loading) { // Evita recarregar durante o primeiro loading
+      carregarItens();
+    }
+  }, [filtros?.busca, filtros?.tipo, filtros?.categoria, filtros?.status, filtros?.rastrear_estoque]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     itens,
