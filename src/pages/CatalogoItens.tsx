@@ -7,7 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Search, Filter, MoreVertical, Pencil, Trash2, Package } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Search, Filter, MoreVertical, Pencil, Trash2, Package, X, Calendar, AlertTriangle } from "lucide-react";
 import { useEstoqueIntegrado } from "@/hooks/useEstoqueIntegrado";
 import { ModalItem } from "@/components/estoque/ModalItem";
 import { EntradaRapida } from "@/components/estoque/EntradaRapida";
@@ -17,19 +18,87 @@ import { BadgeStatus } from "@/components/estoque/BadgeStatus";
 import type { Item, ItemComEstoque } from "@/types/estoque";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { differenceInDays, parseISO } from "date-fns";
+
+type AlertaType = 'vencido' | 'critico' | 'vencendo' | null;
+type StatusType = 'zerado' | 'baixo' | 'ok' | null;
+
+interface ItemComValidade extends ItemComEstoque {
+  dataValidade?: string | null;
+  alerta?: AlertaType;
+}
 
 export default function CatalogoItens() {
   const [busca, setBusca] = useState("");
   const [filtroTipo, setFiltroTipo] = useState<string>("todos");
+  const [filtroCategoria, setFiltroCategoria] = useState<string>("todas");
+  const [filtroStatus, setFiltroStatus] = useState<string>("todos");
+  const [filtroAlerta, setFiltroAlerta] = useState<string>("todos");
   const [modalItemAberto, setModalItemAberto] = useState(false);
   const [modalEntradaAberto, setModalEntradaAberto] = useState(false);
   const [modalAtualizarAberto, setModalAtualizarAberto] = useState(false);
   const [itemSelecionado, setItemSelecionado] = useState<ItemComEstoque | undefined>();
+  const [itensComValidade, setItensComValidade] = useState<ItemComValidade[]>([]);
 
   const { itens, loading, resumo, criarItem, atualizarItem, registrarMovimento, salvarPreco, ativarRastreamento, carregarItens } = useEstoqueIntegrado({
     busca: busca || undefined,
     tipo: filtroTipo === "todos" ? undefined : filtroTipo as any
   });
+
+  // Buscar validades dos itens
+  useEffect(() => {
+    const carregarValidades = async () => {
+      if (!itens.length) {
+        setItensComValidade([]);
+        return;
+      }
+
+      try {
+        const { data: movimentacoes } = await supabase
+          .from('movimentacoes_estoque')
+          .select('item_id, validade')
+          .in('item_id', itens.map(i => i.id))
+          .not('validade', 'is', null)
+          .order('validade', { ascending: true });
+
+        const validadesPorItem = new Map<string, string>();
+        movimentacoes?.forEach(mov => {
+          if (mov.validade && !validadesPorItem.has(mov.item_id)) {
+            validadesPorItem.set(mov.item_id, mov.validade);
+          }
+        });
+
+        const itensAtualizados = itens.map(item => {
+          const dataValidade = validadesPorItem.get(item.id);
+          let alerta: AlertaType = null;
+
+          if (dataValidade) {
+            const diasAteVencer = differenceInDays(parseISO(dataValidade), new Date());
+            if (diasAteVencer < 0) {
+              alerta = 'vencido';
+            } else if (diasAteVencer <= 4) {
+              alerta = 'critico';
+            } else if (diasAteVencer <= 30) {
+              alerta = 'vencendo';
+            }
+          }
+
+          return {
+            ...item,
+            dataValidade,
+            alerta
+          };
+        });
+
+        setItensComValidade(itensAtualizados);
+      } catch (error) {
+        console.error('Erro ao carregar validades:', error);
+        setItensComValidade(itens);
+      }
+    };
+
+    carregarValidades();
+  }, [itens]);
 
   // Recarregar itens quando estoque for atualizado
   useEffect(() => {
@@ -41,12 +110,34 @@ export default function CatalogoItens() {
     return () => window.removeEventListener('estoque-atualizado', handleEstoqueAtualizado);
   }, [carregarItens]);
 
+  // Filtrar itens
+  const itensFiltrados = itensComValidade.filter(item => {
+    if (filtroCategoria !== "todas" && item.categoria !== filtroCategoria) return false;
+    if (filtroStatus !== "todos" && item.status !== filtroStatus) return false;
+    if (filtroAlerta !== "todos" && item.alerta !== filtroAlerta) return false;
+    return true;
+  });
+
   // Contar alertas
   const alertas = {
-    zerado: itens.filter(i => i.status === 'zerado').length,
-    baixo: itens.filter(i => i.status === 'baixo').length,
-    atencao: itens.filter(i => i.status === 'atencao').length,
-    semRastreio: itens.filter(i => !i.rastrear_estoque).length
+    zerado: itensComValidade.filter(i => i.status === 'zerado').length,
+    baixo: itensComValidade.filter(i => i.status === 'baixo').length,
+    atencao: itensComValidade.filter(i => i.status === 'atencao').length,
+    semRastreio: itensComValidade.filter(i => !i.rastrear_estoque).length,
+    vencido: itensComValidade.filter(i => i.alerta === 'vencido').length,
+    critico: itensComValidade.filter(i => i.alerta === 'critico').length,
+    vencendo: itensComValidade.filter(i => i.alerta === 'vencendo').length
+  };
+
+  // Obter categorias únicas
+  const categorias = Array.from(new Set(itensComValidade.map(i => i.categoria).filter(Boolean)));
+
+  const limparFiltros = () => {
+    setBusca("");
+    setFiltroTipo("todos");
+    setFiltroCategoria("todas");
+    setFiltroStatus("todos");
+    setFiltroAlerta("todos");
   };
 
   const handleNovoItem = () => {
@@ -156,8 +247,8 @@ export default function CatalogoItens() {
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Controles de Filtro */}
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
+          <div className="flex flex-wrap gap-2">
+            <div className="flex-1 min-w-[200px] relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar item..."
@@ -167,20 +258,62 @@ export default function CatalogoItens() {
               />
             </div>
 
-            <Select
-              value={filtroTipo}
-              onValueChange={setFiltroTipo}
-            >
-              <SelectTrigger className="w-full md:w-[200px]">
-                <Filter className="mr-2 h-4 w-4" />
+            <Select value={filtroTipo} onValueChange={setFiltroTipo}>
+              <SelectTrigger className="w-[150px]">
                 <SelectValue placeholder="Tipo" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="todos">Todos os tipos</SelectItem>
-                <SelectItem value="ingrediente">🧈 Ingredientes</SelectItem>
-                <SelectItem value="embalagem">📦 Embalagens</SelectItem>
+                <SelectItem value="todos">Todos</SelectItem>
+                <SelectItem value="ingrediente">Ingrediente</SelectItem>
+                <SelectItem value="embalagem">Embalagem</SelectItem>
               </SelectContent>
             </Select>
+
+            <Select value={filtroCategoria} onValueChange={setFiltroCategoria}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todas">Todas</SelectItem>
+                {categorias.map(cat => (
+                  <SelectItem key={cat} value={cat!}>{cat}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={filtroStatus} onValueChange={setFiltroStatus}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos</SelectItem>
+                <SelectItem value="ok">OK</SelectItem>
+                <SelectItem value="atencao">Atenção</SelectItem>
+                <SelectItem value="baixo">Baixo</SelectItem>
+                <SelectItem value="zerado">Zerado</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={filtroAlerta} onValueChange={setFiltroAlerta}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Alertas" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos</SelectItem>
+                <SelectItem value="vencido">Vencido</SelectItem>
+                <SelectItem value="critico">Crítico</SelectItem>
+                <SelectItem value="vencendo">Vencendo</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={limparFiltros}
+              title="Limpar Filtros"
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </div>
 
           {/* Tabela de Itens */}
@@ -190,74 +323,135 @@ export default function CatalogoItens() {
                 <Skeleton key={i} className="h-12 w-full" />
               ))}
             </div>
-          ) : itens.length === 0 ? (
+          ) : itensFiltrados.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <p className="text-lg font-medium">Nenhum item encontrado</p>
               <p className="text-sm mt-1">
-                Clique em "Adicionar Item" para começar
+                {busca || filtroTipo !== "todos" || filtroCategoria !== "todas" || filtroStatus !== "todos" || filtroAlerta !== "todos"
+                  ? "Tente ajustar os filtros"
+                  : "Clique em 'Adicionar Item' para começar"}
               </p>
             </div>
           ) : (
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nome</TableHead>
+                    <TableHead className="min-w-[180px]">Nome</TableHead>
                     <TableHead>Tipo</TableHead>
                     <TableHead>Categoria</TableHead>
-                    <TableHead>Estoque</TableHead>
+                    <TableHead>Estoque Mín.</TableHead>
+                    <TableHead>Marca</TableHead>
+                    <TableHead>Validade</TableHead>
+                    <TableHead>Qtde/Emb.</TableHead>
+                    <TableHead>Unidade</TableHead>
+                    <TableHead>Estoque Atual</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Alerta</TableHead>
+                    <TableHead>Valor Unit.</TableHead>
+                    <TableHead>Valor Estoque</TableHead>
                     <TableHead className="w-[80px]">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {itens.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="font-medium">
-                        {item.nome}
-                        {item.preco_ativo?.marca && <span className="text-muted-foreground text-sm ml-2">({item.preco_ativo.marca})</span>}
-                      </TableCell>
-                      <TableCell>
-                        {item.tipo === 'ingrediente' ? '🧈 Ingrediente' : '📦 Embalagem'}
-                      </TableCell>
-                      <TableCell>{item.categoria || '-'}</TableCell>
-                      <TableCell>
-                        {item.rastrear_estoque 
-                          ? `${item.estoque?.saldo || 0} ${item.unidade_base}`
-                          : 'Não rastreado'
-                        }
-                      </TableCell>
-                      <TableCell>
-                        {item.rastrear_estoque && <BadgeStatus status={item.status} />}
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleEditarItem(item)}>
-                              <Pencil className="mr-2 h-4 w-4" />
-                              Editar
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleAtualizarEstoque(item)}>
-                              <Package className="mr-2 h-4 w-4" />
-                              Atualizar Estoque
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => handleExcluirItem(item)}
-                              className="text-destructive"
+                  {itensFiltrados.map((item) => {
+                    const valorUnitario = item.preco_ativo?.custo_unitario || 0;
+                    const valorEstoque = item.estoque?.valor_estoque || 0;
+                    
+                    return (
+                      <TableRow key={item.id}>
+                        <TableCell className="font-medium">
+                          {item.nome}
+                        </TableCell>
+                        <TableCell>
+                          {item.tipo === 'ingrediente' ? '🧈' : '📦'}
+                        </TableCell>
+                        <TableCell>{item.categoria || '-'}</TableCell>
+                        <TableCell>
+                          {item.ponto_de_pedido || '-'}
+                        </TableCell>
+                        <TableCell>{item.preco_ativo?.marca || '-'}</TableCell>
+                        <TableCell>
+                          {item.dataValidade 
+                            ? new Date(item.dataValidade).toLocaleDateString('pt-BR')
+                            : '-'
+                          }
+                        </TableCell>
+                        <TableCell>{item.quantidade_por_embalagem}</TableCell>
+                        <TableCell>{item.unidade_base}</TableCell>
+                        <TableCell>
+                          {item.rastrear_estoque 
+                            ? `${item.estoque?.saldo || 0}`
+                            : '-'
+                          }
+                        </TableCell>
+                        <TableCell>
+                          {item.rastrear_estoque && item.status ? (
+                            <BadgeStatus status={item.status} />
+                          ) : (
+                            <span className="text-muted-foreground text-sm">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {item.alerta ? (
+                            <Badge 
+                              variant="outline" 
+                              className={
+                                item.alerta === 'vencido' 
+                                  ? "bg-destructive/10 text-destructive border-destructive/20"
+                                  : item.alerta === 'critico'
+                                  ? "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20"
+                                  : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20"
+                              }
                             >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Excluir
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                              <AlertTriangle className="mr-1 h-3 w-3" />
+                              {item.alerta === 'vencido' ? 'Vencido' : item.alerta === 'critico' ? 'Crítico' : 'Vencendo'}
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {valorUnitario > 0 
+                            ? `R$ ${valorUnitario.toFixed(2)}`
+                            : '-'
+                          }
+                        </TableCell>
+                        <TableCell>
+                          {valorEstoque > 0 
+                            ? `R$ ${valorEstoque.toFixed(2)}`
+                            : '-'
+                          }
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleEditarItem(item)}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Editar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleAtualizarEstoque(item)}>
+                                <Package className="mr-2 h-4 w-4" />
+                                Atualizar Estoque
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => handleExcluirItem(item)}
+                                className="text-destructive"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Excluir
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
