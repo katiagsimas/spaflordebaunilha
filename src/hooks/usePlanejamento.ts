@@ -98,7 +98,6 @@ export function usePlanejamento() {
   };
 
   const calcularCMVGlobal = (): { cmv: number; custoTotal: number; faturamentoTotal: number } => {
-    // Retorna valores padrão já que o módulo de estoque foi removido
     return { cmv: 0, custoTotal: 0, faturamentoTotal: 0 };
   };
 

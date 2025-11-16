@@ -77,8 +77,6 @@ export default function TiposInsumosOutros() {
           id,
           descricao,
           quantidade_embalagem,
-          categoria_estoque_id,
-          controlar_estoque,
           unidade_medida:unidades_medida (
             id,
             nome,
