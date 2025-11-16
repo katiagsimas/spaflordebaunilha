@@ -259,7 +259,6 @@ export default function ReceitaForm() {
   const [novoTipoIngDescricao, setNovoTipoIngDescricao] = useState('');
   const [novoTipoIngQuantidade, setNovoTipoIngQuantidade] = useState('');
   const [novoTipoIngUnidadeId, setNovoTipoIngUnidadeId] = useState('');
-  const [novoTipoIngControlarEstoque, setNovoTipoIngControlarEstoque] = useState(false);
   const [novoIngMarca, setNovoIngMarca] = useState('');
   const [novoIngPreco, setNovoIngPreco] = useState('');
   const [tipoIngRecemCriado, setTipoIngRecemCriado] = useState<any>(null);
@@ -272,7 +271,6 @@ export default function ReceitaForm() {
   const [novoTipoEmbDescricao, setNovoTipoEmbDescricao] = useState('');
   const [novoTipoEmbQuantidade, setNovoTipoEmbQuantidade] = useState('');
   const [novoTipoEmbUnidadeId, setNovoTipoEmbUnidadeId] = useState('');
-  const [novoTipoEmbControlarEstoque, setNovoTipoEmbControlarEstoque] = useState(false);
   const [novoEmbMarca, setNovoEmbMarca] = useState('');
   const [novoEmbPreco, setNovoEmbPreco] = useState('');
   const [tipoEmbRecemCriado, setTipoEmbRecemCriado] = useState<any>(null);
@@ -1753,21 +1751,6 @@ export default function ReceitaForm() {
                 </Select>
               </div>
             </div>
-
-            <div className="flex items-center space-x-3 p-4 rounded-lg bg-primary">
-              <Checkbox
-                id="controlar-estoque-ing"
-                checked={novoTipoIngControlarEstoque}
-                onCheckedChange={(checked) => setNovoTipoIngControlarEstoque(checked as boolean)}
-                className="border-primary-foreground data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary"
-              />
-              <Label
-                htmlFor="controlar-estoque-ing"
-                className="text-sm font-semibold cursor-pointer text-primary-foreground"
-              >
-                Controle de Estoque
-              </Label>
-            </div>
           </div>
           
           <DialogFooter>
@@ -1798,7 +1781,6 @@ export default function ReceitaForm() {
                     descricao: novoTipoIngDescricao.trim(),
                     quantidade_embalagem: qtd,
                     unidade_medida_id: novoTipoIngUnidadeId,
-                    controlar_estoque: novoTipoIngControlarEstoque,
                   })
                   .select(`
                     id,
@@ -1890,21 +1872,6 @@ export default function ReceitaForm() {
                 </Select>
               </div>
             </div>
-
-            <div className="flex items-center space-x-3 p-4 rounded-lg bg-primary">
-              <Checkbox
-                id="controlar-estoque-emb"
-                checked={novoTipoEmbControlarEstoque}
-                onCheckedChange={(checked) => setNovoTipoEmbControlarEstoque(checked as boolean)}
-                className="border-primary-foreground data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary"
-              />
-              <Label
-                htmlFor="controlar-estoque-emb"
-                className="text-sm font-semibold cursor-pointer text-primary-foreground"
-              >
-                Controle de Estoque
-              </Label>
-            </div>
           </div>
           
           <DialogFooter>
@@ -1935,7 +1902,6 @@ export default function ReceitaForm() {
                     descricao: novoTipoEmbDescricao.trim(),
                     quantidade_embalagem: qtd,
                     unidade_medida_id: novoTipoEmbUnidadeId,
-                    controlar_estoque: novoTipoEmbControlarEstoque,
                   })
                   .select(`
                     id,
