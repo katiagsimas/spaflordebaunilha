@@ -11,7 +11,6 @@ import { FirstAccessRedirect } from "@/components/FirstAccessRedirect";
 import { Loader2 } from "lucide-react";
 import Dashboard from "./pages/Dashboard";
 import Encomendas from "./pages/Encomendas";
-import Producao from "./pages/Producao";
 import Precificacao from "./pages/Precificacao";
 import Planejamento from "./pages/Planejamento";
 import Cadastros from "./pages/Cadastros";
