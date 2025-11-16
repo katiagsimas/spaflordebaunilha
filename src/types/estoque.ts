@@ -2,7 +2,7 @@
 // TYPES DO MÓDULO DE ESTOQUE - DONNA'S BOX
 // ============================================
 
-export type TipoItem = 'ingrediente' | 'embalagem';
+export type TipoItem = 'ingrediente' | 'embalagem' | 'outros';
 
 export type UnidadeBase = 'g' | 'kg' | 'ml' | 'l' | 'un' | 'caixa' | 'pct';
 

@@ -4193,7 +4193,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       status_entrada: "ATIVO" | "CONSUMIDO"
-      tipo_item_estoque: "INSUMO" | "EMBALAGEM"
+      tipo_item_estoque: "INSUMO" | "EMBALAGEM" | "outros"
       tipo_movimentacao: "ENTRADA" | "SAIDA"
     }
     CompositeTypes: {
@@ -4324,7 +4324,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       status_entrada: ["ATIVO", "CONSUMIDO"],
-      tipo_item_estoque: ["INSUMO", "EMBALAGEM"],
+      tipo_item_estoque: ["INSUMO", "EMBALAGEM", "outros"],
       tipo_movimentacao: ["ENTRADA", "SAIDA"],
     },
   },
