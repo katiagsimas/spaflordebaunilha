@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Loader2, Package2 } from "lucide-react";
 import type { Item, TipoItem } from "@/types/estoque";
 import { useCategoriasEstoque } from "@/hooks/useCategoriasEstoque";
@@ -26,13 +25,11 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
     tipo: item?.tipo || 'ingrediente',
     categoria: item?.categoria || '',
     nome: item?.nome || '',
-    descricao: item?.descricao || '',
     unidade_base: item?.unidade_base || 'g',
     quantidade_por_embalagem: item?.quantidade_por_embalagem || 1,
-    rastrear_estoque: item?.rastrear_estoque || false,
+    rastrear_estoque: true,
     ponto_de_pedido: item?.ponto_de_pedido,
     localizacao: item?.localizacao || '',
-    fornecedor_padrao: item?.fornecedor_padrao || '',
     observacoes: item?.observacoes || '',
   });
 
@@ -115,18 +112,6 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
             />
           </div>
 
-          {/* Descrição */}
-          <div className="space-y-2">
-            <Label htmlFor="descricao">Descrição</Label>
-            <Textarea
-              id="descricao"
-              value={formData.descricao}
-              onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-              placeholder="Detalhes adicionais sobre o item..."
-              rows={2}
-            />
-          </div>
-
           {/* Unidade e Quantidade por Embalagem */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -165,59 +150,28 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
           </div>
 
           {/* Controle de Estoque */}
-          <div className="border rounded-lg p-4 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="rastrear_estoque" className="text-base">
-                  Rastrear Estoque
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  Ativar controle de estoque para este item
-                </p>
-              </div>
-              <Switch
-                id="rastrear_estoque"
-                checked={formData.rastrear_estoque}
-                onCheckedChange={(checked) => setFormData({ ...formData, rastrear_estoque: checked })}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="ponto_pedido">Ponto de Pedido</Label>
+              <Input
+                id="ponto_pedido"
+                type="number"
+                step="0.01"
+                value={formData.ponto_de_pedido || ''}
+                onChange={(e) => setFormData({ ...formData, ponto_de_pedido: parseFloat(e.target.value) || undefined })}
+                placeholder="Quantidade mínima"
               />
             </div>
 
-            {formData.rastrear_estoque && (
-              <div className="grid grid-cols-2 gap-4 pt-2">
-                <div className="space-y-2">
-                  <Label htmlFor="ponto_pedido">Ponto de Pedido</Label>
-                  <Input
-                    id="ponto_pedido"
-                    type="number"
-                    step="0.01"
-                    value={formData.ponto_de_pedido || ''}
-                    onChange={(e) => setFormData({ ...formData, ponto_de_pedido: parseFloat(e.target.value) || undefined })}
-                    placeholder="Quantidade mínima"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="localizacao">Localização</Label>
-                  <Input
-                    id="localizacao"
-                    value={formData.localizacao}
-                    onChange={(e) => setFormData({ ...formData, localizacao: e.target.value })}
-                    placeholder="Ex: Prateleira A2"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Fornecedor Padrão */}
-          <div className="space-y-2">
-            <Label htmlFor="fornecedor">Fornecedor Padrão</Label>
-            <Input
-              id="fornecedor"
-              value={formData.fornecedor_padrao}
-              onChange={(e) => setFormData({ ...formData, fornecedor_padrao: e.target.value })}
-              placeholder="Nome do fornecedor preferencial"
-            />
+            <div className="space-y-2">
+              <Label htmlFor="localizacao">Localização</Label>
+              <Input
+                id="localizacao"
+                value={formData.localizacao}
+                onChange={(e) => setFormData({ ...formData, localizacao: e.target.value })}
+                placeholder="Ex: Prateleira A2"
+              />
+            </div>
           </div>
 
           {/* Observações */}
