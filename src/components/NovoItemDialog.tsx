@@ -134,11 +134,9 @@ export function NovoItemDialog({
         if (precoError) throw precoError;
       }
 
-      // Registrar entrada de estoque se quantidade foi informada
-      if (quantidadeEntrada && parseFloat(quantidadeEntrada) > 0) {
-        const custoUnitario = valorEntrada && quantidadeEntrada 
-          ? parseFloat(valorEntrada) / parseFloat(quantidadeEntrada)
-          : 0;
+      // Registrar entrada de estoque se quantidade e valor foram informados
+      if (quantidadeEntrada && valorEntrada && parseFloat(quantidadeEntrada) > 0) {
+        const custoUnitario = parseFloat(valorEntrada) / parseFloat(quantidadeEntrada);
 
         // Buscar a unidade para pegar a sigla
         const unidade = unidades.find(u => u.id === unidadeId);
@@ -152,7 +150,7 @@ export function NovoItemDialog({
             tipo_item: tipo === 'ingrediente' ? 'INSUMO' : 'EMBALAGEM',
             quantidade: parseFloat(quantidadeEntrada),
             custo_unitario: custoUnitario,
-            custo_total: valorEntrada ? parseFloat(valorEntrada) : 0,
+            custo_total: parseFloat(valorEntrada),
             unidade: unidade?.sigla || 'un',
             data: new Date().toISOString(),
           });
