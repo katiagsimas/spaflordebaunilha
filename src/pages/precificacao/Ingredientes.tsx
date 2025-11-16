@@ -14,8 +14,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Check, ChevronsUpDown, Info, Download, Search, AlertTriangle, Package } from 'lucide-react';
+import { Plus, Edit, Check, ChevronsUpDown, Info, Download, Search, AlertTriangle, Package, MoreVertical, Trash2 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
 import * as XLSX from 'xlsx';
 import { BackButton } from '@/components/BackButton';
@@ -50,6 +66,10 @@ export default function Ingredientes() {
   const [novoTipoDescricao, setNovoTipoDescricao] = useState('');
   const [novoTipoQuantidade, setNovoTipoQuantidade] = useState('');
   const [novoTipoUnidadeId, setNovoTipoUnidadeId] = useState('');
+  
+  // Exclusão
+  const [ingredienteParaExcluir, setIngredienteParaExcluir] = useState<any>(null);
+  const [dialogExcluirAberto, setDialogExcluirAberto] = useState(false);
   useEffect(() => {
     fetchIngredientes();
     fetchTiposDisponiveis();
@@ -461,6 +481,80 @@ export default function Ingredientes() {
       currency: 'BRL'
     });
   };
+
+  const verificarIngredienteEmUso = async (ingredienteId: string): Promise<boolean> => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return false;
+
+      // Verificar se está em uso em pré-preparos
+      const { data: prePreparos } = await supabase
+        .from('pre_preparos_ingredientes')
+        .select('id')
+        .eq('ingrediente_id', ingredienteId)
+        .limit(1);
+
+      if (prePreparos && prePreparos.length > 0) return true;
+
+      // Verificar se está em uso em receitas (fichas técnicas)
+      const { data: receitas } = await supabase
+        .from('receitas_ingredientes')
+        .select('id')
+        .eq('ingrediente_id', ingredienteId)
+        .limit(1);
+
+      if (receitas && receitas.length > 0) return true;
+
+      return false;
+    } catch (error) {
+      console.error('Erro ao verificar uso do ingrediente:', error);
+      return false;
+    }
+  };
+
+  const handleConfirmarExclusao = async () => {
+    if (!ingredienteParaExcluir) return;
+
+    try {
+      const emUso = await verificarIngredienteEmUso(ingredienteParaExcluir.id);
+
+      if (emUso) {
+        toast({
+          title: '❌ Não é possível excluir',
+          description: 'Este ingrediente está sendo utilizado em pré-preparos ou fichas técnicas. Remova-o antes de excluir.',
+          variant: 'destructive',
+        });
+        setDialogExcluirAberto(false);
+        setIngredienteParaExcluir(null);
+        return;
+      }
+
+      // Excluir o ingrediente
+      const { error } = await supabase
+        .from('ingredientes')
+        .delete()
+        .eq('id', ingredienteParaExcluir.id);
+
+      if (error) throw error;
+
+      toast({
+        title: '✅ Ingrediente excluído',
+        description: 'O ingrediente foi excluído com sucesso.',
+      });
+
+      await fetchIngredientes();
+    } catch (error: any) {
+      console.error('Erro ao excluir ingrediente:', error);
+      toast({
+        title: 'Erro ao excluir',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setDialogExcluirAberto(false);
+      setIngredienteParaExcluir(null);
+    }
+  };
   const tipoSelecionadoObj = tiposDisponiveis.find((t: any) => t.id === tipoSelecionado);
 
   // Filtrar tipos pelo termo de busca (excluindo pré-preparos)
@@ -561,13 +655,39 @@ export default function Ingredientes() {
                       {formatarData(ingrediente.data_atualizacao)}
                     </TableCell>
                     <TableCell className="text-right">
-                      {eReceita ? <Button variant="ghost" size="sm" onClick={() => navigate(`/precificacao/ficha-tecnica/editar/${ingrediente.id}`)}>
+                      {eReceita ? (
+                        <Button variant="ghost" size="sm" onClick={() => navigate(`/precificacao/ficha-tecnica/editar/${ingrediente.id}`)}>
                           <Edit className="h-4 w-4" />
-                        </Button> : ePrePreparo ? <Button variant="ghost" size="sm" onClick={() => navigate(`/precificacao/pre-preparos/${ingrediente.tipo_insumo?.pre_preparo_id}`)}>
+                        </Button>
+                      ) : ePrePreparo ? (
+                        <Button variant="ghost" size="sm" onClick={() => navigate(`/precificacao/pre-preparos/${ingrediente.tipo_insumo?.pre_preparo_id}`)}>
                           <Edit className="h-4 w-4" />
-                        </Button> : <Button variant="ghost" size="sm" onClick={() => handleAbrirModal(ingrediente)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>}
+                        </Button>
+                      ) : (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleAbrirModal(ingrediente)}>
+                              <Edit className="mr-2 h-4 w-4" />
+                              Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => {
+                                setIngredienteParaExcluir(ingrediente);
+                                setDialogExcluirAberto(true);
+                              }}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Excluir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </TableCell>
                   </TableRow>;
           })}
@@ -729,5 +849,27 @@ export default function Ingredientes() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog de Confirmação de Exclusão */}
+      <AlertDialog open={dialogExcluirAberto} onOpenChange={setDialogExcluirAberto}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o ingrediente <strong>{ingredienteParaExcluir?.tipo_insumo?.descricao}</strong>?
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmarExclusao}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>;
 }
