@@ -98,37 +98,59 @@ export function NovoItemDialog({
         return;
       }
 
-      // Criar o item na tabela itens
-      const { data: itemData, error: itemError } = await supabase
-        .from('itens')
-        .insert({
-          usuario_id: user.id,
-          tipo: tipo,
-          nome: descricao,
-          unidade_base: unidadeSelecionada.sigla,
-          quantidade_por_embalagem: parseFloat(quantidade.replace(',', '.')),
-          categoria: categoriaNome,
-          rastrear_estoque: controlarEstoque,
-          ponto_de_pedido: null,
-          observacoes: null,
-        })
-        .select()
-        .single();
+      // Para itens do tipo "outros", criar APENAS na tabela tipos_insumos
+      // Para ingredientes e embalagens, criar em ambas as tabelas
+      let itemData = null;
+      
+      if (tipo === 'outros') {
+        // Criar apenas na tabela tipos_insumos
+        const { error: tipoError } = await supabase
+          .from('tipos_insumos')
+          .insert({
+            usuario_id: user.id,
+            tipo: tipo,
+            descricao: descricao,
+            unidade_medida_id: unidadeId,
+            quantidade_embalagem: parseFloat(quantidade.replace(',', '.')),
+            categoria_estoque_id: categoriaEstoqueId || null,
+            controlar_estoque: controlarEstoque,
+          });
 
-      if (itemError) throw itemError;
+        if (tipoError) throw tipoError;
+      } else {
+        // Criar item na tabela itens
+        const { data, error: itemError } = await supabase
+          .from('itens')
+          .insert({
+            usuario_id: user.id,
+            tipo: tipo,
+            nome: descricao,
+            unidade_base: unidadeSelecionada.sigla,
+            quantidade_por_embalagem: parseFloat(quantidade.replace(',', '.')),
+            categoria: categoriaNome,
+            rastrear_estoque: controlarEstoque,
+            ponto_de_pedido: null,
+            observacoes: null,
+          })
+          .select()
+          .single();
 
-      // Também criar na tabela tipos_insumos para compatibilidade com a página Insumos e Embalagens
-      await supabase
-        .from('tipos_insumos')
-        .insert({
-          usuario_id: user.id,
-          tipo: tipo,
-          descricao: descricao,
-          unidade_medida_id: unidadeId,
-          quantidade_embalagem: parseFloat(quantidade.replace(',', '.')),
-          categoria_estoque_id: categoriaEstoqueId || null,
-          controlar_estoque: controlarEstoque,
-        });
+        if (itemError) throw itemError;
+        itemData = data;
+
+        // Também criar na tabela tipos_insumos para compatibilidade
+        await supabase
+          .from('tipos_insumos')
+          .insert({
+            usuario_id: user.id,
+            tipo: tipo,
+            descricao: descricao,
+            unidade_medida_id: unidadeId,
+            quantidade_embalagem: parseFloat(quantidade.replace(',', '.')),
+            categoria_estoque_id: categoriaEstoqueId || null,
+            controlar_estoque: controlarEstoque,
+          });
+      }
 
       toast.success('Item cadastrado');
       
