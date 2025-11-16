@@ -378,8 +378,8 @@ export default function CatalogoItens() {
                         <TableCell className="font-medium">
                           {item.nome}
                         </TableCell>
-                        <TableCell>
-                          {item.tipo === 'ingrediente' ? '🧈' : '📦'}
+                        <TableCell className="capitalize">
+                          {item.tipo === 'ingrediente' ? 'Ingrediente' : 'Embalagem'}
                         </TableCell>
                         <TableCell>{item.categoria || '-'}</TableCell>
                         <TableCell>

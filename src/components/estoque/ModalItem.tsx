@@ -163,7 +163,7 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="categoria">Categoria</Label>
+              <Label htmlFor="categoria">Categoria de Estoque</Label>
               <Select
                 value={formData.categoria}
                 onValueChange={(value) => setFormData({ ...formData, categoria: value })}
