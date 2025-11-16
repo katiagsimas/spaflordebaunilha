@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 import { usePlanejamento, type PrevisaoFaturamento } from "@/hooks/usePlanejamento";
 import { gerarInsights, type Insight, type InsightType } from "@/utils/insightsGenerator";
 import { PrevisaoFaturamentoCard } from "@/components/PrevisaoFaturamentoCard";
-import { CMVGlobalCard } from "@/components/CMVGlobalCard";
 import { ProjecaoVendasCard } from "@/components/ProjecaoVendasCard";
 import { ConfigurarMetasModal } from "@/components/ConfigurarMetasModal";
 import { BannerBoasVindas, EstadoVazioCard } from "@/components/EstadoVazio";
@@ -168,10 +167,6 @@ export default function Planejamento() {
             )}
 
             <div className="animate-fade-in-up stagger-1">
-              <CMVGlobalCard />
-            </div>
-
-            <div className="animate-fade-in-up stagger-2">
               <ProjecaoVendasCard />
             </div>
 

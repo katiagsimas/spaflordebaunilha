@@ -193,24 +193,6 @@ export default function TiposInsumosOutros() {
 
   const handleExcluir = async (id: string) => {
     try {
-      // Verificar se o tipo está sendo usado em algum item ou ingrediente
-      const { data: itensUsando, error: errorItens } = await supabase
-        .from('itens')
-        .select('id')
-        .eq('tipo', 'outros')
-        .limit(1);
-
-      if (errorItens) throw errorItens;
-
-      if (itensUsando && itensUsando.length > 0) {
-        toast({
-          variant: 'destructive',
-          title: 'Não é possível excluir',
-          description: 'Este item está sendo usado no estoque.',
-        });
-        return;
-      }
-
       // Confirmar exclusão
       if (!confirm('Tem certeza que deseja excluir este item?')) {
         return;
