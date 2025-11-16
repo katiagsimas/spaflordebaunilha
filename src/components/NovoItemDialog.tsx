@@ -44,11 +44,7 @@ export function NovoItemDialog({
   const [quantidade, setQuantidade] = useState('');
   const [unidadeId, setUnidadeId] = useState('');
   const [categoriaEstoqueId, setCategoriaEstoqueId] = useState('');
-  const [marca, setMarca] = useState('');
-  const [estoqueMinimo, setEstoqueMinimo] = useState('');
-  const [observacoes, setObservacoes] = useState('');
-  const [quantidadeEntrada, setQuantidadeEntrada] = useState('');
-  const [valorEntrada, setValorEntrada] = useState('');
+  const [controlarEstoque, setControlarEstoque] = useState(true);
   const [salvando, setSalvando] = useState(false);
 
   useEffect(() => {
@@ -103,60 +99,16 @@ export function NovoItemDialog({
           tipo: tipo,
           nome: descricao,
           unidade_base: unidadeId,
-          quantidade_por_embalagem: parseFloat(quantidade),
+          quantidade_por_embalagem: parseFloat(quantidade.replace(',', '.')),
           categoria: categoriaNome,
-          rastrear_estoque: true,
-          ponto_de_pedido: estoqueMinimo ? parseFloat(estoqueMinimo) : null,
-          observacoes: observacoes || null,
+          rastrear_estoque: controlarEstoque,
+          ponto_de_pedido: null,
+          observacoes: null,
         })
         .select()
         .single();
 
       if (itemError) throw itemError;
-
-      // Criar o preço se marca e valores foram informados
-      if (marca && valorEntrada && quantidadeEntrada) {
-        const custoUnitario = parseFloat(valorEntrada) / parseFloat(quantidadeEntrada);
-
-        const { error: precoError } = await supabase
-          .from('precos')
-          .insert({
-            item_id: itemData.id,
-            usuario_id: user.id,
-            marca: marca,
-            preco_total_embalagem: parseFloat(valorEntrada),
-            quantidade_embalagem: parseFloat(quantidade),
-            custo_unitario: custoUnitario,
-            ativo: true,
-            data_coleta: new Date().toISOString(),
-          });
-
-        if (precoError) throw precoError;
-      }
-
-      // Registrar entrada de estoque se quantidade e valor foram informados
-      if (quantidadeEntrada && valorEntrada && parseFloat(quantidadeEntrada) > 0) {
-        const custoUnitario = parseFloat(valorEntrada) / parseFloat(quantidadeEntrada);
-
-        // Buscar a unidade para pegar a sigla
-        const unidade = unidades.find(u => u.id === unidadeId);
-
-        const { error: movError } = await supabase
-          .from('movimentacoes_estoque')
-          .insert({
-            item_id: itemData.id,
-            usuario_id: user.id,
-            tipo: 'ENTRADA',
-            tipo_item: tipo === 'ingrediente' ? 'INSUMO' : 'EMBALAGEM',
-            quantidade: parseFloat(quantidadeEntrada),
-            custo_unitario: custoUnitario,
-            custo_total: parseFloat(valorEntrada),
-            unidade: unidade?.sigla || 'un',
-            data: new Date().toISOString(),
-          });
-
-        if (movError) throw movError;
-      }
 
       toast.success('Item cadastrado');
       
@@ -179,11 +131,7 @@ export function NovoItemDialog({
     setQuantidade('');
     setUnidadeId('');
     setCategoriaEstoqueId('');
-    setMarca('');
-    setEstoqueMinimo('');
-    setObservacoes('');
-    setQuantidadeEntrada('');
-    setValorEntrada('');
+    setControlarEstoque(true);
   };
 
   return (
@@ -198,7 +146,7 @@ export function NovoItemDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="descricao">
               Nome {tipo === 'ingrediente' ? 'do Ingrediente' : 'da Embalagem'} *
@@ -213,7 +161,21 @@ export function NovoItemDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="unidade">Unidade Base *</Label>
+              <Label htmlFor="quantidade">Qtde na Embalagem *</Label>
+              <Input
+                id="quantidade"
+                type="text"
+                value={quantidade}
+                onChange={(e) => {
+                  const valor = e.target.value.replace(/[^\d,]/g, '');
+                  setQuantidade(valor);
+                }}
+                placeholder="Ex: 1000"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="unidade">Unidade de Medida *</Label>
               <Select value={unidadeId} onValueChange={setUnidadeId}>
                 <SelectTrigger id="unidade">
                   <SelectValue placeholder="Selecione..." />
@@ -226,18 +188,6 @@ export function NovoItemDialog({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="quantidade">Qtde por Embalagem *</Label>
-              <Input
-                id="quantidade"
-                type="number"
-                step="0.01"
-                value={quantidade}
-                onChange={(e) => setQuantidade(e.target.value)}
-                placeholder="1000"
-              />
             </div>
           </div>
 
@@ -260,67 +210,19 @@ export function NovoItemDialog({
             </Select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="marca">Marca</Label>
-              <Input
-                id="marca"
-                value={marca}
-                onChange={(e) => setMarca(e.target.value)}
-                placeholder="Ex: Marca X"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="estoqueMinimo">Estoque Mínimo</Label>
-              <Input
-                id="estoqueMinimo"
-                type="number"
-                step="0.01"
-                value={estoqueMinimo}
-                onChange={(e) => setEstoqueMinimo(e.target.value)}
-                placeholder="0"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Entrada de Estoque</Label>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="quantidadeEntrada">Quantidade</Label>
-                <Input
-                  id="quantidadeEntrada"
-                  type="number"
-                  step="0.01"
-                  value={quantidadeEntrada}
-                  onChange={(e) => setQuantidadeEntrada(e.target.value)}
-                  placeholder="0"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="valorEntrada">Valor</Label>
-                <Input
-                  id="valorEntrada"
-                  type="number"
-                  step="0.01"
-                  value={valorEntrada}
-                  onChange={(e) => setValorEntrada(e.target.value)}
-                  placeholder="0,00"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="observacoes">Observações</Label>
-            <Input
-              id="observacoes"
-              value={observacoes}
-              onChange={(e) => setObservacoes(e.target.value)}
-              placeholder="Observações adicionais..."
+          <div className="flex items-center space-x-3 p-4 rounded-lg bg-primary">
+            <Checkbox
+              id="controlar-estoque"
+              checked={controlarEstoque}
+              onCheckedChange={(checked) => setControlarEstoque(checked as boolean)}
+              className="border-primary-foreground data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary"
             />
+            <Label
+              htmlFor="controlar-estoque"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-primary-foreground"
+            >
+              Controle de Estoque
+            </Label>
           </div>
         </div>
 
