@@ -416,6 +416,9 @@ export default function Embalagens() {
       // Selecionar o tipo recém-criado automaticamente
       setTipoSelecionado(data.id);
 
+      // Disparar evento para atualizar a listagem em Configurações
+      window.dispatchEvent(new CustomEvent('tipos-insumos-atualizado', { detail: { tipo: 'embalagem' } }));
+
       // Fechar modal de criar tipo
       setModalCriarTipoAberto(false);
 
