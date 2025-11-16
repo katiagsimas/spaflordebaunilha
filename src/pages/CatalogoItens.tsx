@@ -248,15 +248,15 @@ export default function CatalogoItens() {
         <CardContent className="space-y-4">
           {/* Controles de Filtro */}
           <div className="flex flex-wrap gap-2">
-            <div className="flex-1 min-w-[200px] relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar item..."
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-                className="pl-9"
-              />
-            </div>
+          <div className="w-[250px] relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar item..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              className="pl-9"
+            />
+          </div>
 
             <Select value={filtroTipo} onValueChange={setFiltroTipo}>
               <SelectTrigger className="w-[150px]">
