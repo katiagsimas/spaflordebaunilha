@@ -125,39 +125,6 @@ export type Database = {
         }
         Relationships: []
       }
-      admin_access_tokens: {
-        Row: {
-          admin_id: string
-          created_at: string
-          expires_at: string
-          id: string
-          reason: string
-          revoked_at: string | null
-          target_user_id: string
-          token: string
-        }
-        Insert: {
-          admin_id: string
-          created_at?: string
-          expires_at: string
-          id?: string
-          reason: string
-          revoked_at?: string | null
-          target_user_id: string
-          token: string
-        }
-        Update: {
-          admin_id?: string
-          created_at?: string
-          expires_at?: string
-          id?: string
-          reason?: string
-          revoked_at?: string | null
-          target_user_id?: string
-          token?: string
-        }
-        Relationships: []
-      }
       admin_audit_log: {
         Row: {
           action: string
@@ -1453,33 +1420,6 @@ export type Database = {
         }
         Relationships: []
       }
-      deleted_data_backup: {
-        Row: {
-          data: Json
-          deleted_at: string
-          deleted_by: string
-          id: string
-          permanent_delete_at: string
-          user_id: string
-        }
-        Insert: {
-          data: Json
-          deleted_at?: string
-          deleted_by: string
-          id?: string
-          permanent_delete_at: string
-          user_id: string
-        }
-        Update: {
-          data?: Json
-          deleted_at?: string
-          deleted_by?: string
-          id?: string
-          permanent_delete_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       embalagens: {
         Row: {
           created_at: string | null
@@ -1939,96 +1879,6 @@ export type Database = {
           },
         ]
       }
-      planejamento_produtos: {
-        Row: {
-          created_at: string | null
-          id: string
-          percentual_participacao: number
-          planejamento_id: string
-          receita_id: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          percentual_participacao: number
-          planejamento_id: string
-          receita_id: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          percentual_participacao?: number
-          planejamento_id?: string
-          receita_id?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "planejamento_produtos_planejamento_id_fkey"
-            columns: ["planejamento_id"]
-            isOneToOne: false
-            referencedRelation: "planejamento_vendas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "planejamento_produtos_receita_id_fkey"
-            columns: ["receita_id"]
-            isOneToOne: false
-            referencedRelation: "receitas"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      planejamento_vendas: {
-        Row: {
-          ano: number
-          created_at: string | null
-          id: string
-          mes: number
-          meta_faturamento_anual: number | null
-          meta_faturamento_mensal: number
-          meta_lucro_anual: number | null
-          meta_lucro_mensal: number
-          meta_pedidos: number
-          meta_ticket_medio: number
-          pct_lucro_selecionado: number | null
-          updated_at: string | null
-          usuario_id: string
-        }
-        Insert: {
-          ano: number
-          created_at?: string | null
-          id?: string
-          mes: number
-          meta_faturamento_anual?: number | null
-          meta_faturamento_mensal: number
-          meta_lucro_anual?: number | null
-          meta_lucro_mensal: number
-          meta_pedidos: number
-          meta_ticket_medio: number
-          pct_lucro_selecionado?: number | null
-          updated_at?: string | null
-          usuario_id: string
-        }
-        Update: {
-          ano?: number
-          created_at?: string | null
-          id?: string
-          mes?: number
-          meta_faturamento_anual?: number | null
-          meta_faturamento_mensal?: number
-          meta_lucro_anual?: number | null
-          meta_lucro_mensal?: number
-          meta_pedidos?: number
-          meta_ticket_medio?: number
-          pct_lucro_selecionado?: number | null
-          updated_at?: string | null
-          usuario_id?: string
-        }
-        Relationships: []
-      }
       plano_contas: {
         Row: {
           ativo: boolean | null
@@ -2075,62 +1925,6 @@ export type Database = {
             columns: ["categoria_id"]
             isOneToOne: false
             referencedRelation: "categorias_plano_contas"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      planos_contas: {
-        Row: {
-          aceita_lancamento: boolean | null
-          ativo: boolean | null
-          categoria: string | null
-          codigo: string
-          conta_pai_id: string | null
-          created_at: string | null
-          id: string
-          natureza: string | null
-          nivel: number
-          nome: string
-          tipo: string
-          updated_at: string | null
-          usuario_id: string
-        }
-        Insert: {
-          aceita_lancamento?: boolean | null
-          ativo?: boolean | null
-          categoria?: string | null
-          codigo: string
-          conta_pai_id?: string | null
-          created_at?: string | null
-          id?: string
-          natureza?: string | null
-          nivel?: number
-          nome: string
-          tipo: string
-          updated_at?: string | null
-          usuario_id: string
-        }
-        Update: {
-          aceita_lancamento?: boolean | null
-          ativo?: boolean | null
-          categoria?: string | null
-          codigo?: string
-          conta_pai_id?: string | null
-          created_at?: string | null
-          id?: string
-          natureza?: string | null
-          nivel?: number
-          nome?: string
-          tipo?: string
-          updated_at?: string | null
-          usuario_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "planos_contas_conta_pai_id_fkey"
-            columns: ["conta_pai_id"]
-            isOneToOne: false
-            referencedRelation: "planos_contas"
             referencedColumns: ["id"]
           },
         ]
@@ -3098,17 +2892,6 @@ export type Database = {
           reason: string | null
           target_user_email: string | null
           target_user_id: string | null
-        }
-        Relationships: []
-      }
-      user_admin_access_history: {
-        Row: {
-          access_date: string | null
-          actions_performed: Json | null
-          admin_email: string | null
-          duration: string | null
-          module: string | null
-          reason: string | null
         }
         Relationships: []
       }
