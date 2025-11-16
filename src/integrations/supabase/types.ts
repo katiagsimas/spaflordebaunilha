@@ -134,211 +134,6 @@ export type Database = {
         }
         Relationships: []
       }
-      bank_entries: {
-        Row: {
-          amount: number
-          created_at: string
-          date: string
-          description: string
-          fit_id: string | null
-          hash_key: string
-          id: string
-          import_id: string
-          kind: string
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          amount: number
-          created_at?: string
-          date: string
-          description: string
-          fit_id?: string | null
-          hash_key: string
-          id?: string
-          import_id: string
-          kind: string
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          amount?: number
-          created_at?: string
-          date?: string
-          description?: string
-          fit_id?: string | null
-          hash_key?: string
-          id?: string
-          import_id?: string
-          kind?: string
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bank_entries_import_id_fkey"
-            columns: ["import_id"]
-            isOneToOne: false
-            referencedRelation: "bank_imports"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      bank_imports: {
-        Row: {
-          created_at: string
-          filename: string
-          id: string
-          rows_count: number
-          status: string
-          updated_at: string
-          uploaded_by: string
-          usuario_id: string
-        }
-        Insert: {
-          created_at?: string
-          filename: string
-          id?: string
-          rows_count?: number
-          status?: string
-          updated_at?: string
-          uploaded_by: string
-          usuario_id: string
-        }
-        Update: {
-          created_at?: string
-          filename?: string
-          id?: string
-          rows_count?: number
-          status?: string
-          updated_at?: string
-          uploaded_by?: string
-          usuario_id?: string
-        }
-        Relationships: []
-      }
-      bank_matches: {
-        Row: {
-          bank_entry_id: string
-          confirmed_at: string | null
-          confirmed_by: string | null
-          created_at: string
-          id: string
-          score: number
-          status: string
-          transaction_id: string
-          transaction_type: string
-        }
-        Insert: {
-          bank_entry_id: string
-          confirmed_at?: string | null
-          confirmed_by?: string | null
-          created_at?: string
-          id?: string
-          score?: number
-          status?: string
-          transaction_id: string
-          transaction_type: string
-        }
-        Update: {
-          bank_entry_id?: string
-          confirmed_at?: string | null
-          confirmed_by?: string | null
-          created_at?: string
-          id?: string
-          score?: number
-          status?: string
-          transaction_id?: string
-          transaction_type?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bank_matches_bank_entry_id_fkey"
-            columns: ["bank_entry_id"]
-            isOneToOne: false
-            referencedRelation: "bank_entries"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bank_matches_bank_entry_id_fkey"
-            columns: ["bank_entry_id"]
-            isOneToOne: false
-            referencedRelation: "vw_bank_differences"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      bank_raw_entries: {
-        Row: {
-          created_at: string
-          hash_key: string
-          id: string
-          import_id: string
-          line_number: number
-          raw_data: Json
-        }
-        Insert: {
-          created_at?: string
-          hash_key: string
-          id?: string
-          import_id: string
-          line_number: number
-          raw_data: Json
-        }
-        Update: {
-          created_at?: string
-          hash_key?: string
-          id?: string
-          import_id?: string
-          line_number?: number
-          raw_data?: Json
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bank_raw_entries_import_id_fkey"
-            columns: ["import_id"]
-            isOneToOne: false
-            referencedRelation: "bank_imports"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      bank_rules: {
-        Row: {
-          bank_name: string
-          column_map: Json
-          created_at: string
-          csv_delimiter: string
-          date_format: string
-          decimal_comma: boolean
-          id: string
-          updated_at: string
-          usuario_id: string
-        }
-        Insert: {
-          bank_name: string
-          column_map: Json
-          created_at?: string
-          csv_delimiter?: string
-          date_format?: string
-          decimal_comma?: boolean
-          id?: string
-          updated_at?: string
-          usuario_id: string
-        }
-        Update: {
-          bank_name?: string
-          column_map?: Json
-          created_at?: string
-          csv_delimiter?: string
-          date_format?: string
-          decimal_comma?: boolean
-          id?: string
-          updated_at?: string
-          usuario_id?: string
-        }
-        Relationships: []
-      }
       categorias: {
         Row: {
           ativo: boolean
@@ -2777,27 +2572,6 @@ export type Database = {
         }
         Relationships: []
       }
-      vw_bank_differences: {
-        Row: {
-          amount: number | null
-          date: string | null
-          description: string | null
-          id: string | null
-          import_id: string | null
-          kind: string | null
-          status: string | null
-          usuario_id: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bank_entries_import_id_fkey"
-            columns: ["import_id"]
-            isOneToOne: false
-            referencedRelation: "bank_imports"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       vw_contas_receber_dashboard: {
         Row: {
           parcelas_abertas: number | null
@@ -3023,60 +2797,6 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
-      fn_bank_entry_hash: {
-        Args: {
-          entry_amount: number
-          entry_date: string
-          entry_description: string
-        }
-        Returns: string
-      }
-      fn_confirm_match: {
-        Args: {
-          p_bank_entry_id: string
-          p_confirmed_by: string
-          p_transaction_id: string
-          p_transaction_type: string
-        }
-        Returns: undefined
-      }
-      fn_ingest_bank_csv: {
-        Args: { p_import_id: string; p_rules_id: string }
-        Returns: {
-          duplicate_count: number
-          inserted_count: number
-        }[]
-      }
-      fn_make_hash: { Args: { input_text: string }; Returns: string }
-      fn_normalize_decimal: {
-        Args: { decimal_comma: boolean; value_text: string }
-        Returns: number
-      }
-      fn_parse_date: {
-        Args: { date_text: string; format_text: string }
-        Returns: string
-      }
-      fn_reconcile_import: {
-        Args: { p_import_id: string; p_reconciled_by: string }
-        Returns: {
-          reconciled_count: number
-        }[]
-      }
-      fn_reject_match: { Args: { p_bank_entry_id: string }; Returns: undefined }
-      fn_split_match: {
-        Args: { p_bank_entry_id: string; p_transactions: Json }
-        Returns: undefined
-      }
-      fn_suggest_matches: {
-        Args: { p_from_date?: string; p_import_id: string; p_to_date?: string }
-        Returns: {
-          suggested_count: number
-        }[]
-      }
-      generate_admin_access_token: {
-        Args: { p_admin_id: string; p_reason: string; p_target_user_id: string }
-        Returns: Json
-      }
       gerar_proximo_codigo_categoria: {
         Args: { p_user_id: string }
         Returns: string
@@ -3145,21 +2865,6 @@ export type Database = {
           tipo: string
         }[]
       }
-      get_cmv_anual: {
-        Args: { p_ano: number; p_usuario_id: string }
-        Returns: {
-          cmv: number
-          compras: number
-          editavel: boolean
-          estoque_final: number
-          estoque_inicial: number
-          faturamento: number
-          mes: number
-          mes_nome: string
-          percentual_cmv: number
-          tem_historico: boolean
-        }[]
-      }
       get_custos_fixos_mes: {
         Args: { p_ano: number; p_mes: number; p_usuario_id: string }
         Returns: number
@@ -3167,17 +2872,6 @@ export type Database = {
       get_faturamento_mes: {
         Args: { p_ano: number; p_mes: number; p_usuario_id: string }
         Returns: number
-      }
-      get_insights_cruzados: {
-        Args: { dias: number; user_id_param: string }
-        Returns: {
-          evento: string
-          origem: string
-          percentual: number
-          ticket_medio: number
-          total_vendas: number
-          valor_total: number
-        }[]
       }
       get_quantidade_vendas_mes: {
         Args: { p_ano: number; p_mes: number; p_usuario_id: string }
@@ -3223,11 +2917,6 @@ export type Database = {
           p_module?: string
           p_target_user_id?: string
         }
-        Returns: undefined
-      }
-      revoke_admin_token: { Args: { p_token: string }; Returns: undefined }
-      soft_delete_user: {
-        Args: { p_admin_id: string; p_user_id: string }
         Returns: undefined
       }
       validar_estoque_receita: {
