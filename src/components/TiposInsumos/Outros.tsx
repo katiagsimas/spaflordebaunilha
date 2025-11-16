@@ -54,6 +54,19 @@ export default function TiposInsumosOutros() {
   useEffect(() => {
     fetchTipos();
     fetchUnidades();
+
+    // Listener para atualizar quando um novo item for criado
+    const handleAtualizar = (e: CustomEvent) => {
+      if (e.detail?.tipo === 'outros') {
+        fetchTipos();
+      }
+    };
+
+    window.addEventListener('tipos-insumos-atualizado' as any, handleAtualizar);
+    
+    return () => {
+      window.removeEventListener('tipos-insumos-atualizado' as any, handleAtualizar);
+    };
   }, []);
 
   const fetchTipos = async () => {

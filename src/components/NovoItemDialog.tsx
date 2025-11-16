@@ -132,6 +132,9 @@ export function NovoItemDialog({
 
       toast.success('Item cadastrado');
       
+      // Disparar evento para atualizar a listagem na página de Insumos e Embalagens
+      window.dispatchEvent(new CustomEvent('tipos-insumos-atualizado', { detail: { tipo } }));
+      
       if (onSuccess && itemData) {
         onSuccess(itemData);
       }
