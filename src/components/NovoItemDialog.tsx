@@ -44,7 +44,11 @@ export function NovoItemDialog({
   const [quantidade, setQuantidade] = useState('');
   const [unidadeId, setUnidadeId] = useState('');
   const [categoriaEstoqueId, setCategoriaEstoqueId] = useState('');
-  const [controlarEstoque, setControlarEstoque] = useState(false);
+  const [marca, setMarca] = useState('');
+  const [estoqueMinimo, setEstoqueMinimo] = useState('');
+  const [observacoes, setObservacoes] = useState('');
+  const [quantidadeEntrada, setQuantidadeEntrada] = useState('');
+  const [valorEntrada, setValorEntrada] = useState('');
   const [salvando, setSalvando] = useState(false);
 
   useEffect(() => {
@@ -84,32 +88,77 @@ export function NovoItemDialog({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase
-        .from('tipos_insumos')
+      // Criar o item
+      const { data: itemData, error: itemError } = await supabase
+        .from('itens')
         .insert({
           usuario_id: user.id,
           tipo: tipo,
-          descricao: descricao,
-          quantidade_embalagem: parseFloat(quantidade),
-          unidade_medida_id: unidadeId,
-          categoria_estoque_id: categoriaEstoqueId || null,
+          nome: descricao,
+          unidade_base: unidadeId,
+          quantidade_por_embalagem: parseFloat(quantidade),
+          categoria: categoriaEstoqueId || null,
+          rastrear_estoque: true,
+          ponto_de_pedido: estoqueMinimo ? parseFloat(estoqueMinimo) : null,
+          observacoes: observacoes || null,
         })
-        .select(`
-          id,
-          descricao,
-          quantidade_embalagem,
-          unidade_medida:unidades_medida (
-            sigla
-          )
-        `)
+        .select()
         .single();
 
-      if (error) throw error;
+      if (itemError) throw itemError;
 
-      toast.success(`${tipo === 'ingrediente' ? 'Ingrediente' : 'Embalagem'} cadastrado com sucesso!`);
+      // Criar o preço se marca foi informada
+      if (marca) {
+        const custoUnitario = valorEntrada && quantidadeEntrada 
+          ? parseFloat(valorEntrada) / parseFloat(quantidadeEntrada)
+          : 0;
+
+        const { error: precoError } = await supabase
+          .from('precos')
+          .insert({
+            item_id: itemData.id,
+            usuario_id: user.id,
+            marca: marca,
+            preco_total_embalagem: valorEntrada ? parseFloat(valorEntrada) : 0,
+            quantidade_embalagem: parseFloat(quantidade),
+            custo_unitario: custoUnitario,
+            ativo: true,
+            data_coleta: new Date().toISOString(),
+          });
+
+        if (precoError) throw precoError;
+      }
+
+      // Registrar entrada de estoque se quantidade foi informada
+      if (quantidadeEntrada && parseFloat(quantidadeEntrada) > 0) {
+        const custoUnitario = valorEntrada && quantidadeEntrada 
+          ? parseFloat(valorEntrada) / parseFloat(quantidadeEntrada)
+          : 0;
+
+        // Buscar a unidade para pegar a sigla
+        const unidade = unidades.find(u => u.id === unidadeId);
+
+        const { error: movError } = await supabase
+          .from('movimentacoes_estoque')
+          .insert({
+            item_id: itemData.id,
+            usuario_id: user.id,
+            tipo: 'ENTRADA',
+            tipo_item: tipo === 'ingrediente' ? 'INSUMO' : 'EMBALAGEM',
+            quantidade: parseFloat(quantidadeEntrada),
+            custo_unitario: custoUnitario,
+            custo_total: valorEntrada ? parseFloat(valorEntrada) : 0,
+            unidade: unidade?.sigla || 'un',
+            data: new Date().toISOString(),
+          });
+
+        if (movError) throw movError;
+      }
+
+      toast.success('Item cadastrado');
       
-      if (onSuccess && data) {
-        onSuccess(data);
+      if (onSuccess && itemData) {
+        onSuccess(itemData);
       }
       
       limparFormulario();
@@ -127,7 +176,11 @@ export function NovoItemDialog({
     setQuantidade('');
     setUnidadeId('');
     setCategoriaEstoqueId('');
-    setControlarEstoque(false);
+    setMarca('');
+    setEstoqueMinimo('');
+    setObservacoes('');
+    setQuantidadeEntrada('');
+    setValorEntrada('');
   };
 
   return (
@@ -157,19 +210,7 @@ export function NovoItemDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="quantidade">Qtde na Embalagem *</Label>
-              <Input
-                id="quantidade"
-                type="number"
-                step="0.01"
-                value={quantidade}
-                onChange={(e) => setQuantidade(e.target.value)}
-                placeholder="1000"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="unidade">Unidade de Medida *</Label>
+              <Label htmlFor="unidade">Unidade Base *</Label>
               <Select value={unidadeId} onValueChange={setUnidadeId}>
                 <SelectTrigger id="unidade">
                   <SelectValue placeholder="Selecione..." />
@@ -182,6 +223,18 @@ export function NovoItemDialog({
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="quantidade">Qtde por Embalagem *</Label>
+              <Input
+                id="quantidade"
+                type="number"
+                step="0.01"
+                value={quantidade}
+                onChange={(e) => setQuantidade(e.target.value)}
+                placeholder="1000"
+              />
             </div>
           </div>
 
@@ -204,15 +257,67 @@ export function NovoItemDialog({
             </Select>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="controlar"
-              checked={controlarEstoque}
-              onCheckedChange={(checked) => setControlarEstoque(checked as boolean)}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="marca">Marca</Label>
+              <Input
+                id="marca"
+                value={marca}
+                onChange={(e) => setMarca(e.target.value)}
+                placeholder="Ex: Marca X"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="estoqueMinimo">Estoque Mínimo</Label>
+              <Input
+                id="estoqueMinimo"
+                type="number"
+                step="0.01"
+                value={estoqueMinimo}
+                onChange={(e) => setEstoqueMinimo(e.target.value)}
+                placeholder="0"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Entrada de Estoque</Label>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="quantidadeEntrada">Quantidade</Label>
+                <Input
+                  id="quantidadeEntrada"
+                  type="number"
+                  step="0.01"
+                  value={quantidadeEntrada}
+                  onChange={(e) => setQuantidadeEntrada(e.target.value)}
+                  placeholder="0"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="valorEntrada">Valor</Label>
+                <Input
+                  id="valorEntrada"
+                  type="number"
+                  step="0.01"
+                  value={valorEntrada}
+                  onChange={(e) => setValorEntrada(e.target.value)}
+                  placeholder="0,00"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="observacoes">Observações</Label>
+            <Input
+              id="observacoes"
+              value={observacoes}
+              onChange={(e) => setObservacoes(e.target.value)}
+              placeholder="Observações adicionais..."
             />
-            <Label htmlFor="controlar" className="cursor-pointer">
-              Controle de Estoque
-            </Label>
           </div>
         </div>
 
