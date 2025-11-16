@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,11 +36,19 @@ export function AtualizarEstoqueDialog({
   const [valor, setValor] = useState("");
   const [dataValidade, setDataValidade] = useState<Date | undefined>();
   const [dataValidadeInput, setDataValidadeInput] = useState("");
+  const [marca, setMarca] = useState("");
   const [observacao, setObservacao] = useState("");
   const [observacaoAberta, setObservacaoAberta] = useState(false);
   const [loading, setLoading] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [popoverMovimentacaoOpen, setPopoverMovimentacaoOpen] = useState(false);
+
+  // Carregar marca atual do item quando o modal abrir
+  useEffect(() => {
+    if (open && item?.marca) {
+      setMarca(item.marca);
+    }
+  }, [open, item]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,6 +114,18 @@ export function AtualizarEstoqueDialog({
 
       if (error) throw error;
 
+      // Atualizar marca do item se fornecida
+      if (marca && marca.trim() !== '') {
+        const { error: updateError } = await supabase
+          .from('itens')
+          .update({ marca: marca.trim() })
+          .eq('id', item.id);
+        
+        if (updateError) {
+          console.error('Erro ao atualizar marca:', updateError);
+        }
+      }
+
       toast({
         title: "Estoque atualizado",
         description: `${tipoMovimento === "entrada" ? "Entrada" : tipoMovimento === "saida" ? "Saída" : "Ajuste"} de ${quantidade} ${item.unidade_base} registrado com sucesso.`,
@@ -119,6 +139,7 @@ export function AtualizarEstoqueDialog({
       setValor("");
       setDataValidade(undefined);
       setDataValidadeInput("");
+      setMarca("");
       setObservacao("");
       setObservacaoAberta(false);
     } catch (error) {
@@ -397,6 +418,18 @@ export function AtualizarEstoqueDialog({
                   />
                 </PopoverContent>
               </Popover>
+            </div>
+          )}
+
+          {tipoMovimento !== "saida" && (
+            <div className="space-y-2">
+              <Label htmlFor="marca">Marca (opcional)</Label>
+              <Input
+                id="marca"
+                value={marca}
+                onChange={(e) => setMarca(e.target.value)}
+                placeholder="Ex: Marca X"
+              />
             </div>
           )}
 
