@@ -42,8 +42,24 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Check, ChevronsUpDown, Info, Download, Search, AlertTriangle, Package } from 'lucide-react';
+import { Plus, Edit, Check, ChevronsUpDown, Info, Download, Search, AlertTriangle, Package, MoreVertical, Trash2 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
 import * as XLSX from 'xlsx';
 import { BackButton } from '@/components/BackButton';
@@ -73,6 +89,10 @@ export default function Embalagens() {
   const [novoTipoDescricao, setNovoTipoDescricao] = useState('');
   const [novoTipoQuantidade, setNovoTipoQuantidade] = useState('');
   const [novoTipoUnidadeId, setNovoTipoUnidadeId] = useState('');
+  
+  // Exclusão
+  const [embalagemParaExcluir, setEmbalagemParaExcluir] = useState<any>(null);
+  const [dialogExcluirAberto, setDialogExcluirAberto] = useState(false);
 
   useEffect(() => {
     fetchEmbalagens();
@@ -439,6 +459,100 @@ export default function Embalagens() {
     });
   };
 
+  const verificarEmbalagemEmUso = async (embalagemId: string): Promise<boolean> => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return false;
+
+      // Buscar o tipo_insumo_id da embalagem
+      const { data: embalagem } = await supabase
+        .from('embalagens')
+        .select('tipo_insumo_id')
+        .eq('id', embalagemId)
+        .single();
+
+      if (!embalagem) return false;
+
+      // Verificar se está em uso em receitas (fichas técnicas)
+      const { data: receitas } = await supabase
+        .from('receitas_embalagens')
+        .select('id')
+        .eq('embalagem_id', embalagem.tipo_insumo_id)
+        .limit(1);
+
+      if (receitas && receitas.length > 0) return true;
+
+      // Verificar se existe algum ingrediente que usa este tipo_insumo_id
+      // (pré-preparos usam a tabela ingredientes, e cada ingrediente tem um tipo_insumo_id)
+      const { data: ingredientes } = await supabase
+        .from('ingredientes')
+        .select('id')
+        .eq('tipo_insumo_id', embalagem.tipo_insumo_id)
+        .limit(1);
+
+      if (ingredientes && ingredientes.length > 0) {
+        // Verificar se algum desses ingredientes está sendo usado em pré-preparos
+        const ingredienteIds = ingredientes.map(ing => ing.id);
+        const { data: prePreparos } = await supabase
+          .from('pre_preparos_ingredientes')
+          .select('id')
+          .in('ingrediente_id', ingredienteIds)
+          .limit(1);
+
+        if (prePreparos && prePreparos.length > 0) return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Erro ao verificar uso da embalagem:', error);
+      return false;
+    }
+  };
+
+  const handleConfirmarExclusao = async () => {
+    if (!embalagemParaExcluir) return;
+
+    try {
+      const emUso = await verificarEmbalagemEmUso(embalagemParaExcluir.id);
+
+      if (emUso) {
+        toast({
+          title: '❌ Não é possível excluir',
+          description: 'Esta embalagem está sendo utilizada em pré-preparos ou fichas técnicas. Remova-a antes de excluir.',
+          variant: 'destructive',
+        });
+        setDialogExcluirAberto(false);
+        setEmbalagemParaExcluir(null);
+        return;
+      }
+
+      // Excluir a embalagem
+      const { error } = await supabase
+        .from('embalagens')
+        .delete()
+        .eq('id', embalagemParaExcluir.id);
+
+      if (error) throw error;
+
+      toast({
+        title: '✅ Embalagem excluída',
+        description: 'A embalagem foi excluída com sucesso.',
+      });
+
+      await fetchEmbalagens();
+    } catch (error: any) {
+      console.error('Erro ao excluir embalagem:', error);
+      toast({
+        title: 'Erro ao excluir',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setDialogExcluirAberto(false);
+      setEmbalagemParaExcluir(null);
+    }
+  };
+
   const tipoSelecionadoObj = tiposDisponiveis.find((t: any) => t.id === tipoSelecionado);
   
   // Filtrar tipos pelo termo de busca (excluindo pré-preparos)
@@ -568,13 +682,29 @@ export default function Embalagens() {
                       {formatarData(embalagem.data_atualizacao)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleAbrirModal(embalagem)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleAbrirModal(embalagem)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              setEmbalagemParaExcluir(embalagem);
+                              setDialogExcluirAberto(true);
+                            }}
+                            className="text-destructive"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Excluir
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 );
@@ -793,6 +923,28 @@ export default function Embalagens() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog de Confirmação de Exclusão */}
+      <AlertDialog open={dialogExcluirAberto} onOpenChange={setDialogExcluirAberto}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir a embalagem <strong>{embalagemParaExcluir?.tipo_insumo?.descricao}</strong>?
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmarExclusao}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
