@@ -124,15 +124,30 @@ export function useEstoqueSimplificado(filtros?: FiltrosEstoque) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Usuário não autenticado');
 
+      // Buscar o item para obter tipo e unidade
+      const { data: item, error: itemError } = await supabase
+        .from('itens')
+        .select('tipo, unidade_base')
+        .eq('id', dados.item_id)
+        .single();
+
+      if (itemError) throw itemError;
+      if (!item) throw new Error('Item não encontrado');
+
+      // Converter tipo do item para o enum correto
+      let tipoItemEnum: 'INSUMO' | 'EMBALAGEM' | 'outros' = 'outros';
+      if (item.tipo === 'ingrediente') tipoItemEnum = 'INSUMO';
+      else if (item.tipo === 'embalagem') tipoItemEnum = 'EMBALAGEM';
+
       const { data, error } = await supabase
         .from('movimentacoes_estoque')
         .insert([{
           usuario_id: user.id,
           item_id: dados.item_id,
-          tipo_item: 'INSUMO',
+          tipo_item: tipoItemEnum,
           tipo: dados.tipo,
           quantidade: dados.quantidade,
-          unidade: 'un',
+          unidade: item.unidade_base,
           custo_unitario: dados.custo_unitario || null,
           custo_total: dados.custo_total || null,
           data: dados.data,
