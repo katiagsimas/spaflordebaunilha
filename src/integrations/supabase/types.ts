@@ -1864,7 +1864,7 @@ export type Database = {
       }
       estoque_atual: {
         Row: {
-          custo_medio: number
+          custo_medio: number | null
           id: string
           item_id: string
           quantidade_atual: number
@@ -1874,7 +1874,7 @@ export type Database = {
           valor_total: number
         }
         Insert: {
-          custo_medio?: number
+          custo_medio?: number | null
           id?: string
           item_id: string
           quantidade_atual?: number
@@ -1884,7 +1884,7 @@ export type Database = {
           valor_total?: number
         }
         Update: {
-          custo_medio?: number
+          custo_medio?: number | null
           id?: string
           item_id?: string
           quantidade_atual?: number
