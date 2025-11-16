@@ -43,7 +43,7 @@ export function NovoItemDialog({
   const [descricao, setDescricao] = useState(nomeInicial);
   const [quantidade, setQuantidade] = useState('');
   const [unidadeId, setUnidadeId] = useState('');
-  const [categoriaEstoqueId, setCategoriaEstoqueId] = useState('');
+  const [categoriaNome, setCategoriaNome] = useState('');
   const [marca, setMarca] = useState('');
   const [estoqueMinimo, setEstoqueMinimo] = useState('');
   const [observacoes, setObservacoes] = useState('');
@@ -97,7 +97,7 @@ export function NovoItemDialog({
           nome: descricao,
           unidade_base: unidadeId,
           quantidade_por_embalagem: parseFloat(quantidade),
-          categoria: categoriaEstoqueId || null,
+          categoria: categoriaNome || null,
           rastrear_estoque: true,
           ponto_de_pedido: estoqueMinimo ? parseFloat(estoqueMinimo) : null,
           observacoes: observacoes || null,
@@ -172,12 +172,12 @@ export function NovoItemDialog({
   };
 
   const limparFormulario = () => {
-    setDescricao('');
-    setQuantidade('');
-    setUnidadeId('');
-    setCategoriaEstoqueId('');
-    setMarca('');
-    setEstoqueMinimo('');
+      setDescricao('');
+      setQuantidade('');
+      setUnidadeId('');
+      setCategoriaNome('');
+      setMarca('');
+      setEstoqueMinimo('');
     setObservacoes('');
     setQuantidadeEntrada('');
     setValorEntrada('');
@@ -240,7 +240,7 @@ export function NovoItemDialog({
 
           <div className="space-y-2">
             <Label htmlFor="categoria">Categoria de Estoque</Label>
-            <Select value={categoriaEstoqueId} onValueChange={setCategoriaEstoqueId}>
+            <Select value={categoriaNome} onValueChange={setCategoriaNome}>
               <SelectTrigger id="categoria">
                 <SelectValue placeholder="Selecione uma categoria..." />
               </SelectTrigger>
@@ -248,7 +248,7 @@ export function NovoItemDialog({
                 {categorias
                   .filter(cat => cat.ativo)
                   .map((categoria) => (
-                    <SelectItem key={categoria.id} value={categoria.id}>
+                    <SelectItem key={categoria.id} value={categoria.nome}>
                       {categoria.icone && <span className="mr-2">{categoria.icone}</span>}
                       {categoria.nome}
                     </SelectItem>
