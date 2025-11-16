@@ -34,6 +34,26 @@ export default function ConfiguracaoTagsEncomendas() {
 
   useEffect(() => {
     fetchTags();
+
+    // Escutar mudanças em tempo real na tabela tags_encomendas
+    const channel = supabase
+      .channel('tags-encomendas-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'tags_encomendas'
+        },
+        () => {
+          fetchTags();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchTags = async () => {
