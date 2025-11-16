@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Target, Settings, Lightbulb, DollarSign, TrendingUp, BarChart3 } from "lucide-react";
+import { Target, Settings, Lightbulb, DollarSign, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -12,16 +12,7 @@ import { ConfigurarMetasModal } from "@/components/ConfigurarMetasModal";
 import { BannerBoasVindas, EstadoVazioCard } from "@/components/EstadoVazio";
 import { useUserProfile } from "@/hooks/useUserProfile";
 
-const opcoes = [
-  {
-    title: "Ponto de Equilíbrio",
-    description: "Em breve",
-    icon: Target,
-    color: "text-success bg-success/10",
-    active: false,
-    url: undefined,
-  },
-];
+const opcoes = [];
 
 export default function Planejamento() {
   const navigate = useNavigate();
@@ -36,8 +27,6 @@ export default function Planejamento() {
     config,
     calcularPrevisaoFaturamento,
     calcularPrevisaoFaturamentoCompleta,
-    calcularCMVGlobal,
-    calcularPontoEquilibrio,
     calcularFaturamentoMesAnterior,
     calcularProjecaoVendas,
   } = usePlanejamento();
@@ -45,8 +34,6 @@ export default function Planejamento() {
   useEffect(() => {
     const previsao = calcularPrevisaoFaturamento();
     const previsaoCompleta = calcularPrevisaoFaturamentoCompleta();
-    const cmvData = calcularCMVGlobal();
-    const pontoEquilibrio = calcularPontoEquilibrio();
     const faturamentoAnterior = calcularFaturamentoMesAnterior();
     const projecao = calcularProjecaoVendas();
 
@@ -55,9 +42,6 @@ export default function Planejamento() {
     const insightsGerados = gerarInsights({
       metaFaturamentoMensal: config.metaFaturamentoMensal,
       previsaoFaturamento: previsao,
-      cmvPercentual: cmvData.cmv,
-      alertaCMV: config.alertaCMV,
-      pontoEquilibrio: pontoEquilibrio.valor,
       faturamentoMesAnterior: faturamentoAnterior,
       projecaoVendas: projecao.projecao,
     });
@@ -212,20 +196,8 @@ export default function Planejamento() {
             />
 
             <EstadoVazioCard
-              titulo="🧮 CMV GLOBAL"
-              icone={<BarChart3 className="h-6 w-6 text-accent" />}
-              onConfigurar={() => setModalOpen(true)}
-            />
-
-            <EstadoVazioCard
               titulo="📈 PROJEÇÃO DE VENDAS"
               icone={<TrendingUp className="h-6 w-6 text-warning" />}
-              onConfigurar={() => setModalOpen(true)}
-            />
-
-            <EstadoVazioCard
-              titulo="⚖️ PONTO DE EQUILÍBRIO"
-              icone={<Target className="h-6 w-6 text-success" />}
               onConfigurar={() => setModalOpen(true)}
             />
           </>

@@ -6,8 +6,6 @@ export type StatusPrevisao = 'sucesso' | 'atencao' | 'critico' | 'sem_meta';
 export interface ConfiguracaoPlanejamento {
   metaFaturamentoMensal: number;
   metaFaturamentoAnual: number;
-  alertaCMV: number;
-  custoFixoMensal: number;
 }
 
 export interface PrevisaoFaturamento {
@@ -33,8 +31,6 @@ export function usePlanejamento() {
   const config: ConfiguracaoPlanejamento = {
     metaFaturamentoMensal: profile?.meta_faturamento_mensal || 10000,
     metaFaturamentoAnual: profile?.meta_faturamento_anual || 120000,
-    alertaCMV: profile?.alerta_cmv || 50,
-    custoFixoMensal: profile?.custo_fixo_mensal || 2000,
   };
 
   const formatarMesAno = (mes: number, ano: number): string => {
@@ -97,27 +93,6 @@ export function usePlanejamento() {
     return calcularFaturamentoMes(mesAtual, anoAtual);
   };
 
-  const calcularCMVGlobal = (): { cmv: number; custoTotal: number; faturamentoTotal: number } => {
-    return { cmv: 0, custoTotal: 0, faturamentoTotal: 0 };
-  };
-
-  const calcularPontoEquilibrio = (): { valor: number; alcancado: boolean } => {
-    const cmv = calcularCMVGlobal();
-    const margemContribuicao = 1 - (cmv.cmv / 100);
-    
-    if (margemContribuicao <= 0) {
-      return { valor: Infinity, alcancado: false };
-    }
-    
-    const pontoEquilibrio = config.custoFixoMensal / margemContribuicao;
-    const previsao = calcularPrevisaoFaturamento();
-    
-    return {
-      valor: pontoEquilibrio,
-      alcancado: previsao >= pontoEquilibrio,
-    };
-  };
-
   const calcularFaturamentoMesAnterior = (): number => {
     const hoje = new Date();
     const mesAtual = hoje.getMonth();
@@ -157,8 +132,6 @@ export function usePlanejamento() {
     config,
     calcularPrevisaoFaturamento,
     calcularPrevisaoFaturamentoCompleta,
-    calcularCMVGlobal,
-    calcularPontoEquilibrio,
     calcularFaturamentoMesAnterior,
     calcularProjecaoVendas,
   };
