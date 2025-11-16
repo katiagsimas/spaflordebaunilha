@@ -2345,36 +2345,6 @@ export type Database = {
           },
         ]
       }
-      producao_tarefas: {
-        Row: {
-          concluida: boolean
-          created_at: string
-          data: string
-          descricao: string
-          id: string
-          updated_at: string
-          usuario_id: string
-        }
-        Insert: {
-          concluida?: boolean
-          created_at?: string
-          data?: string
-          descricao: string
-          id?: string
-          updated_at?: string
-          usuario_id: string
-        }
-        Update: {
-          concluida?: boolean
-          created_at?: string
-          data?: string
-          descricao?: string
-          id?: string
-          updated_at?: string
-          usuario_id?: string
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           alerta_cmv: number | null
