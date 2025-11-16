@@ -393,7 +393,7 @@ export default function CatalogoItens() {
                         <TableCell>
                           {item.ponto_de_pedido || '-'}
                         </TableCell>
-                        <TableCell>{item.preco_ativo?.marca || '-'}</TableCell>
+                        <TableCell>{item.marca || '-'}</TableCell>
                         <TableCell>
                           {item.dataValidade 
                             ? new Date(item.dataValidade).toLocaleDateString('pt-BR')

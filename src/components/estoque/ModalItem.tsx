@@ -47,18 +47,21 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
           tipo: item.tipo || 'ingrediente',
           categoria: item.categoria || '',
           nome: item.nome || '',
+          marca: item.marca || '',
           unidade_base: item.unidade_base || 'g',
           quantidade_por_embalagem: item.quantidade_por_embalagem || 1,
           rastrear_estoque: item.rastrear_estoque !== undefined ? item.rastrear_estoque : true,
           ponto_de_pedido: item.ponto_de_pedido,
           observacoes: item.observacoes || '',
         });
+        setMarca(item.marca || '');
       } else {
         // Modo criação - limpar formulário
         setFormData({
           tipo: 'ingrediente',
           categoria: '',
           nome: '',
+          marca: '',
           unidade_base: 'g',
           quantidade_por_embalagem: 1,
           rastrear_estoque: true,
@@ -269,8 +272,11 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
               <Label htmlFor="marca">Marca</Label>
               <Input
                 id="marca"
-                value={marca}
-                onChange={(e) => setMarca(e.target.value)}
+                value={formData.marca}
+                onChange={(e) => {
+                  setFormData({ ...formData, marca: e.target.value });
+                  setMarca(e.target.value);
+                }}
                 placeholder="Ex: Marca X"
               />
             </div>

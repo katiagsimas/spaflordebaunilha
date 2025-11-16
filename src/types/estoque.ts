@@ -18,6 +18,7 @@ export interface Item {
   nome: string;
   descricao?: string;
   unidade_base: UnidadeBase;
+  marca?: string;
   quantidade_por_embalagem: number;
   conversoes?: Record<string, any>;
   rastrear_estoque: boolean;
