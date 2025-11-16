@@ -114,11 +114,9 @@ export function NovoItemDialog({
 
       if (itemError) throw itemError;
 
-      // Criar o preço se marca foi informada
-      if (marca) {
-        const custoUnitario = valorEntrada && quantidadeEntrada 
-          ? parseFloat(valorEntrada) / parseFloat(quantidadeEntrada)
-          : 0;
+      // Criar o preço se marca e valores foram informados
+      if (marca && valorEntrada && quantidadeEntrada) {
+        const custoUnitario = parseFloat(valorEntrada) / parseFloat(quantidadeEntrada);
 
         const { error: precoError } = await supabase
           .from('precos')
@@ -126,7 +124,7 @@ export function NovoItemDialog({
             item_id: itemData.id,
             usuario_id: user.id,
             marca: marca,
-            preco_total_embalagem: valorEntrada ? parseFloat(valorEntrada) : 0,
+            preco_total_embalagem: parseFloat(valorEntrada),
             quantidade_embalagem: parseFloat(quantidade),
             custo_unitario: custoUnitario,
             ativo: true,
