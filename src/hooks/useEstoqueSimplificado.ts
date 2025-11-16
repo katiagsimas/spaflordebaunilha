@@ -24,6 +24,9 @@ export function useEstoqueSimplificado(filtros?: FiltrosEstoque) {
     try {
       setLoading(true);
       
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuário não autenticado');
+      
       // Buscar itens
       let queryItens = supabase
         .from('itens')
@@ -47,10 +50,11 @@ export function useEstoqueSimplificado(filtros?: FiltrosEstoque) {
       const { data: itensData, error: itensError } = await queryItens;
       if (itensError) throw itensError;
 
-      // Buscar estoque usando a VIEW simplificada
+      // Buscar estoque usando a VIEW simplificada - FILTRAR POR USUARIO
       const { data: estoqueData, error: estoqueError } = await supabase
         .from('estoque_simplificado')
-        .select('*');
+        .select('*')
+        .eq('usuario_id', user.id);
       if (estoqueError) throw estoqueError;
 
       // Buscar preços ativos
@@ -243,6 +247,45 @@ export function useEstoqueSimplificado(filtros?: FiltrosEstoque) {
     }
   }, [carregarItens, toast]);
 
+  // Salvar preço
+  const salvarPreco = useCallback(async (preco: any) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuário não autenticado');
+
+      const { error } = await supabase
+        .from('precos')
+        .insert([{ ...preco, usuario_id: user.id }]);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Preço salvo!",
+        description: "O preço foi registrado com sucesso.",
+      });
+
+      await carregarItens();
+      return { success: true };
+    } catch (err: any) {
+      console.error('Erro ao salvar preço:', err);
+      toast({
+        title: "Erro ao salvar preço",
+        description: err.message,
+        variant: "destructive",
+      });
+      return { success: false, error: err };
+    }
+  }, [carregarItens, toast]);
+
+  // Ativar rastreamento
+  const ativarRastreamento = useCallback(async (itemId: string, pontoMinimo?: number) => {
+    const updates: any = { rastrear_estoque: true };
+    if (pontoMinimo !== undefined) {
+      updates.ponto_de_pedido = pontoMinimo;
+    }
+    return await atualizarItem(itemId, updates);
+  }, [atualizarItem]);
+
   useEffect(() => {
     carregarItens();
   }, [carregarItens]);
@@ -253,6 +296,8 @@ export function useEstoqueSimplificado(filtros?: FiltrosEstoque) {
     carregarItens,
     registrarMovimentacao,
     criarItem,
-    atualizarItem
+    atualizarItem,
+    salvarPreco,
+    ativarRastreamento
   };
 }
