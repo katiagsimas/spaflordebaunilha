@@ -38,10 +38,10 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
   const [quantidadeEntrada, setQuantidadeEntrada] = useState('');
   const [valorEntrada, setValorEntrada] = useState('');
 
-  // Resetar nome quando o tipo mudar
+  // Resetar categoria quando o tipo mudar
   useEffect(() => {
     if (!item) {
-      setFormData(prev => ({ ...prev, nome: '' }));
+      setFormData(prev => ({ ...prev, nome: '', categoria: '' }));
     }
   }, [formData.tipo, item]);
 
@@ -110,6 +110,14 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
                 <SelectContent>
                   {categorias
                     .filter(cat => cat.ativo)
+                    .filter(cat => {
+                      // Filtrar categorias baseado no tipo
+                      if (formData.tipo === 'ingrediente') {
+                        return cat.nome === 'Ingredientes' || cat.nome.includes('Ingrediente');
+                      } else {
+                        return cat.nome !== 'Ingredientes' && !cat.nome.includes('Ingrediente');
+                      }
+                    })
                     .map(cat => (
                       <SelectItem key={cat.id} value={cat.nome}>
                         {cat.icone && <span className="mr-2">{cat.icone}</span>}
