@@ -2156,92 +2156,6 @@ export type Database = {
           },
         ]
       }
-      sub_receitas: {
-        Row: {
-          created_at: string
-          custo_total: number
-          id: string
-          imagem_1_url: string | null
-          imagem_2_url: string | null
-          modo_preparo: string | null
-          nome: string
-          rendimento: number
-          tempo_preparo: number
-          unidade_rendimento_id: string
-          unidade_tempo: string
-          updated_at: string
-          usuario_id: string
-        }
-        Insert: {
-          created_at?: string
-          custo_total?: number
-          id?: string
-          imagem_1_url?: string | null
-          imagem_2_url?: string | null
-          modo_preparo?: string | null
-          nome: string
-          rendimento: number
-          tempo_preparo: number
-          unidade_rendimento_id: string
-          unidade_tempo: string
-          updated_at?: string
-          usuario_id: string
-        }
-        Update: {
-          created_at?: string
-          custo_total?: number
-          id?: string
-          imagem_1_url?: string | null
-          imagem_2_url?: string | null
-          modo_preparo?: string | null
-          nome?: string
-          rendimento?: number
-          tempo_preparo?: number
-          unidade_rendimento_id?: string
-          unidade_tempo?: string
-          updated_at?: string
-          usuario_id?: string
-        }
-        Relationships: []
-      }
-      sub_receitas_ingredientes: {
-        Row: {
-          created_at: string | null
-          custo_ingrediente: number
-          id: string
-          ingrediente_id: string
-          ordem: number
-          quantidade_utilizada: number
-          sub_receita_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          custo_ingrediente?: number
-          id?: string
-          ingrediente_id: string
-          ordem?: number
-          quantidade_utilizada: number
-          sub_receita_id: string
-        }
-        Update: {
-          created_at?: string | null
-          custo_ingrediente?: number
-          id?: string
-          ingrediente_id?: string
-          ordem?: number
-          quantidade_utilizada?: number
-          sub_receita_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sub_receitas_ingredientes_sub_receita_id_fkey"
-            columns: ["sub_receita_id"]
-            isOneToOne: false
-            referencedRelation: "sub_receitas"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       tags: {
         Row: {
           ativo: boolean
@@ -2724,10 +2638,6 @@ export type Database = {
       atualizar_status_parcelas_vencidas: { Args: never; Returns: undefined }
       calcular_custo_pre_preparo: {
         Args: { preparo_id: string }
-        Returns: undefined
-      }
-      calcular_custo_sub_receita: {
-        Args: { receita_id: string }
         Returns: undefined
       }
       calcular_juros_atraso: {

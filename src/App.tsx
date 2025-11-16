@@ -26,8 +26,6 @@ import Fornecedores from "./pages/cadastros/Fornecedores";
 import UnidadesMedida from "./pages/cadastros/UnidadesMedida";
 import Categorias from "./pages/cadastros/Categorias";
 
-import SubReceitas from "./pages/SubReceitas";
-import SubReceitaForm from "./pages/SubReceitaForm";
 import Receitas from "./pages/Receitas";
 import ReceitaForm from "./pages/ReceitaForm";
 import ComingSoon from "./pages/ComingSoon";
@@ -129,9 +127,6 @@ const App = () => (
           
           {/* Precificação - Página Container + Sub-rotas */}
           <Route path="/precificacao" element={<ProtectedRoute><Layout><Precificacao /></Layout></ProtectedRoute>} />
-          <Route path="/precificacao/pre-preparo" element={<ProtectedRoute><Layout><SubReceitas /></Layout></ProtectedRoute>} />
-          <Route path="/precificacao/pre-preparo/nova" element={<ProtectedRoute><Layout><SubReceitaForm /></Layout></ProtectedRoute>} />
-          <Route path="/precificacao/pre-preparo/editar/:id" element={<ProtectedRoute><Layout><SubReceitaForm /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/ficha-tecnica" element={<ProtectedRoute><Layout><Receitas /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/ficha-tecnica/nova" element={<ProtectedRoute><Layout><ReceitaForm /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/ficha-tecnica/editar/:id" element={<ProtectedRoute><Layout><ReceitaForm /></Layout></ProtectedRoute>} />
