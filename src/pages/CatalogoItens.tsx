@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +30,16 @@ export default function CatalogoItens() {
     busca: busca || undefined,
     tipo: filtroTipo === "todos" ? undefined : filtroTipo as any
   });
+
+  // Recarregar itens quando estoque for atualizado
+  useEffect(() => {
+    const handleEstoqueAtualizado = () => {
+      carregarItens();
+    };
+    
+    window.addEventListener('estoque-atualizado', handleEstoqueAtualizado);
+    return () => window.removeEventListener('estoque-atualizado', handleEstoqueAtualizado);
+  }, [carregarItens]);
 
   // Contar alertas
   const alertas = {

@@ -107,8 +107,11 @@ export function ModalItem({ open, onOpenChange, item, onSave }: ModalItemProps) 
         
         toast({
           title: "Item cadastrado",
-          description: "O item foi salvo com sucesso.",
+          description: "O item foi salvo com sucesso e o estoque foi atualizado.",
         });
+        
+        // Forçar recarregamento da listagem
+        window.dispatchEvent(new CustomEvent('estoque-atualizado'));
         onOpenChange(false);
       }
     } finally {
