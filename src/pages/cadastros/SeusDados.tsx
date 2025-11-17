@@ -14,6 +14,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { MigrateLogosToStorage } from "@/components/MigrateLogosToStorage";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 interface SeusDadosForm {
   razaoSocial: string;
@@ -36,6 +38,7 @@ export default function SeusDados() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { isAdmin } = useIsAdmin();
 
   // Buscar perfil do usuário
   const { data: profile, isLoading } = useQuery({
@@ -90,25 +93,64 @@ export default function SeusDados() {
 
   const cepValue = watch("cep");
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("A imagem deve ter no máximo 5MB");
-        return;
-      }
-      
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setLogomarca(base64String);
-      };
-      reader.readAsDataURL(file);
+    if (!file || !user) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("A imagem deve ter no máximo 5MB");
+      return;
+    }
+
+    try {
+      // Determinar extensão do arquivo
+      const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
+      const filePath = `logotipos/${user.id}/logo.${ext}`;
+
+      // Upload para o Storage (upsert = true para substituir se existir)
+      const { error: uploadError } = await supabase.storage
+        .from('logotipos')
+        .upload(filePath, file, { 
+          upsert: true,
+          contentType: file.type
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Obter URL pública
+      const { data: { publicUrl } } = supabase.storage
+        .from('logotipos')
+        .getPublicUrl(filePath);
+
+      setLogomarca(publicUrl);
+      toast.success("Logo enviada com sucesso!");
+    } catch (error: any) {
+      console.error('Erro ao fazer upload da logo:', error);
+      toast.error("Erro ao enviar logo: " + error.message);
     }
   };
 
-  const handleRemoveImage = () => {
-    setLogomarca("");
+  const handleRemoveImage = async () => {
+    if (!user) return;
+
+    try {
+      // Buscar arquivos do usuário no bucket
+      const { data: files } = await supabase.storage
+        .from('logotipos')
+        .list(`logotipos/${user.id}`);
+
+      // Deletar todos os arquivos do usuário (geralmente apenas 1 logo)
+      if (files && files.length > 0) {
+        const filePaths = files.map(f => `logotipos/${user.id}/${f.name}`);
+        await supabase.storage.from('logotipos').remove(filePaths);
+      }
+
+      setLogomarca("");
+      toast.success("Logo removida com sucesso!");
+    } catch (error: any) {
+      console.error('Erro ao remover logo:', error);
+      toast.error("Erro ao remover logo: " + error.message);
+    }
   };
 
   const handleBuscarCEP = async () => {
@@ -200,6 +242,9 @@ export default function SeusDados() {
         description={profile?.primeiro_acesso ? "Por favor, complete as informações da sua confeitaria para começar" : "Informações da sua empresa"}
         backButton={!profile?.primeiro_acesso ? <BackButton to="/configuracoes/cadastros-base" /> : undefined}
       />
+
+      {/* Componente de migração - apenas para admins */}
+      {isAdmin && <MigrateLogosToStorage />}
 
       <Card>
         <CardContent className="pt-6">
