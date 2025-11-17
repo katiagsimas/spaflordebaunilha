@@ -1843,7 +1843,7 @@ const Encomendas = () => {
                     <TableHead>Data Pedido</TableHead>
                     <TableHead>Data Entrega</TableHead>
                     <TableHead>Hora da Entrega</TableHead>
-                    <TableHead>Tags</TableHead>
+                    <TableHead>Tipo de Evento</TableHead>
                     <TableHead>Valor</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
@@ -1869,22 +1869,31 @@ const Encomendas = () => {
                       </TableCell>
                       <TableCell>{encomenda.hora_entrega ? encomenda.hora_entrega.slice(0, 5) : "-"}</TableCell>
                       
-                      {/* COLUNA DE TAGS */}
+                      {/* COLUNA DE TIPO DE EVENTO */}
                       <TableCell>
                         <div className="flex flex-wrap gap-1 max-w-xs">
-                          {encomenda.tags && encomenda.tags.length > 0 ? (
-                            encomenda.tags.map((tag: any) => (
-                              <Badge
-                                key={tag.id}
-                                style={{ backgroundColor: tag.cor, color: '#fff' }}
-                                className="text-xs"
-                              >
-                                {tag.nome}
-                              </Badge>
-                            ))
-                          ) : (
-                            <span className="text-xs text-muted-foreground">-</span>
-                          )}
+                          {(() => {
+                            const tiposEventoNomes = [
+                              'aniversário infantil', 'aniversário adulto', 'mesversário', 
+                              'batizado', 'casamento', 'noivado', 'chá de bebê', 
+                              'chá de fraldas', 'empresarial'
+                            ];
+                            const tiposEventoTags = encomenda.tags?.filter((tag: any) => 
+                              tiposEventoNomes.includes(tag.nome.toLowerCase())
+                            ) || [];
+                            
+                            return tiposEventoTags.length > 0 ? (
+                              tiposEventoTags.map((tag: any) => (
+                                <Badge
+                                  key={tag.id}
+                                  style={{ backgroundColor: tag.cor, color: '#fff' }}
+                                  className="text-xs"
+                                >
+                                  {tag.nome}
+                                </Badge>
+                              ))
+                            ) : null;
+                          })()}
                         </div>
                       </TableCell>
                       
