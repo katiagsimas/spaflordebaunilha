@@ -372,10 +372,10 @@ donna's-box/
 │   │   ├── doces-background.jpg
 │   │   ├── donnas-box-logo.png
 │   │   ├── donnas-logo.png
-│   │   ├── sugarbox-auth-logo.png
-│   │   ├── sugarbox-header.png
-│   │   ├── sugarbox-logo.png
-│   │   └── sugarbox-sidebar.png
+│   │   ├── caixa-acucar-auth-logo.png
+│   │   ├── caixa-acucar-header.png
+│   │   ├── caixa-acucar-logo.png
+│   │   └── caixa-acucar-sidebar.png
 │   ├── components/          # Componentes reutilizáveis
 │   │   ├── admin/          # Componentes administrativos
 │   │   ├── auth/           # Componentes de autenticação
