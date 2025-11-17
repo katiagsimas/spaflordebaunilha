@@ -23,6 +23,7 @@ import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import ContasReceberFormModal from "@/components/financeiro/ContasReceberFormModal";
 import { useNavigate } from "react-router-dom";
 import { EncomendaTagsSection } from "@/components/EncomendaTagsSection";
+import { MigrateEncomendasImagensToStorage } from "@/components/MigrateEncomendasImagensToStorage";
 
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from 'xlsx';
@@ -630,21 +631,30 @@ const Encomendas = () => {
 
     setUploadingImage(true);
     try {
+      // Obter usuário autenticado
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Usuário não autenticado');
+        return;
+      }
+
+      // Se estiver editando uma encomenda existente, usar o ID dela
+      // Se for nova, usar um ID temporário baseado em timestamp
+      const encomendaId = editingOrder || `temp_${Date.now()}`;
+      
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const timestamp = Date.now();
+      const fileName = `${timestamp}.${fileExt}`;
+      const filePath = `encomendas/${user.id}/${encomendaId}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('topo-bolo')
-        .upload(filePath, file);
+        .from('encomendas')
+        .upload(filePath, file, { upsert: false });
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('topo-bolo')
-        .getPublicUrl(filePath);
-
-      setFormData({ ...formData, topo_imagens: [...formData.topo_imagens, publicUrl] });
+      // Armazenar o path (não a URL completa) para facilitar migrações futuras
+      setFormData({ ...formData, topo_imagens: [...formData.topo_imagens, filePath] });
       toast.success('Imagem enviada com sucesso!');
     } catch (error: any) {
       console.error('Erro ao fazer upload:', error);
@@ -658,13 +668,22 @@ const Encomendas = () => {
 
   const handleRemoveImage = async (imageUrl: string) => {
     try {
-      // Extrair o nome do arquivo da URL
-      const fileName = imageUrl.split('/').pop();
-      if (fileName) {
+      // Se a URL é um path do Storage (não começa com http), deletar do Storage
+      if (!imageUrl.startsWith('http')) {
         await supabase.storage
-          .from('topo-bolo')
-          .remove([fileName]);
+          .from('encomendas')
+          .remove([imageUrl]);
+      } else {
+        // Se for URL antiga do topo-bolo, tentar extrair o nome do arquivo
+        const fileName = imageUrl.split('/').pop();
+        if (fileName && !fileName.includes('/')) {
+          // É uma URL antiga do formato Math.random()
+          await supabase.storage
+            .from('topo-bolo')
+            .remove([fileName]);
+        }
       }
+      
       setFormData({ 
         ...formData, 
         topo_imagens: formData.topo_imagens.filter(img => img !== imageUrl) 
@@ -898,6 +917,8 @@ const Encomendas = () => {
 
   return (
     <div className="space-y-8">
+      <MigrateEncomendasImagensToStorage />
+      
       <PageHeader
         title="Gestor de Encomendas"
         description="Controle completo de pedidos do cliente até a entrega"
@@ -1342,24 +1363,36 @@ const Encomendas = () => {
                             <div className="space-y-3">
                               {/* Grid de imagens existentes */}
                               <div className="grid grid-cols-3 gap-2">
-                                {formData.topo_imagens.map((imageUrl, index) => (
-                                  <div key={index} className="relative group">
-                                    <img
-                                      src={imageUrl}
-                                      alt={`Referência ${index + 1}`}
-                                      className="w-full h-24 object-cover rounded-lg border-2 border-pink-200 dark:border-pink-700"
-                                    />
-                                    <Button
-                                      type="button"
-                                      variant="destructive"
-                                      size="icon"
-                                      className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                                      onClick={() => handleRemoveImage(imageUrl)}
-                                    >
-                                      <X className="h-3 w-3" />
-                                    </Button>
-                                  </div>
-                                ))}
+                                {formData.topo_imagens.map((imagePath, index) => {
+                                  // Se for um path (não começa com http), gerar URL pública do bucket encomendas
+                                  // Se começar com http e tiver topo-bolo, é URL antiga
+                                  let imageUrl: string;
+                                  if (imagePath.startsWith('http')) {
+                                    imageUrl = imagePath; // URL antiga ou já convertida
+                                  } else {
+                                    // Path novo: gerar URL pública
+                                    imageUrl = supabase.storage.from('encomendas').getPublicUrl(imagePath).data.publicUrl;
+                                  }
+                                  
+                                  return (
+                                    <div key={index} className="relative group">
+                                      <img
+                                        src={imageUrl}
+                                        alt={`Referência ${index + 1}`}
+                                        className="w-full h-24 object-cover rounded-lg border-2 border-pink-200 dark:border-pink-700"
+                                      />
+                                      <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="icon"
+                                        className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        onClick={() => handleRemoveImage(imagePath)}
+                                      >
+                                        <X className="h-3 w-3" />
+                                      </Button>
+                                    </div>
+                                  );
+                                })}
                               </div>
 
                               {/* Botão de upload */}
