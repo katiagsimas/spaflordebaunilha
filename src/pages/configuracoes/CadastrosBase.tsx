@@ -83,7 +83,7 @@ export default function CadastrosBase() {
               </div>
             </div>
             <CardDescription className="text-xs line-clamp-2">
-              Crie e gerencie tags para categorizar encomendas
+              Somente Visualização
             </CardDescription>
           </CardHeader>
         </Card>
