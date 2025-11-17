@@ -209,36 +209,6 @@ export type Database = {
         }
         Relationships: []
       }
-      categorias_tags: {
-        Row: {
-          ativo: boolean
-          criado_em: string
-          descricao: string | null
-          icone: string | null
-          id: string
-          nome: string
-          ordem: number
-        }
-        Insert: {
-          ativo?: boolean
-          criado_em?: string
-          descricao?: string | null
-          icone?: string | null
-          id?: string
-          nome: string
-          ordem: number
-        }
-        Update: {
-          ativo?: boolean
-          criado_em?: string
-          descricao?: string | null
-          icone?: string | null
-          id?: string
-          nome?: string
-          ordem?: number
-        }
-        Relationships: []
-      }
       cliente_familiares: {
         Row: {
           ativo: boolean | null
@@ -1214,13 +1184,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "encomendas_tags_encomenda_id_fkey"
-            columns: ["encomenda_id"]
-            isOneToOne: false
-            referencedRelation: "vw_encomendas_com_tags"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "encomendas_tags_tag_id_fkey"
             columns: ["tag_id"]
             isOneToOne: false
@@ -2126,15 +2089,7 @@ export type Database = {
           nome?: string
           ordem?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "tags_categoria_id_fkey"
-            columns: ["categoria_id"]
-            isOneToOne: false
-            referencedRelation: "categorias_tags"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       tags_encomendas: {
         Row: {
@@ -2475,48 +2430,6 @@ export type Database = {
             columns: ["tipo_documento_id"]
             isOneToOne: false
             referencedRelation: "tipos_documento"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      vw_encomendas_com_tags: {
-        Row: {
-          cep: string | null
-          cliente: string | null
-          conta_receber_id: string | null
-          created_at: string | null
-          data_entrega: string | null
-          data_pedido: string | null
-          desconto_percentual: number | null
-          desconto_valor: number | null
-          endereco: string | null
-          hora_entrega: string | null
-          id: string | null
-          numero: string | null
-          observacoes: string | null
-          outros: number | null
-          pagamentos: Json | null
-          saldo_restante: number | null
-          status: string | null
-          tags: Json | null
-          taxa_entrega: number | null
-          telefone: string | null
-          topo_aniversariante: string | null
-          topo_bolo: number | null
-          topo_idade: string | null
-          topo_imagens: Json | null
-          topo_obs: string | null
-          topo_tema: string | null
-          updated_at: string | null
-          usuario_id: string | null
-          valor: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "encomendas_conta_receber_id_fkey"
-            columns: ["conta_receber_id"]
-            isOneToOne: false
-            referencedRelation: "contas_receber"
             referencedColumns: ["id"]
           },
         ]
