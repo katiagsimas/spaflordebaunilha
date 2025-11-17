@@ -104,7 +104,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border bg-card shadow-[2px_0_12px_rgba(107,80,71,0.06)]" style={{ width: open ? '280px' : undefined }}>
+    <Sidebar collapsible="icon" className="border-r border-border bg-app shadow-[2px_0_12px_rgba(107,80,71,0.06)]" style={{ width: open ? '280px' : undefined }}>
       <SidebarHeader className="border-b border-border p-6">
         {open && (
           <div className="flex justify-center">
