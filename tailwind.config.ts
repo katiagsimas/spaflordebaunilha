@@ -52,15 +52,19 @@ export default {
         },
         success: {
           DEFAULT: "hsl(var(--success))",
+          light: "hsl(var(--success) / 0.1)",
         },
         warning: {
           DEFAULT: "hsl(var(--warning))",
+          light: "hsl(var(--warning) / 0.1)",
         },
         error: {
           DEFAULT: "hsl(var(--error))",
+          light: "hsl(var(--error) / 0.1)",
         },
         info: {
           DEFAULT: "hsl(var(--info))",
+          light: "hsl(var(--info) / 0.1)",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

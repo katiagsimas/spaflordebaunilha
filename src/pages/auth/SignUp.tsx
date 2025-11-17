@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Mail, Lock, User, Store, Eye, EyeOff } from 'lucide-react';
-import caixaAcucarLogo from '@/assets/donnas-box-logo.png';
+import caixaAcucarLogo from '@/assets/caixa-acucar-logo.png';
 import authBackground from '@/assets/auth-background.jpg';
 import { z } from 'zod';
 import { validarSenhaForte } from '@/lib/validacaoSenha';
