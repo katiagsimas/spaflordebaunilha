@@ -16,6 +16,9 @@ All colors MUST be HSL.
     --color-warning: 45 89% 61%;        /* #F4C542 - Alerta/Aviso */
     --color-success: 142 44% 47%;       /* #3BA55D - Sucesso */
     --color-error: 355 52% 46%;         /* #B0353D - Erro */
+    
+    /* Fundo geral das páginas */
+    --color-background-app: #FFF9E5;    /* Amarelo claro */
 
     /* Sistema de cores mapeado para Shadcn */
     --background: 0 0% 100%;
