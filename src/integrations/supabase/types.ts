@@ -14,51 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      admin_audit_log: {
-        Row: {
-          action: string
-          admin_id: string
-          created_at: string
-          id: string
-          ip_address: unknown
-          module: string | null
-          new_value: Json | null
-          old_value: Json | null
-          reason: string | null
-          record_id: string | null
-          target_user_id: string | null
-          user_agent: string | null
-        }
-        Insert: {
-          action: string
-          admin_id: string
-          created_at?: string
-          id?: string
-          ip_address?: unknown
-          module?: string | null
-          new_value?: Json | null
-          old_value?: Json | null
-          reason?: string | null
-          record_id?: string | null
-          target_user_id?: string | null
-          user_agent?: string | null
-        }
-        Update: {
-          action?: string
-          admin_id?: string
-          created_at?: string
-          id?: string
-          ip_address?: unknown
-          module?: string | null
-          new_value?: Json | null
-          old_value?: Json | null
-          reason?: string | null
-          record_id?: string | null
-          target_user_id?: string | null
-          user_agent?: string | null
-        }
-        Relationships: []
-      }
       admin_logs: {
         Row: {
           acao: string
@@ -1638,7 +1593,6 @@ export type Database = {
           planejamento_banner_dismissed: boolean | null
           primeiro_acesso: boolean | null
           razao_social: string | null
-          tags: string[] | null
           telefone: string | null
           updated_at: string | null
           valor_hora: number | null
@@ -1672,7 +1626,6 @@ export type Database = {
           planejamento_banner_dismissed?: boolean | null
           primeiro_acesso?: boolean | null
           razao_social?: string | null
-          tags?: string[] | null
           telefone?: string | null
           updated_at?: string | null
           valor_hora?: number | null
@@ -1706,7 +1659,6 @@ export type Database = {
           planejamento_banner_dismissed?: boolean | null
           primeiro_acesso?: boolean | null
           razao_social?: string | null
-          tags?: string[] | null
           telefone?: string | null
           updated_at?: string | null
           valor_hora?: number | null
@@ -2258,40 +2210,6 @@ export type Database = {
       }
     }
     Views: {
-      admin_recent_activity: {
-        Row: {
-          action: string | null
-          admin_email: string | null
-          admin_id: string | null
-          created_at: string | null
-          id: string | null
-          module: string | null
-          reason: string | null
-          target_user_email: string | null
-          target_user_id: string | null
-        }
-        Relationships: []
-      }
-      user_statistics: {
-        Row: {
-          cadastrado_em: string | null
-          confeitaria: string | null
-          email: string | null
-          full_name: string | null
-          permissao: Database["public"]["Enums"]["app_role"] | null
-          status: boolean | null
-          total_clientes: number | null
-          total_contas_pagar: number | null
-          total_contas_receber: number | null
-          total_encomendas: number | null
-          total_fornecedores: number | null
-          total_receitas: number | null
-          ultimo_acesso: string | null
-          user_id: string | null
-          valor_total_encomendas: number | null
-        }
-        Relationships: []
-      }
       v_aniversariantes_completa: {
         Row: {
           cliente_id: string | null
