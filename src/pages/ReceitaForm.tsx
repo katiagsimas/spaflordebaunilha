@@ -515,24 +515,92 @@ export default function ReceitaForm() {
     setEmbalagens(embalagens.filter((_, i) => i !== index));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
-    Array.from(files).forEach(file => {
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          if (event.target?.result) {
-            setImagens(prev => [...prev, event.target!.result as string]);
+    const { data: { user } } = await supabase.auth.getUser();
+    const userId = user?.id;
+    if (!userId) {
+      toast.error('Usuário não autenticado');
+      return;
+    }
+
+    // Se já existe uma receita (está editando), podemos fazer upload imediatamente
+    // Se não existe, salvaremos os arquivos temporariamente e faremos upload ao salvar
+    const uploadPromises = Array.from(files).map(async (file) => {
+      if (!file.type.startsWith('image/')) return null;
+
+      try {
+        // Se está editando uma receita existente, fazer upload imediatamente
+        if (id) {
+          const ext = file.name.split('.').pop() || 'jpg';
+          const timestamp = Date.now();
+          const fileName = `${timestamp}.${ext}`;
+          const path = `receitas/${userId}/${id}/${fileName}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('receitas')
+            .upload(path, file, { upsert: false });
+
+          if (uploadError) {
+            console.error('Erro ao fazer upload:', uploadError);
+            toast.error(`Erro ao fazer upload da imagem: ${uploadError.message}`);
+            return null;
           }
-        };
-        reader.readAsDataURL(file);
+
+          // Retornar o path para adicionar ao estado
+          return path;
+        } else {
+          // Se está criando nova receita, guardar o arquivo em base64 temporariamente
+          // Será convertido para Storage após criar a receita
+          return new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              if (event.target?.result) {
+                resolve(event.target.result as string);
+              }
+            };
+            reader.readAsDataURL(file);
+          });
+        }
+      } catch (error) {
+        console.error('Erro ao processar imagem:', error);
+        return null;
       }
     });
+
+    const urls = await Promise.all(uploadPromises);
+    const validUrls = urls.filter((url): url is string => url !== null);
+    
+    if (validUrls.length > 0) {
+      setImagens(prev => [...prev, ...validUrls]);
+      if (id) {
+        toast.success(`${validUrls.length} imagem(ns) adicionada(s) com sucesso`);
+      }
+    }
   };
 
-  const handleRemoveImage = (index: number) => {
+  const handleRemoveImage = async (index: number) => {
+    const imagemUrl = imagens[index];
+    
+    // Se a imagem está no Storage (não é base64), deletar do Storage
+    if (imagemUrl && !imagemUrl.startsWith('data:')) {
+      try {
+        const { error } = await supabase.storage
+          .from('receitas')
+          .remove([imagemUrl]);
+        
+        if (error) {
+          console.error('Erro ao deletar imagem:', error);
+          toast.error('Erro ao deletar imagem do storage');
+          return;
+        }
+      } catch (error) {
+        console.error('Erro ao deletar imagem:', error);
+      }
+    }
+    
     setImagens(imagens.filter((_, i) => i !== index));
   };
 
@@ -774,17 +842,64 @@ export default function ReceitaForm() {
 
       // Inserir imagens
       if (imagens.length > 0) {
-        const imagensData = imagens.map((url, index) => ({
-          receita_id: receitaId,
-          url,
-          ordem: index,
-        }));
+        const imagensData = [];
+        
+        // Processar cada imagem
+        for (let index = 0; index < imagens.length; index++) {
+          const imagemUrl = imagens[index];
+          
+          // Se for base64 (nova receita criada), fazer upload para Storage
+          if (imagemUrl.startsWith('data:')) {
+            try {
+              // Converter base64 para blob
+              const response = await fetch(imagemUrl);
+              const blob = await response.blob();
+              
+              // Determinar extensão
+              const mimeType = blob.type;
+              const ext = mimeType.split('/')[1] || 'jpg';
+              
+              // Fazer upload
+              const timestamp = Date.now();
+              const fileName = `${timestamp}_${index}.${ext}`;
+              const path = `receitas/${user?.id}/${receitaId}/${fileName}`;
+              
+              const { error: uploadError } = await supabase.storage
+                .from('receitas')
+                .upload(path, blob, { upsert: false });
+              
+              if (uploadError) {
+                console.error('Erro ao fazer upload:', uploadError);
+                throw uploadError;
+              }
+              
+              // Adicionar path ao array de imagens
+              imagensData.push({
+                receita_id: receitaId,
+                url: path,
+                ordem: index,
+              });
+            } catch (error) {
+              console.error('Erro ao processar imagem base64:', error);
+              throw error;
+            }
+          } else {
+            // Se já é um path do Storage, usar diretamente
+            imagensData.push({
+              receita_id: receitaId,
+              url: imagemUrl,
+              ordem: index,
+            });
+          }
+        }
 
-        const { error: imagensError } = await supabase
-          .from('receitas_imagens')
-          .insert(imagensData);
+        if (imagensData.length > 0) {
+          const { error: imagensError } = await supabase
+            .from('receitas_imagens')
+            .insert(imagensData);
 
-        if (imagensError) throw imagensError;
+          if (imagensError) throw imagensError;
+        }
       }
       
       // Salvar mãos de obra
