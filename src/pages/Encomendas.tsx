@@ -1618,13 +1618,13 @@ const Encomendas = () => {
       </div>
 
       {/* Filtros */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-2">
         {/* Filtro de Cliente */}
         <Card className="shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <Label htmlFor="filtro-cliente" className="text-sm font-medium mb-2 block">Cliente</Label>
+          <CardContent className="p-3">
+            <Label htmlFor="filtro-cliente" className="text-xs mb-1.5 block">Cliente</Label>
             <Select value={clienteFilter} onValueChange={setClienteFilter}>
-              <SelectTrigger id="filtro-cliente" className="bg-background">
+              <SelectTrigger id="filtro-cliente" className="bg-background h-9 text-sm">
                 <SelectValue placeholder="Todos os clientes" />
               </SelectTrigger>
               <SelectContent className="bg-popover z-50">
@@ -1641,10 +1641,10 @@ const Encomendas = () => {
 
         {/* Filtro de Status */}
         <Card className="shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <Label htmlFor="filtro-status" className="text-sm font-medium mb-2 block">Status</Label>
+          <CardContent className="p-3">
+            <Label htmlFor="filtro-status" className="text-xs mb-1.5 block">Status</Label>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger id="filtro-status" className="bg-background">
+              <SelectTrigger id="filtro-status" className="bg-background h-9 text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-popover z-50">
@@ -1662,10 +1662,10 @@ const Encomendas = () => {
 
         {/* Filtro de Origem do pedido */}
         <Card className="shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <Label className="text-sm font-medium mb-2 block">Origem do pedido</Label>
+          <CardContent className="p-3">
+            <Label className="text-xs mb-1.5 block">Origem</Label>
             <Select value={tagFilter} onValueChange={setTagFilter}>
-              <SelectTrigger className="bg-background">
+              <SelectTrigger className="bg-background h-9 text-sm">
                 <SelectValue placeholder="Todas" />
               </SelectTrigger>
               <SelectContent className="bg-popover z-50">
@@ -1685,10 +1685,10 @@ const Encomendas = () => {
 
         {/* Filtro de Tipo de evento */}
         <Card className="shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <Label className="text-sm font-medium mb-2 block">Tipo de evento</Label>
+          <CardContent className="p-3">
+            <Label className="text-xs mb-1.5 block">Evento</Label>
             <Select value={tagFilter} onValueChange={setTagFilter}>
-              <SelectTrigger className="bg-background">
+              <SelectTrigger className="bg-background h-9 text-sm">
                 <SelectValue placeholder="Todos" />
               </SelectTrigger>
               <SelectContent className="bg-popover z-50">
@@ -1708,24 +1708,25 @@ const Encomendas = () => {
 
         {/* Filtro de Data da Entrega */}
         <Card className="shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <Label htmlFor="filtro-data-entrega" className="text-sm font-medium mb-2 block">Data da Entrega</Label>
+          <CardContent className="p-3">
+            <Label htmlFor="filtro-data-entrega" className="text-xs mb-1.5 block">Data Entrega</Label>
             <Input
               id="filtro-data-entrega"
               type="date"
               value={dataEntregaFilter}
               onChange={(e) => setDataEntregaFilter(e.target.value)}
-              className="bg-background"
+              className="bg-background h-9 text-sm"
             />
           </CardContent>
         </Card>
 
         {/* Botão Limpar Filtros */}
         <Card className="shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-4 flex items-end h-full">
+          <CardContent className="p-3 flex items-end h-full">
             <Button
               variant="outline"
-              className="w-full"
+              size="sm"
+              className="w-full h-9 text-xs"
               onClick={() => {
                 setClienteFilter("Todos");
                 setStatusFilter("Todos");
@@ -1735,8 +1736,8 @@ const Encomendas = () => {
                 toast.success("Filtros limpos com sucesso!");
               }}
             >
-              <X className="h-4 w-4 mr-2" />
-              Limpar Filtros
+              <X className="h-3 w-3 mr-1.5" />
+              Limpar
             </Button>
           </CardContent>
         </Card>
