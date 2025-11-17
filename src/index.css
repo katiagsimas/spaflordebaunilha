@@ -62,6 +62,7 @@ All colors MUST be HSL.
     --sidebar-border: 0 0% 15%;
     --sidebar-ring: 354 58% 59%;
 
+    --color-background-app: #FADDE1;
     --gradient-primary: linear-gradient(135deg, hsl(354 58% 59%), hsl(354 58% 50%));
     --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 98%));
     --shadow-soft: 0 2px 8px -2px rgba(0, 0, 0, 0.06);
@@ -129,6 +130,10 @@ All colors MUST be HSL.
 }
 
 @layer components {
+  .bg-app {
+    background-color: var(--color-background-app);
+  }
+
   .gradient-primary {
     background: var(--gradient-primary);
   }
