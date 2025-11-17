@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { GlobalLoadingProvider, useGlobalLoading } from "@/contexts/GlobalLoadingContext";
+import { LoadingMascote } from "@/components/LoadingMascote";
 import { FirstAccessRedirect } from "@/components/FirstAccessRedirect";
 import { Loader2 } from "lucide-react";
 import Dashboard from "./pages/Dashboard";
@@ -77,33 +79,43 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const Layout = ({ children }: { children: React.ReactNode }) => (
-  <SidebarProvider>
-    <div className="flex min-h-screen w-full">
-      <AppSidebar />
-      <div className="flex-1 flex flex-col">
-        <header className="sticky top-0 z-10 h-14 border-b bg-background/80 backdrop-blur-md shadow-sm supports-[backdrop-filter]:bg-background/70">
-          <div className="flex h-full items-center px-4 gap-3 bg-[#FFF9E5]">
-            <SidebarTrigger className="hover:bg-accent/50 transition-colors" />
-            <div className="h-6 w-px bg-border" />
-          </div>
-        </header>
-        <main className="flex-1 p-6 md:p-8" style={{ backgroundColor: 'var(--color-background-app)' }}>
-          <FirstAccessRedirect />
-          {children}
-        </main>
+const Layout = ({ children }: { children: React.ReactNode }) => {
+  const { isLoading } = useGlobalLoading();
+
+  return (
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full">
+        <AppSidebar />
+        <div className="flex-1 flex flex-col relative">
+          <header className="sticky top-0 z-10 h-14 border-b bg-background/80 backdrop-blur-md shadow-sm supports-[backdrop-filter]:bg-background/70">
+            <div className="flex h-full items-center px-4 gap-3 bg-[#FFF9E5]">
+              <SidebarTrigger className="hover:bg-accent/50 transition-colors" />
+              <div className="h-6 w-px bg-border" />
+            </div>
+          </header>
+          <main className="flex-1 p-6 md:p-8 relative" style={{ backgroundColor: 'var(--color-background-app)' }}>
+            {isLoading && (
+              <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+                <LoadingMascote size={120} label="Carregando..." />
+              </div>
+            )}
+            <FirstAccessRedirect />
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
-  </SidebarProvider>
-);
+    </SidebarProvider>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+      <GlobalLoadingProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
           <Routes>
             {/* Auth routes */}
             <Route path="/auth/login" element={<AuthLogin />} />
@@ -187,6 +199,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
+      </GlobalLoadingProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

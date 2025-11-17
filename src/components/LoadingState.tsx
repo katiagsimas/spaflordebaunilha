@@ -1,4 +1,4 @@
-import { CakeSlice } from "lucide-react";
+import { LoadingMascote } from "./LoadingMascote";
 
 interface LoadingStateProps {
   message?: string;
@@ -12,12 +12,7 @@ export const LoadingState = ({
   return (
     <div className="min-h-[400px] flex items-center justify-center">
       <div className="text-center space-y-6">
-        <div className="relative">
-          <CakeSlice className="w-24 h-24 text-primary mx-auto animate-pulse" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-32 h-32 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-          </div>
-        </div>
+        <LoadingMascote size={96} label="" />
         <div className="space-y-2">
           <h3 className="text-xl font-semibold text-foreground">{message}</h3>
           <p className="text-muted-foreground">{submessage}</p>
@@ -34,12 +29,7 @@ export const LoadingStateFullScreen = ({
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center space-y-6">
-        <div className="relative">
-          <CakeSlice className="w-24 h-24 text-primary mx-auto animate-pulse" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-32 h-32 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-          </div>
-        </div>
+        <LoadingMascote size={96} label="" />
         <div className="space-y-2">
           <h3 className="text-xl font-semibold text-foreground">{message}</h3>
           <p className="text-muted-foreground">{submessage}</p>
