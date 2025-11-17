@@ -8,7 +8,6 @@ interface Fornecedor {
   usuario_id: string;
   nome: string;
   tipo?: string;
-  tipo_fornecedor?: string;
   cpf_cnpj?: string;
   telefone?: string;
   email?: string;
