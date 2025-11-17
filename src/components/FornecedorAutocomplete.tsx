@@ -57,8 +57,6 @@ export function FornecedorAutocomplete({
     cpf_cnpj: "",
     telefone: "",
     email: "",
-    contato: "",
-    data_aniversario_contato: "",
     observacoes: "",
   });
 
@@ -85,8 +83,6 @@ export function FornecedorAutocomplete({
       cpf_cnpj: "",
       telefone: "",
       email: "",
-      contato: "",
-      data_aniversario_contato: "",
       observacoes: "",
     });
     setDialogOpen(true);
@@ -108,8 +104,6 @@ export function FornecedorAutocomplete({
         cpf_cnpj: formData.cpf_cnpj || null,
         telefone: formData.telefone || null,
         email: formData.email || null,
-        contato: formData.contato || null,
-        data_aniversario_contato: formData.data_aniversario_contato || null,
         observacoes: formData.observacoes || null,
       };
 
@@ -126,8 +120,6 @@ export function FornecedorAutocomplete({
         cpf_cnpj: "",
         telefone: "",
         email: "",
-        contato: "",
-        data_aniversario_contato: "",
         observacoes: "",
       });
       toast.success("Fornecedor cadastrado com sucesso!");
@@ -276,24 +268,6 @@ export function FornecedorAutocomplete({
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="email@exemplo.com"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="contato">Nome do Contato</Label>
-                <Input
-                  id="contato"
-                  value={formData.contato}
-                  onChange={(e) => setFormData({ ...formData, contato: e.target.value })}
-                  placeholder="Nome da pessoa de contato"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="data_aniversario_contato">Data de Aniversário do Contato</Label>
-                <Input
-                  id="data_aniversario_contato"
-                  type="date"
-                  value={formData.data_aniversario_contato}
-                  onChange={(e) => setFormData({ ...formData, data_aniversario_contato: e.target.value })}
                 />
               </div>
             </div>

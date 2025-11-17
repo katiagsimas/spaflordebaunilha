@@ -17,8 +17,6 @@ interface FornecedorFormData {
   cpf_cnpj: string;
   telefone: string;
   email: string;
-  contato: string;
-  data_aniversario_contato: string;
   observacoes: string;
 }
 
@@ -37,8 +35,6 @@ const defaultFormData: FornecedorFormData = {
   cpf_cnpj: '',
   telefone: '',
   email: '',
-  contato: '',
-  data_aniversario_contato: '',
   observacoes: '',
 };
 
@@ -69,13 +65,7 @@ export function FornecedorFormDialog({
       return; // O campo nome já tem required, mas adiciona validação extra
     }
     
-    // Converter campos de data vazios para null
-    const dadosLimpos = {
-      ...formData,
-      data_aniversario_contato: formData.data_aniversario_contato || null,
-    };
-    
-    await onSubmit(dadosLimpos);
+    await onSubmit(formData);
   };
 
   const handleCancel = () => {
@@ -149,26 +139,6 @@ export function FornecedorFormDialog({
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="email@exemplo.com"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="contato">Contato</Label>
-              <Input
-                id="contato"
-                value={formData.contato}
-                onChange={(e) => setFormData({ ...formData, contato: e.target.value })}
-                placeholder="Nome do contato"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="data_aniversario_contato">Aniversário do Contato</Label>
-              <Input
-                id="data_aniversario_contato"
-                type="date"
-                value={formData.data_aniversario_contato}
-                onChange={(e) =>
-                  setFormData({ ...formData, data_aniversario_contato: e.target.value })
-                }
               />
             </div>
           </div>

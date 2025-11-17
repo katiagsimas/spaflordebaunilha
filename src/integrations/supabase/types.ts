@@ -1254,10 +1254,8 @@ export type Database = {
       }
       fornecedores: {
         Row: {
-          contato: string | null
           cpf_cnpj: string | null
           created_at: string
-          data_aniversario_contato: string | null
           email: string | null
           id: string
           nome: string
@@ -1269,10 +1267,8 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
-          contato?: string | null
           cpf_cnpj?: string | null
           created_at?: string
-          data_aniversario_contato?: string | null
           email?: string | null
           id?: string
           nome: string
@@ -1284,10 +1280,8 @@ export type Database = {
           usuario_id: string
         }
         Update: {
-          contato?: string | null
           cpf_cnpj?: string | null
           created_at?: string
-          data_aniversario_contato?: string | null
           email?: string | null
           id?: string
           nome?: string
@@ -2342,7 +2336,22 @@ export type Database = {
           tipo: string | null
           usuario_id: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_fornecedor_contato"
+            columns: ["fornecedor_id"]
+            isOneToOne: false
+            referencedRelation: "fornecedores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fornecedor_contatos_fornecedor_id_fkey"
+            columns: ["fornecedor_id"]
+            isOneToOne: false
+            referencedRelation: "fornecedores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vw_contas_receber_dashboard: {
         Row: {
