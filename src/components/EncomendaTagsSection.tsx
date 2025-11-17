@@ -85,12 +85,19 @@ export function EncomendaTagsSection({
     const nomeNormalizado = tag.nome.toLowerCase().trim();
     let encontrado = false;
 
-    for (const [grupo, nomes] of Object.entries(TAG_GROUPS)) {
-      if (nomes.includes(nomeNormalizado as any)) {
-        tagsAgrupadas[grupo as keyof typeof TAG_GROUPS].push(tag);
-        encontrado = true;
-        break;
-      }
+    // Verificar em qual grupo a tag se encaixa
+    if (TAG_GROUPS.origem.includes(nomeNormalizado as any)) {
+      tagsAgrupadas.origem.push(tag);
+      encontrado = true;
+    } else if (TAG_GROUPS.tipoEntrega.includes(nomeNormalizado as any)) {
+      tagsAgrupadas.tipoEntrega.push(tag);
+      encontrado = true;
+    } else if (TAG_GROUPS.recorrencia.includes(nomeNormalizado as any)) {
+      tagsAgrupadas.recorrencia.push(tag);
+      encontrado = true;
+    } else if (TAG_GROUPS.tipoEvento.includes(nomeNormalizado as any)) {
+      tagsAgrupadas.tipoEvento.push(tag);
+      encontrado = true;
     }
 
     if (!encontrado) {
