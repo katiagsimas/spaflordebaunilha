@@ -282,12 +282,25 @@ export default function ContasPagarDetalhes() {
 
       if (data) {
         const comprovantesMap: Record<string, any[]> = {};
-        data.forEach(comp => {
+        
+        // Gerar signed URLs para cada comprovante (válidas por 15 minutos)
+        for (const comp of data) {
+          const { data: signedData, error } = await supabase.storage
+            .from('comprovantes-pagar')
+            .createSignedUrl(comp.url_storage, 900); // 900 segundos = 15 minutos
+          
+          // Adicionar signed_url ao objeto (cast para any para evitar erro de tipo)
+          const comprovanteComSignedUrl: any = {
+            ...comp,
+            signed_url: (!error && signedData) ? signedData.signedUrl : null
+          };
+          
           if (!comprovantesMap[comp.pagamento_id]) {
             comprovantesMap[comp.pagamento_id] = [];
           }
-          comprovantesMap[comp.pagamento_id].push(comp);
-        });
+          comprovantesMap[comp.pagamento_id].push(comprovanteComSignedUrl);
+        }
+        
         setComprovantes(comprovantesMap);
       }
     } catch (error) {
@@ -426,15 +439,10 @@ export default function ContasPagarDetalhes() {
 
       if (comprovantes && comprovantes.length > 0) {
         for (const comp of comprovantes) {
-          // Extrair caminho do arquivo da URL
-          const url = new URL(comp.url_storage);
-          const path = url.pathname.split('/storage/v1/object/public/comprovantes-pagar/')[1];
-          
-          if (path) {
-            await supabase.storage
-              .from('comprovantes-pagar')
-              .remove([path]);
-          }
+          // url_storage agora contém apenas o path
+          await supabase.storage
+            .from('comprovantes-pagar')
+            .remove([comp.url_storage]);
         }
 
         // Deletar registros de comprovantes
@@ -937,10 +945,20 @@ export default function ContasPagarDetalhes() {
                                   {comprovantes[pag.id].map((comp: any) => (
                                     <a
                                       key={comp.id}
-                                      href={comp.url_storage}
+                                      href={comp.signed_url || '#'}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="text-xs bg-white px-3 py-1.5 rounded border hover:bg-gray-50 flex items-center gap-2"
+                                      className="text-xs bg-white px-3 py-1.5 rounded border hover:bg-gray-50 flex items-center gap-2 disabled:opacity-50"
+                                      onClick={(e) => {
+                                        if (!comp.signed_url) {
+                                          e.preventDefault();
+                                          toast({
+                                            title: 'Erro',
+                                            description: 'Link temporário expirado. Recarregue a página.',
+                                            variant: 'destructive',
+                                          });
+                                        }
+                                      }}
                                     >
                                       <FileText className="h-3 w-3" />
                                       {comp.nome_arquivo}
