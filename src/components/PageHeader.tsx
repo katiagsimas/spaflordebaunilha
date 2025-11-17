@@ -24,7 +24,7 @@ export function PageHeader({ title, description, actions, showGreeting = false, 
   };
 
   return (
-    <div className="bg-card border-b border-border shadow-[0_1px_3px_rgba(107,80,71,0.05)] px-8 py-6">
+    <div className="bg-card border-b border-border shadow-soft px-8 py-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex-1">
           {showGreeting && nomeNegocio && (

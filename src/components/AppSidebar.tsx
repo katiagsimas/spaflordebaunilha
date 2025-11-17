@@ -1,5 +1,5 @@
 import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake, Shield, FileText } from "lucide-react";
-import caixaAcucarLogo from "@/assets/donnas-box-logo.png";
+import caixaAcucarLogo from "@/assets/caixa-acucar-logo.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
