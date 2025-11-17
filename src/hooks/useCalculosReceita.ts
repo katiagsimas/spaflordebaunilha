@@ -14,7 +14,6 @@ export interface ResumoReceita {
   unidadeRendimento: string;
   tempoPreparo: number;
   unidadeTempo: string;
-  perfilMaoObraId: string | null;
   custoIngredientes: number;
   custoEmbalagens: number;
   custoMaoObra: number;
@@ -177,7 +176,6 @@ export function useCalculosReceita() {
           unidadeRendimento: receita.unidade_rendimento,
           tempoPreparo: receita.tempo_preparo,
           unidadeTempo: receita.unidade_tempo,
-          perfilMaoObraId: receita.perfil_mao_obra_id,
           custoIngredientes,
           custoEmbalagens,
           custoMaoObra,

@@ -243,7 +243,6 @@ export default function ReceitaForm() {
     cardapio: "ativo" as "ativo" | "fora",
     rendimento: "",
     unidadeRendimentoId: "",
-    perfilMaoObraId: "default" as string,
   });
   
   const [ingredientes, setIngredientes] = useState<IngredienteReceita[]>([]);
@@ -328,7 +327,6 @@ export default function ReceitaForm() {
             cardapio: (receitaData.cardapio as "ativo" | "fora") || "ativo",
             rendimento: receitaData.rendimento.toString(),
             unidadeRendimentoId: receitaData.unidade_rendimento,
-            perfilMaoObraId: "default", // Campo mantido por compatibilidade mas não usado
           });
           
           // Carregar mãos de obra
@@ -677,7 +675,6 @@ export default function ReceitaForm() {
         custo_total: custoParaSalvar,
         valor_venda: valorVenda || null,
         modo_preparo: modoPreparo || null,
-        perfil_mao_obra_id: null, // Não usa mais este campo
       };
 
       let receitaId: string;
