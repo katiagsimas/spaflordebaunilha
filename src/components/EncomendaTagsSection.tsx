@@ -1,49 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Toggle } from "@/components/ui/toggle";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown } from "lucide-react";
-import { useState } from "react";
-
-const TAG_GROUPS = {
-  origem: [
-    "instagram",
-    "whatsapp",
-    "indicação",
-    "google maps",
-    "fidelização interna",
-    "parceria local",
-  ],
-  tipoEntrega: [
-    "retirada",
-    "delivery",
-  ],
-  recorrencia: [
-    "primeira compra",
-    "cliente recorrente",
-    "assinatura",
-  ],
-  tipoEvento: [
-    "aniversário infantil",
-    "aniversário adulto",
-    "mesversário",
-    "batizado",
-    "casamento",
-    "noivado",
-    "chá de bebê",
-    "chá de fraldas",
-    "empresarial",
-  ],
-} as const;
-
-const GROUP_LABELS = {
-  tipoEvento: "Tipo de evento",
-  origem: "Origem do pedido",
-  tipoEntrega: "Tipo de entrega",
-  recorrencia: "Recorrência",
-} as const;
-
-const GROUP_ORDER = ['tipoEvento', 'origem', 'tipoEntrega', 'recorrencia'] as const;
+import { Tag as TagIcon } from "lucide-react";
 
 interface Tag {
   id: string;
@@ -65,61 +23,17 @@ export function EncomendaTagsSection({
   onTagToggle 
 }: EncomendaTagsSectionProps) {
   
-  // Estados para controlar abertura de cada grupo
-  const [gruposAbertos, setGruposAbertos] = useState<Record<string, boolean>>({
-    tipoEvento: false,
-    origem: false,
-    tipoEntrega: false,
-    recorrencia: false,
-  });
-
-  const toggleGrupo = (grupo: string) => {
-    setGruposAbertos(prev => ({
-      ...prev,
-      [grupo]: !prev[grupo]
-    }));
-  };
-  
-  // Agrupar tags disponíveis por tipo
-  const tagsPorGrupo = {
-    origem: [] as Tag[],
-    tipoEntrega: [] as Tag[],
-    recorrencia: [] as Tag[],
-    tipoEvento: [] as Tag[],
-    outros: [] as Tag[],
-  };
-
-  tagsDisponiveis.forEach(tag => {
-    const nomeNormalizado = tag.nome.toLowerCase().trim();
-    let encontrou = false;
-
-    for (const [grupo, nomes] of Object.entries(TAG_GROUPS)) {
-      if (nomes.some(n => n.toLowerCase() === nomeNormalizado)) {
-        tagsPorGrupo[grupo as keyof typeof TAG_GROUPS].push(tag);
-        encontrou = true;
-        break;
-      }
-    }
-
-    if (!encontrou) {
-      tagsPorGrupo.outros.push(tag);
-    }
-  });
-
   const isTagSelecionada = (tagId: string) => {
     return tagsSelecionadas.some(t => t.id === tagId);
-  };
-
-  // Contar tags selecionadas por grupo
-  const contarTagsGrupo = (grupo: keyof typeof tagsPorGrupo) => {
-    const tagsGrupo = tagsPorGrupo[grupo];
-    return tagsGrupo.filter(tag => isTagSelecionada(tag.id)).length;
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Tags da encomenda</CardTitle>
+        <CardTitle className="text-base flex items-center gap-2">
+          <TagIcon className="h-4 w-4" />
+          Tags da encomenda
+        </CardTitle>
         <CardDescription>
           Categorize esta encomenda para análises e relatórios
         </CardDescription>
@@ -145,72 +59,44 @@ export function EncomendaTagsSection({
           </div>
         )}
 
-        {/* Grupos de Tags - Collapsibles em linha */}
-        <div className="flex gap-3 overflow-x-auto pb-2">
-          {GROUP_ORDER.map(grupo => {
-            const tags = tagsPorGrupo[grupo];
-            if (tags.length === 0) return null;
-
-            const tagsCount = contarTagsGrupo(grupo);
-            const isOpen = gruposAbertos[grupo];
-
-            return (
-              <Collapsible
-                key={grupo}
-                open={isOpen}
-                onOpenChange={() => toggleGrupo(grupo)}
-                className="border rounded-lg bg-card shadow-sm flex-1 min-w-[200px]"
+        {/* Lista de Todas as Tags Disponíveis */}
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-muted-foreground">
+            Selecione as tags aplicáveis
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {tagsDisponiveis.map(tag => (
+              <Toggle
+                key={tag.id}
+                pressed={isTagSelecionada(tag.id)}
+                onPressedChange={() => onTagToggle(tag)}
+                className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                style={{
+                  backgroundColor: isTagSelecionada(tag.id) ? tag.cor : undefined,
+                  color: isTagSelecionada(tag.id) ? '#fff' : undefined,
+                  borderColor: tag.cor,
+                }}
               >
-                <CollapsibleTrigger className="w-full p-3 hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-1 h-5 bg-primary rounded-full" />
-                      <span className="text-sm font-semibold text-foreground">
-                        {GROUP_LABELS[grupo]}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {tagsCount > 0 && (
-                        <Badge variant="secondary" className="h-5 min-w-5 px-1.5">
-                          {tagsCount}
-                        </Badge>
-                      )}
-                      <ChevronDown 
-                        className={`h-4 w-4 text-muted-foreground transition-transform ${
-                          isOpen ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </div>
-                  </div>
-                </CollapsibleTrigger>
-                
-                <CollapsibleContent className="px-3 pb-3">
-                  <div className="space-y-2 pt-2 border-t">
-                    {tags.map(tag => (
-                      <Toggle
-                        key={tag.id}
-                        pressed={isTagSelecionada(tag.id)}
-                        onPressedChange={() => onTagToggle(tag)}
-                        className="w-full justify-start text-sm data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                        style={
-                          isTagSelecionada(tag.id)
-                            ? {
-                                backgroundColor: tag.cor,
-                                color: '#fff',
-                                borderColor: tag.cor,
-                              }
-                            : {}
-                        }
-                      >
-                        {tag.nome}
-                      </Toggle>
-                    ))}
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            );
-          })}
+                <span className="flex items-center gap-2">
+                  {tag.nome}
+                  {tag.padrao_sistema && (
+                    <span className="text-xs opacity-70">(Sistema)</span>
+                  )}
+                </span>
+              </Toggle>
+            ))}
+          </div>
         </div>
+
+        {tagsDisponiveis.length === 0 && (
+          <div className="text-center py-8 text-muted-foreground">
+            <TagIcon className="h-12 w-12 mx-auto mb-3 opacity-20" />
+            <p className="text-sm">Nenhuma tag disponível</p>
+            <p className="text-xs mt-1">
+              Configure tags em Configurações → Cadastros Base → Tags de Encomendas
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
