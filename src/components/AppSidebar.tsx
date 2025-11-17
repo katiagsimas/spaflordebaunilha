@@ -130,17 +130,17 @@ export function AppSidebar() {
                           `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
                             isActive && item.active
                               ? "bg-primary text-primary-foreground font-semibold border-l-4 border-primary"
-                              : "text-primary hover:bg-sidebar-accent hover:text-primary"
+                              : "text-primary font-medium opacity-100 hover:bg-sidebar-accent hover:font-semibold"
                           } ${!item.active ? "opacity-60 cursor-not-allowed" : ""}`
                         }
                         onClick={(e) => !item.active && e.preventDefault()}
                       >
                         {({ isActive }) => (
                           <>
-                            <Icon className={`h-5 w-5 ${isActive && item.active ? 'text-primary-foreground' : 'text-primary'}`} />
+                            <Icon className={`h-5 w-5 opacity-100 ${isActive && item.active ? 'text-primary-foreground' : 'text-primary'}`} />
                             {open && (
                               <>
-                                <span className="flex-1">{item.title}</span>
+                                <span className="flex-1 opacity-100">{item.title}</span>
                                 {item.title === "Clientes" && aniversariantesClientes.length > 0 && (
                                   <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center animate-bounce ml-1">
                                     <Cake className="h-3.5 w-3.5 text-white" />
@@ -183,13 +183,13 @@ export function AppSidebar() {
                         `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
                           isActive
                             ? "bg-primary text-primary-foreground font-semibold border-l-4 border-primary"
-                            : "text-primary hover:bg-sidebar-accent hover:text-primary"
+                            : "text-primary font-medium opacity-100 hover:bg-sidebar-accent hover:font-semibold"
                         }`
                       }
                     >
                       {({ isActive }) => (
                         <>
-                          <Shield className={`h-5 w-5 ${isActive ? 'text-primary-foreground' : 'text-primary'}`} />
+                          <Shield className={`h-5 w-5 opacity-100 ${isActive ? 'text-primary-foreground' : 'text-primary'}`} />
                           {open && <span className="flex-1">Usuários</span>}
                         </>
                       )}
@@ -204,13 +204,13 @@ export function AppSidebar() {
                         `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
                           isActive
                             ? "bg-primary text-primary-foreground font-semibold border-l-4 border-primary"
-                            : "text-primary hover:bg-sidebar-accent hover:text-primary"
+                            : "text-primary font-medium opacity-100 hover:bg-sidebar-accent hover:font-semibold"
                         }`
                       }
                     >
                       {({ isActive }) => (
                         <>
-                          <FileText className={`h-5 w-5 ${isActive ? 'text-primary-foreground' : 'text-primary'}`} />
+                          <FileText className={`h-5 w-5 opacity-100 ${isActive ? 'text-primary-foreground' : 'text-primary'}`} />
                           {open && <span className="flex-1">Logs de Ações</span>}
                         </>
                       )}
