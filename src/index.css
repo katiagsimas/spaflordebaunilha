@@ -53,7 +53,7 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 6%;
+    --sidebar-background: 46 100% 95%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 354 58% 59%;
     --sidebar-primary-foreground: 0 0% 100%;
@@ -97,7 +97,7 @@ All colors MUST be HSL.
     --input: 0 0% 20%;
     --ring: 354 58% 59%;
     
-    --sidebar-background: 0 0% 6%;
+    --sidebar-background: 46 100% 95%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 354 58% 59%;
     --sidebar-primary-foreground: 0 0% 100%;
