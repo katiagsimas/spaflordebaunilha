@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trash2, ChefHat, Upload, X } from "lucide-react";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { useCategorias } from "@/hooks/useCategorias";
-import { useCustosFixos } from "@/hooks/useCustosFixos";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useMaoObraPerfis } from "@/hooks/useMaoObraPerfis";
 import { useReceitasMaoObra } from "@/hooks/useReceitasMaoObra";
@@ -124,7 +123,6 @@ export default function ReceitaForm() {
   const { id } = useParams();
   const [ingredientesCadastrados, setIngredientesCadastrados] = useState<any[]>([]);
   const [embalagensCadastradas, setEmbalagensCadastradas] = useState<any[]>([]);
-  const { custosFixos } = useCustosFixos();
   const { categorias, fetchCategoriasAtivas } = useCategorias();
   const { unidades } = useUnidadesMedida();
   const { salvarMaosObra } = useReceitasMaoObra(id);
