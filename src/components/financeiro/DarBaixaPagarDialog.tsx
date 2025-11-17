@@ -222,24 +222,19 @@ export default function DarBaixaPagarDialog({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Usuário não autenticado');
       
-      // Nome único para o arquivo
+      // Nome único para o arquivo (path organizado)
       const timestamp = new Date().getTime();
       const extensao = arquivoComprovante.name.split('.').pop();
       const nomeArquivo = `${user.id}/${pagamentoId}_${timestamp}.${extensao}`;
       
-      // Upload no Storage
+      // Upload no Storage (bucket privado)
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('comprovantes-pagar')
         .upload(nomeArquivo, arquivoComprovante);
       
       if (uploadError) throw uploadError;
       
-      // Obter URL pública
-      const { data: urlData } = supabase.storage
-        .from('comprovantes-pagar')
-        .getPublicUrl(nomeArquivo);
-      
-      // Salvar registro no banco
+      // Salvar registro no banco (armazenando apenas o path, não a URL)
       const { error: dbError } = await supabase
         .from('contas_pagar_comprovantes')
         .insert({
@@ -247,12 +242,12 @@ export default function DarBaixaPagarDialog({
           nome_arquivo: arquivoComprovante.name,
           tipo_arquivo: arquivoComprovante.type,
           tamanho_bytes: arquivoComprovante.size,
-          url_storage: urlData.publicUrl,
+          url_storage: nomeArquivo, // Armazena apenas o path
         });
       
       if (dbError) throw dbError;
       
-      return urlData.publicUrl;
+      return nomeArquivo; // Retorna o path
     } catch (error) {
       console.error('Erro ao fazer upload:', error);
       throw error;
