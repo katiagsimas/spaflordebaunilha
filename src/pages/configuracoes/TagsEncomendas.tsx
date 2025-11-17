@@ -18,9 +18,6 @@ export default function TagsEncomendasPage() {
         </Button>
         <div>
           <h1 className="text-3xl font-bold">Tags de Encomendas</h1>
-          <p className="text-muted-foreground">
-            Crie e gerencie tags para categorizar suas encomendas
-          </p>
         </div>
       </div>
 
