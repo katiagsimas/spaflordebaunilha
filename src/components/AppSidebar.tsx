@@ -137,7 +137,7 @@ export function AppSidebar() {
                       >
                         {({ isActive }) => (
                           <>
-                            <Icon className={`h-5 w-5 ${isActive && item.active ? 'text-primary' : 'text-muted-foreground'}`} />
+                            <Icon className="h-5 w-5 text-primary" />
                             {open && (
                               <>
                                 <span className="flex-1">{item.title}</span>
@@ -189,7 +189,7 @@ export function AppSidebar() {
                     >
                       {({ isActive }) => (
                         <>
-                          <Shield className={`h-5 w-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
+                          <Shield className="h-5 w-5 text-primary" />
                           {open && <span className="flex-1">Usuários</span>}
                         </>
                       )}
@@ -210,7 +210,7 @@ export function AppSidebar() {
                     >
                       {({ isActive }) => (
                         <>
-                          <FileText className={`h-5 w-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
+                          <FileText className="h-5 w-5 text-primary" />
                           {open && <span className="flex-1">Logs de Ações</span>}
                         </>
                       )}
@@ -240,7 +240,7 @@ export function AppSidebar() {
               size="sm" 
               className="w-full"
             >
-              <LogOut className="h-4 w-4 mr-2" />
+              <LogOut className="h-4 w-4 mr-2 text-primary" />
               Sair
             </Button>
           </div>
