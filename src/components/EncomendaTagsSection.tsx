@@ -1,7 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Toggle } from "@/components/ui/toggle";
-import { Tag as TagIcon } from "lucide-react";
+import { Tag as TagIcon, Package, MapPin, RefreshCw, PartyPopper } from "lucide-react";
 
 interface Tag {
   id: string;
@@ -17,6 +16,52 @@ interface EncomendaTagsSectionProps {
   onTagToggle: (tag: Tag) => void;
 }
 
+// Estrutura de agrupamento de tags (somente UI)
+const TAG_GROUPS = {
+  origem: [
+    "instagram",
+    "whatsapp",
+    "indicação",
+    "google maps",
+    "fidelização interna",
+    "parceria local",
+  ],
+  tipoEntrega: [
+    "retirada",
+    "delivery",
+  ],
+  recorrencia: [
+    "primeira compra",
+    "cliente recorrente",
+    "assinatura",
+  ],
+  tipoEvento: [
+    "aniversário infantil",
+    "aniversário adulto",
+    "mesversário",
+    "batizado",
+    "casamento",
+    "noivado",
+    "chá de bebê",
+    "chá de fraldas",
+    "empresarial",
+  ],
+} as const;
+
+const GROUP_LABELS = {
+  origem: "Origem do pedido",
+  tipoEntrega: "Tipo de entrega",
+  recorrencia: "Recorrência",
+  tipoEvento: "Tipo de evento",
+} as const;
+
+const GROUP_ICONS = {
+  origem: TagIcon,
+  tipoEntrega: Package,
+  recorrencia: RefreshCw,
+  tipoEvento: PartyPopper,
+} as const;
+
 export function EncomendaTagsSection({ 
   tagsDisponiveis, 
   tagsSelecionadas, 
@@ -26,6 +71,32 @@ export function EncomendaTagsSection({
   const isTagSelecionada = (tagId: string) => {
     return tagsSelecionadas.some(t => t.id === tagId);
   };
+
+  // Agrupar tags por tipo
+  const tagsAgrupadas: Record<keyof typeof TAG_GROUPS | 'outros', Tag[]> = {
+    origem: [],
+    tipoEntrega: [],
+    recorrencia: [],
+    tipoEvento: [],
+    outros: [],
+  };
+
+  tagsDisponiveis.forEach(tag => {
+    const nomeNormalizado = tag.nome.toLowerCase().trim();
+    let encontrado = false;
+
+    for (const [grupo, nomes] of Object.entries(TAG_GROUPS)) {
+      if (nomes.includes(nomeNormalizado as any)) {
+        tagsAgrupadas[grupo as keyof typeof TAG_GROUPS].push(tag);
+        encontrado = true;
+        break;
+      }
+    }
+
+    if (!encontrado) {
+      tagsAgrupadas.outros.push(tag);
+    }
+  });
 
   return (
     <Card>
@@ -38,7 +109,7 @@ export function EncomendaTagsSection({
           Categorize esta encomenda para análises e relatórios
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         {/* Tags Selecionadas - Resumo */}
         {tagsSelecionadas.length > 0 && (
           <div className="flex flex-wrap gap-2 p-3 bg-muted/50 rounded-lg border border-border">
@@ -59,34 +130,45 @@ export function EncomendaTagsSection({
           </div>
         )}
 
-        {/* Lista de Todas as Tags Disponíveis */}
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-muted-foreground">
-            Selecione as tags aplicáveis
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {tagsDisponiveis.map(tag => (
-              <Toggle
-                key={tag.id}
-                pressed={isTagSelecionada(tag.id)}
-                onPressedChange={() => onTagToggle(tag)}
-                className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                style={{
-                  backgroundColor: isTagSelecionada(tag.id) ? tag.cor : undefined,
-                  color: isTagSelecionada(tag.id) ? '#fff' : undefined,
-                  borderColor: tag.cor,
-                }}
-              >
-                <span className="flex items-center gap-2">
-                  {tag.nome}
-                  {tag.padrao_sistema && (
-                    <span className="text-xs opacity-70">(Sistema)</span>
-                  )}
-                </span>
-              </Toggle>
-            ))}
-          </div>
-        </div>
+        {/* Grupos de Tags */}
+        {(Object.keys(TAG_GROUPS) as Array<keyof typeof TAG_GROUPS>).map(grupo => {
+          const tags = tagsAgrupadas[grupo];
+          if (tags.length === 0) return null;
+
+          const Icon = GROUP_ICONS[grupo];
+
+          return (
+            <div key={grupo} className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Icon className="h-4 w-4 text-muted-foreground" />
+                <h4 className="text-sm font-semibold text-foreground">
+                  {GROUP_LABELS[grupo]}
+                </h4>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {tags.map(tag => (
+                  <Badge
+                    key={tag.id}
+                    variant={isTagSelecionada(tag.id) ? "default" : "outline"}
+                    style={isTagSelecionada(tag.id) ? { 
+                      backgroundColor: tag.cor, 
+                      color: '#fff',
+                      cursor: 'pointer'
+                    } : {
+                      borderColor: tag.cor,
+                      color: tag.cor,
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => onTagToggle(tag)}
+                    className="hover:opacity-80 transition-opacity"
+                  >
+                    {tag.nome}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          );
+        })}
 
         {tagsDisponiveis.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
