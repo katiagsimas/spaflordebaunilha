@@ -104,8 +104,8 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border shadow-[2px_0_12px_rgba(107,80,71,0.06)]" style={{ width: open ? '280px' : undefined }}>
-      <SidebarHeader className="border-b border-sidebar-border p-6">
+    <Sidebar collapsible="icon" className="border-r border-border bg-card shadow-[2px_0_12px_rgba(107,80,71,0.06)]" style={{ width: open ? '280px' : undefined }}>
+      <SidebarHeader className="border-b border-border p-6">
         {open && (
           <div className="flex justify-center">
             <img src={caixaAcucarLogo} alt="Caixa de Açúcar - Sistema de Gestão" className="w-full max-w-[720px] h-auto object-contain" />
@@ -129,18 +129,18 @@ export function AppSidebar() {
                         className={({ isActive }) =>
                           `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
                             isActive && item.active
-                              ? "bg-primary text-primary-foreground font-semibold border-l-4 border-primary"
-                              : "text-primary font-medium opacity-100 hover:bg-sidebar-accent hover:font-semibold"
+                              ? "bg-secondary text-primary font-semibold border-l-4 border-primary"
+                              : "text-foreground hover:bg-secondary hover:text-primary"
                           } ${!item.active ? "opacity-60 cursor-not-allowed" : ""}`
                         }
                         onClick={(e) => !item.active && e.preventDefault()}
                       >
                         {({ isActive }) => (
                           <>
-                            <Icon className={`h-5 w-5 opacity-100 ${isActive && item.active ? 'text-primary-foreground' : 'text-primary'}`} />
+                            <Icon className={`h-5 w-5 ${isActive && item.active ? 'text-primary' : 'text-muted-foreground'}`} />
                             {open && (
                               <>
-                                <span className="flex-1 opacity-100">{item.title}</span>
+                                <span className="flex-1">{item.title}</span>
                                 {item.title === "Clientes" && aniversariantesClientes.length > 0 && (
                                   <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center animate-bounce ml-1">
                                     <Cake className="h-3.5 w-3.5 text-white" />
@@ -182,14 +182,14 @@ export function AppSidebar() {
                       className={({ isActive }) =>
                         `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
                           isActive
-                            ? "bg-primary text-primary-foreground font-semibold border-l-4 border-primary"
-                            : "text-primary font-medium opacity-100 hover:bg-sidebar-accent hover:font-semibold"
+                            ? "bg-secondary text-primary font-semibold border-l-4 border-primary"
+                            : "text-foreground hover:bg-secondary hover:text-primary"
                         }`
                       }
                     >
                       {({ isActive }) => (
                         <>
-                          <Shield className={`h-5 w-5 opacity-100 ${isActive ? 'text-primary-foreground' : 'text-primary'}`} />
+                          <Shield className={`h-5 w-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
                           {open && <span className="flex-1">Usuários</span>}
                         </>
                       )}
@@ -203,14 +203,14 @@ export function AppSidebar() {
                       className={({ isActive }) =>
                         `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
                           isActive
-                            ? "bg-primary text-primary-foreground font-semibold border-l-4 border-primary"
-                            : "text-primary font-medium opacity-100 hover:bg-sidebar-accent hover:font-semibold"
+                            ? "bg-secondary text-primary font-semibold border-l-4 border-primary"
+                            : "text-foreground hover:bg-secondary hover:text-primary"
                         }`
                       }
                     >
                       {({ isActive }) => (
                         <>
-                          <FileText className={`h-5 w-5 opacity-100 ${isActive ? 'text-primary-foreground' : 'text-primary'}`} />
+                          <FileText className={`h-5 w-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
                           {open && <span className="flex-1">Logs de Ações</span>}
                         </>
                       )}
@@ -224,13 +224,13 @@ export function AppSidebar() {
       </SidebarContent>
 
       {open && profile && (
-        <SidebarFooter className="border-t border-sidebar-border p-6">
+        <SidebarFooter className="border-t border-border p-6">
           <div className="space-y-2">
             <div>
-              <p className="text-sm font-semibold text-primary truncate">
+              <p className="text-sm font-semibold text-foreground truncate">
                 {profile.nome_confeitaria || profile.nome_completo}
               </p>
-              <p className="text-xs text-primary opacity-70 truncate">
+              <p className="text-xs text-muted-foreground truncate">
                 {user?.email}
               </p>
             </div>
