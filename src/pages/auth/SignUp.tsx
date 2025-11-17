@@ -86,7 +86,7 @@ export default function SignUp() {
             <img 
               src={caixaAcucarLogo} 
               alt="Caixa de Açúcar - Sistema de Gestão para Confeitaria"
-              className="h-32 w-auto object-contain"
+              className="h-48 w-auto object-contain"
             />
           </div>
         </CardHeader>
