@@ -88,7 +88,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => (
             <div className="h-6 w-px bg-border" />
           </div>
         </header>
-        <main className="flex-1 p-6 md:p-8 bg-muted/20">
+        <main className="flex-1 p-6 md:p-8 bg-app">
           <FirstAccessRedirect />
           {children}
         </main>
