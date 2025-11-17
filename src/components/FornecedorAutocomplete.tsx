@@ -53,7 +53,6 @@ export function FornecedorAutocomplete({
   const [formData, setFormData] = useState({
     nome: "",
     tipo: "PF",
-    tipo_fornecedor: "",
     cpf_cnpj: "",
     telefone: "",
     email: "",
@@ -79,7 +78,6 @@ export function FornecedorAutocomplete({
     setFormData({
       nome: searchValue,
       tipo: "PF",
-      tipo_fornecedor: "",
       cpf_cnpj: "",
       telefone: "",
       email: "",
@@ -100,7 +98,6 @@ export function FornecedorAutocomplete({
       const fornecedorData = {
         nome: formData.nome,
         tipo: formData.tipo,
-        tipo_fornecedor: formData.tipo_fornecedor || null,
         cpf_cnpj: formData.cpf_cnpj || null,
         telefone: formData.telefone || null,
         email: formData.email || null,
@@ -116,7 +113,6 @@ export function FornecedorAutocomplete({
       setFormData({
         nome: "",
         tipo: "PF",
-        tipo_fornecedor: "",
         cpf_cnpj: "",
         telefone: "",
         email: "",
@@ -229,22 +225,13 @@ export function FornecedorAutocomplete({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="PF">Pessoa Física</SelectItem>
-                    <SelectItem value="PJ">Pessoa Jurídica</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="tipo_fornecedor">Tipo de Fornecedor</Label>
-                <Input
-                  id="tipo_fornecedor"
-                  value={formData.tipo_fornecedor}
-                  onChange={(e) => setFormData({ ...formData, tipo_fornecedor: e.target.value })}
-                  placeholder="Ex: Ingredientes, Embalagens"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="cpf_cnpj">CPF/CNPJ</Label>
-                <Input
+                  <SelectItem value="PJ">Pessoa Jurídica</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="cpf_cnpj">CPF/CNPJ</Label>
+              <Input
                   id="cpf_cnpj"
                   value={formData.cpf_cnpj}
                   onChange={(e) => handleCpfCnpjChange(e.target.value)}

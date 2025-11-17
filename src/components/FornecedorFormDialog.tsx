@@ -13,7 +13,6 @@ import { formatPhone, formatCpfCnpj } from '@/lib/utils';
 interface FornecedorFormData {
   nome: string;
   tipo: 'PF' | 'PJ';
-  tipo_fornecedor: 'Insumos' | 'Embalagens' | 'Diversos' | 'Papelaria Personalizada' | 'Outros';
   cpf_cnpj: string;
   telefone: string;
   email: string;
@@ -31,7 +30,6 @@ interface FornecedorFormDialogProps {
 const defaultFormData: FornecedorFormData = {
   nome: '',
   tipo: 'PF',
-  tipo_fornecedor: 'Insumos',
   cpf_cnpj: '',
   telefone: '',
   email: '',
