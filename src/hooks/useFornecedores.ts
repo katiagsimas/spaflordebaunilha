@@ -12,8 +12,6 @@ interface Fornecedor {
   cpf_cnpj?: string;
   telefone?: string;
   email?: string;
-  contato?: string;
-  data_aniversario_contato?: string;
   observacoes?: string;
   created_at?: string;
   updated_at?: string;
