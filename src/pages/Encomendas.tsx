@@ -59,7 +59,6 @@ const Encomendas = () => {
   const [statusFilter, setStatusFilter] = useState("Todos");
   const [clienteFilter, setClienteFilter] = useState("Todos");
   const [dataEntregaFilter, setDataEntregaFilter] = useState("");
-  const [horaEntregaFilter, setHoraEntregaFilter] = useState("");
   const [tagFilter, setTagFilter] = useState("todos");
   const [modalPagamentoAberto, setModalPagamentoAberto] = useState(false);
   const [contaReceberId, setContaReceberId] = useState<string | null>(null);
@@ -880,7 +879,6 @@ const Encomendas = () => {
       const matchesStatus = statusFilter === "Todos" || e.status === statusFilter.toLowerCase().replace(" ", "_");
       const matchesCliente = clienteFilter === "Todos" || e.cliente === clienteFilter;
       const matchesDataEntrega = !dataEntregaFilter || e.data_entrega === dataEntregaFilter;
-      const matchesHoraEntrega = !horaEntregaFilter || (e.hora_entrega && e.hora_entrega.slice(0, 5) === horaEntregaFilter);
       
       // Filtro por tag
       const matchesTag = tagFilter === "todos" || (e.tags && e.tags.some((t: any) => t.id === tagFilter));
@@ -888,7 +886,7 @@ const Encomendas = () => {
       // Filtro por busca de nome
       const matchesBusca = !buscaNome || e.cliente.toLowerCase().includes(buscaNome.toLowerCase());
       
-      return matchesStatus && matchesCliente && matchesDataEntrega && matchesHoraEntrega && matchesTag && matchesBusca;
+      return matchesStatus && matchesCliente && matchesDataEntrega && matchesTag && matchesBusca;
     })
     .sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime());
 
@@ -1720,20 +1718,6 @@ const Encomendas = () => {
           </CardContent>
         </Card>
 
-      {/* Filtro de Hora da Entrega */}
-        <Card className="shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <Label htmlFor="filtro-hora-entrega" className="text-sm font-medium mb-2 block">Hora da Entrega</Label>
-            <Input
-              id="filtro-hora-entrega"
-              type="time"
-              value={horaEntregaFilter}
-              onChange={(e) => setHoraEntregaFilter(e.target.value)}
-              className="bg-background"
-            />
-          </CardContent>
-        </Card>
-
         {/* Botão Limpar Filtros */}
         <Card className="shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="p-4 flex items-end h-full">
@@ -1745,7 +1729,6 @@ const Encomendas = () => {
                 setStatusFilter("Todos");
                 setTagFilter("todos");
                 setDataEntregaFilter("");
-                setHoraEntregaFilter("");
                 setBuscaNome("");
                 toast.success("Filtros limpos com sucesso!");
               }}
@@ -1809,7 +1792,7 @@ const Encomendas = () => {
             <div className="text-center py-12">
               <ShoppingBag className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
               <p className="text-muted-foreground">
-                {statusFilter !== "Todos" || clienteFilter !== "Todos" || dataEntregaFilter || horaEntregaFilter
+                {statusFilter !== "Todos" || clienteFilter !== "Todos" || dataEntregaFilter
                   ? "Nenhuma encomenda encontrada com os filtros aplicados"
                   : "Nenhuma encomenda cadastrada"}
               </p>
