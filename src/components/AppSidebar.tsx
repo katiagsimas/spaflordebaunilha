@@ -130,14 +130,14 @@ export function AppSidebar() {
                           `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
                             isActive && item.active
                               ? "bg-primary text-primary-foreground font-semibold border-l-4 border-primary"
-                              : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                              : "text-primary hover:bg-sidebar-accent hover:text-primary"
                           } ${!item.active ? "opacity-60 cursor-not-allowed" : ""}`
                         }
                         onClick={(e) => !item.active && e.preventDefault()}
                       >
                         {({ isActive }) => (
                           <>
-                            <Icon className={`h-5 w-5 ${isActive && item.active ? 'text-primary-foreground' : 'text-sidebar-foreground opacity-70'}`} />
+                            <Icon className={`h-5 w-5 ${isActive && item.active ? 'text-primary-foreground' : 'text-primary'}`} />
                             {open && (
                               <>
                                 <span className="flex-1">{item.title}</span>
@@ -183,13 +183,13 @@ export function AppSidebar() {
                         `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
                           isActive
                             ? "bg-primary text-primary-foreground font-semibold border-l-4 border-primary"
-                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                            : "text-primary hover:bg-sidebar-accent hover:text-primary"
                         }`
                       }
                     >
                       {({ isActive }) => (
                         <>
-                          <Shield className={`h-5 w-5 ${isActive ? 'text-primary-foreground' : 'text-sidebar-foreground opacity-70'}`} />
+                          <Shield className={`h-5 w-5 ${isActive ? 'text-primary-foreground' : 'text-primary'}`} />
                           {open && <span className="flex-1">Usuários</span>}
                         </>
                       )}
@@ -204,13 +204,13 @@ export function AppSidebar() {
                         `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
                           isActive
                             ? "bg-primary text-primary-foreground font-semibold border-l-4 border-primary"
-                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                            : "text-primary hover:bg-sidebar-accent hover:text-primary"
                         }`
                       }
                     >
                       {({ isActive }) => (
                         <>
-                          <FileText className={`h-5 w-5 ${isActive ? 'text-primary-foreground' : 'text-sidebar-foreground opacity-70'}`} />
+                          <FileText className={`h-5 w-5 ${isActive ? 'text-primary-foreground' : 'text-primary'}`} />
                           {open && <span className="flex-1">Logs de Ações</span>}
                         </>
                       )}
@@ -227,10 +227,10 @@ export function AppSidebar() {
         <SidebarFooter className="border-t border-sidebar-border p-6">
           <div className="space-y-2">
             <div>
-              <p className="text-sm font-semibold text-sidebar-foreground truncate">
+              <p className="text-sm font-semibold text-primary truncate">
                 {profile.nome_confeitaria || profile.nome_completo}
               </p>
-              <p className="text-xs text-sidebar-foreground opacity-60 truncate">
+              <p className="text-xs text-primary opacity-70 truncate">
                 {user?.email}
               </p>
             </div>
