@@ -260,7 +260,6 @@ export type Database = {
         Row: {
           cep: string | null
           cidade: string | null
-          como_conheceu: string | null
           cpf_cnpj: string | null
           created_at: string
           data_aniversario: string | null
@@ -271,9 +270,7 @@ export type Database = {
           nome: string
           numero: string | null
           observacoes: string | null
-          preferencias_alergias: string | null
           quantidade_pedidos: number | null
-          segmento: string | null
           telefone: string | null
           tipo: string | null
           total_compras: number | null
@@ -284,7 +281,6 @@ export type Database = {
         Insert: {
           cep?: string | null
           cidade?: string | null
-          como_conheceu?: string | null
           cpf_cnpj?: string | null
           created_at?: string
           data_aniversario?: string | null
@@ -295,9 +291,7 @@ export type Database = {
           nome: string
           numero?: string | null
           observacoes?: string | null
-          preferencias_alergias?: string | null
           quantidade_pedidos?: number | null
-          segmento?: string | null
           telefone?: string | null
           tipo?: string | null
           total_compras?: number | null
@@ -308,7 +302,6 @@ export type Database = {
         Update: {
           cep?: string | null
           cidade?: string | null
-          como_conheceu?: string | null
           cpf_cnpj?: string | null
           created_at?: string
           data_aniversario?: string | null
@@ -319,9 +312,7 @@ export type Database = {
           nome?: string
           numero?: string | null
           observacoes?: string | null
-          preferencias_alergias?: string | null
           quantidade_pedidos?: number | null
-          segmento?: string | null
           telefone?: string | null
           tipo?: string | null
           total_compras?: number | null
