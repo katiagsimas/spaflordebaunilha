@@ -48,7 +48,7 @@ export default function MigrationStatus() {
       const tables = [
         'clientes', 'fornecedores', 'categorias', 'unidades_medida',
         'custos_fixos', 'embalagens', 'ingredientes', 'encomendas',
-        'categorias_financeiras', 'contas_receber', 'contas_pagar', 
+        'contas_receber', 'contas_pagar', 
         'bancos'
       ];
       

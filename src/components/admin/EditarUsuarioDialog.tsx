@@ -99,7 +99,6 @@ export function EditarUsuarioDialog({
     bancos: false,
     tiposDocumento: false,
     planoContas: false,
-    categoriasFinanceiras: false,
     tagsEncomendas: false,
   });
   const queryClient = useQueryClient();
@@ -137,7 +136,6 @@ export function EditarUsuarioDialog({
         bancosRes,
         tiposDocumentoRes,
         categoriasPlanoRes,
-        categoriasFinanceirasRes,
         tagsEncomendasRes,
       ] = await Promise.all([
         supabase.from('clientes').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
@@ -156,7 +154,6 @@ export function EditarUsuarioDialog({
         supabase.from('bancos').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
         supabase.from('tipos_documento').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
         supabase.from('categorias_plano_contas').select('*', { count: 'exact', head: true }).eq('user_id', userId),
-        supabase.from('categorias_financeiras').select('*', { count: 'exact', head: true }).eq('usuario_id', userId),
         supabase.from('tags_encomendas').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       ]);
 
@@ -179,7 +176,6 @@ export function EditarUsuarioDialog({
         total_bancos: bancosRes.count || 0,
         total_tipos_documento: tiposDocumentoRes.count || 0,
         total_plano_contas: categoriasPlanoRes.count || 0,
-        total_categorias_financeiras: categoriasFinanceirasRes.count || 0,
         total_tags_encomendas: tagsEncomendasRes.count || 0,
         valor_total_encomendas: valorTotalEncomendas
       };
@@ -327,9 +323,6 @@ export function EditarUsuarioDialog({
       }
       if (itensSelecionados.planoContas) {
         deletePromises.push(supabase.from('categorias_plano_contas').delete().eq('user_id', userId));
-      }
-      if (itensSelecionados.categoriasFinanceiras) {
-        deletePromises.push(supabase.from('categorias_financeiras').delete().eq('usuario_id', userId));
       }
       if (itensSelecionados.tagsEncomendas) {
         deletePromises.push(supabase.from('tags_encomendas').delete().eq('user_id', userId));
@@ -835,24 +828,6 @@ export function EditarUsuarioDialog({
                   </div>
                   <Badge variant="secondary">
                     {stats?.total_plano_contas || 0}
-                  </Badge>
-                </div>
-
-                <div className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="categoriasFinanceiras"
-                      checked={itensSelecionados.categoriasFinanceiras}
-                      onCheckedChange={(checked) =>
-                        setItensSelecionados({ ...itensSelecionados, categoriasFinanceiras: checked as boolean })
-                      }
-                    />
-                    <label htmlFor="categoriasFinanceiras" className="text-sm cursor-pointer">
-                      Categorias Financeiras
-                    </label>
-                  </div>
-                  <Badge variant="secondary">
-                    {stats?.total_categorias_financeiras || 0}
                   </Badge>
                 </div>
 

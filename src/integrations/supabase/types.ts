@@ -164,39 +164,6 @@ export type Database = {
         }
         Relationships: []
       }
-      categorias_financeiras: {
-        Row: {
-          cor: string | null
-          created_at: string
-          icone: string | null
-          id: string
-          nome: string
-          tipo: string
-          updated_at: string
-          usuario_id: string
-        }
-        Insert: {
-          cor?: string | null
-          created_at?: string
-          icone?: string | null
-          id?: string
-          nome: string
-          tipo: string
-          updated_at?: string
-          usuario_id: string
-        }
-        Update: {
-          cor?: string | null
-          created_at?: string
-          icone?: string | null
-          id?: string
-          nome?: string
-          tipo?: string
-          updated_at?: string
-          usuario_id?: string
-        }
-        Relationships: []
-      }
       categorias_plano_contas: {
         Row: {
           ativo: boolean | null
@@ -519,13 +486,6 @@ export type Database = {
             referencedColumns: ["banco_id"]
           },
           {
-            foreignKeyName: "contas_pagar_categoria_id_fkey"
-            columns: ["categoria_id"]
-            isOneToOne: false
-            referencedRelation: "categorias_financeiras"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "contas_pagar_fornecedor_id_fkey"
             columns: ["fornecedor_id"]
             isOneToOne: false
@@ -770,13 +730,6 @@ export type Database = {
           valor?: number
         }
         Relationships: [
-          {
-            foreignKeyName: "contas_receber_categoria_id_fkey"
-            columns: ["categoria_id"]
-            isOneToOne: false
-            referencedRelation: "categorias_financeiras"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "contas_receber_cliente_id_fkey"
             columns: ["cliente_id"]
@@ -2191,45 +2144,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "categorias_tags"
             referencedColumns: ["id"]
-          },
-        ]
-      }
-      tags_contas_receber: {
-        Row: {
-          cor: string
-          created_at: string | null
-          id: string
-          nome: string
-          usuario_id: string
-        }
-        Insert: {
-          cor?: string
-          created_at?: string | null
-          id?: string
-          nome: string
-          usuario_id: string
-        }
-        Update: {
-          cor?: string
-          created_at?: string | null
-          id?: string
-          nome?: string
-          usuario_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "tags_contas_receber_usuario_id_fkey"
-            columns: ["usuario_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tags_contas_receber_usuario_id_fkey"
-            columns: ["usuario_id"]
-            isOneToOne: false
-            referencedRelation: "user_statistics"
-            referencedColumns: ["user_id"]
           },
         ]
       }

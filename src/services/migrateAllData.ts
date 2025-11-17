@@ -44,8 +44,6 @@ export async function migrateAllLocalStorageData(userId: string): Promise<Migrat
     'embalagens': 'embalagens',
     'ingredientes': 'ingredientes',
     'orders': 'encomendas',
-    'sugarbox_categorias_financeiras': 'categorias_financeiras',
-    'categorias_financeiras': 'categorias_financeiras',
     'sugarbox_contas_receber': 'contas_receber',
     'sugarbox_contas_pagar': 'contas_pagar',
     'sugarbox_bancos': 'bancos',
