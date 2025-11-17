@@ -1,0 +1,139 @@
+📄 Padrão de Loading – Caixa de Açúcar
+
+(Versão oficial – mascote como indicador de carregamento)
+
+🎯 Propósito
+
+Padronizar todas as experiências de carregamento do Caixa de Açúcar usando a mascote oficial.
+O objetivo é garantir consistência visual, reforço de marca e uma experiência leve e acolhedora para a usuária.
+
+🌟 Componentes Envolvidos
+1. LoadingMascote (componente único de loading)
+
+Local ideal: src/components/LoadingMascote.tsx
+
+Função:
+
+Exibir a mascote com animação de “flutuar/bounce”.
+
+Ser reutilizável em qualquer contexto (global ou local).
+
+Permitir ajuste de tamanho (size) e texto opcional (label).
+
+2. GlobalLoadingProvider (contexto de loading global)
+
+Local ideal: src/contexts/GlobalLoadingContext.tsx
+
+Função:
+
+Controlar o estado global isLoading.
+
+Permitir que qualquer tela/ação assíncrona acione o loading.
+
+Evitar duplicação de spinners e comportamentos isolados.
+
+Exporta:
+
+isLoading
+
+setLoading
+
+useGlobalLoading()
+
+🧩 Integração no Layout Global
+
+O layout principal do sistema (ex.: AppShell, RootLayout, etc.) deve envolver o app inteiro com o GlobalLoadingProvider.
+
+Além disso, o layout deve exibir o loading global quando:
+
+{isLoading && (
+  <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/70 backdrop-blur-sm">
+    <LoadingMascote label="Carregando..." />
+  </div>
+)}
+
+
+Isso garante que QUALQUER página mais pesada exiba a mascote automaticamente.
+
+🧵 Regras de Uso
+✔ Quando usar o loading global
+
+Use sempre que o comportamento bloquear a tela ou representar processamento pesado:
+
+Troca de páginas / rotas
+
+Consultas grandes ao supabase
+
+Cálculos
+
+Geração de relatórios
+
+Ações que demorem mais de 600–800ms
+
+Processos encadeados (ex.: salvar + atualizar registros)
+
+Como implementar:
+
+const { setLoading } = useGlobalLoading();
+
+setLoading(true);
+// operação async
+setLoading(false);
+
+✔ Quando usar o loading local
+
+Para efeitos menores, onde não é necessário bloquear a tela inteira:
+
+Botões que enviam formularios
+
+Cards com dados individuais
+
+Requisições rápidas
+
+Atualizações isoladas dentro de tabelas
+
+Exemplo:
+
+{isLoading && <LoadingMascote size={32} />}
+
+❌ O que não deve mais ser usado
+
+Spinner antigo
+
+Ícone do bolo tipo ampulheta
+
+Loadings locais inconsistentes
+
+Indicadores misturados com outras artes
+
+Padrão único e definitivo a partir de agora: mascote do Caixa de Açúcar.
+
+📌 Diretriz Para o Futuro
+
+Sempre que for criada uma nova página, um novo módulo, um novo fluxo, ou uma nova ação async, deve-se respeitar:
+
+> 1) Ações grandes → usar useGlobalLoading()
+> 2) Ações pequenas → LoadingMascote local
+> 3) Nunca criar um loading novo que não use esses dois padrões
+> 4) Se houver dúvida → usar loading global
+📂 Estrutura recomendada
+/src
+  /components
+    LoadingMascote.tsx
+  /contexts
+    GlobalLoadingContext.tsx
+  /layouts
+    AppShell.tsx (ou equivalente)
+  /pages
+    [... páginas diversas]
+/public
+  mascote-caixa-de-acucar.png
+/docs
+  loading.md
+
+🏁 Estado atual
+
+✔ Mascote utilizada como favicon
+✔ Mascote oficial padronizada como loading
+✔ Layout preparado para loading global
+✔ Componente reutilizável criado
