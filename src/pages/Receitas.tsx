@@ -40,6 +40,7 @@ export default function Receitas() {
         supabase.from("receitas_embalagens").delete().eq("receita_id", receitaParaDeletar),
         supabase.from("receitas_despesas_venda").delete().eq("receita_id", receitaParaDeletar),
         supabase.from("receitas_imagens").delete().eq("receita_id", receitaParaDeletar),
+        supabase.from("receitas_mao_obra").delete().eq("receita_id", receitaParaDeletar),
       ]);
 
       const { error } = await supabase.from("receitas").delete().eq("id", receitaParaDeletar);
