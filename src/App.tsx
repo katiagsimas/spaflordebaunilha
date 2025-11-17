@@ -26,7 +26,6 @@ import Categorias from "./pages/cadastros/Categorias";
 
 import Receitas from "./pages/Receitas";
 import ReceitaForm from "./pages/ReceitaForm";
-import ComingSoon from "./pages/ComingSoon";
 import Configuracoes from "./pages/Configuracoes";
 import TiposInsumos from "./pages/configuracoes/TiposInsumos";
 import CategoriasPlanoContas from "./pages/configuracoes/CategoriasPlanoContas";
