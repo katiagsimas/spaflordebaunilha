@@ -1662,29 +1662,47 @@ const Encomendas = () => {
           </CardContent>
         </Card>
 
-        {/* Filtro de Tags */}
+        {/* Filtros de Tags por Grupo */}
         <Card className="shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <Label htmlFor="filtro-tag" className="text-sm font-medium mb-2 block">Tag</Label>
-            <Select value={tagFilter} onValueChange={setTagFilter}>
-              <SelectTrigger id="filtro-tag" className="bg-background">
-                <SelectValue placeholder="Todas as tags" />
-              </SelectTrigger>
-              <SelectContent className="bg-popover z-50">
-                <SelectItem value="todos">Todas as tags</SelectItem>
-                {tagsDisponiveis.map(tag => (
-                  <SelectItem key={tag.id} value={tag.id}>
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: tag.cor }}
-                      />
-                      {tag.nome}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <CardContent className="p-4 space-y-4">
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Origem do pedido</Label>
+              <Select value={tagFilter} onValueChange={setTagFilter}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue placeholder="Todas" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  <SelectItem value="todos">Todas</SelectItem>
+                  {tagsDisponiveis.filter(t => ['instagram', 'whatsapp', 'indicação', 'google maps', 'fidelização interna', 'parceria local'].includes(t.nome.toLowerCase())).map(tag => (
+                    <SelectItem key={tag.id} value={tag.id}>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: tag.cor }} />
+                        {tag.nome}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Tipo de evento</Label>
+              <Select value={tagFilter} onValueChange={setTagFilter}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue placeholder="Todos" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {tagsDisponiveis.filter(t => ['aniversário infantil', 'aniversário adulto', 'mesversário', 'batizado', 'casamento', 'noivado', 'chá de bebê', 'chá de fraldas', 'empresarial'].includes(t.nome.toLowerCase())).map(tag => (
+                    <SelectItem key={tag.id} value={tag.id}>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: tag.cor }} />
+                        {tag.nome}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </CardContent>
         </Card>
 
