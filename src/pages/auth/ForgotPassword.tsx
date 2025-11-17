@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Mail } from 'lucide-react';
-import donnasBoxLogo from '@/assets/donnas-box-logo.png';
+import caixaAcucarLogo from '@/assets/donnas-box-logo.png';
 import authBackground from '@/assets/auth-background.jpg';
 import { BackButton } from '@/components/BackButton';
 
@@ -81,8 +81,8 @@ export default function ForgotPassword() {
         <CardHeader className="space-y-3 text-center">
           <div className="flex justify-center mb-2">
             <img 
-              src={donnasBoxLogo} 
-              alt="Donna's Box - Sistema de Gestão para Confeitaria" 
+              src={caixaAcucarLogo} 
+              alt="Caixa de Açúcar - Sistema de Gestão para Confeitaria"
               className="h-32 w-auto object-contain"
             />
           </div>

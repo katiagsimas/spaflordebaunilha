@@ -1,5 +1,5 @@
 /**
- * Validação de Senha — Donna's Box
+ * Validação de Senha — Caixa de Açúcar
  * 
  * Regras:
  * 1. Mínimo de 6 caracteres
@@ -7,7 +7,7 @@
  * 3. Pelo menos uma letra minúscula (a–z)
  * 4. Pelo menos um número (0–9)
  * 5. Pelo menos um símbolo especial: @ # $ % & * _ - + ! ?
- * 6. Não pode conter o nome, e-mail ou o termo "donna", "box", "kasimas" (case-insensitive)
+ * 6. Não pode conter o nome, e-mail ou o termo "caixa", "acucar", "kasimas" (case-insensitive)
  * 7. Sem prazo de expiração
  */
 
@@ -32,8 +32,8 @@ export function validarSenhaForte(input: ValidacaoSenhaInput): ValidacaoSenhaRes
 
   // Verifica se contém partes do nome, e-mail ou palavras proibidas
   const palavrasProibidas = [
-    "donna", 
-    "box", 
+    "caixa", 
+    "acucar", 
     "kasimas", 
     nome.toLowerCase(), 
     email.split("@")[0].toLowerCase()
@@ -54,7 +54,7 @@ export function validarSenhaForte(input: ValidacaoSenhaInput): ValidacaoSenhaRes
   if (contemProibidas) {
     return {
       valid: false,
-      message: "Sua senha não pode conter partes do seu nome, e-mail ou termos como 'donna', 'box' ou 'kasimas'."
+      message: "Sua senha não pode conter partes do seu nome, e-mail ou termos como 'caixa', 'acucar' ou 'kasimas'."
     };
   }
 
