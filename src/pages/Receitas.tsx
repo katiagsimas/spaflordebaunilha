@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useCalculosReceita } from "@/hooks/useCalculosReceita";
+import { MigrateReceitasImagensToStorage } from "@/components/MigrateReceitasImagensToStorage";
 
 export default function Receitas() {
   const navigate = useNavigate();
@@ -89,7 +90,10 @@ export default function Receitas() {
   return (
     <div className="min-h-screen bg-background">
       <PageHeader title="Fichas Técnicas" description="Gerencie suas receitas e fichas técnicas" backButton={<BackButton to="/precificacao" />} />
+      
       <div className="p-4 md:p-6 space-y-6">
+        <MigrateReceitasImagensToStorage />
+        
         <div className="flex flex-wrap gap-2">
           <Button variant={filtroAtivo === "todos" ? "default" : "outline"} size="sm" onClick={() => setFiltroAtivo("todos")}>Todos ({resumos.length})</Button>
           <Button variant={filtroAtivo === "ativos" ? "default" : "outline"} size="sm" onClick={() => setFiltroAtivo("ativos")}>Ativos ({resumos.filter(r => r.cardapio === "ativo").length})</Button>
