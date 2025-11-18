@@ -7,8 +7,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { GlobalLoadingProvider, useGlobalLoading } from "@/contexts/GlobalLoadingContext";
+import { LoadingMascote } from "@/components/LoadingMascote";
 import { FirstAccessRedirect } from "@/components/FirstAccessRedirect";
-import { Loader2 } from "lucide-react";
 import Dashboard from "./pages/Dashboard";
 import Encomendas from "./pages/Encomendas";
 import Precificacao from "./pages/Precificacao";
@@ -64,8 +65,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+      <div className="min-h-screen flex items-center justify-center bg-app">
+        <LoadingMascote size={80} label="Autenticando..." />
       </div>
     );
   }
@@ -77,33 +78,45 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const Layout = ({ children }: { children: React.ReactNode }) => (
-  <SidebarProvider>
-    <div className="flex min-h-screen w-full">
-      <AppSidebar />
-      <div className="flex-1 flex flex-col">
-        <header className="sticky top-0 z-10 h-14 border-b backdrop-blur-md shadow-sm">
-          <div className="flex h-full items-center px-4 gap-3 bg-app">
-            <SidebarTrigger className="hover:bg-accent/50 transition-colors" />
-            <div className="h-6 w-px bg-border" />
-          </div>
-        </header>
-        <main className="flex-1 p-6 md:p-8 bg-app">
-          <FirstAccessRedirect />
-          {children}
-        </main>
+const Layout = ({ children }: { children: React.ReactNode }) => {
+  const { isLoading, loadingLabel } = useGlobalLoading();
+
+  return (
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full">
+        <AppSidebar />
+        <div className="flex-1 flex flex-col relative">
+          {/* Loading Global Overlay */}
+          {isLoading && (
+            <div className="absolute inset-0 z-50 flex items-center justify-center bg-app/90 backdrop-blur-sm">
+              <LoadingMascote size={96} label={loadingLabel || "Carregando..."} />
+            </div>
+          )}
+          
+          <header className="sticky top-0 z-10 h-14 border-b backdrop-blur-md shadow-sm">
+            <div className="flex h-full items-center px-4 gap-3 bg-app">
+              <SidebarTrigger className="hover:bg-accent/50 transition-colors" />
+              <div className="h-6 w-px bg-border" />
+            </div>
+          </header>
+          <main className="flex-1 p-6 md:p-8 bg-app">
+            <FirstAccessRedirect />
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
-  </SidebarProvider>
-);
+    </SidebarProvider>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+      <GlobalLoadingProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
           <Routes>
             {/* Auth routes */}
             <Route path="/auth/login" element={<AuthLogin />} />
@@ -187,6 +200,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
+    </GlobalLoadingProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
