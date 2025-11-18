@@ -1,9 +1,10 @@
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { ChefHat, CookingPot, Pencil, Package, AlertTriangle, Loader2 } from "lucide-react";
+import { ChefHat, CookingPot, Pencil, Package, AlertTriangle } from "lucide-react";
 import { useCalculosReceita } from "@/hooks/useCalculosReceita";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
+import { LoadingMascote } from "@/components/LoadingMascote";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -90,8 +91,8 @@ export default function Precificacao() {
 
       <div>
         {isLoading ? (
-          <div className="flex items-center justify-center p-8">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="flex items-center justify-center p-12">
+            <LoadingMascote size={72} label="Carregando produtos..." />
           </div>
         ) : resumosAtivosOrdenados.length > 0 && (
           <Card>

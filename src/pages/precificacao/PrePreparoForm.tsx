@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useGlobalLoading } from '@/contexts/GlobalLoadingContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -58,6 +59,7 @@ export default function PrePreparoForm() {
   const { categorias } = useCategorias();
   const { perfis } = useMaoObraPerfis();
   const { profile } = useUserProfile();
+  const { showLoading, hideLoading } = useGlobalLoading();
   const isEditMode = !!id;
 
   // Campos básicos
@@ -97,7 +99,6 @@ export default function PrePreparoForm() {
   // Mão de obra
   const [maosObra, setMaosObra] = useState<MaoObraLinha[]>([]);
 
-  const [loading, setLoading] = useState(false);
   const [custoIngredientes, setCustoIngredientes] = useState(0);
   const [custoMaoObra, setCustoMaoObra] = useState(0);
   const [custoTotal, setCustoTotal] = useState(0);
@@ -585,7 +586,7 @@ export default function PrePreparoForm() {
         return;
       }
 
-      setLoading(true);
+      showLoading(isEditMode ? 'Atualizando pré-preparo...' : 'Salvando pré-preparo...');
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Não autenticado');
@@ -665,7 +666,7 @@ export default function PrePreparoForm() {
           description: 'Pré-preparos precisam ter pelo menos um ingrediente cadastrado. Fichas técnicas são usadas apenas para cálculo de custo.',
           variant: 'destructive',
         });
-        setLoading(false);
+        hideLoading();
         return;
       }
       
@@ -725,7 +726,7 @@ export default function PrePreparoForm() {
         variant: 'destructive',
       });
     } finally {
-      setLoading(false);
+      hideLoading();
     }
   };
 
@@ -1106,12 +1107,11 @@ export default function PrePreparoForm() {
           <Button
             variant="outline"
             onClick={() => navigate('/precificacao/pre-preparos')}
-            disabled={loading}
           >
             Cancelar
           </Button>
-          <Button onClick={handleSalvar} disabled={loading} className="flex-1">
-            {loading ? 'Salvando...' : (isEditMode ? 'Atualizar Pré-Preparo' : 'Salvar Pré-Preparo')}
+          <Button onClick={handleSalvar} className="flex-1">
+            {isEditMode ? 'Atualizar Pré-Preparo' : 'Salvar Pré-Preparo'}
           </Button>
         </div>
       </div>
