@@ -19,8 +19,10 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useGlobalLoading } from "@/contexts/GlobalLoadingContext";
 
 export default function MaoDeObra() {
+  const { showLoading, hideLoading } = useGlobalLoading();
   const { profile, loading: profileLoading } = useUserProfile();
   const { perfis, isLoading: perfisLoading, createPerfil, updatePerfil, deletePerfil } = useMaoObraPerfis();
   const [valorHora, setValorHora] = useState<string>("");
@@ -50,10 +52,20 @@ export default function MaoDeObra() {
   );
 
   useEffect(() => {
+    if (profileLoading || perfisLoading) {
+      showLoading("Carregando mão de obra...");
+    } else {
+      hideLoading();
+    }
+  }, [profileLoading, perfisLoading, showLoading, hideLoading]);
+
+  useEffect(() => {
     if (profile?.valor_hora) {
       setValorHora(profile.valor_hora.toFixed(2));
     }
   }, [profile]);
+
+  if (profileLoading || perfisLoading) return null;
 
   const handleSave = async () => {
     if (!profile?.id) {

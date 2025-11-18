@@ -13,9 +13,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useUnidadesMedida, UnidadeMedida } from "@/hooks/useUnidadesMedida";
 import { Plus, Pencil, Ban, CheckCircle, Ruler } from "lucide-react";
 import { toast } from "sonner";
+import { useGlobalLoading } from "@/contexts/GlobalLoadingContext";
 
 
 export default function UnidadesMedida() {
+  const { showLoading, hideLoading } = useGlobalLoading();
   const { unidades, loading, createUnidade, updateUnidade, toggleAtivo, refetch } = useUnidadesMedida();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUnidade, setEditingUnidade] = useState<UnidadeMedida | null>(null);
@@ -27,6 +29,14 @@ export default function UnidadesMedida() {
   });
 
   useEffect(() => {
+    if (loading) {
+      showLoading("Carregando unidades de medida...");
+    } else {
+      hideLoading();
+    }
+  }, [loading, showLoading, hideLoading]);
+
+  useEffect(() => {
     if (editingUnidade) {
       setFormData({
         nome: editingUnidade.nome,
@@ -35,6 +45,8 @@ export default function UnidadesMedida() {
       setIsDialogOpen(true);
     }
   }, [editingUnidade]);
+
+  if (loading) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

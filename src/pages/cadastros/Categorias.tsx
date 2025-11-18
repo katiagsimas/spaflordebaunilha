@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,14 +13,24 @@ import { useCategorias } from "@/hooks/useCategorias";
 import { Tag, Search, Filter, Download } from "lucide-react";
 import { toast } from "sonner";
 import * as XLSX from 'xlsx';
+import { useGlobalLoading } from "@/contexts/GlobalLoadingContext";
 
 export default function Categorias() {
+  const { showLoading, hideLoading } = useGlobalLoading();
   const { categorias, loading, updateCategoria } = useCategorias();
   
   // Filtros
   const [termoBusca, setTermoBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [resultadosPorPagina, setResultadosPorPagina] = useState('todos');
+
+  useEffect(() => {
+    if (loading) {
+      showLoading("Carregando categorias...");
+    } else {
+      hideLoading();
+    }
+  }, [loading, showLoading, hideLoading]);
 
   const handleToggleAtivo = async (id: string, ativo: boolean) => {
     try {
@@ -30,6 +40,8 @@ export default function Categorias() {
       toast.error(error.message || "Erro ao atualizar categoria");
     }
   };
+
+  if (loading) return null;
 
   // Filtrar e ordenar categorias
   const categoriasFiltradas = useMemo(() => {
@@ -110,18 +122,11 @@ export default function Categorias() {
         backButton={<BackButton to="/configuracoes/cadastros-base" />}
       />
 
-      {loading ? (
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-muted-foreground text-center">Carregando categorias...</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>Categorias de Receitas</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Categorias de Receitas</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
             {/* Filtros */}
             <div className="border rounded-lg p-4 space-y-4 bg-muted/30">
               <div className="flex items-center justify-between">
@@ -238,7 +243,6 @@ export default function Categorias() {
             )}
           </CardContent>
         </Card>
-      )}
-    </div>
-  );
-}
+      </div>
+    );
+  }
