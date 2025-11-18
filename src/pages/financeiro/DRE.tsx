@@ -25,12 +25,12 @@ import {
   FileText,
   TrendingUp,
   TrendingDown,
-  DollarSign,
-  CakeSlice
+  DollarSign
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useGlobalLoading } from "@/contexts/GlobalLoadingContext";
 import * as XLSX from "xlsx";
 import {
   BarChart,
@@ -76,9 +76,9 @@ interface LinhasDRE {
 export default function DRE() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { showLoading, hideLoading } = useGlobalLoading();
   const [ano, setAno] = useState(new Date().getFullYear());
   const [dados, setDados] = useState<LinhasDRE | null>(null);
-  const [loading, setLoading] = useState(true);
   
   const [mesSelecionado, setMesSelecionado] = useState(new Date().getMonth());
   const [anoMensal, setAnoMensal] = useState(new Date().getFullYear());
@@ -93,7 +93,7 @@ export default function DRE() {
   }, [ano]);
 
   async function carregarDRE() {
-    setLoading(true);
+    showLoading('Carregando DRE...');
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -322,7 +322,7 @@ export default function DRE() {
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      hideLoading();
     }
   }
 
@@ -365,25 +365,6 @@ export default function DRE() {
   const imprimir = () => {
     window.print();
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-6">
-          <div className="relative">
-            <CakeSlice className="w-24 h-24 text-primary mx-auto animate-pulse" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-32 h-32 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <h3 className="text-xl font-semibold text-foreground">Preparando seu relatório</h3>
-            <p className="text-muted-foreground">Calculando demonstrativo de resultado...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (!dados) return null;
 
