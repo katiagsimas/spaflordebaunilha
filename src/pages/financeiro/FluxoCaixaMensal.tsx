@@ -14,12 +14,12 @@ import {
 import { 
   Download, 
   Printer,
-  DollarSign,
-  CakeSlice
+  DollarSign
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { BackButton } from "@/components/BackButton";
+import { useGlobalLoading } from "@/contexts/GlobalLoadingContext";
 
 interface FluxoMensal {
   mes: string;
@@ -55,9 +55,9 @@ interface FluxoMensal {
 
 export default function FluxoCaixaMensal() {
   const navigate = useNavigate();
+  const { showLoading, hideLoading } = useGlobalLoading();
   const [ano, setAno] = useState(new Date().getFullYear());
   const [fluxo, setFluxo] = useState<FluxoMensal[]>([]);
-  const [loading, setLoading] = useState(true);
 
   const meses = [
     "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -69,7 +69,7 @@ export default function FluxoCaixaMensal() {
   }, [ano]);
 
   async function carregarFluxo() {
-    setLoading(true);
+    showLoading('Carregando fluxo de caixa mensal...');
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -311,7 +311,7 @@ export default function FluxoCaixaMensal() {
     } catch (error) {
       console.error("Erro ao carregar fluxo:", error);
     } finally {
-      setLoading(false);
+      hideLoading();
     }
   }
 
@@ -331,25 +331,6 @@ export default function FluxoCaixaMensal() {
     link.download = `fluxo-caixa-mensal-${ano}.csv`;
     link.click();
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-6">
-          <div className="relative">
-            <CakeSlice className="w-24 h-24 text-primary mx-auto animate-pulse" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-32 h-32 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <h3 className="text-xl font-semibold text-foreground">Preparando seu relatório</h3>
-            <p className="text-muted-foreground">Calculando fluxo de caixa mensal...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
