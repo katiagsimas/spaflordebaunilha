@@ -57,7 +57,7 @@ export default function FluxoCaixaMensal() {
   const navigate = useNavigate();
   const { showLoading, hideLoading } = useGlobalLoading();
   const [ano, setAno] = useState(new Date().getFullYear());
-  const [fluxo, setFluxo] = useState<FluxoMensal[]>([]);
+  const [fluxo, setFluxo] = useState<FluxoMensal[] | null>(null);
 
   const meses = [
     "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -331,6 +331,8 @@ export default function FluxoCaixaMensal() {
     link.download = `fluxo-caixa-mensal-${ano}.csv`;
     link.click();
   };
+
+  if (fluxo === null) return null;
 
   return (
     <div className="space-y-6">
