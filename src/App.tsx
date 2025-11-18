@@ -82,8 +82,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => (
     <div className="flex min-h-screen w-full">
       <AppSidebar />
       <div className="flex-1 flex flex-col">
-        <header className="sticky top-0 z-10 h-14 border-b bg-background/80 backdrop-blur-md shadow-sm supports-[backdrop-filter]:bg-background/70">
-          <div className="flex h-full items-center px-4 gap-3 bg-[#FFF9E5]">
+        <header className="sticky top-0 z-10 h-14 border-b backdrop-blur-md shadow-sm">
+          <div className="flex h-full items-center px-4 gap-3 bg-app">
             <SidebarTrigger className="hover:bg-accent/50 transition-colors" />
             <div className="h-6 w-px bg-border" />
           </div>
