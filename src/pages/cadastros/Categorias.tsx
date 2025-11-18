@@ -41,8 +41,6 @@ export default function Categorias() {
     }
   };
 
-  if (loading) return null;
-
   // Filtrar e ordenar categorias
   const categoriasFiltradas = useMemo(() => {
     let resultado = [...categorias];
