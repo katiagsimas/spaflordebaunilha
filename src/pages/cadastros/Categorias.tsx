@@ -112,6 +112,8 @@ export default function Categorias() {
     filtroStatus !== 'todos',
   ].filter(Boolean).length;
 
+  if (loading) return null;
+
   return (
     <div className="space-y-6">
       <PageHeader
