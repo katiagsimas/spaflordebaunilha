@@ -104,7 +104,7 @@ export default function Login() {
     <>
       <AlterarSenhaObrigatoria open={mostrarAlterarSenha} />
       
-      <div className="min-h-screen flex items-center justify-start pl-16 gradient-subtle p-4 relative overflow-hidden">
+      <div className="min-h-screen flex items-center justify-center gradient-subtle p-4 relative overflow-hidden">
       {/* Background Image with Opacity */}
       <div 
         className="absolute inset-0 bg-cover bg-center"
@@ -113,18 +113,18 @@ export default function Login() {
       
       {/* Content */}
       <Card className="w-full max-w-md shadow-elevated border-border relative z-10">
-        <CardHeader className="space-y-3 text-center">
-          <div className="flex justify-center mb-2">
+        <CardHeader className="space-y-2 text-center py-3">
+          <div className="flex justify-center mb-1">
             <img 
               src={caixaAcucarLogo} 
               alt="Caixa de Açúcar - Sistema de Gestão para Confeitaria"
-              className="h-48 w-auto object-contain"
+              className="h-36 w-auto object-contain"
             />
           </div>
         </CardHeader>
 
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3 py-3">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
