@@ -104,7 +104,7 @@ export default function Login() {
     <>
       <AlterarSenhaObrigatoria open={mostrarAlterarSenha} />
       
-      <div className="min-h-screen flex items-center justify-center gradient-subtle p-4 relative overflow-hidden">
+      <div className="min-h-screen flex items-center justify-start pl-16 gradient-subtle p-4 relative overflow-hidden">
       {/* Background Image with Opacity */}
       <div 
         className="absolute inset-0 bg-cover bg-center"
