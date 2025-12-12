@@ -37,7 +37,7 @@ export default function ForgotPassword() {
       <div className="min-h-screen flex items-center justify-center gradient-subtle p-4 relative overflow-hidden">
         {/* Background Image with Opacity */}
         <div 
-          className="absolute inset-0 bg-cover bg-center opacity-15"
+          className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${authBackground})` }}
         />
         
@@ -72,7 +72,7 @@ export default function ForgotPassword() {
     <div className="min-h-screen flex items-center justify-center gradient-subtle p-4 relative overflow-hidden">
       {/* Background Image with Opacity */}
       <div 
-        className="absolute inset-0 bg-cover bg-center opacity-15"
+        className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${authBackground})` }}
       />
       
