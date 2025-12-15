@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import caixaAcucarLogo from '@/assets/caixa-acucar-logo.png';
-import authBackground from '@/assets/auth-background.jpg';
+import authBackground from '@/assets/auth-background.png';
 import { z } from 'zod';
 import { toast } from 'sonner';
 
