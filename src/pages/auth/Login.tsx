@@ -113,14 +113,7 @@ export default function Login() {
       
       {/* Content */}
       <Card className="w-full max-w-md shadow-elevated border-border relative z-10">
-        <CardHeader className="space-y-2 text-center py-3">
-          <div className="flex justify-center mb-1">
-            <img 
-              src={caixaAcucarLogo} 
-              alt="Caixa de Açúcar - Sistema de Gestão para Confeitaria"
-              className="h-36 w-auto object-contain"
-            />
-          </div>
+        <CardHeader className="py-2">
         </CardHeader>
 
         <form onSubmit={handleSubmit}>
