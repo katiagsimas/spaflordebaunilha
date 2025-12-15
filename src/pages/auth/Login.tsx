@@ -112,7 +112,7 @@ export default function Login() {
       />
       
       {/* Content */}
-      <Card className="w-full max-w-md shadow-elevated border-border relative z-10">
+      <Card className="w-full max-w-md shadow-elevated border-border relative z-10 mt-5">
         <CardHeader className="py-2">
         </CardHeader>
 
