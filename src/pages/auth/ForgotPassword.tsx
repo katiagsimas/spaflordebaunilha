@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Mail } from 'lucide-react';
 import caixaAcucarLogo from '@/assets/caixa-acucar-logo.png';
-import authBackground from '@/assets/auth-background.jpg';
+import authBackground from '@/assets/auth-background.png';
 import { BackButton } from '@/components/BackButton';
 
 export default function ForgotPassword() {
