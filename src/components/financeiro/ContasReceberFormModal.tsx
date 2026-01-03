@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { addMonthsToDate, getFirstDayOfMonth, formatDateToISO } from '@/lib/dateUtils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -181,19 +182,15 @@ export default function ContasReceberFormModal({
 
     // Gerar parcelas
     const parcelas_geradas = [];
-    const dataBase = new Date(primeiroVencimento + 'T00:00:00');
 
     if (tipoLancamento === 'parcelado' || tipoLancamento === 'unico') {
       const valorParcela = valor / parcelas;
 
       for (let i = 0; i < parcelas; i++) {
-        const dataVenc = new Date(dataBase);
-        dataVenc.setMonth(dataVenc.getMonth() + i);
-
         parcelas_geradas.push({
           numero_parcela: i + 1,
           data_emissao: dataEmissao,
-          data_vencimento: dataVenc.toISOString().split('T')[0],
+          data_vencimento: addMonthsToDate(primeiroVencimento, i),
           valor_total: valor,
           valor_parcela: valorParcela,
         });
@@ -201,16 +198,12 @@ export default function ContasReceberFormModal({
     } else {
       // RECORRENTE
       for (let i = 0; i < parcelas; i++) {
-        const dataVenc = new Date(dataBase);
-        dataVenc.setMonth(dataVenc.getMonth() + i);
-
-        const dataEmissaoParcela = new Date(dataVenc);
-        dataEmissaoParcela.setDate(1);
-
+        const dataVenc = addMonthsToDate(primeiroVencimento, i);
+        
         parcelas_geradas.push({
           numero_parcela: i + 1,
-          data_emissao: dataEmissaoParcela.toISOString().split('T')[0],
-          data_vencimento: dataVenc.toISOString().split('T')[0],
+          data_emissao: getFirstDayOfMonth(dataVenc),
+          data_vencimento: dataVenc,
           valor_total: valor,
           valor_parcela: valor,
         });

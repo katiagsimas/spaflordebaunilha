@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { formatDateToISO } from "@/lib/dateUtils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -109,12 +110,12 @@ export default function FluxoCaixaMensal() {
         const dataInicio = new Date(ano, mes, 1);
         const dataFim = new Date(ano, mes + 1, 0);
         
-        const inicioStr = dataInicio.toISOString().split('T')[0];
-        const fimStr = dataFim.toISOString().split('T')[0];
+        const inicioStr = formatDateToISO(dataInicio);
+        const fimStr = formatDateToISO(dataFim);
 
         // Para o primeiro mês do ano, calcular o saldo inicial
         if (mes === 0) {
-          const dataLimite = new Date(ano, 0, 1).toISOString().split('T')[0];
+          const dataLimite = formatDateToISO(new Date(ano, 0, 1));
 
           // Buscar movimentações anteriores
           const { data: entradasAnteriores } = await supabase
@@ -140,8 +141,8 @@ export default function FluxoCaixaMensal() {
         }
 
         // Buscar saldos configurados para o mês ATUAL (que devem aparecer como saldo inicial deste mês)
-        const dataInicioMes = new Date(ano, mes, 1).toISOString().split('T')[0];
-        const dataFimMes = new Date(ano, mes + 1, 0).toISOString().split('T')[0];
+        const dataInicioMes = formatDateToISO(new Date(ano, mes, 1));
+        const dataFimMes = formatDateToISO(new Date(ano, mes + 1, 0));
         const { data: saldosConfiguradosMes } = await supabase
           .from('saldos_iniciais_bancos')
           .select('saldo_inicial, data_referencia')

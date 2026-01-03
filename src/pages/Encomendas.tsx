@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
+import { getTodayISO, formatDateBR, parseISOToDate } from "@/lib/dateUtils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -104,7 +105,7 @@ const Encomendas = () => {
   const [formData, setFormData] = useState({
     cliente: "",
     clienteId: "", // Armazena o ID do cliente selecionado
-    data_pedido: new Date().toISOString().split("T")[0],
+    data_pedido: getTodayISO(),
     data_entrega: "",
     hora_entrega: "",
     status: "pendente",
@@ -291,7 +292,7 @@ const Encomendas = () => {
     setFormData({
       cliente: "",
       clienteId: "",
-      data_pedido: new Date().toISOString().split("T")[0],
+      data_pedido: getTodayISO(),
       data_entrega: "",
       hora_entrega: "",
       status: "pendente",

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { formatDateToISO, getTodayISO, parseISOToDate, addMonthsToDate, addDaysToDate } from '@/lib/dateUtils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -39,7 +40,7 @@ export default function ContasPagarForm() {
   const isEdicao = !!id;
 
   // Estados do formulário
-  const [dataEmissao, setDataEmissao] = useState(new Date().toISOString().split('T')[0]);
+  const [dataEmissao, setDataEmissao] = useState(getTodayISO());
   const [fornecedorId, setFornecedorId] = useState('');
   const [fornecedorNome, setFornecedorNome] = useState('');
   const [tipoDocumentoId, setTipoDocumentoId] = useState('');
@@ -245,19 +246,15 @@ export default function ContasPagarForm() {
 
     // Gerar parcelas
     const parcelas_geradas = [];
-    const dataBase = new Date(primeiroVencimento + 'T00:00:00');
 
     if (tipoLancamento === 'parcelado' || tipoLancamento === 'unico') {
       const valorParcela = valor / parcelas;
 
       for (let i = 0; i < parcelas; i++) {
-        const dataVenc = new Date(dataBase);
-        dataVenc.setMonth(dataVenc.getMonth() + i);
-
         parcelas_geradas.push({
           numero_parcela: i + 1,
           data_emissao: dataEmissao,
-          data_vencimento: dataVenc.toISOString().split('T')[0],
+          data_vencimento: addMonthsToDate(primeiroVencimento, i),
           valor_total: valor,
           valor_parcela: valorParcela,
           status: 'aberto',
@@ -267,18 +264,10 @@ export default function ContasPagarForm() {
       // Recorrente - cada parcela tem o valor total, vencimentos a cada 30 dias
 
       for (let i = 0; i < parcelas; i++) {
-        const dataVenc = new Date(dataBase);
-        dataVenc.setDate(dataVenc.getDate() + (i * 30)); // 30 dias após a anterior
-
-        // Data de emissão: primeira parcela usa dataEmissao, as seguintes são 30 dias após a anterior
-        const dataEmissaoBase = new Date(dataEmissao + 'T00:00:00');
-        const dataEmissaoParcela = new Date(dataEmissaoBase);
-        dataEmissaoParcela.setDate(dataEmissaoParcela.getDate() + (i * 30));
-
         parcelas_geradas.push({
           numero_parcela: i + 1,
-          data_emissao: dataEmissaoParcela.toISOString().split('T')[0],
-          data_vencimento: dataVenc.toISOString().split('T')[0],
+          data_emissao: addDaysToDate(dataEmissao, i * 30),
+          data_vencimento: addDaysToDate(primeiroVencimento, i * 30),
           valor_total: valor,
           valor_parcela: valor, // Valor total para cada parcela
           status: 'aberto',
@@ -424,21 +413,17 @@ export default function ContasPagarForm() {
 
   const criarParcelas = async (contaId: string, valor: number, parcelas: number) => {
     const parcelas_data = [];
-    const dataBase = new Date(primeiroVencimento + 'T00:00:00');
 
     if (tipoLancamento === 'parcelado' || tipoLancamento === 'unico') {
       // Parcelado: divide o valor total
       const valorParcela = valor / parcelas;
 
       for (let i = 0; i < parcelas; i++) {
-        const dataVenc = new Date(dataBase);
-        dataVenc.setMonth(dataVenc.getMonth() + i);
-
         parcelas_data.push({
           conta_pagar_id: contaId,
           numero_parcela: i + 1,
           data_emissao: dataEmissao,
-          data_vencimento: dataVenc.toISOString().split('T')[0],
+          data_vencimento: addMonthsToDate(primeiroVencimento, i),
           valor_total: valor,
           valor_parcela: valorParcela,
           status: 'aberto',
@@ -448,14 +433,11 @@ export default function ContasPagarForm() {
       // Recorrente - cada parcela tem o valor total, vencimentos a cada 30 dias
 
       for (let i = 0; i < parcelas; i++) {
-        const dataVenc = new Date(dataBase);
-        dataVenc.setDate(dataVenc.getDate() + (i * 30)); // 30 dias após a anterior
-
         parcelas_data.push({
           conta_pagar_id: contaId,
           numero_parcela: i + 1,
           data_emissao: dataEmissao, // Mesma data de emissão para todas
-          data_vencimento: dataVenc.toISOString().split('T')[0],
+          data_vencimento: addDaysToDate(primeiroVencimento, i * 30),
           valor_total: valor,
           valor_parcela: valor, // Valor total para cada parcela
           status: 'aberto',

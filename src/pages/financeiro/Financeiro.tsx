@@ -13,6 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getTodayISO, formatDateToISO, formatDateBR, parseISOToDate } from '@/lib/dateUtils';
 import {
   Table,
   TableBody,
@@ -347,8 +348,8 @@ export default function Financeiro() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     
-    const hoje = new Date().toISOString().split('T')[0];
-    const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+    const hoje = getTodayISO();
+    const inicioMes = formatDateToISO(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
 
     // Buscar todas as parcelas a receber
     const { data: parcelasReceber } = await supabase
@@ -420,7 +421,7 @@ export default function Financeiro() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     
-    const hoje = new Date().toISOString().split('T')[0];
+    const hoje = getTodayISO();
 
     // Buscar parcelas com status "atrasado"
     const { data } = await supabase
@@ -474,7 +475,7 @@ export default function Financeiro() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     
-    const hoje = new Date().toISOString().split('T')[0];
+    const hoje = getTodayISO();
 
     // Buscar parcelas com status "atrasado" das contas a pagar do usuário
     const { data: parcelas } = await supabase
@@ -1085,7 +1086,7 @@ export default function Financeiro() {
                             {saldo.bancos?.codigo} - {saldo.bancos?.nome}
                           </TableCell>
                           <TableCell>
-                            {saldo.data_referencia ? format(new Date(saldo.data_referencia), 'dd/MM/yyyy') : '-'}
+                            {saldo.data_referencia ? formatDateBR(saldo.data_referencia) : '-'}
                           </TableCell>
                           <TableCell className="text-right font-bold">
                             {formatarValor(saldo.saldo_inicial)}
