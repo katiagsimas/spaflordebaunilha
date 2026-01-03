@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { getTodayISO, formatDateToISO } from "@/lib/dateUtils";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { LoadingStateFullScreen } from "@/components/LoadingState";
@@ -236,7 +237,7 @@ export default function Dashboard() {
 
   async function carregarAlertas() {
     if (!user) return;
-    const hoje = new Date().toISOString().split('T')[0];
+    const hoje = getTodayISO();
 
     // Buscar parcelas de contas a receber atrasadas (não pagas)
     const { data: parcelasReceberAtrasadas } = await supabase
@@ -428,8 +429,8 @@ export default function Dashboard() {
 
   async function carregarFinanceiro() {
     if (!user) return;
-    const inicioMes = new Date(anoSelecionado, mesSelecionado, 1).toISOString().split('T')[0];
-    const fimMes = new Date(anoSelecionado, mesSelecionado + 1, 0).toISOString().split('T')[0];
+    const inicioMes = formatDateToISO(new Date(anoSelecionado, mesSelecionado, 1));
+    const fimMes = formatDateToISO(new Date(anoSelecionado, mesSelecionado + 1, 0));
 
     // Buscar parcelas de contas a receber em aberto no mês
     const { data: parcelasReceber } = await supabase

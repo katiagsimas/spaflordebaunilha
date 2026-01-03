@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { formatDateToISO } from "@/lib/dateUtils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -151,8 +152,8 @@ export default function DRE() {
         const dataInicio = new Date(ano, mes, 1);
         const dataFim = new Date(ano, mes + 1, 0);
         
-        const inicioStr = dataInicio.toISOString().split('T')[0];
-        const fimStr = dataFim.toISOString().split('T')[0];
+        const inicioStr = formatDateToISO(dataInicio);
+        const fimStr = formatDateToISO(dataFim);
 
         // Buscar receitas (todas as parcelas com base na data de emissão)
         const { data: contasReceber } = await supabase

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getTodayISO, formatDateBR, parseISOToDate, diffInDays } from '@/lib/dateUtils';
 import {
   Dialog,
   DialogContent,
@@ -39,7 +40,7 @@ export default function DarBaixaDialog({
 }: DarBaixaDialogProps) {
   const { toast } = useToast();
 
-  const [dataPagamento, setDataPagamento] = useState(new Date().toISOString().split('T')[0]);
+  const [dataPagamento, setDataPagamento] = useState(getTodayISO());
   const [valorPago, setValorPago] = useState('');
   const [jurosBaixa, setJurosBaixa] = useState('0,00');
   const [descontoBaixa, setDescontoBaixa] = useState('0,00');
@@ -132,7 +133,7 @@ export default function DarBaixaDialog({
     if (open && parcela && valorRestante > 0) {
       // Preencher valor restante automaticamente
       setValorPago(valorRestante.toFixed(2).replace('.', ','));
-      const hoje = new Date().toISOString().split('T')[0];
+      const hoje = getTodayISO();
       setDataPagamento(hoje);
       
       setDescontoBaixa('0,00');
@@ -387,7 +388,7 @@ export default function DarBaixaDialog({
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Vencimento:</span>
               <span className="font-medium">
-                {new Date(parcela.data_vencimento + 'T00:00:00').toLocaleDateString('pt-BR')}
+                {formatDateBR(parcela.data_vencimento)}
               </span>
             </div>
             <div className="flex justify-between">
