@@ -56,6 +56,7 @@ export type Database = {
           habilitado: boolean | null
           id: string
           nome: string
+          owner_group_id: string | null
           saldo_inicial: number
           tipo: string
           updated_at: string
@@ -69,6 +70,7 @@ export type Database = {
           habilitado?: boolean | null
           id?: string
           nome: string
+          owner_group_id?: string | null
           saldo_inicial?: number
           tipo: string
           updated_at?: string
@@ -82,12 +84,21 @@ export type Database = {
           habilitado?: boolean | null
           id?: string
           nome?: string
+          owner_group_id?: string | null
           saldo_inicial?: number
           tipo?: string
           updated_at?: string
           usuario_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "bancos_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       categorias: {
         Row: {
@@ -95,6 +106,7 @@ export type Database = {
           created_at: string
           id: string
           nome: string
+          owner_group_id: string | null
           padrao_sistema: boolean | null
           updated_at: string
           usuario_id: string
@@ -104,6 +116,7 @@ export type Database = {
           created_at?: string
           id?: string
           nome: string
+          owner_group_id?: string | null
           padrao_sistema?: boolean | null
           updated_at?: string
           usuario_id: string
@@ -113,11 +126,20 @@ export type Database = {
           created_at?: string
           id?: string
           nome?: string
+          owner_group_id?: string | null
           padrao_sistema?: boolean | null
           updated_at?: string
           usuario_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "categorias_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       categorias_plano_contas: {
         Row: {
@@ -130,6 +152,7 @@ export type Database = {
           id: string
           indicador: string
           ordem: number
+          owner_group_id: string | null
           padrao_sistema: boolean
           updated_at: string | null
           user_id: string
@@ -144,6 +167,7 @@ export type Database = {
           id?: string
           indicador: string
           ordem?: number
+          owner_group_id?: string | null
           padrao_sistema?: boolean
           updated_at?: string | null
           user_id: string
@@ -158,11 +182,20 @@ export type Database = {
           id?: string
           indicador?: string
           ordem?: number
+          owner_group_id?: string | null
           padrao_sistema?: boolean
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "categorias_plano_contas_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cliente_familiares: {
         Row: {
@@ -225,6 +258,7 @@ export type Database = {
           nome: string
           numero: string | null
           observacoes: string | null
+          owner_group_id: string | null
           quantidade_pedidos: number | null
           telefone: string | null
           tipo: string | null
@@ -246,6 +280,7 @@ export type Database = {
           nome: string
           numero?: string | null
           observacoes?: string | null
+          owner_group_id?: string | null
           quantidade_pedidos?: number | null
           telefone?: string | null
           tipo?: string | null
@@ -267,6 +302,7 @@ export type Database = {
           nome?: string
           numero?: string | null
           observacoes?: string | null
+          owner_group_id?: string | null
           quantidade_pedidos?: number | null
           telefone?: string | null
           tipo?: string | null
@@ -275,7 +311,15 @@ export type Database = {
           updated_at?: string
           usuario_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "clientes_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       configuracoes_juros: {
         Row: {
@@ -284,6 +328,7 @@ export type Database = {
           id: string
           multa_atraso: boolean | null
           observacao: string | null
+          owner_group_id: string | null
           percentual_juros: number
           percentual_multa: number | null
           tipo_juros: string
@@ -296,6 +341,7 @@ export type Database = {
           id?: string
           multa_atraso?: boolean | null
           observacao?: string | null
+          owner_group_id?: string | null
           percentual_juros?: number
           percentual_multa?: number | null
           tipo_juros?: string
@@ -308,13 +354,22 @@ export type Database = {
           id?: string
           multa_atraso?: boolean | null
           observacao?: string | null
+          owner_group_id?: string | null
           percentual_juros?: number
           percentual_multa?: number | null
           tipo_juros?: string
           updated_at?: string | null
           usuario_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "configuracoes_juros_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contas_pagar: {
         Row: {
@@ -331,6 +386,7 @@ export type Database = {
           id: string
           numero_parcelas: number | null
           observacoes: string | null
+          owner_group_id: string | null
           plano_contas_id: string | null
           status: string
           tipo_documento_id: string | null
@@ -354,6 +410,7 @@ export type Database = {
           id?: string
           numero_parcelas?: number | null
           observacoes?: string | null
+          owner_group_id?: string | null
           plano_contas_id?: string | null
           status?: string
           tipo_documento_id?: string | null
@@ -377,6 +434,7 @@ export type Database = {
           id?: string
           numero_parcelas?: number | null
           observacoes?: string | null
+          owner_group_id?: string | null
           plano_contas_id?: string | null
           status?: string
           tipo_documento_id?: string | null
@@ -406,6 +464,13 @@ export type Database = {
             columns: ["fornecedor_id"]
             isOneToOne: false
             referencedRelation: "fornecedores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contas_pagar_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
             referencedColumns: ["id"]
           },
           {
@@ -587,6 +652,7 @@ export type Database = {
           numero_documento: string | null
           numero_parcelas: number
           observacoes: string | null
+          owner_group_id: string | null
           plano_conta_id: string | null
           status: string
           tipo_documento_id: string | null
@@ -612,6 +678,7 @@ export type Database = {
           numero_documento?: string | null
           numero_parcelas?: number
           observacoes?: string | null
+          owner_group_id?: string | null
           plano_conta_id?: string | null
           status?: string
           tipo_documento_id?: string | null
@@ -637,6 +704,7 @@ export type Database = {
           numero_documento?: string | null
           numero_parcelas?: number
           observacoes?: string | null
+          owner_group_id?: string | null
           plano_conta_id?: string | null
           status?: string
           tipo_documento_id?: string | null
@@ -651,6 +719,13 @@ export type Database = {
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contas_receber_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
             referencedColumns: ["id"]
           },
           {
@@ -887,6 +962,7 @@ export type Database = {
           created_at: string
           id: string
           nome: string
+          owner_group_id: string | null
           tipo: string
           updated_at: string
           usuario_id: string
@@ -896,6 +972,7 @@ export type Database = {
           created_at?: string
           id?: string
           nome: string
+          owner_group_id?: string | null
           tipo?: string
           updated_at?: string
           usuario_id: string
@@ -905,12 +982,21 @@ export type Database = {
           created_at?: string
           id?: string
           nome?: string
+          owner_group_id?: string | null
           tipo?: string
           updated_at?: string
           usuario_id?: string
           valor?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "custos_fixos_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       embalagens: {
         Row: {
@@ -918,6 +1004,7 @@ export type Database = {
           data_atualizacao: string
           id: string
           marca: string | null
+          owner_group_id: string | null
           preco: number
           tipo_insumo_id: string
           updated_at: string | null
@@ -928,6 +1015,7 @@ export type Database = {
           data_atualizacao?: string
           id?: string
           marca?: string | null
+          owner_group_id?: string | null
           preco: number
           tipo_insumo_id: string
           updated_at?: string | null
@@ -938,12 +1026,20 @@ export type Database = {
           data_atualizacao?: string
           id?: string
           marca?: string | null
+          owner_group_id?: string | null
           preco?: number
           tipo_insumo_id?: string
           updated_at?: string | null
           usuario_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "embalagens_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "embalagens_tipo_insumo_id_fkey"
             columns: ["tipo_insumo_id"]
@@ -958,6 +1054,7 @@ export type Database = {
           created_at: string
           encomenda_id: string
           id: string
+          owner_group_id: string | null
           produto: string
           quantidade: number
           receita_id: string
@@ -971,6 +1068,7 @@ export type Database = {
           created_at?: string
           encomenda_id: string
           id?: string
+          owner_group_id?: string | null
           produto: string
           quantidade: number
           receita_id: string
@@ -984,6 +1082,7 @@ export type Database = {
           created_at?: string
           encomenda_id?: string
           id?: string
+          owner_group_id?: string | null
           produto?: string
           quantidade?: number
           receita_id?: string
@@ -993,7 +1092,15 @@ export type Database = {
           usuario_id?: string
           valor_unitario?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "encomenda_itens_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       encomendas: {
         Row: {
@@ -1013,6 +1120,7 @@ export type Database = {
           observacoes_cliente: string | null
           observacoes_internas: string | null
           outros: number | null
+          owner_group_id: string | null
           pagamentos: Json | null
           saldo_restante: number | null
           status: string
@@ -1045,6 +1153,7 @@ export type Database = {
           observacoes_cliente?: string | null
           observacoes_internas?: string | null
           outros?: number | null
+          owner_group_id?: string | null
           pagamentos?: Json | null
           saldo_restante?: number | null
           status?: string
@@ -1077,6 +1186,7 @@ export type Database = {
           observacoes_cliente?: string | null
           observacoes_internas?: string | null
           outros?: number | null
+          owner_group_id?: string | null
           pagamentos?: Json | null
           saldo_restante?: number | null
           status?: string
@@ -1098,6 +1208,13 @@ export type Database = {
             columns: ["conta_receber_id"]
             isOneToOne: false
             referencedRelation: "contas_receber"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "encomendas_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
             referencedColumns: ["id"]
           },
         ]
@@ -1206,6 +1323,7 @@ export type Database = {
           id: string
           nome: string
           observacoes: string | null
+          owner_group_id: string | null
           telefone: string | null
           tipo: string | null
           updated_at: string
@@ -1218,6 +1336,7 @@ export type Database = {
           id?: string
           nome: string
           observacoes?: string | null
+          owner_group_id?: string | null
           telefone?: string | null
           tipo?: string | null
           updated_at?: string
@@ -1230,10 +1349,46 @@ export type Database = {
           id?: string
           nome?: string
           observacoes?: string | null
+          owner_group_id?: string | null
           telefone?: string | null
           tipo?: string | null
           updated_at?: string
           usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fornecedores_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      groups: {
+        Row: {
+          created_at: string | null
+          created_by_user_id: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by_user_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by_user_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -1245,6 +1400,7 @@ export type Database = {
           e_pre_preparo: boolean | null
           id: string
           marca: string | null
+          owner_group_id: string | null
           preco: number
           tipo_insumo_id: string
           updated_at: string | null
@@ -1257,6 +1413,7 @@ export type Database = {
           e_pre_preparo?: boolean | null
           id?: string
           marca?: string | null
+          owner_group_id?: string | null
           preco: number
           tipo_insumo_id: string
           updated_at?: string | null
@@ -1269,12 +1426,20 @@ export type Database = {
           e_pre_preparo?: boolean | null
           id?: string
           marca?: string | null
+          owner_group_id?: string | null
           preco?: number
           tipo_insumo_id?: string
           updated_at?: string | null
           usuario_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "ingredientes_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ingredientes_tipo_insumo_id_fkey"
             columns: ["tipo_insumo_id"]
@@ -1291,6 +1456,7 @@ export type Database = {
           criado_em: string | null
           id: string
           nome: string
+          owner_group_id: string | null
           padrao: boolean | null
           user_id: string
           valor_hora: number
@@ -1301,6 +1467,7 @@ export type Database = {
           criado_em?: string | null
           id?: string
           nome: string
+          owner_group_id?: string | null
           padrao?: boolean | null
           user_id: string
           valor_hora: number
@@ -1311,11 +1478,20 @@ export type Database = {
           criado_em?: string | null
           id?: string
           nome?: string
+          owner_group_id?: string | null
           padrao?: boolean | null
           user_id?: string
           valor_hora?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "mao_obra_perfis_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       mao_obra_perfis_historico: {
         Row: {
@@ -1365,6 +1541,7 @@ export type Database = {
           descricao: string
           e_padrao: boolean | null
           id: string
+          owner_group_id: string | null
           padrao_sistema: boolean
           updated_at: string | null
           user_id: string
@@ -1378,6 +1555,7 @@ export type Database = {
           descricao: string
           e_padrao?: boolean | null
           id?: string
+          owner_group_id?: string | null
           padrao_sistema?: boolean
           updated_at?: string | null
           user_id: string
@@ -1391,6 +1569,7 @@ export type Database = {
           descricao?: string
           e_padrao?: boolean | null
           id?: string
+          owner_group_id?: string | null
           padrao_sistema?: boolean
           updated_at?: string | null
           user_id?: string
@@ -1401,6 +1580,13 @@ export type Database = {
             columns: ["categoria_id"]
             isOneToOne: false
             referencedRelation: "categorias_plano_contas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plano_contas_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
             referencedColumns: ["id"]
           },
         ]
@@ -1416,6 +1602,7 @@ export type Database = {
           imagem_2_url: string | null
           modo_preparo: string | null
           nome: string
+          owner_group_id: string | null
           rendimento_quantidade: number
           rendimento_unidade_id: string
           tempo_preparo: number
@@ -1433,6 +1620,7 @@ export type Database = {
           imagem_2_url?: string | null
           modo_preparo?: string | null
           nome: string
+          owner_group_id?: string | null
           rendimento_quantidade: number
           rendimento_unidade_id: string
           tempo_preparo: number
@@ -1450,6 +1638,7 @@ export type Database = {
           imagem_2_url?: string | null
           modo_preparo?: string | null
           nome?: string
+          owner_group_id?: string | null
           rendimento_quantidade?: number
           rendimento_unidade_id?: string
           tempo_preparo?: number
@@ -1463,6 +1652,13 @@ export type Database = {
             columns: ["categoria_id"]
             isOneToOne: false
             referencedRelation: "categorias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pre_preparos_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
             referencedColumns: ["id"]
           },
           {
@@ -1590,6 +1786,7 @@ export type Database = {
           nome_completo: string | null
           nome_confeitaria: string | null
           numero: string | null
+          owner_group_id: string | null
           planejamento_banner_dismissed: boolean | null
           primeiro_acesso: boolean | null
           razao_social: string | null
@@ -1623,6 +1820,7 @@ export type Database = {
           nome_completo?: string | null
           nome_confeitaria?: string | null
           numero?: string | null
+          owner_group_id?: string | null
           planejamento_banner_dismissed?: boolean | null
           primeiro_acesso?: boolean | null
           razao_social?: string | null
@@ -1656,6 +1854,7 @@ export type Database = {
           nome_completo?: string | null
           nome_confeitaria?: string | null
           numero?: string | null
+          owner_group_id?: string | null
           planejamento_banner_dismissed?: boolean | null
           primeiro_acesso?: boolean | null
           razao_social?: string | null
@@ -1664,7 +1863,15 @@ export type Database = {
           valor_hora?: number | null
           whatsapp?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       receitas: {
         Row: {
@@ -1675,6 +1882,7 @@ export type Database = {
           id: string
           modo_preparo: string | null
           nome: string
+          owner_group_id: string | null
           rendimento: number
           tempo_preparo: number
           tipo: string | null
@@ -1692,6 +1900,7 @@ export type Database = {
           id?: string
           modo_preparo?: string | null
           nome: string
+          owner_group_id?: string | null
           rendimento: number
           tempo_preparo: number
           tipo?: string | null
@@ -1709,6 +1918,7 @@ export type Database = {
           id?: string
           modo_preparo?: string | null
           nome?: string
+          owner_group_id?: string | null
           rendimento?: number
           tempo_preparo?: number
           tipo?: string | null
@@ -1718,7 +1928,15 @@ export type Database = {
           usuario_id?: string
           valor_venda?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "receitas_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       receitas_despesas_venda: {
         Row: {
@@ -2033,6 +2251,7 @@ export type Database = {
           descricao: string | null
           id: string
           nome: string
+          owner_group_id: string | null
           padrao_sistema: boolean | null
           updated_at: string | null
           user_id: string | null
@@ -2044,6 +2263,7 @@ export type Database = {
           descricao?: string | null
           id?: string
           nome: string
+          owner_group_id?: string | null
           padrao_sistema?: boolean | null
           updated_at?: string | null
           user_id?: string | null
@@ -2055,11 +2275,20 @@ export type Database = {
           descricao?: string | null
           id?: string
           nome?: string
+          owner_group_id?: string | null
           padrao_sistema?: boolean | null
           updated_at?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tags_encomendas_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tipos_documento: {
         Row: {
@@ -2071,6 +2300,7 @@ export type Database = {
           e_padrao: boolean | null
           habilitado: boolean | null
           id: string
+          owner_group_id: string | null
           updated_at: string
           usuario_id: string
         }
@@ -2083,6 +2313,7 @@ export type Database = {
           e_padrao?: boolean | null
           habilitado?: boolean | null
           id?: string
+          owner_group_id?: string | null
           updated_at?: string
           usuario_id: string
         }
@@ -2095,16 +2326,26 @@ export type Database = {
           e_padrao?: boolean | null
           habilitado?: boolean | null
           id?: string
+          owner_group_id?: string | null
           updated_at?: string
           usuario_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tipos_documento_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tipos_insumos: {
         Row: {
           created_at: string | null
           descricao: string
           id: string
+          owner_group_id: string | null
           pre_preparo_id: string | null
           quantidade_embalagem: number
           tipo: string
@@ -2116,6 +2357,7 @@ export type Database = {
           created_at?: string | null
           descricao: string
           id?: string
+          owner_group_id?: string | null
           pre_preparo_id?: string | null
           quantidade_embalagem: number
           tipo: string
@@ -2127,6 +2369,7 @@ export type Database = {
           created_at?: string | null
           descricao?: string
           id?: string
+          owner_group_id?: string | null
           pre_preparo_id?: string | null
           quantidade_embalagem?: number
           tipo?: string
@@ -2135,6 +2378,13 @@ export type Database = {
           usuario_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tipos_insumos_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tipos_insumos_pre_preparo_id_fkey"
             columns: ["pre_preparo_id"]
@@ -2159,6 +2409,7 @@ export type Database = {
           e_padrao: boolean | null
           id: string
           nome: string
+          owner_group_id: string | null
           sigla: string
           updated_at: string
           usuario_id: string
@@ -2170,6 +2421,7 @@ export type Database = {
           e_padrao?: boolean | null
           id?: string
           nome: string
+          owner_group_id?: string | null
           sigla: string
           updated_at?: string
           usuario_id: string
@@ -2181,11 +2433,120 @@ export type Database = {
           e_padrao?: boolean | null
           id?: string
           nome?: string
+          owner_group_id?: string | null
           sigla?: string
           updated_at?: string
           usuario_id?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "unidades_medida_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_active_session: {
+        Row: {
+          active_group_id: string | null
+          id: string
+          mode: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          active_group_id?: string | null
+          id?: string
+          mode?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          active_group_id?: string | null
+          id?: string
+          mode?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_active_session_active_group_id_fkey"
+            columns: ["active_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_global_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          role_global: Database["public"]["Enums"]["role_global"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          role_global?: Database["public"]["Enums"]["role_global"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          role_global?: Database["public"]["Enums"]["role_global"]
+          updated_at?: string | null
+          user_id?: string
+        }
         Relationships: []
+      }
+      user_group_roles: {
+        Row: {
+          created_at: string | null
+          group_id: string
+          id: string
+          is_active: boolean | null
+          permission_flags: Json | null
+          role_group: Database["public"]["Enums"]["role_group"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          group_id: string
+          id?: string
+          is_active?: boolean | null
+          permission_flags?: Json | null
+          role_group?: Database["public"]["Enums"]["role_group"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          group_id?: string
+          id?: string
+          is_active?: boolean | null
+          permission_flags?: Json | null
+          role_group?: Database["public"]["Enums"]["role_group"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_group_roles_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -2454,6 +2815,7 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: number
       }
+      get_active_group_id: { Args: { _user_id: string }; Returns: string }
       get_admin_dashboard_metrics: {
         Args: never
         Returns: {
@@ -2534,9 +2896,17 @@ export type Database = {
           tipo: string
         }[]
       }
+      get_user_group_role: {
+        Args: { _group_id: string; _user_id: string }
+        Returns: Database["public"]["Enums"]["role_group"]
+      }
       hard_delete_user_data: {
         Args: { p_admin_id: string; p_user_id: string }
         Returns: Json
+      }
+      has_permission: {
+        Args: { _group_id: string; _permission: string; _user_id: string }
+        Returns: boolean
       }
       has_role: {
         Args: {
@@ -2550,6 +2920,11 @@ export type Database = {
         Returns: undefined
       }
       is_admin: { Args: { check_user_id: string }; Returns: boolean }
+      is_group_admin: {
+        Args: { _group_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_mother: { Args: { _user_id: string }; Returns: boolean }
       log_admin_action: {
         Args: {
           p_action: string
@@ -2559,6 +2934,10 @@ export type Database = {
           p_target_user_id?: string
         }
         Returns: undefined
+      }
+      user_belongs_to_group: {
+        Args: { _group_id: string; _user_id: string }
+        Returns: boolean
       }
       validar_estoque_receita: {
         Args: {
@@ -2579,6 +2958,8 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      role_global: "MOTHER"
+      role_group: "ADMIN" | "USER"
       status_entrada: "ATIVO" | "CONSUMIDO"
       tipo_item_estoque: "INSUMO" | "EMBALAGEM" | "outros"
       tipo_movimentacao: "ENTRADA" | "SAIDA" | "PERDA" | "AJUSTE"
@@ -2710,6 +3091,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      role_global: ["MOTHER"],
+      role_group: ["ADMIN", "USER"],
       status_entrada: ["ATIVO", "CONSUMIDO"],
       tipo_item_estoque: ["INSUMO", "EMBALAGEM", "outros"],
       tipo_movimentacao: ["ENTRADA", "SAIDA", "PERDA", "AJUSTE"],

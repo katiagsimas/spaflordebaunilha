@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { GroupProvider } from "@/contexts/GroupContext";
 import { GlobalLoadingProvider, useGlobalLoading } from "@/contexts/GlobalLoadingContext";
 import { LoadingMascote } from "@/components/LoadingMascote";
 import { FirstAccessRedirect } from "@/components/FirstAccessRedirect";
@@ -57,6 +58,8 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 import NotFound from "./pages/NotFound";
 import Usuarios from "./pages/admin/Usuarios";
 import LogsAdmin from "./pages/admin/Logs";
+import Governanca from "./pages/admin/Governanca";
+import UsuariosGrupo from "./pages/admin/UsuariosGrupo";
 
 const queryClient = new QueryClient();
 
@@ -112,11 +115,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <GlobalLoadingProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+      <GroupProvider>
+        <GlobalLoadingProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
           <Routes>
             {/* Auth routes */}
             <Route path="/auth/login" element={<AuthLogin />} />
@@ -195,12 +199,15 @@ const App = () => (
           {/* Admin - Gestão de Usuários */}
           <Route path="/admin/usuarios" element={<ProtectedRoute><Layout><Usuarios /></Layout></ProtectedRoute>} />
           <Route path="/admin/logs" element={<ProtectedRoute><Layout><LogsAdmin /></Layout></ProtectedRoute>} />
+          <Route path="/admin/governanca" element={<ProtectedRoute><Layout><Governanca /></Layout></ProtectedRoute>} />
+          <Route path="/admin/usuarios-grupo" element={<ProtectedRoute><Layout><UsuariosGrupo /></Layout></ProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
     </GlobalLoadingProvider>
+      </GroupProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

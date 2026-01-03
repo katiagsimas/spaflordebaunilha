@@ -1,10 +1,12 @@
-import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake, Shield, FileText } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake, Shield, FileText, Building2, Crown } from "lucide-react";
 import caixaAcucarLogo from "@/assets/caixa-acucar-logo.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useGroup } from "@/contexts/GroupContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { GroupSelector } from "@/components/GroupSelector";
 import {
   Sidebar,
   SidebarContent,
@@ -35,6 +37,7 @@ const menuItems = [
 export function AppSidebar() {
   const { open } = useSidebar();
   const { user, signOut } = useAuth();
+  const { isMother, isGroupAdmin, sessionMode, activeGroup, activeRole } = useGroup();
   const navigate = useNavigate();
   const { isAdmin } = useIsAdmin();
 
@@ -107,8 +110,12 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-border shadow-[2px_0_12px_rgba(107,80,71,0.06)]" style={{ width: open ? '280px' : undefined }}>
       <SidebarHeader className="border-b border-border p-6">
         {open && (
-          <div className="flex justify-center">
-            <img src={caixaAcucarLogo} alt="Caixa de Açúcar - Sistema de Gestão" className="w-full max-w-[720px] h-auto object-contain" />
+          <div className="space-y-4">
+            <div className="flex justify-center">
+              <img src={caixaAcucarLogo} alt="Caixa de Açúcar - Sistema de Gestão" className="w-full max-w-[720px] h-auto object-contain" />
+            </div>
+            {/* Seletor de Grupo */}
+            <GroupSelector />
           </div>
         )}
       </SidebarHeader>
@@ -169,10 +176,77 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Seção de Administração - Apenas para Admins */}
+        {/* Seção MOTHER - Governança do Sistema */}
+        {isMother && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="flex items-center gap-2">
+              <Crown className="h-3 w-3 text-amber-500" />
+              Governança
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={false}>
+                    <NavLink
+                      to="/admin/governanca"
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
+                          isActive
+                            ? "bg-secondary text-primary font-semibold border-l-4 border-primary"
+                            : "text-foreground hover:bg-secondary hover:text-primary"
+                        }`
+                      }
+                    >
+                      {({ isActive }) => (
+                        <>
+                          <Building2 className="h-5 w-5 text-amber-500" />
+                          {open && <span className="flex-1">Grupos e Usuários</span>}
+                        </>
+                      )}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {/* Seção Admin do Grupo */}
+        {isGroupAdmin() && sessionMode === 'group' && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Administração do Grupo</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={false}>
+                    <NavLink
+                      to="/admin/usuarios-grupo"
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
+                          isActive
+                            ? "bg-secondary text-primary font-semibold border-l-4 border-primary"
+                            : "text-foreground hover:bg-secondary hover:text-primary"
+                        }`
+                      }
+                    >
+                      {({ isActive }) => (
+                        <>
+                          <Users className="h-5 w-5 text-primary" />
+                          {open && <span className="flex-1">Usuários do Grupo</span>}
+                        </>
+                      )}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {/* Seção de Administração - Apenas para Admins (legado) */}
         {isAdmin && (
           <SidebarGroup>
-            <SidebarGroupLabel>Administração</SidebarGroupLabel>
+            <SidebarGroupLabel>Sistema</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
@@ -225,7 +299,21 @@ export function AppSidebar() {
 
       {open && profile && (
         <SidebarFooter className="border-t border-border p-6">
-          <div className="space-y-2">
+          <div className="space-y-3">
+            {/* Indicador de Papel */}
+            {activeGroup && sessionMode === 'group' && (
+              <div className="flex items-center gap-2">
+                <Badge variant={activeRole === 'ADMIN' ? 'default' : 'secondary'} className="text-xs">
+                  {activeRole === 'ADMIN' ? 'Admin' : 'Usuário'}
+                </Badge>
+                {isMother && (
+                  <Badge variant="outline" className="text-xs border-amber-500 text-amber-600">
+                    <Crown className="h-3 w-3 mr-1" />
+                    MOTHER
+                  </Badge>
+                )}
+              </div>
+            )}
             <div>
               <p className="text-sm font-semibold text-foreground truncate">
                 {profile.nome_confeitaria || profile.nome_completo}
