@@ -1,1112 +1,535 @@
-# 📘 DOCUMENTAÇÃO MESTRE - CAIXA DE AÇÚCAR
+# 📘 DOCUMENTAÇÃO MESTRE — CAIXA DE AÇÚCAR
 
-**Sistema de Gestão para Confeitarias**  
-**Versão:** 1.0 (Dezembro 2025)  
-**Stack:** React 18 + TypeScript + Vite + Tailwind CSS + Supabase (Lovable Cloud)
-
----
-
-## BLOCO 1: VISÃO GERAL DO SISTEMA
-
-### 1.1 O que é o Caixa de Açúcar?
-
-O **Caixa de Açúcar** é um sistema web de gestão completo desenvolvido especificamente para confeitarias, docerias e profissionais do ramo de confeitaria. Ele resolve os principais desafios operacionais e financeiros do negócio.
-
-### 1.2 Para quem é?
-
-- **Confeiteiras/Confeiteiros** individuais
-- **Micro e pequenas docerias**
-- **Ateliers de doces e bolos**
-- **Profissionais autônomos** do segmento de confeitaria
-
-### 1.3 Proposta de Valor
-
-| Problema | Solução Caixa de Açúcar |
-|----------|-------------------------|
-| Precificação incorreta | Ficha técnica automatizada com cálculo de CMV, mão de obra e margem |
-| Descontrole de encomendas | Gestão completa do ciclo de pedidos com calendário visual |
-| Fluxo de caixa confuso | Contas a pagar/receber, fluxo de caixa diário/mensal, DRE |
-| Perda de clientes | Cadastro com aniversários, familiares e alertas automáticos |
-| Falta de visão estratégica | Dashboard com indicadores, gráficos e projeções |
-
-### 1.4 Diferenciais
-
-- **Multi-tenant**: Cada usuário tem seus dados isolados via RLS (Row Level Security)
-- **Precificação técnica**: Cálculo baseado em fichas técnicas reais
-- **Integração automática**: Encomenda → Conta a Receber (sem digitação dupla)
-- **Alertas de aniversário**: Clientes, familiares e contatos de fornecedores
-- **Responsivo**: Funciona em desktop, tablet e mobile
+**Sistema de Gestão para Confeitarias**
+**Atualizada em:** Fevereiro 2026
+**Stack:** React 18 + TypeScript + Vite + Tailwind CSS + Lovable Cloud (Supabase)
 
 ---
 
-## BLOCO 2: MAPA DE MÓDULOS E PÁGINAS
+## 1. VISÃO GERAL
 
-### 2.1 Menu Principal (Sidebar)
+### 1.1 O que é
+Caixa de Açúcar é um sistema web de gestão completo para confeitarias. Permite controlar encomendas, precificar produtos com fichas técnicas, gerenciar financeiro (contas a pagar/receber, fluxo de caixa, DRE) e administrar clientes, fornecedores e usuários com isolamento multi-tenant por grupos.
 
-```
-📊 Dashboard (/dashboard)
-📦 Encomendas (/encomendas)
-👤 Clientes (/clientes)
-🚚 Fornecedores (/fornecedores)
-💰 Financeiro (/financeiro) ──┬── Dashboard Financeiro
-                              ├── Contas a Receber
-                              ├── Contas a Pagar
-                              ├── Fluxo de Caixa (Diário/Mensal)
-                              └── DRE
-🧮 Precificação (/precificacao) ──┬── Ingredientes
-                                  ├── Embalagens
-                                  ├── Pré-Preparos
-                                  └── Ficha Técnica
-⚙️ Configurações (/configuracoes) ──┬── Cadastros Base
-                                    ├── Precificação (Mão de Obra)
-                                    ├── Financeiro
-                                    └── Tags de Encomendas
+### 1.2 Para quem
+Confeiteiras, doceiras e pequenas empresas do ramo de confeitaria que precisam de controle profissional do negócio.
 
-🔐 Administração (apenas admins):
-   ├── Usuários (/admin/usuarios)
-   └── Logs (/admin/logs)
-```
-
-### 2.2 Rotas Completas
-
-| Rota | Componente | Descrição |
-|------|------------|-----------|
-| `/` | Redirect | Redireciona para `/dashboard` |
-| `/auth/login` | Login | Tela de autenticação |
-| `/auth/signup` | SignUp | Cadastro de novo usuário |
-| `/auth/forgot-password` | ForgotPassword | Recuperação de senha |
-| `/dashboard` | Dashboard | Painel principal |
-| `/encomendas` | Encomendas | Gestão de encomendas |
-| `/clientes` | Clientes | Cadastro de clientes |
-| `/fornecedores` | Fornecedores | Cadastro de fornecedores |
-| `/financeiro` | Financeiro | Hub financeiro |
-| `/financeiro/dashboard` | DashboardFinanceiro | Dashboard financeiro |
-| `/financeiro/contas-receber` | ContasReceber | Listagem de contas a receber |
-| `/financeiro/contas-receber/nova` | ContasReceberForm | Nova conta a receber |
-| `/financeiro/contas-receber/editar/:id` | ContasReceberForm | Editar conta a receber |
-| `/financeiro/contas-receber/detalhes/:id` | ContasReceberDetalhes | Detalhes com parcelas e pagamentos |
-| `/financeiro/contas-pagar` | ContasPagar | Listagem de contas a pagar |
-| `/financeiro/contas-pagar/nova` | ContasPagarForm | Nova conta a pagar |
-| `/financeiro/contas-pagar/editar/:id` | ContasPagarForm | Editar conta a pagar |
-| `/financeiro/contas-pagar/detalhes/:id` | ContasPagarDetalhes | Detalhes com parcelas e pagamentos |
-| `/financeiro/fluxo-caixa` | FluxoCaixaHub | Hub do fluxo de caixa |
-| `/financeiro/fluxo-caixa/diario` | FluxoCaixaDiario | Fluxo de caixa diário |
-| `/financeiro/fluxo-caixa/mensal` | FluxoCaixaMensal | Fluxo de caixa mensal |
-| `/financeiro/dre` | DRE | Demonstrativo de Resultados |
-| `/precificacao` | Precificacao | Hub de precificação |
-| `/precificacao/ingredientes` | Ingredientes | Cadastro de ingredientes |
-| `/precificacao/embalagens` | Embalagens | Cadastro de embalagens |
-| `/precificacao/pre-preparos` | PrePreparos | Listagem de pré-preparos |
-| `/precificacao/pre-preparos/novo` | PrePreparoForm | Novo pré-preparo |
-| `/precificacao/pre-preparos/:id` | PrePreparoForm | Editar pré-preparo |
-| `/precificacao/ficha-tecnica` | Receitas | Listagem de receitas |
-| `/precificacao/ficha-tecnica/nova` | ReceitaForm | Nova receita |
-| `/precificacao/ficha-tecnica/editar/:id` | ReceitaForm | Editar receita |
-| `/configuracoes` | Configuracoes | Hub de configurações |
-| `/configuracoes/cadastros-base` | CadastrosBase | Configurações básicas |
-| `/configuracoes/precificacao` | PrecificacaoPage | Config. de precificação |
-| `/configuracoes/precificacao/mao-de-obra` | MaoDeObra | Perfis de mão de obra |
-| `/configuracoes/financeiro` | FinanceiroPage | Config. financeiras |
-| `/configuracoes/tipos-insumos` | TiposInsumos | Tipos de insumos |
-| `/configuracoes/categorias-plano-contas` | CategoriasPlanoContas | Categorias DRE |
-| `/configuracoes/plano-contas` | PlanoContas | Plano de contas |
-| `/configuracoes/bancos` | Bancos | Configuração de bancos |
-| `/configuracoes/tipos-documentos` | TiposDocumentos | Tipos de documentos |
-| `/configuracoes/juros` | ConfiguracaoJuros | Configuração de juros |
-| `/configuracoes/tags-encomendas` | TagsEncomendas | Tags personalizadas |
-| `/configuracoes/dados-confeitaria` | SeusDados | Dados do usuário |
-| `/configuracoes/categorias-receitas` | Categorias | Categorias de receitas |
-| `/configuracoes/unidades-medida` | UnidadesMedida | Unidades de medida |
-| `/admin/usuarios` | Usuarios | Gestão de usuários (admin) |
-| `/admin/logs` | LogsAdmin | Logs de auditoria (admin) |
+### 1.3 Proposta de valor
+- Precificação técnica baseada em fichas de ingredientes, embalagens, mão de obra e pré-preparos
+- Gestão financeira completa (contas a pagar/receber, fluxo de caixa, DRE)
+- Controle de encomendas com status, tags e vinculação financeira
+- Cadastro de clientes/fornecedores com alertas de aniversário
+- Arquitetura multi-tenant com governança central (MOTHER) e operação por grupos
 
 ---
 
-## BLOCO 3: DETALHAMENTO DOS MÓDULOS
+## 2. ARQUITETURA TÉCNICA
 
-### 3.1 DASHBOARD (`/dashboard`)
-
-**Objetivo:** Fornecer visão consolidada do negócio.
-
-**Componentes principais:**
-- Calendário de entregas (3 meses: anterior, atual, seguinte)
-- Cards de indicadores financeiros (saldo, a receber, a pagar)
-- Gráficos de visão econômica (mensal/anual)
-- Top 5 produtos mais vendidos
-- Alertas de inadimplência
-
-**Entradas:**
-- Mês/Ano selecionado
-
-**Saídas visuais:**
-- Encomendas do dia selecionado
-- Receitas vs Custos vs Lucro
-- Ticket médio mensal/anual
-
-**Estados:**
-- **Vazio:** "Nenhuma encomenda para este mês"
-- **Carregando:** LoadingMascote animado
-- **Erro:** Toast com mensagem de erro
-
-**Realtime:** Sim - atualiza automaticamente via Supabase Realtime.
-
----
-
-### 3.2 ENCOMENDAS (`/encomendas`)
-
-**Objetivo:** Gerenciar o ciclo completo de pedidos.
-
-**Status disponíveis:**
-| Status | Cor | Descrição |
-|--------|-----|-----------|
-| pendente | Amarelo | Aguardando confirmação |
-| confirmado | Azul | Cliente confirmou |
-| em_producao | Roxo | Em produção |
-| pronto | Verde | Pronto para entrega |
-| entregue | Cinza | Entregue ao cliente |
-| cancelado | Vermelho | Cancelado |
-
-**Entradas do formulário:**
-| Campo | Tipo | Obrigatório | Validação |
-|-------|------|-------------|-----------|
-| cliente | string | Sim | min 1, max 100 caracteres |
-| data_pedido | date | Sim | Formato YYYY-MM-DD |
-| data_entrega | date | Não | Formato YYYY-MM-DD |
-| hora_entrega | time | Não | - |
-| status | enum | Sim | Um dos 6 status |
-| valor | number | Sim | > 0, max 999999.99 |
-| telefone | string | Não | max 20 caracteres |
-| endereco | text | Não | max 200 caracteres |
-| cep | string | Não | 8 dígitos |
-| observacoes | text | Não | max 1000 caracteres |
-| desconto_percentual | number | Não | 0-100 |
-| desconto_valor | number | Não | >= 0 |
-| taxa_entrega | number | Não | >= 0 |
-| topo_bolo | number | Não | >= 0 |
-| outros | number | Não | >= 0 |
-
-**Produtos da encomenda (encomenda_itens):**
-| Campo | Tipo | Obrigatório |
-|-------|------|-------------|
-| receita_id | string | Sim |
-| produto | string | Sim |
-| quantidade | number | Sim |
-| unidade_medida | string | Sim |
-| valor_unitario | number | Sim |
-| subtotal | number | Calculado |
-
-**Regras de negócio:**
-1. Ao salvar encomenda, deve configurar pagamento (cria conta_receber)
-2. Valor final = soma_produtos - descontos + taxa_entrega + topo_bolo + outros
-3. Tags podem ser associadas à encomenda
-4. Imagens de topo de bolo podem ser enviadas ao Storage
-
-**Integrações:**
-- `contas_receber`: Vincula encomenda ao financeiro
-- `encomendas_tags`: Tags da encomenda
-- `encomenda_itens`: Produtos da encomenda
-
-**Estados:**
-- **Vazio:** EmptyState "Nenhuma encomenda encontrada"
-- **Carregando:** LoadingState
-- **Erro:** Toast de erro
-- **Sucesso:** Toast "Encomenda salva!"
-
----
-
-### 3.3 CLIENTES (`/clientes`)
-
-**Objetivo:** Cadastro de clientes com gestão de aniversários.
-
-**Campos principais:**
-| Campo | Tipo | Obrigatório |
-|-------|------|-------------|
-| nome | varchar | Sim |
-| tipo | varchar | Não (PF/PJ) |
-| cpf_cnpj | varchar | Não |
-| telefone | varchar | Não |
-| email | varchar | Não |
-| data_aniversario | date | Não |
-| endereco | text | Não |
-| numero | varchar | Não |
-| cidade | varchar | Não |
-| estado | varchar | Não |
-| cep | varchar | Não |
-| observacoes | text | Não |
-
-**Funcionalidades:**
-- Cadastro de familiares com datas de aniversário
-- Indicadores: total_compras, quantidade_pedidos, ultima_compra
-- Alerta visual de aniversariantes do mês (ícone de bolo no sidebar)
-
-**Tabela relacionada:** `cliente_familiares`
-
----
-
-### 3.4 FORNECEDORES (`/fornecedores`)
-
-**Objetivo:** Cadastro de fornecedores e contatos.
-
-**Campos principais:**
-| Campo | Tipo | Obrigatório |
-|-------|------|-------------|
-| nome | varchar | Sim |
-| tipo | varchar | Não (PF/PJ) |
-| cpf_cnpj | varchar | Não |
-| telefone | varchar | Não |
-| email | varchar | Não |
-| observacoes | text | Não |
-
-**Tabela relacionada:** `fornecedor_contatos`
-- Contatos do fornecedor com cargo, telefone, email, data_aniversario
-- Alerta visual de aniversariantes (ícone de bolo no sidebar)
-
----
-
-### 3.5 FINANCEIRO (`/financeiro`)
-
-**Objetivo:** Controle financeiro completo.
-
-#### 3.5.1 Hub Financeiro
-- Banner com: Saldo Anterior + Entradas - Saídas = Saldo Atual
-- Cards por banco habilitado
-- Configuração de saldos iniciais
-- Dashboard com resumo e inadimplência
-
-#### 3.5.2 Contas a Receber
-**Fluxo:**
-1. Criar conta a receber (manual ou via encomenda)
-2. Sistema gera parcelas automaticamente
-3. Dar baixa em parcelas (registrar pagamentos)
-4. Anexar comprovantes
-
-**Campos da conta:**
-| Campo | Tipo | Obrigatório |
-|-------|------|-------------|
-| descricao | varchar | Sim |
-| cliente_id | uuid | Não |
-| cliente_nome | varchar | Não |
-| valor | numeric | Sim |
-| data_vencimento | date | Sim |
-| numero_parcelas | integer | Sim (default 1) |
-| banco_id | uuid | Sim |
-| plano_conta_id | uuid | Não |
-| tipo_documento_id | uuid | Não |
-| tipo_lancamento | varchar | Sim (unico/parcelado/recorrente) |
-
-**Status das parcelas:**
-| Status | Descrição |
+### 2.1 Stack
+| Camada | Tecnologia |
 |--------|-----------|
-| aberto | Aguardando pagamento |
-| atrasado | Vencido sem pagamento |
-| pagamento_parcial | Parcialmente pago |
-| pago | Pago integralmente |
-| pago_em_atraso | Pago após vencimento |
-| adiantado | Pago antes do vencimento |
+| Frontend | React 18 + TypeScript + Vite |
+| Estilização | Tailwind CSS + shadcn/ui |
+| Estado servidor | TanStack React Query v5 |
+| Roteamento | React Router DOM v6 |
+| Backend | Lovable Cloud (Supabase) |
+| Banco de dados | PostgreSQL |
+| Autenticação | Supabase Auth |
+| Storage | Supabase Storage |
+| Edge Functions | Deno (Supabase Edge Functions) |
+| Gráficos | Recharts |
+| Formulários | React Hook Form + Zod |
+| PDF | jsPDF + jspdf-autotable |
+| Planilhas | xlsx |
+| Drag & Drop | @dnd-kit |
 
-**Tabelas relacionadas:**
-- `contas_receber_parcelas`
-- `contas_receber_pagamentos`
-- `contas_receber_comprovantes`
+### 2.2 Estrutura de Diretórios
+```
+src/
+├── assets/              # Imagens e logos
+├── components/          # Componentes reutilizáveis
+│   ├── ui/              # shadcn/ui (accordion, button, card, dialog, etc.)
+│   ├── admin/           # Dialogs de admin (AdicionarUsuario, EditarUsuario)
+│   ├── auth/            # AlterarSenhaObrigatoria
+│   ├── configuracoes/   # ConfiguracaoJuros, ConfiguracaoTagsEncomendas
+│   ├── financeiro/      # ContasReceberFormModal, DarBaixaDialog, DarBaixaPagarDialog
+│   └── TiposInsumos/    # Embalagens, Ingredientes, Outros
+├── contexts/            # AuthContext, GroupContext, GlobalLoadingContext
+├── hooks/               # 24 hooks customizados
+├── integrations/        # Supabase client e types (auto-gerados)
+├── lib/                 # dateUtils, utils, validacaoSenha
+├── pages/               # Todas as páginas organizadas por módulo
+│   ├── admin/           # Governanca, Logs, Usuarios, UsuariosGrupo
+│   ├── auth/            # Login, SignUp, ForgotPassword
+│   ├── cadastros/       # Categorias, Clientes, Fornecedores, SeusDados, UnidadesMedida
+│   ├── configuracoes/   # Bancos, CadastrosBase, PlanoContas, TiposDocumentos, etc.
+│   ├── financeiro/      # ContasPagar/Receber, DRE, FluxoCaixa, Dashboard
+│   └── precificacao/    # Ingredientes, Embalagens, PrePreparos
+├── schemas/             # encomendaSchema, pagamentoSchema (Zod)
+└── utils/               # gerarReciboPagamento, insightsGenerator
 
-#### 3.5.3 Contas a Pagar
-Similar ao Contas a Receber, porém:
-- Vincula a `fornecedor_id` em vez de cliente
-- Representa saídas de caixa
+supabase/
+├── config.toml          # Configuração (auto-gerado)
+├── migrations/          # Migrações SQL
+└── functions/
+    ├── _shared/cors.ts
+    ├── criar-usuario/
+    └── migrate-logos-to-storage/
+```
 
-**Tabelas relacionadas:**
-- `contas_pagar_parcelas`
-- `contas_pagar_pagamentos`
-- `contas_pagar_comprovantes`
-
-#### 3.5.4 Fluxo de Caixa
-- **Diário:** Movimentações dia a dia
-- **Mensal:** Consolidado por mês
-
-#### 3.5.5 DRE (Demonstrativo de Resultados)
-Baseado em:
-- Categorias do Plano de Contas
-- Faixas: Receitas, Deduções, CMV, Custos Fixos, Custos Variáveis, etc.
-- Indicadores: Receita Bruta, Líquida, Margem Bruta, Lucro Operacional
+### 2.3 Design System
+- **Paleta:** Rosa (#D15D66), Preto (#0F0F0F), Branco (#FFFFFF)
+- **Auxiliares:** Info (#3533CD), Warning (#F4C542), Success (#3BA55D), Error (#B0353D)
+- **Tokens semânticos:** `--primary`, `--secondary`, `--accent`, `--muted`, `--destructive`
+- **Tema dark:** Suportado com variáveis CSS em `.dark`
 
 ---
 
-### 3.6 PRECIFICAÇÃO (`/precificacao`)
+## 3. MAPA DE ROTAS
 
-**Objetivo:** Calcular custos e definir preços de venda.
+### 3.1 Autenticação (público)
+| Rota | Página |
+|------|--------|
+| `/auth/login` | Login com email/senha |
+| `/auth/signup` | Cadastro de nova conta |
+| `/auth/forgot-password` | Recuperação de senha |
 
-#### 3.6.1 Ingredientes
-| Campo | Tipo |
-|-------|------|
-| tipo_insumo_id | uuid (FK) |
-| marca | varchar |
-| preco | numeric |
-| categoria | text |
-| e_pre_preparo | boolean |
+### 3.2 Módulos Principais (protegidos)
+| Rota | Página |
+|------|--------|
+| `/dashboard` | Painel com calendário, gráficos, top produtos |
+| `/encomendas` | CRUD de encomendas com status/tags/itens |
+| `/clientes` | Cadastro PF/PJ com familiares e aniversários |
+| `/fornecedores` | Cadastro com contatos e aniversários |
 
-#### 3.6.2 Embalagens
-| Campo | Tipo |
-|-------|------|
-| tipo_insumo_id | uuid (FK) |
-| marca | varchar |
-| preco | numeric |
+### 3.3 Financeiro
+| Rota | Página |
+|------|--------|
+| `/financeiro` | Hub do financeiro |
+| `/financeiro/dashboard` | Dashboard financeiro |
+| `/financeiro/contas-receber` | Listagem |
+| `/financeiro/contas-receber/nova` | Criar |
+| `/financeiro/contas-receber/editar/:id` | Editar |
+| `/financeiro/contas-receber/detalhes/:id` | Detalhes |
+| `/financeiro/contas-pagar` | Listagem |
+| `/financeiro/contas-pagar/nova` | Criar |
+| `/financeiro/contas-pagar/editar/:id` | Editar |
+| `/financeiro/contas-pagar/detalhes/:id` | Detalhes |
+| `/financeiro/fluxo-caixa` | Hub fluxo de caixa |
+| `/financeiro/fluxo-caixa/diario` | Diário |
+| `/financeiro/fluxo-caixa/mensal` | Mensal |
+| `/financeiro/dre` | DRE |
 
-#### 3.6.3 Tipos de Insumos
-- Descrição do produto (ex: "Farinha de Trigo 1kg")
-- Quantidade da embalagem
-- Unidade de medida
-- Categoria (Ingrediente/Embalagem/Outro)
+### 3.4 Precificação
+| Rota | Página |
+|------|--------|
+| `/precificacao` | Hub |
+| `/precificacao/ficha-tecnica` | Fichas técnicas |
+| `/precificacao/ficha-tecnica/nova` | Criar |
+| `/precificacao/ficha-tecnica/editar/:id` | Editar |
+| `/precificacao/ingredientes` | Ingredientes |
+| `/precificacao/embalagens` | Embalagens |
+| `/precificacao/pre-preparos` | Pré-preparos |
+| `/precificacao/pre-preparos/novo` | Criar |
+| `/precificacao/pre-preparos/:id` | Editar |
 
-#### 3.6.4 Pré-Preparos
-Preparos intermediários que viram "ingredientes virtuais" para receitas.
+### 3.5 Configurações
+| Rota | Página |
+|------|--------|
+| `/configuracoes` | Hub |
+| `/configuracoes/cadastros-base` | Hub cadastros base |
+| `/configuracoes/precificacao` | Config. precificação |
+| `/configuracoes/financeiro` | Config. financeiro |
+| `/configuracoes/dados-confeitaria` | Perfil/dados |
+| `/configuracoes/categorias-receitas` | Categorias |
+| `/configuracoes/unidades-medida` | Unidades |
+| `/configuracoes/tipos-insumos` | Tipos de insumos |
+| `/configuracoes/categorias-plano-contas` | Categorias plano contas |
+| `/configuracoes/plano-contas` | Plano de contas |
+| `/configuracoes/bancos` | Bancos/formas pagamento |
+| `/configuracoes/tipos-documentos` | Tipos de documentos |
+| `/configuracoes/juros` | Juros e multas |
+| `/configuracoes/tags-encomendas` | Tags |
+| `/configuracoes/precificacao/mao-de-obra` | Mão de obra |
 
-| Campo | Tipo |
-|-------|------|
-| nome | varchar |
-| tempo_preparo | numeric |
-| tempo_preparo_unidade | varchar |
-| rendimento_quantidade | numeric |
-| rendimento_unidade_id | uuid |
-| custo_total | numeric (calculado) |
-| custo_por_unidade | numeric (calculado) |
-| modo_preparo | text |
-
-**Tabelas relacionadas:**
-- `pre_preparos_ingredientes`
-- `pre_preparos_mao_obra`
-
-#### 3.6.5 Ficha Técnica (Receitas)
-**Campos principais:**
-| Campo | Tipo |
-|-------|------|
-| nome | varchar |
-| categoria | varchar |
-| tipo | varchar (produto_avulso/produto_combo) |
-| cardapio | varchar (ativo/fora) |
-| rendimento | numeric |
-| unidade_rendimento | varchar |
-| tempo_preparo | numeric |
-| unidade_tempo | varchar |
-| custo_total | numeric (calculado) |
-| valor_venda | numeric |
-| modo_preparo | text |
-
-**Composição de custos:**
-1. **Custo de Ingredientes** - soma dos ingredientes utilizados
-2. **Custo de Embalagens** - soma das embalagens
-3. **Custo de Mão de Obra** - horas × valor_hora do perfil
-4. **Outros Custos** - custos fixos rateados
-5. **Despesas de Venda** - percentual sobre valor de venda
-
-**Indicadores calculados:**
-- CMV Real (%)
-- Margem de Lucro (%)
-- Alertas: Prejuízo, CMV Muito Alto, CMV em Atenção, Margem Baixa, CMV Excelente
-
-**Tabelas relacionadas:**
-- `receitas_ingredientes`
-- `receitas_embalagens`
-- `receitas_mao_obra`
-- `receitas_despesas_venda`
-- `receitas_imagens`
+### 3.6 Administração
+| Rota | Acesso |
+|------|--------|
+| `/admin/governanca` | MOTHER |
+| `/admin/usuarios-grupo` | ADMIN do grupo |
+| `/admin/usuarios` | Admin (legado) |
+| `/admin/logs` | Admin (legado) |
 
 ---
 
-### 3.7 CONFIGURAÇÕES (`/configuracoes`)
+## 4. MODELO DE DADOS
 
-#### 3.7.1 Cadastros Base
-- Unidades de Medida
-- Categorias de Receitas
-- Tipos de Insumos
+### 4.1 Tabelas de Governança
 
-#### 3.7.2 Precificação
-- **Mão de Obra:** Perfis com nome e valor_hora
-- Perfil padrão para novas receitas
+**`groups`** — Grupos/empresas do sistema
+| Campo | Tipo | Obrig. | Default |
+|-------|------|:------:|---------|
+| id | uuid | ✅ | gen_random_uuid() |
+| name | text | ✅ | |
+| created_by_user_id | uuid | | |
+| is_active | bool | | true |
+| created_at, updated_at | timestamptz | | now() |
 
-#### 3.7.3 Financeiro
-- **Bancos:** Lista de bancos (oficiais + customizados), habilitar/desabilitar
-- **Tipos de Documentos:** Boleto, PIX, Cartão, etc.
-- **Categorias Plano de Contas:** Agrupamento para DRE
-- **Plano de Contas:** Contas analíticas para lançamentos
-- **Configuração de Juros:** Taxa de juros por atraso, multa
+**`user_global_roles`** — Papel global (MOTHER)
+| Campo | Tipo | Obrig. |
+|-------|------|:------:|
+| id | uuid | ✅ |
+| user_id | uuid | ✅ |
+| role_global | enum('MOTHER') | ✅ |
+| is_active | bool | |
 
-#### 3.7.4 Tags de Encomendas
-- Tags personalizadas com nome, cor e descrição
-- Tags padrão do sistema (Aniversário, Casamento, etc.)
+**`user_group_roles`** — Participação em grupos
+| Campo | Tipo | Obrig. |
+|-------|------|:------:|
+| id | uuid | ✅ |
+| user_id | uuid | ✅ |
+| group_id | uuid | ✅ |
+| role_group | enum('ADMIN','USER') | ✅ |
+| permission_flags | jsonb | |
+| is_active | bool | |
 
-#### 3.7.5 Dados da Confeitaria
-- Perfil do usuário (nome, logo, endereço, contato)
-- Metas de faturamento mensal/anual
-- Configurações de alerta CMV
+**`user_active_session`** — Sessão ativa
+| Campo | Tipo | Obrig. |
+|-------|------|:------:|
+| user_id | uuid | ✅ (PK unique) |
+| active_group_id | uuid | |
+| mode | text | |
 
----
+### 4.2 Tabelas Funcionais
 
-### 3.8 ADMINISTRAÇÃO (Admin Only)
+> Todas possuem `owner_group_id (uuid, FK → groups)` para isolamento multi-tenant.
 
-#### 3.8.1 Gestão de Usuários
-- Listar todos os usuários
-- Ativar/Desativar usuários
-- Alterar roles (user/admin)
-- Resetar senhas
-- Criar novos usuários
+**`profiles`** — id, email, nome_completo, nome_confeitaria, telefone, cpf, avatar_url, logo_url, endereco, cidade, estado, cep, bairro, numero, instagram, whatsapp, razao_social, inscricao_estadual, dias_trabalho_mes, horas_diaria_trabalho, meta_faturamento_mensal/anual, alerta_cmv, custo_fixo_mensal, valor_hora, primeiro_acesso, ativo, last_login, owner_group_id
 
-#### 3.8.2 Logs de Auditoria
-- Registro de ações administrativas
-- Quem fez, quando, o que alterou
+**`clientes`** — id, usuario_id, nome, tipo, cpf_cnpj, email, telefone, endereco, numero, cidade, estado, cep, data_aniversario, observacoes, total_compras, quantidade_pedidos, ultima_compra, owner_group_id
 
----
+**`cliente_familiares`** — id, cliente_id, usuario_id, nome, parentesco, data_nascimento, observacoes, ativo
 
-## BLOCO 4: MODELO DE DADOS
+**`fornecedores`** — id, usuario_id, nome, tipo, cpf_cnpj, email, telefone, observacoes, owner_group_id
 
-### 4.1 Diagrama Simplificado
+**`fornecedor_contatos`** — id, fornecedor_id, usuario_id, nome, cargo, email, telefone, data_aniversario, observacoes, ativo
 
-```
-┌─────────────────┐     ┌─────────────────┐
-│   auth.users    │────▶│    profiles     │
-└─────────────────┘     └─────────────────┘
-         │                      │
-         │              ┌───────┴───────┐
-         │              ▼               ▼
-         │     ┌─────────────┐  ┌─────────────┐
-         │     │  clientes   │  │fornecedores │
-         │     └─────────────┘  └─────────────┘
-         │            │                │
-         │     ┌──────┴──────┐  ┌──────┴──────┐
-         │     ▼             │  ▼             │
-         │ cliente_familiares│ fornecedor_   │
-         │                   │   contatos    │
-         │                   └───────────────┘
-         │
-         ├──────────────────────────────────┐
-         ▼                                  ▼
-┌─────────────────┐              ┌─────────────────┐
-│   encomendas    │◀────────────▶│ contas_receber  │
-└─────────────────┘              └─────────────────┘
-         │                                │
-         │                         ┌──────┴──────┐
-         │                         ▼             ▼
-┌─────────────────┐         parcelas      pagamentos
-│ encomenda_itens │              │             │
-└─────────────────┘              └──────┬──────┘
-                                        ▼
-                                  comprovantes
+**`encomendas`** — id, usuario_id, cliente, valor, data_pedido, data_entrega, hora_entrega, status, numero, telefone, endereco, cep, observacoes, observacoes_cliente, observacoes_internas, desconto_percentual, desconto_valor, taxa_entrega, outros, saldo_restante, pagamentos(jsonb), conta_receber_id, topo_*, owner_group_id
 
-┌─────────────────┐
-│ tipos_insumos   │
-└─────────────────┘
-         │
-    ┌────┴────┐
-    ▼         ▼
-ingredientes embalagens
-    │         │
-    └────┬────┘
-         ▼
-┌─────────────────┐
-│   pre_preparos  │◀── pre_preparos_ingredientes
-└─────────────────┘◀── pre_preparos_mao_obra
+**`encomenda_itens`** — id, encomenda_id, usuario_id, produto, receita_id, quantidade, unidade_medida, valor_unitario, subtotal, owner_group_id
 
-┌─────────────────┐
-│    receitas     │
-└─────────────────┘
-         │
-    ┌────┼────┬────┬────┐
-    ▼    ▼    ▼    ▼    ▼
- ingredientes embalagens mao_obra despesas_venda imagens
-```
+**`encomendas_tags`** — id, encomenda_id, tag_id
 
-### 4.2 Tabelas Principais
+**`receitas`** — id, usuario_id, nome, categoria, tipo, tempo_preparo, unidade_tempo, rendimento, unidade_rendimento, custo_total, valor_venda, cardapio, modo_preparo, owner_group_id
 
-#### profiles
-```sql
-id UUID PK (= auth.users.id)
-email VARCHAR NOT NULL
-nome_completo VARCHAR
-nome_confeitaria VARCHAR
-telefone VARCHAR
-whatsapp VARCHAR
-instagram VARCHAR
-cep VARCHAR
-endereco VARCHAR
-numero VARCHAR
-bairro VARCHAR
-cidade VARCHAR
-estado VARCHAR
-cpf VARCHAR
-razao_social VARCHAR
-inscricao_estadual VARCHAR
-logo_url TEXT
-avatar_url TEXT
-valor_hora NUMERIC
-custo_fixo_mensal NUMERIC
-dias_trabalho_mes INTEGER
-horas_diaria_trabalho INTEGER
-meta_faturamento_mensal NUMERIC
-meta_faturamento_anual NUMERIC
-alerta_cmv INTEGER
-ativo BOOLEAN DEFAULT true
-primeiro_acesso BOOLEAN DEFAULT true
-last_login TIMESTAMP
-created_at TIMESTAMP
-updated_at TIMESTAMP
-```
+**`receitas_imagens`** — id, receita_id, url, ordem
 
-#### user_roles
-```sql
-id UUID PK
-user_id UUID FK (auth.users) UNIQUE
-role app_role ('admin', 'user') NOT NULL
-```
+**`receitas_embalagens`** — id, receita_id, embalagem_id, embalagem, marca, unidade_medida, qtde_embalagem, preco_embalagem, quantidade_utilizada, custo_unitario, custo_receita
 
-#### encomendas
-```sql
-id UUID PK
-usuario_id UUID FK NOT NULL
-cliente VARCHAR NOT NULL
-data_pedido DATE NOT NULL
-data_entrega DATE
-hora_entrega TIME
-status VARCHAR DEFAULT 'pendente'
-valor NUMERIC NOT NULL
-telefone VARCHAR
-endereco TEXT
-numero VARCHAR
-cep VARCHAR
-observacoes TEXT
-observacoes_cliente TEXT
-observacoes_internas TEXT
-desconto_percentual NUMERIC DEFAULT 0
-desconto_valor NUMERIC DEFAULT 0
-taxa_entrega NUMERIC DEFAULT 0
-topo_bolo NUMERIC DEFAULT 0
-outros NUMERIC DEFAULT 0
-topo_tema TEXT
-topo_aniversariante TEXT
-topo_idade TEXT
-topo_obs TEXT
-topo_imagens JSONB DEFAULT '[]'
-pagamentos JSONB DEFAULT '[]'
-saldo_restante NUMERIC DEFAULT 0
-conta_receber_id UUID FK
-created_at TIMESTAMP
-updated_at TIMESTAMP
+**`receitas_despesas_venda`** — id, receita_id, despesa_id, nome, percentual, valor
 
-INDEX: usuario_id, status, data_entrega
-RLS: usuario_id = auth.uid()
-```
+**`ingredientes`** — id, usuario_id, tipo_insumo_id, preco, marca, categoria, data_atualizacao, e_pre_preparo, owner_group_id
 
-#### contas_receber
-```sql
-id UUID PK
-usuario_id UUID FK NOT NULL
-descricao VARCHAR NOT NULL
-cliente_id UUID FK
-cliente_nome VARCHAR
-cliente_documento VARCHAR
-valor NUMERIC NOT NULL
-data_vencimento DATE NOT NULL
-data_emissao DATE
-numero_documento VARCHAR
-banco_id UUID FK NOT NULL
-plano_conta_id UUID FK
-categoria_id UUID FK
-tipo_documento_id UUID FK
-tipo_lancamento VARCHAR DEFAULT 'unico'
-numero_parcelas INTEGER DEFAULT 1
-e_recorrente BOOLEAN DEFAULT false
-dia_vencimento_recorrente INTEGER
-status VARCHAR DEFAULT 'aberto'
-observacoes TEXT
-created_at TIMESTAMP
-updated_at TIMESTAMP
+**`embalagens`** — id, usuario_id, tipo_insumo_id, preco, marca, data_atualizacao, owner_group_id
 
-RLS: usuario_id = auth.uid()
-```
+**`pre_preparos`** — id, usuario_id, nome, tempo_preparo, tempo_preparo_unidade, rendimento_quantidade, rendimento_unidade_id, custo_total, custo_por_unidade, categoria_id, modo_preparo, imagem_1_url, imagem_2_url, owner_group_id
 
-#### contas_receber_parcelas
-```sql
-id UUID PK
-conta_receber_id UUID FK NOT NULL
-numero_parcela INTEGER NOT NULL
-data_vencimento DATE NOT NULL
-data_emissao DATE DEFAULT CURRENT_DATE
-valor_parcela NUMERIC NOT NULL
-valor_total NUMERIC DEFAULT 0
-valor_pago NUMERIC DEFAULT 0
-juros NUMERIC DEFAULT 0
-desconto NUMERIC DEFAULT 0
-data_pagamento DATE
-data_recebimento DATE
-status VARCHAR DEFAULT 'aberto'
-observacao TEXT
-observacao_interna TEXT
-tags TEXT[]
-created_at TIMESTAMP
-updated_at TIMESTAMP
+**`pre_preparos_ingredientes`** — id, pre_preparo_id, ingrediente_id, quantidade_utilizada, custo_ingrediente, ordem
 
-RLS: via conta_receber_id → usuario_id
-```
+**`contas_receber`** — id, usuario_id, descricao, valor, data_vencimento, banco_id, tipo_lancamento, numero_parcelas, status, cliente_id, cliente_nome, cliente_documento, categoria_id, plano_conta_id, tipo_documento_id, data_emissao, data_recebimento, numero_documento, e_recorrente, dia_vencimento_recorrente, observacoes, owner_group_id
 
-#### receitas
-```sql
-id UUID PK
-usuario_id UUID FK NOT NULL
-nome VARCHAR NOT NULL
-categoria VARCHAR
-tipo VARCHAR ('produto_avulso', 'produto_combo')
-cardapio VARCHAR DEFAULT 'ativo'
-rendimento NUMERIC NOT NULL
-unidade_rendimento VARCHAR NOT NULL
-tempo_preparo NUMERIC NOT NULL
-unidade_tempo VARCHAR NOT NULL
-custo_total NUMERIC DEFAULT 0
-valor_venda NUMERIC
-modo_preparo TEXT
-created_at TIMESTAMP
-updated_at TIMESTAMP
+**`contas_receber_parcelas`** — id, conta_receber_id, numero_parcela, data_vencimento, valor_parcela, valor_total, data_emissao, status, valor_pago, valor_recebido, juros, desconto, data_pagamento, data_recebimento, observacao, observacao_interna, tags
 
-RLS: usuario_id = auth.uid()
-```
+**`contas_receber_pagamentos`** — id, parcela_id, data_pagamento, valor_pago, banco_id, tipo_documento_id, juros, desconto, estornado, data_estorno, motivo_estorno, observacao
 
-#### tipos_insumos
-```sql
-id UUID PK
-usuario_id UUID FK NOT NULL
-descricao VARCHAR NOT NULL
-categoria VARCHAR NOT NULL ('Ingrediente', 'Embalagem', 'Outro')
-quantidade_embalagem NUMERIC NOT NULL
-unidade_medida_id UUID FK
-pre_preparo_id UUID FK
-ativo BOOLEAN DEFAULT true
-created_at TIMESTAMP
-updated_at TIMESTAMP
+**`contas_receber_comprovantes`** — id, pagamento_id, nome_arquivo, url_storage, tipo_arquivo, tamanho_bytes
 
-RLS: usuario_id = auth.uid()
-```
+**`contas_pagar`** — Mesma estrutura de contas_receber (com fornecedor_id em vez de cliente_id)
 
-### 4.3 Views Importantes
+**`contas_pagar_parcelas`** — Mesma estrutura de contas_receber_parcelas
 
-- `vw_resumo_financeiro`: Saldo por banco (inicial + entradas - saídas)
-- `vw_contas_receber_parcelas`: Parcelas com dados da conta pai
-- `vw_contas_receber_dashboard`: Totais de recebíveis
-- `v_aniversariantes_completa`: União de clientes + familiares
-- `v_aniversariantes_fornecedores`: Contatos de fornecedores
+**`contas_pagar_pagamentos`** — Mesma estrutura de contas_receber_pagamentos
 
-### 4.4 Functions de Banco
+**`contas_pagar_comprovantes`** — Mesma estrutura de contas_receber_comprovantes
 
-| Function | Descrição |
-|----------|-----------|
-| `has_role(uuid, app_role)` | Verifica se usuário tem role |
-| `is_admin(uuid)` | Verifica se é admin |
-| `calcular_custo_pre_preparo(uuid)` | Recalcula custo do pré-preparo |
-| `calcular_juros_com_config(...)` | Calcula juros baseado na config do usuário |
-| `criar_categorias_plano_padrao(uuid)` | Cria categorias padrão para novo usuário |
-| `criar_planos_contas_padrao(uuid)` | Cria plano de contas padrão |
-| `criar_bancos_oficiais_usuario(uuid)` | Cria lista de bancos oficiais |
-| `criar_tags_padrao_encomendas(uuid)` | Cria tags padrão de encomendas |
-| `atualizar_parcela_apos_pagamento()` | Trigger para atualizar status |
-| `get_todos_aniversariantes(uuid)` | Retorna todos os aniversariantes |
+### 4.3 Tabelas de Configuração
 
----
+**`categorias`** — id, usuario_id, nome, ativo, padrao_sistema, owner_group_id
 
-## BLOCO 5: FLUXOS PRINCIPAIS
+**`tipos_insumos`** — Tipos de ingredientes/embalagens
 
-### 5.1 Fluxo de Cadastro de Usuário
+**`unidades_medida`** — id, usuario_id, nome, sigla, codigo, ativo, e_padrao, owner_group_id
 
-```
-1. Usuário acessa /auth/signup
-2. Preenche: email, senha, nome, nome_confeitaria
-3. Supabase Auth cria usuário
-4. Trigger cria:
-   - profile (dados do usuário)
-   - user_roles (role 'user')
-   - categorias padrão
-   - categorias_plano_contas padrão
-   - plano_contas padrão
-   - bancos oficiais
-   - tags_encomendas padrão
-5. Usuário é redirecionado para /dashboard
-6. Se primeiro_acesso = true, redireciona para /configuracoes/dados-confeitaria
-```
+**`bancos`** — id, usuario_id, nome, tipo, codigo, saldo_inicial, e_banco_oficial, e_customizado, habilitado, owner_group_id
 
-### 5.2 Fluxo de Criação de Encomenda
+**`tipos_documento`** — id, usuario_id, descricao, codigo, ativo, habilitado, e_padrao, contador_uso, owner_group_id
 
-```
-1. Usuário acessa /encomendas
-2. Clica em "Nova Encomenda"
-3. Seleciona ou cria cliente (autocomplete)
-4. Adiciona produtos (receitas do cadastro)
-5. Sistema calcula:
-   - Subtotal de produtos
-   - Descontos
-   - Taxas adicionais
-   - Valor final
-6. Usuário configura pagamento (abre modal de conta_receber)
-7. Escolhe: banco, parcelas, vencimentos
-8. Ao salvar:
-   - Cria encomenda
-   - Cria conta_receber vinculada
-   - Cria parcelas automaticamente
-   - Vincula tags selecionadas
-9. Encomenda aparece no calendário do Dashboard
-```
+**`categorias_plano_contas`** — id, user_id, codigo, descricao, indicador, faixa_dre, ordem, ativo, e_padrao, padrao_sistema, owner_group_id
 
-### 5.3 Fluxo de Precificação (Ficha Técnica)
+**`plano_contas`** — id, user_id, categoria_id, codigo, codigo_estruturado, descricao, ativo, e_padrao, padrao_sistema, owner_group_id
 
-```
-1. Pré-requisitos:
-   - Ingredientes cadastrados
-   - Embalagens cadastradas
-   - Perfis de mão de obra configurados
-   
-2. Criar nova receita:
-   a) Informações básicas (nome, categoria, tipo, rendimento)
-   b) Adicionar ingredientes (busca por nome, define quantidade)
-   c) Adicionar embalagens
-   d) Configurar mão de obra (perfil + horas)
-   e) Adicionar outros gastos (custos fixos)
-   f) Adicionar despesas de venda (% sobre preço)
-   g) Definir preço de venda
-   h) Adicionar modo de preparo
-   i) Upload de imagens
+**`custos_fixos`** — id, usuario_id, nome, valor, tipo, owner_group_id
 
-3. Sistema calcula em tempo real:
-   - Custo ingredientes = Σ(qtd_utilizada × custo_unitario)
-   - Custo embalagens = Σ(qtd_utilizada × custo_unitario)
-   - Custo mão de obra = Σ(horas × valor_hora)
-   - Outros custos = valores fixos
-   - Despesas venda = Σ(valor_venda × percentual)
-   - Custo Total = soma de tudo
-   - CMV % = (custo_ingredientes + custo_embalagens) / valor_venda × 100
-   - Margem % = (valor_venda - custo_total) / valor_venda × 100
+**`configuracoes_juros`** — id, usuario_id, cobrar_juros, percentual_juros, tipo_juros, multa_atraso, percentual_multa, observacao, owner_group_id
 
-4. Alertas automáticos:
-   - Prejuízo: margem < 0
-   - CMV Muito Alto: CMV > 55%
-   - CMV em Atenção: CMV 45-55%
-   - Margem Baixa: margem < 15%
-   - CMV Aceitável: CMV 35-45%
-   - CMV Excelente: CMV < 35%
-```
+**`tags_encomendas`** — id, user_id, nome, cor, descricao, ativo, padrao_sistema, owner_group_id
 
-### 5.4 Fluxo Financeiro (Conta a Receber)
+**`mao_obra_perfis`** — id, user_id, nome, valor_hora, padrao, ativo, owner_group_id
 
-```
-1. Conta criada (manual ou via encomenda)
-2. Parcelas geradas automaticamente
-3. No vencimento, status muda para 'atrasado' (se não pago)
-4. Dar baixa:
-   a) Selecionar parcela
-   b) Informar: valor_pago, data, banco, tipo_documento
-   c) Sistema calcula juros automáticos (se configurado)
-   d) Registra pagamento
-   e) Atualiza status da parcela
-   f) Opção de anexar comprovante (Storage)
-5. Parcela pode ter múltiplos pagamentos parciais
-6. Quando valor_pago >= valor_parcela, status = 'pago'
-```
+**`mao_obra_perfis_historico`** — id, perfil_id, acao, user_id, valor_antigo, valor_novo
 
-### 5.5 Fluxo de Relatório (DRE)
+**`admin_logs`** — id, admin_id, admin_email, acao, usuario_afetado_id, usuario_afetado_email, detalhes
 
-```
-1. Usuário acessa /financeiro/dre
-2. Seleciona período (mês/ano)
-3. Sistema busca:
-   - Pagamentos de contas_receber (entradas)
-   - Pagamentos de contas_pagar (saídas)
-4. Agrupa por categoria_plano_contas → faixa_dre
-5. Calcula:
-   - Receita Bruta (faixa 'Receitas')
-   - (-) Deduções (faixa 'Deduções sobre vendas')
-   - = Receita Líquida
-   - (-) CMV (faixa 'Custos variáveis')
-   - = Lucro Bruto
-   - (-) Custos Fixos
-   - (-) Custos Variáveis
-   - = Lucro Operacional
-   - (+/-) Resultado Financeiro
-   - (+/-) Resultado Não Operacional
-   - = Lucro Líquido
-```
-
----
-
-## BLOCO 6: PERMISSÕES E PERFIS DE ACESSO
-
-### 6.1 Roles do Sistema
-
-| Role | Descrição |
+### 4.4 Views
+| View | Descrição |
 |------|-----------|
-| `user` | Usuário padrão - acesso ao próprio tenant |
-| `admin` | Administrador - acesso à área administrativa |
-
-### 6.2 Verificação de Admin
-
-```typescript
-// Hook useIsAdmin
-const { isAdmin, loading } = useIsAdmin();
-
-// Function no banco
-SELECT public.has_role(auth.uid(), 'admin');
-SELECT public.is_admin(auth.uid());
-```
-
-### 6.3 RLS (Row Level Security)
-
-Todas as tabelas principais usam RLS com a política:
-```sql
--- SELECT/INSERT/UPDATE/DELETE
-USING (auth.uid() = usuario_id)
-WITH CHECK (auth.uid() = usuario_id)
-```
-
-Tabelas filhas (parcelas, pagamentos) usam RLS via JOIN:
-```sql
-USING (EXISTS (
-  SELECT 1 FROM tabela_pai
-  WHERE tabela_pai.id = tabela_filha.parent_id
-  AND tabela_pai.usuario_id = auth.uid()
-))
-```
-
-### 6.4 Proteção de Rotas
-
-```typescript
-// ProtectedRoute em App.tsx
-const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useAuth();
-  
-  if (loading) return <Loading />;
-  if (!user) return <Navigate to="/auth/login" />;
-  
-  return children;
-};
-
-// Rotas admin verificam isAdmin no componente
-{isAdmin && (
-  <SidebarGroup>
-    <NavLink to="/admin/usuarios">Usuários</NavLink>
-  </SidebarGroup>
-)}
-```
+| `vw_contas_receber_parcelas` | Parcelas com dados do título, cliente, banco |
+| `vw_contas_receber_dashboard` | Resumo financeiro de contas a receber |
+| `vw_resumo_financeiro` | Resumo de saldos bancários |
 
 ---
 
-## BLOCO 7: INTEGRAÇÕES
+## 5. GOVERNANÇA E PERMISSÕES
 
-### 7.1 Integrações Existentes
+### 5.1 Papéis
+| Papel | Escopo | Descrição |
+|-------|--------|-----------|
+| MOTHER | Global | Administrador único — governança de grupos |
+| ADMIN | Grupo | Administrador de um grupo específico |
+| USER | Grupo | Usuário com permissões granulares |
 
-| Integração | Status | Descrição |
-|------------|--------|-----------|
-| Supabase Auth | ✅ Ativo | Login, cadastro, recuperação de senha |
-| Supabase Database | ✅ Ativo | PostgreSQL com RLS |
-| Supabase Storage | ✅ Ativo | Upload de imagens (logos, receitas, comprovantes) |
-| Supabase Realtime | ✅ Ativo | Atualizações em tempo real no Dashboard |
-| ViaCEP | ✅ Ativo | Busca de endereço por CEP |
+### 5.2 Regras de Isolamento
+- Todas as queries filtram por `owner_group_id = active_group_id`
+- MOTHER NÃO tem acesso automático a dados de grupos
+- MOTHER deve ser adicionada como membro para operar num grupo
+- ADMIN vê 100% dos dados do seu grupo
+- USER vê/edita conforme `permission_flags`
 
-### 7.2 Integrações Futuras (Backlog)
+### 5.3 Permission Flags
+```json
+{
+  "financeiro_view": true, "financeiro_edit": false,
+  "metas_view": true, "metas_edit": false,
+  "tarefas_view": true, "tarefas_edit": false,
+  "cadastros_view": true, "cadastros_edit": false,
+  "receitas_view": true, "receitas_edit": false,
+  "encomendas_view": true, "encomendas_edit": false,
+  "precificacao_view": true, "precificacao_edit": false,
+  "admin_users_manage": false
+}
+```
 
-| Integração | Prioridade | Descrição |
-|------------|------------|-----------|
-| WhatsApp | Alta | Envio de mensagens para clientes |
-| Email Transacional | Alta | Notificações, cobranças |
-| Gateway de Pagamento | Média | PIX, boleto, cartão online |
-| Google Calendar | Média | Sincronização de entregas |
-| Nota Fiscal | Baixa | Emissão de NFC-e |
-| Google Drive | Baixa | Backup de documentos |
+### 5.4 Funções SQL
+| Função | Retorno |
+|--------|---------|
+| `is_mother(user_id)` | boolean |
+| `is_group_admin(user_id, group_id)` | boolean |
+| `user_belongs_to_group(user_id, group_id)` | boolean |
+| `get_active_group_id(user_id)` | uuid |
+| `has_permission(user_id, group_id, permission)` | boolean |
+| `get_user_group_role(user_id, group_id)` | role_group |
 
-### 7.3 Edge Functions Existentes
+### 5.5 Componentes de Segurança
+```tsx
+<PermissionGuard permission="financeiro_edit">...</PermissionGuard>
+<PermissionGuard requireAdmin>...</PermissionGuard>
+<PermissionGuard requireMother>...</PermissionGuard>
+```
 
-| Function | Endpoint | Descrição |
-|----------|----------|-----------|
-| criar-usuario | POST /criar-usuario | Criação de usuário via admin |
-| migrate-logos-to-storage | POST /migrate-logos-to-storage | Migração de logos |
-
----
-
-## BLOCO 8: PENDÊNCIAS E RISCOS TÉCNICOS
-
-### 8.1 Pendências Conhecidas
-
-| ID | Área | Descrição | Impacto |
-|----|------|-----------|---------|
-| P01 | Encomendas | Falta validação de CEP no frontend | Baixo |
-| P02 | Financeiro | DRE não considera cancelamentos | Médio |
-| P03 | Precificação | Ingredientes excluídos não atualizam receitas | Alto |
-| P04 | Storage | Imagens antigas não são deletadas | Baixo |
-| P05 | Auth | Falta confirmação de email em produção | Alto |
-| P06 | Mobile | Alguns modais não são 100% responsivos | Médio |
-| P07 | Performance | Dashboard carrega muitos dados | Médio |
-
-### 8.2 Riscos Técnicos
-
-| Risco | Probabilidade | Impacto | Mitigação |
-|-------|---------------|---------|-----------|
-| Limite de rows Supabase (1000) | Alta | Alto | Implementar paginação em todas as queries |
-| Storage sem cleanup | Média | Médio | Criar job de limpeza de arquivos órfãos |
-| RLS bypass | Baixa | Crítico | Auditar todas as policies |
-| Cálculos de custo incorretos | Média | Alto | Testes automatizados |
-| Concorrência em pagamentos | Baixa | Médio | Transactions no banco |
-
-### 8.3 Débitos Técnicos
-
-- [ ] Migrar de `any` para tipos corretos em vários hooks
-- [ ] Consolidar lógica de cálculo de parcelas
-- [ ] Criar testes E2E para fluxos críticos
-- [ ] Documentar todas as functions do banco
-- [ ] Implementar logging estruturado
+Hook: `useGroupFilter()` — `addGroupFilter(query)`, `getGroupInsertData()`, `canAccessData()`
 
 ---
 
-## BLOCO 9: BACKLOG SUGERIDO
+## 6. RLS (Row Level Security)
 
-### 9.1 MVP (Já implementado) ✅
+### Tabelas funcionais
+- `SELECT/INSERT/UPDATE/DELETE`: `auth.uid() = usuario_id`
 
-- [x] Autenticação (login, cadastro, recuperação)
-- [x] Dashboard com calendário
-- [x] Gestão de encomendas
-- [x] Cadastro de clientes e fornecedores
-- [x] Precificação básica (ingredientes, embalagens, receitas)
-- [x] Contas a receber e pagar
-- [x] Fluxo de caixa básico
+### Tabelas de governança
+- `groups`: MOTHER vê todos; usuários veem seus grupos
+- `user_group_roles`: MOTHER vê todos; ADMIN vê papéis do grupo; USER vê seus
+- `user_active_session`: cada usuário gerencia sua sessão
 
-### 9.2 V1 (Próximas entregas)
+### Tabelas filhas
+- Verificação via `EXISTS (SELECT 1 FROM tabela_pai ...)` encadeada
 
-| Prioridade | Feature | Estimativa |
-|------------|---------|------------|
-| 🔴 Alta | Confirmação de email em produção | 2h |
-| 🔴 Alta | Paginação em listagens grandes | 4h |
-| 🔴 Alta | Backup automático de dados | 4h |
-| 🟡 Média | Integração WhatsApp (mensagens) | 8h |
-| 🟡 Média | Relatório de vendas por período | 4h |
-| 🟡 Média | Exportação de dados (Excel/PDF) | 4h |
-| 🟡 Média | Notificações de vencimento | 4h |
-| 🟢 Baixa | Modo escuro aprimorado | 2h |
-| 🟢 Baixa | PWA (instalação mobile) | 4h |
+### Com padrão do sistema
+- `plano_contas`, `tags_encomendas`: `padrao_sistema = true` visível para todos
 
-### 9.3 V2 (Futuro)
+---
 
-| Feature | Descrição |
+## 7. FLUXOS PRINCIPAIS
+
+### 7.1 Cadastro e Login
+1. Signup → profile criado → grupo criado automaticamente
+2. Login → verificação de conta ativa → primeiro acesso redireciona para SeusDados
+
+### 7.2 Encomenda
+1. Nova encomenda → cliente, datas, itens (produto+receita+qtde+valor)
+2. Descontos, taxa entrega, tags → salvar (status: pendente)
+3. Opcional: gerar conta a receber vinculada
+
+### 7.3 Precificação
+1. Cadastrar ingredientes/embalagens com preços
+2. Opcionalmente criar pré-preparos
+3. Criar receita → ingredientes + embalagens + mão de obra
+4. Sistema calcula custo total/unitário → definir valor de venda
+
+### 7.4 Contas a Receber/Pagar
+1. Criar título → parcelas automáticas
+2. Dar baixa → banco, tipo doc, juros, desconto, comprovante
+3. Estorno com motivo
+
+### 7.5 DRE
+Selecionar período → agrupamento por plano de contas → receitas - deduções - custos - despesas = resultado
+
+### 7.6 Fluxo de Caixa
+Diário (por dia) ou Mensal (consolidado com saldo acumulado)
+
+---
+
+## 8. CONTEXTS E HOOKS
+
+### Contexts
+| Context | Responsabilidade |
+|---------|-----------------|
+| `AuthContext` | Login, signup, logout, reset |
+| `GroupContext` | Grupos, papéis, permissões, sessão ativa |
+| `GlobalLoadingContext` | Loading global com mascote |
+
+### Hooks (24)
+| Hook | Descrição |
+|------|-----------|
+| `useGroupFilter` | Filtro por grupo ativo |
+| `useClientes` | CRUD clientes |
+| `useFornecedores` | CRUD fornecedores |
+| `useFornecedorContatos` | Contatos de fornecedores |
+| `useFamiliares` | Familiares de clientes |
+| `useReceitas` | Fichas técnicas |
+| `useReceitasMaoObra` | Mão de obra em receitas |
+| `useEncomendas` | CRUD encomendas |
+| `useEncomendaItens` | Itens de encomendas |
+| `useCategorias` | Categorias |
+| `useCustosFixos` | Custos fixos |
+| `useCalculosReceita` | Cálculos de precificação |
+| `useMaoObraPerfis` | Perfis de mão de obra |
+| `useMaoObraHistorico` | Histórico mão de obra |
+| `usePrePreparosMaoObra` | Mão de obra pré-preparos |
+| `usePlanejamento` | Planejamento |
+| `useTiposDocumento` | Tipos de documento |
+| `useUnidadesMedida` | Unidades de medida |
+| `useIsAdmin` | Admin (legado) |
+| `useUserId` | ID do usuário |
+| `useUserProfile` | Perfil do usuário |
+| `useViaCEP` | Consulta CEP |
+| `use-mobile` | Detecção mobile |
+| `use-toast` | Notificações |
+
+---
+
+## 9. EDGE FUNCTIONS
+
+| Função | Descrição |
+|--------|-----------|
+| `criar-usuario` | Criação de usuários pelo admin |
+| `migrate-logos-to-storage` | Migração de logos para Storage |
+
+---
+
+## 10. UTILITÁRIOS
+
+### dateUtils (`src/lib/dateUtils.ts`)
+Resolve problema de timezone (-1 dia):
+| Função | Descrição |
+|--------|-----------|
+| `formatDateToISO(date)` | Date → 'YYYY-MM-DD' local |
+| `parseISOToDate(str)` | 'YYYY-MM-DD' → Date local |
+| `formatDateBR(str)` | → 'DD/MM/YYYY' |
+| `getTodayISO()` | Hoje local |
+| `addMonthsToDate/addDaysToDate` | Aritmética |
+| `diffInDays` | Diferença |
+| `getFirstDayOfMonth/getLastDayOfMonth` | Limites do mês |
+| `isOverdue/isToday` | Verificações |
+
+### Outros
+| Arquivo | Descrição |
 |---------|-----------|
-| Controle de Estoque | Entrada/saída de insumos |
-| Multi-usuários | Colaboradores na mesma confeitaria |
-| App Mobile | React Native ou PWA avançado |
-| Gateway de Pagamento | PIX automático, boleto |
-| Marketplace | Cardápio online para clientes |
-| BI/Analytics | Dashboards avançados com gráficos |
-| Integração iFood/Rappi | Recebimento de pedidos |
-| Nota Fiscal | Emissão de NFC-e |
+| `src/lib/utils.ts` | `cn()` para Tailwind |
+| `src/lib/validacaoSenha.ts` | Validação de senha |
+| `src/utils/gerarReciboPagamento.ts` | PDF de recibo |
+| `src/utils/insightsGenerator.ts` | Insights dashboard |
 
 ---
 
-## BLOCO 10: STACK TECNOLÓGICA
+## 11. INTEGRAÇÕES
 
-### 10.1 Frontend
+### Ativas
+| Integração | Descrição |
+|------------|-----------|
+| Supabase Auth | Login, cadastro, recuperação |
+| Supabase Storage | Logos, comprovantes, imagens |
+| ViaCEP | Consulta de endereço |
+| jsPDF | Recibos em PDF |
+| xlsx | Export/import planilhas |
 
-| Tecnologia | Versão | Uso |
-|------------|--------|-----|
-| React | 18.3.1 | Framework UI |
-| TypeScript | 5.x | Tipagem estática |
-| Vite | 5.x | Build tool |
-| Tailwind CSS | 3.x | Estilização |
-| Shadcn/ui | - | Componentes base |
-| TanStack Query | 5.83.0 | Cache e fetching |
-| React Router DOM | 6.30.1 | Roteamento |
-| React Hook Form | 7.65.0 | Formulários |
-| Zod | 4.1.12 | Validação |
-| Recharts | 2.15.4 | Gráficos |
-| date-fns | 4.1.0 | Manipulação de datas |
-| Lucide React | 0.462.0 | Ícones |
-| Sonner | 1.7.4 | Toast notifications |
-
-### 10.2 Backend (Lovable Cloud / Supabase)
-
-| Serviço | Uso |
-|---------|-----|
-| PostgreSQL | Banco de dados principal |
-| Supabase Auth | Autenticação |
-| Supabase Storage | Arquivos |
-| Supabase Realtime | WebSockets |
-| Edge Functions | Lógica backend customizada |
-
-### 10.3 Ferramentas de Desenvolvimento
-
-| Ferramenta | Uso |
-|------------|-----|
-| ESLint | Linting |
-| PostCSS | Processamento CSS |
-| Bun | Package manager |
+### Não Implementadas
+| Integração | Prioridade |
+|------------|-----------|
+| WhatsApp | Alta |
+| Email transacional | Alta |
+| Gateway de pagamento | Média |
+| Google Drive | Baixa |
 
 ---
 
-## BLOCO 11: COMANDOS ÚTEIS
+## 12. PENDÊNCIAS E RISCOS
 
-```bash
-# Instalar dependências
-bun install
+### Pendências Críticas
+1. **Filtro por `owner_group_id`:** A maioria dos hooks filtra por `usuario_id` — precisa migrar para `owner_group_id` via `useGroupFilter`
+2. **RLS por grupo:** Políticas atuais usam `usuario_id` — atualizar para `owner_group_id`
+3. **Tags encomendas:** Faltam políticas INSERT/UPDATE/DELETE
+4. **Views sem RLS:** `vw_contas_receber_dashboard`, `vw_contas_receber_parcelas`, `vw_resumo_financeiro`
 
-# Rodar em desenvolvimento
-bun run dev
+### Riscos
+1. Migração `usuario_id → owner_group_id` — transição gradual necessária
+2. Performance — faltam índices em `owner_group_id`
+3. Concorrência de sessão — múltiplas abas
+4. Duplicação admin legado (`useIsAdmin`) vs `GroupContext`
+5. Datas — correção de timezone pode ter pontos faltantes
 
-# Build para produção
-bun run build
+---
 
-# Preview do build
-bun run preview
+## 13. BACKLOG
 
-# Lint
-bun run lint
+### MVP ✅
+- Autenticação, clientes, fornecedores, encomendas, fichas técnicas
+- Contas a receber/pagar, dashboard, governança multi-tenant
+
+### V1 (Próximo)
+- Integrar `useGroupFilter` em todos os hooks
+- Atualizar RLS para `owner_group_id`
+- `PermissionGuard` em todos os componentes sensíveis
+- Índices em `owner_group_id`
+- Relatórios PDF financeiro
+- Módulo de estoque
+
+### V2 (Futuro)
+- WhatsApp, email transacional
+- Gateway de pagamento (PIX)
+- PWA mobile
+- IA (insights automáticos)
+- Catálogo público
+- Integração delivery
+
+---
+
+## 14. DEFINIR PRIMEIRO MOTHER
+
+```sql
+INSERT INTO user_global_roles (user_id, role_global, is_active)
+VALUES ('SEU_USER_ID_AQUI', 'MOTHER', true);
 ```
 
 ---
 
-## BLOCO 12: ARQUIVOS DE CONFIGURAÇÃO
-
-### 12.1 Estrutura de Pastas
-
-```
-/
-├── public/               # Assets estáticos
-├── src/
-│   ├── assets/           # Imagens importadas
-│   ├── components/       # Componentes reutilizáveis
-│   │   ├── ui/           # Shadcn components
-│   │   ├── admin/        # Componentes admin
-│   │   ├── auth/         # Componentes de auth
-│   │   ├── configuracoes/# Componentes de config
-│   │   └── financeiro/   # Componentes financeiros
-│   ├── contexts/         # React Contexts
-│   ├── hooks/            # Custom hooks
-│   ├── integrations/     # Integrações (Supabase)
-│   ├── lib/              # Utilitários
-│   ├── pages/            # Páginas/Rotas
-│   │   ├── admin/
-│   │   ├── auth/
-│   │   ├── cadastros/
-│   │   ├── configuracoes/
-│   │   ├── financeiro/
-│   │   └── precificacao/
-│   ├── schemas/          # Schemas Zod
-│   └── utils/            # Funções utilitárias
-├── supabase/
-│   ├── config.toml       # Configuração Supabase
-│   ├── functions/        # Edge Functions
-│   └── migrations/       # Migrations SQL
-├── index.html
-├── tailwind.config.ts
-├── vite.config.ts
-└── tsconfig.json
-```
-
-### 12.2 Variáveis de Ambiente
-
-```env
-VITE_SUPABASE_URL=https://xxx.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=eyJxxx...
-VITE_SUPABASE_PROJECT_ID=xxx
-```
-
----
-
-**Documentação gerada em:** 25 de Dezembro de 2025  
-**Versão do documento:** 1.0  
-**Autor:** Sistema Caixa de Açúcar / Lovable AI
+*Documentação atualizada em Fevereiro 2026 — Projeto Caixa de Açúcar*
