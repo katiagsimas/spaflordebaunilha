@@ -59,7 +59,7 @@ import NotFound from "./pages/NotFound";
 import Usuarios from "./pages/admin/Usuarios";
 import LogsAdmin from "./pages/admin/Logs";
 import Governanca from "./pages/admin/Governanca";
-import UsuariosGrupo from "./pages/admin/UsuariosGrupo";
+
 
 const queryClient = new QueryClient();
 
@@ -200,7 +200,7 @@ const App = () => (
           <Route path="/admin/usuarios" element={<ProtectedRoute><Layout><Usuarios /></Layout></ProtectedRoute>} />
           <Route path="/admin/logs" element={<ProtectedRoute><Layout><LogsAdmin /></Layout></ProtectedRoute>} />
           <Route path="/admin/governanca" element={<ProtectedRoute><Layout><Governanca /></Layout></ProtectedRoute>} />
-          <Route path="/admin/usuarios-grupo" element={<ProtectedRoute><Layout><UsuariosGrupo /></Layout></ProtectedRoute>} />
+          
           
           <Route path="*" element={<NotFound />} />
           </Routes>
