@@ -1255,7 +1255,7 @@ export default function Dashboard() {
             <CardTitle className="flex items-center gap-2">
               Encomendas - {format(diaSelecionado, "dd 'de' MMMM", { locale: ptBR })}
               {isToday(diaSelecionado) && (
-                <Badge variant="default" className="bg-red-500">HOJE</Badge>
+                <Badge variant="default" className="bg-umbrella-dourado text-umbrella-preto">HOJE</Badge>
               )}
             </CardTitle>
           </CardHeader>
