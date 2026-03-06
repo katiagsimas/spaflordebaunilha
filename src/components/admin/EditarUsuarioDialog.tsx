@@ -504,7 +504,9 @@ export function EditarUsuarioDialog({
                 )}
               />
 
-
+              <FormField
+                control={form.control}
+                name="ativo"
                 render={({ field }) => (
                   <FormItem className="flex items-center gap-2 space-y-0">
                     <FormControl>
