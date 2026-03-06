@@ -1,4 +1,5 @@
 import React from "react";
+import umbrellaLogo from "@/assets/umbrella-logo-dourado.png";
 
 interface LoadingMascoteProps {
   size?: number;
@@ -12,10 +13,10 @@ export function LoadingMascote({
   return (
     <div className="flex flex-col items-center justify-center gap-3">
       <img
-        src="/mascote-caixa-de-acucar.png"
+        src={umbrellaLogo}
         alt="Carregando - Caixa de Açúcar"
         style={{ width: size, height: size }}
-        className="animate-bounce"
+        className="animate-spin-slow"
       />
       {label && (
         <span className="text-sm text-muted-foreground font-medium">
