@@ -1,4 +1,5 @@
-import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake, Shield, FileText, Building2, Crown, Umbrella } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake, Shield, FileText, Building2, Crown } from "lucide-react";
+import caixaAcucarSidebarIcon from "@/assets/caixa-acucar-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGroup } from "@/contexts/GroupContext";
@@ -106,7 +107,7 @@ export function AppSidebar() {
             {/* Logo / Brand */}
             <div className="flex flex-col items-center gap-1">
               <div className="flex items-center gap-2">
-                <Umbrella className="h-6 w-6 text-umbrella-dourado" />
+                <img src={caixaAcucarSidebarIcon} alt="Caixa de Açúcar" className="h-8 w-8" />
                 <span className="text-lg font-semibold font-body text-sidebar-foreground tracking-wide uppercase">
                   Caixa de Açúcar
                 </span>
