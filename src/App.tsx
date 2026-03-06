@@ -150,15 +150,15 @@ const App = () => (
           <Route path="/configuracoes" element={<ProtectedRoute><Layout><Configuracoes /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/cadastros-base" element={<ProtectedRoute><Layout><CadastrosBase /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/precificacao" element={<ProtectedRoute><Layout><PrecificacaoPage /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/financeiro" element={<ProtectedRoute><Layout><FinanceiroPage /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/financeiro" element={<ProtectedRoute><Layout><PlanoGuard><FinanceiroPage /></PlanoGuard></Layout></ProtectedRoute>} />
           
           <Route path="/configuracoes/precificacao/mao-de-obra" element={<ProtectedRoute><Layout><MaoDeObra /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/tipos-insumos" element={<ProtectedRoute><Layout><TiposInsumos /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/categorias-plano-contas" element={<ProtectedRoute><Layout><CategoriasPlanoContas /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/plano-contas" element={<ProtectedRoute><Layout><PlanoContas /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/bancos" element={<ProtectedRoute><Layout><Bancos /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/tipos-documentos" element={<ProtectedRoute><Layout><TiposDocumentos /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/juros" element={<ProtectedRoute><Layout><ConfiguracaoJurosPage /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/categorias-plano-contas" element={<ProtectedRoute><Layout><PlanoGuard><CategoriasPlanoContas /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/plano-contas" element={<ProtectedRoute><Layout><PlanoGuard><PlanoContas /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/bancos" element={<ProtectedRoute><Layout><PlanoGuard><Bancos /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/tipos-documentos" element={<ProtectedRoute><Layout><PlanoGuard><TiposDocumentos /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/juros" element={<ProtectedRoute><Layout><PlanoGuard><ConfiguracaoJurosPage /></PlanoGuard></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/tags-encomendas" element={<ProtectedRoute><Layout><TagsEncomendasPage /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/dados-confeitaria" element={<ProtectedRoute><Layout><SeusDados /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/categorias-receitas" element={<ProtectedRoute><Layout><Categorias /></Layout></ProtectedRoute>} />
@@ -203,6 +203,8 @@ const App = () => (
           <Route path="/admin/logs" element={<ProtectedRoute><Layout><LogsAdmin /></Layout></ProtectedRoute>} />
           <Route path="/admin/governanca" element={<ProtectedRoute><Layout><Governanca /></Layout></ProtectedRoute>} />
           
+          {/* Upgrade */}
+          <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
           </Routes>
