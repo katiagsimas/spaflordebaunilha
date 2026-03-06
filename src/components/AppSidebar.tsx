@@ -158,7 +158,7 @@ export function AppSidebar() {
                               <>
                                 <span className="flex-1">{item.title}</span>
                                 {item.title === "Clientes" && aniversariantesClientes.length > 0 && (
-                                  <div className="w-5 h-5 rounded-full bg-umbrella-coral flex items-center justify-center animate-bounce ml-1">
+                                  <div className="w-5 h-5 rounded-full bg-umbrella-pistache flex items-center justify-center animate-bounce ml-1">
                                     <Cake className="h-3 w-3 text-umbrella-preto" />
                                   </div>
                                 )}
