@@ -14,6 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
+        'display': ['Playfair Display', 'Georgia', 'serif'],
+        'body': ['Inter', 'system-ui', 'sans-serif'],
         'logo': ['Great Vibes', 'cursive'],
       },
       colors: {
@@ -66,6 +68,14 @@ export default {
           DEFAULT: "hsl(var(--info))",
           light: "hsl(var(--info) / 0.1)",
         },
+        umbrella: {
+          preto: '#1C1C1C',
+          cloud: '#F5F4F1',
+          pistache: '#BFCFB8',
+          dourado: '#C6A85A',
+          coral: '#F28C82',
+          pink: '#E7A1AF',
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -84,28 +94,16 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
         "pulse-slow": {
-          "0%, 100%": {
-            opacity: "1",
-          },
-          "50%": {
-            opacity: "0.7",
-          },
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.7" },
         },
       },
       animation: {

@@ -2,115 +2,113 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Umbrella Doce by Ká Simas — Design System */
 
 @layer base {
   :root {
-    /* Caixa de Açúcar - Paleta Oficial */
-    --color-primary: 0 0% 6%;           /* #0F0F0F - Primária (estrutura/texto forte) */
-    --color-secondary: 0 0% 100%;       /* #FFFFFF - Secundária (fundos/cards) */
-    --color-accent: 354 58% 59%;        /* #D15D66 - Ação/CTA (botões principais) */
-    --color-info: 241 58% 50%;          /* #3533CD - Tecnologia (botões secundários) */
-    --color-warning: 45 89% 61%;        /* #F4C542 - Alerta/Aviso */
-    --color-success: 142 44% 47%;       /* #3BA55D - Sucesso */
-    --color-error: 355 52% 46%;         /* #B0353D - Erro */
+    /* Paleta Umbrella Doce */
+    --umbrella-preto: 0 0% 11%;          /* #1C1C1C */
+    --umbrella-cloud: 40 11% 95%;        /* #F5F4F1 */
+    --umbrella-pistache: 107 22% 76%;    /* #BFCFB8 */
+    --umbrella-dourado: 42 47% 56%;      /* #C6A85A */
+    --umbrella-coral: 5 82% 73%;         /* #F28C82 */
+    --umbrella-pink: 345 52% 77%;        /* #E7A1AF */
 
-    /* Sistema de cores mapeado para Shadcn */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 6%;
+    /* Tokens semânticos */
+    --background: 40 11% 95%;
+    --foreground: 0 0% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 6%;
+    --card-foreground: 0 0% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 6%;
+    --popover-foreground: 0 0% 11%;
 
-    --primary: 354 58% 59%;             /* Rosa - Ação principal */
-    --primary-foreground: 0 0% 100%;
+    --primary: 0 0% 11%;
+    --primary-foreground: 40 11% 95%;
 
-    --secondary: 0 0% 96%;              /* Cinza muito claro */
-    --secondary-foreground: 0 0% 6%;
+    --secondary: 107 22% 76%;
+    --secondary-foreground: 0 0% 11%;
 
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 40%;
+    --muted: 107 22% 76% / 0.3;
+    --muted-foreground: 0 0% 11% / 0.6;
 
-    --accent: 354 58% 59%;              /* Rosa */
-    --accent-foreground: 0 0% 100%;
+    --accent: 42 47% 56%;
+    --accent-foreground: 0 0% 11%;
 
     --success: 142 44% 47%;
     --warning: 45 89% 61%;
-    --error: 355 52% 46%;
+    --error: 0 63% 58%;
     --info: 241 58% 50%;
 
-    --destructive: 355 52% 46%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 63% 58%;
+    --destructive-foreground: 40 11% 95%;
 
-    --border: 0 0% 87%;
-    --input: 0 0% 87%;
-    --ring: 354 58% 59%;
+    --border: 107 22% 76%;
+    --input: 107 22% 76%;
+    --ring: 0 0% 11%;
 
-    --radius: 0.5rem;
+    --radius: 0.375rem;
 
-    --sidebar-background: 352 71% 92%;  /* #FADDE1 */
-    --sidebar-foreground: 0 0% 6%;
-    --sidebar-primary: 354 58% 59%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 354 58% 59% / 0.25;
-    --sidebar-accent-foreground: 0 0% 6%;
-    --sidebar-border: 0 0% 87%;
-    --sidebar-ring: 354 58% 59%;
+    /* Sidebar — Preto Elegante */
+    --sidebar-background: 0 0% 11%;
+    --sidebar-foreground: 40 11% 95%;
+    --sidebar-primary: 42 47% 56%;
+    --sidebar-primary-foreground: 0 0% 11%;
+    --sidebar-accent: 107 22% 76%;
+    --sidebar-accent-foreground: 0 0% 11%;
+    --sidebar-border: 42 47% 56% / 0.3;
+    --sidebar-ring: 42 47% 56%;
 
-    --color-background-app: 352 71% 92%;  /* #FADDE1 */
-    --gradient-primary: linear-gradient(135deg, hsl(354 58% 59%), hsl(354 58% 50%));
-    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 98%));
-    --shadow-soft: 0 2px 8px -2px rgba(0, 0, 0, 0.06);
-    --shadow-elevated: 0 8px 24px -4px rgba(0, 0, 0, 0.1);
+    /* Tipografia */
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+
+    /* Sombras */
+    --shadow-soft: 0 1px 4px rgba(28, 28, 28, 0.08);
+    --shadow-elevated: 0 4px 12px rgba(28, 28, 28, 0.12);
   }
 
   .dark {
-    --background: 0 0% 6%;
-    --foreground: 0 0% 100%;
+    --background: 0 0% 11%;
+    --foreground: 40 11% 95%;
 
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 16%;
+    --card-foreground: 40 11% 95%;
 
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 16%;
+    --popover-foreground: 40 11% 95%;
 
-    --primary: 354 58% 59%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 107 22% 76%;
+    --primary-foreground: 0 0% 11%;
 
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 42 47% 56%;
+    --secondary-foreground: 0 0% 11%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 107 22% 76% / 0.1;
+    --muted-foreground: 40 11% 95% / 0.6;
 
-    --accent: 354 58% 59%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 42 47% 56%;
+    --accent-foreground: 40 11% 95%;
 
-    --destructive: 355 52% 46%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 63% 58%;
+    --destructive-foreground: 40 11% 95%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 354 58% 59%;
-    
-    --sidebar-background: 352 71% 92%;  /* #FADDE1 */
-    --sidebar-foreground: 0 0% 6%;
-    --sidebar-primary: 354 58% 59%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 354 58% 59% / 0.25;
-    --sidebar-accent-foreground: 0 0% 6%;
-    --sidebar-border: 0 0% 87%;
-    --sidebar-ring: 354 58% 59%;
+    --border: 107 22% 76% / 0.2;
+    --input: 107 22% 76% / 0.2;
+    --ring: 107 22% 76%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(354 58% 59%), hsl(354 58% 50%));
-    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 10%), hsl(0 0% 6%));
-    --shadow-soft: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
-    --shadow-elevated: 0 8px 24px -4px rgba(0, 0, 0, 0.6);
+    --sidebar-background: 0 0% 8%;
+    --sidebar-foreground: 40 11% 95%;
+    --sidebar-primary: 42 47% 56%;
+    --sidebar-primary-foreground: 40 11% 95%;
+    --sidebar-accent: 107 22% 76% / 0.15;
+    --sidebar-accent-foreground: 40 11% 95%;
+    --sidebar-border: 42 47% 56% / 0.2;
+    --sidebar-ring: 42 47% 56%;
+
+    --shadow-soft: 0 1px 4px rgba(0, 0, 0, 0.3);
+    --shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.4);
   }
 }
 
@@ -121,27 +119,22 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body);
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    @apply font-semibold tracking-tight;
+  }
+
+  h4, h5, h6 {
+    font-family: var(--font-body);
     @apply font-semibold tracking-tight;
   }
 }
 
 @layer components {
-  .bg-app {
-    background-color: hsl(var(--color-background-app));
-  }
-
-  .gradient-primary {
-    background: var(--gradient-primary);
-  }
-
-  .gradient-subtle {
-    background: var(--gradient-subtle);
-  }
-
   .shadow-soft {
     box-shadow: var(--shadow-soft);
   }
@@ -152,43 +145,23 @@ All colors MUST be HSL.
 
   /* Animações */
   @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 
   @keyframes slideInLeft {
-    from {
-      opacity: 0;
-      transform: translateX(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
   }
 
   @keyframes fillProgress {
-    from {
-      width: 0%;
-    }
-    to {
-      width: var(--target-width);
-    }
+    from { width: 0%; }
+    to { width: var(--target-width); }
   }
 
   .animate-fade-in {
@@ -203,22 +176,10 @@ All colors MUST be HSL.
     animation: slideInLeft 0.4s ease-out;
   }
 
-  /* Stagger animations */
-  .stagger-1 {
-    animation-delay: 0.1s;
-  }
-
-  .stagger-2 {
-    animation-delay: 0.2s;
-  }
-
-  .stagger-3 {
-    animation-delay: 0.3s;
-  }
-
-  .stagger-4 {
-    animation-delay: 0.4s;
-  }
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
 }
 
 @media print {
