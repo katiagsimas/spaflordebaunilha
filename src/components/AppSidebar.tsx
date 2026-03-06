@@ -112,7 +112,7 @@ export function AppSidebar() {
                   Caixa de Açúcar
                 </span>
               </div>
-              <span className="text-[11px] font-light font-body text-umbrella-dourado tracking-wider">
+              <span className="text-[11px] font-light font-body text-umbrella-cloud tracking-wider">
                 by Umbrella Doce
               </span>
             </div>
