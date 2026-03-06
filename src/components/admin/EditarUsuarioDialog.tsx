@@ -56,6 +56,7 @@ const formSchema = z.object({
   nomeConfeitaria: z.string().min(2, 'Nome da confeitaria é obrigatório'),
   role: z.string(),
   ativo: z.boolean(),
+  planoId: z.string(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -69,6 +70,7 @@ interface EditarUsuarioDialogProps {
     nome_completo: string | null;
     nome_confeitaria: string | null;
     ativo?: boolean;
+    plano_id?: string | null;
   } | null;
   userRole: string;
 }
@@ -111,6 +113,7 @@ export function EditarUsuarioDialog({
       nomeConfeitaria: '',
       role: 'user',
       ativo: true,
+      planoId: 'base',
     },
   });
 
@@ -191,6 +194,7 @@ export function EditarUsuarioDialog({
         nomeConfeitaria: userData.nome_confeitaria || '',
         role: userRole as any,
         ativo: userData.ativo ?? true,
+        planoId: userData.plano_id || 'base',
       });
     }
   }, [userData, userRole, open, form]);
@@ -216,7 +220,8 @@ export function EditarUsuarioDialog({
           nome_completo: data.nomeCompleto,
           nome_confeitaria: data.nomeConfeitaria,
           ativo: data.ativo,
-        })
+          plano_id: data.planoId,
+        } as any)
         .eq('id', userId);
 
       if (profileError) throw profileError;
