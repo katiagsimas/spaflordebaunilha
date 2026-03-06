@@ -128,6 +128,7 @@ const App = () => (
             {/* Auth routes */}
             <Route path="/auth/login" element={<AuthLogin />} />
             <Route path="/auth/signup" element={<SignUp />} />
+            <Route path="/auth/sso" element={<SSO />} />
             <Route path="/auth/forgot-password" element={<ForgotPassword />} />
           {/* Redirecionar raiz para Dashboard */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
