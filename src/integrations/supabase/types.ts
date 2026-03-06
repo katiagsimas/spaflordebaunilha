@@ -1591,6 +1591,36 @@ export type Database = {
           },
         ]
       }
+      planos: {
+        Row: {
+          ativo: boolean | null
+          created_at: string | null
+          descricao: string | null
+          em_breve: boolean | null
+          id: string
+          nome: string
+          updated_at: string | null
+        }
+        Insert: {
+          ativo?: boolean | null
+          created_at?: string | null
+          descricao?: string | null
+          em_breve?: boolean | null
+          id: string
+          nome: string
+          updated_at?: string | null
+        }
+        Update: {
+          ativo?: boolean | null
+          created_at?: string | null
+          descricao?: string | null
+          em_breve?: boolean | null
+          id?: string
+          nome?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       pre_preparos: {
         Row: {
           categoria_id: string | null
@@ -1788,6 +1818,7 @@ export type Database = {
           numero: string | null
           owner_group_id: string | null
           planejamento_banner_dismissed: boolean | null
+          plano_id: string | null
           primeiro_acesso: boolean | null
           razao_social: string | null
           telefone: string | null
@@ -1822,6 +1853,7 @@ export type Database = {
           numero?: string | null
           owner_group_id?: string | null
           planejamento_banner_dismissed?: boolean | null
+          plano_id?: string | null
           primeiro_acesso?: boolean | null
           razao_social?: string | null
           telefone?: string | null
@@ -1856,6 +1888,7 @@ export type Database = {
           numero?: string | null
           owner_group_id?: string | null
           planejamento_banner_dismissed?: boolean | null
+          plano_id?: string | null
           primeiro_acesso?: boolean | null
           razao_social?: string | null
           telefone?: string | null
@@ -1869,6 +1902,13 @@ export type Database = {
             columns: ["owner_group_id"]
             isOneToOne: false
             referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_plano_id_fkey"
+            columns: ["plano_id"]
+            isOneToOne: false
+            referencedRelation: "planos"
             referencedColumns: ["id"]
           },
         ]

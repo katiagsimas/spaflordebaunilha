@@ -41,6 +41,7 @@ interface UserProfile {
   nome_confeitaria: string | null;
   created_at: string;
   ativo?: boolean;
+  plano_id?: string | null;
 }
 
 interface UserRole {
@@ -590,11 +591,12 @@ export default function Usuarios() {
           ) : (
             <div className="rounded-md border">
               <Table>
-                <TableHeader>
+                 <TableHeader>
                   <TableRow>
                     <TableHead>Nome Completo</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Confeitaria</TableHead>
+                    <TableHead>Plano</TableHead>
                     <TableHead>Permissões</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Último Acesso</TableHead>
@@ -613,6 +615,11 @@ export default function Usuarios() {
                         </TableCell>
                         <TableCell>{profile.email}</TableCell>
                         <TableCell>{profile.nome_confeitaria || '-'}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="font-body text-xs">
+                            {profile.plano_id === 'negocio' ? 'Negócio' : profile.plano_id === 'controle' ? 'Controle' : 'Base'}
+                          </Badge>
+                        </TableCell>
                         <TableCell>
                           <div className="flex gap-1 flex-wrap">
                             {userRoles.map((role) => (

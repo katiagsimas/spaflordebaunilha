@@ -1,4 +1,5 @@
-import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake, Shield, FileText, Building2, Crown } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake, Shield, FileText, Building2, Crown, Lock } from "lucide-react";
+import { usePlano } from "@/hooks/usePlano";
 import caixaAcucarSidebarIcon from "@/assets/caixa-acucar-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -40,6 +41,7 @@ export function AppSidebar() {
   const { isMother, isGroupAdmin, sessionMode, activeGroup, activeRole } = useGroup();
   const navigate = useNavigate();
   const { isAdmin } = useIsAdmin();
+  const { rotaBloqueada } = usePlano();
 
   const { data: profile } = useQuery({
     queryKey: ['profile', user?.id],
@@ -136,33 +138,37 @@ export function AppSidebar() {
                 return true;
               }).map((item) => {
                 const Icon = item.icon;
+                const bloqueado = !isAdmin && item.active && rotaBloqueada(item.url);
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild isActive={false} disabled={!item.active}>
                       <NavLink
-                        to={item.url}
+                        to={bloqueado ? "/upgrade" : item.url}
                         end
                         className={({ isActive }) =>
                           `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
-                            isActive && item.active
+                            isActive && item.active && !bloqueado
                               ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
                               : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
-                          } ${!item.active ? "opacity-40 cursor-not-allowed" : ""}`
+                          } ${!item.active || bloqueado ? "opacity-40 cursor-not-allowed" : ""}`
                         }
                         onClick={(e) => !item.active && e.preventDefault()}
                       >
                         {({ isActive }) => (
                           <>
-                            <Icon className={`h-5 w-5 ${isActive && item.active ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
+                            <Icon className={`h-5 w-5 ${isActive && item.active && !bloqueado ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
                             {open && (
                               <>
                                 <span className="flex-1">{item.title}</span>
-                                {item.title === "Clientes" && aniversariantesClientes.length > 0 && (
+                                {bloqueado && (
+                                  <Lock className="h-3.5 w-3.5 text-sidebar-foreground/50" />
+                                )}
+                                {item.title === "Clientes" && aniversariantesClientes.length > 0 && !bloqueado && (
                                   <div className="w-5 h-5 rounded-full bg-umbrella-pistache flex items-center justify-center animate-bounce ml-1">
                                     <Cake className="h-3 w-3 text-umbrella-preto" />
                                   </div>
                                 )}
-                                {item.title === "Fornecedores" && aniversariantesFornecedores.length > 0 && (
+                                {item.title === "Fornecedores" && aniversariantesFornecedores.length > 0 && !bloqueado && (
                                   <div className="w-5 h-5 rounded-full bg-umbrella-pink flex items-center justify-center animate-bounce ml-1">
                                     <Cake className="h-3 w-3 text-umbrella-preto" />
                                   </div>

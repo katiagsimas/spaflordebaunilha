@@ -56,6 +56,7 @@ const formSchema = z.object({
   nomeConfeitaria: z.string().min(2, 'Nome da confeitaria é obrigatório'),
   role: z.string(),
   ativo: z.boolean(),
+  planoId: z.string(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -69,6 +70,7 @@ interface EditarUsuarioDialogProps {
     nome_completo: string | null;
     nome_confeitaria: string | null;
     ativo?: boolean;
+    plano_id?: string | null;
   } | null;
   userRole: string;
 }
@@ -111,6 +113,7 @@ export function EditarUsuarioDialog({
       nomeConfeitaria: '',
       role: 'user',
       ativo: true,
+      planoId: 'base',
     },
   });
 
@@ -191,6 +194,7 @@ export function EditarUsuarioDialog({
         nomeConfeitaria: userData.nome_confeitaria || '',
         role: userRole as any,
         ativo: userData.ativo ?? true,
+        planoId: userData.plano_id || 'base',
       });
     }
   }, [userData, userRole, open, form]);
@@ -216,7 +220,8 @@ export function EditarUsuarioDialog({
           nome_completo: data.nomeCompleto,
           nome_confeitaria: data.nomeConfeitaria,
           ativo: data.ativo,
-        })
+          plano_id: data.planoId,
+        } as any)
         .eq('id', userId);
 
       if (profileError) throw profileError;
@@ -245,6 +250,24 @@ export function EditarUsuarioDialog({
           });
         }
       }
+
+      // Log de alteração de plano
+      const planoAnterior = userData?.plano_id || 'base';
+      if (data.planoId !== planoAnterior) {
+        if (user && userData) {
+          await supabase.from('admin_logs').insert({
+            admin_id: user.id,
+            admin_email: user.email!,
+            acao: 'alterou_plano',
+            usuario_afetado_id: userId,
+            usuario_afetado_email: userData.email,
+            detalhes: {
+              plano_anterior: planoAnterior,
+              plano_novo: data.planoId
+            }
+          });
+        }
+      }
     },
     onSuccess: () => {
       toast({
@@ -253,6 +276,7 @@ export function EditarUsuarioDialog({
       });
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       queryClient.invalidateQueries({ queryKey: ['admin-user-roles'] });
+      queryClient.invalidateQueries({ queryKey: ['plano'] });
       onOpenChange(false);
     },
     onError: (error: any) => {
@@ -452,6 +476,28 @@ export function EditarUsuarioDialog({
                       <SelectContent>
                         <SelectItem value="user">Usuário</SelectItem>
                         <SelectItem value="admin">Administrador</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="planoId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Plano</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione um plano" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="base">Plano Base</SelectItem>
+                        <SelectItem value="negocio">Plano Negócio</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
