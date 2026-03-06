@@ -1,1 +1,4 @@
 project_id = "lypifrxdzjfdgkcacubl"
+
+[functions.validar-token-sso]
+verify_jwt = false
