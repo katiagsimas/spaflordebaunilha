@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Loader2, Mail, Lock, Eye, EyeOff, Umbrella } from 'lucide-react';
+import { Loader2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import caixaAcucarIcon from '@/assets/caixa-acucar-icon.png';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import authBrandImage from '@/assets/auth-brand-image.png';
@@ -112,7 +113,7 @@ export default function Login() {
             {/* Brand header */}
             <div className="text-center space-y-3">
               <div className="flex items-center justify-center gap-3">
-                <Umbrella className="h-8 w-8 text-umbrella-dourado" />
+                <img src={caixaAcucarIcon} alt="Caixa de Açúcar" className="h-10 w-10" />
                 <h1 className="text-3xl font-display font-bold text-umbrella-cloud tracking-tight">
                   Caixa de Açúcar
                 </h1>
