@@ -250,6 +250,24 @@ export function EditarUsuarioDialog({
           });
         }
       }
+
+      // Log de alteração de plano
+      const planoAnterior = userData?.plano_id || 'base';
+      if (data.planoId !== planoAnterior) {
+        if (user && userData) {
+          await supabase.from('admin_logs').insert({
+            admin_id: user.id,
+            admin_email: user.email!,
+            acao: 'alterou_plano',
+            usuario_afetado_id: userId,
+            usuario_afetado_email: userData.email,
+            detalhes: {
+              plano_anterior: planoAnterior,
+              plano_novo: data.planoId
+            }
+          });
+        }
+      }
     },
     onSuccess: () => {
       toast({
