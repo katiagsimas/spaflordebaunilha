@@ -1,5 +1,4 @@
-import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake, Shield, FileText, Building2, Crown } from "lucide-react";
-import caixaAcucarLogo from "@/assets/caixa-acucar-logo.png";
+import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake, Shield, FileText, Building2, Crown, Umbrella } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGroup } from "@/contexts/GroupContext";
@@ -28,7 +27,6 @@ const menuItems = [
   { title: "Encomendas", url: "/encomendas", icon: ShoppingBag, active: true },
   { title: "Clientes", url: "/clientes", icon: User, active: true },
   { title: "Fornecedores", url: "/fornecedores", icon: Truck, active: true },
-  
   { title: "Financeiro", url: "/financeiro", icon: DollarSign, active: true },
   { title: "Precificação", url: "/precificacao", icon: Calculator, active: true },
   { title: "Configurações", url: "/configuracoes", icon: Settings, active: true },
@@ -41,7 +39,6 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const { isAdmin } = useIsAdmin();
 
-  // Buscar perfil do usuário
   const { data: profile } = useQuery({
     queryKey: ['profile', user?.id],
     queryFn: async () => {
@@ -56,7 +53,6 @@ export function AppSidebar() {
     enabled: !!user,
   });
 
-  // Buscar aniversariantes do mês de fornecedores
   const { data: aniversariantesFornecedores = [] } = useQuery({
     queryKey: ['fornecedores-contatos-aniversariantes', user?.id],
     queryFn: async () => {
@@ -67,9 +63,7 @@ export function AppSidebar() {
         .select('*')
         .eq('usuario_id', user.id)
         .eq('ativo', true);
-      
       if (!data) return [];
-      
       return data.filter(contato => {
         if (!contato.data_aniversario) return false;
         const dataAniversario = new Date(contato.data_aniversario + 'T00:00:00');
@@ -79,7 +73,6 @@ export function AppSidebar() {
     enabled: !!user,
   });
 
-  // Buscar aniversariantes do mês de clientes
   const { data: aniversariantesClientes = [] } = useQuery({
     queryKey: ['clientes-aniversariantes', user?.id],
     queryFn: async () => {
@@ -89,9 +82,7 @@ export function AppSidebar() {
         .from('clientes')
         .select('*')
         .eq('usuario_id', user.id);
-      
       if (!data) return [];
-      
       return data.filter(cliente => {
         if (!cliente.data_aniversario) return false;
         const dataAniversario = new Date(cliente.data_aniversario + 'T00:00:00');
@@ -107,12 +98,21 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border shadow-[2px_0_12px_rgba(107,80,71,0.06)]" style={{ width: open ? '280px' : undefined }}>
-      <SidebarHeader className="border-b border-border p-6">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border" style={{ width: open ? '280px' : undefined }}>
+      <SidebarHeader className="border-b border-sidebar-border p-6">
         {open && (
           <div className="space-y-4">
-            <div className="flex justify-center">
-              <img src={caixaAcucarLogo} alt="Caixa de Açúcar - Sistema de Gestão" className="w-full max-w-[720px] h-auto object-contain" />
+            {/* Logo / Brand */}
+            <div className="flex flex-col items-center gap-1">
+              <div className="flex items-center gap-2">
+                <Umbrella className="h-6 w-6 text-umbrella-dourado" />
+                <span className="text-lg font-semibold font-body text-sidebar-foreground tracking-wide uppercase">
+                  Caixa de Açúcar
+                </span>
+              </div>
+              <span className="text-[11px] font-light font-body text-umbrella-dourado tracking-wider">
+                by Umbrella Doce
+              </span>
             </div>
             {/* Seletor de Grupo */}
             <GroupSelector />
@@ -122,7 +122,9 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Menu Principal</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-sidebar-foreground/50 text-[10px] uppercase tracking-widest font-body">
+            Menu Principal
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => {
@@ -134,32 +136,32 @@ export function AppSidebar() {
                         to={item.url}
                         end
                         className={({ isActive }) =>
-                          `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
+                          `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                             isActive && item.active
-                              ? "bg-secondary text-primary font-semibold border-l-4 border-primary"
-                              : "text-foreground hover:bg-secondary hover:text-primary"
-                          } ${!item.active ? "opacity-60 cursor-not-allowed" : ""}`
+                              ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+                              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
+                          } ${!item.active ? "opacity-40 cursor-not-allowed" : ""}`
                         }
                         onClick={(e) => !item.active && e.preventDefault()}
                       >
                         {({ isActive }) => (
                           <>
-                            <Icon className="h-5 w-5 text-primary" />
+                            <Icon className={`h-5 w-5 ${isActive && item.active ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
                             {open && (
                               <>
                                 <span className="flex-1">{item.title}</span>
                                 {item.title === "Clientes" && aniversariantesClientes.length > 0 && (
-                                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center animate-bounce ml-1">
-                                    <Cake className="h-3.5 w-3.5 text-white" />
+                                  <div className="w-5 h-5 rounded-full bg-umbrella-coral flex items-center justify-center animate-bounce ml-1">
+                                    <Cake className="h-3 w-3 text-umbrella-preto" />
                                   </div>
                                 )}
                                 {item.title === "Fornecedores" && aniversariantesFornecedores.length > 0 && (
-                                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center animate-bounce ml-1">
-                                    <Cake className="h-3.5 w-3.5 text-white" />
+                                  <div className="w-5 h-5 rounded-full bg-umbrella-pink flex items-center justify-center animate-bounce ml-1">
+                                    <Cake className="h-3 w-3 text-umbrella-preto" />
                                   </div>
                                 )}
                                 {!item.active && (
-                                  <Badge className="bg-warning text-foreground text-xs px-2 py-0.5 rounded-full font-medium">
+                                  <Badge className="bg-umbrella-dourado/25 text-sidebar-foreground text-[10px] px-2 py-0.5 rounded-full font-body font-medium">
                                     Em breve
                                   </Badge>
                                 )}
@@ -176,11 +178,14 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Separador dourado */}
+        <div className="mx-4 h-px bg-umbrella-dourado/30" />
+
         {/* Seção MOTHER - Governança do Sistema */}
         {isMother && (
           <SidebarGroup>
-            <SidebarGroupLabel className="flex items-center gap-2">
-              <Crown className="h-3 w-3 text-amber-500" />
+            <SidebarGroupLabel className="flex items-center gap-2 text-sidebar-foreground/50 text-[10px] uppercase tracking-widest font-body">
+              <Crown className="h-3 w-3 text-umbrella-dourado" />
               Governança
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -190,16 +195,16 @@ export function AppSidebar() {
                     <NavLink
                       to="/admin/governanca"
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
+                        `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                           isActive
-                            ? "bg-secondary text-primary font-semibold border-l-4 border-primary"
-                            : "text-foreground hover:bg-secondary hover:text-primary"
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
                         }`
                       }
                     >
                       {({ isActive }) => (
                         <>
-                          <Building2 className="h-5 w-5 text-amber-500" />
+                          <Building2 className={`h-5 w-5 ${isActive ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
                           {open && <span className="flex-1">Grupos e Usuários</span>}
                         </>
                       )}
@@ -214,7 +219,9 @@ export function AppSidebar() {
         {/* Seção Admin do Grupo */}
         {isGroupAdmin() && sessionMode === 'group' && (
           <SidebarGroup>
-            <SidebarGroupLabel>Administração do Grupo</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-sidebar-foreground/50 text-[10px] uppercase tracking-widest font-body">
+              Administração do Grupo
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
@@ -222,16 +229,16 @@ export function AppSidebar() {
                     <NavLink
                       to="/admin/usuarios-grupo"
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
+                        `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                           isActive
-                            ? "bg-secondary text-primary font-semibold border-l-4 border-primary"
-                            : "text-foreground hover:bg-secondary hover:text-primary"
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
                         }`
                       }
                     >
                       {({ isActive }) => (
                         <>
-                          <Users className="h-5 w-5 text-primary" />
+                          <Users className={`h-5 w-5 ${isActive ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
                           {open && <span className="flex-1">Usuários do Grupo</span>}
                         </>
                       )}
@@ -246,7 +253,9 @@ export function AppSidebar() {
         {/* Seção de Administração - Apenas para Admins (legado) */}
         {isAdmin && (
           <SidebarGroup>
-            <SidebarGroupLabel>Sistema</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-sidebar-foreground/50 text-[10px] uppercase tracking-widest font-body">
+              Sistema
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
@@ -254,16 +263,16 @@ export function AppSidebar() {
                     <NavLink
                       to="/admin/usuarios"
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
+                        `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                           isActive
-                            ? "bg-secondary text-primary font-semibold border-l-4 border-primary"
-                            : "text-foreground hover:bg-secondary hover:text-primary"
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
                         }`
                       }
                     >
                       {({ isActive }) => (
                         <>
-                          <Shield className="h-5 w-5 text-primary" />
+                          <Shield className={`h-5 w-5 ${isActive ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
                           {open && <span className="flex-1">Usuários</span>}
                         </>
                       )}
@@ -275,16 +284,16 @@ export function AppSidebar() {
                     <NavLink
                       to="/admin/logs"
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-5 py-3 transition-all duration-200 rounded-lg ${
+                        `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                           isActive
-                            ? "bg-secondary text-primary font-semibold border-l-4 border-primary"
-                            : "text-foreground hover:bg-secondary hover:text-primary"
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
                         }`
                       }
                     >
                       {({ isActive }) => (
                         <>
-                          <FileText className="h-5 w-5 text-primary" />
+                          <FileText className={`h-5 w-5 ${isActive ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
                           {open && <span className="flex-1">Logs de Ações</span>}
                         </>
                       )}
@@ -298,16 +307,15 @@ export function AppSidebar() {
       </SidebarContent>
 
       {open && profile && (
-        <SidebarFooter className="border-t border-border p-6">
+        <SidebarFooter className="border-t border-sidebar-border p-5">
           <div className="space-y-3">
-            {/* Indicador de Papel */}
             {activeGroup && sessionMode === 'group' && (
               <div className="flex items-center gap-2">
-                <Badge variant={activeRole === 'ADMIN' ? 'default' : 'secondary'} className="text-xs">
+                <Badge variant="outline" className="text-[10px] border-sidebar-foreground/30 text-sidebar-foreground/80 font-body">
                   {activeRole === 'ADMIN' ? 'Admin' : 'Usuário'}
                 </Badge>
                 {isMother && (
-                  <Badge variant="outline" className="text-xs border-amber-500 text-amber-600">
+                  <Badge variant="outline" className="text-[10px] border-umbrella-dourado text-umbrella-dourado font-body">
                     <Crown className="h-3 w-3 mr-1" />
                     MOTHER
                   </Badge>
@@ -315,20 +323,20 @@ export function AppSidebar() {
               </div>
             )}
             <div>
-              <p className="text-sm font-semibold text-foreground truncate">
+              <p className="text-sm font-semibold font-body text-sidebar-foreground truncate">
                 {profile.nome_confeitaria || profile.nome_completo}
               </p>
-              <p className="text-xs text-muted-foreground truncate">
+              <p className="text-xs font-body text-sidebar-foreground/50 truncate">
                 {user?.email}
               </p>
             </div>
-            <Button 
+            <Button
               onClick={handleLogout}
-              variant="outline" 
-              size="sm" 
-              className="w-full"
+              variant="ghost"
+              size="sm"
+              className="w-full text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/20 border border-sidebar-border font-body"
             >
-              <LogOut className="h-4 w-4 mr-2 text-primary" />
+              <LogOut className="h-4 w-4 mr-2" />
               Sair
             </Button>
           </div>
