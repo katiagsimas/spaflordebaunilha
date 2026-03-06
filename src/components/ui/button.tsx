@@ -5,17 +5,18 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold font-body ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-[0_2px_4px_rgba(209,93,102,0.3)] hover:brightness-90 hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(209,93,102,0.4)]",
-        destructive: "bg-error text-white hover:brightness-90",
-        outline: "border-2 border-info bg-white text-info hover:bg-info hover:text-white",
-        secondary: "bg-white border-2 border-info text-info hover:bg-info hover:text-white",
-        ghost: "bg-transparent border border-border/20 text-foreground hover:bg-muted",
-        link: "text-primary underline-offset-4 hover:underline",
+        default: "bg-umbrella-coral text-umbrella-preto shadow-soft hover:brightness-[0.92] hover:-translate-y-0.5 hover:shadow-elevated",
+        destructive: "bg-destructive text-destructive-foreground hover:brightness-[0.92]",
+        outline: "border border-secondary bg-transparent text-foreground hover:bg-secondary/20",
+        secondary: "bg-secondary text-secondary-foreground hover:brightness-[0.95]",
+        ghost: "bg-transparent text-foreground hover:bg-secondary/15",
+        link: "text-accent underline-offset-4 hover:underline",
         warning: "bg-warning text-foreground hover:brightness-95",
+        premium: "bg-umbrella-dourado text-umbrella-preto hover:brightness-[0.95]",
       },
       size: {
         default: "h-10 px-6 py-3",

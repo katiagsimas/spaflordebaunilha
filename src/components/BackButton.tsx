@@ -14,7 +14,7 @@ export function BackButton({ to, label = "Voltar" }: BackButtonProps) {
     <Button
       variant="ghost"
       onClick={() => navigate(to)}
-      className="gap-2 text-muted-foreground hover:text-foreground"
+      className="gap-2 text-muted-foreground hover:text-foreground font-body"
     >
       <ArrowLeft className="h-4 w-4" />
       {label}

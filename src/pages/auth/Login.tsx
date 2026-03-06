@@ -6,10 +6,8 @@ import { AlterarSenhaObrigatoria } from '@/components/auth/AlterarSenhaObrigator
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import caixaAcucarLogo from '@/assets/caixa-acucar-logo.png';
-import authBackground from '@/assets/auth-background.png';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Loader2, Mail, Lock, Eye, EyeOff, Umbrella } from 'lucide-react';
 import { z } from 'zod';
 import { toast } from 'sonner';
 
@@ -27,7 +25,6 @@ export default function Login() {
   const { signIn, user } = useAuth();
   const navigate = useNavigate();
 
-  // Verificar se precisa trocar senha após login
   useEffect(() => {
     const verificarTrocaSenha = async () => {
       if (user) {
@@ -42,27 +39,18 @@ export default function Login() {
         }
       }
     };
-
     verificarTrocaSenha();
   }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     setLoading(true);
     try {
-      const validated = loginSchema.parse({
-        email: email.trim(),
-        password
-      });
-      
+      const validated = loginSchema.parse({ email: email.trim(), password });
       await signIn(validated.email, validated.password);
-      console.log('Login bem-sucedido, verificando necessidade de troca de senha');
-      
-      // Verificar se é primeiro acesso (senha padrão)
+
       const { data: { user: loggedUser } } = await supabase.auth.getUser();
       if (loggedUser) {
-        // Atualizar last_login
         await supabase
           .from('profiles')
           .update({ last_login: new Date().toISOString() })
@@ -74,9 +62,7 @@ export default function Login() {
           .eq('id', loggedUser.id)
           .maybeSingle();
 
-        // Se primeiro_acesso é true OU se a senha usada foi a padrão, forçar troca
         if (profile?.primeiro_acesso || password === '123456') {
-          // Se não estava marcado como primeiro acesso mas usou senha padrão, marcar agora
           if (!profile?.primeiro_acesso && password === '123456') {
             await supabase
               .from('profiles')
@@ -92,9 +78,8 @@ export default function Login() {
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
-        // Validação falhou - o erro já é visível para o usuário via form validation
+        // Validation errors
       }
-      // Outros erros já tratados no contexto
     } finally {
       setLoading(false);
     }
@@ -103,97 +88,120 @@ export default function Login() {
   return (
     <>
       <AlterarSenhaObrigatoria open={mostrarAlterarSenha} />
-      
-      <div className="min-h-screen flex items-center justify-center gradient-subtle p-4 relative overflow-hidden">
-      {/* Background Image with Opacity */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${authBackground})` }}
-      />
-      
-      {/* Content */}
-      <Card className="w-full max-w-md shadow-elevated border-border relative z-10 mt-5 bg-background/90 backdrop-blur-sm">
-        <CardHeader className="py-2">
-        </CardHeader>
 
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-3 py-3">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="seu@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                  required
-                  disabled={loading}
-                />
-              </div>
+      <div className="min-h-screen flex items-center justify-center bg-umbrella-preto p-4 relative overflow-hidden">
+        {/* Subtle pattern overlay */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
+          backgroundSize: '40px 40px'
+        }} />
+
+        {/* Content */}
+        <div className="w-full max-w-md relative z-10 space-y-8">
+          {/* Brand header */}
+          <div className="text-center space-y-3">
+            <div className="flex items-center justify-center gap-3">
+              <Umbrella className="h-8 w-8 text-umbrella-dourado" />
+              <h1 className="text-3xl font-display font-bold text-umbrella-cloud tracking-tight">
+                Caixa de Açúcar
+              </h1>
             </div>
+            <p className="text-sm font-body italic text-umbrella-dourado tracking-wider">
+              by Umbrella Doce
+            </p>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10"
-                  required
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+          {/* Login card */}
+          <Card className="bg-umbrella-cloud border-0 shadow-elevated rounded-2xl">
+            <CardHeader className="pb-2 pt-8">
+              <h2 className="text-xl font-display font-semibold text-umbrella-preto text-center">
+                Bem-vinda de volta
+              </h2>
+              <p className="text-sm font-body text-muted-foreground text-center">
+                Acesse sua conta para continuar
+              </p>
+            </CardHeader>
+
+            <form onSubmit={handleSubmit}>
+              <CardContent className="space-y-4 px-8">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="font-body text-sm font-medium text-umbrella-preto">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="seu@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-10"
+                      required
+                      disabled={loading}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="font-body text-sm font-medium text-umbrella-preto">Senha</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pl-10 pr-10"
+                      required
+                      disabled={loading}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                      disabled={loading}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <Link
+                    to="/auth/forgot-password"
+                    className="text-sm font-body text-umbrella-dourado hover:underline"
+                  >
+                    Esqueci minha senha
+                  </Link>
+                </div>
+              </CardContent>
+
+              <CardFooter className="flex flex-col space-y-4 px-8 pb-8">
+                <Button
+                  type="submit"
+                  className="w-full"
+                  size="lg"
                   disabled={loading}
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Entrando...
+                    </>
                   ) : (
-                    <Eye className="h-5 w-5" />
+                    'Entrar'
                   )}
-                </button>
-              </div>
-            </div>
+                </Button>
+              </CardFooter>
+            </form>
+          </Card>
 
-            <div className="flex justify-end">
-              <Link
-                to="/auth/forgot-password"
-                className="text-sm text-primary hover:text-accent hover:underline"
-              >
-                Esqueci minha senha
-              </Link>
-            </div>
-          </CardContent>
-
-          <CardFooter className="flex flex-col space-y-4">
-            <Button
-              type="submit"
-              className="w-full gradient-primary"
-              size="lg"
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Entrando...
-                </>
-              ) : (
-                'Entrar'
-              )}
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
-    </div>
+          {/* Footer */}
+          <p className="text-center text-xs font-body text-umbrella-cloud/40">
+            Sistema de gestão para confeitarias
+          </p>
+        </div>
+      </div>
     </>
   );
 }
