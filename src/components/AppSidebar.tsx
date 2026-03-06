@@ -27,6 +27,7 @@ const menuItems = [
   { title: "Encomendas", url: "/encomendas", icon: ShoppingBag, active: true },
   { title: "Clientes", url: "/clientes", icon: User, active: true },
   { title: "Fornecedores", url: "/fornecedores", icon: Truck, active: true },
+  { title: "Usuários do Grupo", url: "/admin/usuarios-grupo", icon: Users, active: true, requiresGroupAdmin: true },
   { title: "Financeiro", url: "/financeiro", icon: DollarSign, active: true },
   { title: "Precificação", url: "/precificacao", icon: Calculator, active: true },
   { title: "Configurações", url: "/configuracoes", icon: Settings, active: true },
@@ -127,7 +128,12 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => {
+              {menuItems.filter(item => {
+                if ((item as any).requiresGroupAdmin) {
+                  return isGroupAdmin() && sessionMode === 'group';
+                }
+                return true;
+              }).map((item) => {
                 const Icon = item.icon;
                 return (
                   <SidebarMenuItem key={item.title}>
@@ -216,39 +222,6 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
 
-        {/* Seção Admin do Grupo */}
-        {isGroupAdmin() && sessionMode === 'group' && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-sidebar-foreground/50 text-[10px] uppercase tracking-widest font-body">
-              Administração do Grupo
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={false}>
-                    <NavLink
-                      to="/admin/usuarios-grupo"
-                      className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
-                          isActive
-                            ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
-                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
-                        }`
-                      }
-                    >
-                      {({ isActive }) => (
-                        <>
-                          <Users className={`h-5 w-5 ${isActive ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
-                          {open && <span className="flex-1">Usuários do Grupo</span>}
-                        </>
-                      )}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
 
         {/* Seção de Administração - Apenas para Admins (legado) */}
         {isAdmin && (
@@ -334,7 +307,7 @@ export function AppSidebar() {
               onClick={handleLogout}
               variant="ghost"
               size="sm"
-              className="w-full text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/20 border border-sidebar-border font-body"
+              className="w-full bg-umbrella-cloud text-sidebar-foreground hover:text-sidebar-foreground hover:bg-umbrella-cloud/80 border border-umbrella-dourado font-body"
             >
               <LogOut className="h-4 w-4 mr-2" />
               Sair
