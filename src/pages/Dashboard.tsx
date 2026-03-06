@@ -1010,7 +1010,7 @@ export default function Dashboard() {
         
         <div className="grid gap-4 md:grid-cols-3">
           {/* CALENDÁRIO MÊS ANTERIOR */}
-          <Card className="border-blue-200 bg-blue-50/30 dark:bg-blue-950/20">
+          <Card className="border-umbrella-coral/30 bg-umbrella-coral/10 dark:bg-umbrella-coral/5">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">
@@ -1087,7 +1087,7 @@ export default function Dashboard() {
           </Card>
 
           {/* CALENDÁRIO MÊS ATUAL */}
-          <Card className="border-green-200 bg-green-50/30 dark:bg-green-950/20">
+          <Card className="border-umbrella-pistache/30 bg-umbrella-pistache/10 dark:bg-umbrella-pistache/5">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">
@@ -1172,7 +1172,7 @@ export default function Dashboard() {
           </Card>
 
           {/* CALENDÁRIO MÊS SEGUINTE */}
-          <Card className="border-purple-200 bg-purple-50/30 dark:bg-purple-950/20">
+          <Card className="border-umbrella-pink/30 bg-umbrella-pink/10 dark:bg-umbrella-pink/5">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">
