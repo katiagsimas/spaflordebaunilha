@@ -276,6 +276,7 @@ export function EditarUsuarioDialog({
       });
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       queryClient.invalidateQueries({ queryKey: ['admin-user-roles'] });
+      queryClient.invalidateQueries({ queryKey: ['plano'] });
       onOpenChange(false);
     },
     onError: (error: any) => {
