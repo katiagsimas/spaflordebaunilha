@@ -53,7 +53,7 @@ import FluxoCaixaDiario from "./pages/financeiro/FluxoCaixaDiario";
 import FluxoCaixaMensal from "./pages/financeiro/FluxoCaixaMensal";
 import DRE from "./pages/financeiro/DRE";
 import AuthLogin from "./pages/auth/Login";
-import SignUp from "./pages/auth/SignUp";
+
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import SSOPage from "./pages/auth/SSO";
 import NotFound from "./pages/NotFound";
