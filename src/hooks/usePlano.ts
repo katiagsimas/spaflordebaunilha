@@ -13,6 +13,7 @@ const MODULOS_POR_PLANO: Record<string, string[]> = {
     "/configuracoes/unidades-medida",
     "/configuracoes/tipos-insumos",
     "/configuracoes/precificacao",
+    "/configuracoes/precificacao/mao-de-obra",
     "/configuracoes/dados-confeitaria",
     "/configuracoes/tags-encomendas",
   ],
