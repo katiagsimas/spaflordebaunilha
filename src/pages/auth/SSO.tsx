@@ -1,77 +1,60 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { LoadingMascote } from '@/components/LoadingMascote';
 
-export default function SSO() {
+export default function SSOPage() {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const [erro, setErro] = useState<string | null>(null);
+  const [status, setStatus] = useState<'loading' | 'error'>('loading');
 
   useEffect(() => {
     const token = searchParams.get('token');
-
-    if (!token) {
-      setErro('Token SSO não fornecido.');
-      return;
-    }
+    if (!token) { setStatus('error'); return; }
 
     const autenticar = async () => {
       try {
-        // Call our edge function to validate the SSO token
         const { data, error } = await supabase.functions.invoke('validar-token-sso', {
-          body: { token },
+          body: { token }
         });
 
-        if (error || !data?.success) {
-          setErro(data?.error || error?.message || 'Falha na autenticação SSO.');
+        if (error || !data?.redirect_url) {
+          setStatus('error');
           return;
         }
 
-        // Use the token_hash to verify OTP and create session
-        const { error: otpError } = await supabase.auth.verifyOtp({
-          token_hash: data.token_hash,
-          type: 'magiclink',
-        });
+        // Redirecionar para o magic link — autentica automaticamente
+        window.location.href = data.redirect_url;
 
-        if (otpError) {
-          console.error('Erro ao verificar OTP:', otpError);
-          setErro('Erro ao criar sessão. Tente novamente.');
-          return;
-        }
-
-        // Session created successfully, redirect
-        navigate(data.redirect_to || '/dashboard', { replace: true });
-      } catch (err) {
-        console.error('Erro SSO:', err);
-        setErro('Erro inesperado na autenticação.');
+      } catch {
+        setStatus('error');
       }
     };
 
     autenticar();
-  }, [searchParams, navigate]);
+  }, []);
 
-  if (erro) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-app gap-4 p-6">
-        <div className="text-5xl">🔒</div>
-        <h1 className="text-xl font-semibold text-foreground text-center">
-          Falha na autenticação
-        </h1>
-        <p className="text-muted-foreground text-center max-w-md">{erro}</p>
-        <button
-          onClick={() => navigate('/auth/login', { replace: true })}
-          className="mt-4 px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition"
-        >
-          Ir para o Login
-        </button>
-      </div>
-    );
-  }
+  // Tela de loading
+  if (status === 'loading') return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-app">
+      <div className="text-accent text-5xl animate-pulse mb-4">📦</div>
+      <p className="text-foreground font-medium text-base">Carregando Caixa de Açúcar...</p>
+      <p className="text-muted-foreground text-sm mt-1">Preparando seu acesso</p>
+    </div>
+  );
 
+  // Tela de erro
   return (
-    <div className="min-h-screen flex items-center justify-center bg-app">
-      <LoadingMascote size={80} label="Autenticando via Umbrella Doce..." />
+    <div className="flex flex-col items-center justify-center min-h-screen bg-app">
+      <div className="text-4xl mb-4">⚠️</div>
+      <p className="text-foreground font-medium text-base">Link expirado ou inválido.</p>
+      <p className="text-muted-foreground text-sm mt-1 mb-6">
+        Acesse novamente pela Plataforma Umbrella Doce.
+      </p>
+      <a
+        href="https://umbrelladoce.lovable.app"
+        className="text-accent text-sm underline"
+      >
+        Voltar para a Umbrella Doce →
+      </a>
     </div>
   );
 }
