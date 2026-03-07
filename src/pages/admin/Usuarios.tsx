@@ -26,7 +26,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState';
-import { AdicionarUsuarioDialog } from '@/components/admin/AdicionarUsuarioDialog';
+
 import { EditarUsuarioDialog } from '@/components/admin/EditarUsuarioDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { toast } from '@/hooks/use-toast';
@@ -53,7 +53,7 @@ export default function Usuarios() {
   const queryClient = useQueryClient();
   const { isAdmin, isLoading: isLoadingAdmin } = useIsAdmin();
   
-  const [showAdicionarDialog, setShowAdicionarDialog] = useState(false);
+  
   const [showEditarDialog, setShowEditarDialog] = useState(false);
   const [showDesabilitarDialog, setShowDesabilitarDialog] = useState(false);
   const [showExcluirDialog, setShowExcluirDialog] = useState(false);
@@ -408,10 +408,13 @@ export default function Usuarios() {
             title="Usuários do Sistema"
             description="Visualize todos os usuários cadastrados e suas permissões"
           />
-          <Button onClick={() => setShowAdicionarDialog(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Adicionar Usuário
-          </Button>
+          <p className="text-sm text-foreground/50 italic font-body">
+            O cadastro de novos usuários é feito exclusivamente pela{" "}
+            <span className="text-umbrella-dourado not-italic font-medium">
+              Plataforma Umbrella Doce
+            </span>
+            .
+          </p>
         </div>
 
         {/* Dashboard de Resumo */}
@@ -702,10 +705,6 @@ export default function Usuarios() {
       </Card>
       </div>
 
-      <AdicionarUsuarioDialog
-        open={showAdicionarDialog}
-        onOpenChange={setShowAdicionarDialog}
-      />
 
       <EditarUsuarioDialog
         open={showEditarDialog}
