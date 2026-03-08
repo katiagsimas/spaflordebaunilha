@@ -107,7 +107,7 @@ export default function Login() {
             {/* Brand header */}
             <div className="text-center space-y-3">
               <div className="flex items-center justify-center gap-3">
-                <img src={caixaAcucarIcon} alt="Caixa de Açúcar" className="h-10 w-10" />
+                <img src={caixaAcucarIcon} alt="Caixa de Açúcar" className="h-20 w-20" />
                 <h1 className="text-3xl font-display font-bold text-umbrella-cloud tracking-tight">
                   Caixa de Açúcar
                 </h1>
