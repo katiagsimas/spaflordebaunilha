@@ -35,6 +35,26 @@ export default function SSOPage() {
           return;
         }
 
+        // Se a edge function retornou nome_completo do JWT, pré-preencher o perfil
+        if (data.nome_completo) {
+          const { data: { user: currentUser } } = await supabase.auth.getUser();
+          if (currentUser) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('nome_completo')
+              .eq('id', currentUser.id)
+              .maybeSingle();
+
+            // Só preenche se o perfil ainda não tiver nome_completo
+            if (profile && !profile.nome_completo) {
+              await supabase
+                .from('profiles')
+                .update({ nome_completo: data.nome_completo })
+                .eq('id', currentUser.id);
+            }
+          }
+        }
+
         // Sessão criada com sucesso — navegar para o dashboard
         navigate('/dashboard', { replace: true });
 
