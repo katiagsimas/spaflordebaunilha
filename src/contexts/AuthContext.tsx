@@ -9,7 +9,6 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, nomeCompleto: string, nomeConfeitaria: string) => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
 }
@@ -110,48 +109,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signUp = async (
-    email: string,
-    password: string,
-    nomeCompleto: string,
-    nomeConfeitaria: string
-  ) => {
-    try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-          data: {
-            nome_completo: nomeCompleto,
-            nome_confeitaria: nomeConfeitaria,
-          },
-        },
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: '✅ Conta criada com sucesso!',
-        description: 'Você já pode começar a usar o sistema.',
-      });
-    } catch (error: any) {
-      let message = 'Erro ao criar conta. Tente novamente.';
-      
-      if (error.message?.includes('already registered')) {
-        message = 'Este email já está cadastrado.';
-      } else if (error.message?.includes('Password should be')) {
-        message = 'A senha deve ter pelo menos 6 caracteres.';
-      }
-
-      toast({
-        title: '❌ Erro no cadastro',
-        description: message,
-        variant: 'destructive',
-      });
-      throw error;
-    }
-  };
 
   const signOut = async () => {
     try {
@@ -199,7 +156,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     session,
     loading,
     signIn,
-    signUp,
     signOut,
     resetPassword,
   };

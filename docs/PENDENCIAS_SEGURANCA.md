@@ -9,7 +9,7 @@
 
 | # | Severidade | Item | Responsável | Status | Observação |
 |---|-----------|------|-------------|--------|------------|
-| 1 | 🔴 Crítica | Remover método `signUp` do AuthContext | Dev | 🔲 Pendente | Brecha de autocadastro programático |
+| 1 | 🔴 Crítica | Remover método `signUp` do AuthContext | Dev | ✅ Resolvido | Corrigido em 2026-03-08 |
 | 2 | 🔴 Crítica | Limpar ~247 `console.log` com dados sensíveis | Dev | 🔲 Pendente | Dados de clientes/financeiro expostos no console |
 | 3 | 🟡 Média | Adicionar rate limiting na Edge Function `criar-usuario` | Dev/Infra | 🔲 Pendente | Sem throttle atual |
 | 4 | 🟡 Média | Adicionar políticas INSERT/UPDATE/DELETE em `tags_encomendas` | Dev | 🔲 Pendente | Usuários não conseguem gerenciar tags |
