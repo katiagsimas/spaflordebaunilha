@@ -28,6 +28,48 @@ Deno.serve(async (req) => {
 
     console.log('Cliente Supabase Admin criado')
 
+    // === VERIFICAÇÃO DE ADMIN ===
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      throw new Error('Token de autenticação ausente')
+    }
+
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || Deno.env.get('SUPABASE_ANON_KEY')
+    const userClient = createClient(supabaseUrl, supabaseAnonKey || supabaseServiceKey, {
+      global: { headers: { Authorization: authHeader } },
+      auth: { autoRefreshToken: false, persistSession: false }
+    })
+
+    const { data: { user: callerUser }, error: callerError } = await userClient.auth.getUser()
+    if (callerError || !callerUser) {
+      console.error('Erro ao identificar usuário chamador:', callerError)
+      return new Response(
+        JSON.stringify({ success: false, error: 'Não autorizado' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      )
+    }
+
+    console.log('Usuário chamador:', callerUser.id)
+
+    // Verificar se o chamador tem role admin
+    const { data: adminRole } = await supabaseAdmin
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', callerUser.id)
+      .eq('role', 'admin')
+      .single()
+
+    if (!adminRole) {
+      console.error('Usuário não é admin:', callerUser.id)
+      return new Response(
+        JSON.stringify({ success: false, error: 'Acesso negado. Apenas administradores podem criar usuários.' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+      )
+    }
+
+    console.log('Verificação de admin OK')
+    // === FIM VERIFICAÇÃO DE ADMIN ===
+
     const requestBody = await req.json()
     console.log('Dados recebidos:', {
       email: requestBody.email,
