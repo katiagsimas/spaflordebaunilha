@@ -20,7 +20,7 @@
 
 | # | Item | Status | Data Correção | Observação |
 |---|------|--------|---------------|------------|
-| 1 | `signUp` ainda existe no AuthContext | ❌ | — | Método pode ser invocado programaticamente, abrindo brecha de autocadastro |
+| 1 | `signUp` removido do AuthContext | ✅ | 2026-03-08 | Método removido da interface, implementação e valor do Provider |
 | 2 | Excesso de `console.log` com dados sensíveis (~247) | ❌ | — | Expõe dados de clientes, contas e IDs no console do navegador |
 
 ---
