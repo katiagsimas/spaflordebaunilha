@@ -53,12 +53,7 @@ export function AlterarSenhaObrigatoria({ open }: AlterarSenhaObrigatoriaProps) 
         return;
       }
 
-      // Verificar se não está usando senha padrão
-      if (novaSenha === '123456') {
-        toast.error('Você não pode usar a senha padrão. Escolha uma senha diferente.');
-        setLoading(false);
-        return;
-      }
+      // Validação de senha fraca removida — a validação forte abaixo cobre todos os casos
 
       // Obter email e nome do usuário para validação
       const { data: { user: currentUser } } = await supabase.auth.getUser();
@@ -124,8 +119,8 @@ export function AlterarSenhaObrigatoria({ open }: AlterarSenhaObrigatoriaProps) 
             Alteração de Senha Obrigatória
           </DialogTitle>
           <DialogDescription>
-            Por segurança, você precisa alterar a senha padrão antes de continuar.
-            A nova senha deve conter: letra maiúscula, letra minúscula, número e símbolo (@ # $ % & * _ - + ! ?).
+            Por segurança, você precisa definir uma senha pessoal antes de continuar.
+            A senha deve conter: letra maiúscula, letra minúscula, número e símbolo (@ # $ % & * _ - + ! ?).
           </DialogDescription>
         </DialogHeader>
         

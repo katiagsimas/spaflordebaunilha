@@ -64,13 +64,7 @@ export default function Login() {
           .eq('id', loggedUser.id)
           .maybeSingle();
 
-        if (profile?.primeiro_acesso || password === '123456') {
-          if (!profile?.primeiro_acesso && password === '123456') {
-            await supabase
-              .from('profiles')
-              .update({ primeiro_acesso: true })
-              .eq('id', loggedUser.id);
-          }
+        if (profile?.primeiro_acesso) {
           setMostrarAlterarSenha(true);
         } else {
           navigate('/dashboard');
