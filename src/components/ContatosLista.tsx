@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { LoadingMascote } from '@/components/LoadingMascote';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Pencil, Trash2, Phone, Mail, Cake } from 'lucide-react';
@@ -31,7 +32,9 @@ export function ContatosLista({ contatos, onEdit, onDelete, loading }: ContatosL
           <CardTitle>Contatos</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">Carregando contatos...</p>
+          <div className="flex justify-center py-4">
+            <LoadingMascote size={48} label="Carregando contatos..." />
+          </div>
         </CardContent>
       </Card>
     );

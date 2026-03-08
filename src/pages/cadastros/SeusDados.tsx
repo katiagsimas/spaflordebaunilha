@@ -1,4 +1,5 @@
 import { PageHeader } from "@/components/PageHeader";
+import { LoadingMascote } from "@/components/LoadingMascote";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -230,7 +231,7 @@ export default function SeusDados() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-muted-foreground">Carregando...</div>
+        <LoadingMascote size={72} label="Carregando seus dados..." />
       </div>
     );
   }

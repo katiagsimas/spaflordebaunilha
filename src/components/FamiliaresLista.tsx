@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { LoadingMascote } from "@/components/LoadingMascote";
 import { Card, CardContent } from "@/components/ui/card";
 import { Pencil, Trash2, Users } from "lucide-react";
 import { useFamiliares } from "@/hooks/useFamiliares";
@@ -13,7 +14,11 @@ export function FamiliaresLista({ clienteId, onEdit, onDelete }: FamiliaresLista
   const { familiares, loading } = useFamiliares(clienteId);
 
   if (loading) {
-    return <p className="text-sm text-muted-foreground">Carregando familiares...</p>;
+    return (
+      <div className="flex justify-center py-4">
+        <LoadingMascote size={48} label="Carregando familiares..." />
+      </div>
+    );
   }
 
   if (familiares.length === 0) {

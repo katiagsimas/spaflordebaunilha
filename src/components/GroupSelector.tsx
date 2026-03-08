@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { LoadingMascote } from '@/components/LoadingMascote';
 import { useGroup, SessionMode } from '@/contexts/GroupContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,7 +30,7 @@ export function GroupSelector() {
   if (isLoading) {
     return (
       <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
-        <Building2 className="h-4 w-4 animate-pulse" />
+        <LoadingMascote size={20} />
         <span>Carregando...</span>
       </div>
     );

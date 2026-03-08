@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
 import ContasReceberFormModal from '@/components/financeiro/ContasReceberFormModal';
+import { LoadingMascote } from '@/components/LoadingMascote';
 
 export default function ContasReceberForm() {
   const navigate = useNavigate();
@@ -77,7 +78,10 @@ export default function ContasReceberForm() {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-2xl font-bold">Carregando...</h1>
+          <h1 className="text-2xl font-bold">Contas a Receber</h1>
+        </div>
+        <div className="flex justify-center py-12">
+          <LoadingMascote size={72} label="Carregando dados..." />
         </div>
       </div>
     );
