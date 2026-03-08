@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { LoadingMascote } from '@/components/LoadingMascote';
 
 export default function SSOPage() {
   const [searchParams] = useSearchParams();
@@ -35,9 +36,7 @@ export default function SSOPage() {
   // Tela de loading
   if (status === 'loading') return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-app">
-      <div className="text-accent text-5xl animate-pulse mb-4">📦</div>
-      <p className="text-foreground font-medium text-base">Carregando Caixa de Açúcar...</p>
-      <p className="text-muted-foreground text-sm mt-1">Preparando seu acesso</p>
+      <LoadingMascote size={80} label="Preparando seu acesso..." />
     </div>
   );
 

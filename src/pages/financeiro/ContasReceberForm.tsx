@@ -77,7 +77,10 @@ export default function ContasReceberForm() {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-2xl font-bold">Carregando...</h1>
+          <h1 className="text-2xl font-bold">Contas a Receber</h1>
+        </div>
+        <div className="flex justify-center py-12">
+          <LoadingMascote size={72} label="Carregando dados..." />
         </div>
       </div>
     );

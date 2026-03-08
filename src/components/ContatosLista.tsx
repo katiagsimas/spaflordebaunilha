@@ -31,7 +31,9 @@ export function ContatosLista({ contatos, onEdit, onDelete, loading }: ContatosL
           <CardTitle>Contatos</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">Carregando contatos...</p>
+          <div className="flex justify-center py-4">
+            <LoadingMascote size={48} label="Carregando contatos..." />
+          </div>
         </CardContent>
       </Card>
     );

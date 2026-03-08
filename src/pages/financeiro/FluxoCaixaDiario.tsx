@@ -347,8 +347,10 @@ export default function FluxoCaixaDiario() {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center">
-                      Carregando...
+                    <TableCell colSpan={5}>
+                      <div className="flex justify-center py-6">
+                        <LoadingMascote size={48} label="Carregando movimentações..." />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ) : fluxo.length === 0 ? (

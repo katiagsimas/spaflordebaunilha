@@ -230,7 +230,7 @@ export default function SeusDados() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-muted-foreground">Carregando...</div>
+        <LoadingMascote size={72} label="Carregando seus dados..." />
       </div>
     );
   }
