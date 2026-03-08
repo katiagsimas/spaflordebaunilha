@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
 import ContasReceberFormModal from '@/components/financeiro/ContasReceberFormModal';
+import { LoadingMascote } from '@/components/LoadingMascote';
 
 export default function ContasReceberForm() {
   const navigate = useNavigate();

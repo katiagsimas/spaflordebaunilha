@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { LoadingMascote } from '@/components/LoadingMascote';
 import { useGroup, SessionMode } from '@/contexts/GroupContext';
 import { Button } from '@/components/ui/button';
 import {

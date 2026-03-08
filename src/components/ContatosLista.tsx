@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { LoadingMascote } from '@/components/LoadingMascote';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Pencil, Trash2, Phone, Mail, Cake } from 'lucide-react';

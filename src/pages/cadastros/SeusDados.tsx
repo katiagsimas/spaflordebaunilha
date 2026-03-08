@@ -1,4 +1,5 @@
 import { PageHeader } from "@/components/PageHeader";
+import { LoadingMascote } from "@/components/LoadingMascote";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

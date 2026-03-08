@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { LoadingMascote } from "@/components/LoadingMascote";
 import { Card, CardContent } from "@/components/ui/card";
 import { Pencil, Trash2, Users } from "lucide-react";
 import { useFamiliares } from "@/hooks/useFamiliares";
