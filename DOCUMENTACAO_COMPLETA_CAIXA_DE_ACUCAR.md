@@ -22,10 +22,10 @@
 12. [Segurança](#12-segurança)
 13. [Banco de Dados](#13-banco-de-dados)
 14. [Edge Functions](#14-edge-functions)
-15. [Fluxo de Cancelamento e Expiração de Plano](#15-fluxo-de-cancelamento-e-expiração-de-plano) ← NOVA
-16. [Sincronização de Planos entre Umbrella Doce e Caixa de Açúcar](#16-sincronização-de-planos-entre-umbrella-doce-e-caixa-de-açúcar) ← NOVA
-17. [Glossário](#17-glossário) ← NOVA
-18. [Status Técnico e Pendências](#18-status-técnico-e-pendências) ← NOVA
+15. [Fluxo de Cancelamento e Expiração de Plano](#15-fluxo-de-cancelamento-e-expiração-de-plano)
+16. [Sincronização de Planos entre Umbrella Doce e Caixa de Açúcar](#16-sincronização-de-planos-entre-umbrella-doce-e-caixa-de-açúcar)
+17. [Glossário](#17-glossário)
+18. [Status Técnico e Pendências](#18-status-técnico-e-pendências)
 
 ---
 
