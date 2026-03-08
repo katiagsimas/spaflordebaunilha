@@ -22,6 +22,10 @@
 12. [Segurança](#12-segurança)
 13. [Banco de Dados](#13-banco-de-dados)
 14. [Edge Functions](#14-edge-functions)
+15. [Fluxo de Cancelamento e Expiração de Plano](#15-fluxo-de-cancelamento-e-expiração-de-plano) ← NOVA
+16. [Sincronização de Planos entre Umbrella Doce e Caixa de Açúcar](#16-sincronização-de-planos-entre-umbrella-doce-e-caixa-de-açúcar) ← NOVA
+17. [Glossário](#17-glossário) ← NOVA
+18. [Status Técnico e Pendências](#18-status-técnico-e-pendências) ← NOVA
 
 ---
 
@@ -29,7 +33,7 @@
 
 O **Caixa de Açúcar** é um sistema SaaS de gestão completa para confeitarias, desenvolvido como um dos produtos da plataforma **Umbrella Doce**. Ele oferece funcionalidades de precificação, encomendas, financeiro, cadastros e planejamento, tudo integrado em uma experiência visual premium.
 
-**URL de Produção:** `https://caixadeacucar.lovable.app`
+**URL de Produção:** `https://caixa.umbrelladoce.com.br`
 
 ### Principais Funcionalidades
 
@@ -53,20 +57,26 @@ O Caixa de Açúcar não opera isoladamente. Ele faz parte do ecossistema **Umbr
 ### Relação com a Plataforma
 
 ```
-┌─────────────────────────────────────────┐
-│         Umbrella Doce (Hub Central)     │
-│        umbrelladoce.lovable.app         │
-│                                         │
-│  ┌─────────┐  ┌────────┐  ┌─────────┐  │
-│  │ Caixa   │  │Produto │  │Produto  │  │
-│  │de Açúcar│  │   B    │  │   C     │  │
-│  └────┬────┘  └────────┘  └─────────┘  │
-└───────┼─────────────────────────────────┘
-        │
-        │ SSO (JWT Token)
-        ▼
-  caixadeacucar.lovable.app
+┌──────────────────────────────────────────────────────────┐
+│              Umbrella Doce (Hub Central)                  │
+│             umbrelladoce.lovable.app                      │
+│                                                          │
+│  ┌──────────────┐  ┌───────────────┐  ┌───────────────┐  │
+│  │ Caixa        │  │ Planejamento  │  │ Sprints       │  │
+│  │ de Açúcar    │  │ DOCE          │  │ Sazonais      │  │
+│  │              │  │               │  │               │  │
+│  │ caixa.       │  │ doce.         │  │ (em breve)    │  │
+│  │ umbrella     │  │ umbrella      │  │               │  │
+│  │ doce.com.br  │  │ doce.com.br   │  │               │  │
+│  └──────┬───────┘  └───────────────┘  └───────────────┘  │
+└─────────┼────────────────────────────────────────────────┘
+          │
+          │ SSO (JWT Token)
+          ▼
+    caixa.umbrelladoce.com.br
 ```
+
+> *"O Calendário Estratégico está previsto como quarto produto do ecossistema, sem URL definida. Construção iniciada apenas quando MRR > R$ 1.500/mês constante."*
 
 - **Umbrella Doce** é o ponto de entrada e gerencia o provisionamento de contas
 - **Caixa de Açúcar** recebe usuários via SSO (login automático) ou login direto com email/senha
@@ -166,8 +176,7 @@ Usuário → /auth/login → Insere email + senha
                        → signInWithPassword()
                        → Verifica se perfil está ativo
                        → Verifica primeiro_acesso
-                       → Se primeiro acesso: Modal obrigatório de troca de senha
-                       → Se senha = "123456": Força troca de senha
+                       → Se primeiro acesso: Modal obrigatório de criação de senha
                        → Caso contrário: Redireciona para /dashboard
 ```
 
@@ -177,7 +186,7 @@ Usuário → /auth/login → Insere email + senha
 |---|---|
 | `AuthContext` | Provider global de autenticação (signIn, signUp, signOut, resetPassword) |
 | `Login.tsx` | Tela de login com validação Zod |
-| `AlterarSenhaObrigatoria` | Modal que força troca de senha no primeiro acesso |
+| `AlterarSenhaObrigatoria` | Modal que força criação de senha forte no primeiro acesso |
 | `FirstAccessRedirect` | Componente invisível que redireciona para dados da confeitaria se perfil incompleto |
 | `ProtectedRoute` | Wrapper que redireciona para `/auth/login` se não autenticado |
 | `ForgotPassword` | Tela de recuperação de senha via email |
@@ -196,13 +205,16 @@ Validada pelo módulo `src/lib/validacaoSenha.ts`:
 
 ### Primeiro Acesso
 
-Quando um usuário é criado pela Umbrella Doce, ele recebe uma senha temporária (ex: `123456`). No primeiro login:
+O fluxo de primeiro acesso foi reformulado para eliminar senhas temporárias. O processo correto é:
 
-1. O campo `profiles.primeiro_acesso` é `true`
-2. Um modal obrigatório (`AlterarSenhaObrigatoria`) aparece
-3. O usuário **deve** definir uma nova senha forte
-4. Após trocar, é redirecionado para `/configuracoes/dados-confeitaria` para completar o perfil
-5. O `FirstAccessRedirect` garante esse redirecionamento em todas as páginas
+1. **Umbrella Doce** cria a usuária via painel admin ou webhook Hotmart
+2. Sistema chama `inviteUserByEmail()` → **Magic Link** enviado por e-mail
+3. Confeiteira clica no link → autenticação automática (sem senha temporária)
+4. Sistema detecta `profile.primeiro_acesso === true`
+5. Modal obrigatório (`AlterarSenhaObrigatoria`) exige criação de senha forte
+6. Após definir senha: `primeiro_acesso = false`
+7. Redirecionamento para `/configuracoes/dados-confeitaria` para completar perfil
+8. `FirstAccessRedirect` garante esse redirecionamento em todas as páginas até conclusão
 
 ---
 
@@ -215,11 +227,12 @@ O SSO permite que usuários da **Umbrella Doce** acessem o Caixa de Açúcar sem
 ### Fluxo Técnico Completo
 
 ```
-1. Umbrella Doce gera JWT com payload { email, produto: "caixa", exp: 5min }
+1. Umbrella Doce gera JWT com payload:
+   { email, nome_completo, produto: "caixa", iat, exp: iat + 300 }
    → Assinado com HMAC-SHA256 usando SSO_SECRET compartilhado
 
 2. Usuário é redirecionado para:
-   https://caixadeacucar.lovable.app/auth/sso?token=<JWT>
+   https://caixa.umbrelladoce.com.br/auth/sso?token=<JWT>
 
 3. SSO.tsx extrai o token da URL e chama Edge Function:
    → supabase.functions.invoke('validar-token-sso', { body: { token } })
@@ -235,6 +248,20 @@ O SSO permite que usuários da **Umbrella Doce** acessem o Caixa de Açúcar sem
 
 6. Sessão criada com sucesso → navigate('/dashboard')
 ```
+
+### Payload do JWT
+
+```json
+{
+  "email": "string",
+  "nome_completo": "string",
+  "produto": "caixa",
+  "iat": "timestamp",
+  "exp": "iat + 300 (5 minutos)"
+}
+```
+
+> *"O campo `nome_completo` pode ser utilizado pelo Caixa de Açúcar para pré-preencher o perfil da confeiteira no primeiro acesso via SSO."*
 
 ### Diagrama
 
@@ -427,6 +454,16 @@ Protege conteúdo baseado em:
 | **Negócio** | `negocio` | Acesso total (`*`) — inclui Financeiro completo |
 | **Controle** | `controle` | Em breve (sem módulos definidos) |
 
+### Precificação Oficial
+
+| Plano | Mensal | Anual | Equiv. mensal (anual) |
+|---|---|---|---|
+| **Base** | R$ 57/mês | R$ 477/ano | R$ 39,75/mês |
+| **Negócio** | R$ 97/mês | R$ 797/ano | R$ 66,40/mês |
+| **Controle** | A definir | A definir | — |
+
+> *"Anual equivale a 10 meses (desconto de ~17%). O Plano Negócio Anual inclui Planejamento DOCE (Plano Start) como bônus. O Plano Base Anual inclui Trial de 30 dias do Planejamento DOCE."*
+
 ### Implementação
 
 - **`usePlano`** hook: Busca o plano do usuário em `profiles.plano_id` → `planos`
@@ -561,6 +598,8 @@ Exibe mensagem de módulo bloqueado com CTA para WhatsApp da consultora (Ká Sim
 | `/admin/governanca` | Governança | ❌ |
 | `/upgrade` | Tela de Upgrade | ❌ |
 
+> *"❌ na coluna Plano Guard indica que o componente PlanoGuard não é aplicado nessa rota porque o módulo é acessível a qualquer usuário autenticado com plano ativo (Base ou superior). A proteção de autenticação via ProtectedRoute continua ativa em todas as rotas protegidas."*
+
 ---
 
 ## 12. Segurança
@@ -574,7 +613,7 @@ Exibe mensagem de módulo bloqueado com CTA para WhatsApp da consultora (Ká Sim
 | **Roles** | Tabela separada `user_roles` (nunca no profile) |
 | **Admin Verification** | Edge Functions verificam role admin server-side |
 | **Password Policy** | Validação forte no cliente (maiúscula, minúscula, número, símbolo, blocklist) |
-| **Primeiro Acesso** | Força troca de senha temporária |
+| **Primeiro Acesso** | Força criação de senha forte via Magic Link (sem senha temporária) |
 | **Usuário Inativo** | Verificado no login e no `FirstAccessRedirect` — faz logout automático |
 | **CORS** | Headers configurados nas Edge Functions |
 | **Security Definer** | Funções de banco com `SECURITY DEFINER` + `SET search_path = 'public'` |
@@ -606,7 +645,9 @@ Exibe mensagem de módulo bloqueado com CTA para WhatsApp da consultora (Ká Sim
 | **Precificação** | `ingredientes`, `embalagens`, `pre_preparos`, `pre_preparos_ingredientes`, `receitas`, `receitas_ingredientes`, `receitas_embalagens`, `tipos_insumos`, `unidades_medida`, `categorias` |
 | **Financeiro** | `contas_receber`, `contas_receber_parcelas`, `contas_receber_pagamentos`, `contas_receber_comprovantes`, `contas_pagar`, `contas_pagar_parcelas`, `contas_pagar_pagamentos`, `contas_pagar_comprovantes`, `bancos`, `plano_contas`, `categorias_plano_contas`, `tipos_documento`, `configuracoes_juros` |
 | **Cadastros** | `clientes`, `cliente_familiares`, `fornecedores`, `fornecedor_contatos` |
-| **Sistema** | `planos`, `custos_fixos`, `mao_obra_perfis`, `mao_obra_perfis_historico`, `admin_logs`, `admin_audit_log` |
+| **Sistema** | `planos`, `custos_fixos`, `mao_obra_perfis`, `mao_obra_perfis_historico`, `admin_logs` |
+
+> *"Tabela `admin_audit_log` descontinuada. Substituída por `admin_logs` a partir de Março 2026."*
 
 ### Triggers Automáticos
 
@@ -639,25 +680,125 @@ Exibe mensagem de módulo bloqueado com CTA para WhatsApp da consultora (Ká Sim
 - **Segurança**: Verifica role `admin` do chamador server-side
 - **Segredos**: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
 
-### `migrate-logos-to-storage`
-
-- **Propósito**: Migração de logos para Supabase Storage
-- **Uso**: Utilitário de migração (não produção)
+> *"Funções de migração utilitárias (ex: migrate-logos-to-storage) estão documentadas separadamente no log de migrações do projeto."*
 
 ---
 
-## Apêndice: Assets Visuais
+## 15. Fluxo de Cancelamento e Expiração de Plano
 
-| Asset | Caminho | Uso |
+### Origem do cancelamento
+
+O cancelamento de acesso ao Caixa de Açúcar é sempre originado pela Umbrella Doce, via dois caminhos:
+
+1. **Cancelamento manual pelo admin** — Admin desativa a conta ou remove o plano via painel da Umbrella Doce
+2. **Cancelamento automático via Hotmart** — Evento `PURCHASE_CANCELLED` ou `SUBSCRIPTION_CANCELLATION` recebido pelo webhook `hotmart-webhook` da Umbrella Doce
+
+### O que acontece na Umbrella Doce
+
+- Campo `profile.plano_caixa` é setado para `null`
+- Ação registrada em `admin_logs` com ação `hotmart_cancelou_plano` ou `desativou_usuario`
+
+### O que acontece no Caixa de Açúcar
+
+- `usePlano` hook detecta `profiles.plano_id = null` ou plano sem módulos permitidos
+- `PlanoGuard` redireciona para `/upgrade` em qualquer rota bloqueada pelo plano
+- Sidebar exibe itens bloqueados com opacidade 40% e ícone de cadeado 🔒
+- Dados da confeiteira são preservados — nenhuma informação é deletada no cancelamento
+
+### Tela `/upgrade`
+
+Exibe mensagem de módulo bloqueado com CTA direto para o WhatsApp de suporte (Ká Simas). Permite que a confeiteira continue navegando nas rotas do seu plano anterior que ainda sejam compatíveis com o Plano Base (se rebaixada) ou acesse apenas login/perfil (se conta totalmente revogada).
+
+### Período de graça
+
+[⚠️ A DEFINIR — documentar aqui se há ou não período de graça após cancelamento, e qual o comportamento esperado nesse intervalo.]
+
+---
+
+## 16. Sincronização de Planos entre Umbrella Doce e Caixa de Açúcar
+
+### Arquitetura de dados separados
+
+A Umbrella Doce e o Caixa de Açúcar possuem bancos Supabase independentes. Cada sistema mantém seu próprio registro de plano do usuário:
+
+| Sistema | Tabela | Campo |
 |---|---|---|
-| Logo sidebar | `src/assets/caixa-acucar-sidebar-icon.png` | Header da sidebar |
-| Ícone login | `src/assets/caixa-acucar-icon.png` | Tela de login |
-| Logo completo | `src/assets/caixa-acucar-logo.png` | Branding geral |
-| Brand image | `src/assets/auth-brand-image.png` | Lado esquerdo do login |
-| Background auth | `src/assets/auth-background.png` | Background alternativo |
-| Mascote | `public/mascote-caixa-de-acucar.png` | Loading screens |
-| Logo Umbrella | `src/assets/umbrella-logo-dourado.png` | Referências à Umbrella Doce |
-| Favicon | `public/favicon.png` | Aba do navegador |
+| Umbrella Doce | `profiles` | `plano_caixa` (ex: `"base"`, `"negocio"`, `null`) |
+| Caixa de Açúcar | `profiles` | `plano_id` (FK → tabela `planos`) |
+
+### Como a sincronização ocorre
+
+A sincronização é feita pela edge function `criar-usuario` do Caixa de Açúcar, chamada pela Umbrella Doce nos seguintes momentos:
+
+| Evento | Ação na Umbrella Doce | Ação no Caixa de Açúcar |
+|---|---|---|
+| Nova compra (usuário novo) | Cria perfil + define `plano_caixa` | `criar-usuario` cria conta + atribui plano |
+| Nova compra (usuário existente) | Atualiza `plano_caixa` | `criar-usuario` atualiza `plano_id` |
+| Cancelamento | Seta `plano_caixa = null` | [⚠️ A DEFINIR — edge function de revogação?] |
+| Upgrade de plano | Atualiza `plano_caixa` | [⚠️ A DEFINIR — mesmo fluxo de criar-usuario?] |
+
+### Estado atual e pendências
+
+- ✅ Provisionamento inicial (criação de conta) está implementado
+- ⚠️ Fluxo de cancelamento/revogação no Caixa precisa ser validado e documentado
+- ⚠️ Fluxo de upgrade de plano (Base → Negócio) precisa ser validado e documentado
+
+---
+
+## 17. Glossário
+
+| Termo | Definição |
+|---|---|
+| **CMV** | Custo da Mercadoria Vendida — soma dos custos diretos de produção de um produto |
+| **Ficha Técnica** | Receita com todos os ingredientes, embalagens, mão de obra e custos calculados que gera o preço de venda |
+| **Pré-preparo** | Receita intermediária (ex: ganache, massa) que entra como ingrediente em fichas técnicas |
+| **Encomenda** | Pedido de um cliente — equivalente a "ordem de serviço" no contexto do Caixa |
+| **Topo de Bolo** | Personalização visual de um produto encomendado (aniversariante, tema, imagem) |
+| **Plano Guard** | Componente React que bloqueia acesso a rotas não incluídas no plano ativo do usuário |
+| **MOTHER** | Role global de administração total do sistema — acima de ADMIN e USER |
+| **Multi-tenancy** | Arquitetura onde múltiplos usuários (grupos) compartilham a mesma aplicação com dados isolados |
+| **owner_group_id** | Chave de isolamento — todas as tabelas de dados operacionais filtram registros por este campo |
+| **SSO** | Single Sign-On — autenticação automática no Caixa via token JWT gerado pela Umbrella Doce |
+| **Magic Link** | Link de autenticação enviado por e-mail que autentica o usuário sem precisar de senha |
+| **DRE** | Demonstrativo do Resultado do Exercício — relatório financeiro de receitas, custos e lucro |
+| **Fluxo de Caixa** | Registro cronológico de todas as entradas e saídas financeiras |
+| **Plano Base** | Plano de entrada — inclui Precificação, Encomendas, Clientes e Fornecedores |
+| **Plano Negócio** | Plano completo — inclui tudo do Base + módulo Financeiro (DRE, Fluxo de Caixa, Contas) |
+| **Trial** | Período de teste gratuito (30 dias) do Planejamento DOCE, incluído como bônus no Plano Base |
+| **Hotmart** | Plataforma de pagamento usada para processar assinaturas do ecossistema Umbrella Doce |
+| **Webhook** | Notificação automática enviada pela Hotmart para a Umbrella Doce quando ocorre uma compra ou cancelamento |
+
+---
+
+## 18. Status Técnico e Pendências
+
+> Esta seção documenta o estado real do sistema em Março de 2026.
+> Uma documentação confiável distingue o que está em produção estável
+> do que ainda está em construção ou pendente de decisão.
+
+### ✅ Em produção estável
+
+- Autenticação via Magic Link (primeiro acesso via convite)
+- SSO entre Umbrella Doce e Caixa de Açúcar (JWT HMAC-SHA256)
+- Módulos: Precificação, Encomendas, Clientes, Fornecedores, Configurações
+- Módulo Financeiro completo (Plano Negócio)
+- Governança multi-tenant (MOTHER / ADMIN / USER)
+- Sistema de planos com PlanoGuard por rota
+- Integração com Hotmart (criação de usuário via webhook)
+- Logs de auditoria (admin_logs)
+
+### ⚠️ Em construção ou pendente de validação
+
+- **Plano Controle** — módulo de estoque não implementado; plano sem módulos definidos
+- **Fluxo de cancelamento no Caixa** — comportamento quando Umbrella Doce revoga plano não validado end-to-end
+- **Fluxo de upgrade de plano** — Base → Negócio precisa ser validado e documentado
+- **Período de graça pós-cancelamento** — decisão de produto pendente
+
+### 🔴 Decisões de produto abertas
+
+- Definir se há período de graça após cancelamento de plano e qual o comportamento
+- Definir fluxo de downgrade (Negócio → Base): dados do módulo financeiro ficam visíveis? São bloqueados? São exportados?
+- Definir edge function de revogação de acesso no Caixa (espelho do `criar-usuario` para cancelamento)
 
 ---
 
