@@ -50,13 +50,13 @@ Deno.serve(async (req) => {
       options: { redirectTo: `${Deno.env.get('SITE_URL')}/dashboard` }
     })
 
-    if (error || !data?.properties?.action_link) return new Response(
+    if (error || !data?.properties?.hashed_token) return new Response(
       JSON.stringify({ error: 'Não foi possível gerar acesso.' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
 
     return new Response(
-      JSON.stringify({ redirect_url: data.properties.action_link }),
+      JSON.stringify({ token_hash: data.properties.hashed_token }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
