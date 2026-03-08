@@ -15,7 +15,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { MigrateLogosToStorage } from "@/components/MigrateLogosToStorage";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 interface SeusDadosForm {
@@ -244,8 +243,6 @@ export default function SeusDados() {
         backButton={!profile?.primeiro_acesso ? <BackButton to="/configuracoes/cadastros-base" /> : undefined}
       />
 
-      {/* Componente de migração - apenas para admins */}
-      {isAdmin && <MigrateLogosToStorage />}
 
       <Card>
         <CardContent className="pt-6">

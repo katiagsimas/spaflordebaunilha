@@ -56,7 +56,10 @@ Deno.serve(async (req) => {
     )
 
     return new Response(
-      JSON.stringify({ token_hash: data.properties.hashed_token }),
+      JSON.stringify({ 
+        token_hash: data.properties.hashed_token,
+        nome_completo: payload.nome_completo || null 
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
