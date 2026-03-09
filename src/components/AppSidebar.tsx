@@ -311,7 +311,7 @@ export function AppSidebar() {
               </p>
             </div>
             <a
-              href="https://umbrella-doce.lovable.app"
+              href="https://umbrelladoce.lovable.app/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-md bg-umbrella-preto text-umbrella-cloud hover:bg-umbrella-preto/90 transition-colors font-body text-sm font-medium"
