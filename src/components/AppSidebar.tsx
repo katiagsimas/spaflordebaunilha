@@ -310,6 +310,15 @@ export function AppSidebar() {
                 {user?.email}
               </p>
             </div>
+            <a
+              href="https://umbrella-doce.lovable.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-md bg-umbrella-preto text-umbrella-cloud hover:bg-umbrella-preto/90 transition-colors font-body text-sm font-medium"
+            >
+              <ExternalLink className="h-4 w-4" />
+              Voltar Umbrella Doce
+            </a>
             <Button
               onClick={handleLogout}
               variant="ghost"
