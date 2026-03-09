@@ -141,7 +141,7 @@ export default function Dashboard() {
           table: 'contas_receber_parcelas'
         },
         () => {
-          console.log('📊 Dashboard: Atualização detectada em contas_receber_parcelas');
+          
           carregarDados();
         }
       )
@@ -153,7 +153,7 @@ export default function Dashboard() {
           table: 'contas_receber_pagamentos'
         },
         () => {
-          console.log('📊 Dashboard: Atualização detectada em contas_receber_pagamentos');
+          
           carregarDados();
         }
       )
@@ -165,7 +165,7 @@ export default function Dashboard() {
           table: 'contas_pagar_parcelas'
         },
         () => {
-          console.log('📊 Dashboard: Atualização detectada em contas_pagar_parcelas');
+          
           carregarDados();
         }
       )
@@ -177,7 +177,7 @@ export default function Dashboard() {
           table: 'contas_pagar_pagamentos'
         },
         () => {
-          console.log('📊 Dashboard: Atualização detectada em contas_pagar_pagamentos');
+          
           carregarDados();
         }
       )
@@ -189,7 +189,7 @@ export default function Dashboard() {
           table: 'encomendas'
         },
         () => {
-          console.log('📊 Dashboard: Atualização detectada em encomendas');
+          
           carregarDados();
           carregarCalendarioAnterior();
           carregarCalendarioSeguinte();
@@ -691,9 +691,6 @@ export default function Dashboard() {
       // Buscar todos os itens dessas encomendas
       const encomendaIds = encomendas?.map(e => e.id) || [];
       
-      console.log('=== DEBUG Top 5 Produtos ===');
-      console.log('Encomendas entregues no período:', encomendas?.length);
-      console.log('IDs das encomendas:', encomendaIds);
       
       let itensData: any[] = [];
       if (encomendaIds.length > 0) {
@@ -704,8 +701,6 @@ export default function Dashboard() {
           .eq("usuario_id", user.id);
         
         itensData = itens || [];
-        console.log('Total de itens encontrados:', itensData.length);
-        console.log('Itens:', itensData);
       }
 
       // Agrupar produtos e contar vendas (número de encomendas únicas)
@@ -739,12 +734,6 @@ export default function Dashboard() {
         }
       });
       
-      console.log('Produtos agrupados:', Array.from(produtosMap.entries()).map(([nome, dados]) => ({
-        nome,
-        vendas: dados.encomendasSet.size,
-        unidades: dados.quantidadeTotal,
-        receita: dados.receita
-      })));
 
       // Converter para array e ordenar por número de vendas (encomendas únicas)
       const produtosArray = Array.from(produtosMap.entries())
@@ -758,7 +747,7 @@ export default function Dashboard() {
         .sort((a, b) => b.quantidade - a.quantidade)
         .slice(0, 5);
       
-      console.log('Top 5 produtos finais:', produtosArray);
+      
 
       setProdutos(produtosArray);
 
