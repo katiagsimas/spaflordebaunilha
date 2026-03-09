@@ -55,6 +55,7 @@ import DRE from "./pages/financeiro/DRE";
 import AuthLogin from "./pages/auth/Login";
 
 import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 import SSOPage from "./pages/auth/SSO";
 import NotFound from "./pages/NotFound";
 import Usuarios from "./pages/admin/Usuarios";
