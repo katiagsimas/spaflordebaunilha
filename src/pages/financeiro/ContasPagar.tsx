@@ -264,11 +264,11 @@ export default function ContasPagar() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        console.log('❌ Usuário não autenticado');
+        return;
         return;
       }
 
-      console.log('✅ Buscando fornecedores para usuário:', user.id);
+      
 
       // Fornecedores
       const { data: dataFornecedores, error: errorFornecedores } = await supabase
@@ -277,8 +277,6 @@ export default function ContasPagar() {
         .eq('usuario_id', user.id)
         .order('nome') as any;
       
-      console.log('📦 Fornecedores retornados:', dataFornecedores);
-      console.log('❗ Erro ao buscar fornecedores:', errorFornecedores);
       
       setFornecedores(dataFornecedores || []);
 

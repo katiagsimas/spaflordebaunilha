@@ -104,7 +104,7 @@ export default function ContasPagarDetalhes() {
 
   const fetchDetalhes = async () => {
     try {
-      console.log('🔍 Buscando detalhes da conta:', id);
+      
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -153,9 +153,6 @@ export default function ContasPagarDetalhes() {
 
       if (errorConta) throw errorConta;
       
-      console.log('✅ Conta carregada:', dataConta);
-      console.log('👤 Dados do fornecedor:', dataConta.fornecedor);
-      console.log('Valor total:', dataConta.valor_total);
       
       setConta(dataConta);
 
@@ -168,7 +165,7 @@ export default function ContasPagarDetalhes() {
 
       if (errorParcelas) throw errorParcelas;
       
-      console.log('Parcelas carregadas:', dataParcelas?.length);
+      
       
       setParcelas(dataParcelas || []);
 
@@ -184,7 +181,7 @@ export default function ContasPagarDetalhes() {
 
         if (errorPagamentos) throw errorPagamentos;
         
-        console.log('Pagamentos carregados:', dataPagamentos?.length);
+        
         
         // Buscar dados de bancos e tipos de documento para os pagamentos
         if (dataPagamentos && dataPagamentos.length > 0) {

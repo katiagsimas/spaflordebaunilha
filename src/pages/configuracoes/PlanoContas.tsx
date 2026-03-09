@@ -98,7 +98,7 @@ export default function PlanoContas() {
 
       // Se não tem, criar padrão
       if (!planosExistentes || planosExistentes.length === 0) {
-        console.log('Criando planos padrão...');
+        
         const { error: errorCriar } = await supabase.rpc('criar_planos_contas_padrao', {
           p_user_id: user.id
         });

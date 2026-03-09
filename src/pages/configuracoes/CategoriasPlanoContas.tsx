@@ -69,7 +69,7 @@ export default function CategoriasPlanoContas() {
 
       // Se não tem categorias, criar as padrão
       if (!categoriasExistentes || categoriasExistentes.length === 0) {
-        console.log('Criando categorias padrão...');
+        
         const { error: erroCriar } = await supabase.rpc('criar_categorias_plano_padrao', {
           p_user_id: user.id
         });

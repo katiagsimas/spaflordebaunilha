@@ -108,7 +108,7 @@ export default function ContasReceberDetalhes() {
 
   const fetchDetalhes = async () => {
     try {
-      console.log('🔍 Buscando detalhes da conta:', id);
+      
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -158,9 +158,6 @@ export default function ContasReceberDetalhes() {
 
       if (errorConta) throw errorConta;
       
-      console.log('✅ Conta carregada:', dataConta);
-      console.log('👤 Dados do cliente:', dataConta.cliente);
-      console.log('Valor total:', dataConta.valor);
       
       setConta(dataConta);
 
@@ -173,7 +170,7 @@ export default function ContasReceberDetalhes() {
 
       if (errorParcelas) throw errorParcelas;
       
-      console.log('Parcelas carregadas:', dataParcelas?.length);
+      
       
       setParcelas(dataParcelas || []);
 
@@ -198,7 +195,7 @@ export default function ContasReceberDetalhes() {
 
         if (errorPagamentos) throw errorPagamentos;
         
-        console.log('Pagamentos carregados:', dataPagamentos?.length);
+        
         
         setPagamentos(dataPagamentos || []);
         
@@ -216,10 +213,7 @@ export default function ContasReceberDetalhes() {
         .eq('id', user.id)
         .single();
 
-      if (errorEmpresa) {
-        console.warn('⚠️ Dados da empresa não encontrados:', errorEmpresa);
-      } else {
-        console.log('✅ Dados da empresa carregados:', dataEmpresa);
+      if (!errorEmpresa) {
         setDadosEmpresa(dataEmpresa);
       }
 
@@ -562,11 +556,6 @@ export default function ContasReceberDetalhes() {
 
   const handleImprimirRecibo = async (pagamento, parcela) => {
     try {
-      console.log('🖨️ Gerando recibo...');
-      console.log('Pagamento:', pagamento);
-      console.log('Parcela:', parcela);
-      console.log('Conta:', conta);
-      console.log('Cliente da conta:', conta?.cliente);
 
       // Validação: Dados da empresa
       if (!dadosEmpresa) {
@@ -581,7 +570,7 @@ export default function ContasReceberDetalhes() {
       // Validação: Cliente
       if (!conta || !conta.cliente) {
         console.error('❌ Dados do cliente não encontrados');
-        console.log('Conta completa:', JSON.stringify(conta, null, 2));
+        
         
         toast({
           title: '❌ Erro',
@@ -591,7 +580,7 @@ export default function ContasReceberDetalhes() {
         return;
       }
 
-      console.log('✅ Validações OK, preparando dados...');
+      
 
       // Gerar número do recibo (primeiros 8 caracteres do ID)
       const numeroRecibo = pagamento.id.substring(0, 8).toUpperCase();
@@ -610,8 +599,6 @@ export default function ContasReceberDetalhes() {
         logo_url: dadosEmpresa.avatar_url || null,
       };
 
-      console.log('📄 Dados empresa PDF:', dadosEmpresaPDF);
-      console.log('🖼️ Logo URL:', dadosEmpresaPDF.logo_url);
 
       // Preparar dados do cliente
       const cliente = conta.cliente;
@@ -637,7 +624,7 @@ export default function ContasReceberDetalhes() {
         email: cliente.email || null,
       };
 
-      console.log('Dados cliente PDF:', dadosClientePDF);
+      
 
       // Calcular valor líquido
       const valorLiquido = parseFloat(pagamento.valor_pago) + (parseFloat(pagamento.juros) || 0) - (parseFloat(pagamento.desconto) || 0);
@@ -657,13 +644,11 @@ export default function ContasReceberDetalhes() {
         referente: `Parcela ${parcela.numero_parcela} de ${conta.numero_parcelas} - ${conta.tipo_documento?.descricao || 'Conta'} - Vencimento: ${formatarData(parcela.data_vencimento)}`,
       };
 
-      console.log('Dados pagamento PDF:', dadosPagamentoPDF);
-      console.log('🚀 Chamando gerarReciboPagamento...');
 
       // Gerar o PDF
       await gerarReciboPagamento(dadosEmpresaPDF, dadosClientePDF, dadosPagamentoPDF);
 
-      console.log('✅ Recibo gerado com sucesso!');
+      
 
       toast({
         title: '✅ Recibo gerado',

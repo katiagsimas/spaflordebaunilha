@@ -720,7 +720,7 @@ const Encomendas = () => {
   };
 
   const handleContaCriada = async (contaId: string) => {
-    console.log('✅ Conta a receber criada:', contaId);
+    
     setContaReceberId(contaId);
     setModalPagamentoAberto(false);
     

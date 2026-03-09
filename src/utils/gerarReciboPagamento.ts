@@ -60,14 +60,14 @@ export async function gerarReciboPagamento(
   // Logo (se existir)
   if (dadosEmpresa.logo_url) {
     try {
-      console.log('📷 Tentando carregar logo:', dadosEmpresa.logo_url);
+      
       const img = new Image();
       img.crossOrigin = 'anonymous'; // Permite carregar imagens de outros domínios
       img.src = dadosEmpresa.logo_url;
       
       await new Promise((resolve, reject) => {
         img.onload = () => {
-          console.log('✅ Logo carregada com sucesso');
+          
           resolve(true);
         };
         img.onerror = (error) => {
@@ -76,7 +76,7 @@ export async function gerarReciboPagamento(
         };
         // Timeout de 5 segundos
         setTimeout(() => {
-          console.warn('⏱️ Timeout ao carregar logo');
+          
           resolve(false);
         }, 5000);
       });
@@ -84,7 +84,7 @@ export async function gerarReciboPagamento(
       // Tentar adicionar a imagem ao PDF
       try {
         doc.addImage(img, 'PNG', startX, yPos, logoWidth, logoHeight);
-        console.log('✅ Logo adicionada ao PDF');
+        
       } catch (e) {
         console.error('❌ Erro ao adicionar logo ao PDF:', e);
       }
@@ -92,7 +92,7 @@ export async function gerarReciboPagamento(
       console.error('❌ Erro geral ao processar logo:', error);
     }
   } else {
-    console.log('ℹ️ Nenhuma logo fornecida');
+    
   }
 
   // Nome da Empresa (Nome Fantasia ou Razão Social)
