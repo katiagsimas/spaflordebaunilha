@@ -1,4 +1,4 @@
-import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake, Shield, FileText, Building2, Crown, Lock } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake, Shield, FileText, Building2, Crown, Lock, ExternalLink } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
 import caixaAcucarSidebarIcon from "@/assets/caixa-acucar-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
