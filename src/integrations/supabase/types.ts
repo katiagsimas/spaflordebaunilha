@@ -2979,6 +2979,10 @@ export type Database = {
         Args: { _group_id: string; _user_id: string }
         Returns: boolean
       }
+      user_has_financial_access: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
       validar_estoque_receita: {
         Args: {
           p_quantidade: number
