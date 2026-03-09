@@ -213,10 +213,7 @@ export default function ContasReceberDetalhes() {
         .eq('id', user.id)
         .single();
 
-      if (errorEmpresa) {
-      if (errorEmpresa) {
-        // Dados da empresa não encontrados
-      } else {
+      if (!errorEmpresa) {
         setDadosEmpresa(dataEmpresa);
       }
 
