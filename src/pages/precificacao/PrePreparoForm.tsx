@@ -442,9 +442,6 @@ export default function PrePreparoForm() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      console.log('📝 Criando/atualizando pré-preparo como ingrediente...');
-      console.log('Nome:', nomePrePreparo);
-      console.log('Custo total:', custoTotal);
 
       // ✅ USAR NOME LIMPO (sem prefixo)
       const nomeTipo = nomePrePreparo; // Nome limpo!
@@ -470,7 +467,7 @@ export default function PrePreparoForm() {
           })
           .eq('id', tipoId);
           
-        console.log('✅ Tipo atualizado:', tipoId);
+        
       } else {
         // Criar novo tipo vinculado ao pré-preparo
         const { data: novoTipo, error: errorTipo } = await supabase
@@ -489,7 +486,7 @@ export default function PrePreparoForm() {
         if (errorTipo) throw errorTipo;
         tipoId = novoTipo.id;
         
-        console.log('✅ Novo tipo criado:', tipoId);
+        
       }
 
       // Buscar ou criar ingrediente
@@ -512,7 +509,7 @@ export default function PrePreparoForm() {
           })
           .eq('id', ingredienteExistente.id);
           
-        console.log('✅ Ingrediente atualizado:', ingredienteExistente.id);
+        
       } else {
         // Criar novo (usar custo total)
         await supabase
@@ -526,10 +523,10 @@ export default function PrePreparoForm() {
             data_atualizacao: new Date().toISOString().split('T')[0],
           });
           
-        console.log('✅ Novo ingrediente criado');
+        
       }
 
-      console.log('✅ Pré-preparo integrado com sucesso!');
+      
     } catch (error) {
       console.error('❌ Erro ao criar como ingrediente:', error);
     }
