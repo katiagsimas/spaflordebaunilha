@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
     );
 
     return new Response(
-      JSON.stringify({ token, redirect_url: `https://umbrelladoce.lovable.app/sso-retorno?token=${token}` }),
+      JSON.stringify({ token, redirect_url: `https://app.umbrelladoce.com.br/sso-retorno?token=${token}` }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {

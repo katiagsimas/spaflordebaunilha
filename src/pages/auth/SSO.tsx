@@ -80,7 +80,7 @@ export default function SSOPage() {
         Acesse novamente pela Plataforma Umbrella Doce.
       </p>
       <a
-        href="https://umbrelladoce.lovable.app"
+        href="https://app.umbrelladoce.com.br"
         className="text-accent text-sm underline"
       >
         Voltar para a Umbrella Doce →
