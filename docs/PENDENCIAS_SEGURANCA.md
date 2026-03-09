@@ -18,6 +18,7 @@
 | 7 | 🟡 Baixa | Substituir OG Image por URL permanente | Dev | ✅ Resolvido | Corrigido em 2026-03-09 |
 | 8 | 🟡 Média | PlanoGuard enforcement server-side | Dev | ✅ Resolvido | Função `user_has_financial_access` + RLS em 12 tabelas |
 | 9 | 🟡 Média | Vulnerabilidade xlsx (Prototype Pollution/ReDoS) | Dev | ⚠️ Sem fix | v0.19.3 só disponível no SheetJS Pro (pago); uso apenas para export |
+| 10 | 🟡 Média | Leaked Password Protection desabilitado | Admin | 🔲 Pendente | Requer configuração manual no backend: Auth → Settings → Enable HaveIBeenPwned |
 
 ---
 
