@@ -1,6 +1,6 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-03-08T00:00:00Z — Auditoria #1
+> Última atualização: 2026-03-09T02:00:00Z — Auditoria #1 (atualização)
 
 ---
 
@@ -30,8 +30,8 @@
 | # | Item | Status | Data Correção | Observação |
 |---|------|--------|---------------|------------|
 | 1 | Uso excessivo de `: any` (~1218 ocorrências) | ⚠️ | — | Tipagem fraca em 60 arquivos |
-| 2 | OG Image com URL temporária (Google Cloud Storage) | ⚠️ | — | URL com `Expires` em index.html |
-| 3 | Twitter card usa `@lovable_dev` | ⚠️ | — | Deveria usar conta própria |
+| 2 | OG Image com URL temporária (Google Cloud Storage) | ✅ | 2026-03-09 | Imagem movida para `/public/og-image.png` com URL permanente |
+| 3 | Twitter card usa `@lovable_dev` | ✅ | 2026-03-09 | Tag `twitter:site` removida |
 | 4 | Loading inicial referencia `/src/assets/` | ⚠️ | — | Path não funciona em produção |
 | 5 | `robots.txt` permite acesso total, sem sitemap.xml | ⚠️ | — | Aceitável para SaaS, mas incompleto |
 | 6 | Sem lazy loading de rotas (~50 páginas) | ⚠️ | — | Bundle inicial grande |
@@ -50,7 +50,7 @@
 | 19 | Imagens com alt genérico ("Preview 1") | ⚠️ | — | Acessibilidade |
 | 20 | `window.confirm` em ContasReceber.tsx | ⚠️ | — | Deveria usar ConfirmDialog |
 | 21 | Sem rate limiting na Edge Function `criar-usuario` | ⚠️ | — | Verificação admin OK, mas sem throttle |
-| 22 | Dashboard sem `PlanoGuard` em sub-componentes | ⚠️ | — | Queries podem rodar sem verificar plano |
+| 22 | Dashboard sem `PlanoGuard` em sub-componentes | ✅ | 2026-03-09 | Enforcement server-side via RLS `user_has_financial_access` |
 
 ---
 
@@ -84,6 +84,9 @@
 | Data (UTC) | Item | De | Para | Descrição |
 |------------|------|----|------|-----------|
 | 2026-03-08 | AuthContext `useEffect` deps | ⚠️ bug | ✅ | Removido `toast` das dependências do useEffect — causava loop infinito de carregamento |
+| 2026-03-09 | OG Image URL temporária | ⚠️ | ✅ | Imagem movida para `public/og-image.png`, meta tags atualizadas |
+| 2026-03-09 | Twitter card `@lovable_dev` | ⚠️ | ✅ | Tag `twitter:site` removida do index.html |
+| 2026-03-09 | PlanoGuard client-side only | ⚠️ | ✅ | Criada função `user_has_financial_access` + políticas RLS RESTRICTIVE em 12 tabelas financeiras |
 
 ---
 
