@@ -456,8 +456,8 @@ export default function ConfiguracaoTagsEncomendas() {
         onConfirm={handleDeleteTag}
         title="Excluir Tag"
         description={`Tem certeza que deseja excluir a tag "${deletingTag?.nome}"? Esta ação não pode ser desfeita.`}
-        confirmText="Excluir"
-        cancelText="Cancelar"
+        confirmLabel="Excluir"
+        cancelLabel="Cancelar"
       />
     </Card>
   );
