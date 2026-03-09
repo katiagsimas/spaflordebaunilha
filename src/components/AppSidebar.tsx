@@ -310,15 +310,24 @@ export function AppSidebar() {
                 {user?.email}
               </p>
             </div>
-            <a
-              href="https://umbrelladoce.lovable.app/"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Button
+              onClick={async () => {
+                try {
+                  const { data, error } = await supabase.functions.invoke('gerar-token-retorno');
+                  if (error || !data?.token) {
+                    window.open('https://app.umbrelladoce.com.br/', '_blank');
+                    return;
+                  }
+                  window.open(`https://app.umbrelladoce.com.br/sso-retorno?token=${data.token}`, '_blank');
+                } catch {
+                  window.open('https://app.umbrelladoce.com.br/', '_blank');
+                }
+              }}
               className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-md bg-umbrella-preto text-umbrella-cloud hover:bg-umbrella-preto/90 transition-colors font-body text-sm font-medium"
             >
               <ExternalLink className="h-4 w-4" />
               Voltar Umbrella Doce
-            </a>
+            </Button>
             <Button
               onClick={handleLogout}
               variant="ghost"
