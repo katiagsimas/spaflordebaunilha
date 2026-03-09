@@ -124,10 +124,10 @@ Registro inline via JSONB no campo `pagamentos`
 **Componente:** `ConfiguracaoTagsEncomendas`
 
 ### RLS das Tags
-- SELECT: Tags do sistema (`padrao_sistema = true`) + tags do próprio usuário
-- INSERT/UPDATE/DELETE: **Não permitidos** atualmente (sem policies)
+- SELECT: Tags do sistema (`padrao_sistema = true`) + tags do próprio usuário  
+- INSERT/UPDATE/DELETE: ✅ **Implementadas** - usuários podem gerenciar suas próprias tags personalizadas
 
-> ⚠️ Usuários não conseguem criar/editar tags via RLS. As tags são gerenciadas via sistema ou admin.
+> ✅ Usuários podem criar, editar e excluir suas próprias tags via interface do `ConfiguracaoTagsEncomendas`. Tags do sistema permanecem protegidas.
 
 ---
 
