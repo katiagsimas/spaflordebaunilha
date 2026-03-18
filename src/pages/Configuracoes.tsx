@@ -7,9 +7,9 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 export default function Configuracoes() {
   const navigate = useNavigate();
-  const { rotaBloqueada } = usePlano();
-  const { isAdmin } = useIsAdmin();
-  const financeiroBloqueado = !isAdmin && rotaBloqueada("/configuracoes/financeiro");
+  const { rotaBloqueada, isLoading: isPlanoLoading } = usePlano();
+  const { isAdmin, isLoading: isAdminLoading } = useIsAdmin();
+  const financeiroBloqueado = !isPlanoLoading && !isAdminLoading && !isAdmin && rotaBloqueada("/configuracoes/financeiro");
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
