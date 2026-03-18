@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { ChefHat, CookingPot, Pencil, Package, AlertTriangle } from "lucide-react";
 import { useCalculosReceita } from "@/hooks/useCalculosReceita";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
+import { usePlano } from "@/hooks/usePlano";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { LoadingMascote } from "@/components/LoadingMascote";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -45,6 +47,15 @@ export default function Precificacao() {
   const navigate = useNavigate();
   const { resumos, isLoading } = useCalculosReceita();
   const { unidades } = useUnidadesMedida();
+  const { rotaBloqueada, plano, isLoading: isLoadingPlano } = usePlano();
+  const { isAdmin } = useIsAdmin();
+
+  // Filtra opções: remove as que o usuário não tem acesso e as "em breve"
+  const opcoesVisiveis = opcoes.filter((opcao) => {
+    if (isAdmin) return true;
+    if (rotaBloqueada(opcao.url)) return false;
+    return true;
+  });
 
   const resumosAtivos = resumos.filter(resumo => resumo.cardapio === "ativo");
   const resumosAtivosOrdenados = [...resumosAtivos].sort((a, b) => 
@@ -64,7 +75,7 @@ export default function Precificacao() {
       />
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-        {opcoes.map((opcao, index) => {
+        {opcoesVisiveis.map((opcao, index) => {
           const Icon = opcao.icon;
           return (
             <Card
