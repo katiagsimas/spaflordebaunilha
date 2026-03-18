@@ -47,6 +47,15 @@ export default function Precificacao() {
   const navigate = useNavigate();
   const { resumos, isLoading } = useCalculosReceita();
   const { unidades } = useUnidadesMedida();
+  const { rotaBloqueada, plano, isLoading: isLoadingPlano } = usePlano();
+  const { isAdmin } = useIsAdmin();
+
+  // Filtra opções: remove as que o usuário não tem acesso e as "em breve"
+  const opcoesVisiveis = opcoes.filter((opcao) => {
+    if (isAdmin) return true;
+    if (rotaBloqueada(opcao.url)) return false;
+    return true;
+  });
 
   const resumosAtivos = resumos.filter(resumo => resumo.cardapio === "ativo");
   const resumosAtivosOrdenados = [...resumosAtivos].sort((a, b) => 
