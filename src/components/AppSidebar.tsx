@@ -315,7 +315,7 @@ export function AppSidebar() {
                 try {
                   const { data, error } = await supabase.functions.invoke('gerar-token-retorno');
                   if (error || !data?.token) {
-                    window.open('https://app.umbrelladoce.com.br/', '_blank');
+                    window.location.href = 'https://app.umbrelladoce.com.br/';
                     return;
                   }
                   window.location.href = `https://app.umbrelladoce.com.br/sso-retorno?token=${data.token}`;
