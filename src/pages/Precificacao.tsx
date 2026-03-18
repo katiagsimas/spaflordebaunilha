@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { ChefHat, CookingPot, Pencil, Package, AlertTriangle } from "lucide-react";
 import { useCalculosReceita } from "@/hooks/useCalculosReceita";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
+import { usePlano } from "@/hooks/usePlano";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { LoadingMascote } from "@/components/LoadingMascote";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
