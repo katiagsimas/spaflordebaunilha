@@ -59,18 +59,21 @@ export function usePlano() {
 
   const plano = planoData ?? null;
 
+  const rotaPermitida = (rota: string, modulos: string[]): boolean => {
+    if (modulos.includes("*")) return true;
+    return modulos.some((m) => rota === m || rota.startsWith(m + "/"));
+  };
+
   const temAcesso = (rota: string): boolean => {
     if (!plano) return false;
     const modulos = MODULOS_POR_PLANO[plano.id] ?? [];
-    if (modulos.includes("*")) return true;
-    return modulos.some((m) => rota.startsWith(m));
+    return rotaPermitida(rota, modulos);
   };
 
   const rotaBloqueada = (rota: string): boolean => {
     if (!plano) return true;
     const modulos = MODULOS_POR_PLANO[plano.id] ?? [];
-    if (modulos.includes("*")) return false;
-    return !modulos.some((m) => rota.startsWith(m));
+    return !rotaPermitida(rota, modulos);
   };
 
   return { plano, temAcesso, rotaBloqueada, isLoading };
