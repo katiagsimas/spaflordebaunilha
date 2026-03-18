@@ -113,20 +113,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-
-      toast({
-        title: '👋 Até logo!',
-        description: 'Você saiu da sua conta.',
-      });
+      // Ignorar erro de sessão inexistente — já está deslogado
+      if (error && !error.message?.toLowerCase().includes('session')) {
+        throw error;
+      }
     } catch (error: any) {
+      // Mesmo com erro, limpar estado local
+      setUser(null);
+      setSession(null);
       toast({
         title: '❌ Erro ao sair',
         description: error.message,
         variant: 'destructive',
       });
-      throw error;
+      return;
     }
+
+    setUser(null);
+    setSession(null);
+    toast({
+      title: '👋 Até logo!',
+      description: 'Você saiu da sua conta.',
+    });
   };
 
   const resetPassword = async (email: string) => {
