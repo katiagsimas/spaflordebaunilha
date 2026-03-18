@@ -318,7 +318,7 @@ export function AppSidebar() {
                     window.open('https://app.umbrelladoce.com.br/', '_blank');
                     return;
                   }
-                  window.open(`https://app.umbrelladoce.com.br/sso-retorno?token=${data.token}`, '_blank');
+                  window.location.href = `https://app.umbrelladoce.com.br/sso-retorno?token=${data.token}`;
                 } catch {
                   window.open('https://app.umbrelladoce.com.br/', '_blank');
                 }
