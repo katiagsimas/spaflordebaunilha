@@ -1,11 +1,15 @@
 import React from "react";
-import { Settings, DollarSign, Package, Building2, Info, Clock, Home, Ruler, Tag, UserCircle, Tags, FileText, Layers, BookOpen, Percent, ArrowRight } from "lucide-react";
+import { Settings, DollarSign, Package, Building2, Info, Lock } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
+import { usePlano } from "@/hooks/usePlano";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 export default function Configuracoes() {
   const navigate = useNavigate();
+  const { rotaBloqueada } = usePlano();
+  const { isAdmin } = useIsAdmin();
+  const financeiroBloqueado = !isAdmin && rotaBloqueada("/configuracoes/financeiro");
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
