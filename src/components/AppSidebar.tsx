@@ -320,7 +320,7 @@ export function AppSidebar() {
                   }
                   window.location.href = `https://app.umbrelladoce.com.br/sso-retorno?token=${data.token}`;
                 } catch {
-                  window.open('https://app.umbrelladoce.com.br/', '_blank');
+                  window.location.href = 'https://app.umbrelladoce.com.br/';
                 }
               }}
               className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-md bg-umbrella-preto text-umbrella-cloud hover:bg-umbrella-preto/90 transition-colors font-body text-sm font-medium"
