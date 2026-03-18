@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const MODULOS_POR_PLANO: Record<string, string[]> = {
   base: [
+    "/dashboard",
     "/precificacao",
     "/encomendas",
     "/clientes",

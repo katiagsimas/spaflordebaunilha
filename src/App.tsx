@@ -136,7 +136,7 @@ const App = () => (
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           
           {/* Dashboard Principal */}
-          <Route path="/dashboard" element={<ProtectedRoute><Layout><PlanoGuard><Dashboard /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
           
           {/* Páginas Diretas */}
           <Route path="/encomendas" element={<ProtectedRoute><Layout><Encomendas /></Layout></ProtectedRoute>} />
