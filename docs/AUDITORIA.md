@@ -65,6 +65,7 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 | 2026-03-09 | ~247 `console.log` com dados sensíveis | ❌ | ✅ | Todos removidos de 13 arquivos |
 | 2026-03-09 | Loading splash path `/src/assets/` | ⚠️ | ✅ | Logo em `public/umbrella-logo-dourado.png` |
 | 2026-03-09 | Sem `<noscript>` fallback | ⚠️ | ✅ | Tag adicionada ao `<body>` do index.html |
+| 2026-03-30 | Imagem de marca da tela de login | 🔄 | ✅ | `src/assets/auth-brand-image.png` substituída por nova arte |
 
 ---
 
