@@ -57,6 +57,20 @@ export function AppSidebar() {
     enabled: !!user,
   });
 
+  const { data: planoNome } = useQuery({
+    queryKey: ['plano-nome', profile?.plano_id],
+    queryFn: async () => {
+      if (!profile?.plano_id) return null;
+      const { data } = await supabase
+        .from('planos')
+        .select('nome')
+        .eq('id', profile.plano_id)
+        .single();
+      return data?.nome || null;
+    },
+    enabled: !!profile?.plano_id,
+  });
+
   const { data: aniversariantesFornecedores = [] } = useQuery({
     queryKey: ['fornecedores-contatos-aniversariantes', user?.id],
     queryFn: async () => {
