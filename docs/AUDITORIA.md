@@ -1,10 +1,19 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-07T16:30:00Z — Fix: índice único faltante em unidades_medida(usuario_id, codigo) que impedia criação de novos usuários via trigger
+> Última atualização: 2026-04-07T17:00:00Z — Fix: plano e periodicidade não propagados corretamente da Umbrella Doce
 
 ---
 
-## CORREÇÃO CRÍTICA — 2026-04-07
+## CORREÇÃO — 2026-04-07 (Plano e Periodicidade)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 1 | Plano sempre vinculado ao Base | ✅ | A edge function `criar-usuario` agora processa corretamente `planoExpiraEm` (mapeado para `plano_fim`) e `planoTipo` (mensal/anual). Adicionada coluna `plano_tipo` em `profiles`. Todos os caminhos (novo, reativação, atualização) agora persistem plano_id, plano_tipo, plano_inicio e plano_fim. |
+| 2 | Periodicidade não exibida | ✅ | Sidebar atualizada para exibir "(Mensal)" ou "(Anual)" ao lado do nome do plano. |
+
+---
+
+## CORREÇÃO CRÍTICA — 2026-04-07 (Unidades de Medida)
 
 | # | Item | Status | Descrição |
 |---|------|--------|-----------|
