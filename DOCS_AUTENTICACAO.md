@@ -75,7 +75,14 @@ Verifica profiles.primeiro_acesso === true?
 **Invocação:** Pela Plataforma Umbrella Doce via HTTP POST  
 **Autenticação:** Requer token de admin (verifica role `admin` em `user_roles`)
 
-### 3.2 Payload de Entrada
+### 3.2 Autenticação da Edge Function
+
+A função aceita **dois métodos** de autenticação (em ordem de prioridade):
+
+1. **Header `x-api-secret`**: Validado contra a variável `EXTERNAL_API_SECRET`. Usado pela Plataforma Umbrella Doce.
+2. **Token JWT de admin**: Via header `Authorization: Bearer <token>`. Verifica role `admin` em `user_roles`.
+
+### 3.3 Payload de Entrada
 
 ```json
 {
@@ -83,11 +90,14 @@ Verifica profiles.primeiro_acesso === true?
   "nomeCompleto": "Maria da Silva",
   "nomeConfeitaria": "Doces da Maria",
   "planoId": "base",
-  "role": "user"
+  "role": "user",
+  "planoInicio": "2026-04-01",
+  "planoFim": "2027-04-01"
 }
 ```
 
 > ⚠️ **Não há campo `senha`**. O sistema usa `inviteUserByEmail()` que envia Magic Link.
+> Os campos `planoInicio` e `planoFim` são opcionais (formato `YYYY-MM-DD`).
 
 ### 3.3 Fluxo de Execução
 
