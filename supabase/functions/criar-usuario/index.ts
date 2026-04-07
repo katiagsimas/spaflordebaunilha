@@ -23,44 +23,56 @@ Deno.serve(async (req) => {
       }
     })
 
-    // === VERIFICAÇÃO DE ADMIN ===
-    const authHeader = req.headers.get('Authorization')
-    if (!authHeader) {
-      throw new Error('Token de autenticação ausente')
+    // === VERIFICAÇÃO DE AUTENTICAÇÃO ===
+    // Aceita: (1) header x-api-secret com EXTERNAL_API_SECRET, ou (2) token de admin
+    const apiSecret = req.headers.get('x-api-secret')
+    const externalApiSecret = Deno.env.get('EXTERNAL_API_SECRET')
+    
+    let isExternalApi = false
+    
+    if (apiSecret && externalApiSecret && apiSecret === externalApiSecret) {
+      console.log('Autenticação via x-api-secret (API externa)')
+      isExternalApi = true
+    } else {
+      // Fallback: verificação de admin via token JWT
+      const authHeader = req.headers.get('Authorization')
+      if (!authHeader) {
+        throw new Error('Token de autenticação ausente')
+      }
+
+      const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || supabaseServiceKey
+      const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } },
+        auth: { autoRefreshToken: false, persistSession: false }
+      })
+
+      const { data: { user: callerUser }, error: callerError } = await userClient.auth.getUser()
+      if (callerError || !callerUser) {
+        console.error('Erro ao identificar usuário chamador:', callerError)
+        return new Response(
+          JSON.stringify({ success: false, error: 'Não autorizado' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+        )
+      }
+
+      console.log('Usuário chamador:', callerUser.id)
+
+      const { data: adminRole } = await supabaseAdmin
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', callerUser.id)
+        .eq('role', 'admin')
+        .single()
+
+      if (!adminRole) {
+        console.error('Usuário não é admin:', callerUser.id)
+        return new Response(
+          JSON.stringify({ success: false, error: 'Acesso negado. Apenas administradores podem criar usuários.' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+        )
+      }
     }
-
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || supabaseServiceKey
-    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-      auth: { autoRefreshToken: false, persistSession: false }
-    })
-
-    const { data: { user: callerUser }, error: callerError } = await userClient.auth.getUser()
-    if (callerError || !callerUser) {
-      console.error('Erro ao identificar usuário chamador:', callerError)
-      return new Response(
-        JSON.stringify({ success: false, error: 'Não autorizado' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
-      )
-    }
-
-    console.log('Usuário chamador:', callerUser.id)
-
-    const { data: adminRole } = await supabaseAdmin
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', callerUser.id)
-      .eq('role', 'admin')
-      .single()
-
-    if (!adminRole) {
-      console.error('Usuário não é admin:', callerUser.id)
-      return new Response(
-        JSON.stringify({ success: false, error: 'Acesso negado. Apenas administradores podem criar usuários.' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
-      )
-    }
-    // === FIM VERIFICAÇÃO DE ADMIN ===
+    // === FIM VERIFICAÇÃO DE AUTENTICAÇÃO ===
 
     const requestBody = await req.json()
     console.log('Dados recebidos:', {
@@ -68,10 +80,12 @@ Deno.serve(async (req) => {
       nomeCompleto: requestBody.nomeCompleto,
       nomeConfeitaria: requestBody.nomeConfeitaria,
       planoId: requestBody.planoId,
-      role: requestBody.role
+      role: requestBody.role,
+      planoInicio: requestBody.planoInicio,
+      planoFim: requestBody.planoFim
     })
 
-    const { email, nomeCompleto, nomeConfeitaria, planoId, role } = requestBody
+    const { email, nomeCompleto, nomeConfeitaria, planoId, role, planoInicio, planoFim } = requestBody
 
     // Verificar se o usuário existe no Auth
     const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers()
@@ -102,6 +116,8 @@ Deno.serve(async (req) => {
             .from('profiles')
             .update({
               plano_id: planoId,
+              ...(planoInicio && { plano_inicio: planoInicio }),
+              ...(planoFim && { plano_fim: planoFim }),
               updated_at: new Date().toISOString()
             })
             .eq('id', userId)
@@ -136,6 +152,8 @@ Deno.serve(async (req) => {
           nome_confeitaria: nomeConfeitaria,
           primeiro_acesso: true,
           plano_id: planoId || null,
+          plano_inicio: planoInicio || null,
+          plano_fim: planoFim || null,
           updated_at: new Date().toISOString()
         })
         .eq('id', userId)
@@ -169,7 +187,9 @@ Deno.serve(async (req) => {
           nome_confeitaria: nomeConfeitaria,
           ativo: true,
           primeiro_acesso: true,
-          plano_id: planoId || null
+          plano_id: planoId || null,
+          plano_inicio: planoInicio || null,
+          plano_fim: planoFim || null
         })
 
       if (insertError) {
@@ -211,7 +231,9 @@ Deno.serve(async (req) => {
           .from('profiles')
           .update({
             primeiro_acesso: true,
-            plano_id: planoId
+            plano_id: planoId,
+            ...(planoInicio && { plano_inicio: planoInicio }),
+            ...(planoFim && { plano_fim: planoFim }),
           })
           .eq('id', userId)
 

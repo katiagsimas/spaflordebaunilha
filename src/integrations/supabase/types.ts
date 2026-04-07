@@ -1818,7 +1818,9 @@ export type Database = {
           numero: string | null
           owner_group_id: string | null
           planejamento_banner_dismissed: boolean | null
+          plano_fim: string | null
           plano_id: string | null
+          plano_inicio: string | null
           primeiro_acesso: boolean | null
           razao_social: string | null
           telefone: string | null
@@ -1853,7 +1855,9 @@ export type Database = {
           numero?: string | null
           owner_group_id?: string | null
           planejamento_banner_dismissed?: boolean | null
+          plano_fim?: string | null
           plano_id?: string | null
+          plano_inicio?: string | null
           primeiro_acesso?: boolean | null
           razao_social?: string | null
           telefone?: string | null
@@ -1888,7 +1892,9 @@ export type Database = {
           numero?: string | null
           owner_group_id?: string | null
           planejamento_banner_dismissed?: boolean | null
+          plano_fim?: string | null
           plano_id?: string | null
+          plano_inicio?: string | null
           primeiro_acesso?: boolean | null
           razao_social?: string | null
           telefone?: string | null
