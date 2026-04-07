@@ -1,4 +1,4 @@
-import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake, Shield, FileText, Building2, Crown, Lock, ExternalLink } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, CalendarClock, DollarSign, TrendingUp, LogOut, Users, ChefHat, CookingPot, UserCircle, Calculator, Clipboard, Settings, Package, User, Truck, Cake, Shield, FileText, Building2, Crown, Lock, ExternalLink, CalendarDays } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
 import caixaAcucarSidebarIcon from "@/assets/caixa-acucar-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -324,6 +324,30 @@ export function AppSidebar() {
                 {user?.email}
               </p>
             </div>
+            {planoNome && (
+              <div className="bg-sidebar-accent/30 rounded-md px-3 py-2 space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <Crown className="h-3 w-3 text-umbrella-dourado" />
+                  <span className="text-xs font-semibold font-body text-sidebar-foreground">
+                    {planoNome}
+                  </span>
+                </div>
+                {(profile?.plano_inicio || profile?.plano_fim) && (
+                  <div className="flex items-center gap-1.5">
+                    <CalendarDays className="h-3 w-3 text-sidebar-foreground/50" />
+                    <span className="text-[10px] font-body text-sidebar-foreground/60">
+                      {profile?.plano_inicio
+                        ? new Date(profile.plano_inicio + 'T00:00:00').toLocaleDateString('pt-BR')
+                        : '—'}
+                      {' → '}
+                      {profile?.plano_fim
+                        ? new Date(profile.plano_fim + 'T00:00:00').toLocaleDateString('pt-BR')
+                        : '—'}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
             <Button
               onClick={async () => {
                 try {
