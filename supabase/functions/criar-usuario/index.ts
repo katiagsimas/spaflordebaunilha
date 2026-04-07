@@ -24,7 +24,6 @@ Deno.serve(async (req) => {
     })
 
     // === VERIFICAÇÃO DE AUTENTICAÇÃO ===
-    // Aceita: (1) header x-api-secret com EXTERNAL_API_SECRET, ou (2) token de admin
     const apiSecret = req.headers.get('x-api-secret')
     const externalApiSecret = Deno.env.get('EXTERNAL_API_SECRET')
     
@@ -34,7 +33,6 @@ Deno.serve(async (req) => {
       console.log('Autenticação via x-api-secret (API externa)')
       isExternalApi = true
     } else {
-      // Fallback: verificação de admin via token JWT
       const authHeader = req.headers.get('Authorization')
       if (!authHeader) {
         throw new Error('Token de autenticação ausente')
@@ -80,12 +78,33 @@ Deno.serve(async (req) => {
       nomeCompleto: requestBody.nomeCompleto,
       nomeConfeitaria: requestBody.nomeConfeitaria,
       planoId: requestBody.planoId,
-      role: requestBody.role,
+      planoTipo: requestBody.planoTipo,
+      planoExpiraEm: requestBody.planoExpiraEm,
       planoInicio: requestBody.planoInicio,
-      planoFim: requestBody.planoFim
+      planoFim: requestBody.planoFim,
+      role: requestBody.role,
     })
 
-    const { email, nomeCompleto, nomeConfeitaria, planoId, role, planoInicio, planoFim } = requestBody
+    const { email, nomeCompleto, nomeConfeitaria, planoId, role } = requestBody
+
+    // === RESOLUÇÃO DE DATAS DO PLANO ===
+    // Prioridade: planoExpiraEm (da Hotmart/Umbrella) > planoFim (legado)
+    const planoTipo = requestBody.planoTipo || null // "mensal" | "anual" | null
+    const hoje = new Date().toISOString().split('T')[0] // YYYY-MM-DD
+    
+    let planoInicio: string | null = requestBody.planoInicio || hoje
+    let planoFim: string | null = null
+
+    if (requestBody.planoExpiraEm) {
+      // planoExpiraEm vem como ISO timestamp — extrair apenas a data
+      planoFim = requestBody.planoExpiraEm.split('T')[0]
+      console.log('planoFim resolvido via planoExpiraEm:', planoFim)
+    } else if (requestBody.planoFim) {
+      planoFim = requestBody.planoFim
+      console.log('planoFim resolvido via campo legado planoFim:', planoFim)
+    }
+
+    console.log('Plano resolvido:', { planoId, planoTipo, planoInicio, planoFim })
 
     // Verificar se o usuário existe no Auth
     const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers()
@@ -102,32 +121,36 @@ Deno.serve(async (req) => {
 
     console.log('Perfil encontrado:', existingProfile)
 
+    // Campos de plano para inserção/atualização
+    const planoFields = {
+      plano_id: planoId || null,
+      plano_tipo: planoTipo,
+      plano_inicio: planoInicio,
+      plano_fim: planoFim,
+    }
+
     let userId: string
 
     if (existingAuthUser && existingProfile) {
       console.log('Usuário encontrado no Auth e Perfil')
 
       if (existingProfile.ativo === true) {
-        // Usuário ativo existente — atualizar plano se fornecido
+        // Usuário ativo existente — atualizar plano
         userId = existingAuthUser.id
 
-        if (planoId) {
-          const { error: updateError } = await supabaseAdmin
-            .from('profiles')
-            .update({
-              plano_id: planoId,
-              ...(planoInicio && { plano_inicio: planoInicio }),
-              ...(planoFim && { plano_fim: planoFim }),
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', userId)
+        const { error: updateError } = await supabaseAdmin
+          .from('profiles')
+          .update({
+            ...planoFields,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', userId)
 
-          if (updateError) {
-            console.error('Erro ao atualizar plano:', updateError)
-            throw updateError
-          }
-          console.log('Plano atualizado para usuário existente')
+        if (updateError) {
+          console.error('Erro ao atualizar plano:', updateError)
+          throw updateError
         }
+        console.log('Plano atualizado para usuário existente')
 
         return new Response(
           JSON.stringify({
@@ -151,9 +174,7 @@ Deno.serve(async (req) => {
           nome_completo: nomeCompleto,
           nome_confeitaria: nomeConfeitaria,
           primeiro_acesso: true,
-          plano_id: planoId || null,
-          plano_inicio: planoInicio || null,
-          plano_fim: planoFim || null,
+          ...planoFields,
           updated_at: new Date().toISOString()
         })
         .eq('id', userId)
@@ -187,9 +208,7 @@ Deno.serve(async (req) => {
           nome_confeitaria: nomeConfeitaria,
           ativo: true,
           primeiro_acesso: true,
-          plano_id: planoId || null,
-          plano_inicio: planoInicio || null,
-          plano_fim: planoFim || null
+          ...planoFields,
         })
 
       if (insertError) {
@@ -222,24 +241,21 @@ Deno.serve(async (req) => {
       userId = inviteData.user.id
       console.log('Usuário convidado com sucesso:', userId)
 
-      // Atualizar plano_id no perfil (o trigger cria o perfil automaticamente)
-      if (planoId) {
-        // Aguardar um momento para o trigger criar o perfil
-        await new Promise(resolve => setTimeout(resolve, 1000))
+      // Aguardar o trigger criar o perfil, depois atualizar com dados do plano
+      await new Promise(resolve => setTimeout(resolve, 2000))
 
-        const { error: planError } = await supabaseAdmin
-          .from('profiles')
-          .update({
-            primeiro_acesso: true,
-            plano_id: planoId,
-            ...(planoInicio && { plano_inicio: planoInicio }),
-            ...(planoFim && { plano_fim: planoFim }),
-          })
-          .eq('id', userId)
+      const { error: planError } = await supabaseAdmin
+        .from('profiles')
+        .update({
+          primeiro_acesso: true,
+          ...planoFields,
+        })
+        .eq('id', userId)
 
-        if (planError) {
-          console.warn('Aviso: não foi possível atualizar plano:', planError.message)
-        }
+      if (planError) {
+        console.warn('Aviso: não foi possível atualizar plano:', planError.message)
+      } else {
+        console.log('Plano atualizado com sucesso para novo usuário')
       }
     }
 
