@@ -1821,6 +1821,7 @@ export type Database = {
           plano_fim: string | null
           plano_id: string | null
           plano_inicio: string | null
+          plano_tipo: string | null
           primeiro_acesso: boolean | null
           razao_social: string | null
           telefone: string | null
@@ -1858,6 +1859,7 @@ export type Database = {
           plano_fim?: string | null
           plano_id?: string | null
           plano_inicio?: string | null
+          plano_tipo?: string | null
           primeiro_acesso?: boolean | null
           razao_social?: string | null
           telefone?: string | null
@@ -1895,6 +1897,7 @@ export type Database = {
           plano_fim?: string | null
           plano_id?: string | null
           plano_inicio?: string | null
+          plano_tipo?: string | null
           primeiro_acesso?: boolean | null
           razao_social?: string | null
           telefone?: string | null
