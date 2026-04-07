@@ -80,10 +80,12 @@ Deno.serve(async (req) => {
       nomeCompleto: requestBody.nomeCompleto,
       nomeConfeitaria: requestBody.nomeConfeitaria,
       planoId: requestBody.planoId,
-      role: requestBody.role
+      role: requestBody.role,
+      planoInicio: requestBody.planoInicio,
+      planoFim: requestBody.planoFim
     })
 
-    const { email, nomeCompleto, nomeConfeitaria, planoId, role } = requestBody
+    const { email, nomeCompleto, nomeConfeitaria, planoId, role, planoInicio, planoFim } = requestBody
 
     // Verificar se o usuário existe no Auth
     const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers()
