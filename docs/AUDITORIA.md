@@ -1,6 +1,14 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-07T12:30:00Z — Correção sidebar (botão Voltar + race condition plano) + remoção definitiva donnasdaconfeitaria@gmail.com de auth.users
+> Última atualização: 2026-04-07T16:30:00Z — Fix: índice único faltante em unidades_medida(usuario_id, codigo) que impedia criação de novos usuários via trigger
+
+---
+
+## CORREÇÃO CRÍTICA — 2026-04-07
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 1 | Criação de usuários falhando | ✅ | Função `criar_unidades_medida_padrao` usava `ON CONFLICT (usuario_id, codigo)` mas não existia unique index correspondente. Adicionado `unidades_medida_usuario_codigo_unique`. Erro no auth: `"no unique or exclusion constraint matching the ON CONFLICT specification"` |
 
 ---
 
