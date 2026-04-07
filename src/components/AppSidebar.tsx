@@ -41,7 +41,7 @@ export function AppSidebar() {
   const { isMother, isGroupAdmin, sessionMode, activeGroup, activeRole } = useGroup();
   const navigate = useNavigate();
   const { isAdmin } = useIsAdmin();
-  const { rotaBloqueada } = usePlano();
+  const { rotaBloqueada, isLoading: isPlanoLoading } = usePlano();
 
   const { data: profile } = useQuery({
     queryKey: ['profile', user?.id],
@@ -138,7 +138,7 @@ export function AppSidebar() {
                 return true;
               }).map((item) => {
                 const Icon = item.icon;
-                const bloqueado = !isAdmin && item.active && rotaBloqueada(item.url);
+                const bloqueado = !isPlanoLoading && !isAdmin && item.active && rotaBloqueada(item.url);
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild isActive={false} disabled={!item.active}>
@@ -286,7 +286,7 @@ export function AppSidebar() {
         )}
       </SidebarContent>
 
-      {open && profile && (
+      {open && user && (
         <SidebarFooter className="border-t border-sidebar-border p-5">
           <div className="space-y-3">
             {activeGroup && sessionMode === 'group' && (
@@ -304,7 +304,7 @@ export function AppSidebar() {
             )}
             <div>
               <p className="text-sm font-semibold font-body text-sidebar-foreground truncate">
-                {profile.nome_confeitaria || profile.nome_completo}
+                {profile?.nome_confeitaria || profile?.nome_completo || user?.email}
               </p>
               <p className="text-xs font-body text-sidebar-foreground/50 truncate">
                 {user?.email}
