@@ -1,6 +1,6 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-03-30T00:00:00Z — Atualização de asset visual (imagem de autenticação)
+> Última atualização: 2026-04-07T12:30:00Z — Correção sidebar (botão Voltar + race condition plano) + remoção definitiva donnasdaconfeitaria@gmail.com de auth.users
 
 ---
 
