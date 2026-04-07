@@ -116,6 +116,8 @@ Deno.serve(async (req) => {
             .from('profiles')
             .update({
               plano_id: planoId,
+              ...(planoInicio && { plano_inicio: planoInicio }),
+              ...(planoFim && { plano_fim: planoFim }),
               updated_at: new Date().toISOString()
             })
             .eq('id', userId)
@@ -150,6 +152,8 @@ Deno.serve(async (req) => {
           nome_confeitaria: nomeConfeitaria,
           primeiro_acesso: true,
           plano_id: planoId || null,
+          plano_inicio: planoInicio || null,
+          plano_fim: planoFim || null,
           updated_at: new Date().toISOString()
         })
         .eq('id', userId)
@@ -183,7 +187,9 @@ Deno.serve(async (req) => {
           nome_confeitaria: nomeConfeitaria,
           ativo: true,
           primeiro_acesso: true,
-          plano_id: planoId || null
+          plano_id: planoId || null,
+          plano_inicio: planoInicio || null,
+          plano_fim: planoFim || null
         })
 
       if (insertError) {
@@ -225,7 +231,9 @@ Deno.serve(async (req) => {
           .from('profiles')
           .update({
             primeiro_acesso: true,
-            plano_id: planoId
+            plano_id: planoId,
+            ...(planoInicio && { plano_inicio: planoInicio }),
+            ...(planoFim && { plano_fim: planoFim }),
           })
           .eq('id', userId)
 
