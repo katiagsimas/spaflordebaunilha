@@ -89,15 +89,27 @@ A função aceita **dois métodos** de autenticação (em ordem de prioridade):
   "email": "confeiteira@email.com",
   "nomeCompleto": "Maria da Silva",
   "nomeConfeitaria": "Doces da Maria",
-  "planoId": "base",
-  "role": "user",
-  "planoInicio": "2026-04-01",
-  "planoFim": "2027-04-01"
+  "planoId": "base | negocio",
+  "planoTipo": "mensal | anual",
+  "planoExpiraEm": "2027-04-07T23:59:59.000Z",
+  "role": "user"
 }
 ```
 
+| Campo | Obrigatório | Descrição |
+|-------|:-----------:|-----------|
+| `email` | ✅ | Email do usuário |
+| `nomeCompleto` | ❌ | Nome completo |
+| `nomeConfeitaria` | ❌ | Nome da confeitaria |
+| `planoId` | ❌ | ID do plano: `"base"` ou `"negocio"` |
+| `planoTipo` | ❌ | Periodicidade: `"mensal"` ou `"anual"` |
+| `planoExpiraEm` | ❌ | Data de expiração (ISO timestamp). Mapeado para `plano_fim` |
+| `planoInicio` | ❌ | Data de início (YYYY-MM-DD). Se omitido, usa a data atual |
+| `planoFim` | ❌ | Legado. Usado se `planoExpiraEm` não for enviado |
+| `role` | ❌ | Role do usuário (ex: `"user"`, `"admin"`) |
+
 > ⚠️ **Não há campo `senha`**. O sistema usa `inviteUserByEmail()` que envia Magic Link.
-> Os campos `planoInicio` e `planoFim` são opcionais (formato `YYYY-MM-DD`).
+> O campo `planoExpiraEm` tem prioridade sobre `planoFim` (retrocompatibilidade).
 
 ### 3.3 Fluxo de Execução
 
