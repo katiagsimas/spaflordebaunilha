@@ -28,6 +28,7 @@ import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState';
 
 import { EditarUsuarioDialog } from '@/components/admin/EditarUsuarioDialog';
+import { CriarUsuarioDialog } from '@/components/admin/CriarUsuarioDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { toast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
@@ -54,6 +55,7 @@ export default function Usuarios() {
   const { isAdmin, isLoading: isLoadingAdmin } = useIsAdmin();
   
   
+  const [showCriarDialog, setShowCriarDialog] = useState(false);
   const [showEditarDialog, setShowEditarDialog] = useState(false);
   const [showDesabilitarDialog, setShowDesabilitarDialog] = useState(false);
   const [showExcluirDialog, setShowExcluirDialog] = useState(false);
@@ -406,15 +408,12 @@ export default function Usuarios() {
         <div className="flex items-center justify-between">
           <PageHeader
             title="Usuários do Sistema"
-            description="Visualize todos os usuários cadastrados e suas permissões"
+            description="Gerencie todos os usuários cadastrados e suas permissões"
           />
-          <p className="text-sm text-foreground/50 italic font-body">
-            O cadastro de novos usuários é feito exclusivamente pela{" "}
-            <span className="text-umbrella-dourado not-italic font-medium">
-              Plataforma Umbrella Doce
-            </span>
-            .
-          </p>
+          <Button onClick={() => setShowCriarDialog(true)}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Criar Usuário
+          </Button>
         </div>
 
         {/* Dashboard de Resumo */}
@@ -705,6 +704,12 @@ export default function Usuarios() {
       </Card>
       </div>
 
+
+      <CriarUsuarioDialog
+        open={showCriarDialog}
+        onOpenChange={setShowCriarDialog}
+        onSuccess={() => queryClient.invalidateQueries({ queryKey: ['admin-users'] })}
+      />
 
       <EditarUsuarioDialog
         open={showEditarDialog}
