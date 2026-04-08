@@ -24,6 +24,7 @@ import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import ContasReceberFormModal from "@/components/financeiro/ContasReceberFormModal";
 import { useNavigate } from "react-router-dom";
 import { EncomendaTagsSection } from "@/components/EncomendaTagsSection";
+import { EncomendaImagePreview } from "@/components/EncomendaImagePreview";
 
 
 import { supabase } from "@/integrations/supabase/client";
@@ -1363,36 +1364,14 @@ const Encomendas = () => {
                             <div className="space-y-3">
                               {/* Grid de imagens existentes */}
                               <div className="grid grid-cols-3 gap-2">
-                                {formData.topo_imagens.map((imagePath, index) => {
-                                  // Se for um path (não começa com http), gerar URL pública do bucket encomendas
-                                  // Se começar com http e tiver topo-bolo, é URL antiga
-                                  let imageUrl: string;
-                                  if (imagePath.startsWith('http')) {
-                                    imageUrl = imagePath; // URL antiga ou já convertida
-                                  } else {
-                                    // Path novo: gerar URL pública
-                                    imageUrl = supabase.storage.from('encomendas').getPublicUrl(imagePath).data.publicUrl;
-                                  }
-                                  
-                                  return (
-                                    <div key={index} className="relative group">
-                                      <img
-                                        src={imageUrl}
-                                        alt={`Referência ${index + 1}`}
-                                        className="w-full h-24 object-cover rounded-lg border-2 border-pink-200 dark:border-pink-700"
-                                      />
-                                      <Button
-                                        type="button"
-                                        variant="destructive"
-                                        size="icon"
-                                        className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        onClick={() => handleRemoveImage(imagePath)}
-                                      >
-                                        <X className="h-3 w-3" />
-                                      </Button>
-                                    </div>
-                                  );
-                                })}
+                                {formData.topo_imagens.map((imagePath, index) => (
+                                  <EncomendaImagePreview
+                                    key={index}
+                                    imagePath={imagePath}
+                                    index={index}
+                                    onRemove={handleRemoveImage}
+                                  />
+                                ))}
                               </div>
 
                               {/* Botão de upload */}
