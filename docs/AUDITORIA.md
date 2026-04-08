@@ -1,14 +1,14 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-07T19:55:00Z — Fix: dados de plano corrigidos manualmente + edge function redeployada
+> Última atualização: 2026-04-08T13:49:00Z — Remoção de usuários de teste do banco de dados
 
 ---
 
-## CORREÇÃO — 2026-04-07 19:55 UTC (Dados de plano incorretos)
+## LIMPEZA — 2026-04-08 13:49 UTC (Remoção de usuários de teste)
 
 | # | Item | Status | Descrição |
 |---|------|--------|-----------|
-| 1 | suporte@plataformadoce.com.br com plano errado | ✅ | Usuária criada com plano_id=base sem plano_tipo/plano_inicio/plano_fim. Corrigido manualmente para negocio/anual/2026-04-07→2027-04-07. Causa provável: versão anterior da edge function não processava os campos de plano. |
+| 1 | Remoção de usuários de teste | ✅ | Usuários removidos via Admin API (auth.users + profiles cascade). Edge function temporária `deletar-usuario` utilizada e removida após uso. |
 | 2 | Edge function criar-usuario redeployada | ✅ | Versão atualizada com suporte a planoId, planoTipo, planoExpiraEm deployada e testada. |
 
 ---
