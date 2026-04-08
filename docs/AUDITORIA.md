@@ -1,6 +1,15 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-08T17:15:00Z — Correções de segurança (scan)
+> Última atualização: 2026-04-08T17:22:00Z — Correções de segurança (scan #2)
+
+---
+
+## SEGURANÇA — 2026-04-08 17:22 UTC (Scan #2 — Storage encomendas)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 6 | Bucket encomendas público sem ownership | ✅ | Bucket tornado privado. Política SELECT owner-scoped adicionada. Código migrado de getPublicUrl para createSignedUrl. |
+| 7 | Realtime messages sem RLS | ⚠️ Ignorado | Schema reservado (realtime) — tabelas subjacentes já possuem RLS owner-scoped. |
 
 ---
 
