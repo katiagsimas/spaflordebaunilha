@@ -24,6 +24,7 @@ import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import ContasReceberFormModal from "@/components/financeiro/ContasReceberFormModal";
 import { useNavigate } from "react-router-dom";
 import { EncomendaTagsSection } from "@/components/EncomendaTagsSection";
+import { EncomendaImagePreview } from "@/components/EncomendaImagePreview";
 
 
 import { supabase } from "@/integrations/supabase/client";
