@@ -1,6 +1,14 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-08T17:22:00Z — Correções de segurança (scan #2)
+> Última atualização: 2026-04-08T20:29:00Z — Correções de segurança (scan #3)
+
+---
+
+## SEGURANÇA — 2026-04-08 20:29 UTC (Scan #3 — Correção policy encomendas)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 8 | Policy SELECT encomendas permissiva | ✅ | Removida policy "Anyone can view order images". Corrigida policy owner-scoped para usar `foldername(name)[1] = auth.uid()`. |
 
 ---
 
