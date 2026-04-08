@@ -2271,6 +2271,7 @@ export type Database = {
           id: string
           nome: string
           ordem: number
+          user_id: string | null
         }
         Insert: {
           ativo?: boolean
@@ -2280,6 +2281,7 @@ export type Database = {
           id?: string
           nome: string
           ordem: number
+          user_id?: string | null
         }
         Update: {
           ativo?: boolean
@@ -2289,6 +2291,7 @@ export type Database = {
           id?: string
           nome?: string
           ordem?: number
+          user_id?: string | null
         }
         Relationships: []
       }

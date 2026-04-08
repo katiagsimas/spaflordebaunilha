@@ -1,6 +1,18 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-08T13:49:00Z — Remoção de usuários de teste do banco de dados
+> Última atualização: 2026-04-08T17:15:00Z — Correções de segurança (scan)
+
+---
+
+## SEGURANÇA — 2026-04-08 17:15 UTC (Correções do Security Scan)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 1 | Privilege escalation via profiles.plano_id | ✅ | Trigger `protect_plan_fields()` impede usuários não-admin de alterar plano_id, plano_tipo, plano_inicio, plano_fim. |
+| 2 | encomendas_tags permissivas | ✅ | Removidas políticas INSERT/DELETE que usavam apenas `auth.role()='authenticated'`. Mantidas políticas ownership-scoped. |
+| 3 | tags sem ownership | ✅ | Adicionada coluna `user_id` na tabela `tags`. Políticas substituídas por ownership-scoped. |
+| 4 | topo-bolo storage sem ownership | ✅ | Políticas INSERT/DELETE atualizadas para usar `storage.foldername(name)[1] = auth.uid()::text`. |
+| 5 | comprovantes-pagar sem UPDATE policy | ✅ | Adicionada política UPDATE com ownership enforcement. |
 
 ---
 
