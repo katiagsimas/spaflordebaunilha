@@ -1,6 +1,11 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.0'
 import { corsHeaders } from '../_shared/cors.ts'
 
+/**
+ * Edge Function: criar-usuario
+ * Criação de usuários por admins autenticados via JWT.
+ * Envia convite por email (Magic Link) — sem senha temporária.
+ */
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -17,111 +22,84 @@ Deno.serve(async (req) => {
     }
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
+      auth: { autoRefreshToken: false, persistSession: false }
     })
 
-    // === VERIFICAÇÃO DE AUTENTICAÇÃO ===
-    const apiSecret = req.headers.get('x-api-secret')
-    const externalApiSecret = Deno.env.get('EXTERNAL_API_SECRET')
-    
-    let isExternalApi = false
-    
-    if (apiSecret && externalApiSecret && apiSecret === externalApiSecret) {
-      console.log('Autenticação via x-api-secret (API externa)')
-      isExternalApi = true
-    } else {
-      const authHeader = req.headers.get('Authorization')
-      if (!authHeader) {
-        throw new Error('Token de autenticação ausente')
-      }
+    // === VERIFICAÇÃO DE AUTENTICAÇÃO (apenas JWT de admin) ===
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Token de autenticação ausente' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      )
+    }
 
-      const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || supabaseServiceKey
-      const userClient = createClient(supabaseUrl, supabaseAnonKey, {
-        global: { headers: { Authorization: authHeader } },
-        auth: { autoRefreshToken: false, persistSession: false }
-      })
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || supabaseServiceKey
+    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+      auth: { autoRefreshToken: false, persistSession: false }
+    })
 
-      const { data: { user: callerUser }, error: callerError } = await userClient.auth.getUser()
-      if (callerError || !callerUser) {
-        console.error('Erro ao identificar usuário chamador:', callerError)
-        return new Response(
-          JSON.stringify({ success: false, error: 'Não autorizado' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
-        )
-      }
+    const { data: { user: callerUser }, error: callerError } = await userClient.auth.getUser()
+    if (callerError || !callerUser) {
+      console.error('Erro ao identificar usuário chamador:', callerError)
+      return new Response(
+        JSON.stringify({ success: false, error: 'Não autorizado' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      )
+    }
 
-      console.log('Usuário chamador:', callerUser.id)
+    console.log('Usuário chamador:', callerUser.id)
 
-      const { data: adminRole } = await supabaseAdmin
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', callerUser.id)
-        .eq('role', 'admin')
-        .single()
+    const { data: adminRole } = await supabaseAdmin
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', callerUser.id)
+      .eq('role', 'admin')
+      .single()
 
-      if (!adminRole) {
-        console.error('Usuário não é admin:', callerUser.id)
-        return new Response(
-          JSON.stringify({ success: false, error: 'Acesso negado. Apenas administradores podem criar usuários.' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
-        )
-      }
+    if (!adminRole) {
+      console.error('Usuário não é admin:', callerUser.id)
+      return new Response(
+        JSON.stringify({ success: false, error: 'Acesso negado. Apenas administradores podem criar usuários.' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+      )
     }
     // === FIM VERIFICAÇÃO DE AUTENTICAÇÃO ===
 
     const requestBody = await req.json()
-    console.log('Dados recebidos:', {
-      email: requestBody.email,
-      nomeCompleto: requestBody.nomeCompleto,
-      nomeConfeitaria: requestBody.nomeConfeitaria,
-      planoId: requestBody.planoId,
-      planoTipo: requestBody.planoTipo,
-      planoExpiraEm: requestBody.planoExpiraEm,
-      planoInicio: requestBody.planoInicio,
-      planoFim: requestBody.planoFim,
-      role: requestBody.role,
-    })
-
     const { email, nomeCompleto, nomeConfeitaria, planoId, role } = requestBody
 
-    // === RESOLUÇÃO DE DATAS DO PLANO ===
-    // Prioridade: planoExpiraEm (da Hotmart/Umbrella) > planoFim (legado)
-    const planoTipo = requestBody.planoTipo || null // "mensal" | "anual" | null
-    const hoje = new Date().toISOString().split('T')[0] // YYYY-MM-DD
-    
+    // Resolução de datas do plano
+    const planoTipo = requestBody.planoTipo || null
+    const hoje = new Date().toISOString().split('T')[0]
     let planoInicio: string | null = requestBody.planoInicio || hoje
     let planoFim: string | null = null
 
     if (requestBody.planoExpiraEm) {
-      // planoExpiraEm vem como ISO timestamp — extrair apenas a data
       planoFim = requestBody.planoExpiraEm.split('T')[0]
-      console.log('planoFim resolvido via planoExpiraEm:', planoFim)
     } else if (requestBody.planoFim) {
       planoFim = requestBody.planoFim
-      console.log('planoFim resolvido via campo legado planoFim:', planoFim)
+    } else if (planoTipo) {
+      // Calcular automaticamente
+      const fim = new Date()
+      fim.setDate(fim.getDate() + (planoTipo === 'anual' ? 365 : 30))
+      planoFim = fim.toISOString().split('T')[0]
     }
 
-    console.log('Plano resolvido:', { planoId, planoTipo, planoInicio, planoFim })
+    console.log('Dados:', { email, nomeCompleto, nomeConfeitaria, planoId, planoTipo, planoInicio, planoFim })
 
     // Verificar se o usuário existe no Auth
     const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers()
     const existingAuthUser = authUsers.users?.find(u => u.email === email)
 
-    console.log('Usuário encontrado no Auth:', existingAuthUser ? 'Sim' : 'Não')
-
-    // Verificar se o email já existe no perfil
+    // Verificar perfil
     const { data: existingProfile } = await supabaseAdmin
       .from('profiles')
       .select('id, email, ativo')
       .eq('email', email)
       .single()
 
-    console.log('Perfil encontrado:', existingProfile)
-
-    // Campos de plano para inserção/atualização
     const planoFields = {
       plano_id: planoId || null,
       plano_tipo: planoTipo,
@@ -132,42 +110,22 @@ Deno.serve(async (req) => {
     let userId: string
 
     if (existingAuthUser && existingProfile) {
-      console.log('Usuário encontrado no Auth e Perfil')
-
       if (existingProfile.ativo === true) {
-        // Usuário ativo existente — atualizar plano
         userId = existingAuthUser.id
-
-        const { error: updateError } = await supabaseAdmin
+        await supabaseAdmin
           .from('profiles')
-          .update({
-            ...planoFields,
-            updated_at: new Date().toISOString()
-          })
+          .update({ ...planoFields, updated_at: new Date().toISOString() })
           .eq('id', userId)
 
-        if (updateError) {
-          console.error('Erro ao atualizar plano:', updateError)
-          throw updateError
-        }
-        console.log('Plano atualizado para usuário existente')
-
         return new Response(
-          JSON.stringify({
-            success: true,
-            user: { id: userId },
-            reactivated: false,
-            updated: true
-          }),
+          JSON.stringify({ success: true, user: { id: userId }, reactivated: false, updated: true }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
         )
       }
 
-      // Usuário existe mas está inativo — reativar
-      console.log('Reativando usuário inativo...')
+      // Reativar
       userId = existingAuthUser.id
-
-      const { error: updateError } = await supabaseAdmin
+      await supabaseAdmin
         .from('profiles')
         .update({
           ativo: true,
@@ -179,90 +137,49 @@ Deno.serve(async (req) => {
         })
         .eq('id', userId)
 
-      if (updateError) {
-        console.error('Erro ao reativar usuário:', updateError)
-        throw updateError
-      }
-
-      // Enviar Magic Link para o usuário reativado
-      const { error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-        redirectTo: `${Deno.env.get('SITE_URL') || supabaseUrl.replace('.supabase.co', '')}/dashboard`
+      await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+        redirectTo: `${Deno.env.get('SITE_URL') || supabaseUrl}/dashboard`
       })
 
-      if (inviteError) {
-        console.warn('Aviso: não foi possível enviar convite por e-mail:', inviteError.message)
-      }
-
-      console.log('Usuário reativado com sucesso')
+      console.log('Usuário reativado:', userId)
     } else if (existingAuthUser && !existingProfile) {
-      // Usuário existe no Auth mas não tem perfil — criar perfil
-      console.log('Usuário existe no Auth mas sem perfil, criando perfil...')
       userId = existingAuthUser.id
-
-      const { error: insertError } = await supabaseAdmin
+      await supabaseAdmin
         .from('profiles')
         .insert({
           id: userId,
-          email: email,
+          email,
           nome_completo: nomeCompleto,
           nome_confeitaria: nomeConfeitaria,
           ativo: true,
           primeiro_acesso: true,
           ...planoFields,
         })
-
-      if (insertError) {
-        console.error('Erro ao criar perfil:', insertError)
-        throw insertError
-      }
-
-      console.log('Perfil criado com sucesso para usuário existente no Auth')
+      console.log('Perfil criado para usuário existente:', userId)
     } else {
-      // Usuário não existe — criar via Magic Link (inviteUserByEmail)
-      console.log('Criando novo usuário via Magic Link...')
-
+      // Novo usuário via Magic Link
       const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-        data: {
-          nome_completo: nomeCompleto,
-          nome_confeitaria: nomeConfeitaria,
-        },
-        redirectTo: `${Deno.env.get('SITE_URL') || supabaseUrl.replace('.supabase.co', '')}/dashboard`
+        data: { nome_completo: nomeCompleto, nome_confeitaria: nomeConfeitaria },
+        redirectTo: `${Deno.env.get('SITE_URL') || supabaseUrl}/dashboard`
       })
 
-      if (inviteError) {
-        console.error('Erro ao convidar usuário:', inviteError)
-        throw inviteError
-      }
-
-      if (!inviteData.user) {
-        throw new Error('Erro ao criar usuário')
+      if (inviteError || !inviteData.user) {
+        throw inviteError || new Error('Erro ao criar usuário')
       }
 
       userId = inviteData.user.id
-      console.log('Usuário convidado com sucesso:', userId)
+      console.log('Novo usuário convidado:', userId)
 
-      // Aguardar o trigger criar o perfil, depois atualizar com dados do plano
       await new Promise(resolve => setTimeout(resolve, 2000))
 
-      const { error: planError } = await supabaseAdmin
+      await supabaseAdmin
         .from('profiles')
-        .update({
-          primeiro_acesso: true,
-          ...planoFields,
-        })
+        .update({ primeiro_acesso: true, ...planoFields })
         .eq('id', userId)
-
-      if (planError) {
-        console.warn('Aviso: não foi possível atualizar plano:', planError.message)
-      } else {
-        console.log('Plano atualizado com sucesso para novo usuário')
-      }
     }
 
-    // Gerenciar roles do usuário
+    // Gerenciar roles
     if (role && role !== 'user') {
-      console.log('Verificando role e adicionando se necessário:', role)
-
       const { data: existingRole } = await supabaseAdmin
         .from('user_roles')
         .select('id')
@@ -271,20 +188,23 @@ Deno.serve(async (req) => {
         .single()
 
       if (!existingRole) {
-        const { error: roleError } = await supabaseAdmin
+        await supabaseAdmin
           .from('user_roles')
-          .insert([{ user_id: userId, role: role }])
-
-        if (roleError) {
-          console.error('Erro ao adicionar role:', roleError)
-          throw roleError
-        }
-        console.log('Role adicionada com sucesso')
+          .insert([{ user_id: userId, role }])
       }
     }
 
-    console.log('=== Criar Usuário - Sucesso ===')
+    // Log admin
+    await supabaseAdmin.from('admin_logs').insert({
+      admin_id: callerUser.id,
+      admin_email: callerUser.email || '',
+      acao: 'criou_usuario',
+      usuario_afetado_id: userId,
+      usuario_afetado_email: email,
+      detalhes: { planoId, planoTipo, nomeCompleto, nomeConfeitaria }
+    })
 
+    console.log('=== Criar Usuário - Sucesso ===')
     return new Response(
       JSON.stringify({
         success: true,
@@ -294,22 +214,10 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
   } catch (error) {
-    console.error('=== Criar Usuário - Erro ===')
-    console.error('Erro completo:', error)
-
-    let errorMessage = 'Erro desconhecido ao criar usuário'
-    let statusCode = 400
-
-    if (error instanceof Error) {
-      errorMessage = error.message
-      if ('status' in error) {
-        statusCode = (error as any).status
-      }
-    }
-
+    console.error('=== Criar Usuário - Erro ===', error)
     return new Response(
-      JSON.stringify({ success: false, error: errorMessage }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: statusCode }
+      JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Erro desconhecido' }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
     )
   }
 })
