@@ -56,7 +56,7 @@ import AuthLogin from "./pages/auth/Login";
 
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
-import SSOPage from "./pages/auth/SSO";
+
 import NotFound from "./pages/NotFound";
 import Usuarios from "./pages/admin/Usuarios";
 import LogsAdmin from "./pages/admin/Logs";
@@ -129,7 +129,7 @@ const App = () => (
             {/* Auth routes */}
             <Route path="/auth/login" element={<AuthLogin />} />
             <Route path="/auth/signup" element={<Navigate to="/auth/login" replace />} />
-            <Route path="/auth/sso" element={<SSOPage />} />
+            
             <Route path="/auth/forgot-password" element={<ForgotPassword />} />
             <Route path="/auth/reset-password" element={<ResetPassword />} />
           {/* Redirecionar raiz para Dashboard */}
