@@ -253,9 +253,14 @@ Deno.serve(async (req) => {
 
     // === SWITCH_PLAN ===
     if (event === 'SWITCH_PLAN') {
-      const planName = (plan.name || '') as string
-      const { planoId, planoTipo } = resolverPlano(product.id?.toString() || '', planName)
+      // SWITCH_PLAN: plano atual está em data.plans[] com current=true
+      const plans = (data.plans || []) as Array<Record<string, unknown>>
+      const currentPlan = plans.find(p => p.current === true) || plans[0] || {}
+      const switchPlanName = (currentPlan.name || plan.name || '') as string
+      const switchProduct = (data.subscription as Record<string, unknown>)?.product as Record<string, unknown> || product
+      const { planoId, planoTipo } = resolverPlano(switchProduct?.id?.toString() || '', switchPlanName)
       const planoFim = calcularPlanoFim(planoTipo)
+      console.log('SWITCH_PLAN - Plano atual:', switchPlanName, '| Resolvido:', planoId, planoTipo)
 
       const { data: profile } = await supabaseAdmin
         .from('profiles')
