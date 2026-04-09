@@ -573,27 +573,96 @@ export function EditarUsuarioDialog({
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="planoId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Plano</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione um plano" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="base">Plano Base</SelectItem>
-                        <SelectItem value="negocio">Plano Negócio</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Info: Criação do usuário */}
+              <Card className="bg-muted/30">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-1.5">
+                      <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-muted-foreground">Criado em:</span>
+                      <span className="font-medium">
+                        {userData?.created_at 
+                          ? new Date(userData.created_at).toLocaleDateString('pt-BR') 
+                          : 'N/A'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Globe className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-muted-foreground">Origem:</span>
+                      <Badge variant="outline" className="text-xs">
+                        {userData?.origem_criacao === 'admin' ? 'Admin' 
+                          : userData?.origem_criacao === 'webhook' ? 'Webhook' 
+                          : userData?.origem_criacao || 'N/A'}
+                      </Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="planoId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Plano</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione um plano" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="base">Plano Base</SelectItem>
+                          <SelectItem value="negocio">Plano Negócio</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="planoTipo"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Periodicidade</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Periodicidade" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="mensal">Mensal (30 dias)</SelectItem>
+                          <SelectItem value="anual">Anual (365 dias)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Data Início</label>
+                  <DatePickerField
+                    value={planoInicio}
+                    onChange={setPlanoInicio}
+                    placeholder="Data início..."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Data Expiração</label>
+                  <DatePickerField
+                    value={planoFim}
+                    onChange={setPlanoFim}
+                    placeholder="Data expiração..."
+                  />
+                </div>
+              </div>
 
               <FormField
                 control={form.control}
@@ -612,6 +681,58 @@ export function EditarUsuarioDialog({
                   </FormItem>
                 )}
               />
+
+              {/* Histórico de Planos */}
+              {historicoPlanos && historicoPlanos.length > 0 && (
+                <>
+                  <Separator className="my-4" />
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <History className="h-4 w-4" />
+                        Histórico de Planos
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="max-h-48 overflow-y-auto">
+                      <div className="space-y-2">
+                        {historicoPlanos.map((h) => (
+                          <div key={h.id} className="flex items-start gap-2 text-xs border-l-2 border-l-muted-foreground/20 pl-3 py-1">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                                  {h.tipo_evento === 'criacao' ? 'Criação'
+                                    : h.tipo_evento === 'renovacao' ? 'Renovação'
+                                    : h.tipo_evento === 'upgrade' ? 'Upgrade'
+                                    : h.tipo_evento === 'downgrade' ? 'Downgrade'
+                                    : h.tipo_evento === 'cancelamento' ? 'Cancelamento'
+                                    : 'Alteração'}
+                                </Badge>
+                                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                                  {h.origem === 'admin' ? 'Admin' : h.origem === 'webhook' ? 'Webhook' : h.origem}
+                                </Badge>
+                                <span className="text-muted-foreground">
+                                  {new Date(h.created_at).toLocaleDateString('pt-BR')}
+                                </span>
+                              </div>
+                              <div className="mt-0.5 text-muted-foreground">
+                                {h.plano_anterior && h.plano_novo && h.plano_anterior !== h.plano_novo
+                                  ? `${h.plano_anterior === 'negocio' ? 'Negócio' : 'Base'} → ${h.plano_novo === 'negocio' ? 'Negócio' : 'Base'}`
+                                  : `Plano ${h.plano_novo === 'negocio' ? 'Negócio' : 'Base'}`}
+                                {' · '}
+                                {h.plano_tipo_novo === 'anual' ? 'Anual' : 'Mensal'}
+                                {h.plano_inicio && h.plano_fim && (
+                                  <> · {new Date(h.plano_inicio + 'T00:00:00').toLocaleDateString('pt-BR')} até {new Date(h.plano_fim + 'T00:00:00').toLocaleDateString('pt-BR')}</>
+                                )}
+                              </div>
+                              {h.observacao && <div className="text-muted-foreground italic mt-0.5">{h.observacao}</div>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              )}
 
               <Separator className="my-6" />
 
