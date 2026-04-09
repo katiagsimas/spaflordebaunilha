@@ -355,6 +355,26 @@ export default function Usuarios() {
     });
   };
 
+  const handleResetarSenha = async (profile: any) => {
+    if (!confirm(`Deseja resetar a senha de ${profile.email}? Um e-mail de recuperação será enviado.`)) return;
+    try {
+      const { error } = await supabase.functions.invoke('enviar-recuperacao-senha', {
+        body: { email: profile.email }
+      });
+      if (error) throw error;
+      toast({
+        title: '✅ E-mail enviado!',
+        description: `Link de recuperação enviado para ${profile.email}.`,
+      });
+    } catch (err: any) {
+      toast({
+        title: '❌ Erro',
+        description: 'Não foi possível enviar o e-mail de recuperação.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleExcluir = (profile: any) => {
     setSelectedUser(profile);
     setShowExcluirDialog(true);
