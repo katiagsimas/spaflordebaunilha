@@ -43,7 +43,7 @@ export function usePlano() {
         .eq("id", user!.id)
         .single();
 
-      if (!data?.plano_id) return { id: "base", nome: "Plano Base", descricao: null, ativo: true, em_breve: false } as Plano;
+      if (!data?.plano_id) return { id: "base", nome: "Caixa Lite", descricao: null, ativo: true, em_breve: false } as Plano;
 
       const { data: plano } = await supabase
         .from("planos")

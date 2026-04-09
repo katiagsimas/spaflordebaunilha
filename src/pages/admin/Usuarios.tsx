@@ -185,7 +185,7 @@ export default function Usuarios() {
         'Nome Completo': usuario.nome_completo || 'N/A',
         'Status': usuario.ativo !== false ? 'Ativo' : 'Inativo',
         'Permissão': isAdmin ? 'Administrador' : 'Usuário',
-        'Plano': usuario.plano_id === 'negocio' ? 'Negócio' : 'Base',
+        'Plano': usuario.plano_id === 'negocio' ? 'Caixa Business' : 'Caixa Lite',
         'Início do Plano': usuario.plano_inicio ? new Date(usuario.plano_inicio + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A',
         'Expiração do Plano': usuario.plano_fim ? new Date(usuario.plano_fim + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A',
       };
@@ -457,10 +457,10 @@ export default function Usuarios() {
             { key: 'ativos', label: 'Ativos', value: estatisticas.ativos, icon: UserCheck, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950' },
             { key: 'inativos', label: 'Inativos', value: estatisticas.inativos, icon: UserX, color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-950' },
             { key: 'total', label: 'Total', value: estatisticas.total, icon: Users, color: 'text-slate-600', bg: 'bg-slate-50 dark:bg-slate-950' },
-            { key: 'baseMensal', label: 'Base Mensal', value: estatisticas.baseMensal, icon: User, color: 'text-sky-600', bg: 'bg-sky-50 dark:bg-sky-950' },
-            { key: 'baseAnual', label: 'Base Anual', value: estatisticas.baseAnual, icon: User, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-950' },
-            { key: 'negocioMensal', label: 'Negócio Mensal', value: estatisticas.negocioMensal, icon: Shield, color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-950' },
-            { key: 'negocioAnual', label: 'Negócio Anual', value: estatisticas.negocioAnual, icon: Shield, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950' },
+            { key: 'baseMensal', label: 'Lite Mensal', value: estatisticas.baseMensal, icon: User, color: 'text-sky-600', bg: 'bg-sky-50 dark:bg-sky-950' },
+            { key: 'baseAnual', label: 'Lite Anual', value: estatisticas.baseAnual, icon: User, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-950' },
+            { key: 'negocioMensal', label: 'Business Mensal', value: estatisticas.negocioMensal, icon: Shield, color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-950' },
+            { key: 'negocioAnual', label: 'Business Anual', value: estatisticas.negocioAnual, icon: Shield, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950' },
           ].map((item) => (
             <Card
               key={item.label}
@@ -583,7 +583,7 @@ export default function Usuarios() {
                         <TableCell>{profile.email}</TableCell>
                         <TableCell>
                           <Badge variant="outline" className="font-body text-xs">
-                            {profile.plano_id === 'negocio' ? 'Negócio' : profile.plano_id === 'controle' ? 'Controle' : 'Base'}
+                            {profile.plano_id === 'negocio' ? 'Business' : profile.plano_id === 'controle' ? 'Controle' : 'Lite'}
                           </Badge>
                         </TableCell>
                         <TableCell>

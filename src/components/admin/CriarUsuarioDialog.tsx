@@ -134,8 +134,8 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="base">Plano Base</SelectItem>
-                  <SelectItem value="negocio">Plano Negócio</SelectItem>
+                  <SelectItem value="base">Caixa Lite</SelectItem>
+                  <SelectItem value="negocio">Caixa Business</SelectItem>
                 </SelectContent>
               </Select>
             </div>
