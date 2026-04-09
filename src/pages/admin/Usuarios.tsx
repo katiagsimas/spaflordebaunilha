@@ -47,6 +47,7 @@ interface UserProfile {
   plano_fim?: string | null;
   plano_tipo?: string | null;
   last_login?: string | null;
+  origem_criacao?: string | null;
 }
 
 interface UserRole {
@@ -92,7 +93,7 @@ export default function Usuarios() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, email, nome_completo, nome_confeitaria, created_at, ativo, plano_id, plano_inicio, plano_fim, plano_tipo, last_login')
+        .select('id, email, nome_completo, nome_confeitaria, created_at, ativo, plano_id, plano_inicio, plano_fim, plano_tipo, last_login, origem_criacao')
         .order('created_at', { ascending: false });
       
       if (error) throw error;

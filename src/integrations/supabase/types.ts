@@ -1392,6 +1392,54 @@ export type Database = {
         }
         Relationships: []
       }
+      historico_planos: {
+        Row: {
+          admin_id: string | null
+          created_at: string
+          id: string
+          observacao: string | null
+          origem: string
+          plano_anterior: string | null
+          plano_fim: string | null
+          plano_inicio: string | null
+          plano_novo: string | null
+          plano_tipo_anterior: string | null
+          plano_tipo_novo: string | null
+          tipo_evento: string
+          user_id: string
+        }
+        Insert: {
+          admin_id?: string | null
+          created_at?: string
+          id?: string
+          observacao?: string | null
+          origem?: string
+          plano_anterior?: string | null
+          plano_fim?: string | null
+          plano_inicio?: string | null
+          plano_novo?: string | null
+          plano_tipo_anterior?: string | null
+          plano_tipo_novo?: string | null
+          tipo_evento?: string
+          user_id: string
+        }
+        Update: {
+          admin_id?: string | null
+          created_at?: string
+          id?: string
+          observacao?: string | null
+          origem?: string
+          plano_anterior?: string | null
+          plano_fim?: string | null
+          plano_inicio?: string | null
+          plano_novo?: string | null
+          plano_tipo_anterior?: string | null
+          plano_tipo_novo?: string | null
+          tipo_evento?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ingredientes: {
         Row: {
           categoria: string | null
@@ -1816,6 +1864,7 @@ export type Database = {
           nome_completo: string | null
           nome_confeitaria: string | null
           numero: string | null
+          origem_criacao: string | null
           owner_group_id: string | null
           planejamento_banner_dismissed: boolean | null
           plano_fim: string | null
@@ -1854,6 +1903,7 @@ export type Database = {
           nome_completo?: string | null
           nome_confeitaria?: string | null
           numero?: string | null
+          origem_criacao?: string | null
           owner_group_id?: string | null
           planejamento_banner_dismissed?: boolean | null
           plano_fim?: string | null
@@ -1892,6 +1942,7 @@ export type Database = {
           nome_completo?: string | null
           nome_confeitaria?: string | null
           numero?: string | null
+          origem_criacao?: string | null
           owner_group_id?: string | null
           planejamento_banner_dismissed?: boolean | null
           plano_fim?: string | null

@@ -1,6 +1,17 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-09T19:00:00Z — Fix trigger protect_plan_fields + webhook createUser + dados plano
+> Última atualização: 2026-04-09T20:00:00Z — Histórico de planos + origem_criacao + datas no formulário
+
+---
+
+## MELHORIAS — 2026-04-09 20:00 UTC (Histórico de Planos)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 25 | Tabela historico_planos | ✅ | Criada tabela para registrar todas as alterações de plano (criação, renovação, upgrade, downgrade, cancelamento). RLS: somente admins. |
+| 26 | Campo origem_criacao | ✅ | Adicionado campo `origem_criacao` na tabela profiles (admin/webhook/sistema). Backfill realizado para usuários existentes. |
+| 27 | Formulário EditarUsuario | ✅ | Adicionados campos: data criação, origem, periodicidade, data início/fim do plano, e seção de histórico de planos. |
+| 28 | Edge Functions — historico | ✅ | `criar-usuario` e `hotmart-webhook` agora registram histórico de planos em todas as operações (criação, cancelamento, SWITCH_PLAN). |
 
 ---
 

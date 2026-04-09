@@ -5,6 +5,8 @@ import * as z from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { DatePickerField } from '@/components/DatePickerField';
+import { formatDateToISO, parseISOToDate, addDaysToDate } from '@/lib/dateUtils';
 import {
   Dialog,
   DialogContent,
@@ -47,7 +49,10 @@ import {
   DollarSign,
   AlertTriangle,
   Settings,
-  Tag
+  Tag,
+  History,
+  CalendarDays,
+  Globe
 } from 'lucide-react';
 
 const formSchema = z.object({
@@ -57,9 +62,24 @@ const formSchema = z.object({
   role: z.string(),
   ativo: z.boolean(),
   planoId: z.string(),
+  planoTipo: z.string(),
 });
 
 type FormData = z.infer<typeof formSchema>;
+
+interface HistoricoPlano {
+  id: string;
+  plano_anterior: string | null;
+  plano_novo: string | null;
+  plano_tipo_anterior: string | null;
+  plano_tipo_novo: string | null;
+  plano_inicio: string | null;
+  plano_fim: string | null;
+  tipo_evento: string;
+  origem: string;
+  observacao: string | null;
+  created_at: string;
+}
 
 interface EditarUsuarioDialogProps {
   open: boolean;
@@ -71,6 +91,11 @@ interface EditarUsuarioDialogProps {
     nome_confeitaria: string | null;
     ativo?: boolean;
     plano_id?: string | null;
+    plano_tipo?: string | null;
+    plano_inicio?: string | null;
+    plano_fim?: string | null;
+    created_at?: string;
+    origem_criacao?: string | null;
   } | null;
   userRole: string;
 }
@@ -85,6 +110,8 @@ export function EditarUsuarioDialog({
   const [isLoading, setIsLoading] = useState(false);
   const [mostrarPreview, setMostrarPreview] = useState(false);
   const [emailConfirmacao, setEmailConfirmacao] = useState("");
+  const [planoInicio, setPlanoInicio] = useState<Date | undefined>(undefined);
+  const [planoFim, setPlanoFim] = useState<Date | undefined>(undefined);
   const [itensSelecionados, setItensSelecionados] = useState({
     clientes: true,
     encomendas: true,
@@ -114,7 +141,36 @@ export function EditarUsuarioDialog({
       role: 'user',
       ativo: true,
       planoId: 'base',
+      planoTipo: 'mensal',
     },
+  });
+
+  const planoTipoWatch = form.watch('planoTipo');
+
+  // Auto-calculate planoFim when planoInicio or planoTipo changes
+  useEffect(() => {
+    if (planoInicio) {
+      const inicioISO = formatDateToISO(planoInicio);
+      const dias = planoTipoWatch === 'anual' ? 365 : 30;
+      const fimISO = addDaysToDate(inicioISO, dias);
+      setPlanoFim(parseISOToDate(fimISO));
+    }
+  }, [planoInicio, planoTipoWatch]);
+
+  // Fetch plan history
+  const { data: historicoPlanos } = useQuery({
+    queryKey: ['historico-planos', userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data, error } = await supabase
+        .from('historico_planos')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data as HistoricoPlano[];
+    },
+    enabled: !!userId && open,
   });
 
   // Buscar estatísticas do usuário
@@ -195,7 +251,10 @@ export function EditarUsuarioDialog({
         role: userRole as any,
         ativo: userData.ativo ?? true,
         planoId: userData.plano_id || 'base',
+        planoTipo: userData.plano_tipo || 'mensal',
       });
+      setPlanoInicio(userData.plano_inicio ? parseISOToDate(userData.plano_inicio) : undefined);
+      setPlanoFim(userData.plano_fim ? parseISOToDate(userData.plano_fim) : undefined);
     }
   }, [userData, userRole, open, form]);
 
@@ -206,6 +265,8 @@ export function EditarUsuarioDialog({
 
       const { data: { user } } = await supabase.auth.getUser();
       const roleAnterior = userRole;
+      const planoAnterior = userData?.plano_id || 'base';
+      const planoTipoAnterior = userData?.plano_tipo || 'mensal';
 
       if (data.email !== userData?.email) {
         const { error: emailError } = await supabase.auth.admin.updateUserById(userId, {
@@ -221,6 +282,9 @@ export function EditarUsuarioDialog({
           nome_confeitaria: data.nomeConfeitaria,
           ativo: data.ativo,
           plano_id: data.planoId,
+          plano_tipo: data.planoTipo,
+          plano_inicio: planoInicio ? formatDateToISO(planoInicio) : null,
+          plano_fim: planoFim ? formatDateToISO(planoFim) : null,
         } as any)
         .eq('id', userId);
 
@@ -251,9 +315,31 @@ export function EditarUsuarioDialog({
         }
       }
 
-      // Log de alteração de plano
-      const planoAnterior = userData?.plano_id || 'base';
-      if (data.planoId !== planoAnterior) {
+      // Detect plan changes and record history
+      const planoMudou = data.planoId !== planoAnterior;
+      const tipoMudou = data.planoTipo !== planoTipoAnterior;
+      const datasMudaram = (planoInicio ? formatDateToISO(planoInicio) : null) !== (userData?.plano_inicio || null)
+        || (planoFim ? formatDateToISO(planoFim) : null) !== (userData?.plano_fim || null);
+
+      if (planoMudou || tipoMudou || datasMudaram) {
+        let tipoEvento = 'alteracao';
+        if (planoMudou && data.planoId === 'negocio') tipoEvento = 'upgrade';
+        if (planoMudou && data.planoId === 'base') tipoEvento = 'downgrade';
+        if (!planoMudou && !tipoMudou && datasMudaram) tipoEvento = 'renovacao';
+
+        await supabase.from('historico_planos').insert({
+          user_id: userId,
+          plano_anterior: planoAnterior,
+          plano_novo: data.planoId,
+          plano_tipo_anterior: planoTipoAnterior,
+          plano_tipo_novo: data.planoTipo,
+          plano_inicio: planoInicio ? formatDateToISO(planoInicio) : null,
+          plano_fim: planoFim ? formatDateToISO(planoFim) : null,
+          tipo_evento: tipoEvento,
+          origem: 'admin',
+          admin_id: user?.id,
+        } as any);
+
         if (user && userData) {
           await supabase.from('admin_logs').insert({
             admin_id: user.id,
@@ -263,7 +349,10 @@ export function EditarUsuarioDialog({
             usuario_afetado_email: userData.email,
             detalhes: {
               plano_anterior: planoAnterior,
-              plano_novo: data.planoId
+              plano_novo: data.planoId,
+              tipo_anterior: planoTipoAnterior,
+              tipo_novo: data.planoTipo,
+              tipo_evento: tipoEvento,
             }
           });
         }
@@ -277,6 +366,7 @@ export function EditarUsuarioDialog({
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       queryClient.invalidateQueries({ queryKey: ['admin-user-roles'] });
       queryClient.invalidateQueries({ queryKey: ['plano'] });
+      queryClient.invalidateQueries({ queryKey: ['historico-planos', userId] });
       onOpenChange(false);
     },
     onError: (error: any) => {
@@ -483,27 +573,96 @@ export function EditarUsuarioDialog({
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="planoId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Plano</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione um plano" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="base">Plano Base</SelectItem>
-                        <SelectItem value="negocio">Plano Negócio</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Info: Criação do usuário */}
+              <Card className="bg-muted/30">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-1.5">
+                      <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-muted-foreground">Criado em:</span>
+                      <span className="font-medium">
+                        {userData?.created_at 
+                          ? new Date(userData.created_at).toLocaleDateString('pt-BR') 
+                          : 'N/A'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Globe className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-muted-foreground">Origem:</span>
+                      <Badge variant="outline" className="text-xs">
+                        {userData?.origem_criacao === 'admin' ? 'Admin' 
+                          : userData?.origem_criacao === 'webhook' ? 'Webhook' 
+                          : userData?.origem_criacao || 'N/A'}
+                      </Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="planoId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Plano</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione um plano" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="base">Plano Base</SelectItem>
+                          <SelectItem value="negocio">Plano Negócio</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="planoTipo"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Periodicidade</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Periodicidade" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="mensal">Mensal (30 dias)</SelectItem>
+                          <SelectItem value="anual">Anual (365 dias)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Data Início</label>
+                  <DatePickerField
+                    value={planoInicio}
+                    onChange={setPlanoInicio}
+                    placeholder="Data início..."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Data Expiração</label>
+                  <DatePickerField
+                    value={planoFim}
+                    onChange={setPlanoFim}
+                    placeholder="Data expiração..."
+                  />
+                </div>
+              </div>
 
               <FormField
                 control={form.control}
@@ -522,6 +681,58 @@ export function EditarUsuarioDialog({
                   </FormItem>
                 )}
               />
+
+              {/* Histórico de Planos */}
+              {historicoPlanos && historicoPlanos.length > 0 && (
+                <>
+                  <Separator className="my-4" />
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <History className="h-4 w-4" />
+                        Histórico de Planos
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="max-h-48 overflow-y-auto">
+                      <div className="space-y-2">
+                        {historicoPlanos.map((h) => (
+                          <div key={h.id} className="flex items-start gap-2 text-xs border-l-2 border-l-muted-foreground/20 pl-3 py-1">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                                  {h.tipo_evento === 'criacao' ? 'Criação'
+                                    : h.tipo_evento === 'renovacao' ? 'Renovação'
+                                    : h.tipo_evento === 'upgrade' ? 'Upgrade'
+                                    : h.tipo_evento === 'downgrade' ? 'Downgrade'
+                                    : h.tipo_evento === 'cancelamento' ? 'Cancelamento'
+                                    : 'Alteração'}
+                                </Badge>
+                                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                                  {h.origem === 'admin' ? 'Admin' : h.origem === 'webhook' ? 'Webhook' : h.origem}
+                                </Badge>
+                                <span className="text-muted-foreground">
+                                  {new Date(h.created_at).toLocaleDateString('pt-BR')}
+                                </span>
+                              </div>
+                              <div className="mt-0.5 text-muted-foreground">
+                                {h.plano_anterior && h.plano_novo && h.plano_anterior !== h.plano_novo
+                                  ? `${h.plano_anterior === 'negocio' ? 'Negócio' : 'Base'} → ${h.plano_novo === 'negocio' ? 'Negócio' : 'Base'}`
+                                  : `Plano ${h.plano_novo === 'negocio' ? 'Negócio' : 'Base'}`}
+                                {' · '}
+                                {h.plano_tipo_novo === 'anual' ? 'Anual' : 'Mensal'}
+                                {h.plano_inicio && h.plano_fim && (
+                                  <> · {new Date(h.plano_inicio + 'T00:00:00').toLocaleDateString('pt-BR')} até {new Date(h.plano_fim + 'T00:00:00').toLocaleDateString('pt-BR')}</>
+                                )}
+                              </div>
+                              {h.observacao && <div className="text-muted-foreground italic mt-0.5">{h.observacao}</div>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              )}
 
               <Separator className="my-6" />
 
