@@ -43,6 +43,9 @@ interface UserProfile {
   created_at: string;
   ativo?: boolean;
   plano_id?: string | null;
+  plano_inicio?: string | null;
+  plano_fim?: string | null;
+  plano_tipo?: string | null;
 }
 
 interface UserRole {
