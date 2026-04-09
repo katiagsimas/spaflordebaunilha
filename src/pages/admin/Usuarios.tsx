@@ -127,22 +127,25 @@ export default function Usuarios() {
     carregarEstatisticas();
   }, [profiles, rolesData]);
 
+  // Filtrar perfis de admin (ocultar da listagem)
+  const profilesSemAdmin = profiles?.filter(u => {
+    const roles = rolesByUser[u.id] || [];
+    return !roles.includes('admin');
+  });
+
   async function carregarEstatisticas() {
-    if (!profiles) return;
+    if (!profilesSemAdmin) return;
     
     setEstatisticas({
-      total: profiles.length,
-      ativos: profiles.filter(u => u.ativo !== false).length,
-      inativos: profiles.filter(u => u.ativo === false).length,
-      admins: profiles.filter(u => {
-        const roles = rolesByUser[u.id] || [];
-        return roles.includes('admin');
-      }).length
+      total: profilesSemAdmin.length,
+      ativos: profilesSemAdmin.filter(u => u.ativo !== false).length,
+      inativos: profilesSemAdmin.filter(u => u.ativo === false).length,
+      admins: 0
     });
   }
 
   // Filtrar usuários
-  const usuariosFiltrados = profiles?.filter(usuario => {
+  const usuariosFiltrados = profilesSemAdmin?.filter(usuario => {
     const matchEmail = buscaEmail === "" || 
       usuario.email.toLowerCase().includes(buscaEmail.toLowerCase()) ||
       usuario.nome_completo?.toLowerCase().includes(buscaEmail.toLowerCase()) ||
