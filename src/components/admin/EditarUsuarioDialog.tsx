@@ -110,6 +110,8 @@ export function EditarUsuarioDialog({
   const [isLoading, setIsLoading] = useState(false);
   const [mostrarPreview, setMostrarPreview] = useState(false);
   const [emailConfirmacao, setEmailConfirmacao] = useState("");
+  const [planoInicio, setPlanoInicio] = useState<Date | undefined>(undefined);
+  const [planoFim, setPlanoFim] = useState<Date | undefined>(undefined);
   const [itensSelecionados, setItensSelecionados] = useState({
     clientes: true,
     encomendas: true,
@@ -139,7 +141,36 @@ export function EditarUsuarioDialog({
       role: 'user',
       ativo: true,
       planoId: 'base',
+      planoTipo: 'mensal',
     },
+  });
+
+  const planoTipoWatch = form.watch('planoTipo');
+
+  // Auto-calculate planoFim when planoInicio or planoTipo changes
+  useEffect(() => {
+    if (planoInicio) {
+      const inicioISO = formatDateToISO(planoInicio);
+      const dias = planoTipoWatch === 'anual' ? 365 : 30;
+      const fimISO = addDaysToDate(inicioISO, dias);
+      setPlanoFim(parseISOToDate(fimISO));
+    }
+  }, [planoInicio, planoTipoWatch]);
+
+  // Fetch plan history
+  const { data: historicoPlanos } = useQuery({
+    queryKey: ['historico-planos', userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data, error } = await supabase
+        .from('historico_planos')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data as HistoricoPlano[];
+    },
+    enabled: !!userId && open,
   });
 
   // Buscar estatísticas do usuário
