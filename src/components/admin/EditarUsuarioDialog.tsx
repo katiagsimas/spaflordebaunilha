@@ -91,6 +91,11 @@ interface EditarUsuarioDialogProps {
     nome_confeitaria: string | null;
     ativo?: boolean;
     plano_id?: string | null;
+    plano_tipo?: string | null;
+    plano_inicio?: string | null;
+    plano_fim?: string | null;
+    created_at?: string;
+    origem_criacao?: string | null;
   } | null;
   userRole: string;
 }
