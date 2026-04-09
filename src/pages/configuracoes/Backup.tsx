@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { HardDrive, Download, Upload, Clock, Play, Loader2, FileDown, Info, Trash2 } from "lucide-react";
+import { HardDrive, Download, Upload, Clock, Play, Loader2, FileDown, Info, Trash2, RotateCcw, Database } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
