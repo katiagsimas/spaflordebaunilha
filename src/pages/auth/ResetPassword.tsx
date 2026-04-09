@@ -82,9 +82,21 @@ export default function ResetPassword() {
 
       if (error) throw error;
 
+      // Marcar primeiro_acesso como false para não exibir diálogo de troca obrigatória
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase
+          .from('profiles')
+          .update({ primeiro_acesso: false })
+          .eq('id', user.id);
+      }
+
+      // Fazer logout para forçar novo login limpo
+      await supabase.auth.signOut();
+
       toast({
         title: "Senha redefinida com sucesso!",
-        description: "Sua senha foi alterada. Você já pode fazer login com a nova senha.",
+        description: "Sua senha foi alterada. Faça login com a nova senha.",
         variant: "default",
       });
 

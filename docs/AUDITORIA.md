@@ -1,6 +1,17 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-09T12:00:00Z — Refinamentos módulo Usuários + Resend
+> Última atualização: 2026-04-09T17:30:00Z — Correções listagem usuários + recuperação senha Resend
+
+---
+
+## CORREÇÕES — 2026-04-09 17:30 UTC (Listagem + Recovery + Primeiro Acesso)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 17 | Datas plano na listagem | ✅ | Adicionado `last_login` à interface UserProfile e à query. Campos `plano_inicio`/`plano_fim` já eram buscados — dados estavam NULL no DB para usuários antigos. |
+| 18 | Último Acesso | ✅ | Movido update de `last_login` para AuthContext (evento SIGNED_IN) para capturar todo login, não apenas via Login.tsx. |
+| 19 | Email recuperação via Resend | ✅ | Criada Edge Function `enviar-recuperacao-senha` que gera link via `admin.generateLink(recovery)` e envia via Resend (noreply@umbrelladoce.com.br). ForgotPassword.tsx agora chama esta função. |
+| 20 | Diálogo duplicado de senha | ✅ | ResetPassword.tsx agora seta `primeiro_acesso: false` após redefinir senha e faz signOut, evitando que o AlterarSenhaObrigatoria apareça no login subsequente. |
 
 ---
 

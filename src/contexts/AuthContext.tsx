@@ -35,6 +35,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Marcar para verificar primeiro acesso quando usuário logar
         if (session?.user && _event === 'SIGNED_IN') {
           setShouldCheckFirstAccess(true);
+          // Atualizar last_login a cada login
+          supabase
+            .from('profiles')
+            .update({ last_login: new Date().toISOString() })
+            .eq('id', session.user.id)
+            .then(() => {});
         }
       });
 
