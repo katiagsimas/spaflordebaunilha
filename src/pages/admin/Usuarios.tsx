@@ -600,12 +600,12 @@ export default function Usuarios() {
                   <TableRow>
                     <TableHead>Nome Completo</TableHead>
                     <TableHead>Email</TableHead>
-                    <TableHead>Confeitaria</TableHead>
                     <TableHead>Plano</TableHead>
                     <TableHead>Permissões</TableHead>
+                    <TableHead>Início do Plano</TableHead>
+                    <TableHead>Expiração do Plano</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Último Acesso</TableHead>
-                    <TableHead>Cadastrado em</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -619,7 +619,6 @@ export default function Usuarios() {
                           {profile.nome_completo || '-'}
                         </TableCell>
                         <TableCell>{profile.email}</TableCell>
-                        <TableCell>{profile.nome_confeitaria || '-'}</TableCell>
                         <TableCell>
                           <Badge variant="outline" className="font-body text-xs">
                             {profile.plano_id === 'negocio' ? 'Negócio' : profile.plano_id === 'controle' ? 'Controle' : 'Base'}
@@ -640,6 +639,20 @@ export default function Usuarios() {
                           </div>
                         </TableCell>
                         <TableCell>
+                          <span className="text-sm">
+                            {profile.plano_inicio
+                              ? new Date(profile.plano_inicio + 'T00:00:00').toLocaleDateString('pt-BR')
+                              : '-'}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm">
+                            {profile.plano_fim
+                              ? new Date(profile.plano_fim + 'T00:00:00').toLocaleDateString('pt-BR')
+                              : '-'}
+                          </span>
+                        </TableCell>
+                        <TableCell>
                           <Badge variant={profile.ativo !== false ? 'default' : 'secondary'}>
                             {profile.ativo !== false ? 'Ativo' : 'Inativo'}
                           </Badge>
@@ -658,13 +671,6 @@ export default function Usuarios() {
                           ) : (
                             <span className="text-sm text-muted-foreground">Nunca acessou</span>
                           )}
-                        </TableCell>
-                        <TableCell>
-                          {new Date(profile.created_at).toLocaleDateString('pt-BR', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                          })}
                         </TableCell>
                         <TableCell className="text-right">
                           <DropdownMenu>
