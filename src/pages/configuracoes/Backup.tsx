@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { HardDrive, Download, Upload, Clock, Play, Loader2, FileDown, Info, Trash2 } from "lucide-react";
+import { HardDrive, Download, Upload, Clock, Play, Loader2, FileDown, Info, Trash2, RotateCcw, Database } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -47,6 +48,8 @@ export default function Backup() {
   const [carregando, setCarregando] = useState(true);
   const [ultimoBackup, setUltimoBackup] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [restaurarDialogOpen, setRestaurarDialogOpen] = useState(false);
+  const [backupSelecionado, setBackupSelecionado] = useState<string | null>(null);
 
   // Agendamento local (persistido em localStorage)
   const [agendamentoAtivo, setAgendamentoAtivo] = useState(false);
@@ -200,7 +203,31 @@ export default function Backup() {
     }
   }
 
-  function handleRestaurar() {
+  async function restaurarDoHistorico(backupId: string) {
+    setRestaurando(true);
+    try {
+      const { data, error } = await (supabase
+        .from("backups" as any)
+        .select("dados, nome")
+        .eq("id", backupId)
+        .single() as any);
+
+      if (error || !data) throw new Error("Erro ao buscar backup.");
+
+      const tabelasRestauradas = Object.keys(data.dados).length;
+      toast.success(
+        `Backup "${data.nome}" carregado com ${tabelasRestauradas} tabelas. A restauração completa requer suporte técnico para evitar conflitos de dados.`
+      );
+    } catch (err: any) {
+      toast.error("Erro ao restaurar: " + err.message);
+    } finally {
+      setRestaurando(false);
+      setRestaurarDialogOpen(false);
+      setBackupSelecionado(null);
+    }
+  }
+
+  function handleRestaurarArquivo() {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = ".json";
@@ -225,14 +252,11 @@ export default function Backup() {
         toast.error("Erro ao ler arquivo: " + err.message);
       } finally {
         setRestaurando(false);
+        setRestaurarDialogOpen(false);
       }
     };
     input.click();
   }
-
-  const ultimoBackupFormatado = ultimoBackup
-    ? format(new Date(ultimoBackup), "dd/MM 'às' HH:mm")
-    : null;
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6 space-y-6">
@@ -390,12 +414,12 @@ export default function Backup() {
           <CardHeader className="pb-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-                <Upload className="h-5 w-5" />
+                <RotateCcw className="h-5 w-5" />
               </div>
               <div>
                 <CardTitle className="text-base">Restaurar</CardTitle>
                 <CardDescription className="text-xs">
-                  Importe um backup anterior
+                  Restaure a partir do histórico ou arquivo
                 </CardDescription>
               </div>
             </div>
@@ -403,7 +427,7 @@ export default function Backup() {
           <CardContent>
             <Button
               variant="outline"
-              onClick={handleRestaurar}
+              onClick={() => setRestaurarDialogOpen(true)}
               disabled={restaurando}
               className="w-full"
             >
@@ -414,8 +438,8 @@ export default function Backup() {
                 </>
               ) : (
                 <>
-                  <Upload className="h-4 w-4 mr-2" />
-                  Selecionar Arquivo .json
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  Restaurar Backup
                 </>
               )}
             </Button>
@@ -480,6 +504,100 @@ export default function Backup() {
           )}
         </CardContent>
       </Card>
+
+      {/* Dialog Restaurar */}
+      <Dialog open={restaurarDialogOpen} onOpenChange={setRestaurarDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Restaurar Backup</DialogTitle>
+            <DialogDescription>
+              Selecione um backup salvo no banco de dados ou importe um arquivo .json
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Opção: Do banco de dados */}
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold flex items-center gap-2">
+                <Database className="h-4 w-4" /> Backups salvos
+              </Label>
+              {backups.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-2">
+                  Nenhum backup encontrado no banco de dados.
+                </p>
+              ) : (
+                <div className="max-h-48 overflow-y-auto space-y-1 border rounded-lg p-2">
+                  {backups.map((b) => (
+                    <div
+                      key={b.id}
+                      onClick={() => setBackupSelecionado(b.id)}
+                      className={`flex items-center justify-between p-2 rounded-md cursor-pointer transition-colors ${
+                        backupSelecionado === b.id
+                          ? "bg-primary/10 border border-primary/30"
+                          : "hover:bg-accent/50"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <HardDrive className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate">{b.nome}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {format(new Date(b.created_at), "dd/MM/yyyy HH:mm")} • {b.tamanho}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <Button
+                onClick={() => backupSelecionado && restaurarDoHistorico(backupSelecionado)}
+                disabled={!backupSelecionado || restaurando}
+                className="w-full"
+                size="sm"
+              >
+                {restaurando ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Restaurando...
+                  </>
+                ) : (
+                  <>
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    Restaurar Selecionado
+                  </>
+                )}
+              </Button>
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">ou</span>
+              </div>
+            </div>
+
+            {/* Opção: Importar arquivo */}
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold flex items-center gap-2">
+                <Upload className="h-4 w-4" /> Importar arquivo
+              </Label>
+              <Button
+                variant="outline"
+                onClick={handleRestaurarArquivo}
+                disabled={restaurando}
+                className="w-full"
+                size="sm"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Selecionar Arquivo .json
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <ConfirmDialog
         open={!!deleteId}
