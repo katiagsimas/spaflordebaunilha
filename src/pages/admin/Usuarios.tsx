@@ -153,7 +153,7 @@ export default function Usuarios() {
       usuario.nome_completo?.toLowerCase().includes(buscaEmail.toLowerCase()) ||
       usuario.nome_confeitaria?.toLowerCase().includes(buscaEmail.toLowerCase());
     
-    if (!filtroCard) return matchEmail;
+    if (!filtroCard) return matchEmail && usuario.ativo !== false;
 
     const isAtivo = usuario.ativo !== false;
     const isBase = !usuario.plano_id || usuario.plano_id === 'base';
