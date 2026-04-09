@@ -49,7 +49,10 @@ function extrairHottok(req: Request, body: Record<string, unknown>): string | nu
 function extrairEmail(data: Record<string, unknown>): string | null {
   const buyer = (data.buyer || {}) as Record<string, unknown>
   const subscriber = (data.subscriber || {}) as Record<string, unknown>
-  const email = (buyer.email || subscriber.email) as string | undefined
+  // SWITCH_PLAN usa data.subscription.user.email
+  const subscription = (data.subscription || {}) as Record<string, unknown>
+  const subscriptionUser = (subscription.user || {}) as Record<string, unknown>
+  const email = (buyer.email || subscriber.email || subscriptionUser.email) as string | undefined
   return email?.toLowerCase()?.trim() || null
 }
 
@@ -250,9 +253,14 @@ Deno.serve(async (req) => {
 
     // === SWITCH_PLAN ===
     if (event === 'SWITCH_PLAN') {
-      const planName = (plan.name || '') as string
-      const { planoId, planoTipo } = resolverPlano(product.id?.toString() || '', planName)
+      // SWITCH_PLAN: plano atual está em data.plans[] com current=true
+      const plans = (data.plans || []) as Array<Record<string, unknown>>
+      const currentPlan = plans.find(p => p.current === true) || plans[0] || {}
+      const switchPlanName = (currentPlan.name || plan.name || '') as string
+      const switchProduct = (data.subscription as Record<string, unknown>)?.product as Record<string, unknown> || product
+      const { planoId, planoTipo } = resolverPlano(switchProduct?.id?.toString() || '', switchPlanName)
       const planoFim = calcularPlanoFim(planoTipo)
+      console.log('SWITCH_PLAN - Plano atual:', switchPlanName, '| Resolvido:', planoId, planoTipo)
 
       const { data: profile } = await supabaseAdmin
         .from('profiles')
