@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 
