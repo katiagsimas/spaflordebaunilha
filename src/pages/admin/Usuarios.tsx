@@ -122,18 +122,14 @@ export default function Usuarios() {
     return acc;
   }, {} as Record<string, string[]>) || {};
 
-  // Carregar estatísticas
-  useEffect(() => {
-    carregarEstatisticas();
-  }, [profilesSemAdmin, rolesData]);
-
   // Filtrar perfis de admin (ocultar da listagem)
   const profilesSemAdmin = profiles?.filter(u => {
     const roles = rolesByUser[u.id] || [];
     return !roles.includes('admin');
   });
 
-  async function carregarEstatisticas() {
+  // Carregar estatísticas
+  useEffect(() => {
     if (!profilesSemAdmin) return;
     
     setEstatisticas({
@@ -142,7 +138,7 @@ export default function Usuarios() {
       inativos: profilesSemAdmin.filter(u => u.ativo === false).length,
       admins: 0
     });
-  }
+  }, [profilesSemAdmin]);
 
   // Filtrar usuários
   const usuariosFiltrados = profilesSemAdmin?.filter(usuario => {
