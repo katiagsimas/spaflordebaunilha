@@ -145,6 +145,7 @@ export default function Backup() {
       if (error) throw error;
 
       await carregarBackups();
+      queryClient.invalidateQueries({ queryKey: ['ultimo-backup'] });
       toast.success(`Backup "${nomeBackup}" realizado e salvo com sucesso!`);
     } catch (err: any) {
       toast.error("Erro ao realizar backup: " + err.message);
