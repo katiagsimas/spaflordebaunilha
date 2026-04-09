@@ -89,11 +89,10 @@ export default function Configuracoes() {
           </CardHeader>
         </Card>
 
-        {/* Card 3: FINANCEIRO — oculto para Plano Base */}
-        {!financeiroBloqueado && (
+        {/* Card 3: FINANCEIRO — bloqueado para Plano Base */}
         <Card 
-          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-teal-500"
-          onClick={() => navigate("/configuracoes/financeiro")}
+          className={`group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-teal-500 ${financeiroBloqueado ? 'opacity-60' : ''}`}
+          onClick={() => navigate(financeiroBloqueado ? "/upgrade" : "/configuracoes/financeiro")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">
@@ -101,17 +100,17 @@ export default function Configuracoes() {
                 <Building2 className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
-                <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                <CardTitle className="text-base font-semibold leading-tight line-clamp-2 flex items-center gap-2">
                   Financeiro
+                  {financeiroBloqueado && <Lock className="h-4 w-4 text-muted-foreground" />}
                 </CardTitle>
               </div>
             </div>
             <CardDescription className="text-xs line-clamp-2">
-              Gerencie bancos, documentos e plano de contas
+              {financeiroBloqueado ? "Disponível no Plano Negócio" : "Gerencie bancos, documentos e plano de contas"}
             </CardDescription>
           </CardHeader>
         </Card>
-        )}
 
         {/* Card 4: BACKUP */}
         <Card 
