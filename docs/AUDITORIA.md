@@ -1,6 +1,15 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-09T21:00:00Z — Renomeação dos planos (Base → Caixa Lite, Negócio → Caixa Business)
+> Última atualização: 2026-04-09T22:30:00Z — Limpeza de usuários inativos e logs de administração
+
+---
+
+## LIMPEZA — 2026-04-09 22:30 UTC (Remoção de Usuários Inativos e Logs)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 33 | Remoção de 11 usuários inativos | ✅ | Removidos todos os dados: profiles, roles, sessões, histórico de planos, cadastros funcionais (encomendas, financeiro, receitas, pré-preparos, clientes, fornecedores), configurações (bancos, tipos_documento, unidades_medida, plano_contas, categorias, tags, mão de obra, juros, backups). |
+| 34 | Limpeza de logs de administração | ✅ | Todos os 44 registros da tabela `admin_logs` foram removidos. Histórico zerado. |
 
 ---
 
