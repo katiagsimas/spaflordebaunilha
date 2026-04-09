@@ -94,8 +94,8 @@ Verifica profiles.primeiro_acesso === true?
 | `PURCHASE_PROTEST` | Ignorado |
 
 **Detecção de plano:** O sistema analisa o nome do plano/oferta da Hotmart:
-- Contém "negócio/negocio/business" → Plano Negócio
-- Caso contrário → Plano Base
+- Contém "business/caixa business/negócio/negocio" → Caixa Business
+- Caso contrário → Caixa Lite
 - Contém "anual/annual/yearly" → Anual (365 dias)
 - Caso contrário → Mensal (30 dias)
 
