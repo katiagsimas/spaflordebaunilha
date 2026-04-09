@@ -21,7 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Loader2, Users, Shield, User, MoreVertical, Edit, UserX, Trash2, Search, UserCheck, Clock, AlertCircle, Download, UserPlus } from 'lucide-react';
+import { Loader2, Users, Shield, User, MoreVertical, Edit, UserX, Trash2, Search, UserCheck, Clock, AlertCircle, Download, UserPlus, KeyRound } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useNavigate } from 'react-router-dom';
@@ -355,6 +355,26 @@ export default function Usuarios() {
     });
   };
 
+  const handleResetarSenha = async (profile: any) => {
+    if (!confirm(`Deseja resetar a senha de ${profile.email}? Um e-mail de recuperação será enviado.`)) return;
+    try {
+      const { error } = await supabase.functions.invoke('enviar-recuperacao-senha', {
+        body: { email: profile.email }
+      });
+      if (error) throw error;
+      toast({
+        title: '✅ E-mail enviado!',
+        description: `Link de recuperação enviado para ${profile.email}.`,
+      });
+    } catch (err: any) {
+      toast({
+        title: '❌ Erro',
+        description: 'Não foi possível enviar o e-mail de recuperação.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleExcluir = (profile: any) => {
     setSelectedUser(profile);
     setShowExcluirDialog(true);
@@ -637,8 +657,14 @@ export default function Usuarios() {
                                 >
                                   <UserPlus className="mr-2 h-4 w-4" />
                                   Reabilitar
-                                </DropdownMenuItem>
+                              </DropdownMenuItem>
                               )}
+                              <DropdownMenuItem 
+                                onClick={() => handleResetarSenha(profile)}
+                              >
+                                <KeyRound className="mr-2 h-4 w-4" />
+                                Resetar Senha
+                              </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
