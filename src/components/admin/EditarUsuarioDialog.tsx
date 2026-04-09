@@ -62,9 +62,24 @@ const formSchema = z.object({
   role: z.string(),
   ativo: z.boolean(),
   planoId: z.string(),
+  planoTipo: z.string(),
 });
 
 type FormData = z.infer<typeof formSchema>;
+
+interface HistoricoPlano {
+  id: string;
+  plano_anterior: string | null;
+  plano_novo: string | null;
+  plano_tipo_anterior: string | null;
+  plano_tipo_novo: string | null;
+  plano_inicio: string | null;
+  plano_fim: string | null;
+  tipo_evento: string;
+  origem: string;
+  observacao: string | null;
+  created_at: string;
+}
 
 interface EditarUsuarioDialogProps {
   open: boolean;
