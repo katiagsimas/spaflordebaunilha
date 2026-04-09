@@ -1,6 +1,6 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-09T23:00:00Z — Caixa Lite apenas anual
+> Última atualização: 2026-04-09T23:30:00Z — Limpeza de usuários inativos
 
 ---
 
@@ -10,6 +10,7 @@
 |---|------|--------|-----------|
 | 35 | Caixa Lite somente anual | ✅ | Removida opção mensal para o plano Caixa Lite em todo o sistema: webhook Hotmart, CriarUsuarioDialog, EditarUsuarioDialog, cards de estatísticas do painel admin. |
 | 36 | Correção de usuários existentes | ✅ | Usuário `chefkasimas+teste6@gmail.com` corrigido de `mensal` para `anual` com data de expiração recalculada (365 dias). |
+| 37 | Limpeza de usuários inativos | ✅ | Removido 1 usuário inativo (`chefkasimas+teste6@gmail.com`) e todos os seus dados: roles, histórico de planos, sessões, perfis de mão de obra, configurações, bancos, categorias, unidades de medida, tipos de documento, tags, plano de contas. Base agora com 0 inativos. |
 
 ---
 
