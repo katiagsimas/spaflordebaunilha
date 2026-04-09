@@ -40,6 +40,7 @@ function gerarNomeBackup(nomeCompleto: string): string {
 export default function Backup() {
   const { user } = useAuth();
   const { profile, loading: profileLoading } = useUserProfile();
+  const queryClient = useQueryClient();
   const [backups, setBackups] = useState<BackupRecord[]>([]);
   const [realizandoBackup, setRealizandoBackup] = useState(false);
   const [restaurando, setRestaurando] = useState(false);
