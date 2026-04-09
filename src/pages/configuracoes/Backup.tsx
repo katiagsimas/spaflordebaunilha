@@ -489,8 +489,7 @@ export default function Backup() {
         title="Excluir Backup"
         description="Tem certeza que deseja excluir este backup? Esta ação não pode ser desfeita."
         onConfirm={deletarBackup}
-        confirmText="Excluir"
-        variant="destructive"
+        confirmLabel="Excluir"
       />
     </div>
   );
