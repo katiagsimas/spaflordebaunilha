@@ -1,8 +1,20 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-08T20:29:00Z — Correções de segurança (scan #3)
+> Última atualização: 2026-04-08T21:00:00Z — Desvinculação Umbrella Doce + Hotmart Webhook
 
 ---
+
+## ARQUITETURA — 2026-04-08 21:00 UTC (Desvinculação Umbrella Doce)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 9 | SSO removido | ✅ | Deletados: SSO.tsx, validar-token-sso, gerar-token-retorno. Rota /auth/sso removida. Botão "Voltar Umbrella Doce" removido da sidebar. Secret SSO_SECRET deletado. |
+| 10 | Webhook Hotmart criado | ✅ | Edge function `hotmart-webhook` para provisionamento automático. Eventos: PURCHASE_APPROVED/COMPLETE (ativa), CANCELED/REFUNDED/CHARGEBACK/SUBSCRIPTION_CANCELLATION (desativa), SWITCH_PLAN (atualiza plano). Validação via HOTMART_HOTTOK. |
+| 11 | criar-usuario simplificado | ✅ | Removida autenticação via x-api-secret (Umbrella Doce). Mantida apenas autenticação via JWT de admin. Adicionado log em admin_logs. |
+| 12 | Painel admin: criar usuário | ✅ | Botão "Criar Usuário" adicionado em /admin/usuarios com dialog (email, nome, confeitaria, plano, periodicidade). Envia convite por Magic Link. |
+
+---
+
 
 ## SEGURANÇA — 2026-04-08 20:29 UTC (Scan #3 — Correção policy encomendas)
 
