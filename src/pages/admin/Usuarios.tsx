@@ -645,7 +645,6 @@ export default function Usuarios() {
                                 <KeyRound className="mr-2 h-4 w-4" />
                                 Resetar Senha
                               </DropdownMenuItem>
-                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
