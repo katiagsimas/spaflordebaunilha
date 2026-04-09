@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePickerField } from '@/components/DatePickerField';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { formatDateToISO, parseISOToDate, addDaysToDate, getTodayISO } from '@/lib/dateUtils';
 
 interface CriarUsuarioDialogProps {
   open: boolean;
@@ -21,6 +23,18 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
   const [nomeConfeitaria, setNomeConfeitaria] = useState('');
   const [planoId, setPlanoId] = useState('base');
   const [planoTipo, setPlanoTipo] = useState('mensal');
+  const [planoInicio, setPlanoInicio] = useState<Date | undefined>(new Date());
+  const [planoFim, setPlanoFim] = useState<Date | undefined>(undefined);
+
+  // Auto-calculate planoFim when planoInicio or planoTipo changes
+  useEffect(() => {
+    if (planoInicio) {
+      const inicioISO = formatDateToISO(planoInicio);
+      const dias = planoTipo === 'anual' ? 365 : 30;
+      const fimISO = addDaysToDate(inicioISO, dias);
+      setPlanoFim(parseISOToDate(fimISO));
+    }
+  }, [planoInicio, planoTipo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +52,8 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
           nomeConfeitaria: nomeConfeitaria.trim() || null,
           planoId,
           planoTipo,
+          planoInicio: planoInicio ? formatDateToISO(planoInicio) : getTodayISO(),
+          planoFim: planoFim ? formatDateToISO(planoFim) : null,
         }
       });
 
@@ -48,7 +64,7 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
         title: data.updated ? '✅ Plano atualizado' : data.reactivated ? '✅ Usuário reativado' : '✅ Usuário criado',
         description: data.updated
           ? 'O plano do usuário foi atualizado com sucesso.'
-          : 'Um email de convite foi enviado para o novo usuário.',
+          : 'O usuário foi criado e um email de boas-vindas foi enviado.',
       });
 
       setEmail('');
@@ -56,6 +72,8 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
       setNomeConfeitaria('');
       setPlanoId('base');
       setPlanoTipo('mensal');
+      setPlanoInicio(new Date());
+      setPlanoFim(undefined);
       onOpenChange(false);
       onSuccess?.();
     } catch (err: any) {
@@ -75,7 +93,7 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
         <DialogHeader>
           <DialogTitle>Criar Novo Usuário</DialogTitle>
           <DialogDescription>
-            Um email de convite (Magic Link) será enviado automaticamente.
+            O usuário será criado e receberá um email de boas-vindas com link de acesso.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -134,13 +152,31 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
               </Select>
             </div>
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Data Início</Label>
+              <DatePickerField
+                value={planoInicio}
+                onChange={setPlanoInicio}
+                placeholder="Data início..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Data Expiração</Label>
+              <DatePickerField
+                value={planoFim}
+                onChange={setPlanoFim}
+                placeholder="Data expiração..."
+              />
+            </div>
+          </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
               Cancelar
             </Button>
             <Button type="submit" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Criar e Enviar Convite
+              Criar Usuário
             </Button>
           </DialogFooter>
         </form>

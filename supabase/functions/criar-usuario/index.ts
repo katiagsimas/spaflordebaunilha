@@ -1,11 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.0'
 import { corsHeaders } from '../_shared/cors.ts'
 
-/**
- * Edge Function: criar-usuario
- * Criação de usuários por admins autenticados via JWT.
- * Envia convite por email (Magic Link) — sem senha temporária.
- */
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -25,7 +20,7 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false }
     })
 
-    // === VERIFICAÇÃO DE AUTENTICAÇÃO (apenas JWT de admin) ===
+    // === VERIFICAÇÃO DE AUTENTICAÇÃO ===
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
       return new Response(
@@ -42,14 +37,11 @@ Deno.serve(async (req) => {
 
     const { data: { user: callerUser }, error: callerError } = await userClient.auth.getUser()
     if (callerError || !callerUser) {
-      console.error('Erro ao identificar usuário chamador:', callerError)
       return new Response(
         JSON.stringify({ success: false, error: 'Não autorizado' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
       )
     }
-
-    console.log('Usuário chamador:', callerUser.id)
 
     const { data: adminRole } = await supabaseAdmin
       .from('user_roles')
@@ -59,30 +51,26 @@ Deno.serve(async (req) => {
       .single()
 
     if (!adminRole) {
-      console.error('Usuário não é admin:', callerUser.id)
       return new Response(
         JSON.stringify({ success: false, error: 'Acesso negado. Apenas administradores podem criar usuários.' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
       )
     }
-    // === FIM VERIFICAÇÃO DE AUTENTICAÇÃO ===
 
     const requestBody = await req.json()
     const { email, nomeCompleto, nomeConfeitaria, planoId, role } = requestBody
 
-    // Resolução de datas do plano
     const planoTipo = requestBody.planoTipo || null
     const hoje = new Date().toISOString().split('T')[0]
     let planoInicio: string | null = requestBody.planoInicio || hoje
     let planoFim: string | null = null
 
-    if (requestBody.planoExpiraEm) {
-      planoFim = requestBody.planoExpiraEm.split('T')[0]
-    } else if (requestBody.planoFim) {
+    if (requestBody.planoFim) {
       planoFim = requestBody.planoFim
+    } else if (requestBody.planoExpiraEm) {
+      planoFim = requestBody.planoExpiraEm.split('T')[0]
     } else if (planoTipo) {
-      // Calcular automaticamente
-      const fim = new Date()
+      const fim = new Date(planoInicio!)
       fim.setDate(fim.getDate() + (planoTipo === 'anual' ? 365 : 30))
       planoFim = fim.toISOString().split('T')[0]
     }
@@ -137,9 +125,8 @@ Deno.serve(async (req) => {
         })
         .eq('id', userId)
 
-      await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-        redirectTo: `${Deno.env.get('SITE_URL') || supabaseUrl}/dashboard`
-      })
+      // Enviar email de boas-vindas via Resend
+      await enviarEmailBoasVindas(email, nomeCompleto, planoId, planoTipo)
 
       console.log('Usuário reativado:', userId)
     } else if (existingAuthUser && !existingProfile) {
@@ -155,20 +142,26 @@ Deno.serve(async (req) => {
           primeiro_acesso: true,
           ...planoFields,
         })
+
+      await enviarEmailBoasVindas(email, nomeCompleto, planoId, planoTipo)
       console.log('Perfil criado para usuário existente:', userId)
     } else {
-      // Novo usuário via Magic Link
-      const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-        data: { nome_completo: nomeCompleto, nome_confeitaria: nomeConfeitaria },
-        redirectTo: `${Deno.env.get('SITE_URL') || supabaseUrl}/dashboard`
+      // Novo usuário - criar com senha temporária (usuário define no primeiro acesso)
+      const senhaTemporaria = crypto.randomUUID()
+      
+      const { data: createData, error: createError } = await supabaseAdmin.auth.admin.createUser({
+        email,
+        password: senhaTemporaria,
+        email_confirm: true,
+        user_metadata: { nome_completo: nomeCompleto, nome_confeitaria: nomeConfeitaria }
       })
 
-      if (inviteError || !inviteData.user) {
-        throw inviteError || new Error('Erro ao criar usuário')
+      if (createError || !createData.user) {
+        throw createError || new Error('Erro ao criar usuário')
       }
 
-      userId = inviteData.user.id
-      console.log('Novo usuário convidado:', userId)
+      userId = createData.user.id
+      console.log('Novo usuário criado:', userId)
 
       await new Promise(resolve => setTimeout(resolve, 2000))
 
@@ -176,6 +169,19 @@ Deno.serve(async (req) => {
         .from('profiles')
         .update({ primeiro_acesso: true, ...planoFields })
         .eq('id', userId)
+
+      // Gerar magic link para o email de boas-vindas
+      const { data: linkData } = await supabaseAdmin.auth.admin.generateLink({
+        type: 'magiclink',
+        email,
+        options: {
+          redirectTo: `${Deno.env.get('SITE_URL') || supabaseUrl}/dashboard`
+        }
+      })
+
+      const magicLink = linkData?.properties?.action_link || null
+
+      await enviarEmailBoasVindas(email, nomeCompleto, planoId, planoTipo, magicLink)
     }
 
     // Gerenciar roles
@@ -201,7 +207,7 @@ Deno.serve(async (req) => {
       acao: 'criou_usuario',
       usuario_afetado_id: userId,
       usuario_afetado_email: email,
-      detalhes: { planoId, planoTipo, nomeCompleto, nomeConfeitaria }
+      detalhes: { planoId, planoTipo, planoInicio, planoFim, nomeCompleto, nomeConfeitaria }
     })
 
     console.log('=== Criar Usuário - Sucesso ===')
@@ -221,3 +227,81 @@ Deno.serve(async (req) => {
     )
   }
 })
+
+async function enviarEmailBoasVindas(
+  email: string,
+  nome: string | null,
+  planoId: string,
+  planoTipo: string | null,
+  magicLink?: string | null
+) {
+  const resendApiKey = Deno.env.get('RESEND_API_KEY')
+  if (!resendApiKey) {
+    console.warn('RESEND_API_KEY não configurada - email de boas-vindas não enviado')
+    return
+  }
+
+  const planoNome = planoId === 'negocio' ? 'Plano Negócio' : 'Plano Base'
+  const periodicidade = planoTipo === 'anual' ? 'Anual' : 'Mensal'
+  const nomeDisplay = nome || 'Confeiteira'
+
+  const linkAcesso = magicLink || `${Deno.env.get('SITE_URL') || 'https://caixadeacucar.lovable.app'}/auth/login`
+
+  const html = `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #1A1A1A; border-radius: 16px; overflow: hidden;">
+      <div style="background: linear-gradient(135deg, #D89B8C 0%, #C4837A 100%); padding: 40px 30px; text-align: center;">
+        <h1 style="color: #FFFFFF; font-size: 28px; margin: 0 0 8px;">🧁 Caixa de Açúcar</h1>
+        <p style="color: rgba(255,255,255,0.85); font-size: 14px; margin: 0;">by Umbrella Doce</p>
+      </div>
+      <div style="padding: 40px 30px; color: #E8E3DF;">
+        <h2 style="color: #D89B8C; font-size: 22px; margin: 0 0 16px;">Bem-vinda, ${nomeDisplay}! 🎉</h2>
+        <p style="font-size: 16px; line-height: 1.6; margin: 0 0 20px;">
+          Sua conta no <strong>Caixa de Açúcar</strong> foi criada com sucesso!
+        </p>
+        <div style="background: #2A2A2A; border-radius: 12px; padding: 20px; margin: 0 0 24px;">
+          <p style="margin: 0 0 8px; font-size: 14px;"><strong style="color: #D89B8C;">Plano:</strong> ${planoNome}</p>
+          <p style="margin: 0; font-size: 14px;"><strong style="color: #D89B8C;">Periodicidade:</strong> ${periodicidade}</p>
+        </div>
+        <p style="font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
+          ${magicLink ? 'Clique no botão abaixo para acessar sua conta. No primeiro acesso, você definirá sua senha.' : 'Acesse a plataforma usando o botão abaixo e utilize "Esqueci minha senha" para definir seu acesso.'}
+        </p>
+        <div style="text-align: center; margin: 0 0 24px;">
+          <a href="${linkAcesso}" style="display: inline-block; background: linear-gradient(135deg, #D89B8C, #C4837A); color: #FFFFFF; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: bold; font-size: 16px;">
+            Acessar Caixa de Açúcar
+          </a>
+        </div>
+        <p style="font-size: 13px; color: #888; text-align: center; margin: 0;">
+          Se você não solicitou esta conta, pode ignorar este email.
+        </p>
+      </div>
+      <div style="background: #111; padding: 20px 30px; text-align: center;">
+        <p style="color: #666; font-size: 12px; margin: 0;">© ${new Date().getFullYear()} Caixa de Açúcar by Umbrella Doce</p>
+      </div>
+    </div>
+  `
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Caixa de Açúcar <noreply@umbrelladoce.com.br>',
+        to: [email],
+        subject: `🧁 Bem-vinda ao Caixa de Açúcar, ${nomeDisplay}!`,
+        html,
+      }),
+    })
+
+    if (!res.ok) {
+      const errBody = await res.text()
+      console.error('Erro Resend:', res.status, errBody)
+    } else {
+      console.log('Email de boas-vindas enviado para:', email)
+    }
+  } catch (err) {
+    console.error('Erro ao enviar email de boas-vindas:', err)
+  }
+}

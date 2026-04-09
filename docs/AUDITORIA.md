@@ -1,6 +1,19 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-08T21:00:00Z — Desvinculação Umbrella Doce + Hotmart Webhook
+> Última atualização: 2026-04-09T12:00:00Z — Refinamentos módulo Usuários + Resend
+
+---
+
+## MÓDULO USUÁRIOS — 2026-04-09 12:00 UTC (Refinamentos + Resend)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 13 | Formulário Criar Usuário | ✅ | Adicionados campos "Data Início" e "Data Expiração" com auto-cálculo baseado na periodicidade (30/365 dias). |
+| 14 | Listagem de usuários | ✅ | Removidas colunas "Confeitaria" e "Cadastrado em". Adicionadas colunas "Início do Plano" e "Expiração do Plano" após Permissões. |
+| 15 | Email de boas-vindas Resend | ✅ | Removido inviteUserByEmail (Magic Link nativo). Novo usuário criado via createUser + generateLink. Email de boas-vindas enviado via Resend API (noreply@umbrelladoce.com.br). |
+| 16 | Edge function criar-usuario | ✅ | Refatorada para usar Resend em vez de invite nativo. Senha temporária aleatória + magic link gerado para primeiro acesso. |
+
+---
 
 ---
 
