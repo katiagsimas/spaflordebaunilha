@@ -1,15 +1,10 @@
 import React from "react";
-import { Settings, DollarSign, Package, Building2, Info, HardDrive, Lock } from "lucide-react";
+import { Settings, DollarSign, Package, Info, HardDrive } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { usePlano } from "@/hooks/usePlano";
-import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 export default function Configuracoes() {
   const navigate = useNavigate();
-  const { rotaBloqueada, isLoading: isPlanoLoading } = usePlano();
-  const { isAdmin, isLoading: isAdminLoading } = useIsAdmin();
-  const financeiroBloqueado = !isPlanoLoading && !isAdminLoading && !isAdmin && rotaBloqueada("/configuracoes/financeiro");
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
@@ -89,30 +84,7 @@ export default function Configuracoes() {
           </CardHeader>
         </Card>
 
-        {/* Card 3: FINANCEIRO — bloqueado para Plano Base */}
-        <Card 
-          className={`group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-teal-500 ${financeiroBloqueado ? 'opacity-60' : ''}`}
-          onClick={() => navigate(financeiroBloqueado ? "/upgrade" : "/configuracoes/financeiro")}
-        >
-          <CardHeader className="p-4 space-y-2">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-teal-50 dark:bg-teal-950 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                <Building2 className="h-5 w-5" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <CardTitle className="text-base font-semibold leading-tight line-clamp-2 flex items-center gap-2">
-                  Financeiro
-                  {financeiroBloqueado && <Lock className="h-4 w-4 text-muted-foreground" />}
-                </CardTitle>
-              </div>
-            </div>
-            <CardDescription className="text-xs line-clamp-2">
-              {financeiroBloqueado ? "Disponível no Plano Negócio" : "Gerencie bancos, documentos e plano de contas"}
-            </CardDescription>
-          </CardHeader>
-        </Card>
-
-        {/* Card 4: BACKUP */}
+        {/* Card 3: BACKUP */}
         <Card 
           className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-emerald-500"
           onClick={() => navigate("/configuracoes/backup")}

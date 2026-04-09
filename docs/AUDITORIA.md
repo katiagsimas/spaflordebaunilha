@@ -1,6 +1,15 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-09T20:00:00Z — Histórico de planos + origem_criacao + datas no formulário
+> Última atualização: 2026-04-09T20:13:05Z — Cadastros financeiros movidos para o módulo Financeiro
+
+---
+
+## CORREÇÕES — 2026-04-09 20:13 UTC (Cadastros Financeiros)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 29 | Submódulo Financeiro → Cadastros | ✅ | Submódulo renomeado para `Cadastros`, removido de Configurações e adicionado ao módulo Financeiro com card dedicado no hub principal. |
+| 30 | Acesso raiz de Configurações no Plano Base | ✅ | Regra de rotas refinada para permitir `/configuracoes` sem liberar subrotas financeiras; rotas antigas agora redirecionam para `/financeiro/cadastros/*`. |
 
 ---
 

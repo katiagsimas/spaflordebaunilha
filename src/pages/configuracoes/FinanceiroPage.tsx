@@ -5,15 +5,15 @@ import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 
-export default function FinanceiroPage() {
+export default function CadastrosFinanceiroPage() {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background">
       <PageHeader
-        title="Financeiro"
-        description="Gerencie bancos, documentos e plano de contas"
-        backButton={<BackButton to="/configuracoes" />}
+        title="Cadastros"
+        description="Gerencie bancos, documentos e plano de contas do Financeiro"
+        backButton={<BackButton to="/financeiro" />}
       />
       
       <div className="p-4 md:p-6">
@@ -23,7 +23,7 @@ export default function FinanceiroPage() {
         {/* Card: Bancos */}
         <Card 
           className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-teal-500"
-          onClick={() => navigate("/configuracoes/bancos")}
+          onClick={() => navigate("/financeiro/cadastros/bancos")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">
@@ -45,7 +45,7 @@ export default function FinanceiroPage() {
         {/* Card: Tipos de Documentos */}
         <Card 
           className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-pink-500"
-          onClick={() => navigate("/configuracoes/tipos-documentos")}
+          onClick={() => navigate("/financeiro/cadastros/tipos-documentos")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">
@@ -67,7 +67,7 @@ export default function FinanceiroPage() {
         {/* Card: Categorias Plano de Contas */}
         <Card 
           className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-blue-500"
-          onClick={() => navigate("/configuracoes/categorias-plano-contas")}
+          onClick={() => navigate("/financeiro/cadastros/categorias-plano-contas")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">
@@ -89,7 +89,7 @@ export default function FinanceiroPage() {
         {/* Card: Plano de Contas */}
         <Card 
           className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-orange-500"
-          onClick={() => navigate("/configuracoes/plano-contas")}
+          onClick={() => navigate("/financeiro/cadastros/plano-contas")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">
@@ -111,7 +111,7 @@ export default function FinanceiroPage() {
         {/* Card: Juros e Multas */}
         <Card 
           className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-red-500"
-          onClick={() => navigate("/configuracoes/juros")}
+          onClick={() => navigate("/financeiro/cadastros/juros")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">
