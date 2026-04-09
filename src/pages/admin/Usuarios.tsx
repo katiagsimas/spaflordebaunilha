@@ -125,7 +125,7 @@ export default function Usuarios() {
   // Carregar estatísticas
   useEffect(() => {
     carregarEstatisticas();
-  }, [profiles, rolesData]);
+  }, [profilesSemAdmin, rolesData]);
 
   // Filtrar perfis de admin (ocultar da listagem)
   const profilesSemAdmin = profiles?.filter(u => {
