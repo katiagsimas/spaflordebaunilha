@@ -109,7 +109,7 @@ export default function Backup() {
 
     for (const tabela of tabelas) {
       try {
-        const { data, error } = await supabase.from(tabela).select("*");
+        const { data, error } = await (supabase.from(tabela as any).select("*") as any);
         if (!error && data) {
           dados[tabela] = data;
         }
