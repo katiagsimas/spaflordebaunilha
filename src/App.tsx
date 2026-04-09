@@ -132,14 +132,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             </div>
           )}
           
-          <header className="sticky top-0 z-10 h-14 border-b backdrop-blur-md shadow-sm">
-            <div className="flex h-full items-center justify-between px-4 bg-app">
+          <header className="sticky top-0 z-10 h-14 border-b shadow-sm" style={{ backgroundColor: '#BFCFB8' }}>
+            <div className="flex h-full items-center justify-between px-4">
               <div className="flex items-center gap-3">
                 <SidebarTrigger className="hover:bg-accent/50 transition-colors" />
                 <div className="h-6 w-px bg-border" />
               </div>
               {ultimoBackupTexto && (
-                <span className="text-xs text-muted-foreground hidden sm:inline-flex items-center gap-1.5">
+                <span className="text-xs font-bold text-foreground hidden sm:inline-flex items-center gap-1.5">
                   💾 Último backup: {ultimoBackupTexto}
                 </span>
               )}
