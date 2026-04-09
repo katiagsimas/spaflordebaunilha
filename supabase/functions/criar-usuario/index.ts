@@ -93,6 +93,7 @@ Deno.serve(async (req) => {
       plano_tipo: planoTipo,
       plano_inicio: planoInicio,
       plano_fim: planoFim,
+      origem_criacao: 'admin',
     }
 
     let userId: string
