@@ -1,5 +1,5 @@
 import React from "react";
-import { Settings, DollarSign, Package, Building2, Info, Lock } from "lucide-react";
+import { Settings, DollarSign, Package, Building2, Info } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { usePlano } from "@/hooks/usePlano";
@@ -89,15 +89,16 @@ export default function Configuracoes() {
           </CardHeader>
         </Card>
 
-        {/* Card 3: FINANCEIRO */}
+        {/* Card 3: FINANCEIRO — oculto para Plano Base */}
+        {!financeiroBloqueado && (
         <Card 
-          className={`group transition-all duration-200 border-l-4 ${financeiroBloqueado ? "border-l-muted opacity-60 cursor-not-allowed" : "border-l-teal-500 cursor-pointer hover:shadow-lg hover:scale-[1.02]"}`}
-          onClick={() => !financeiroBloqueado && navigate("/configuracoes/financeiro")}
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-teal-500"
+          onClick={() => navigate("/configuracoes/financeiro")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-transform ${financeiroBloqueado ? "bg-muted text-muted-foreground" : "bg-teal-50 dark:bg-teal-950 text-teal-600 dark:text-teal-400 group-hover:scale-110"}`}>
-                {financeiroBloqueado ? <Lock className="h-5 w-5" /> : <Building2 className="h-5 w-5" />}
+              <div className="w-10 h-10 rounded-lg bg-teal-50 dark:bg-teal-950 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <Building2 className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
                 <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
@@ -106,10 +107,11 @@ export default function Configuracoes() {
               </div>
             </div>
             <CardDescription className="text-xs line-clamp-2">
-              {financeiroBloqueado ? "Disponível no Plano Negócio" : "Gerencie bancos, documentos e plano de contas"}
+              Gerencie bancos, documentos e plano de contas
             </CardDescription>
           </CardHeader>
         </Card>
+        )}
       </div>
     </div>
   );
