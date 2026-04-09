@@ -1,6 +1,15 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-09T20:13:05Z — Cadastros financeiros movidos para o módulo Financeiro
+> Última atualização: 2026-04-09T21:00:00Z — Renomeação dos planos (Base → Caixa Lite, Negócio → Caixa Business)
+
+---
+
+## CORREÇÕES — 2026-04-09 21:00 UTC (Renomeação de Planos)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 31 | Plano Base → Caixa Lite | ✅ | Nome atualizado no banco (tabela `planos`), webhook Hotmart, edge function `criar-usuario`, painel admin e fallback do hook `usePlano`. |
+| 32 | Plano Negócio → Caixa Business | ✅ | Mesmos pontos do item 31. Webhook mantém retrocompatibilidade com palavras-chave `negocio`, `negócio`, `business` e `caixa business`. |
 
 ---
 
