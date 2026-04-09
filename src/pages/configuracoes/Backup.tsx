@@ -505,6 +505,100 @@ export default function Backup() {
         </CardContent>
       </Card>
 
+      {/* Dialog Restaurar */}
+      <Dialog open={restaurarDialogOpen} onOpenChange={setRestaurarDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Restaurar Backup</DialogTitle>
+            <DialogDescription>
+              Selecione um backup salvo no banco de dados ou importe um arquivo .json
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Opção: Do banco de dados */}
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold flex items-center gap-2">
+                <Database className="h-4 w-4" /> Backups salvos
+              </Label>
+              {backups.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-2">
+                  Nenhum backup encontrado no banco de dados.
+                </p>
+              ) : (
+                <div className="max-h-48 overflow-y-auto space-y-1 border rounded-lg p-2">
+                  {backups.map((b) => (
+                    <div
+                      key={b.id}
+                      onClick={() => setBackupSelecionado(b.id)}
+                      className={`flex items-center justify-between p-2 rounded-md cursor-pointer transition-colors ${
+                        backupSelecionado === b.id
+                          ? "bg-primary/10 border border-primary/30"
+                          : "hover:bg-accent/50"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <HardDrive className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate">{b.nome}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {format(new Date(b.created_at), "dd/MM/yyyy HH:mm")} • {b.tamanho}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <Button
+                onClick={() => backupSelecionado && restaurarDoHistorico(backupSelecionado)}
+                disabled={!backupSelecionado || restaurando}
+                className="w-full"
+                size="sm"
+              >
+                {restaurando ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Restaurando...
+                  </>
+                ) : (
+                  <>
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    Restaurar Selecionado
+                  </>
+                )}
+              </Button>
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">ou</span>
+              </div>
+            </div>
+
+            {/* Opção: Importar arquivo */}
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold flex items-center gap-2">
+                <Upload className="h-4 w-4" /> Importar arquivo
+              </Label>
+              <Button
+                variant="outline"
+                onClick={handleRestaurarArquivo}
+                disabled={restaurando}
+                className="w-full"
+                size="sm"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Selecionar Arquivo .json
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <ConfirmDialog
         open={!!deleteId}
         onOpenChange={(open) => !open && setDeleteId(null)}
