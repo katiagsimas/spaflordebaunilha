@@ -442,7 +442,7 @@ export default function Usuarios() {
             <Card
               key={item.label}
               onClick={() => setFiltroCard(filtroCard === item.key ? null : item.key)}
-              className={`cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-2 border-l-[#D89B8C] group ${filtroCard === item.key ? 'ring-2 ring-primary bg-accent/30' : ''}`}
+              className={`cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-2 border-l-[#D89B8C] group ${filtroCard === item.key ? 'ring-2 ring-[#E7A1AF] bg-[#E7A1AF]/15' : ''}`}
             >
               <CardHeader className="p-2">
                 <div className="flex flex-col items-center gap-1 text-center">
