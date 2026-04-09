@@ -6,7 +6,7 @@
 
 ## 1. VISÃO GERAL
 
-Módulo para cálculo de custos e formação de preços. Acessível no **Plano Base**.
+Módulo para cálculo de custos e formação de preços. Acessível no **Caixa Lite**.
 
 ### Cadeia de Precificação
 ```

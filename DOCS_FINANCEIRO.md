@@ -6,7 +6,7 @@
 
 ## 1. VISÃO GERAL
 
-Módulo completo de gestão financeira. **Requer Plano Negócio** (ou role admin para bypass).
+Módulo completo de gestão financeira. **Requer Caixa Business** (ou role admin para bypass).
 
 ### Submódulos
 - Dashboard Financeiro
