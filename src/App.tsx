@@ -90,6 +90,35 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const { isLoading, loadingLabel } = useGlobalLoading();
+  const { user } = useAuth();
+
+  const { data: ultimoBackup } = useQuery({
+    queryKey: ['ultimo-backup', user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await (supabase
+        .from("backups" as any)
+        .select("created_at")
+        .eq("usuario_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single() as any);
+      return data?.created_at ?? null;
+    },
+    enabled: !!user,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const ultimoBackupTexto = ultimoBackup
+    ? (() => {
+        const d = new Date(ultimoBackup);
+        const dia = String(d.getDate()).padStart(2, '0');
+        const mes = String(d.getMonth() + 1).padStart(2, '0');
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mm = String(d.getMinutes()).padStart(2, '0');
+        return `${dia}/${mes} às ${hh}:${mm}`;
+      })()
+    : null;
 
   return (
     <SidebarProvider>
@@ -104,9 +133,16 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           )}
           
           <header className="sticky top-0 z-10 h-14 border-b backdrop-blur-md shadow-sm">
-            <div className="flex h-full items-center px-4 gap-3 bg-app">
-              <SidebarTrigger className="hover:bg-accent/50 transition-colors" />
-              <div className="h-6 w-px bg-border" />
+            <div className="flex h-full items-center justify-between px-4 bg-app">
+              <div className="flex items-center gap-3">
+                <SidebarTrigger className="hover:bg-accent/50 transition-colors" />
+                <div className="h-6 w-px bg-border" />
+              </div>
+              {ultimoBackupTexto && (
+                <span className="text-xs text-muted-foreground hidden sm:inline-flex items-center gap-1.5">
+                  💾 Último backup: {ultimoBackupTexto}
+                </span>
+              )}
             </div>
           </header>
           <AlertaExpiracaoPlano />
