@@ -22,7 +22,7 @@ import MaoDeObra from "./pages/configuracoes/precificacao/MaoDeObra";
 
 import CadastrosBase from "./pages/configuracoes/CadastrosBase";
 import PrecificacaoPage from "./pages/configuracoes/PrecificacaoPage";
-import FinanceiroPage from "./pages/configuracoes/FinanceiroPage";
+import CadastrosFinanceiroPage from "./pages/configuracoes/FinanceiroPage";
 import Clientes from "./pages/cadastros/Clientes";
 import Fornecedores from "./pages/cadastros/Fornecedores";
 import UnidadesMedida from "./pages/cadastros/UnidadesMedida";
@@ -194,15 +194,15 @@ const App = () => (
           <Route path="/configuracoes" element={<ProtectedRoute><Layout><Configuracoes /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/cadastros-base" element={<ProtectedRoute><Layout><CadastrosBase /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/precificacao" element={<ProtectedRoute><Layout><PrecificacaoPage /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/financeiro" element={<ProtectedRoute><Layout><PlanoGuard><FinanceiroPage /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/financeiro" element={<ProtectedRoute><Layout><PlanoGuard><Navigate to="/financeiro/cadastros" replace /></PlanoGuard></Layout></ProtectedRoute>} />
           
           <Route path="/configuracoes/precificacao/mao-de-obra" element={<ProtectedRoute><Layout><MaoDeObra /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/tipos-insumos" element={<ProtectedRoute><Layout><TiposInsumos /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/categorias-plano-contas" element={<ProtectedRoute><Layout><PlanoGuard><CategoriasPlanoContas /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/plano-contas" element={<ProtectedRoute><Layout><PlanoGuard><PlanoContas /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/bancos" element={<ProtectedRoute><Layout><PlanoGuard><Bancos /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/tipos-documentos" element={<ProtectedRoute><Layout><PlanoGuard><TiposDocumentos /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/juros" element={<ProtectedRoute><Layout><PlanoGuard><ConfiguracaoJurosPage /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/categorias-plano-contas" element={<ProtectedRoute><Layout><PlanoGuard><Navigate to="/financeiro/cadastros/categorias-plano-contas" replace /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/plano-contas" element={<ProtectedRoute><Layout><PlanoGuard><Navigate to="/financeiro/cadastros/plano-contas" replace /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/bancos" element={<ProtectedRoute><Layout><PlanoGuard><Navigate to="/financeiro/cadastros/bancos" replace /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/tipos-documentos" element={<ProtectedRoute><Layout><PlanoGuard><Navigate to="/financeiro/cadastros/tipos-documentos" replace /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/juros" element={<ProtectedRoute><Layout><PlanoGuard><Navigate to="/financeiro/cadastros/juros" replace /></PlanoGuard></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/tags-encomendas" element={<ProtectedRoute><Layout><TagsEncomendasPage /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/backup" element={<ProtectedRoute><Layout><BackupPage /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/dados-confeitaria" element={<ProtectedRoute><Layout><SeusDados /></Layout></ProtectedRoute>} />
@@ -221,6 +221,12 @@ const App = () => (
           
           {/* Financeiro - Página Principal */}
           <Route path="/financeiro" element={<ProtectedRoute><Layout><PlanoGuard><Financeiro /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/cadastros" element={<ProtectedRoute><Layout><PlanoGuard><CadastrosFinanceiroPage /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/cadastros/bancos" element={<ProtectedRoute><Layout><PlanoGuard><Bancos /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/cadastros/tipos-documentos" element={<ProtectedRoute><Layout><PlanoGuard><TiposDocumentos /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/cadastros/categorias-plano-contas" element={<ProtectedRoute><Layout><PlanoGuard><CategoriasPlanoContas /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/cadastros/plano-contas" element={<ProtectedRoute><Layout><PlanoGuard><PlanoContas /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/cadastros/juros" element={<ProtectedRoute><Layout><PlanoGuard><ConfiguracaoJurosPage /></PlanoGuard></Layout></ProtectedRoute>} />
           <Route path="/financeiro/dashboard" element={<ProtectedRoute><Layout><PlanoGuard><DashboardFinanceiro /></PlanoGuard></Layout></ProtectedRoute>} />
           
           {/* Financeiro - Contas a Receber */}

@@ -473,7 +473,7 @@ export default function PlanoContas() {
       <PageHeader
         title="Plano de Contas"
         description="Contas detalhadas para classificação de lançamentos financeiros"
-        backButton={<BackButton to="/configuracoes/financeiro" />}
+        backButton={<BackButton to="/financeiro/cadastros" />}
       />
 
       {/* Alert */}

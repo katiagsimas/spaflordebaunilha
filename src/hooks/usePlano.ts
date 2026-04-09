@@ -9,6 +9,7 @@ const MODULOS_POR_PLANO: Record<string, string[]> = {
     "/encomendas",
     "/clientes",
     "/fornecedores",
+    "/configuracoes",
     "/configuracoes/cadastros-base",
     "/configuracoes/categorias-receitas",
     "/configuracoes/unidades-medida",
@@ -60,7 +61,11 @@ export function usePlano() {
 
   const rotaPermitida = (rota: string, modulos: string[]): boolean => {
     if (modulos.includes("*")) return true;
-    return modulos.some((m) => rota === m || rota.startsWith(m + "/"));
+    return modulos.some((m) => {
+      if (rota === m) return true;
+      if (m === "/configuracoes") return false;
+      return rota.startsWith(m + "/");
+    });
   };
 
   const temAcesso = (rota: string): boolean => {

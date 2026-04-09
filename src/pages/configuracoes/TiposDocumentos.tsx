@@ -331,7 +331,7 @@ export default function TiposDocumentos() {
       <PageHeader
         title="Tipos de Documentos"
         description="Tipos de documentos para lançamentos financeiros"
-        backButton={<BackButton to="/configuracoes/financeiro" />}
+        backButton={<BackButton to="/financeiro/cadastros" />}
         actions={
           <Button onClick={() => handleAbrirModal()}>
             <Plus className="mr-2 h-4 w-4" />

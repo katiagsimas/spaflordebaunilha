@@ -579,6 +579,23 @@ export default function Financeiro() {
       {/* Cards de Navegação */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
 
+        {/* Card Cadastros */}
+        <Card 
+          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-teal-500"
+          onClick={() => navigate('/financeiro/cadastros')}
+        >
+          <CardHeader className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-950 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
+                <Settings className="h-4 w-4" />
+              </div>
+              <CardTitle className="text-sm font-semibold">
+                Cadastros
+              </CardTitle>
+            </div>
+          </CardHeader>
+        </Card>
+
         {/* Card Contas a Receber */}
         <Card 
           className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-green-500"

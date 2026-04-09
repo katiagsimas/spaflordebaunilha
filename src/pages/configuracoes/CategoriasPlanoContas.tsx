@@ -220,7 +220,7 @@ export default function CategoriasPlanoContas() {
       <PageHeader
         title="Categorias do Plano de Contas"
         description="Categorias para classificação de receitas e despesas no DRE"
-        backButton={<BackButton to="/configuracoes/financeiro" />}
+        backButton={<BackButton to="/financeiro/cadastros" />}
       />
 
       {/* Alertas */}
