@@ -16,7 +16,7 @@ function resolverPlano(productId: string, planName: string | null): { planoId: s
   const isAnual = nome.includes('anual') || nome.includes('annual') || nome.includes('yearly')
   const planoTipo = isAnual ? 'anual' : 'mensal'
 
-  const isNegocio = nome.includes('negocio') || nome.includes('negócio') || nome.includes('business')
+  const isNegocio = nome.includes('business') || nome.includes('negocio') || nome.includes('negócio') || nome.includes('caixa business')
   const planoId = isNegocio ? 'negocio' : 'base'
 
   return { planoId, planoTipo }
@@ -363,7 +363,7 @@ async function enviarEmailBoasVindas(
   }
 
   const nomeDisplay = nome || 'Confeiteira'
-  const planoNome = planoId === 'negocio' ? 'Plano Negócio' : 'Plano Base'
+  const planoNome = planoId === 'negocio' ? 'Caixa Business' : 'Caixa Lite'
 
   const html = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.6;">

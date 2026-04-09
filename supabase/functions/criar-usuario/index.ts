@@ -255,7 +255,7 @@ async function enviarEmailBoasVindas(
   }
 
   const nomeDisplay = nome || 'Confeiteira'
-  const planoNome = planoId === 'negocio' ? 'Plano Negócio' : 'Plano Base'
+  const planoNome = planoId === 'negocio' ? 'Caixa Business' : 'Caixa Lite'
 
   const html = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.6;">
