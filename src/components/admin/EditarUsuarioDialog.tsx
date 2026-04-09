@@ -49,7 +49,10 @@ import {
   DollarSign,
   AlertTriangle,
   Settings,
-  Tag
+  Tag,
+  History,
+  CalendarDays,
+  Globe
 } from 'lucide-react';
 
 const formSchema = z.object({
