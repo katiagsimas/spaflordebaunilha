@@ -75,7 +75,7 @@ export default function Usuarios() {
   
   // Estados para busca e filtros
   const [buscaEmail, setBuscaEmail] = useState("");
-  const [filtroCard, setFiltroCard] = useState<string | null>(null);
+  const [filtroCard, setFiltroCard] = useState<string | null>('ativos');
   const [porPagina, setPorPagina] = useState(10);
   const [estatisticas, setEstatisticas] = useState({
     total: 0,
@@ -452,9 +452,9 @@ export default function Usuarios() {
         {/* Dashboard de Resumo */}
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-1.5">
           {[
-            { key: null, label: 'Total', value: estatisticas.total, icon: Users, color: 'text-slate-600', bg: 'bg-slate-50 dark:bg-slate-950' },
             { key: 'ativos', label: 'Ativos', value: estatisticas.ativos, icon: UserCheck, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950' },
             { key: 'inativos', label: 'Inativos', value: estatisticas.inativos, icon: UserX, color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-950' },
+            { key: null, label: 'Total', value: estatisticas.total, icon: Users, color: 'text-slate-600', bg: 'bg-slate-50 dark:bg-slate-950' },
             { key: 'baseMensal', label: 'Base Mensal', value: estatisticas.baseMensal, icon: User, color: 'text-sky-600', bg: 'bg-sky-50 dark:bg-sky-950' },
             { key: 'baseAnual', label: 'Base Anual', value: estatisticas.baseAnual, icon: User, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-950' },
             { key: 'negocioMensal', label: 'Negócio Mensal', value: estatisticas.negocioMensal, icon: Shield, color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-950' },
