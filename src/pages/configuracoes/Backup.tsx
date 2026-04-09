@@ -242,11 +242,6 @@ export default function Backup() {
             <h1 className="text-3xl font-bold tracking-tight">Backup</h1>
             <p className="text-muted-foreground">
               Gerencie backups do seu projeto
-              {ultimoBackupFormatado && (
-                <span className="ml-2 text-xs font-medium text-primary">
-                  • Último backup: {ultimoBackupFormatado}
-                </span>
-              )}
             </p>
           </div>
         </div>
