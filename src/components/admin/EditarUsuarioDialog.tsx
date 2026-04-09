@@ -265,6 +265,8 @@ export function EditarUsuarioDialog({
 
       const { data: { user } } = await supabase.auth.getUser();
       const roleAnterior = userRole;
+      const planoAnterior = userData?.plano_id || 'base';
+      const planoTipoAnterior = userData?.plano_tipo || 'mensal';
 
       if (data.email !== userData?.email) {
         const { error: emailError } = await supabase.auth.admin.updateUserById(userId, {
@@ -280,6 +282,9 @@ export function EditarUsuarioDialog({
           nome_confeitaria: data.nomeConfeitaria,
           ativo: data.ativo,
           plano_id: data.planoId,
+          plano_tipo: data.planoTipo,
+          plano_inicio: planoInicio ? formatDateToISO(planoInicio) : null,
+          plano_fim: planoFim ? formatDateToISO(planoFim) : null,
         } as any)
         .eq('id', userId);
 
@@ -310,9 +315,31 @@ export function EditarUsuarioDialog({
         }
       }
 
-      // Log de alteração de plano
-      const planoAnterior = userData?.plano_id || 'base';
-      if (data.planoId !== planoAnterior) {
+      // Detect plan changes and record history
+      const planoMudou = data.planoId !== planoAnterior;
+      const tipoMudou = data.planoTipo !== planoTipoAnterior;
+      const datasMudaram = (planoInicio ? formatDateToISO(planoInicio) : null) !== (userData?.plano_inicio || null)
+        || (planoFim ? formatDateToISO(planoFim) : null) !== (userData?.plano_fim || null);
+
+      if (planoMudou || tipoMudou || datasMudaram) {
+        let tipoEvento = 'alteracao';
+        if (planoMudou && data.planoId === 'negocio') tipoEvento = 'upgrade';
+        if (planoMudou && data.planoId === 'base') tipoEvento = 'downgrade';
+        if (!planoMudou && !tipoMudou && datasMudaram) tipoEvento = 'renovacao';
+
+        await supabase.from('historico_planos').insert({
+          user_id: userId,
+          plano_anterior: planoAnterior,
+          plano_novo: data.planoId,
+          plano_tipo_anterior: planoTipoAnterior,
+          plano_tipo_novo: data.planoTipo,
+          plano_inicio: planoInicio ? formatDateToISO(planoInicio) : null,
+          plano_fim: planoFim ? formatDateToISO(planoFim) : null,
+          tipo_evento: tipoEvento,
+          origem: 'admin',
+          admin_id: user?.id,
+        } as any);
+
         if (user && userData) {
           await supabase.from('admin_logs').insert({
             admin_id: user.id,
@@ -322,7 +349,10 @@ export function EditarUsuarioDialog({
             usuario_afetado_email: userData.email,
             detalhes: {
               plano_anterior: planoAnterior,
-              plano_novo: data.planoId
+              plano_novo: data.planoId,
+              tipo_anterior: planoTipoAnterior,
+              tipo_novo: data.planoTipo,
+              tipo_evento: tipoEvento,
             }
           });
         }
@@ -336,6 +366,7 @@ export function EditarUsuarioDialog({
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       queryClient.invalidateQueries({ queryKey: ['admin-user-roles'] });
       queryClient.invalidateQueries({ queryKey: ['plano'] });
+      queryClient.invalidateQueries({ queryKey: ['historico-planos', userId] });
       onOpenChange(false);
     },
     onError: (error: any) => {
