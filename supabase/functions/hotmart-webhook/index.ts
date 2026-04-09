@@ -2,7 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.0'
 import { corsHeaders } from '../_shared/cors.ts'
 
 /**
- * Hotmart Webhook — Provisiona e gerencia usuários automaticamente.
+ * Hotmart Webhook v2.0 — Provisiona e gerencia usuários automaticamente.
  * Eventos tratados:
  *   - PURCHASE_APPROVED / PURCHASE_COMPLETE → cria/ativa usuário
  *   - PURCHASE_CANCELED / PURCHASE_REFUNDED / PURCHASE_CHARGEBACK → desativa usuário
@@ -12,12 +12,10 @@ import { corsHeaders } from '../_shared/cors.ts'
  */
 
 function resolverPlano(productId: string, planName: string | null): { planoId: string; planoTipo: string } {
-  // Detectar periodicidade pelo nome do plano ou offer
   const nome = (planName || '').toLowerCase()
   const isAnual = nome.includes('anual') || nome.includes('annual') || nome.includes('yearly')
   const planoTipo = isAnual ? 'anual' : 'mensal'
 
-  // Detectar plano pelo nome
   const isNegocio = nome.includes('negocio') || nome.includes('negócio') || nome.includes('business')
   const planoId = isNegocio ? 'negocio' : 'base'
 
@@ -31,6 +29,35 @@ function calcularPlanoFim(planoTipo: string): string {
   return agora.toISOString().split('T')[0]
 }
 
+/**
+ * Extrai o hottok do request — Hotmart pode enviar como:
+ * 1. Query parameter: ?hottok=xxx
+ * 2. Campo no body (payload v1)
+ */
+function extrairHottok(req: Request, body: Record<string, unknown>): string | null {
+  const url = new URL(req.url)
+  return url.searchParams.get('hottok') || (body.hottok as string) || null
+}
+
+/**
+ * Extrai email do comprador — Hotmart v2.0 usa data.buyer OU data.subscriber
+ */
+function extrairEmail(data: Record<string, unknown>): string | null {
+  const buyer = (data.buyer || {}) as Record<string, unknown>
+  const subscriber = (data.subscriber || {}) as Record<string, unknown>
+  const email = (buyer.email || subscriber.email) as string | undefined
+  return email?.toLowerCase()?.trim() || null
+}
+
+/**
+ * Extrai nome do comprador
+ */
+function extrairNome(data: Record<string, unknown>): string | null {
+  const buyer = (data.buyer || {}) as Record<string, unknown>
+  const subscriber = (data.subscriber || {}) as Record<string, unknown>
+  return (buyer.name || subscriber.name || null) as string | null
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -39,7 +66,6 @@ Deno.serve(async (req) => {
   console.log('=== Hotmart Webhook - Início ===')
 
   try {
-    // Validar hottok
     const hottok = Deno.env.get('HOTMART_HOTTOK')
     if (!hottok) {
       console.error('HOTMART_HOTTOK não configurado')
@@ -51,9 +77,10 @@ Deno.serve(async (req) => {
 
     const body = await req.json()
 
-    // Validar hottok do payload
-    if (body.hottok !== hottok) {
-      console.error('Hottok inválido')
+    // Validar hottok (query param ou body)
+    const receivedHottok = extrairHottok(req, body)
+    if (receivedHottok !== hottok) {
+      console.error('Hottok inválido. Recebido:', receivedHottok ? '[presente mas incorreto]' : '[ausente]')
       return new Response(
         JSON.stringify({ error: 'Não autorizado' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
@@ -61,13 +88,13 @@ Deno.serve(async (req) => {
     }
 
     const event = body.event
-    const data = body.data || {}
-    const buyer = data.buyer || {}
-    const purchase = data.purchase || {}
-    const subscription = data.subscription || {}
-    const product = data.product || {}
+    const data = (body.data || {}) as Record<string, unknown>
+    const purchase = (data.purchase || {}) as Record<string, unknown>
+    const subscription = (data.subscription || {}) as Record<string, unknown>
+    const product = (data.product || {}) as Record<string, unknown>
+    const plan = (subscription.plan || {}) as Record<string, unknown>
 
-    const email = buyer.email?.toLowerCase()?.trim()
+    const email = extrairEmail(data)
     if (!email) {
       console.error('Email do comprador ausente')
       return new Response(
@@ -76,6 +103,7 @@ Deno.serve(async (req) => {
       )
     }
 
+    const buyerName = extrairNome(data)
     console.log('Evento:', event, '| Email:', email, '| Produto:', product.name)
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -86,18 +114,16 @@ Deno.serve(async (req) => {
 
     // === EVENTOS DE ATIVAÇÃO ===
     if (['PURCHASE_APPROVED', 'PURCHASE_COMPLETE'].includes(event)) {
-      const planName = subscription.plan?.name || purchase.offer?.key || product.name || ''
+      const planName = (plan.name || (purchase.offer as Record<string, unknown>)?.key || product.name || '') as string
       const { planoId, planoTipo } = resolverPlano(product.id?.toString() || '', planName)
       const planoInicio = new Date().toISOString().split('T')[0]
       const planoFim = calcularPlanoFim(planoTipo)
 
       console.log('Provisionando usuário:', { planoId, planoTipo, planoInicio, planoFim })
 
-      // Verificar se usuário existe no Auth
       const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers()
       const existingUser = authUsers.users?.find(u => u.email === email)
 
-      // Verificar perfil
       const { data: existingProfile } = await supabaseAdmin
         .from('profiles')
         .select('id, ativo')
@@ -115,19 +141,17 @@ Deno.serve(async (req) => {
 
       if (existingUser && existingProfile) {
         userId = existingUser.id
-        // Atualizar/reativar
         await supabaseAdmin
           .from('profiles')
           .update({
             ativo: true,
-            nome_completo: buyer.name || existingProfile.id,
+            nome_completo: buyerName || existingProfile.id,
             primeiro_acesso: existingProfile.ativo === false,
             ...planoFields,
             updated_at: new Date().toISOString()
           })
           .eq('id', userId)
 
-        // Se estava inativo, enviar novo Magic Link
         if (existingProfile.ativo === false) {
           await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
             redirectTo: `${Deno.env.get('SITE_URL') || supabaseUrl}/dashboard`
@@ -142,16 +166,15 @@ Deno.serve(async (req) => {
           .insert({
             id: userId,
             email,
-            nome_completo: buyer.name || null,
+            nome_completo: buyerName || null,
             ativo: true,
             primeiro_acesso: true,
             ...planoFields,
           })
         console.log('Perfil criado para usuário existente:', userId)
       } else {
-        // Novo usuário — convite por email
         const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-          data: { nome_completo: buyer.name || null },
+          data: { nome_completo: buyerName || null },
           redirectTo: `${Deno.env.get('SITE_URL') || supabaseUrl}/dashboard`
         })
 
@@ -163,7 +186,6 @@ Deno.serve(async (req) => {
         userId = inviteData.user.id
         console.log('Novo usuário convidado:', userId)
 
-        // Aguardar trigger criar perfil
         await new Promise(resolve => setTimeout(resolve, 2000))
 
         await supabaseAdmin
@@ -172,7 +194,6 @@ Deno.serve(async (req) => {
           .eq('id', userId)
       }
 
-      // Garantir role 'user'
       await supabaseAdmin
         .from('user_roles')
         .upsert({ user_id: userId, role: 'user' }, { onConflict: 'user_id,role' })
@@ -214,9 +235,8 @@ Deno.serve(async (req) => {
       )
     }
 
-    // === RENOVAÇÃO ===
+    // === EVENTOS IGNORADOS ===
     if (event === 'PURCHASE_DELAYED' || event === 'PURCHASE_PROTEST') {
-      // Ignorar — não alterar estado do usuário
       console.log('Evento ignorado:', event)
       return new Response(
         JSON.stringify({ success: true, event, action: 'ignored' }),
@@ -224,9 +244,9 @@ Deno.serve(async (req) => {
       )
     }
 
-    // === SWITCH_PLAN (troca de plano) ===
+    // === SWITCH_PLAN ===
     if (event === 'SWITCH_PLAN') {
-      const planName = subscription.plan?.name || ''
+      const planName = (plan.name || '') as string
       const { planoId, planoTipo } = resolverPlano(product.id?.toString() || '', planName)
       const planoFim = calcularPlanoFim(planoTipo)
 
@@ -256,7 +276,7 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Evento desconhecido — aceitar sem processar
+    // Evento desconhecido
     console.log('Evento não mapeado:', event)
     return new Response(
       JSON.stringify({ success: true, event, action: 'unhandled' }),
