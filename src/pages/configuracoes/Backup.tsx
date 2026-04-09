@@ -413,12 +413,12 @@ export default function Backup() {
           <CardHeader className="pb-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-                <Upload className="h-5 w-5" />
+                <RotateCcw className="h-5 w-5" />
               </div>
               <div>
                 <CardTitle className="text-base">Restaurar</CardTitle>
                 <CardDescription className="text-xs">
-                  Importe um backup anterior
+                  Restaure a partir do histórico ou arquivo
                 </CardDescription>
               </div>
             </div>
@@ -426,7 +426,7 @@ export default function Backup() {
           <CardContent>
             <Button
               variant="outline"
-              onClick={handleRestaurar}
+              onClick={() => setRestaurarDialogOpen(true)}
               disabled={restaurando}
               className="w-full"
             >
@@ -437,8 +437,8 @@ export default function Backup() {
                 </>
               ) : (
                 <>
-                  <Upload className="h-4 w-4 mr-2" />
-                  Selecionar Arquivo .json
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  Restaurar Backup
                 </>
               )}
             </Button>
