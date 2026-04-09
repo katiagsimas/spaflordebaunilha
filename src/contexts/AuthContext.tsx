@@ -146,7 +146,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const resetPassword = async (email: string) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
+        redirectTo: 'https://caixa.umbrelladoce.com.br/auth/reset-password',
       });
 
       if (error) throw error;
