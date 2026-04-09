@@ -637,7 +637,14 @@ export default function Usuarios() {
                                 >
                                   <UserPlus className="mr-2 h-4 w-4" />
                                   Reabilitar
-                                </DropdownMenuItem>
+                              </DropdownMenuItem>
+                              )}
+                              <DropdownMenuItem 
+                                onClick={() => handleResetarSenha(profile)}
+                              >
+                                <KeyRound className="mr-2 h-4 w-4" />
+                                Resetar Senha
+                              </DropdownMenuItem>
                               )}
                             </DropdownMenuContent>
                           </DropdownMenu>
