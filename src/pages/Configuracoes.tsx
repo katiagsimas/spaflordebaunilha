@@ -1,5 +1,5 @@
 import React from "react";
-import { Settings, DollarSign, Package, Building2, Info } from "lucide-react";
+import { Settings, DollarSign, Package, Building2, Info, HardDrive } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { usePlano } from "@/hooks/usePlano";
@@ -112,6 +112,28 @@ export default function Configuracoes() {
           </CardHeader>
         </Card>
         )}
+
+        {/* Card 4: BACKUP */}
+        <Card 
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-emerald-500"
+          onClick={() => navigate("/configuracoes/backup")}
+        >
+          <CardHeader className="p-4 space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <HardDrive className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
+                  Backup
+                </CardTitle>
+              </div>
+            </div>
+            <CardDescription className="text-xs line-clamp-2">
+              Realize e restaure backups do seu projeto
+            </CardDescription>
+          </CardHeader>
+        </Card>
       </div>
     </div>
   );
