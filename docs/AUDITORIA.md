@@ -1,6 +1,17 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-09T17:30:00Z — Correções listagem usuários + recuperação senha Resend
+> Última atualização: 2026-04-09T19:00:00Z — Fix trigger protect_plan_fields + webhook createUser + dados plano
+
+---
+
+## CORREÇÕES — 2026-04-09 19:00 UTC (Plano não salvo + Webhook)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 21 | Trigger protect_plan_fields | ✅ | Trigger bloqueava atualizações de plano feitas por Edge Functions (service role) porque `auth.uid()` era NULL. Corrigido para permitir quando `auth.uid() IS NULL`. |
+| 22 | Webhook Hotmart — createUser | ✅ | Substituído `inviteUserByEmail` por `createUser` + email via Resend, alinhando com o fluxo de `criar-usuario`. |
+| 23 | Webhook — calcularPlanoFim | ✅ | Corrigido para receber `planoInicio` como parâmetro e calcular fim relativo ao início (não à data atual). |
+| 24 | Dados plano retroativos | ✅ | Corrigidos: `negoanual` → negocio/anual/365d, `baseanual` → base/anual/365d. |
 
 ---
 
