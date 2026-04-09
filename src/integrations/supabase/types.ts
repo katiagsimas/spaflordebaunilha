@@ -47,6 +47,44 @@ export type Database = {
         }
         Relationships: []
       }
+      backups: {
+        Row: {
+          created_at: string
+          dados: Json
+          id: string
+          nome: string
+          owner_group_id: string | null
+          tamanho: string | null
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string
+          dados?: Json
+          id?: string
+          nome: string
+          owner_group_id?: string | null
+          tamanho?: string | null
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string
+          dados?: Json
+          id?: string
+          nome?: string
+          owner_group_id?: string | null
+          tamanho?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "backups_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bancos: {
         Row: {
           codigo: string
