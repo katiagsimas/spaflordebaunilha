@@ -125,7 +125,7 @@ Fundo pistache com destaques dourados. Ícone animado de bolo para aniversariant
 | `/clientes` | Cadastro PF/PJ com familiares |
 | `/fornecedores` | Cadastro com contatos |
 
-### 5.3 Financeiro (requer Plano Negócio ou Admin)
+### 5.3 Financeiro (requer Caixa Business ou Admin)
 | Rota | Página |
 |------|--------|
 | `/financeiro` | Hub |

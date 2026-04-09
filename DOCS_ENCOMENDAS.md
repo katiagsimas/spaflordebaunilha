@@ -6,7 +6,7 @@
 
 ## 1. VISÃO GERAL
 
-Módulo central de gestão de pedidos. Acessível no **Plano Base**.
+Módulo central de gestão de pedidos. Acessível no **Caixa Lite**.
 
 **Rota:** `/encomendas`  
 **Componente:** `src/pages/Encomendas.tsx`
