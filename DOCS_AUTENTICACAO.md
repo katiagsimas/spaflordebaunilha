@@ -124,17 +124,43 @@ O fluxo é ativado quando `profiles.primeiro_acesso === true`.
 ## 5. RECUPERAÇÃO DE SENHA
 
 **Rota:** `/auth/forgot-password`  
-**Componente:** `src/pages/auth/ForgotPassword.tsx`
+**Componente:** `src/pages/auth/ForgotPassword.tsx`  
+**Edge Function:** `supabase/functions/enviar-recuperacao-senha/index.ts`
 
 ```
 Clica "Esqueci minha senha" no login
   ↓
 Digita email
   ↓
-supabase.auth.resetPasswordForEmail()
+Edge Function: enviar-recuperacao-senha
+  ↓
+admin.generateLink({ type: 'recovery' })
+  ↓
+Extrai token_hash da action_link
+  ↓
+Constrói URL direta: ${SITE_URL}/auth/reset-password?token_hash=XXX&type=recovery
+  ↓
+Envia e-mail personalizado via Resend (noreply@umbrelladoce.com.br)
   ↓
 Tela: "Verifique sua caixa de entrada"
 ```
+
+**Página de redefinição:** `/auth/reset-password`  
+**Componente:** `src/pages/auth/ResetPassword.tsx`
+
+```
+Usuário clica no link do e-mail
+  ↓
+Abre diretamente no domínio personalizado (caixa.umbrelladoce.com.br)
+  ↓
+Frontend verifica token via supabase.auth.verifyOtp({ token_hash, type: 'recovery' })
+  ↓
+Exibe formulário de nova senha
+  ↓
+Após redefinir: primeiro_acesso = false → signOut → redirect login
+```
+
+**Nota:** O fluxo bypassa o redirect do Supabase, enviando o token_hash diretamente via query params. Isso garante que o link do e-mail sempre aponte para o domínio personalizado (SITE_URL), sem depender da configuração de Redirect URLs do Supabase.
 
 ---
 
