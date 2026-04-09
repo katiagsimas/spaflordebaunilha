@@ -36,7 +36,10 @@ function calcularPlanoFim(planoTipo: string): string {
  */
 function extrairHottok(req: Request, body: Record<string, unknown>): string | null {
   const url = new URL(req.url)
-  return url.searchParams.get('hottok') || (body.hottok as string) || null
+  return url.searchParams.get('hottok') 
+    || req.headers.get('x-hotmart-hottok')
+    || (body.hottok as string) 
+    || null
 }
 
 /**
