@@ -21,7 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Loader2, Users, Shield, User, MoreVertical, Edit, UserX, Trash2, Search, UserCheck, Clock, AlertCircle, Download, UserPlus } from 'lucide-react';
+import { Loader2, Users, Shield, User, MoreVertical, Edit, UserX, Trash2, Search, UserCheck, Clock, AlertCircle, Download, UserPlus, KeyRound } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useNavigate } from 'react-router-dom';
