@@ -205,6 +205,9 @@ Deno.serve(async (req) => {
         .from('user_roles')
         .upsert({ user_id: userId, role: 'user' }, { onConflict: 'user_id,role' })
 
+      // Enviar email de boas-vindas via Resend
+      await enviarEmailBoasVindas(email, buyerName, planoId)
+
       console.log('=== Hotmart Webhook - Usuário provisionado ===')
       return new Response(
         JSON.stringify({ success: true, user: { id: userId }, event }),
