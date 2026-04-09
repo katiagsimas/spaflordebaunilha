@@ -22,18 +22,13 @@ function resolverPlano(productId: string, planName: string | null): { planoId: s
   return { planoId, planoTipo }
 }
 
-function calcularPlanoFim(planoTipo: string): string {
-  const agora = new Date()
+function calcularPlanoFim(planoInicio: string, planoTipo: string): string {
+  const inicio = new Date(planoInicio + 'T00:00:00')
   const dias = planoTipo === 'anual' ? 365 : 30
-  agora.setDate(agora.getDate() + dias)
-  return agora.toISOString().split('T')[0]
+  inicio.setDate(inicio.getDate() + dias)
+  return inicio.toISOString().split('T')[0]
 }
 
-/**
- * Extrai o hottok do request — Hotmart pode enviar como:
- * 1. Query parameter: ?hottok=xxx
- * 2. Campo no body (payload v1)
- */
 function extrairHottok(req: Request, body: Record<string, unknown>): string | null {
   const url = new URL(req.url)
   const fromQuery = url.searchParams.get('hottok')
@@ -43,22 +38,15 @@ function extrairHottok(req: Request, body: Record<string, unknown>): string | nu
   return fromQuery || fromHeader || fromBody || null
 }
 
-/**
- * Extrai email do comprador — Hotmart v2.0 usa data.buyer OU data.subscriber
- */
 function extrairEmail(data: Record<string, unknown>): string | null {
   const buyer = (data.buyer || {}) as Record<string, unknown>
   const subscriber = (data.subscriber || {}) as Record<string, unknown>
-  // SWITCH_PLAN usa data.subscription.user.email
   const subscription = (data.subscription || {}) as Record<string, unknown>
   const subscriptionUser = (subscription.user || {}) as Record<string, unknown>
   const email = (buyer.email || subscriber.email || subscriptionUser.email) as string | undefined
   return email?.toLowerCase()?.trim() || null
 }
 
-/**
- * Extrai nome do comprador
- */
 function extrairNome(data: Record<string, unknown>): string | null {
   const buyer = (data.buyer || {}) as Record<string, unknown>
   const subscriber = (data.subscriber || {}) as Record<string, unknown>
@@ -84,7 +72,6 @@ Deno.serve(async (req) => {
 
     const body = await req.json()
 
-    // Validar hottok (query param ou body)
     const receivedHottok = extrairHottok(req, body)
     if (receivedHottok !== hottok) {
       console.error('Hottok inválido. Recebido:', receivedHottok ? '[presente mas incorreto]' : '[ausente]')
@@ -124,7 +111,7 @@ Deno.serve(async (req) => {
       const planName = (plan.name || (purchase.offer as Record<string, unknown>)?.key || product.name || '') as string
       const { planoId, planoTipo } = resolverPlano(product.id?.toString() || '', planName)
       const planoInicio = new Date().toISOString().split('T')[0]
-      const planoFim = calcularPlanoFim(planoTipo)
+      const planoFim = calcularPlanoFim(planoInicio, planoTipo)
 
       console.log('Provisionando usuário:', { planoId, planoTipo, planoInicio, planoFim })
 
@@ -152,7 +139,7 @@ Deno.serve(async (req) => {
           .from('profiles')
           .update({
             ativo: true,
-            nome_completo: buyerName || existingProfile.id,
+            nome_completo: buyerName || undefined,
             primeiro_acesso: existingProfile.ativo === false,
             ...planoFields,
             updated_at: new Date().toISOString()
@@ -160,9 +147,7 @@ Deno.serve(async (req) => {
           .eq('id', userId)
 
         if (existingProfile.ativo === false) {
-          await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-            redirectTo: `${Deno.env.get('SITE_URL') || supabaseUrl}/dashboard`
-          })
+          await enviarEmailBoasVindas(email, buyerName, planoId)
         }
 
         console.log('Usuário existente atualizado:', userId)
@@ -178,20 +163,27 @@ Deno.serve(async (req) => {
             primeiro_acesso: true,
             ...planoFields,
           })
+
+        await enviarEmailBoasVindas(email, buyerName, planoId)
         console.log('Perfil criado para usuário existente:', userId)
       } else {
-        const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-          data: { nome_completo: buyerName || null },
-          redirectTo: `${Deno.env.get('SITE_URL') || supabaseUrl}/dashboard`
+        // Novo usuário - criar com senha temporária
+        const senhaTemporaria = crypto.randomUUID()
+
+        const { data: createData, error: createError } = await supabaseAdmin.auth.admin.createUser({
+          email,
+          password: senhaTemporaria,
+          email_confirm: true,
+          user_metadata: { nome_completo: buyerName || null }
         })
 
-        if (inviteError || !inviteData.user) {
-          console.error('Erro ao convidar:', inviteError)
-          throw new Error(inviteError?.message || 'Erro ao criar usuário')
+        if (createError || !createData.user) {
+          console.error('Erro ao criar usuário:', createError)
+          throw new Error(createError?.message || 'Erro ao criar usuário')
         }
 
-        userId = inviteData.user.id
-        console.log('Novo usuário convidado:', userId)
+        userId = createData.user.id
+        console.log('Novo usuário criado:', userId)
 
         await new Promise(resolve => setTimeout(resolve, 2000))
 
@@ -199,14 +191,13 @@ Deno.serve(async (req) => {
           .from('profiles')
           .update({ primeiro_acesso: true, ...planoFields })
           .eq('id', userId)
+
+        await enviarEmailBoasVindas(email, buyerName, planoId)
       }
 
       await supabaseAdmin
         .from('user_roles')
         .upsert({ user_id: userId, role: 'user' }, { onConflict: 'user_id,role' })
-
-      // Enviar email de boas-vindas via Resend
-      await enviarEmailBoasVindas(email, buyerName, planoId)
 
       console.log('=== Hotmart Webhook - Usuário provisionado ===')
       return new Response(
@@ -256,13 +247,13 @@ Deno.serve(async (req) => {
 
     // === SWITCH_PLAN ===
     if (event === 'SWITCH_PLAN') {
-      // SWITCH_PLAN: plano atual está em data.plans[] com current=true
       const plans = (data.plans || []) as Array<Record<string, unknown>>
       const currentPlan = plans.find(p => p.current === true) || plans[0] || {}
       const switchPlanName = (currentPlan.name || plan.name || '') as string
       const switchProduct = (data.subscription as Record<string, unknown>)?.product as Record<string, unknown> || product
       const { planoId, planoTipo } = resolverPlano(switchProduct?.id?.toString() || '', switchPlanName)
-      const planoFim = calcularPlanoFim(planoTipo)
+      const planoInicio = new Date().toISOString().split('T')[0]
+      const planoFim = calcularPlanoFim(planoInicio, planoTipo)
       console.log('SWITCH_PLAN - Plano atual:', switchPlanName, '| Resolvido:', planoId, planoTipo)
 
       const { data: profile } = await supabaseAdmin
@@ -277,6 +268,7 @@ Deno.serve(async (req) => {
           .update({
             plano_id: planoId,
             plano_tipo: planoTipo,
+            plano_inicio: planoInicio,
             plano_fim: planoFim,
             updated_at: new Date().toISOString()
           })
