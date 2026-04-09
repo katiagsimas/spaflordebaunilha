@@ -74,8 +74,7 @@ export default function Usuarios() {
   
   // Estados para busca e filtros
   const [buscaEmail, setBuscaEmail] = useState("");
-  const [filtroStatus, setFiltroStatus] = useState("todos");
-  const [filtroPermissao, setFiltroPermissao] = useState("todos");
+  const [filtroCard, setFiltroCard] = useState<string | null>(null);
   const [porPagina, setPorPagina] = useState(10);
   const [estatisticas, setEstatisticas] = useState({
     total: 0,
@@ -153,16 +152,20 @@ export default function Usuarios() {
       usuario.nome_completo?.toLowerCase().includes(buscaEmail.toLowerCase()) ||
       usuario.nome_confeitaria?.toLowerCase().includes(buscaEmail.toLowerCase());
     
-    const matchStatus = filtroStatus === "todos" || 
-      (filtroStatus === "ativo" && usuario.ativo !== false) ||
-      (filtroStatus === "inativo" && usuario.ativo === false);
-    
-    const userRoles = rolesByUser[usuario.id] || [];
-    const matchPermissao = filtroPermissao === "todos" || 
-      (filtroPermissao === "admin" && userRoles.includes('admin')) ||
-      (filtroPermissao === "user" && !userRoles.includes('admin'));
-    
-    return matchEmail && matchStatus && matchPermissao;
+    if (!filtroCard) return matchEmail;
+
+    const isBase = !usuario.plano_id || usuario.plano_id === 'base';
+    const isNegocio = usuario.plano_id === 'negocio';
+
+    switch (filtroCard) {
+      case 'ativos': return matchEmail && usuario.ativo !== false;
+      case 'inativos': return matchEmail && usuario.ativo === false;
+      case 'baseMensal': return matchEmail && isBase && usuario.plano_tipo === 'mensal';
+      case 'baseAnual': return matchEmail && isBase && usuario.plano_tipo === 'anual';
+      case 'negocioMensal': return matchEmail && isNegocio && usuario.plano_tipo === 'mensal';
+      case 'negocioAnual': return matchEmail && isNegocio && usuario.plano_tipo === 'anual';
+      default: return matchEmail;
+    }
   }) || [];
 
   // Aplicar paginação
@@ -367,8 +370,7 @@ export default function Usuarios() {
   // Função para limpar filtros
   const limparFiltros = () => {
     setBuscaEmail("");
-    setFiltroStatus("todos");
-    setFiltroPermissao("todos");
+    setFiltroCard(null);
   };
 
   // Redirecionar se não for admin
@@ -429,15 +431,19 @@ export default function Usuarios() {
         {/* Dashboard de Resumo */}
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-1.5">
           {[
-            { label: 'Total', value: estatisticas.total, icon: Users, color: 'text-slate-600', bg: 'bg-slate-50 dark:bg-slate-950' },
-            { label: 'Ativos', value: estatisticas.ativos, icon: UserCheck, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950' },
-            { label: 'Inativos', value: estatisticas.inativos, icon: UserX, color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-950' },
-            { label: 'Base Mensal', value: estatisticas.baseMensal, icon: User, color: 'text-sky-600', bg: 'bg-sky-50 dark:bg-sky-950' },
-            { label: 'Base Anual', value: estatisticas.baseAnual, icon: User, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-950' },
-            { label: 'Negócio Mensal', value: estatisticas.negocioMensal, icon: Shield, color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-950' },
-            { label: 'Negócio Anual', value: estatisticas.negocioAnual, icon: Shield, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950' },
+            { key: null, label: 'Total', value: estatisticas.total, icon: Users, color: 'text-slate-600', bg: 'bg-slate-50 dark:bg-slate-950' },
+            { key: 'ativos', label: 'Ativos', value: estatisticas.ativos, icon: UserCheck, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950' },
+            { key: 'inativos', label: 'Inativos', value: estatisticas.inativos, icon: UserX, color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-950' },
+            { key: 'baseMensal', label: 'Base Mensal', value: estatisticas.baseMensal, icon: User, color: 'text-sky-600', bg: 'bg-sky-50 dark:bg-sky-950' },
+            { key: 'baseAnual', label: 'Base Anual', value: estatisticas.baseAnual, icon: User, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-950' },
+            { key: 'negocioMensal', label: 'Negócio Mensal', value: estatisticas.negocioMensal, icon: Shield, color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-950' },
+            { key: 'negocioAnual', label: 'Negócio Anual', value: estatisticas.negocioAnual, icon: Shield, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950' },
           ].map((item) => (
-            <Card key={item.label} className="hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-2 border-l-[#D89B8C] group">
+            <Card
+              key={item.label}
+              onClick={() => setFiltroCard(filtroCard === item.key ? null : item.key)}
+              className={`cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-2 border-l-[#D89B8C] group ${filtroCard === item.key ? 'ring-2 ring-primary bg-accent/30' : ''}`}
+            >
               <CardHeader className="p-2">
                 <div className="flex flex-col items-center gap-1 text-center">
                   <div className={`w-6 h-6 rounded-md ${item.color} ${item.bg} flex items-center justify-center group-hover:scale-110 transition-transform`}>
@@ -469,7 +475,7 @@ export default function Usuarios() {
                   />
                 </div>
                 {/* Botão Limpar Filtros */}
-                {(buscaEmail || filtroStatus !== "todos" || filtroPermissao !== "todos") && (
+                {(buscaEmail || filtroCard !== null) && (
                   <button
                     onClick={limparFiltros}
                     className="text-xs text-muted-foreground hover:text-foreground mt-1 underline"
@@ -478,30 +484,6 @@ export default function Usuarios() {
                   </button>
                 )}
               </div>
-
-              {/* Filtro Status */}
-              <Select value={filtroStatus} onValueChange={setFiltroStatus}>
-                <SelectTrigger className="w-full md:w-[180px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos os status</SelectItem>
-                  <SelectItem value="ativo">Ativos</SelectItem>
-                  <SelectItem value="inativo">Inativos</SelectItem>
-                </SelectContent>
-              </Select>
-
-              {/* Filtro Permissão */}
-              <Select value={filtroPermissao} onValueChange={setFiltroPermissao}>
-                <SelectTrigger className="w-full md:w-[200px]">
-                  <SelectValue placeholder="Permissão" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todas as permissões</SelectItem>
-                  <SelectItem value="admin">Administradores</SelectItem>
-                  <SelectItem value="user">Usuários</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </CardContent>
         </Card>
