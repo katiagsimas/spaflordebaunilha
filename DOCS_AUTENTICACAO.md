@@ -1,18 +1,18 @@
-# 🔐 DOCUMENTAÇÃO: Autenticação e SSO — Caixa de Açúcar
+# 🔐 DOCUMENTAÇÃO: Autenticação — Caixa de Açúcar
 
-**Atualizada em:** Março 2026  
-**Versão:** 3.0
+**Atualizada em:** Abril 2026  
+**Versão:** 4.0
 
 ---
 
 ## 1. VISÃO GERAL
 
-O Caixa de Açúcar integra o ecossistema **Umbrella Doce**. A autenticação segue estes princípios:
+O Caixa de Açúcar é uma plataforma independente. A autenticação segue estes princípios:
 
 1. **Sem autocadastro**: A rota `/auth/signup` redireciona para `/auth/login`
-2. **Provisionamento externo**: Novos usuários são criados exclusivamente pela Plataforma Umbrella Doce via Edge Function `criar-usuario`
-3. **SSO transparente**: Usuários da Umbrella Doce acessam sem novo login via Magic Link
-4. **Login independente**: Acesso direto via email/senha em `/auth/login`
+2. **Provisionamento duplo**: Novos usuários são criados pelo **admin** (painel) ou pelo **Webhook da Hotmart** (compra automática)
+3. **Login direto**: Acesso via email/senha em `/auth/login`
+4. **Convite por email**: Novos usuários recebem Magic Link para definir senha
 
 ---
 
@@ -35,8 +35,6 @@ Usuário acessa /auth/login
   ↓
 Preenche email e senha
   ↓
-Validação Zod (loginSchema)
-  ↓
 supabase.auth.signInWithPassword()
   ↓
 AuthContext verifica profiles.ativo === false?
@@ -50,171 +48,67 @@ Verifica profiles.primeiro_acesso === true?
   └── NÃO → navigate('/dashboard')
 ```
 
-### 2.4 Tratamento de Erros
-
-| Erro | Mensagem |
-|------|---------|
-| `Invalid login credentials` | "Email ou senha incorretos." |
-| `Email not confirmed` | "Confirme seu email antes de fazer login." |
-| Conta desabilitada | "Sua conta foi desabilitada." |
-| Outros | "Erro ao fazer login. Tente novamente." |
-
-### 2.5 Identidade Visual
-- Fundo escuro (`bg-umbrella-preto`)
-- Lado esquerdo: imagem de marca (`auth-brand-image.png`)
-- Lado direito: formulário com card claro (`bg-umbrella-cloud`)
-- Ícone: `caixa-acucar-icon.png` (80×80px)
-- Destaque dourado para "by Umbrella Doce"
-
 ---
 
-## 3. CRIAÇÃO DE USUÁRIOS (Provisionamento Externo)
+## 3. CRIAÇÃO DE USUÁRIOS
 
-### 3.1 Edge Function: `criar-usuario`
-**Caminho:** `supabase/functions/criar-usuario/index.ts`  
-**Invocação:** Pela Plataforma Umbrella Doce via HTTP POST  
-**Autenticação:** Requer token de admin (verifica role `admin` em `user_roles`)
+### 3.1 Via Painel Admin
 
-### 3.2 Autenticação da Edge Function
+**Componente:** `src/components/admin/CriarUsuarioDialog.tsx`  
+**Edge Function:** `supabase/functions/criar-usuario/index.ts`  
+**Autenticação:** Requer JWT de admin (verifica role `admin` em `user_roles`)
 
-A função aceita **dois métodos** de autenticação (em ordem de prioridade):
-
-1. **Header `x-api-secret`**: Validado contra a variável `EXTERNAL_API_SECRET`. Usado pela Plataforma Umbrella Doce.
-2. **Token JWT de admin**: Via header `Authorization: Bearer <token>`. Verifica role `admin` em `user_roles`.
-
-### 3.3 Payload de Entrada
-
-```json
-{
-  "email": "confeiteira@email.com",
-  "nomeCompleto": "Maria da Silva",
-  "nomeConfeitaria": "Doces da Maria",
-  "planoId": "base | negocio",
-  "planoTipo": "mensal | anual",
-  "planoExpiraEm": "2027-04-07T23:59:59.000Z",
-  "role": "user"
-}
-```
+**Campos do formulário:**
 
 | Campo | Obrigatório | Descrição |
 |-------|:-----------:|-----------|
-| `email` | ✅ | Email do usuário |
-| `nomeCompleto` | ❌ | Nome completo |
-| `nomeConfeitaria` | ❌ | Nome da confeitaria |
-| `planoId` | ❌ | ID do plano: `"base"` ou `"negocio"` |
-| `planoTipo` | ❌ | Periodicidade: `"mensal"` ou `"anual"` |
-| `planoExpiraEm` | ❌ | Data de expiração (ISO timestamp). Mapeado para `plano_fim` |
-| `planoInicio` | ❌ | Data de início (YYYY-MM-DD). Se omitido, usa a data atual |
-| `planoFim` | ❌ | Legado. Usado se `planoExpiraEm` não for enviado |
-| `role` | ❌ | Role do usuário (ex: `"user"`, `"admin"`) |
+| Email | ✅ | Email do novo usuário |
+| Nome Completo | ❌ | Nome completo |
+| Nome da Confeitaria | ❌ | Nome da confeitaria |
+| Plano | ✅ | `base` ou `negocio` |
+| Periodicidade | ✅ | `mensal` (30 dias) ou `anual` (365 dias) |
 
-> ⚠️ **Não há campo `senha`**. O sistema usa `inviteUserByEmail()` que envia Magic Link.
-> O campo `planoExpiraEm` tem prioridade sobre `planoFim` (retrocompatibilidade).
+**Fluxo:**
+1. Admin preenche formulário e confirma
+2. Edge function `criar-usuario` é invocada
+3. Sistema envia Magic Link por email ao novo usuário
+4. Usuário clica no link, define senha no primeiro acesso
 
-### 3.3 Fluxo de Execução
+### 3.2 Via Webhook Hotmart (Automático)
 
-```
-POST criar-usuario (com Authorization header de admin)
-  ↓
-Verifica se caller é admin (user_roles)
-  ↓
-Verificação: Usuário existe no Auth? Perfil existe?
-  ↓
-  ├── CASO 1: Usuário totalmente novo
-  │   ├── supabaseAdmin.auth.admin.inviteUserByEmail()
-  │   │   (envia email com Magic Link)
-  │   ├── Perfil criado automaticamente via trigger
-  │   └── Se planoId: atualiza profiles.plano_id (aguarda 1s para trigger)
-  │
-  ├── CASO 2: Existe no Auth e perfil ATIVO
-  │   └── Se planoId: atualiza apenas plano_id (retorna updated: true)
-  │
-  ├── CASO 3: Existe no Auth mas sem perfil
-  │   ├── Cria perfil (INSERT profiles) com primeiro_acesso=true
-  │   └── Define plano_id se fornecido
-  │
-  └── CASO 4: Existe e está INATIVO (reativação)
-      ├── Atualiza: ativo=true, primeiro_acesso=true, nomes, plano
-      └── Envia Magic Link (inviteUserByEmail)
-  ↓
-Se role !== 'user': insere em user_roles
-  ↓
-Retorna { success, user: { id }, reactivated }
-```
+**Edge Function:** `supabase/functions/hotmart-webhook/index.ts`  
+**Autenticação:** Validação do `hottok` no payload contra `HOTMART_HOTTOK` (secret)
 
-### 3.4 Respostas
+**Eventos tratados:**
 
-**Sucesso (200):**
-```json
-{ "success": true, "user": { "id": "uuid" }, "reactivated": false }
-```
+| Evento | Ação |
+|--------|------|
+| `PURCHASE_APPROVED` | Cria/ativa usuário, envia convite |
+| `PURCHASE_COMPLETE` | Cria/ativa usuário, envia convite |
+| `PURCHASE_CANCELED` | Desativa usuário |
+| `PURCHASE_REFUNDED` | Desativa usuário |
+| `PURCHASE_CHARGEBACK` | Desativa usuário |
+| `SUBSCRIPTION_CANCELLATION` | Desativa usuário |
+| `SWITCH_PLAN` | Atualiza plano do usuário |
+| `PURCHASE_DELAYED` | Ignorado |
+| `PURCHASE_PROTEST` | Ignorado |
 
-**Usuário existente atualizado (200):**
-```json
-{ "success": true, "user": { "id": "uuid" }, "reactivated": false, "updated": true }
-```
+**Detecção de plano:** O sistema analisa o nome do plano/oferta da Hotmart:
+- Contém "negócio/negocio/business" → Plano Negócio
+- Caso contrário → Plano Base
+- Contém "anual/annual/yearly" → Anual (365 dias)
+- Caso contrário → Mensal (30 dias)
+
+**URL do Webhook:** `https://lypifrxdzjfdgkcacubl.supabase.co/functions/v1/hotmart-webhook`
 
 ---
 
-## 4. SSO — Single Sign-On
+## 4. PRIMEIRO ACESSO
 
-### 4.1 Fluxo Completo
-
-```
-1. Usuário logado na Umbrella Doce
-   ↓
-2. Clica em "Abrir Caixa de Açúcar"
-   ↓
-3. Umbrella Doce gera JWT:
-   { "email": "...", "produto": "caixa", "nome_completo": "...", "iat": ..., "exp": +5min }
-   Assinado com SSO_SECRET (HMAC-SHA256)
-   ↓
-4. Redireciona para: /auth/sso?token=<JWT>
-   ↓
-5. SSO.tsx captura token → invoca Edge Function validar-token-sso
-   ↓
-6. Edge Function:
-   a. Valida assinatura HMAC-SHA256
-   b. Verifica expiração
-   c. Verifica payload.produto === 'caixa'
-   d. Gera Magic Link (generateLink type: magiclink)
-   e. Retorna { token_hash, nome_completo }
-   ↓
-7. SSO.tsx usa verifyOtp({ token_hash, type: 'magiclink' })
-   → Cria sessão no cliente sem redirecionamento
-   ↓
-8. Se nome_completo retornado e perfil sem nome → preenche automaticamente
-   ↓
-9. navigate('/dashboard')
-```
-
-### 4.2 Edge Function: `validar-token-sso`
-**Caminho:** `supabase/functions/validar-token-sso/index.ts`
-
-**Respostas:**
-
-| Status | Situação | Body |
-|--------|----------|------|
-| 200 | Sucesso | `{ "token_hash": "...", "nome_completo": "..." }` |
-| 400 | Token ausente | `{ "error": "Token ausente." }` |
-| 401 | Inválido/expirado | `{ "error": "Token inválido ou expirado." }` |
-| 403 | Produto errado | `{ "error": "Token não autorizado para este produto." }` |
-| 500 | Erro interno | `{ "error": "Não foi possível gerar acesso." }` |
-
-### 4.3 Página SSO (`/auth/sso`)
-**Componente:** `src/pages/auth/SSO.tsx`
-
-- **Loading:** Mascote com "Preparando seu acesso..."
-- **Error:** ⚠️ "Link expirado ou inválido" + link para Umbrella Doce
-
----
-
-## 5. PRIMEIRO ACESSO
-
-### 5.1 Quando é Acionado
+### 4.1 Quando é Acionado
 O fluxo é ativado quando `profiles.primeiro_acesso === true`.
 
-### 5.2 Dois Mecanismos Complementares
+### 4.2 Dois Mecanismos Complementares
 
 **A) Modal de Troca de Senha (Login.tsx)**
 - Verifica `primeiro_acesso` após login com senha
@@ -222,21 +116,12 @@ O fluxo é ativado quando `profiles.primeiro_acesso === true`.
 - Após trocar senha: `primeiro_acesso = false` → navigate dashboard
 
 **B) FirstAccessRedirect (Layout)**
-- Renderizado em todas as páginas protegidas
 - Se `primeiro_acesso === true` OU `nome_confeitaria` vazio → redireciona para `/configuracoes/dados-confeitaria`
 - Se `ativo === false` → signOut + redirect login
 
-### 5.3 Componente: AlterarSenhaObrigatoria
-**Caminho:** `src/components/auth/AlterarSenhaObrigatoria.tsx`
-
-- Dialog modal (`onInteractOutside` bloqueado)
-- Validação Zod: min 6 chars, senhas iguais
-- Validação forte: `validarSenhaForte()` (maiúscula, minúscula, número, símbolo)
-- Após sucesso: `supabase.auth.updateUser()` → `profiles.update({ primeiro_acesso: false })`
-
 ---
 
-## 6. RECUPERAÇÃO DE SENHA
+## 5. RECUPERAÇÃO DE SENHA
 
 **Rota:** `/auth/forgot-password`  
 **Componente:** `src/pages/auth/ForgotPassword.tsx`
@@ -246,16 +131,14 @@ Clica "Esqueci minha senha" no login
   ↓
 Digita email
   ↓
-supabase.auth.resetPasswordForEmail(email, {
-  redirectTo: `${origin}/auth/reset-password`
-})
+supabase.auth.resetPasswordForEmail()
   ↓
 Tela: "Verifique sua caixa de entrada"
 ```
 
 ---
 
-## 7. POLÍTICA DE SENHAS
+## 6. POLÍTICA DE SENHAS
 
 Implementada em `src/lib/validacaoSenha.ts`:
 
@@ -266,61 +149,31 @@ Implementada em `src/lib/validacaoSenha.ts`:
 | Minúscula | Pelo menos 1 (a-z) |
 | Número | Pelo menos 1 (0-9) |
 | Símbolo | Pelo menos 1 de: `@ # $ % & * _ - + ! ?` |
-| Proibidos | Não pode conter: nome, parte do email, "caixa", "acucar", "kasimas" |
-| Expiração | Sem prazo |
-
-**Regex:**
-```regex
-^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%&*_\-+!?])[A-Za-z\d@#$%&*_\-+!?]{6,}$
-```
 
 ---
 
-## 8. AuthContext
-
-**Caminho:** `src/contexts/AuthContext.tsx`
-
-```typescript
-interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  loading: boolean;
-  signIn: (email, password) => Promise<void>;
-  signUp: (email, password, nome, confeitaria) => Promise<void>; // mantido no código, não exposto em UI
-  signOut: () => Promise<void>;
-  resetPassword: (email) => Promise<void>;
-}
-```
-
-- `signIn`: Verifica `profiles.ativo` após login, faz signOut se inativo
-- `signUp`: Mantido no código mas sem interface pública (rota /auth/signup redireciona para login)
-- `signOut`: Limpa sessão
-- `resetPassword`: Envia email de redefinição
-
----
-
-## 9. SECRETS NECESSÁRIOS
+## 7. SECRETS NECESSÁRIOS
 
 | Secret | Uso |
 |--------|-----|
 | `SUPABASE_URL` | Auto-configurado |
 | `SUPABASE_SERVICE_ROLE_KEY` | Auto-configurado |
 | `SUPABASE_ANON_KEY` | Auto-configurado |
-| `SSO_SECRET` | Segredo compartilhado para validação JWT SSO |
+| `HOTMART_HOTTOK` | Validação do webhook Hotmart |
 | `SITE_URL` | URL base para redirects de Magic Link |
 
 ---
 
-## 10. ARQUIVOS DE REFERÊNCIA
+## 8. ARQUIVOS DE REFERÊNCIA
 
 | Arquivo | Função |
 |---------|--------|
 | `src/pages/auth/Login.tsx` | Tela de login |
-| `src/pages/auth/SSO.tsx` | Página SSO |
 | `src/pages/auth/ForgotPassword.tsx` | Recuperação de senha |
 | `src/components/auth/AlterarSenhaObrigatoria.tsx` | Modal troca obrigatória |
 | `src/components/FirstAccessRedirect.tsx` | Redirect primeiro acesso |
+| `src/components/admin/CriarUsuarioDialog.tsx` | Dialog de criação pelo admin |
 | `src/contexts/AuthContext.tsx` | Contexto de autenticação |
 | `src/lib/validacaoSenha.ts` | Validação de senha forte |
-| `supabase/functions/criar-usuario/index.ts` | Edge Function criação |
-| `supabase/functions/validar-token-sso/index.ts` | Edge Function SSO |
+| `supabase/functions/criar-usuario/index.ts` | Edge Function criação (admin) |
+| `supabase/functions/hotmart-webhook/index.ts` | Edge Function webhook Hotmart |
