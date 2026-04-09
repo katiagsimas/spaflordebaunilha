@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -28,9 +28,11 @@ type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 
 export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
+  const [verifying, setVerifying] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [hasToken, setHasToken] = useState(false);
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -43,21 +45,59 @@ export default function ResetPassword() {
   });
 
   useEffect(() => {
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = hashParams.get('access_token');
-    const type = hashParams.get('type');
-    
-    if (accessToken && type === 'recovery') {
-      setHasToken(true);
-    } else {
+    const verifyToken = async () => {
+      // Método 1: Token via query params (novo fluxo via edge function)
+      const tokenHash = searchParams.get('token_hash');
+      const type = searchParams.get('type');
+
+      if (tokenHash && type === 'recovery') {
+        try {
+          const { error } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: 'recovery',
+          });
+
+          if (error) {
+            console.error('Erro ao verificar token:', error);
+            toast({
+              title: "Link inválido",
+              description: "Este link de recuperação é inválido ou já expirou.",
+              variant: "destructive",
+            });
+            navigate('/auth/forgot-password');
+            return;
+          }
+
+          setHasToken(true);
+          setVerifying(false);
+          return;
+        } catch (err) {
+          console.error('Erro ao verificar OTP:', err);
+        }
+      }
+
+      // Método 2: Token via hash (fluxo legado do Supabase)
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      const hashType = hashParams.get('type');
+
+      if (accessToken && hashType === 'recovery') {
+        setHasToken(true);
+        setVerifying(false);
+        return;
+      }
+
+      // Nenhum token encontrado
       toast({
         title: "Link inválido",
         description: "Este link de recuperação é inválido ou já expirou.",
         variant: "destructive",
       });
       navigate('/auth/forgot-password');
-    }
-  }, [navigate, toast]);
+    };
+
+    verifyToken();
+  }, [navigate, toast, searchParams]);
 
   const onSubmit = async (data: ResetPasswordForm) => {
     setLoading(true);
@@ -113,7 +153,7 @@ export default function ResetPassword() {
   };
 
   const renderContent = () => {
-    if (!hasToken) {
+    if (verifying || !hasToken) {
       return (
         <div className="w-full max-w-md relative z-10 space-y-8">
           <div className="text-center space-y-3">
