@@ -47,6 +47,8 @@ export default function Backup() {
   const [carregando, setCarregando] = useState(true);
   const [ultimoBackup, setUltimoBackup] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [restaurarDialogOpen, setRestaurarDialogOpen] = useState(false);
+  const [backupSelecionado, setBackupSelecionado] = useState<string | null>(null);
 
   // Agendamento local (persistido em localStorage)
   const [agendamentoAtivo, setAgendamentoAtivo] = useState(false);
