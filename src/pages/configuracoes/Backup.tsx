@@ -202,7 +202,31 @@ export default function Backup() {
     }
   }
 
-  function handleRestaurar() {
+  async function restaurarDoHistorico(backupId: string) {
+    setRestaurando(true);
+    try {
+      const { data, error } = await (supabase
+        .from("backups" as any)
+        .select("dados, nome")
+        .eq("id", backupId)
+        .single() as any);
+
+      if (error || !data) throw new Error("Erro ao buscar backup.");
+
+      const tabelasRestauradas = Object.keys(data.dados).length;
+      toast.success(
+        `Backup "${data.nome}" carregado com ${tabelasRestauradas} tabelas. A restauração completa requer suporte técnico para evitar conflitos de dados.`
+      );
+    } catch (err: any) {
+      toast.error("Erro ao restaurar: " + err.message);
+    } finally {
+      setRestaurando(false);
+      setRestaurarDialogOpen(false);
+      setBackupSelecionado(null);
+    }
+  }
+
+  function handleRestaurarArquivo() {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = ".json";
@@ -227,14 +251,11 @@ export default function Backup() {
         toast.error("Erro ao ler arquivo: " + err.message);
       } finally {
         setRestaurando(false);
+        setRestaurarDialogOpen(false);
       }
     };
     input.click();
   }
-
-  const ultimoBackupFormatado = ultimoBackup
-    ? format(new Date(ultimoBackup), "dd/MM 'às' HH:mm")
-    : null;
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6 space-y-6">
