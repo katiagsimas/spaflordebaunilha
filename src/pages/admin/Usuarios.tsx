@@ -139,10 +139,10 @@ export default function Usuarios() {
       total: profilesSemAdmin.length,
       ativos: profilesSemAdmin.filter(u => u.ativo !== false).length,
       inativos: profilesSemAdmin.filter(u => u.ativo === false).length,
-      baseMensal: profilesSemAdmin.filter(u => (!u.plano_id || u.plano_id === 'base') && u.plano_tipo === 'mensal').length,
-      baseAnual: profilesSemAdmin.filter(u => (!u.plano_id || u.plano_id === 'base') && u.plano_tipo === 'anual').length,
-      negocioMensal: profilesSemAdmin.filter(u => u.plano_id === 'negocio' && u.plano_tipo === 'mensal').length,
-      negocioAnual: profilesSemAdmin.filter(u => u.plano_id === 'negocio' && u.plano_tipo === 'anual').length,
+      baseMensal: profilesSemAdmin.filter(u => u.ativo !== false && (!u.plano_id || u.plano_id === 'base') && u.plano_tipo === 'mensal').length,
+      baseAnual: profilesSemAdmin.filter(u => u.ativo !== false && (!u.plano_id || u.plano_id === 'base') && u.plano_tipo === 'anual').length,
+      negocioMensal: profilesSemAdmin.filter(u => u.ativo !== false && u.plano_id === 'negocio' && u.plano_tipo === 'mensal').length,
+      negocioAnual: profilesSemAdmin.filter(u => u.ativo !== false && u.plano_id === 'negocio' && u.plano_tipo === 'anual').length,
     });
   }, [profilesSemAdmin]);
 
