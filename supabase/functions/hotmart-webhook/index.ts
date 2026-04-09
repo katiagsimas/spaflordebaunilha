@@ -49,7 +49,10 @@ function extrairHottok(req: Request, body: Record<string, unknown>): string | nu
 function extrairEmail(data: Record<string, unknown>): string | null {
   const buyer = (data.buyer || {}) as Record<string, unknown>
   const subscriber = (data.subscriber || {}) as Record<string, unknown>
-  const email = (buyer.email || subscriber.email) as string | undefined
+  // SWITCH_PLAN usa data.subscription.user.email
+  const subscription = (data.subscription || {}) as Record<string, unknown>
+  const subscriptionUser = (subscription.user || {}) as Record<string, unknown>
+  const email = (buyer.email || subscriber.email || subscriptionUser.email) as string | undefined
   return email?.toLowerCase()?.trim() || null
 }
 
