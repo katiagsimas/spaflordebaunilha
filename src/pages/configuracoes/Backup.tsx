@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 
@@ -39,6 +40,7 @@ function gerarNomeBackup(nomeCompleto: string): string {
 export default function Backup() {
   const { user } = useAuth();
   const { profile, loading: profileLoading } = useUserProfile();
+  const queryClient = useQueryClient();
   const [backups, setBackups] = useState<BackupRecord[]>([]);
   const [realizandoBackup, setRealizandoBackup] = useState(false);
   const [restaurando, setRestaurando] = useState(false);
@@ -143,6 +145,7 @@ export default function Backup() {
       if (error) throw error;
 
       await carregarBackups();
+      queryClient.invalidateQueries({ queryKey: ['ultimo-backup'] });
       toast.success(`Backup "${nomeBackup}" realizado e salvo com sucesso!`);
     } catch (err: any) {
       toast.error("Erro ao realizar backup: " + err.message);
@@ -242,11 +245,6 @@ export default function Backup() {
             <h1 className="text-3xl font-bold tracking-tight">Backup</h1>
             <p className="text-muted-foreground">
               Gerencie backups do seu projeto
-              {ultimoBackupFormatado && (
-                <span className="ml-2 text-xs font-medium text-primary">
-                  • Último backup: {ultimoBackupFormatado}
-                </span>
-              )}
             </p>
           </div>
         </div>
