@@ -251,7 +251,10 @@ export function EditarUsuarioDialog({
         role: userRole as any,
         ativo: userData.ativo ?? true,
         planoId: userData.plano_id || 'base',
+        planoTipo: userData.plano_tipo || 'mensal',
       });
+      setPlanoInicio(userData.plano_inicio ? parseISOToDate(userData.plano_inicio) : undefined);
+      setPlanoFim(userData.plano_fim ? parseISOToDate(userData.plano_fim) : undefined);
     }
   }, [userData, userRole, open, form]);
 
