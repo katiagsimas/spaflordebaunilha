@@ -1,6 +1,6 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-09T23:00:00Z — Caixa Lite apenas anual
+> Última atualização: 2026-04-09T23:30:00Z — Limpeza de usuários inativos
 
 ---
 
