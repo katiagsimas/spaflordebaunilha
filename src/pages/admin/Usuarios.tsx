@@ -81,7 +81,6 @@ export default function Usuarios() {
     total: 0,
     ativos: 0,
     inativos: 0,
-    baseMensal: 0,
     baseAnual: 0,
     negocioMensal: 0,
     negocioAnual: 0,
@@ -139,8 +138,7 @@ export default function Usuarios() {
       total: profilesSemAdmin.length,
       ativos: profilesSemAdmin.filter(u => u.ativo !== false).length,
       inativos: profilesSemAdmin.filter(u => u.ativo === false).length,
-      baseMensal: profilesSemAdmin.filter(u => u.ativo !== false && (!u.plano_id || u.plano_id === 'base') && u.plano_tipo === 'mensal').length,
-      baseAnual: profilesSemAdmin.filter(u => u.ativo !== false && (!u.plano_id || u.plano_id === 'base') && u.plano_tipo === 'anual').length,
+      baseAnual: profilesSemAdmin.filter(u => u.ativo !== false && (!u.plano_id || u.plano_id === 'base')).length,
       negocioMensal: profilesSemAdmin.filter(u => u.ativo !== false && u.plano_id === 'negocio' && u.plano_tipo === 'mensal').length,
       negocioAnual: profilesSemAdmin.filter(u => u.ativo !== false && u.plano_id === 'negocio' && u.plano_tipo === 'anual').length,
     });
@@ -163,8 +161,7 @@ export default function Usuarios() {
       case 'total': return matchEmail;
       case 'ativos': return matchEmail && isAtivo;
       case 'inativos': return matchEmail && !isAtivo;
-      case 'baseMensal': return matchEmail && isAtivo && isBase && usuario.plano_tipo === 'mensal';
-      case 'baseAnual': return matchEmail && isAtivo && isBase && usuario.plano_tipo === 'anual';
+      case 'baseAnual': return matchEmail && isAtivo && isBase;
       case 'negocioMensal': return matchEmail && isAtivo && isNegocio && usuario.plano_tipo === 'mensal';
       case 'negocioAnual': return matchEmail && isAtivo && isNegocio && usuario.plano_tipo === 'anual';
       default: return matchEmail;
@@ -457,7 +454,6 @@ export default function Usuarios() {
             { key: 'ativos', label: 'Ativos', value: estatisticas.ativos, icon: UserCheck, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950' },
             { key: 'inativos', label: 'Inativos', value: estatisticas.inativos, icon: UserX, color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-950' },
             { key: 'total', label: 'Total', value: estatisticas.total, icon: Users, color: 'text-slate-600', bg: 'bg-slate-50 dark:bg-slate-950' },
-            { key: 'baseMensal', label: 'Lite Mensal', value: estatisticas.baseMensal, icon: User, color: 'text-sky-600', bg: 'bg-sky-50 dark:bg-sky-950' },
             { key: 'baseAnual', label: 'Lite Anual', value: estatisticas.baseAnual, icon: User, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-950' },
             { key: 'negocioMensal', label: 'Business Mensal', value: estatisticas.negocioMensal, icon: Shield, color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-950' },
             { key: 'negocioAnual', label: 'Business Anual', value: estatisticas.negocioAnual, icon: Shield, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950' },

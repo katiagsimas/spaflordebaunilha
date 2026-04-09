@@ -141,7 +141,7 @@ export function EditarUsuarioDialog({
       role: 'user',
       ativo: true,
       planoId: 'base',
-      planoTipo: 'mensal',
+      planoTipo: 'anual',
     },
   });
 
@@ -251,7 +251,7 @@ export function EditarUsuarioDialog({
         role: userRole as any,
         ativo: userData.ativo ?? true,
         planoId: userData.plano_id || 'base',
-        planoTipo: userData.plano_tipo || 'mensal',
+        planoTipo: userData.plano_tipo || 'anual',
       });
       setPlanoInicio(userData.plano_inicio ? parseISOToDate(userData.plano_inicio) : undefined);
       setPlanoFim(userData.plano_fim ? parseISOToDate(userData.plano_fim) : undefined);
@@ -266,7 +266,7 @@ export function EditarUsuarioDialog({
       const { data: { user } } = await supabase.auth.getUser();
       const roleAnterior = userRole;
       const planoAnterior = userData?.plano_id || 'base';
-      const planoTipoAnterior = userData?.plano_tipo || 'mensal';
+      const planoTipoAnterior = userData?.plano_tipo || 'anual';
 
       if (data.email !== userData?.email) {
         const { error: emailError } = await supabase.auth.admin.updateUserById(userId, {
@@ -625,23 +625,30 @@ export function EditarUsuarioDialog({
                 <FormField
                   control={form.control}
                   name="planoTipo"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Periodicidade</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Periodicidade" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="mensal">Mensal (30 dias)</SelectItem>
-                          <SelectItem value="anual">Anual (365 dias)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    const planoIdAtual = form.watch('planoId');
+                    // Força anual quando plano é Lite
+                    if (planoIdAtual === 'base' && field.value !== 'anual') {
+                      field.onChange('anual');
+                    }
+                    return (
+                      <FormItem>
+                        <FormLabel>Periodicidade</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value} disabled={planoIdAtual === 'base'}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Periodicidade" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {planoIdAtual === 'negocio' && <SelectItem value="mensal">Mensal (30 dias)</SelectItem>}
+                            <SelectItem value="anual">Anual (365 dias)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
               </div>
 

@@ -22,9 +22,16 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
   const [nomeCompleto, setNomeCompleto] = useState('');
   const [nomeConfeitaria, setNomeConfeitaria] = useState('');
   const [planoId, setPlanoId] = useState('base');
-  const [planoTipo, setPlanoTipo] = useState('mensal');
+  const [planoTipo, setPlanoTipo] = useState('anual');
   const [planoInicio, setPlanoInicio] = useState<Date | undefined>(new Date());
   const [planoFim, setPlanoFim] = useState<Date | undefined>(undefined);
+
+  // Caixa Lite só permite recorrência anual
+  useEffect(() => {
+    if (planoId === 'base') {
+      setPlanoTipo('anual');
+    }
+  }, [planoId]);
 
   // Auto-calculate planoFim when planoInicio or planoTipo changes
   useEffect(() => {
@@ -71,7 +78,7 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
       setNomeCompleto('');
       setNomeConfeitaria('');
       setPlanoId('base');
-      setPlanoTipo('mensal');
+      setPlanoTipo('anual');
       setPlanoInicio(new Date());
       setPlanoFim(undefined);
       onOpenChange(false);
@@ -141,12 +148,12 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
             </div>
             <div className="space-y-2">
               <Label>Periodicidade</Label>
-              <Select value={planoTipo} onValueChange={setPlanoTipo}>
+              <Select value={planoTipo} onValueChange={setPlanoTipo} disabled={planoId === 'base'}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mensal">Mensal (30 dias)</SelectItem>
+                  {planoId === 'negocio' && <SelectItem value="mensal">Mensal (30 dias)</SelectItem>}
                   <SelectItem value="anual">Anual (365 dias)</SelectItem>
                 </SelectContent>
               </Select>

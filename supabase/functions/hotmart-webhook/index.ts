@@ -13,11 +13,17 @@ import { corsHeaders } from '../_shared/cors.ts'
 
 function resolverPlano(productId: string, planName: string | null): { planoId: string; planoTipo: string } {
   const nome = (planName || '').toLowerCase()
-  const isAnual = nome.includes('anual') || nome.includes('annual') || nome.includes('yearly')
-  const planoTipo = isAnual ? 'anual' : 'mensal'
 
   const isNegocio = nome.includes('business') || nome.includes('negocio') || nome.includes('negócio') || nome.includes('caixa business')
   const planoId = isNegocio ? 'negocio' : 'base'
+
+  // Caixa Lite é sempre anual; Business pode ser mensal ou anual
+  if (planoId === 'base') {
+    return { planoId, planoTipo: 'anual' }
+  }
+
+  const isAnual = nome.includes('anual') || nome.includes('annual') || nome.includes('yearly')
+  const planoTipo = isAnual ? 'anual' : 'mensal'
 
   return { planoId, planoTipo }
 }
