@@ -232,8 +232,8 @@ async function enviarEmailBoasVindas(
   email: string,
   nome: string | null,
   planoId: string,
-  planoTipo: string | null,
-  magicLink?: string | null
+  _planoTipo: string | null,
+  _magicLink?: string | null
 ) {
   const resendApiKey = Deno.env.get('RESEND_API_KEY')
   if (!resendApiKey) {
@@ -241,42 +241,22 @@ async function enviarEmailBoasVindas(
     return
   }
 
-  const planoNome = planoId === 'negocio' ? 'Plano Negócio' : 'Plano Base'
-  const periodicidade = planoTipo === 'anual' ? 'Anual' : 'Mensal'
   const nomeDisplay = nome || 'Confeiteira'
-
-  const linkAcesso = magicLink || `${Deno.env.get('SITE_URL') || 'https://caixadeacucar.lovable.app'}/auth/login`
+  const planoNome = planoId === 'negocio' ? 'Plano Negócio' : 'Plano Base'
 
   const html = `
-    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #1A1A1A; border-radius: 16px; overflow: hidden;">
-      <div style="background: linear-gradient(135deg, #D89B8C 0%, #C4837A 100%); padding: 40px 30px; text-align: center;">
-        <h1 style="color: #FFFFFF; font-size: 28px; margin: 0 0 8px;">🧁 Caixa de Açúcar</h1>
-        <p style="color: rgba(255,255,255,0.85); font-size: 14px; margin: 0;">by Umbrella Doce</p>
-      </div>
-      <div style="padding: 40px 30px; color: #E8E3DF;">
-        <h2 style="color: #D89B8C; font-size: 22px; margin: 0 0 16px;">Bem-vinda, ${nomeDisplay}! 🎉</h2>
-        <p style="font-size: 16px; line-height: 1.6; margin: 0 0 20px;">
-          Sua conta no <strong>Caixa de Açúcar</strong> foi criada com sucesso!
-        </p>
-        <div style="background: #2A2A2A; border-radius: 12px; padding: 20px; margin: 0 0 24px;">
-          <p style="margin: 0 0 8px; font-size: 14px;"><strong style="color: #D89B8C;">Plano:</strong> ${planoNome}</p>
-          <p style="margin: 0; font-size: 14px;"><strong style="color: #D89B8C;">Periodicidade:</strong> ${periodicidade}</p>
-        </div>
-        <p style="font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
-          ${magicLink ? 'Clique no botão abaixo para acessar sua conta. No primeiro acesso, você definirá sua senha.' : 'Acesse a plataforma usando o botão abaixo e utilize "Esqueci minha senha" para definir seu acesso.'}
-        </p>
-        <div style="text-align: center; margin: 0 0 24px;">
-          <a href="${linkAcesso}" style="display: inline-block; background: linear-gradient(135deg, #D89B8C, #C4837A); color: #FFFFFF; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: bold; font-size: 16px;">
-            Acessar Caixa de Açúcar
-          </a>
-        </div>
-        <p style="font-size: 13px; color: #888; text-align: center; margin: 0;">
-          Se você não solicitou esta conta, pode ignorar este email.
-        </p>
-      </div>
-      <div style="background: #111; padding: 20px 30px; text-align: center;">
-        <p style="color: #666; font-size: 12px; margin: 0;">© ${new Date().getFullYear()} Caixa de Açúcar by Umbrella Doce</p>
-      </div>
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.6;">
+      <p>Olá, ${nomeDisplay}!</p>
+      <p>Sua conta foi criada. Veja como acessar a plataforma agora:</p>
+      <ol>
+        <li>Acesse <a href="https://caixa.umbrelladoce.com.br" style="color: #D89B8C;">caixa.umbrelladoce.com.br</a></li>
+        <li>Clique em <strong>"Esqueci minha senha"</strong></li>
+        <li>Digite o email <strong>${email}</strong> para receber o link de acesso</li>
+      </ol>
+      <p><strong>Seu plano:</strong> ${planoNome}</p>
+      <p>Qualquer dúvida, responda este email ou acesse o suporte através do e-mail <a href="mailto:ola@umbrelladoce.com.br" style="color: #D89B8C;">ola@umbrelladoce.com.br</a></p>
+      <br/>
+      <p>Umbrella Doce</p>
     </div>
   `
 
@@ -290,7 +270,7 @@ async function enviarEmailBoasVindas(
       body: JSON.stringify({
         from: 'Caixa de Açúcar <noreply@umbrelladoce.com.br>',
         to: [email],
-        subject: `🧁 Bem-vinda ao Caixa de Açúcar, ${nomeDisplay}!`,
+        subject: 'Seu acesso ao Caixa de Açúcar está pronto',
         html,
       }),
     })

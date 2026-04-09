@@ -205,6 +205,9 @@ Deno.serve(async (req) => {
         .from('user_roles')
         .upsert({ user_id: userId, role: 'user' }, { onConflict: 'user_id,role' })
 
+      // Enviar email de boas-vindas via Resend
+      await enviarEmailBoasVindas(email, buyerName, planoId)
+
       console.log('=== Hotmart Webhook - Usuário provisionado ===')
       return new Response(
         JSON.stringify({ success: true, user: { id: userId }, event }),
@@ -303,3 +306,59 @@ Deno.serve(async (req) => {
     )
   }
 })
+
+async function enviarEmailBoasVindas(
+  email: string,
+  nome: string | null,
+  planoId: string,
+) {
+  const resendApiKey = Deno.env.get('RESEND_API_KEY')
+  if (!resendApiKey) {
+    console.warn('RESEND_API_KEY não configurada - email de boas-vindas não enviado')
+    return
+  }
+
+  const nomeDisplay = nome || 'Confeiteira'
+  const planoNome = planoId === 'negocio' ? 'Plano Negócio' : 'Plano Base'
+
+  const html = `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.6;">
+      <p>Olá, ${nomeDisplay}!</p>
+      <p>Sua conta foi criada. Veja como acessar a plataforma agora:</p>
+      <ol>
+        <li>Acesse <a href="https://caixa.umbrelladoce.com.br" style="color: #D89B8C;">caixa.umbrelladoce.com.br</a></li>
+        <li>Clique em <strong>"Esqueci minha senha"</strong></li>
+        <li>Digite o email <strong>${email}</strong> para receber o link de acesso</li>
+      </ol>
+      <p><strong>Seu plano:</strong> ${planoNome}</p>
+      <p>Qualquer dúvida, responda este email ou acesse o suporte através do e-mail <a href="mailto:ola@umbrelladoce.com.br" style="color: #D89B8C;">ola@umbrelladoce.com.br</a></p>
+      <br/>
+      <p>Umbrella Doce</p>
+    </div>
+  `
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Caixa de Açúcar <noreply@umbrelladoce.com.br>',
+        to: [email],
+        subject: 'Seu acesso ao Caixa de Açúcar está pronto',
+        html,
+      }),
+    })
+
+    if (!res.ok) {
+      const errBody = await res.text()
+      console.error('Erro Resend (webhook):', res.status, errBody)
+    } else {
+      console.log('Email de boas-vindas enviado para:', email)
+    }
+  } catch (err) {
+    console.error('Erro ao enviar email de boas-vindas:', err)
+  }
+}
