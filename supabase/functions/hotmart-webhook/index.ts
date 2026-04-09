@@ -129,6 +129,7 @@ Deno.serve(async (req) => {
         plano_tipo: planoTipo,
         plano_inicio: planoInicio,
         plano_fim: planoFim,
+        origem_criacao: 'webhook',
       }
 
       let userId: string
@@ -199,6 +200,17 @@ Deno.serve(async (req) => {
         .from('user_roles')
         .upsert({ user_id: userId, role: 'user' }, { onConflict: 'user_id,role' })
 
+      // Record plan history
+      await supabaseAdmin.from('historico_planos').insert({
+        user_id: userId,
+        plano_novo: planoId,
+        plano_tipo_novo: planoTipo,
+        plano_inicio: planoInicio,
+        plano_fim: planoFim,
+        tipo_evento: 'criacao',
+        origem: 'webhook',
+      })
+
       console.log('=== Hotmart Webhook - Usuário provisionado ===')
       return new Response(
         JSON.stringify({ success: true, user: { id: userId }, event }),
@@ -220,10 +232,29 @@ Deno.serve(async (req) => {
         .single()
 
       if (profile) {
+        // Get current plan for history
+        const { data: currentProfile } = await supabaseAdmin
+          .from('profiles')
+          .select('plano_id, plano_tipo, plano_inicio, plano_fim')
+          .eq('id', profile.id)
+          .single()
+
         await supabaseAdmin
           .from('profiles')
           .update({ ativo: false, updated_at: new Date().toISOString() })
           .eq('id', profile.id)
+
+        // Record cancellation history
+        await supabaseAdmin.from('historico_planos').insert({
+          user_id: profile.id,
+          plano_anterior: currentProfile?.plano_id,
+          plano_tipo_anterior: currentProfile?.plano_tipo,
+          plano_inicio: currentProfile?.plano_inicio,
+          plano_fim: currentProfile?.plano_fim,
+          tipo_evento: 'cancelamento',
+          origem: 'webhook',
+          observacao: `Evento: ${event}`,
+        })
 
         console.log('Usuário desativado:', profile.id)
       } else {
@@ -263,6 +294,13 @@ Deno.serve(async (req) => {
         .single()
 
       if (profile) {
+        // Get current plan for history
+        const { data: currentProfile } = await supabaseAdmin
+          .from('profiles')
+          .select('plano_id, plano_tipo')
+          .eq('id', profile.id)
+          .single()
+
         await supabaseAdmin
           .from('profiles')
           .update({
@@ -273,6 +311,20 @@ Deno.serve(async (req) => {
             updated_at: new Date().toISOString()
           })
           .eq('id', profile.id)
+
+        // Record plan switch history
+        await supabaseAdmin.from('historico_planos').insert({
+          user_id: profile.id,
+          plano_anterior: currentProfile?.plano_id,
+          plano_novo: planoId,
+          plano_tipo_anterior: currentProfile?.plano_tipo,
+          plano_tipo_novo: planoTipo,
+          plano_inicio: planoInicio,
+          plano_fim: planoFim,
+          tipo_evento: 'alteracao',
+          origem: 'webhook',
+          observacao: `SWITCH_PLAN: ${switchPlanName}`,
+        })
 
         console.log('Plano atualizado:', profile.id, planoId, planoTipo)
       }

@@ -211,6 +211,18 @@ Deno.serve(async (req) => {
       detalhes: { planoId, planoTipo, planoInicio, planoFim, nomeCompleto, nomeConfeitaria }
     })
 
+    // Record plan history
+    await supabaseAdmin.from('historico_planos').insert({
+      user_id: userId,
+      plano_novo: planoId || 'base',
+      plano_tipo_novo: planoTipo || 'mensal',
+      plano_inicio: planoInicio,
+      plano_fim: planoFim,
+      tipo_evento: 'criacao',
+      origem: 'admin',
+      admin_id: callerUser.id,
+    })
+
     console.log('=== Criar Usuário - Sucesso ===')
     return new Response(
       JSON.stringify({
