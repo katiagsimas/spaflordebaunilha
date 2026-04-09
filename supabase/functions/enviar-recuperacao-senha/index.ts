@@ -24,14 +24,12 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false }
     })
 
-    // Gerar link de recuperação
     const siteUrl = Deno.env.get('SITE_URL') || 'https://caixa.umbrelladoce.com.br'
+
+    // Gerar link de recuperação
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'recovery',
       email: email.trim().toLowerCase(),
-      options: {
-        redirectTo: `${siteUrl}/auth/reset-password`
-      }
     })
 
     if (linkError) {
@@ -43,14 +41,31 @@ Deno.serve(async (req) => {
       )
     }
 
-    const recoveryLink = linkData?.properties?.action_link
-    if (!recoveryLink || !resendApiKey) {
+    // Extrair token_hash da action_link gerada pelo Supabase
+    const actionLink = linkData?.properties?.action_link
+    if (!actionLink || !resendApiKey) {
       console.warn('Link ou RESEND_API_KEY ausente')
       return new Response(
         JSON.stringify({ success: true }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
       )
     }
+
+    // Parsear o token_hash da URL do Supabase
+    const actionUrl = new URL(actionLink)
+    const tokenHash = actionUrl.searchParams.get('token')
+    const type = actionUrl.searchParams.get('type') || 'recovery'
+
+    if (!tokenHash) {
+      console.error('Token não encontrado na action_link')
+      return new Response(
+        JSON.stringify({ success: true }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      )
+    }
+
+    // Construir URL diretamente para o domínio personalizado (bypassa redirect do Supabase)
+    const recoveryLink = `${siteUrl}/auth/reset-password?token_hash=${encodeURIComponent(tokenHash)}&type=${type}`
 
     // Buscar nome do usuário
     const { data: profile } = await supabaseAdmin
