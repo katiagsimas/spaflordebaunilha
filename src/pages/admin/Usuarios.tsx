@@ -89,7 +89,7 @@ export default function Usuarios() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, email, nome_completo, nome_confeitaria, created_at, ativo, plano_id, plano_inicio, plano_fim, plano_tipo')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -171,10 +171,11 @@ export default function Usuarios() {
       return {
         'Email': usuario.email,
         'Nome Completo': usuario.nome_completo || 'N/A',
-        'Confeitaria': usuario.nome_confeitaria || 'N/A',
         'Status': usuario.ativo !== false ? 'Ativo' : 'Inativo',
         'Permissão': isAdmin ? 'Administrador' : 'Usuário',
-        'Cadastrado em': new Date(usuario.created_at).toLocaleDateString('pt-BR'),
+        'Plano': usuario.plano_id === 'negocio' ? 'Negócio' : 'Base',
+        'Início do Plano': usuario.plano_inicio ? new Date(usuario.plano_inicio + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A',
+        'Expiração do Plano': usuario.plano_fim ? new Date(usuario.plano_fim + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A',
       };
     });
 
