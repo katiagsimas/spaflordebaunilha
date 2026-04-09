@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,17 +16,28 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
-  const { resetPassword } = useAuth();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
     setLoading(true);
     try {
-      await resetPassword(email);
+      const { error } = await supabase.functions.invoke('enviar-recuperacao-senha', {
+        body: { email: email.trim() }
+      });
+      if (error) throw error;
       setSent(true);
+      toast({
+        title: '✅ Email enviado!',
+        description: 'Verifique sua caixa de entrada para redefinir a senha.',
+      });
     } catch (error) {
-      // Erro já tratado no contexto
+      toast({
+        title: '❌ Erro',
+        description: 'Não foi possível enviar o email. Tente novamente.',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
