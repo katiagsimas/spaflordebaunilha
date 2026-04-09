@@ -155,16 +155,18 @@ export default function Usuarios() {
     
     if (!filtroCard) return matchEmail;
 
+    const isAtivo = usuario.ativo !== false;
     const isBase = !usuario.plano_id || usuario.plano_id === 'base';
     const isNegocio = usuario.plano_id === 'negocio';
 
     switch (filtroCard) {
-      case 'ativos': return matchEmail && usuario.ativo !== false;
-      case 'inativos': return matchEmail && usuario.ativo === false;
-      case 'baseMensal': return matchEmail && isBase && usuario.plano_tipo === 'mensal';
-      case 'baseAnual': return matchEmail && isBase && usuario.plano_tipo === 'anual';
-      case 'negocioMensal': return matchEmail && isNegocio && usuario.plano_tipo === 'mensal';
-      case 'negocioAnual': return matchEmail && isNegocio && usuario.plano_tipo === 'anual';
+      case 'total': return matchEmail;
+      case 'ativos': return matchEmail && isAtivo;
+      case 'inativos': return matchEmail && !isAtivo;
+      case 'baseMensal': return matchEmail && isAtivo && isBase && usuario.plano_tipo === 'mensal';
+      case 'baseAnual': return matchEmail && isAtivo && isBase && usuario.plano_tipo === 'anual';
+      case 'negocioMensal': return matchEmail && isAtivo && isNegocio && usuario.plano_tipo === 'mensal';
+      case 'negocioAnual': return matchEmail && isAtivo && isNegocio && usuario.plano_tipo === 'anual';
       default: return matchEmail;
     }
   }) || [];
@@ -454,7 +456,7 @@ export default function Usuarios() {
           {[
             { key: 'ativos', label: 'Ativos', value: estatisticas.ativos, icon: UserCheck, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950' },
             { key: 'inativos', label: 'Inativos', value: estatisticas.inativos, icon: UserX, color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-950' },
-            { key: null, label: 'Total', value: estatisticas.total, icon: Users, color: 'text-slate-600', bg: 'bg-slate-50 dark:bg-slate-950' },
+            { key: 'total', label: 'Total', value: estatisticas.total, icon: Users, color: 'text-slate-600', bg: 'bg-slate-50 dark:bg-slate-950' },
             { key: 'baseMensal', label: 'Base Mensal', value: estatisticas.baseMensal, icon: User, color: 'text-sky-600', bg: 'bg-sky-50 dark:bg-sky-950' },
             { key: 'baseAnual', label: 'Base Anual', value: estatisticas.baseAnual, icon: User, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-950' },
             { key: 'negocioMensal', label: 'Negócio Mensal', value: estatisticas.negocioMensal, icon: Shield, color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-950' },
