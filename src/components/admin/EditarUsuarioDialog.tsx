@@ -151,7 +151,8 @@ export function EditarUsuarioDialog({
   useEffect(() => {
     if (planoInicio) {
       const inicioISO = formatDateToISO(planoInicio);
-      const dias = planoTipoWatch === 'anual' ? 365 : 30;
+      const diasMap: Record<string, number> = { 'anual': 365, 'mensal': 30, '7dias': 7, '14dias': 14 };
+      const dias = diasMap[planoTipoWatch] ?? 365;
       const fimISO = addDaysToDate(inicioISO, dias);
       setPlanoFim(parseISOToDate(fimISO));
     }
@@ -614,6 +615,7 @@ export function EditarUsuarioDialog({
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="base">Caixa Lite</SelectItem>
+                          <SelectItem value="start">Caixa Start</SelectItem>
                           <SelectItem value="negocio">Caixa Business</SelectItem>
                         </SelectContent>
                       </Select>
@@ -627,9 +629,12 @@ export function EditarUsuarioDialog({
                   name="planoTipo"
                   render={({ field }) => {
                     const planoIdAtual = form.watch('planoId');
-                    // Força anual quando plano é Lite
+                    // Força anual quando plano é Lite; força 7dias/14dias quando Start
                     if (planoIdAtual === 'base' && field.value !== 'anual') {
                       field.onChange('anual');
+                    }
+                    if (planoIdAtual === 'start' && field.value !== '7dias' && field.value !== '14dias') {
+                      field.onChange('7dias');
                     }
                     return (
                       <FormItem>
@@ -641,8 +646,10 @@ export function EditarUsuarioDialog({
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
+                            {planoIdAtual === 'start' && <SelectItem value="7dias">7 dias</SelectItem>}
+                            {planoIdAtual === 'start' && <SelectItem value="14dias">14 dias</SelectItem>}
                             {planoIdAtual === 'negocio' && <SelectItem value="mensal">Mensal (30 dias)</SelectItem>}
-                            <SelectItem value="anual">Anual (365 dias)</SelectItem>
+                            {(planoIdAtual === 'base' || planoIdAtual === 'negocio') && <SelectItem value="anual">Anual (365 dias)</SelectItem>}
                           </SelectContent>
                         </Select>
                         <FormMessage />

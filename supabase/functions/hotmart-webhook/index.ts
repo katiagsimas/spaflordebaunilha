@@ -15,6 +15,13 @@ function resolverPlano(productId: string, planName: string | null): { planoId: s
   const nome = (planName || '').toLowerCase()
 
   const isNegocio = nome.includes('business') || nome.includes('negocio') || nome.includes('negócio') || nome.includes('caixa business')
+  const isStart = nome.includes('start') || nome.includes('caixa start')
+
+  if (isStart) {
+    const is14 = nome.includes('14')
+    return { planoId: 'start', planoTipo: is14 ? '14dias' : '7dias' }
+  }
+
   const planoId = isNegocio ? 'negocio' : 'base'
 
   // Caixa Lite é sempre anual; Business pode ser mensal ou anual
@@ -30,7 +37,8 @@ function resolverPlano(productId: string, planName: string | null): { planoId: s
 
 function calcularPlanoFim(planoInicio: string, planoTipo: string): string {
   const inicio = new Date(planoInicio + 'T00:00:00')
-  const dias = planoTipo === 'anual' ? 365 : 30
+  const diasMap: Record<string, number> = { 'anual': 365, 'mensal': 30, '7dias': 7, '14dias': 14 }
+  const dias = diasMap[planoTipo] ?? 365
   inicio.setDate(inicio.getDate() + dias)
   return inicio.toISOString().split('T')[0]
 }
