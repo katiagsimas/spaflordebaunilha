@@ -330,7 +330,7 @@ export function AppSidebar() {
                   <Crown className="h-3 w-3 text-umbrella-dourado" />
                   <span className="text-xs font-semibold font-body text-sidebar-foreground">
                     {planoNome}
-                    {profile?.plano_tipo && (
+                    {profile?.plano_tipo && profile?.plano_id !== 'start' && (
                       <span className="ml-1 font-normal text-sidebar-foreground/60">
                         ({profile.plano_tipo === 'anual' ? 'Anual' : 'Mensal'})
                       </span>
