@@ -306,7 +306,9 @@ Deno.serve(async (req) => {
     if (event === 'SWITCH_PLAN') {
       const plans = (data.plans || []) as Array<Record<string, unknown>>
       const currentPlan = plans.find(p => p.current === true) || plans[0] || {}
-      const switchPlanName = (currentPlan.name || plan.name || '') as string
+      const switchPlanNameParts = [currentPlan.name, plan.name, product.name].filter(Boolean).map(String)
+      const switchPlanName = switchPlanNameParts.join(' | ')
+      console.log('SWITCH_PLAN planName sources:', switchPlanNameParts)
       const switchProduct = (data.subscription as Record<string, unknown>)?.product as Record<string, unknown> || product
       const { planoId, planoTipo } = resolverPlano(switchProduct?.id?.toString() || '', switchPlanName)
       const planoInicio = new Date().toISOString().split('T')[0]
