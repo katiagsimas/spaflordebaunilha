@@ -1,6 +1,17 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-10T12:00:00Z — Criação do plano Caixa Start
+> Última atualização: 2026-04-10T20:30:00Z — Correção detecção plano Start no webhook
+
+---
+
+## CORREÇÃO WEBHOOK — 2026-04-10 20:30 UTC (Plano Start não detectado)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 42 | Webhook: logging de planName | ✅ | Adicionado log de todas as fontes de nome do plano (plan.name, offer.key, offer.name, offer.code, product.name) |
+| 43 | Webhook: detecção ampliada | ✅ | Concatenação de todos os campos disponíveis para maximizar detecção de keywords |
+| 44 | Usuário corrigido | ✅ | testecomprador271101postman15@example.com: base/anual → start/14dias |
+| 45 | user_has_financial_access | ✅ | Função DB corrigida para incluir plano 'start' (antes só 'negocio') |
 
 ---
 
