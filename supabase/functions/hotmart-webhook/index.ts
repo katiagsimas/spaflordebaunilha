@@ -19,9 +19,8 @@ function resolverPlano(productId: string, planName: string | null): { planoId: s
   const isNegocio = nome.includes('business') || nome.includes('negocio') || nome.includes('negócio') || nome.includes('caixa business')
 
   if (isStart) {
-    const is14 = nome.includes('14')
-    console.log('resolverPlano - detectado Start, is14:', is14)
-    return { planoId: 'start', planoTipo: is14 ? '14dias' : '7dias' }
+    console.log('resolverPlano - detectado Start (sempre 14dias)')
+    return { planoId: 'start', planoTipo: '14dias' }
   }
 
   const planoId = isNegocio ? 'negocio' : 'base'

@@ -633,8 +633,8 @@ export function EditarUsuarioDialog({
                     if (planoIdAtual === 'base' && field.value !== 'anual') {
                       field.onChange('anual');
                     }
-                    if (planoIdAtual === 'start' && field.value !== '7dias' && field.value !== '14dias') {
-                      field.onChange('7dias');
+                    if (planoIdAtual === 'start' && field.value !== '14dias') {
+                      field.onChange('14dias');
                     }
                     return (
                       <FormItem>
@@ -646,7 +646,6 @@ export function EditarUsuarioDialog({
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {planoIdAtual === 'start' && <SelectItem value="7dias">7 dias</SelectItem>}
                             {planoIdAtual === 'start' && <SelectItem value="14dias">14 dias</SelectItem>}
                             {planoIdAtual === 'negocio' && <SelectItem value="mensal">Mensal (30 dias)</SelectItem>}
                             {(planoIdAtual === 'base' || planoIdAtual === 'negocio') && <SelectItem value="anual">Anual (365 dias)</SelectItem>}

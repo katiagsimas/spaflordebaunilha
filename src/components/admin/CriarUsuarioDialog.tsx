@@ -31,9 +31,7 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
     if (planoId === 'base') {
       setPlanoTipo('anual');
     } else if (planoId === 'start') {
-      if (planoTipo !== '7dias' && planoTipo !== '14dias') {
-        setPlanoTipo('7dias');
-      }
+      setPlanoTipo('14dias');
     }
   }, [planoId]);
 
@@ -154,12 +152,11 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
             </div>
             <div className="space-y-2">
               <Label>Periodicidade</Label>
-              <Select value={planoTipo} onValueChange={setPlanoTipo} disabled={planoId === 'base'}>
+              <Select value={planoTipo} onValueChange={setPlanoTipo} disabled={planoId === 'base' || planoId === 'start'}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {planoId === 'start' && <SelectItem value="7dias">7 dias</SelectItem>}
                   {planoId === 'start' && <SelectItem value="14dias">14 dias</SelectItem>}
                   {planoId === 'negocio' && <SelectItem value="mensal">Mensal (30 dias)</SelectItem>}
                   {(planoId === 'base' || planoId === 'negocio') && <SelectItem value="anual">Anual (365 dias)</SelectItem>}
