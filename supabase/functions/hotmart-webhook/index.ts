@@ -13,12 +13,14 @@ import { corsHeaders } from '../_shared/cors.ts'
 
 function resolverPlano(productId: string, planName: string | null): { planoId: string; planoTipo: string } {
   const nome = (planName || '').toLowerCase()
+  console.log('resolverPlano - input:', { productId, planName, nomeLower: nome })
 
-  const isNegocio = nome.includes('business') || nome.includes('negocio') || nome.includes('negócio') || nome.includes('caixa business')
   const isStart = nome.includes('start') || nome.includes('caixa start')
+  const isNegocio = nome.includes('business') || nome.includes('negocio') || nome.includes('negócio') || nome.includes('caixa business')
 
   if (isStart) {
     const is14 = nome.includes('14')
+    console.log('resolverPlano - detectado Start, is14:', is14)
     return { planoId: 'start', planoTipo: is14 ? '14dias' : '7dias' }
   }
 
@@ -122,7 +124,17 @@ Deno.serve(async (req) => {
 
     // === EVENTOS DE ATIVAÇÃO ===
     if (['PURCHASE_APPROVED', 'PURCHASE_COMPLETE'].includes(event)) {
-      const planName = (plan.name || (purchase.offer as Record<string, unknown>)?.key || product.name || '') as string
+      const offer = (purchase.offer || {}) as Record<string, unknown>
+      // Concatenar todos os campos possíveis para maximizar detecção de palavras-chave
+      const planNameParts = [
+        plan.name,
+        offer.key,
+        offer.name,
+        offer.code,
+        product.name,
+      ].filter(Boolean).map(String)
+      const planName = planNameParts.join(' | ')
+      console.log('planName sources:', planNameParts)
       const { planoId, planoTipo } = resolverPlano(product.id?.toString() || '', planName)
       const planoInicio = new Date().toISOString().split('T')[0]
       const planoFim = calcularPlanoFim(planoInicio, planoTipo)
@@ -294,7 +306,9 @@ Deno.serve(async (req) => {
     if (event === 'SWITCH_PLAN') {
       const plans = (data.plans || []) as Array<Record<string, unknown>>
       const currentPlan = plans.find(p => p.current === true) || plans[0] || {}
-      const switchPlanName = (currentPlan.name || plan.name || '') as string
+      const switchPlanNameParts = [currentPlan.name, plan.name, product.name].filter(Boolean).map(String)
+      const switchPlanName = switchPlanNameParts.join(' | ')
+      console.log('SWITCH_PLAN planName sources:', switchPlanNameParts)
       const switchProduct = (data.subscription as Record<string, unknown>)?.product as Record<string, unknown> || product
       const { planoId, planoTipo } = resolverPlano(switchProduct?.id?.toString() || '', switchPlanName)
       const planoInicio = new Date().toISOString().split('T')[0]
