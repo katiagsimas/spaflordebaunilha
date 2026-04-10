@@ -1,6 +1,16 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-10T20:30:00Z — Correção detecção plano Start no webhook
+> Última atualização: 2026-04-10T21:00:00Z — Remoção periodicidade 7dias do Caixa Start
+
+---
+
+## REFINAMENTO CAIXA START — 2026-04-10 21:00 UTC (Apenas 14 dias)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 46 | Remoção opção 7 dias | ✅ | Webhook, CriarUsuarioDialog e EditarUsuarioDialog atualizados para aceitar apenas 14 dias |
+| 47 | Correção usuários existentes | ✅ | Usuário `chefkasimas+teste11@gmail.com` corrigido de 7dias → 14dias (plano_fim ajustado) |
+| 48 | Card Start 7d removido | ✅ | Dashboard admin agora exibe apenas card "Start 14d" |
 
 ---
 
