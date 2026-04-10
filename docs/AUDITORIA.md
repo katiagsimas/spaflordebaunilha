@@ -1,6 +1,17 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-09T23:30:00Z — Limpeza de usuários inativos
+> Última atualização: 2026-04-10T12:00:00Z — Criação do plano Caixa Start
+
+---
+
+## NOVO PLANO — 2026-04-10 12:00 UTC (Caixa Start)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 38 | Plano Caixa Start criado | ✅ | Novo plano com acesso completo (igual Business) e periodicidade de 7 ou 14 dias |
+| 39 | Webhook Hotmart atualizado | ✅ | Reconhece palavras-chave 'start' e 'caixa start', detecta 14 dias pelo nome |
+| 40 | UI Admin atualizada | ✅ | CriarUsuarioDialog, EditarUsuarioDialog e Usuarios.tsx suportam o novo plano |
+| 41 | usePlano atualizado | ✅ | Plano 'start' com acesso total (wildcard *) |
 
 ---
 

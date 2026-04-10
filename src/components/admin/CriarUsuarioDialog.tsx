@@ -26,10 +26,14 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
   const [planoInicio, setPlanoInicio] = useState<Date | undefined>(new Date());
   const [planoFim, setPlanoFim] = useState<Date | undefined>(undefined);
 
-  // Caixa Lite só permite recorrência anual
+  // Caixa Lite só permite recorrência anual; Caixa Start só 7 ou 14 dias
   useEffect(() => {
     if (planoId === 'base') {
       setPlanoTipo('anual');
+    } else if (planoId === 'start') {
+      if (planoTipo !== '7dias' && planoTipo !== '14dias') {
+        setPlanoTipo('7dias');
+      }
     }
   }, [planoId]);
 
@@ -37,7 +41,8 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
   useEffect(() => {
     if (planoInicio) {
       const inicioISO = formatDateToISO(planoInicio);
-      const dias = planoTipo === 'anual' ? 365 : 30;
+      const diasMap: Record<string, number> = { 'anual': 365, 'mensal': 30, '7dias': 7, '14dias': 14 };
+      const dias = diasMap[planoTipo] ?? 365;
       const fimISO = addDaysToDate(inicioISO, dias);
       setPlanoFim(parseISOToDate(fimISO));
     }
@@ -142,6 +147,7 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="base">Caixa Lite</SelectItem>
+                  <SelectItem value="start">Caixa Start</SelectItem>
                   <SelectItem value="negocio">Caixa Business</SelectItem>
                 </SelectContent>
               </Select>
@@ -153,8 +159,10 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  {planoId === 'start' && <SelectItem value="7dias">7 dias</SelectItem>}
+                  {planoId === 'start' && <SelectItem value="14dias">14 dias</SelectItem>}
                   {planoId === 'negocio' && <SelectItem value="mensal">Mensal (30 dias)</SelectItem>}
-                  <SelectItem value="anual">Anual (365 dias)</SelectItem>
+                  {(planoId === 'base' || planoId === 'negocio') && <SelectItem value="anual">Anual (365 dias)</SelectItem>}
                 </SelectContent>
               </Select>
             </div>

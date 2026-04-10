@@ -19,6 +19,7 @@ const MODULOS_POR_PLANO: Record<string, string[]> = {
     "/configuracoes/dados-confeitaria",
     "/configuracoes/tags-encomendas",
   ],
+  start: ["*"],   // acesso total (período curto)
   negocio: ["*"], // acesso total
   controle: [],   // em breve
 };
