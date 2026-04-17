@@ -58,7 +58,7 @@ export function AlertaExpiracaoPlano() {
         <div className="flex items-center gap-2 shrink-0">
           {isStart && (
             <a
-              href="https://gestão.umbrelladoce.com.br"
+              href="https://gestao.umbrelladoce.com.br/"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold transition-colors dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-amber-950"
