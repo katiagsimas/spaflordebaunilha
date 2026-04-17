@@ -2,7 +2,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, X } from 'lucide-react';
+import { AlertCircle, X, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 
@@ -11,12 +11,12 @@ export function AlertaExpiracaoPlano() {
   const { isAdmin } = useIsAdmin();
   const [dismissed, setDismissed] = useState(false);
 
-  const { data: diasRestantes } = useQuery({
+  const { data: planoInfo } = useQuery({
     queryKey: ['plano-expiracao', user?.id],
     queryFn: async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('plano_fim')
+        .select('plano_fim, plano_id')
         .eq('id', user!.id)
         .single();
 
@@ -26,12 +26,15 @@ export function AlertaExpiracaoPlano() {
       hoje.setHours(0, 0, 0, 0);
       const fim = new Date(data.plano_fim + 'T00:00:00');
       const diff = Math.ceil((fim.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24));
-      return diff;
+      return { diasRestantes: diff, planoId: data.plano_id };
     },
     enabled: !!user?.id && !isAdmin,
     staleTime: 1000 * 60 * 30,
     refetchInterval: 1000 * 60 * 60,
   });
+
+  const diasRestantes = planoInfo?.diasRestantes;
+  const isStart = planoInfo?.planoId === 'start';
 
   if (dismissed || isAdmin || diasRestantes === null || diasRestantes === undefined || diasRestantes > 7 || diasRestantes < 0) {
     return null;
@@ -45,20 +48,33 @@ export function AlertaExpiracaoPlano() {
 
   return (
     <Alert className="rounded-none border-x-0 border-t-0 bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-950 dark:border-amber-800 dark:text-amber-200">
-      <div className="flex items-center justify-between w-full">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between w-full gap-3 flex-wrap">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
           <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
           <AlertDescription className="text-sm font-medium">
             ⚠️ {mensagem}
           </AlertDescription>
         </div>
-        <button
-          onClick={() => setDismissed(true)}
-          className="p-1 hover:bg-amber-200/50 rounded transition-colors shrink-0"
-          aria-label="Fechar alerta"
-        >
-          <X className="h-4 w-4" />
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          {isStart && (
+            <a
+              href="https://gestão.umbrelladoce.com.br"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold transition-colors dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-amber-950"
+            >
+              Fazer Upgrade
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          )}
+          <button
+            onClick={() => setDismissed(true)}
+            className="p-1 hover:bg-amber-200/50 rounded transition-colors shrink-0"
+            aria-label="Fechar alerta"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </Alert>
   );
