@@ -25,18 +25,20 @@ export function FirstAccessRedirect() {
     enabled: !!user,
   });
 
-  // Verifica se existe ao menos 1 ingrediente e 1 embalagem
-  const { data: insumosStatus, isLoading: loadingInsumos } = useQuery({
-    queryKey: ['onboarding-insumos', user?.id],
+  // Verifica se existe ao menos 1 ingrediente, 1 embalagem e 1 backup
+  const { data: onboardingStatus, isLoading: loadingOnboarding } = useQuery({
+    queryKey: ['onboarding-status', user?.id],
     queryFn: async () => {
       if (!user) return null;
-      const [{ count: ingCount }, { count: embCount }] = await Promise.all([
+      const [{ count: ingCount }, { count: embCount }, { count: bkpCount }] = await Promise.all([
         supabase.from('ingredientes').select('id', { count: 'exact', head: true }).eq('usuario_id', user.id),
         supabase.from('embalagens').select('id', { count: 'exact', head: true }).eq('usuario_id', user.id),
+        (supabase.from('backups' as any).select('id', { count: 'exact', head: true }).eq('usuario_id', user.id) as any),
       ]);
       return {
         temIngrediente: (ingCount ?? 0) > 0,
         temEmbalagem: (embCount ?? 0) > 0,
+        temBackup: (bkpCount ?? 0) > 0,
       };
     },
     enabled: !!user && !!profile && profile.ativo !== false && !!profile.nome_confeitaria && !profile.primeiro_acesso && !isAdmin,
