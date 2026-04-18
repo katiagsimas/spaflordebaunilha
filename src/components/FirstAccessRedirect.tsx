@@ -67,12 +67,13 @@ export function FirstAccessRedirect() {
       return;
     }
 
-    // Etapa 2: Insumos e Embalagens obrigatórios
-    if (loadingInsumos || !insumosStatus) return;
-    const onboardingCompleto = insumosStatus.temIngrediente && insumosStatus.temEmbalagem;
+    // Etapa 2: Insumos, Embalagens e Backup obrigatórios
+    if (loadingOnboarding || !onboardingStatus) return;
+    const temInsumos = onboardingStatus.temIngrediente && onboardingStatus.temEmbalagem;
+    const temBackup = onboardingStatus.temBackup;
 
-    if (!onboardingCompleto) {
-      // Rotas permitidas durante o onboarding de insumos
+    // Etapa 2a: Falta insumos/embalagens
+    if (!temInsumos) {
       const rotasPermitidas = [
         '/configuracoes/tipos-insumos',
         '/configuracoes/dados-confeitaria',
@@ -81,8 +82,22 @@ export function FirstAccessRedirect() {
       if (!emRotaPermitida) {
         navigate('/configuracoes/tipos-insumos', { replace: true });
       }
+      return;
     }
-  }, [profile, isLoading, insumosStatus, loadingInsumos, location.pathname, navigate, isAdmin, loadingAdmin]);
+
+    // Etapa 2b: Falta backup inicial
+    if (!temBackup) {
+      const rotasPermitidas = [
+        '/configuracoes/backup',
+        '/configuracoes/tipos-insumos',
+        '/configuracoes/dados-confeitaria',
+      ];
+      const emRotaPermitida = rotasPermitidas.some((r) => location.pathname.startsWith(r));
+      if (!emRotaPermitida) {
+        navigate('/configuracoes/backup', { replace: true });
+      }
+    }
+  }, [profile, isLoading, onboardingStatus, loadingOnboarding, location.pathname, navigate, isAdmin, loadingAdmin]);
 
   return null;
 }
