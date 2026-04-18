@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +25,9 @@ import { useGlobalLoading } from "@/contexts/GlobalLoadingContext";
 
 export default function MaoDeObra() {
   const { showLoading, hideLoading } = useGlobalLoading();
-  const { profile, loading: profileLoading } = useUserProfile();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { profile, loading: profileLoading, refetch: refetchProfile } = useUserProfile();
   const { perfis, isLoading: perfisLoading, createPerfil, updatePerfil, deletePerfil } = useMaoObraPerfis();
   const [valorHora, setValorHora] = useState<string>("");
   const [saving, setSaving] = useState(false);
@@ -91,6 +95,23 @@ export default function MaoDeObra() {
       if (error) throw error;
 
       toast.success("Valor de mão de obra salvo com sucesso!");
+
+      // Recarrega profile local e invalida queries do onboarding para destravar redirect
+      await refetchProfile();
+      await queryClient.invalidateQueries({ queryKey: ["profile"] });
+      await queryClient.invalidateQueries({ queryKey: ["onboarding-status"] });
+      await queryClient.invalidateQueries({ queryKey: ["mao_obra_perfis"] });
+
+      // Se ainda não houver backup, segue o fluxo de onboarding
+      if (profile?.id) {
+        const { count } = await (supabase
+          .from("backups" as any)
+          .select("id", { count: "exact", head: true })
+          .eq("usuario_id", profile.id) as any);
+        if ((count ?? 0) === 0) {
+          navigate("/configuracoes/backup", { replace: true });
+        }
+      }
     } catch (error) {
       console.error("Erro ao salvar valor de mão de obra:", error);
       toast.error("Erro ao salvar valor de mão de obra");
