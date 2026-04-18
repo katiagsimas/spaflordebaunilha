@@ -61,7 +61,7 @@ export function AlertaExpiracaoPlano() {
               href="https://gestao.umbrelladoce.com.br/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-umbrella-coral hover:brightness-95 text-umbrella-preto text-xs font-semibold transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-umbrella-preto hover:brightness-110 text-umbrella-dourado text-xs font-semibold transition-all"
             >
               Fazer Upgrade
               <ExternalLink className="h-3 w-3" />
