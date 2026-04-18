@@ -9,6 +9,7 @@ export function FirstAccessRedirect() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAdmin, isLoading: loadingAdmin } = useIsAdmin();
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ['profile', user?.id],
@@ -42,7 +43,10 @@ export function FirstAccessRedirect() {
   });
 
   useEffect(() => {
-    if (isLoading || !profile) return;
+    if (isLoading || !profile || loadingAdmin) return;
+
+    // Admins têm acesso total — sem restrições de onboarding
+    if (isAdmin) return;
 
     // Usuário inativo → logout
     if (profile.ativo === false) {
