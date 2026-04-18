@@ -3,11 +3,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useIsAdmin } from '@/hooks/useIsAdmin';
 
 export function FirstAccessRedirect() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAdmin, isLoading: loadingAdmin } = useIsAdmin();
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ['profile', user?.id],
@@ -37,11 +39,14 @@ export function FirstAccessRedirect() {
         temEmbalagem: (embCount ?? 0) > 0,
       };
     },
-    enabled: !!user && !!profile && profile.ativo !== false && !!profile.nome_confeitaria && !profile.primeiro_acesso,
+    enabled: !!user && !!profile && profile.ativo !== false && !!profile.nome_confeitaria && !profile.primeiro_acesso && !isAdmin,
   });
 
   useEffect(() => {
-    if (isLoading || !profile) return;
+    if (isLoading || !profile || loadingAdmin) return;
+
+    // Admins têm acesso total — sem restrições de onboarding
+    if (isAdmin) return;
 
     // Usuário inativo → logout
     if (profile.ativo === false) {
@@ -75,7 +80,7 @@ export function FirstAccessRedirect() {
         navigate('/configuracoes/tipos-insumos', { replace: true });
       }
     }
-  }, [profile, isLoading, insumosStatus, loadingInsumos, location.pathname, navigate]);
+  }, [profile, isLoading, insumosStatus, loadingInsumos, location.pathname, navigate, isAdmin, loadingAdmin]);
 
   return null;
 }
