@@ -96,21 +96,21 @@ export default function MaoDeObra() {
 
       toast.success("Valor de mão de obra salvo com sucesso!");
 
-      // Recarrega profile local e invalida queries do onboarding para destravar redirect
+      // Recarrega profile local e força refetch das queries do onboarding
       await refetchProfile();
-      await queryClient.invalidateQueries({ queryKey: ["profile"] });
-      await queryClient.invalidateQueries({ queryKey: ["onboarding-status"] });
-      await queryClient.invalidateQueries({ queryKey: ["mao_obra_perfis"] });
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ["profile"] }),
+        queryClient.refetchQueries({ queryKey: ["onboarding-status"] }),
+        queryClient.refetchQueries({ queryKey: ["mao_obra_perfis"] }),
+      ]);
 
-      // Se ainda não houver backup, segue o fluxo de onboarding
-      if (profile?.id) {
-        const { count } = await (supabase
-          .from("backups" as any)
-          .select("id", { count: "exact", head: true })
-          .eq("usuario_id", profile.id) as any);
-        if ((count ?? 0) === 0) {
-          navigate("/configuracoes/backup", { replace: true });
-        }
+      // Verifica se já existe backup; se não, segue o fluxo de onboarding direto para backup
+      const { count } = await (supabase
+        .from("backups" as any)
+        .select("id", { count: "exact", head: true })
+        .eq("usuario_id", profile.id) as any);
+      if ((count ?? 0) === 0) {
+        navigate("/configuracoes/backup", { replace: true });
       }
     } catch (error) {
       console.error("Erro ao salvar valor de mão de obra:", error);
