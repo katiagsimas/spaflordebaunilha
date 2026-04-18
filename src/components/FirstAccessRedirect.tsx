@@ -65,20 +65,19 @@ export function FirstAccessRedirect() {
       return;
     }
 
-    // Etapa 2: Insumos, Embalagens e Backup obrigatórios
+    // Etapa 2: Mão de Obra e Backup obrigatórios
     if (loadingOnboarding || !onboardingStatus) return;
-    const temInsumos = onboardingStatus.temIngrediente && onboardingStatus.temEmbalagem;
-    const temBackup = onboardingStatus.temBackup;
+    const { temMaoObra, temBackup } = onboardingStatus;
 
-    // Etapa 2a: Falta insumos/embalagens
-    if (!temInsumos) {
+    // Etapa 2a: Falta valor de mão de obra
+    if (!temMaoObra) {
       const rotasPermitidas = [
-        '/configuracoes/tipos-insumos',
+        '/configuracoes/precificacao/mao-de-obra',
         '/configuracoes/dados-confeitaria',
       ];
       const emRotaPermitida = rotasPermitidas.some((r) => location.pathname.startsWith(r));
       if (!emRotaPermitida) {
-        navigate('/configuracoes/tipos-insumos', { replace: true });
+        navigate('/configuracoes/precificacao/mao-de-obra', { replace: true });
       }
       return;
     }
@@ -87,7 +86,7 @@ export function FirstAccessRedirect() {
     if (!temBackup) {
       const rotasPermitidas = [
         '/configuracoes/backup',
-        '/configuracoes/tipos-insumos',
+        '/configuracoes/precificacao/mao-de-obra',
         '/configuracoes/dados-confeitaria',
       ];
       const emRotaPermitida = rotasPermitidas.some((r) => location.pathname.startsWith(r));
