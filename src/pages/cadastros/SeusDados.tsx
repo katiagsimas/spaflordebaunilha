@@ -198,13 +198,9 @@ export default function SeusDados() {
       queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
       toast.success("✅ Dados salvos com sucesso!");
       
-      // Redirecionar automaticamente após salvar
+      // Redirecionar para cadastro de Insumos e Embalagens
       setTimeout(() => {
-        if (profile?.primeiro_acesso) {
-          navigate('/');
-        } else {
-          navigate('/configuracoes/cadastros-base');
-        }
+        navigate('/configuracoes/tipos-insumos');
       }, 1000);
     },
     onError: (error: any) => {
@@ -224,6 +220,14 @@ export default function SeusDados() {
   });
 
   const onSubmit = (data: SeusDadosForm) => {
+    if (!data.razaoSocial?.trim()) {
+      toast.error("Nome Fantasia é obrigatório");
+      return;
+    }
+    if (!data.telefone?.trim()) {
+      toast.error("Telefone/WhatsApp é obrigatório");
+      return;
+    }
     updateProfileMutation.mutate(data);
   };
 
@@ -286,11 +290,12 @@ export default function SeusDados() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="razaoSocial">Nome Fantasia</Label>
+              <Label htmlFor="razaoSocial">Nome Fantasia <span className="text-destructive">*</span></Label>
               <Input
                 id="razaoSocial"
-                {...register("razaoSocial")}
+                {...register("razaoSocial", { required: true })}
                 placeholder="Nome da empresa"
+                required
               />
             </div>
 
@@ -335,11 +340,12 @@ export default function SeusDados() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="telefone">Telefone/WhatsApp</Label>
+                <Label htmlFor="telefone">Telefone/WhatsApp <span className="text-destructive">*</span></Label>
                 <Input
                   id="telefone"
-                  {...register("telefone")}
+                  {...register("telefone", { required: true })}
                   placeholder="(00) 00000-0000"
+                  required
                   onBlur={(e) => setValue("telefone", formatPhone(e.target.value))}
                 />
               </div>
