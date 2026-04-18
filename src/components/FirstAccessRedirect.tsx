@@ -25,18 +25,20 @@ export function FirstAccessRedirect() {
     enabled: !!user,
   });
 
-  // Verifica se existe ao menos 1 ingrediente e 1 embalagem
-  const { data: insumosStatus, isLoading: loadingInsumos } = useQuery({
-    queryKey: ['onboarding-insumos', user?.id],
+  // Verifica se existe ao menos 1 ingrediente, 1 embalagem e 1 backup
+  const { data: onboardingStatus, isLoading: loadingOnboarding } = useQuery({
+    queryKey: ['onboarding-status', user?.id],
     queryFn: async () => {
       if (!user) return null;
-      const [{ count: ingCount }, { count: embCount }] = await Promise.all([
+      const [{ count: ingCount }, { count: embCount }, { count: bkpCount }] = await Promise.all([
         supabase.from('ingredientes').select('id', { count: 'exact', head: true }).eq('usuario_id', user.id),
         supabase.from('embalagens').select('id', { count: 'exact', head: true }).eq('usuario_id', user.id),
+        (supabase.from('backups' as any).select('id', { count: 'exact', head: true }).eq('usuario_id', user.id) as any),
       ]);
       return {
         temIngrediente: (ingCount ?? 0) > 0,
         temEmbalagem: (embCount ?? 0) > 0,
+        temBackup: (bkpCount ?? 0) > 0,
       };
     },
     enabled: !!user && !!profile && profile.ativo !== false && !!profile.nome_confeitaria && !profile.primeiro_acesso && !isAdmin,
@@ -65,12 +67,13 @@ export function FirstAccessRedirect() {
       return;
     }
 
-    // Etapa 2: Insumos e Embalagens obrigatórios
-    if (loadingInsumos || !insumosStatus) return;
-    const onboardingCompleto = insumosStatus.temIngrediente && insumosStatus.temEmbalagem;
+    // Etapa 2: Insumos, Embalagens e Backup obrigatórios
+    if (loadingOnboarding || !onboardingStatus) return;
+    const temInsumos = onboardingStatus.temIngrediente && onboardingStatus.temEmbalagem;
+    const temBackup = onboardingStatus.temBackup;
 
-    if (!onboardingCompleto) {
-      // Rotas permitidas durante o onboarding de insumos
+    // Etapa 2a: Falta insumos/embalagens
+    if (!temInsumos) {
       const rotasPermitidas = [
         '/configuracoes/tipos-insumos',
         '/configuracoes/dados-confeitaria',
@@ -79,8 +82,22 @@ export function FirstAccessRedirect() {
       if (!emRotaPermitida) {
         navigate('/configuracoes/tipos-insumos', { replace: true });
       }
+      return;
     }
-  }, [profile, isLoading, insumosStatus, loadingInsumos, location.pathname, navigate, isAdmin, loadingAdmin]);
+
+    // Etapa 2b: Falta backup inicial
+    if (!temBackup) {
+      const rotasPermitidas = [
+        '/configuracoes/backup',
+        '/configuracoes/tipos-insumos',
+        '/configuracoes/dados-confeitaria',
+      ];
+      const emRotaPermitida = rotasPermitidas.some((r) => location.pathname.startsWith(r));
+      if (!emRotaPermitida) {
+        navigate('/configuracoes/backup', { replace: true });
+      }
+    }
+  }, [profile, isLoading, onboardingStatus, loadingOnboarding, location.pathname, navigate, isAdmin, loadingAdmin]);
 
   return null;
 }
