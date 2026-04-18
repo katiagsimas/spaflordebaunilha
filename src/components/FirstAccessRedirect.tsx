@@ -39,7 +39,7 @@ export function FirstAccessRedirect() {
         temEmbalagem: (embCount ?? 0) > 0,
       };
     },
-    enabled: !!user && !!profile && profile.ativo !== false && !!profile.nome_confeitaria && !profile.primeiro_acesso,
+    enabled: !!user && !!profile && profile.ativo !== false && !!profile.nome_confeitaria && !profile.primeiro_acesso && !isAdmin,
   });
 
   useEffect(() => {
@@ -80,7 +80,7 @@ export function FirstAccessRedirect() {
         navigate('/configuracoes/tipos-insumos', { replace: true });
       }
     }
-  }, [profile, isLoading, insumosStatus, loadingInsumos, location.pathname, navigate]);
+  }, [profile, isLoading, insumosStatus, loadingInsumos, location.pathname, navigate, isAdmin, loadingAdmin]);
 
   return null;
 }
