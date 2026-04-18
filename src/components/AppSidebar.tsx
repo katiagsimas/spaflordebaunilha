@@ -1,4 +1,4 @@
-import { LayoutDashboard, ShoppingBag, DollarSign, LogOut, Users, User, Truck, Cake, Calculator, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, DollarSign, LogOut, Users, User, Truck, Cake, Calculator, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
 import caixaAcucarSidebarIcon from "@/assets/caixa-acucar-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -26,12 +26,10 @@ import { Button } from "@/components/ui/button";
 
 const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, active: true },
-  { title: "Encomendas", url: "/encomendas", icon: ShoppingBag, active: true },
-  { title: "Clientes", url: "/clientes", icon: User, active: true },
-  { title: "Fornecedores", url: "/fornecedores", icon: Truck, active: true },
-  
   { title: "Financeiro", url: "/financeiro", icon: DollarSign, active: true },
-  { title: "Precificação", url: "/precificacao", icon: Calculator, active: true },
+  { title: "Vendas", url: "/encomendas", icon: ShoppingBag, active: true },
+  { title: "Produtos", url: "/precificacao", icon: Calculator, active: true },
+  { title: "Clientes & Fornecedores", url: "/clientes-fornecedores", icon: Users, active: true },
   { title: "Configurações", url: "/configuracoes", icon: Settings, active: true },
 ];
 
