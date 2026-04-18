@@ -103,11 +103,11 @@ export default function MaoDeObra() {
       await queryClient.invalidateQueries({ queryKey: ["mao_obra_perfis"] });
 
       // Se ainda não houver backup, segue o fluxo de onboarding
-      if (user) {
-        const { count } = await supabase
+      if (profile?.id) {
+        const { count } = await (supabase
           .from("backups" as any)
           .select("id", { count: "exact", head: true })
-          .eq("usuario_id", user.id) as any;
+          .eq("usuario_id", profile.id) as any);
         if ((count ?? 0) === 0) {
           navigate("/configuracoes/backup", { replace: true });
         }
