@@ -31,6 +31,7 @@ import Categorias from "./pages/cadastros/Categorias";
 import Receitas from "./pages/Receitas";
 import ReceitaForm from "./pages/ReceitaForm";
 import Configuracoes from "./pages/Configuracoes";
+import ClientesFornecedores from "./pages/ClientesFornecedores";
 import TiposInsumos from "./pages/configuracoes/TiposInsumos";
 import CategoriasPlanoContas from "./pages/configuracoes/CategoriasPlanoContas";
 import PlanoContas from "./pages/configuracoes/PlanoContas";
@@ -180,6 +181,7 @@ const App = () => (
           
           {/* Páginas Diretas */}
           <Route path="/encomendas" element={<ProtectedRoute><Layout><Encomendas /></Layout></ProtectedRoute>} />
+          <Route path="/clientes-fornecedores" element={<ProtectedRoute><Layout><ClientesFornecedores /></Layout></ProtectedRoute>} />
           <Route path="/clientes" element={<ProtectedRoute><Layout><Clientes /></Layout></ProtectedRoute>} />
           <Route path="/fornecedores" element={<ProtectedRoute><Layout><Fornecedores /></Layout></ProtectedRoute>} />
           
