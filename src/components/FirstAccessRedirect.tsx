@@ -25,19 +25,17 @@ export function FirstAccessRedirect() {
     enabled: !!user,
   });
 
-  // Verifica se existe ao menos 1 ingrediente, 1 embalagem e 1 backup
+  // Verifica se existe perfil de mão de obra (ou valor_hora no profile) e backup
   const { data: onboardingStatus, isLoading: loadingOnboarding } = useQuery({
     queryKey: ['onboarding-status', user?.id],
     queryFn: async () => {
       if (!user) return null;
-      const [{ count: ingCount }, { count: embCount }, { count: bkpCount }] = await Promise.all([
-        supabase.from('ingredientes').select('id', { count: 'exact', head: true }).eq('usuario_id', user.id),
-        supabase.from('embalagens').select('id', { count: 'exact', head: true }).eq('usuario_id', user.id),
+      const [{ count: moCount }, { count: bkpCount }] = await Promise.all([
+        supabase.from('mao_obra_perfis').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
         (supabase.from('backups' as any).select('id', { count: 'exact', head: true }).eq('usuario_id', user.id) as any),
       ]);
       return {
-        temIngrediente: (ingCount ?? 0) > 0,
-        temEmbalagem: (embCount ?? 0) > 0,
+        temMaoObra: (moCount ?? 0) > 0 || (Number(profile?.valor_hora) || 0) > 0,
         temBackup: (bkpCount ?? 0) > 0,
       };
     },
