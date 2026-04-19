@@ -37,13 +37,17 @@ import { ptBR } from "date-fns/locale";
 import {
   LineChart,
   Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
+  Cell
 } from "recharts";
+import { ShoppingBag, Users } from "lucide-react";
 
 interface Encomenda {
   id: string;
