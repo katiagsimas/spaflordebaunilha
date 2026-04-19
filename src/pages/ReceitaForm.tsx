@@ -612,7 +612,8 @@ export default function ReceitaForm() {
   const custoMaoObra = maosObra.reduce((sum, mo) => {
     let valorHora: number;
     if (mo.usar_valor_padrao) {
-      valorHora = profile?.valor_hora || 0;
+      const perfilPadrao = perfis.find((p) => p.padrao && p.ativo);
+      valorHora = perfilPadrao?.valor_hora || 0;
     } else if (mo.perfil_id) {
       const perfil = perfis.find((p) => p.id === mo.perfil_id);
       valorHora = perfil?.valor_hora || 0;

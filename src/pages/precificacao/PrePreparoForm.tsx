@@ -347,8 +347,9 @@ export default function PrePreparoForm() {
       let valorHora = 0;
       
       if (maoObra.usar_valor_padrao) {
-        // Usar valor padrão do perfil do usuário
-        valorHora = profile?.valor_hora || 0;
+        // Usar valor do perfil marcado como padrão
+        const perfilPadrao = perfis.find(p => p.padrao && p.ativo);
+        valorHora = perfilPadrao?.valor_hora || 0;
       } else if (maoObra.perfil_id) {
         // Usar valor do perfil específico
         const perfil = perfis.find(p => p.id === maoObra.perfil_id);
