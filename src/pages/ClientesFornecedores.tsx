@@ -11,7 +11,7 @@ export default function ClientesFornecedores() {
         <div className="flex items-center gap-3 mb-2">
           <Users className="h-8 w-8 text-primary" />
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Clientes & Fornecedores</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Clientes e Fornecedores</h1>
             <p className="text-muted-foreground">Gerencie seus clientes e fornecedores</p>
           </div>
         </div>
