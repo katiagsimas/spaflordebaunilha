@@ -1290,77 +1290,141 @@ export default function Dashboard() {
         </CardContent>
       </Card>
 
-      {/* TOP 5 PRODUTOS MAIS VENDIDOS - somente quando houver dados */}
-      {produtos.length > 0 && (
-        <Card>
-          <CardHeader>
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div>
-                <CardTitle className="text-xl">Top 5 Produtos Mais Vendidos</CardTitle>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant={modoVisualizacao === 'mensal' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setModoVisualizacao('mensal')}
-                >
-                  Mensal
-                </Button>
-                <Button
-                  variant={modoVisualizacao === 'anual' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setModoVisualizacao('anual')}
-                >
-                  Anual
-                </Button>
-              </div>
-            </div>
-            <CardDescription>
-              {modoVisualizacao === 'mensal' 
-                ? `${meses[mesSelecionado]} de ${anoSelecionado}`
-                : `Ano ${anoSelecionado}`
-              }
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {produtos.map((produto, index) => (
-                <div key={produto.id} className="flex items-center gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
-                  {/* Posição */}
-                  <div className={`
-                    flex items-center justify-center w-12 h-12 rounded-full font-bold text-white shrink-0
-                    ${index === 0 ? 'bg-yellow-500' : ''}
-                    ${index === 1 ? 'bg-gray-400' : ''}
-                    ${index === 2 ? 'bg-amber-600' : ''}
-                    ${index >= 3 ? 'bg-primary' : ''}
-                  `}>
-                    {index + 1}º
-                  </div>
-
-                  {/* Informações do Produto */}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-foreground truncate">{produto.nome}</p>
-                    <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
-                      <span>
-                        {produto.quantidade} {produto.quantidade === 1 ? 'venda' : 'vendas'}
-                      </span>
-                      <span className="font-medium text-green-600">
-                        R$ {produto.receita.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Badge de Destaque */}
-                  {index === 0 && (
-                    <Badge className="bg-yellow-500 hover:bg-yellow-600 text-white shrink-0">
-                      🏆 Campeão
-                    </Badge>
-                  )}
+      {/* VENDAS POR MÊS + FLUXO DE CAIXA + TOP 5 (somente quando houver dados) */}
+      {(vendasPorMes.some(v => v.total > 0) || fluxoCaixa.some(f => f.saldo !== 0) || produtos.length > 0) && (
+        <div className="grid gap-4 md:grid-cols-2">
+          {/* Vendas por mês */}
+          {vendasPorMes.some(v => v.total > 0) && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Vendas por mês</CardTitle>
+                <CardDescription>Últimos 6 meses</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[220px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={vendasPorMes}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis dataKey="mes" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                      <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--card))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: "0.5rem"
+                        }}
+                        formatter={(value: number) =>
+                          [`R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, "Vendas"]
+                        }
+                      />
+                      <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Fluxo de caixa + Top 5 (lado direito) */}
+          <div className="space-y-4">
+            {fluxoCaixa.some(f => f.saldo !== 0) && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">Fluxo de caixa</CardTitle>
+                  <CardDescription>Últimos 6 meses</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[160px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={fluxoCaixa}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                        <XAxis dataKey="mes" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                        <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "hsl(var(--card))",
+                            border: "1px solid hsl(var(--border))",
+                            borderRadius: "0.5rem"
+                          }}
+                          formatter={(value: number) =>
+                            [`R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, "Saldo"]
+                          }
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="saldo"
+                          stroke="hsl(var(--primary))"
+                          strokeWidth={2.5}
+                          dot={{ fill: "hsl(var(--primary))", r: 4 }}
+                          activeDot={{ r: 6 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {produtos.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle className="text-lg">Top 5 Produtos</CardTitle>
+                    <CardDescription>
+                      {modoVisualizacao === 'mensal'
+                        ? `${meses[mesSelecionado]} de ${anoSelecionado}`
+                        : `Ano ${anoSelecionado}`}
+                    </CardDescription>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button
+                      variant={modoVisualizacao === 'mensal' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setModoVisualizacao('mensal')}
+                    >
+                      Mensal
+                    </Button>
+                    <Button
+                      variant={modoVisualizacao === 'anual' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setModoVisualizacao('anual')}
+                    >
+                      Anual
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-hidden rounded-md border border-border">
+                    <table className="w-full text-sm">
+                      <thead className="bg-muted/50">
+                        <tr>
+                          <th className="px-3 py-2 text-left font-medium text-muted-foreground">Items</th>
+                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">Preço</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {produtos.map((produto, index) => (
+                          <tr key={produto.id} className="border-t border-border hover:bg-muted/30 transition-colors">
+                            <td className="px-3 py-2 text-foreground">
+                              <span className="font-semibold text-muted-foreground mr-2">{index + 1}º</span>
+                              {produto.nome}
+                              <span className="ml-2 text-xs text-muted-foreground">
+                                ({produto.quantidade} {produto.quantidade === 1 ? 'venda' : 'vendas'})
+                              </span>
+                            </td>
+                            <td className="px-3 py-2 text-right font-medium text-primary">
+                              R$ {produto.receita.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
