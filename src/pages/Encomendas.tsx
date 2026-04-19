@@ -25,6 +25,9 @@ import ContasReceberFormModal from "@/components/financeiro/ContasReceberFormMod
 import { useNavigate } from "react-router-dom";
 import { EncomendaTagsSection } from "@/components/EncomendaTagsSection";
 import { EncomendaImagePreview } from "@/components/EncomendaImagePreview";
+import { CalendariosEncomendas } from "@/components/CalendariosEncomendas";
+import { useEncomendasHoje } from "@/hooks/useEncomendasHoje";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 
 import { supabase } from "@/integrations/supabase/client";
@@ -917,9 +920,19 @@ const Encomendas = () => {
   // Lista de clientes únicos que possuem encomendas
   const clientesComEncomendas = Array.from(new Set(encomendas.map(e => e.cliente).filter(c => c && c.trim() !== ""))).sort();
 
+  const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
+
   return (
     <div className="space-y-8">
-      
+      {temEncomendasHoje && (
+        <Alert className="border-2 border-umbrella-dourado bg-umbrella-dourado/15 animate-pulse">
+          <AlertCircle className="h-5 w-5 text-umbrella-dourado" />
+          <AlertDescription className="font-semibold text-foreground ml-2">
+            🔔 Você tem {encomendasHojeQtd} encomenda{encomendasHojeQtd > 1 ? "s" : ""} para entregar HOJE!
+          </AlertDescription>
+        </Alert>
+      )}
+
       <PageHeader
         title="Gestor de Encomendas"
         description="Controle completo de pedidos do cliente até a entrega"
