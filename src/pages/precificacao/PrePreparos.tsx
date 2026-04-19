@@ -77,12 +77,14 @@ export default function PrePreparos() {
 
       if (maosObraError) throw maosObraError;
 
-      // Buscar perfil do usuário para valor padrão
-      const { data: profileData } = await supabase
-        .from('profiles')
+      // Buscar perfil de mão de obra marcado como padrão
+      const { data: perfilPadraoData } = await supabase
+        .from('mao_obra_perfis')
         .select('valor_hora')
-        .eq('id', user.id)
-        .single();
+        .eq('user_id', user.id)
+        .eq('padrao', true)
+        .eq('ativo', true)
+        .maybeSingle();
 
       // Calcular custo total incluindo mão de obra
       const preparosComCustoTotal = preparosData?.map((preparo) => {
@@ -92,8 +94,8 @@ export default function PrePreparos() {
 
         let custoMaoObra = 0;
         maosObraPreparo.forEach((mo) => {
-          const valorHora = mo.usar_valor_padrao 
-            ? (profileData?.valor_hora || 0)
+          const valorHora = mo.usar_valor_padrao
+            ? (perfilPadraoData?.valor_hora || 0)
             : (mo.perfil?.valor_hora || 0);
           custoMaoObra += valorHora * mo.horas;
         });

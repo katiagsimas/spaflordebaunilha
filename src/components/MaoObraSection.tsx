@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Trash2, Pencil } from "lucide-react";
 import { useMaoObraPerfis } from "@/hooks/useMaoObraPerfis";
-import { useUserProfile } from "@/hooks/useUserProfile";
 import { AdicionarMaoObraDialog } from "./AdicionarMaoObraDialog";
 
 export interface MaoObraLinha {
@@ -20,7 +19,7 @@ interface MaoObraSectionProps {
 
 export function MaoObraSection({ maosObra, onChange }: MaoObraSectionProps) {
   const { perfis } = useMaoObraPerfis();
-  const { profile } = useUserProfile();
+  const perfilPadrao = perfis.find((p) => p.padrao && p.ativo);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [maoObraEditando, setMaoObraEditando] = useState<MaoObraLinha | null>(null);
 
@@ -61,7 +60,7 @@ export function MaoObraSection({ maosObra, onChange }: MaoObraSectionProps) {
 
   const calcularValorHora = (linha: MaoObraLinha): number => {
     if (linha.usar_valor_padrao) {
-      return profile?.valor_hora || 0;
+      return perfilPadrao?.valor_hora || 0;
     } else if (linha.perfil_id) {
       const perfil = perfis.find((p) => p.id === linha.perfil_id);
       return perfil?.valor_hora || 0;
@@ -115,7 +114,7 @@ export function MaoObraSection({ maosObra, onChange }: MaoObraSectionProps) {
                       <TableCell>
                         {linha.usar_valor_padrao ? (
                           <span className="text-muted-foreground text-sm">
-                            Padrão (R$ {(profile?.valor_hora || 0).toFixed(2)}/h)
+                            {perfilPadrao ? `${perfilPadrao.nome} (R$ ${perfilPadrao.valor_hora.toFixed(2)}/h)` : "Sem perfil padrão"}
                           </span>
                         ) : (
                           <span className="text-sm">

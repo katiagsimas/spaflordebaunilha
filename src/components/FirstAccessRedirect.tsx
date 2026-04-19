@@ -35,7 +35,7 @@ export function FirstAccessRedirect() {
         (supabase.from('backups' as any).select('id', { count: 'exact', head: true }).eq('usuario_id', user.id) as any),
       ]);
       return {
-        temMaoObra: (moCount ?? 0) > 0 || (Number(profile?.valor_hora) || 0) > 0,
+        temMaoObra: (moCount ?? 0) > 0,
         temBackup: (bkpCount ?? 0) > 0,
       };
     },

@@ -10,7 +10,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Calculator, Plus, Edit2, Trash2, Star, History } from "lucide-react";
+import { Loader2, Plus, Edit2, Trash2, Star, History } from "lucide-react";
 import { useMaoObraPerfis } from "@/hooks/useMaoObraPerfis";
 import { useMaoObraHistorico } from "@/hooks/useMaoObraHistorico";
 import { Badge } from "@/components/ui/badge";
@@ -27,11 +27,9 @@ export default function MaoDeObra() {
   const { showLoading, hideLoading } = useGlobalLoading();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { profile, loading: profileLoading, refetch: refetchProfile } = useUserProfile();
+  const { profile, loading: profileLoading } = useUserProfile();
   const { perfis, isLoading: perfisLoading, createPerfil, updatePerfil, deletePerfil } = useMaoObraPerfis();
-  const [valorHora, setValorHora] = useState<string>("");
-  const [saving, setSaving] = useState(false);
-  
+
   // Estados para o diálogo de perfil
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingPerfil, setEditingPerfil] = useState<any>(null);
@@ -39,7 +37,7 @@ export default function MaoDeObra() {
   const [perfilValor, setPerfilValor] = useState("");
   const [perfilAtivo, setPerfilAtivo] = useState(true);
   const [perfilPadrao, setPerfilPadrao] = useState(false);
-  
+
   // Estados para exclusão
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [perfilToDelete, setPerfilToDelete] = useState<string | null>(null);
@@ -63,69 +61,8 @@ export default function MaoDeObra() {
     }
   }, [profileLoading, perfisLoading, showLoading, hideLoading]);
 
-  useEffect(() => {
-    if (profile?.valor_hora) {
-      setValorHora(profile.valor_hora.toFixed(2));
-    }
-  }, [profile]);
-
   if (profileLoading || perfisLoading) return null;
 
-  const handleSave = async () => {
-    if (!profile?.id) {
-      toast.error("Perfil não encontrado");
-      return;
-    }
-
-    const valor = parseFloat(valorHora);
-    
-    if (isNaN(valor) || valor < 0) {
-      toast.error("Valor inválido");
-      return;
-    }
-
-    setSaving(true);
-
-    try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ valor_hora: valor })
-        .eq("id", profile.id);
-
-      if (error) throw error;
-
-      toast.success("Valor de mão de obra salvo com sucesso!");
-
-      // Atualiza estado local imediatamente
-      await refetchProfile();
-
-      // Remove cache antigo e força refetch sincronizado das queries do onboarding
-      queryClient.removeQueries({ queryKey: ["onboarding-status"] });
-      await Promise.all([
-        queryClient.refetchQueries({ queryKey: ["profile"], type: "active" }),
-        queryClient.refetchQueries({ queryKey: ["mao_obra_perfis"], type: "active" }),
-      ]);
-      // Refetch onboarding-status já com dados atualizados
-      await queryClient.refetchQueries({ queryKey: ["onboarding-status"], type: "active" });
-
-      // Verifica se já existe backup; se não, navega para backup
-      // (o FirstAccessRedirect agora tem dados frescos e não vai redirecionar de volta)
-      const { count } = await (supabase
-        .from("backups" as any)
-        .select("id", { count: "exact", head: true })
-        .eq("usuario_id", profile.id) as any);
-      if ((count ?? 0) === 0) {
-        // Pequeno delay para garantir que o React processou o estado atualizado
-        setTimeout(() => navigate("/configuracoes/backup", { replace: true }), 50);
-      }
-    } catch (error) {
-      console.error("Erro ao salvar valor de mão de obra:", error);
-      toast.error("Erro ao salvar valor de mão de obra");
-    } finally {
-      setSaving(false);
-    }
-  };
-  
   const handleOpenPerfilDialog = (perfil?: any) => {
     if (perfil) {
       setEditingPerfil(perfil);
@@ -142,20 +79,22 @@ export default function MaoDeObra() {
     }
     setDialogOpen(true);
   };
-  
-  const handleSavePerfil = () => {
+
+  const handleSavePerfil = async () => {
     const valor = parseFloat(perfilValor);
-    
+
     if (!perfilNome.trim()) {
       toast.error("Nome do perfil é obrigatório");
       return;
     }
-    
+
     if (isNaN(valor) || valor < 0) {
       toast.error("Valor inválido");
       return;
     }
-    
+
+    const eraVazio = perfis.length === 0;
+
     if (editingPerfil) {
       updatePerfil({
         id: editingPerfil.id,
@@ -172,10 +111,29 @@ export default function MaoDeObra() {
         padrao: perfilPadrao,
       });
     }
-    
+
     setDialogOpen(false);
+
+    // Se era o primeiro perfil criado, avança o onboarding para Backup
+    if (eraVazio && !editingPerfil && profile?.id) {
+      try {
+        queryClient.removeQueries({ queryKey: ["onboarding-status"] });
+        await queryClient.refetchQueries({ queryKey: ["mao_obra_perfis"], type: "active" });
+        await queryClient.refetchQueries({ queryKey: ["onboarding-status"], type: "active" });
+
+        const { count } = await (supabase
+          .from("backups" as any)
+          .select("id", { count: "exact", head: true })
+          .eq("usuario_id", profile.id) as any);
+        if ((count ?? 0) === 0) {
+          setTimeout(() => navigate("/configuracoes/backup", { replace: true }), 50);
+        }
+      } catch (e) {
+        console.error("Erro ao avançar onboarding:", e);
+      }
+    }
   };
-  
+
   const handleDeletePerfil = () => {
     if (perfilToDelete) {
       deletePerfil(perfilToDelete);
@@ -219,61 +177,22 @@ export default function MaoDeObra() {
     <div className="min-h-screen bg-background">
       <PageHeader
         title="Mão de Obra"
-        description="Configure o valor-hora e perfis de mão de obra"
+        description="Configure os perfis de mão de obra utilizados nas fichas técnicas"
         backButton={<BackButton to="/configuracoes/precificacao" />}
       />
-      
-      <div className="p-4 md:p-6 space-y-6">
-        {/* Seção A - Valor Hora Padrão */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Calculator className="h-5 w-5 text-primary" />
-              <CardTitle>Valor Hora Padrão</CardTitle>
-            </div>
-            <CardDescription>
-              Se você trabalha sozinha, use apenas este valor-hora. As fichas técnicas usam este valor por padrão.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="grid gap-2">
-                <Label htmlFor="valorHora">Valor por Hora (R$)</Label>
-                <Input
-                  id="valorHora"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  placeholder="0.00"
-                  value={valorHora}
-                  onChange={(e) => setValorHora(e.target.value)}
-                />
-              </div>
-              <Button onClick={handleSave} disabled={saving}>
-                {saving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Salvando...
-                  </>
-                ) : (
-                  "Salvar Valor-Hora"
-                )}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Seção B - Perfis de Mão de Obra Avançados */}
+      <div className="p-4 md:p-6 space-y-6">
+        {/* Perfis de Mão de Obra */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2">
                   <Star className="h-5 w-5 text-primary" />
-                  <CardTitle>Perfis de Mão de Obra Avançados</CardTitle>
+                  <CardTitle>Perfis de Mão de Obra</CardTitle>
                 </div>
                 <CardDescription>
-                  Crie perfis personalizados para diferentes tipos de trabalho
+                  Crie perfis com diferentes valores-hora para usar nas suas receitas. Marque um como padrão para ser sugerido automaticamente.
                 </CardDescription>
               </div>
               <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -289,10 +208,10 @@ export default function MaoDeObra() {
                       {editingPerfil ? "Editar Perfil" : "Novo Perfil de Mão de Obra"}
                     </DialogTitle>
                     <DialogDescription>
-                      Configure um perfil de mão de obra personalizado
+                      Configure um perfil de mão de obra
                     </DialogDescription>
                   </DialogHeader>
-                  
+
                   <div className="space-y-4">
                     <div className="grid gap-2">
                       <Label htmlFor="perfilNome">Nome do Perfil</Label>
@@ -303,7 +222,7 @@ export default function MaoDeObra() {
                         onChange={(e) => setPerfilNome(e.target.value)}
                       />
                     </div>
-                    
+
                     <div className="grid gap-2">
                       <Label htmlFor="perfilValor">Valor por Hora (R$)</Label>
                       <Input
@@ -316,7 +235,7 @@ export default function MaoDeObra() {
                         onChange={(e) => setPerfilValor(e.target.value)}
                       />
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
                       <Label htmlFor="perfilAtivo">Perfil Ativo</Label>
                       <Switch
@@ -325,7 +244,7 @@ export default function MaoDeObra() {
                         onCheckedChange={setPerfilAtivo}
                       />
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
                         <Label htmlFor="perfilPadrao">Perfil Padrão</Label>
@@ -340,7 +259,7 @@ export default function MaoDeObra() {
                       />
                     </div>
                   </div>
-                  
+
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setDialogOpen(false)}>
                       Cancelar
@@ -422,7 +341,7 @@ export default function MaoDeObra() {
           </CardContent>
         </Card>
 
-        {/* Seção C - Histórico de Alterações */}
+        {/* Histórico de Alterações */}
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
@@ -453,7 +372,7 @@ export default function MaoDeObra() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="grid gap-2">
                   <Label htmlFor="dataInicial">Data Inicial</Label>
                   <Input
@@ -463,7 +382,7 @@ export default function MaoDeObra() {
                     onChange={(e) => setFiltroDataInicial(e.target.value)}
                   />
                 </div>
-                
+
                 <div className="grid gap-2">
                   <Label htmlFor="dataFinal">Data Final</Label>
                   <Input

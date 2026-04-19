@@ -32,8 +32,10 @@ export function useCalculosReceita() {
   const { perfis } = useMaoObraPerfis();
   const { profile } = useUserProfile();
 
+  const perfilPadrao = perfis.find((p) => p.padrao && p.ativo);
+
   const { data: resumos = [], isLoading } = useQuery({
-    queryKey: ["calculos_receitas", userId, perfis, profile?.valor_hora],
+    queryKey: ["calculos_receitas", userId, perfis, perfilPadrao?.valor_hora],
     queryFn: async () => {
       if (!userId) return [];
 
@@ -101,7 +103,7 @@ export function useCalculosReceita() {
         const custoMaoObra = maosObra.reduce((sum, mo) => {
           let valorHora: number;
           if (mo.usar_valor_padrao) {
-            valorHora = profile?.valor_hora || 0;
+            valorHora = perfilPadrao?.valor_hora || 0;
           } else if (mo.perfil_id) {
             const perfil = perfis.find((p) => p.id === mo.perfil_id);
             valorHora = perfil?.valor_hora || 0;
