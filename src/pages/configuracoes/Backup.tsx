@@ -51,24 +51,56 @@ export default function Backup() {
   const [restaurarDialogOpen, setRestaurarDialogOpen] = useState(false);
   const [backupSelecionado, setBackupSelecionado] = useState<string | null>(null);
 
-  // Agendamento local (persistido em localStorage)
+  // Agendamento persistido no banco (por usuário)
   const [agendamentoAtivo, setAgendamentoAtivo] = useState(false);
   const [frequencia, setFrequencia] = useState("semanal");
   const [horario, setHorario] = useState("08:00");
+  const [salvandoAgendamento, setSalvandoAgendamento] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("backup_config");
-    if (saved) {
-      const config = JSON.parse(saved);
-      setAgendamentoAtivo(config.ativo ?? false);
-      setFrequencia(config.frequencia ?? "semanal");
-      setHorario(config.horario ?? "08:00");
-    }
     carregarBackups();
+    carregarAgendamento();
   }, [user]);
 
-  function salvarConfigAgendamento(ativo: boolean, freq: string, hr: string) {
-    localStorage.setItem("backup_config", JSON.stringify({ ativo, frequencia: freq, horario: hr }));
+  async function carregarAgendamento() {
+    if (!user) return;
+    const { data } = await (supabase
+      .from("backup_agendamentos" as any)
+      .select("ativo, frequencia, horario")
+      .eq("usuario_id", user.id)
+      .maybeSingle() as any);
+    if (data) {
+      setAgendamentoAtivo(!!data.ativo);
+      setFrequencia(data.frequencia ?? "semanal");
+      setHorario((data.horario ?? "08:00:00").slice(0, 5));
+    }
+  }
+
+  async function salvarAgendamento(ativo: boolean, freq: string, hr: string) {
+    if (!user) return;
+    setSalvandoAgendamento(true);
+    try {
+      const { data: prox } = await (supabase.rpc("calcular_proxima_execucao_backup" as any, {
+        p_frequencia: freq,
+        p_horario: hr,
+        p_referencia: new Date().toISOString(),
+      }) as any);
+
+      const { error } = await (supabase.from("backup_agendamentos" as any).upsert({
+        usuario_id: user.id,
+        ativo,
+        frequencia: freq,
+        horario: hr,
+        proximo_execucao_em: ativo ? prox : null,
+      }, { onConflict: "usuario_id" }) as any);
+
+      if (error) throw error;
+    } catch (err: any) {
+      toast.error("Erro ao salvar agendamento: " + err.message);
+      throw err;
+    } finally {
+      setSalvandoAgendamento(false);
+    }
   }
 
   async function carregarBackups() {
@@ -353,59 +385,65 @@ export default function Backup() {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
+            <Select
+              value={frequencia}
+              onValueChange={async (v) => {
+                setFrequencia(v);
+                try {
+                  await salvarAgendamento(agendamentoAtivo, v, horario);
+                } catch {}
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="diario">Diário</SelectItem>
+                <SelectItem value="semanal">Semanal</SelectItem>
+                <SelectItem value="quinzenal">Quinzenal</SelectItem>
+                <SelectItem value="mensal">Mensal</SelectItem>
+              </SelectContent>
+            </Select>
+            <div className="space-y-1">
+              <Label htmlFor="horario" className="text-xs text-muted-foreground">
+                Horário do backup
+              </Label>
+              <Input
+                id="horario"
+                type="time"
+                value={horario}
+                onChange={(e) => setHorario(e.target.value)}
+                onBlur={async () => {
+                  try {
+                    await salvarAgendamento(agendamentoAtivo, frequencia, horario);
+                  } catch {}
+                }}
+              />
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t">
               <Label htmlFor="agendamento" className="text-sm">
                 Ativar agendamento
               </Label>
               <Switch
                 id="agendamento"
+                disabled={salvandoAgendamento}
                 checked={agendamentoAtivo}
-                onCheckedChange={(checked) => {
+                onCheckedChange={async (checked) => {
                   setAgendamentoAtivo(checked);
-                  salvarConfigAgendamento(checked, frequencia, horario);
-                  toast.success(
-                    checked ? "Agendamento ativado!" : "Agendamento desativado."
-                  );
+                  try {
+                    await salvarAgendamento(checked, frequencia, horario);
+                    toast.success(
+                      checked
+                        ? "Agendamento ativado e salvo!"
+                        : "Agendamento desativado."
+                    );
+                  } catch {
+                    setAgendamentoAtivo(!checked);
+                  }
                 }}
               />
             </div>
-            {agendamentoAtivo && (
-              <div className="space-y-3">
-                <Select
-                  value={frequencia}
-                  onValueChange={(v) => {
-                    setFrequencia(v);
-                    salvarConfigAgendamento(agendamentoAtivo, v, horario);
-                    toast.success(`Frequência alterada para ${v}.`);
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="diario">Diário</SelectItem>
-                    <SelectItem value="semanal">Semanal</SelectItem>
-                    <SelectItem value="quinzenal">Quinzenal</SelectItem>
-                    <SelectItem value="mensal">Mensal</SelectItem>
-                  </SelectContent>
-                </Select>
-                <div className="space-y-1">
-                  <Label htmlFor="horario" className="text-xs text-muted-foreground">
-                    Horário do backup
-                  </Label>
-                  <Input
-                    id="horario"
-                    type="time"
-                    value={horario}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setHorario(val);
-                      salvarConfigAgendamento(agendamentoAtivo, frequencia, val);
-                    }}
-                  />
-                </div>
-              </div>
-            )}
           </CardContent>
         </Card>
 
