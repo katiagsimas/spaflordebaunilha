@@ -47,6 +47,42 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_agendamentos: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          frequencia: string
+          horario: string
+          id: string
+          proximo_execucao_em: string | null
+          ultimo_executado_em: string | null
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          frequencia?: string
+          horario?: string
+          id?: string
+          proximo_execucao_em?: string | null
+          ultimo_executado_em?: string | null
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          frequencia?: string
+          horario?: string
+          id?: string
+          proximo_execucao_em?: string | null
+          ultimo_executado_em?: string | null
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       backups: {
         Row: {
           created_at: string
@@ -2891,6 +2927,10 @@ export type Database = {
           multa: number
           total: number
         }[]
+      }
+      calcular_proxima_execucao_backup: {
+        Args: { p_frequencia: string; p_horario: string; p_referencia?: string }
+        Returns: string
       }
       criar_banco_caixa_empresa_padrao: {
         Args: { p_user_id: string }

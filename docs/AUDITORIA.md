@@ -266,3 +266,10 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 ---
 
 *Auditoria realizada por Lovable AI — Prompt de Auditoria v1.0 — Umbrella Doce | Ká Simas*
+
+## 2026-04-19 — Agendamento de Backup persistente
+- ✅ Criada tabela `backup_agendamentos` (RLS por usuário) para persistir frequência, horário e status ativo.
+- ✅ Função SQL `calcular_proxima_execucao_backup` para calcular a próxima execução (timezone America/Sao_Paulo).
+- ✅ Edge function `executar-backups-agendados` (verify_jwt=false) executada por cron a cada 5 minutos via `pg_cron` + `pg_net`.
+- ✅ UI: switch "Ativar agendamento" movido para o final do card, após "Horário do backup". Ativação manual pelo usuário.
+- ✅ Cada usuário possui sua própria configuração; remoção do uso de `localStorage`.

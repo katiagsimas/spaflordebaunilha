@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.gerar-token-retorno]
 verify_jwt = false
+
+[functions.executar-backups-agendados]
+verify_jwt = false
