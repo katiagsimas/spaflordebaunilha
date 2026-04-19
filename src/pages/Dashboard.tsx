@@ -241,13 +241,93 @@ export default function Dashboard() {
         carregarAlertas(),
         carregarCalendario(),
         carregarFinanceiro(),
-        carregarVisaoEconomica()
+        carregarVisaoEconomica(),
+        carregarContadoresEGraficos()
       ]);
     } catch (error) {
       console.error("Erro ao carregar dashboard:", error);
     } finally {
       setLoading(false);
     }
+  }
+
+  async function carregarContadoresEGraficos() {
+    if (!user) return;
+
+    const inicioMes = format(new Date(anoSelecionado, mesSelecionado, 1), "yyyy-MM-dd");
+    const fimMes = format(new Date(anoSelecionado, mesSelecionado + 1, 0), "yyyy-MM-dd");
+
+    // Encomendas confirmadas no mês
+    const { count: confirmadasCount } = await supabase
+      .from("encomendas")
+      .select("id", { count: "exact", head: true })
+      .eq("usuario_id", user.id)
+      .gte("data_entrega", inicioMes)
+      .lte("data_entrega", fimMes)
+      .in("status", ["confirmado", "em_producao", "pronto", "entregue"]);
+
+    // Clientes únicos atendidos no mês
+    const { data: encomendasMes } = await supabase
+      .from("encomendas")
+      .select("cliente")
+      .eq("usuario_id", user.id)
+      .gte("data_entrega", inicioMes)
+      .lte("data_entrega", fimMes)
+      .in("status", ["confirmado", "em_producao", "pronto", "entregue"]);
+
+    const clientesUnicos = new Set((encomendasMes || []).map(e => (e.cliente || "").trim().toLowerCase()).filter(Boolean));
+
+    setContadores({
+      encomendasConfirmadas: confirmadasCount || 0,
+      clientes: clientesUnicos.size
+    });
+
+    // Vendas por mês — últimos 6 meses (a partir do mês selecionado)
+    const vendasMeses: { mes: string; total: number }[] = [];
+    const fluxoMeses: { mes: string; saldo: number }[] = [];
+
+    for (let i = 5; i >= 0; i--) {
+      const ref = new Date(anoSelecionado, mesSelecionado - i, 1);
+      const ini = format(startOfMonth(ref), "yyyy-MM-dd");
+      const fim = format(endOfMonth(ref), "yyyy-MM-dd");
+      const label = format(ref, "MMM", { locale: ptBR });
+
+      const { data: encs } = await supabase
+        .from("encomendas")
+        .select("valor")
+        .eq("usuario_id", user.id)
+        .gte("data_entrega", ini)
+        .lte("data_entrega", fim)
+        .in("status", ["confirmado", "em_producao", "pronto", "entregue"]);
+
+      const total = (encs || []).reduce((s, e: any) => s + (e.valor || 0), 0);
+      vendasMeses.push({ mes: label.charAt(0).toUpperCase() + label.slice(1), total });
+
+      // Fluxo de caixa (entradas - saídas pagas no mês)
+      const [{ data: pagamentosReceber }, { data: pagamentosPagar }] = await Promise.all([
+        supabase
+          .from("contas_receber_pagamentos")
+          .select("valor_pago, data_pagamento, parcela:contas_receber_parcelas!inner(conta_receber:contas_receber!inner(usuario_id))")
+          .eq("parcela.conta_receber.usuario_id", user.id)
+          .gte("data_pagamento", ini)
+          .lte("data_pagamento", fim)
+          .eq("estornado", false),
+        supabase
+          .from("contas_pagar_pagamentos")
+          .select("valor_pago, data_pagamento, parcela:contas_pagar_parcelas!inner(conta_pagar:contas_pagar!inner(usuario_id))")
+          .eq("parcela.conta_pagar.usuario_id", user.id)
+          .gte("data_pagamento", ini)
+          .lte("data_pagamento", fim)
+          .eq("estornado", false)
+      ]);
+
+      const entradas = (pagamentosReceber || []).reduce((s, p: any) => s + (p.valor_pago || 0), 0);
+      const saidas = (pagamentosPagar || []).reduce((s, p: any) => s + (p.valor_pago || 0), 0);
+      fluxoMeses.push({ mes: label.charAt(0).toUpperCase() + label.slice(1), saldo: entradas - saidas });
+    }
+
+    setVendasPorMes(vendasMeses);
+    setFluxoCaixa(fluxoMeses);
   }
 
   async function carregarAlertas() {
