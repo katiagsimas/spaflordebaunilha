@@ -440,6 +440,29 @@ export default function Backup() {
                         ? "Agendamento ativado e salvo!"
                         : "Agendamento desativado."
                     );
+
+                    // Onboarding: ao ativar agendamento, garantir backup inicial e ir ao Dashboard
+                    if (checked && user) {
+                      const { count } = await (supabase
+                        .from("backups" as any)
+                        .select("id", { count: "exact", head: true })
+                        .eq("usuario_id", user.id) as any);
+
+                      const eraOnboarding = (count ?? 0) === 0;
+                      if (eraOnboarding) {
+                        toast.info("Gerando seu primeiro backup...");
+                        await realizarBackup();
+                      }
+
+                      // Invalida status do onboarding para liberar acesso completo
+                      await queryClient.invalidateQueries({ queryKey: ["onboarding-status"] });
+                      await queryClient.refetchQueries({ queryKey: ["onboarding-status"], type: "active" });
+
+                      if (eraOnboarding) {
+                        toast.success("Configuração concluída! Bem-vindo(a) ao Caixa de Açúcar 🎉");
+                        navigate("/", { replace: true });
+                      }
+                    }
                   } catch {
                     setAgendamentoAtivo(!checked);
                   }
