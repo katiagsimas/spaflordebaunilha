@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
+import { BackButton } from "@/components/BackButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -225,6 +226,7 @@ export default function Fornecedores() {
 
   return (
     <div className="space-y-6">
+      <BackButton to="/clientes-fornecedores" />
       <div className="space-y-1">
         <h1 className="text-3xl font-bold tracking-tight">Fornecedores</h1>
         <Badge variant="secondary" className="text-sm px-3 py-1">

@@ -255,6 +255,7 @@ export default function Clientes() {
 
   return (
     <div className="space-y-6">
+      <BackButton to="/clientes-fornecedores" />
       <div className="space-y-1">
         <h1 className="text-3xl font-bold tracking-tight">Clientes</h1>
         <Badge variant="secondary" className="text-sm px-3 py-1">
