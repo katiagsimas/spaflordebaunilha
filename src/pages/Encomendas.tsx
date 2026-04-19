@@ -1642,7 +1642,10 @@ const Encomendas = () => {
         </Card>
       </div>
 
-      {/* Filtros */}
+      {/* Calendários de Encomendas (movido do Dashboard) */}
+      <CalendariosEncomendas />
+
+      {/* Filtros (logo acima da Lista de Encomendas) */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-2">
         {/* Filtro de Cliente */}
         <Card className="shadow-sm hover:shadow-md transition-shadow">
@@ -1767,9 +1770,6 @@ const Encomendas = () => {
           </CardContent>
         </Card>
       </div>
-
-      {/* Calendários de Encomendas (movido do Dashboard) */}
-      <CalendariosEncomendas />
 
       <Card className="shadow-soft">
         <CardHeader>
