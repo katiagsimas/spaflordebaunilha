@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useMaoObraPerfis } from "@/hooks/useMaoObraPerfis";
-import { useUserProfile } from "@/hooks/useUserProfile";
 import type { MaoObraLinha } from "./MaoObraSection";
 
 interface AdicionarMaoObraDialogProps {
@@ -25,7 +24,7 @@ export function AdicionarMaoObraDialog({
   maoObraEditando,
 }: AdicionarMaoObraDialogProps) {
   const { perfis } = useMaoObraPerfis();
-  const { profile } = useUserProfile();
+  const perfilPadrao = perfis.find((p) => p.padrao && p.ativo);
 
   const [usarValorPadrao, setUsarValorPadrao] = useState(true);
   const [perfilId, setPerfilId] = useState<string>("");
@@ -56,7 +55,7 @@ export function AdicionarMaoObraDialog({
   };
 
   const valorHoraPreview = usarValorPadrao
-    ? (profile?.valor_hora || 0)
+    ? (perfilPadrao?.valor_hora || 0)
     : (perfis.find((p) => p.id === perfilId)?.valor_hora || 0);
 
   const horasNum = parseFloat(horas) || 0;
@@ -77,7 +76,9 @@ export function AdicionarMaoObraDialog({
               checked={usarValorPadrao}
               onCheckedChange={setUsarValorPadrao}
             />
-            <Label>Usar valor padrão (R$ {(profile?.valor_hora || 0).toFixed(2)}/h)</Label>
+            <Label>
+              Usar perfil padrão {perfilPadrao ? `(${perfilPadrao.nome} - R$ ${perfilPadrao.valor_hora.toFixed(2)}/h)` : "(nenhum perfil padrão definido)"}
+            </Label>
           </div>
 
           {!usarValorPadrao && (
