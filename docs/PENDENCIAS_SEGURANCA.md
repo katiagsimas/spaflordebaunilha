@@ -22,6 +22,11 @@
 | 11 | 🟡 Baixa | Loading splash usa path de `public/` | Dev | ✅ Resolvido | Logo copiada para `public/umbrella-logo-dourado.png`; index.html atualizado |
 | 12 | 🟡 Baixa | `twitter:site` apontava para `@lovable_dev` | Dev | ✅ Resolvido | Tag removida do index.html |
 | 13 | 🟡 Baixa | Sem tag `<noscript>` | Dev | ✅ Resolvido | Adicionada em index.html |
+| 14 | 🔴 Crítica | Realtime sem RLS em `realtime.messages` | Dev | ✅ Resolvido | Corrigido em 2026-04-19 (RLS + topic scoping por auth.uid()) |
+| 15 | 🔴 Crítica | `historico_planos` policy permitindo bypass | Dev | ✅ Resolvido | Corrigido em 2026-04-19 (política removida; service_role bypassa RLS) |
+| 16 | 🟡 Média | Vazamento cross-tenant em `categorias_plano_contas`/`plano_contas` | Dev | ✅ Resolvido | Corrigido em 2026-04-19 (SELECT restrito ao dono) |
+| 17 | 🟡 Média | Bucket `topo-bolo` público sem scoping | Dev | ✅ Resolvido | Corrigido em 2026-04-19 (SELECT exige folder == auth.uid()) |
+| 18 | 🟡 Baixa | Bucket `comprovantes-receber` sem UPDATE policy | Dev | ✅ Resolvido | Corrigido em 2026-04-19 (UPDATE owner-scoped) |
 
 ---
 
