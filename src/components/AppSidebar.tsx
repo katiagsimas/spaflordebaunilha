@@ -7,6 +7,7 @@ import { useGroup } from "@/contexts/GroupContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { useEncomendasHoje } from "@/hooks/useEncomendasHoje";
 import { GroupSelector } from "@/components/GroupSelector";
 import {
   Sidebar,
@@ -40,6 +41,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const { isAdmin } = useIsAdmin();
   const { rotaBloqueada, isLoading: isPlanoLoading } = usePlano();
+  const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
 
   const { data: profile } = useQuery({
     queryKey: ['profile', user?.id],
@@ -169,11 +171,19 @@ export function AppSidebar() {
                         {({ isActive }) => (
                           <>
                             <Icon className={`h-5 w-5 ${isActive && item.active && !bloqueado ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
+                            {item.title === "Vendas" && temEncomendasHoje && !bloqueado && !open && (
+                              <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-red-500 animate-ping" />
+                            )}
                             {open && (
                               <>
                                 <span className="flex-1">{item.title}</span>
                                 {bloqueado && (
                                   <Lock className="h-3.5 w-3.5 text-sidebar-foreground/50" />
+                                )}
+                                {item.title === "Vendas" && temEncomendasHoje && !bloqueado && (
+                                  <Badge className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-body font-bold animate-pulse ml-1">
+                                    {encomendasHojeQtd} HOJE
+                                  </Badge>
                                 )}
                                 {item.title === "Clientes" && aniversariantesClientes.length > 0 && !bloqueado && (
                                   <div className="w-5 h-5 rounded-full bg-umbrella-pistache flex items-center justify-center animate-bounce ml-1">

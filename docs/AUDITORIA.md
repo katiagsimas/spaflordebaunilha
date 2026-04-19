@@ -273,3 +273,10 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 - ✅ Edge function `executar-backups-agendados` (verify_jwt=false) executada por cron a cada 5 minutos via `pg_cron` + `pg_net`.
 - ✅ UI: switch "Ativar agendamento" movido para o final do card, após "Horário do backup". Ativação manual pelo usuário.
 - ✅ Cada usuário possui sua própria configuração; remoção do uso de `localStorage`.
+
+## 2026-04-19 — Reorganização Dashboard / Vendas
+- ✅ Movido bloco "Calendários de Encomendas" e "Encomendas - HOJE" do Dashboard para o módulo Vendas (`/encomendas`).
+- ✅ Criado componente reutilizável `src/components/CalendariosEncomendas.tsx` (autocontido, com realtime).
+- ✅ Criado hook `src/hooks/useEncomendasHoje.ts` para contagem de entregas do dia em tempo real.
+- ✅ Adicionado alerta piscante (banner amarelo dourado + dot vermelho na sidebar) acima do título do módulo Vendas quando há encomendas para hoje.
+- ✅ Mantido card "Saldo Atual" no Dashboard (relocado).
