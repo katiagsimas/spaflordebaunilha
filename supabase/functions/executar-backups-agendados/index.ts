@@ -30,6 +30,16 @@ function nomeBackup(nomeCompleto: string): string {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  // Authorization: only callers with the shared CRON_SECRET (pg_cron job) may trigger
+  const cronSecret = Deno.env.get("CRON_SECRET");
+  const callerSecret = req.headers.get("x-cron-secret");
+  if (!cronSecret || callerSecret !== cronSecret) {
+    return new Response(JSON.stringify({ error: "Não autorizado" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   const admin = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
