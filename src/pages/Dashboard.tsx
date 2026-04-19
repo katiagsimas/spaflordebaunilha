@@ -974,6 +974,57 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* CONTADORES TOPO: Encomendas Confirmadas + Clientes */}
+      <div className="grid gap-2 grid-cols-2 md:grid-cols-2">
+        <Card
+          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-primary group"
+          onClick={() => navigate("/encomendas")}
+        >
+          <CardHeader className="p-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 shrink-0 rounded-md bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <ShoppingBag className="h-5 w-5 text-primary" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-xs leading-tight mb-0.5 text-muted-foreground">
+                  Encomendas Confirmadas <span className="font-normal">· {meses[mesSelecionado].slice(0, 3)}</span>
+                </CardTitle>
+                <p className="text-2xl font-bold leading-tight text-primary">
+                  {contadores.encomendasConfirmadas}
+                </p>
+                <p className="text-[10px] text-muted-foreground leading-tight">
+                  Quantidade de vendas feitas no período
+                </p>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+
+        <Card
+          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-accent group"
+          onClick={() => navigate("/cadastros/clientes")}
+        >
+          <CardHeader className="p-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 shrink-0 rounded-md bg-accent/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Users className="h-5 w-5 text-accent-foreground" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-xs leading-tight mb-0.5 text-muted-foreground">
+                  Clientes <span className="font-normal">· {meses[mesSelecionado].slice(0, 3)}</span>
+                </CardTitle>
+                <p className="text-2xl font-bold leading-tight text-foreground">
+                  {contadores.clientes}
+                </p>
+                <p className="text-[10px] text-muted-foreground leading-tight">
+                  Número de clientes atendidos no período
+                </p>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+      </div>
+
       {/* SALDO ATUAL + FINANCEIRO E ALERTAS (linha única e compacta) */}
       <div className="grid gap-2 grid-cols-2 md:grid-cols-5">
         {/* Saldo Atual (destaque, canto esquerdo) */}
