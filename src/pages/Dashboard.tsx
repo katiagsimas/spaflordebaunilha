@@ -994,7 +994,7 @@ export default function Dashboard() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-xl">Visão Econômica - Regime de Competência</CardTitle>
+            <CardTitle className="text-xl">Visão Econômica</CardTitle>
             <div className="flex gap-2">
               <Button
                 variant={tabEconomica === "mensal" ? "default" : "outline"}
@@ -1015,21 +1015,21 @@ export default function Dashboard() {
         </CardHeader>
         <CardContent>
           {tabEconomica === "mensal" ? (
-            <div className="grid gap-3 md:grid-cols-3">
-              {/* Receitas */}
+            <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
+              {/* Faturamento */}
               <Card 
                 className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-green-600 group"
                 onClick={() => navigate("/financeiro/dashboard")}
               >
-                <CardHeader className="p-3">
-                  <div className="flex flex-col items-center gap-2 text-center">
-                    <div className="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-950/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
+                <CardHeader className="p-2.5">
+                  <div className="flex flex-col items-center gap-1.5 text-center">
+                    <div className="w-7 h-7 rounded-lg bg-green-50 dark:bg-green-950/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <TrendingUp className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
                     </div>
                     <div>
-                      <CardTitle className="text-sm mb-0.5">Total de Receitas</CardTitle>
-                      <CardDescription className="text-xs mb-1">{meses[mesSelecionado]}</CardDescription>
-                      <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                      <CardTitle className="text-[11px] mb-0.5">Faturamento</CardTitle>
+                      <CardDescription className="text-[10px] mb-0.5">{meses[mesSelecionado]}</CardDescription>
+                      <p className="text-sm font-bold text-green-600 dark:text-green-400">
                         R$ {visaoEconomica.mensal.receitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </p>
                     </div>
@@ -1042,15 +1042,15 @@ export default function Dashboard() {
                 className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-red-600 group"
                 onClick={() => navigate("/financeiro/dashboard")}
               >
-                <CardHeader className="p-3">
-                  <div className="flex flex-col items-center gap-2 text-center">
-                    <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />
+                <CardHeader className="p-2.5">
+                  <div className="flex flex-col items-center gap-1.5 text-center">
+                    <div className="w-7 h-7 rounded-lg bg-red-50 dark:bg-red-950/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <TrendingDown className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
                     </div>
                     <div>
-                      <CardTitle className="text-sm mb-0.5">Custos Totais</CardTitle>
-                      <CardDescription className="text-xs mb-1">{meses[mesSelecionado]}</CardDescription>
-                      <p className="text-lg font-bold text-red-600 dark:text-red-400">
+                      <CardTitle className="text-[11px] mb-0.5">Custos Totais</CardTitle>
+                      <CardDescription className="text-[10px] mb-0.5">{meses[mesSelecionado]}</CardDescription>
+                      <p className="text-sm font-bold text-red-600 dark:text-red-400">
                         R$ {visaoEconomica.mensal.custos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </p>
                     </div>
@@ -1067,33 +1067,54 @@ export default function Dashboard() {
                 } group`}
                 onClick={() => navigate("/financeiro/dashboard")}
               >
-                <CardHeader className="p-3">
-                  <div className="flex flex-col items-center gap-2 text-center">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform ${
+                <CardHeader className="p-2.5">
+                  <div className="flex flex-col items-center gap-1.5 text-center">
+                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform ${
                       visaoEconomica.mensal.lucro >= 0
                         ? "bg-primary/10"
                         : "bg-red-50 dark:bg-red-950/20"
                     }`}>
-                      <DollarSign className={`h-4 w-4 ${
+                      <DollarSign className={`h-3.5 w-3.5 ${
                         visaoEconomica.mensal.lucro >= 0 ? "text-primary" : "text-red-600 dark:text-red-400"
                       }`} />
                     </div>
                     <div>
-                      <CardTitle className={`text-sm mb-0.5 ${
+                      <CardTitle className={`text-[11px] mb-0.5 ${
                         visaoEconomica.mensal.lucro >= 0 ? "text-primary" : "text-red-700 dark:text-red-400"
                       }`}>
                         Lucro Líquido
                       </CardTitle>
-                      <CardDescription className="text-xs mb-1">{meses[mesSelecionado]}</CardDescription>
-                      <p className={`text-lg font-bold ${
+                      <CardDescription className="text-[10px] mb-0.5">{meses[mesSelecionado]}</CardDescription>
+                      <p className={`text-sm font-bold ${
                         visaoEconomica.mensal.lucro >= 0 ? "text-primary" : "text-red-700 dark:text-red-400"
                       }`}>
                         R$ {visaoEconomica.mensal.lucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
                         Margem: {visaoEconomica.mensal.receitas > 0
                           ? ((visaoEconomica.mensal.lucro / visaoEconomica.mensal.receitas) * 100).toFixed(1)
                           : 0}%
+                      </p>
+                    </div>
+                  </div>
+                </CardHeader>
+              </Card>
+
+              {/* Ticket Médio */}
+              <Card className="border-l-4 border-l-primary bg-primary/5">
+                <CardHeader className="p-2.5">
+                  <div className="flex flex-col items-center gap-1.5 text-center">
+                    <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <DollarSign className="h-3.5 w-3.5 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-[11px] mb-0.5">Ticket Médio</CardTitle>
+                      <CardDescription className="text-[10px] mb-0.5">{meses[mesSelecionado]}</CardDescription>
+                      <p className="text-sm font-bold text-primary">
+                        R$ {ticketMedio.mensal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        Anual: R$ {ticketMedio.anual.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </p>
                     </div>
                   </div>
@@ -1123,43 +1144,39 @@ export default function Dashboard() {
         </CardContent>
       </Card>
 
-      {/* TOP 5 PRODUTOS MAIS VENDIDOS */}
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <CardTitle className="text-xl">Top 5 Produtos Mais Vendidos</CardTitle>
+      {/* TOP 5 PRODUTOS MAIS VENDIDOS - somente quando houver dados */}
+      {produtos.length > 0 && (
+        <Card>
+          <CardHeader>
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <CardTitle className="text-xl">Top 5 Produtos Mais Vendidos</CardTitle>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant={modoVisualizacao === 'mensal' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setModoVisualizacao('mensal')}
+                >
+                  Mensal
+                </Button>
+                <Button
+                  variant={modoVisualizacao === 'anual' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setModoVisualizacao('anual')}
+                >
+                  Anual
+                </Button>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <Button
-                variant={modoVisualizacao === 'mensal' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setModoVisualizacao('mensal')}
-              >
-                Mensal
-              </Button>
-              <Button
-                variant={modoVisualizacao === 'anual' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setModoVisualizacao('anual')}
-              >
-                Anual
-              </Button>
-            </div>
-          </div>
-          <CardDescription>
-            {modoVisualizacao === 'mensal' 
-              ? `${meses[mesSelecionado]} de ${anoSelecionado}`
-              : `Ano ${anoSelecionado}`
-            }
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {produtos.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">
-              Nenhuma venda no período selecionado
-            </p>
-          ) : (
+            <CardDescription>
+              {modoVisualizacao === 'mensal' 
+                ? `${meses[mesSelecionado]} de ${anoSelecionado}`
+                : `Ano ${anoSelecionado}`
+              }
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <div className="space-y-4">
               {produtos.map((produto, index) => (
                 <div key={produto.id} className="flex items-center gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
@@ -1196,50 +1213,9 @@ export default function Dashboard() {
                 </div>
               ))}
             </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* TICKET MÉDIO */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">Ticket Médio</CardTitle>
-          <CardDescription>
-            Valor médio por encomenda
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            {/* Mensal */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {meses[mesSelecionado]}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold text-primary">
-                  R$ {ticketMedio.mensal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Anual */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Ano {anoSelecionado}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold text-primary">
-                  R$ {ticketMedio.anual.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
