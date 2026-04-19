@@ -96,21 +96,27 @@ export default function MaoDeObra() {
 
       toast.success("Valor de mão de obra salvo com sucesso!");
 
-      // Recarrega profile local e força refetch das queries do onboarding
+      // Atualiza estado local imediatamente
       await refetchProfile();
-      await Promise.all([
-        queryClient.refetchQueries({ queryKey: ["profile"] }),
-        queryClient.refetchQueries({ queryKey: ["onboarding-status"] }),
-        queryClient.refetchQueries({ queryKey: ["mao_obra_perfis"] }),
-      ]);
 
-      // Verifica se já existe backup; se não, segue o fluxo de onboarding direto para backup
+      // Remove cache antigo e força refetch sincronizado das queries do onboarding
+      queryClient.removeQueries({ queryKey: ["onboarding-status"] });
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ["profile"], type: "active" }),
+        queryClient.refetchQueries({ queryKey: ["mao_obra_perfis"], type: "active" }),
+      ]);
+      // Refetch onboarding-status já com dados atualizados
+      await queryClient.refetchQueries({ queryKey: ["onboarding-status"], type: "active" });
+
+      // Verifica se já existe backup; se não, navega para backup
+      // (o FirstAccessRedirect agora tem dados frescos e não vai redirecionar de volta)
       const { count } = await (supabase
         .from("backups" as any)
         .select("id", { count: "exact", head: true })
         .eq("usuario_id", profile.id) as any);
       if ((count ?? 0) === 0) {
-        navigate("/configuracoes/backup", { replace: true });
+        // Pequeno delay para garantir que o React processou o estado atualizado
+        setTimeout(() => navigate("/configuracoes/backup", { replace: true }), 50);
       }
     } catch (error) {
       console.error("Erro ao salvar valor de mão de obra:", error);
