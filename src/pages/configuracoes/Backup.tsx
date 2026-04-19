@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { HardDrive, Download, Upload, Clock, Play, Loader2, FileDown, Info, Trash2, RotateCcw, Database } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -42,6 +43,7 @@ export default function Backup() {
   const { user } = useAuth();
   const { profile, loading: profileLoading } = useUserProfile();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [backups, setBackups] = useState<BackupRecord[]>([]);
   const [realizandoBackup, setRealizandoBackup] = useState(false);
   const [restaurando, setRestaurando] = useState(false);
@@ -438,6 +440,29 @@ export default function Backup() {
                         ? "Agendamento ativado e salvo!"
                         : "Agendamento desativado."
                     );
+
+                    // Onboarding: ao ativar agendamento, garantir backup inicial e ir ao Dashboard
+                    if (checked && user) {
+                      const { count } = await (supabase
+                        .from("backups" as any)
+                        .select("id", { count: "exact", head: true })
+                        .eq("usuario_id", user.id) as any);
+
+                      const eraOnboarding = (count ?? 0) === 0;
+                      if (eraOnboarding) {
+                        toast.info("Gerando seu primeiro backup...");
+                        await realizarBackup();
+                      }
+
+                      // Invalida status do onboarding para liberar acesso completo
+                      await queryClient.invalidateQueries({ queryKey: ["onboarding-status"] });
+                      await queryClient.refetchQueries({ queryKey: ["onboarding-status"], type: "active" });
+
+                      if (eraOnboarding) {
+                        toast.success("Configuração concluída! Bem-vindo(a) ao Caixa de Açúcar 🎉");
+                        navigate("/", { replace: true });
+                      }
+                    }
                   } catch {
                     setAgendamentoAtivo(!checked);
                   }
