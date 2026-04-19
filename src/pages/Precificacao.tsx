@@ -71,7 +71,7 @@ export default function Precificacao() {
     <div className="space-y-6">
       <PageHeader
         title="Produtos"
-        description="Gerencie a Precificação dos seus Produtos"
+        description="Gerencie seus Produtos"
       />
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
