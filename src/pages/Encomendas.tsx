@@ -1768,6 +1768,9 @@ const Encomendas = () => {
         </Card>
       </div>
 
+      {/* Calendários de Encomendas (movido do Dashboard) */}
+      <CalendariosEncomendas />
+
       <Card className="shadow-soft">
         <CardHeader>
           <CardTitle>Lista de Encomendas</CardTitle>
