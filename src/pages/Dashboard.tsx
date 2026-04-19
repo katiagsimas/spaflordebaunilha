@@ -110,6 +110,17 @@ export default function Dashboard() {
   });
   const [modoVisualizacao, setModoVisualizacao] = useState<'mensal' | 'anual'>('mensal');
 
+  // Contadores topo
+  const [contadores, setContadores] = useState({
+    encomendasConfirmadas: 0,
+    clientes: 0
+  });
+
+  // Vendas por mês (últimos 6 meses)
+  const [vendasPorMes, setVendasPorMes] = useState<{ mes: string; total: number }[]>([]);
+  // Fluxo de caixa (últimos 6 meses)
+  const [fluxoCaixa, setFluxoCaixa] = useState<{ mes: string; saldo: number }[]>([]);
+
   const meses = [
     "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
