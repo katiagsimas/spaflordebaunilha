@@ -1913,7 +1913,6 @@ export type Database = {
           razao_social: string | null
           telefone: string | null
           updated_at: string | null
-          valor_hora: number | null
           whatsapp: string | null
         }
         Insert: {
@@ -1952,7 +1951,6 @@ export type Database = {
           razao_social?: string | null
           telefone?: string | null
           updated_at?: string | null
-          valor_hora?: number | null
           whatsapp?: string | null
         }
         Update: {
@@ -1991,7 +1989,6 @@ export type Database = {
           razao_social?: string | null
           telefone?: string | null
           updated_at?: string | null
-          valor_hora?: number | null
           whatsapp?: string | null
         }
         Relationships: [
