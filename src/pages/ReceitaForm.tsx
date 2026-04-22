@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, ChefHat, Upload, X } from "lucide-react";
+import { Plus, Trash2, ChefHat, Upload, X, FileDown } from "lucide-react";
+import { exportarReceitaPDF } from "@/utils/exportarReceitaPDF";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { useCategorias } from "@/hooks/useCategorias";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -1802,6 +1803,22 @@ export default function ReceitaForm() {
             <Button variant="outline" onClick={() => navigate("/precificacao/ficha-tecnica")}>
               Cancelar
             </Button>
+            {id && (
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  try {
+                    await exportarReceitaPDF(id);
+                    toast.success("PDF gerado com sucesso!");
+                  } catch (e: any) {
+                    toast.error(`Erro ao gerar PDF: ${e?.message || e}`);
+                  }
+                }}
+              >
+                <FileDown className="mr-2 h-4 w-4" />
+                Exportar PDF
+              </Button>
+            )}
             <Button onClick={handleSave}>
               {id ? "Atualizar" : "Salvar"}
             </Button>

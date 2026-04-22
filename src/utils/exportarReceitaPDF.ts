@@ -2,7 +2,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { supabase } from "@/integrations/supabase/client";
 
-// Paleta Umbrella Doce (RGB)
+// Paleta Umbrella Doce
 const COR_PRETO: [number, number, number] = [28, 28, 28];
 const COR_CLOUD: [number, number, number] = [245, 244, 241];
 const COR_PISTACHE: [number, number, number] = [191, 207, 184];
@@ -12,20 +12,15 @@ const COR_CINZA_TEXTO: [number, number, number] = [90, 90, 90];
 const formatarPreco = (v: number) =>
   (v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-/**
- * Resolve uma URL/caminho de imagem para dataURL (base64), de modo
- * que o jsPDF possa embutir mesmo quando a origem é o Supabase Storage.
- */
 async function carregarImagemComoDataURL(
   urlOuPath: string,
 ): Promise<{ dataUrl: string; format: "JPEG" | "PNG"; w: number; h: number } | null> {
   try {
     let url = urlOuPath;
-    // Se não for URL absoluta, tenta gerar URL pública/assinada do bucket "pre-preparos"
-    if (!/^https?:\/\//i.test(urlOuPath)) {
-      const { data } = supabase.storage
-        .from("pre-preparos")
-        .getPublicUrl(urlOuPath);
+    if (urlOuPath.startsWith("data:")) {
+      url = urlOuPath;
+    } else if (!/^https?:\/\//i.test(urlOuPath)) {
+      const { data } = supabase.storage.from("receitas").getPublicUrl(urlOuPath);
       url = data.publicUrl;
     }
 
@@ -54,45 +49,46 @@ async function carregarImagemComoDataURL(
   }
 }
 
-/**
- * Carrega os dados completos do pré-preparo e gera um PDF A4 retrato minimalista,
- * compactado em uma única página, com imagens (quando existentes).
- */
-export async function exportarPrePreparoPDF(prePreparoId: string) {
-  const { data: preparo, error } = await supabase
-    .from("pre_preparos")
-    .select(
-      `
-      *,
-      rendimento_unidade:unidades_medida!rendimento_unidade_id ( nome, sigla ),
-      categoria:categorias ( nome ),
-      ingredientes:pre_preparos_ingredientes (
-        quantidade_utilizada,
-        custo_ingrediente,
-        ordem,
-        ingrediente:ingredientes (
-          marca,
-          preco,
-          tipo_insumo:tipos_insumos (
-            descricao,
-            quantidade_embalagem,
-            unidade_medida:unidades_medida ( sigla )
-          )
-        )
-      )
-    `,
-    )
-    .eq("id", prePreparoId)
+export async function exportarReceitaPDF(receitaId: string) {
+  const { data: receita, error } = await supabase
+    .from("receitas")
+    .select("*")
+    .eq("id", receitaId)
     .single();
 
-  if (error || !preparo) {
-    throw new Error(error?.message || "Pré-preparo não encontrado");
+  if (error || !receita) {
+    throw new Error(error?.message || "Receita não encontrada");
   }
 
-  const { data: maosObra } = await supabase
-    .from("pre_preparos_mao_obra")
-    .select(`*, perfil:mao_obra_perfis ( nome, valor_hora )`)
-    .eq("pre_preparo_id", prePreparoId);
+  const [ingRes, embRes, despRes, imgRes, moRes] = await Promise.all([
+    supabase
+      .from("receitas_ingredientes")
+      .select("*")
+      .eq("receita_id", receitaId),
+    supabase
+      .from("receitas_embalagens")
+      .select("*")
+      .eq("receita_id", receitaId),
+    supabase
+      .from("receitas_despesas_venda")
+      .select("*")
+      .eq("receita_id", receitaId),
+    supabase
+      .from("receitas_imagens")
+      .select("*")
+      .eq("receita_id", receitaId)
+      .order("ordem"),
+    supabase
+      .from("receitas_mao_obra")
+      .select(`*, perfil:mao_obra_perfis ( nome, valor_hora )`)
+      .eq("receita_id", receitaId),
+  ]);
+
+  const ingredientes = ingRes.data || [];
+  const embalagens = embRes.data || [];
+  const despesas = despRes.data || [];
+  const imagens = imgRes.data || [];
+  const maosObra = moRes.data || [];
 
   const { data: perfilPadrao } = await supabase
     .from("mao_obra_perfis")
@@ -101,16 +97,16 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     .eq("ativo", true)
     .maybeSingle();
 
-  const ingredientes = (preparo.ingredientes || []).sort(
-    (a: any, b: any) => (a.ordem || 0) - (b.ordem || 0),
-  );
-
   const custoIngredientes = ingredientes.reduce(
-    (s: number, i: any) => s + Number(i.custo_ingrediente || 0),
+    (s, i: any) => s + Number(i.custo_receita || 0),
+    0,
+  );
+  const custoEmbalagens = embalagens.reduce(
+    (s, e: any) => s + Number(e.custo_receita || 0),
     0,
   );
 
-  const linhasMaoObra = (maosObra || []).map((mo: any) => {
+  const linhasMaoObra = maosObra.map((mo: any) => {
     const valorHora = mo.usar_valor_padrao
       ? perfilPadrao?.valor_hora || 0
       : mo.perfil?.valor_hora || 0;
@@ -125,28 +121,29 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     };
   });
   const custoMaoObra = linhasMaoObra.reduce((s, l) => s + l.total, 0);
-  const custoTotal = custoIngredientes + custoMaoObra;
-  const rendimento = Number(preparo.rendimento_quantidade || 1);
-  const custoPorUnidade = rendimento > 0 ? custoTotal / rendimento : 0;
-  const siglaRend =
-    (preparo as any).rendimento_unidade?.sigla ||
-    (preparo as any).rendimento_unidade?.nome ||
-    "";
 
-  // Carregar imagens do pré-preparo (até 2)
-  const imagensPaths = [
-    (preparo as any).imagem_1_url,
-    (preparo as any).imagem_2_url,
-  ].filter((p): p is string => !!p && typeof p === "string");
+  const custoProducao =
+    Number(receita.custo_total ?? custoIngredientes + custoEmbalagens + custoMaoObra);
+  const valorVenda = Number(receita.valor_venda || 0);
+  const totalDespesasVenda = despesas.reduce(
+    (s, d: any) => s + Number(d.valor || 0),
+    0,
+  );
+  const lucro = valorVenda - custoProducao - totalDespesasVenda;
+  const margemPct = valorVenda > 0 ? (lucro / valorVenda) * 100 : 0;
 
+  // Carregar imagens
+  const imagensPaths = imagens
+    .map((i: any) => i.url)
+    .filter((u: string) => !!u);
   const imagensCarregadas = (
-    await Promise.all(imagensPaths.map((p) => carregarImagemComoDataURL(p)))
+    await Promise.all(imagensPaths.map((p: string) => carregarImagemComoDataURL(p)))
   ).filter((i): i is NonNullable<typeof i> => !!i);
 
-  // ===== Construir PDF =====
+  // ===== PDF =====
   const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
-  const pageW = doc.internal.pageSize.getWidth(); // 210
-  const pageH = doc.internal.pageSize.getHeight(); // 297
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
   const marginX = 14;
   let y = 0;
 
@@ -159,7 +156,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
   doc.setTextColor(...COR_PRETO);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
-  doc.text("Ficha de Pré-Preparo", marginX, 11.5);
+  doc.text("Ficha Técnica", marginX, 11.5);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
@@ -169,19 +166,18 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
 
   y = 24;
 
-  // Imagens lado a lado, a partir do canto superior esquerdo
-  const temImagens = imagensCarregadas.length > 0;
-  let yAposImagens = y;
-  if (temImagens) {
+  // Imagens lado a lado a partir do canto superior esquerdo
+  if (imagensCarregadas.length > 0) {
+    const imgsRender = imagensCarregadas.slice(0, 4);
     const gap = 3;
     const larguraDisponivel = pageW - marginX * 2;
-    const qtd = imagensCarregadas.length;
+    const qtd = imgsRender.length;
     const larguraCada = (larguraDisponivel - gap * (qtd - 1)) / qtd;
     const alturaMax = 42;
     let xCursor = marginX;
     let maiorAltura = 0;
 
-    for (const img of imagensCarregadas) {
+    for (const img of imgsRender) {
       const ratio = img.w / img.h;
       let drawW = larguraCada;
       let drawH = drawW / ratio;
@@ -193,42 +189,38 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
       try {
         doc.addImage(img.dataUrl, img.format, xCentered, y, drawW, drawH);
       } catch {
-        /* silencia falha de imagem isolada */
+        /* ignore */
       }
       maiorAltura = Math.max(maiorAltura, drawH);
       xCursor += larguraCada + gap;
     }
-    yAposImagens = y + maiorAltura + 4;
+    y += maiorAltura + 4;
   }
 
-  y = yAposImagens;
-
-  // Nome (largura total) e categoria abaixo das imagens
+  // Nome + categoria
   doc.setTextColor(...COR_PRETO);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
-  const nomeLinhas = doc.splitTextToSize(preparo.nome || "—", pageW - marginX * 2);
+  const nomeLinhas = doc.splitTextToSize(receita.nome || "—", pageW - marginX * 2);
   doc.text(nomeLinhas, marginX, y);
   y += nomeLinhas.length * 6;
 
-  const nomeCategoria = (preparo as any).categoria?.nome;
-  if (nomeCategoria) {
+  if (receita.categoria) {
     doc.setFont("helvetica", "italic");
     doc.setFontSize(9);
     doc.setTextColor(...COR_CINZA_TEXTO);
-    doc.text(nomeCategoria, marginX, y + 1);
+    doc.text(receita.categoria, marginX, y + 1);
     y += 5;
   }
-
   y += 2;
 
-  // Linha divisória
+  // Linha
   doc.setDrawColor(...COR_PISTACHE);
   doc.setLineWidth(0.3);
   doc.line(marginX, y, pageW - marginX, y);
   y += 5;
 
-  // Meta informações em 3 colunas compactas
+  // Meta (4 colunas: tempo, rendimento, valor venda, custo produção)
   const metaRender = (label: string, valor: string, x: number) => {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
@@ -240,65 +232,60 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     doc.text(valor, x, y + 4);
   };
 
-  const colW = (pageW - marginX * 2) / 3;
-  metaRender(
-    "Tempo de Preparo",
-    `${preparo.tempo_preparo} ${preparo.tempo_preparo_unidade}`,
-    marginX,
-  );
-  metaRender(
-    "Rendimento",
-    `${rendimento.toLocaleString("pt-BR")} ${siglaRend}`,
-    marginX + colW,
-  );
-  metaRender("Custo Total", formatarPreco(custoTotal), marginX + colW * 2);
+  const colW = (pageW - marginX * 2) / 4;
+  const tempo = receita.tempo_preparo
+    ? `${receita.tempo_preparo} ${receita.unidade_tempo || ""}`.trim()
+    : "—";
+  const rendimento = receita.rendimento
+    ? `${Number(receita.rendimento).toLocaleString("pt-BR")} ${receita.unidade_rendimento || ""}`.trim()
+    : "—";
+  metaRender("Tempo de Preparo", tempo, marginX);
+  metaRender("Rendimento", rendimento, marginX + colW);
+  metaRender("Valor de Venda", formatarPreco(valorVenda), marginX + colW * 2);
+  metaRender("Custo Produção", formatarPreco(custoProducao), marginX + colW * 3);
   y += 9;
 
   doc.setDrawColor(...COR_PISTACHE);
   doc.line(marginX, y, pageW - marginX, y);
   y += 5;
 
-  // ===== Tabela de Ingredientes =====
+  // Estilos comuns das tabelas
+  const styleBase = {
+    font: "helvetica",
+    fontSize: 8,
+    textColor: COR_PRETO,
+    cellPadding: { top: 1.4, bottom: 1.4, left: 2, right: 2 },
+    lineColor: COR_PISTACHE,
+    lineWidth: 0.1,
+  } as const;
+  const headBase = {
+    fillColor: COR_CLOUD,
+    textColor: COR_PRETO,
+    fontStyle: "bold" as const,
+    fontSize: 8,
+    lineWidth: { bottom: 0.4 },
+    lineColor: COR_DOURADO,
+  };
+
+  // Ingredientes
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
   doc.setTextColor(...COR_PRETO);
   doc.text("Ingredientes", marginX, y);
 
-  const linhasIng = ingredientes.map((item: any) => {
-    const ti = item.ingrediente?.tipo_insumo;
-    const nome = ti?.descricao || "—";
-    const marca = item.ingrediente?.marca || "";
-    const sigla = ti?.unidade_medida?.sigla || "";
-    return [
-      marca ? `${nome} — ${marca}` : nome,
-      `${Number(item.quantidade_utilizada || 0).toLocaleString("pt-BR")} ${sigla}`,
-      formatarPreco(Number(item.custo_ingrediente || 0)),
-    ];
-  });
-
-  if (linhasIng.length > 0) {
+  if (ingredientes.length > 0) {
     autoTable(doc, {
       startY: y + 2,
       head: [["Ingrediente", "Quantidade", "Custo"]],
-      body: linhasIng,
+      body: ingredientes.map((i: any) => [
+        i.ingrediente || "—",
+        `${Number(i.quantidade_utilizada || 0).toLocaleString("pt-BR")}`,
+        formatarPreco(Number(i.custo_receita || 0)),
+      ]),
       theme: "plain",
       margin: { left: marginX, right: marginX },
-      styles: {
-        font: "helvetica",
-        fontSize: 8,
-        textColor: COR_PRETO,
-        cellPadding: { top: 1.4, bottom: 1.4, left: 2, right: 2 },
-        lineColor: COR_PISTACHE,
-        lineWidth: 0.1,
-      },
-      headStyles: {
-        fillColor: COR_CLOUD,
-        textColor: COR_PRETO,
-        fontStyle: "bold",
-        fontSize: 8,
-        lineWidth: { bottom: 0.4 },
-        lineColor: COR_DOURADO,
-      },
+      styles: styleBase,
+      headStyles: headBase,
       columnStyles: {
         0: { cellWidth: "auto" },
         1: { cellWidth: 32, halign: "right" },
@@ -310,13 +297,42 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     doc.setFont("helvetica", "italic");
     doc.setFontSize(8);
     doc.setTextColor(...COR_CINZA_TEXTO);
-    doc.text("Nenhum ingrediente cadastrado.", marginX, y + 5);
+    doc.text("Nenhum ingrediente.", marginX, y + 5);
     y += 8;
   }
 
-  // ===== Mão de Obra =====
+  // Embalagens
+  if (embalagens.length > 0) {
+    y += 1;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(...COR_PRETO);
+    doc.text("Embalagens", marginX, y);
+
+    autoTable(doc, {
+      startY: y + 2,
+      head: [["Embalagem", "Quantidade", "Custo"]],
+      body: embalagens.map((e: any) => [
+        e.ingrediente || "—",
+        `${Number(e.quantidade_utilizada || 0).toLocaleString("pt-BR")}`,
+        formatarPreco(Number(e.custo_receita || 0)),
+      ]),
+      theme: "plain",
+      margin: { left: marginX, right: marginX },
+      styles: styleBase,
+      headStyles: headBase,
+      columnStyles: {
+        0: { cellWidth: "auto" },
+        1: { cellWidth: 32, halign: "right" },
+        2: { cellWidth: 28, halign: "right" },
+      },
+    });
+    y = (doc as any).lastAutoTable.finalY + 2;
+  }
+
+  // Mão de Obra
   if (linhasMaoObra.length > 0) {
-    y += 2;
+    y += 1;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.setTextColor(...COR_PRETO);
@@ -333,22 +349,8 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
       ]),
       theme: "plain",
       margin: { left: marginX, right: marginX },
-      styles: {
-        font: "helvetica",
-        fontSize: 8,
-        textColor: COR_PRETO,
-        cellPadding: { top: 1.4, bottom: 1.4, left: 2, right: 2 },
-        lineColor: COR_PISTACHE,
-        lineWidth: 0.1,
-      },
-      headStyles: {
-        fillColor: COR_CLOUD,
-        textColor: COR_PRETO,
-        fontStyle: "bold",
-        fontSize: 8,
-        lineWidth: { bottom: 0.4 },
-        lineColor: COR_DOURADO,
-      },
+      styles: styleBase,
+      headStyles: headBase,
       columnStyles: {
         0: { cellWidth: "auto" },
         1: { cellWidth: 20, halign: "right" },
@@ -359,7 +361,36 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     y = (doc as any).lastAutoTable.finalY + 2;
   }
 
-  // ===== Resumo de Custos =====
+  // Despesas de Venda
+  if (despesas.length > 0) {
+    y += 1;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(...COR_PRETO);
+    doc.text("Custos com Vendas", marginX, y);
+
+    autoTable(doc, {
+      startY: y + 2,
+      head: [["Descrição", "%", "Valor"]],
+      body: despesas.map((d: any) => [
+        d.nome || "—",
+        `${Number(d.percentual || 0).toLocaleString("pt-BR")}%`,
+        formatarPreco(Number(d.valor || 0)),
+      ]),
+      theme: "plain",
+      margin: { left: marginX, right: marginX },
+      styles: styleBase,
+      headStyles: headBase,
+      columnStyles: {
+        0: { cellWidth: "auto" },
+        1: { cellWidth: 24, halign: "right" },
+        2: { cellWidth: 28, halign: "right" },
+      },
+    });
+    y = (doc as any).lastAutoTable.finalY + 2;
+  }
+
+  // Resumo
   y += 2;
   doc.setDrawColor(...COR_DOURADO);
   doc.setLineWidth(0.4);
@@ -375,19 +406,19 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     y += bold ? 5 : 4.2;
   };
 
-  linhaResumo("Custo de ingredientes", formatarPreco(custoIngredientes));
-  if (custoMaoObra > 0) {
-    linhaResumo("Custo de mão de obra", formatarPreco(custoMaoObra));
+  linhaResumo("Custo de produção", formatarPreco(custoProducao));
+  if (totalDespesasVenda > 0) {
+    linhaResumo("Custos com vendas", formatarPreco(totalDespesasVenda));
   }
-  linhaResumo("Custo total", formatarPreco(custoTotal), true);
+  linhaResumo("Valor de venda", formatarPreco(valorVenda), true);
   linhaResumo(
-    `Custo por ${siglaRend || "unidade"}`,
-    formatarPreco(custoPorUnidade),
+    `Lucro (${margemPct.toFixed(1)}%)`,
+    formatarPreco(lucro),
     true,
   );
 
-  // ===== Modo de Preparo (compacto, ajusta fonte para caber na página) =====
-  if (preparo.modo_preparo && preparo.modo_preparo.trim()) {
+  // Modo de preparo
+  if (receita.modo_preparo && String(receita.modo_preparo).trim()) {
     y += 2;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
@@ -395,16 +426,14 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     doc.text("Modo de Preparo", marginX, y);
     y += 4;
 
-    // Espaço disponível até o rodapé (rodapé fica em pageH - 12)
     const espacoDisponivel = pageH - 14 - y;
     let fontSize = 9;
     let lineHeight = 4.2;
     let linhas: string[] = [];
 
-    // Reduz fonte progressivamente até caber
     while (fontSize >= 6.5) {
       doc.setFontSize(fontSize);
-      linhas = doc.splitTextToSize(preparo.modo_preparo, pageW - marginX * 2);
+      linhas = doc.splitTextToSize(receita.modo_preparo, pageW - marginX * 2);
       const alturaTotal = linhas.length * lineHeight;
       if (alturaTotal <= espacoDisponivel) break;
       fontSize -= 0.5;
@@ -415,7 +444,6 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     doc.setFontSize(fontSize);
     doc.setTextColor(...COR_PRETO);
 
-    // Trunca se ainda assim ultrapassar
     const maxLinhas = Math.floor((pageH - 14 - y) / lineHeight);
     const linhasExibir = linhas.slice(0, Math.max(1, maxLinhas));
     if (linhas.length > linhasExibir.length && linhasExibir.length > 0) {
@@ -428,20 +456,20 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     }
   }
 
-  // ===== Rodapé =====
+  // Rodapé
   doc.setDrawColor(...COR_PISTACHE);
   doc.setLineWidth(0.2);
   doc.line(marginX, pageH - 10, pageW - marginX, pageH - 10);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
   doc.setTextColor(...COR_CINZA_TEXTO);
-  doc.text("Caixa de Açúcar — Ficha de Pré-Preparo", marginX, pageH - 5);
+  doc.text("Caixa de Açúcar — Ficha Técnica", marginX, pageH - 5);
   doc.text("Página 1 de 1", pageW - marginX, pageH - 5, { align: "right" });
 
-  const slug = (preparo.nome || "pre-preparo")
+  const slug = (receita.nome || "ficha-tecnica")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-zA-Z0-9]+/g, "_")
     .replace(/^_|_$/g, "");
-  doc.save(`${slug || "pre-preparo"}.pdf`);
+  doc.save(`${slug || "ficha-tecnica"}.pdf`);
 }
