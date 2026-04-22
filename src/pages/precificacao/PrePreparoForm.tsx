@@ -46,7 +46,8 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useCategorias } from '@/hooks/useCategorias';
-import { Plus, Trash2, Upload, X, Info, ArrowLeft } from 'lucide-react';
+import { Plus, Trash2, Upload, X, Info, ArrowLeft, FileDown } from 'lucide-react';
+import { exportarPrePreparoPDF } from '@/utils/exportarPrePreparoPDF';
 import { MaoObraSection, MaoObraLinha } from '@/components/MaoObraSection';
 import { usePrePreparosMaoObra } from '@/hooks/usePrePreparosMaoObra';
 import { useMaoObraPerfis } from '@/hooks/useMaoObraPerfis';
@@ -1101,13 +1102,33 @@ export default function PrePreparoForm() {
         </Alert>
 
         {/* Botões */}
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4">
           <Button
             variant="outline"
             onClick={() => navigate('/precificacao/pre-preparos')}
           >
             Cancelar
           </Button>
+          {isEditMode && id && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={async () => {
+                try {
+                  await exportarPrePreparoPDF(id);
+                } catch (e: any) {
+                  toast({
+                    title: 'Erro ao exportar',
+                    description: e?.message || 'Falha ao gerar PDF.',
+                    variant: 'destructive',
+                  });
+                }
+              }}
+            >
+              <FileDown className="mr-2 h-4 w-4" />
+              Exportar PDF
+            </Button>
+          )}
           <Button onClick={handleSalvar} className="flex-1">
             {isEditMode ? 'Atualizar Pré-Preparo' : 'Salvar Pré-Preparo'}
           </Button>
