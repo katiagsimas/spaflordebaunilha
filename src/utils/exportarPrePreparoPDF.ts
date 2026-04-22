@@ -169,55 +169,58 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
 
   y = 24;
 
-  // Cabeçalho com nome + (opcional) imagens à direita
+  // Imagens lado a lado, a partir do canto superior esquerdo
   const temImagens = imagensCarregadas.length > 0;
-  const colImgW = temImagens ? 56 : 0; // largura reservada das imagens
-  const colTextoW = pageW - marginX * 2 - (temImagens ? colImgW + 4 : 0);
+  let yAposImagens = y;
+  if (temImagens) {
+    const gap = 3;
+    const larguraDisponivel = pageW - marginX * 2;
+    const qtd = imagensCarregadas.length;
+    const larguraCada = (larguraDisponivel - gap * (qtd - 1)) / qtd;
+    const alturaMax = 42;
+    let xCursor = marginX;
+    let maiorAltura = 0;
 
+    for (const img of imagensCarregadas) {
+      const ratio = img.w / img.h;
+      let drawW = larguraCada;
+      let drawH = drawW / ratio;
+      if (drawH > alturaMax) {
+        drawH = alturaMax;
+        drawW = drawH * ratio;
+      }
+      const xCentered = xCursor + (larguraCada - drawW) / 2;
+      try {
+        doc.addImage(img.dataUrl, img.format, xCentered, y, drawW, drawH);
+      } catch {
+        /* silencia falha de imagem isolada */
+      }
+      maiorAltura = Math.max(maiorAltura, drawH);
+      xCursor += larguraCada + gap;
+    }
+    yAposImagens = y + maiorAltura + 4;
+  }
+
+  y = yAposImagens;
+
+  // Nome (largura total) e categoria abaixo das imagens
   doc.setTextColor(...COR_PRETO);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
-  const nomeLinhas = doc.splitTextToSize(preparo.nome || "—", colTextoW);
+  const nomeLinhas = doc.splitTextToSize(preparo.nome || "—", pageW - marginX * 2);
   doc.text(nomeLinhas, marginX, y);
-  let yTextoTopo = y + nomeLinhas.length * 6;
+  y += nomeLinhas.length * 6;
 
   const nomeCategoria = (preparo as any).categoria?.nome;
   if (nomeCategoria) {
     doc.setFont("helvetica", "italic");
     doc.setFontSize(9);
     doc.setTextColor(...COR_CINZA_TEXTO);
-    doc.text(nomeCategoria, marginX, yTextoTopo + 1);
-    yTextoTopo += 5;
+    doc.text(nomeCategoria, marginX, y + 1);
+    y += 5;
   }
 
-  // Renderizar imagens à direita (alinhadas verticalmente)
-  let yImagensFim = y - 4;
-  if (temImagens) {
-    const xImg = pageW - marginX - colImgW;
-    const alturaCadaImg = imagensCarregadas.length === 1 ? 38 : 22;
-    const gap = 2;
-    let yImg = y - 4;
-    for (const img of imagensCarregadas) {
-      // manter aspect ratio dentro de colImgW x alturaCadaImg
-      const ratio = img.w / img.h;
-      let drawW = colImgW;
-      let drawH = drawW / ratio;
-      if (drawH > alturaCadaImg) {
-        drawH = alturaCadaImg;
-        drawW = drawH * ratio;
-      }
-      const xCentered = xImg + (colImgW - drawW) / 2;
-      try {
-        doc.addImage(img.dataUrl, img.format, xCentered, yImg, drawW, drawH);
-      } catch {
-        /* silencia falha de imagem isolada */
-      }
-      yImg += alturaCadaImg + gap;
-    }
-    yImagensFim = yImg;
-  }
-
-  y = Math.max(yTextoTopo, yImagensFim) + 2;
+  y += 2;
 
   // Linha divisória
   doc.setDrawColor(...COR_PISTACHE);
