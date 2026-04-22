@@ -2,7 +2,7 @@ import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, Copy, AlertTriangle, Loader2, CookingPot } from "lucide-react";
+import { Plus, Pencil, Trash2, Copy, AlertTriangle, Loader2, CookingPot, FileDown } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useCalculosReceita } from "@/hooks/useCalculosReceita";
+import { exportarReceitaPDF } from "@/utils/exportarReceitaPDF";
 
 
 export default function Receitas() {
