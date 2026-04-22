@@ -12,7 +12,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Clock, Scale, Info, MoreVertical, Trash2 } from 'lucide-react';
+import { Plus, Edit, Clock, Scale, Info, MoreVertical, Trash2, FileDown } from 'lucide-react';
+import { exportarPrePreparoPDF } from '@/utils/exportarPrePreparoPDF';
 import { EmptyState } from '@/components/EmptyState';
 import { ChefHat } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -328,6 +329,22 @@ export default function PrePreparos() {
                         >
                           <Edit className="mr-2 h-4 w-4" />
                           Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={async () => {
+                            try {
+                              await exportarPrePreparoPDF(preparo.id);
+                            } catch (e: any) {
+                              toast({
+                                title: 'Erro ao exportar',
+                                description: e?.message || 'Falha ao gerar PDF.',
+                                variant: 'destructive',
+                              });
+                            }
+                          }}
+                        >
+                          <FileDown className="mr-2 h-4 w-4" />
+                          Exportar PDF
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => handleExcluir(preparo)}
