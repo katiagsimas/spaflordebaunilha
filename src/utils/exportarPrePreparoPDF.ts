@@ -9,28 +9,56 @@ const COR_PISTACHE: [number, number, number] = [191, 207, 184];
 const COR_DOURADO: [number, number, number] = [198, 168, 90];
 const COR_CINZA_TEXTO: [number, number, number] = [90, 90, 90];
 
-interface PrePreparoData {
-  id: string;
-  nome: string;
-  tempo_preparo: number;
-  tempo_preparo_unidade: string;
-  rendimento_quantidade: number;
-  rendimento_unidade?: { nome?: string; sigla?: string } | null;
-  rendimento_unidade_id?: string;
-  custo_total?: number | null;
-  custo_por_unidade?: number | null;
-  modo_preparo?: string | null;
-  categoria_id?: string | null;
-}
-
 const formatarPreco = (v: number) =>
   (v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 /**
- * Carrega os dados completos do pré-preparo e gera um PDF A4 retrato minimalista.
+ * Resolve uma URL/caminho de imagem para dataURL (base64), de modo
+ * que o jsPDF possa embutir mesmo quando a origem é o Supabase Storage.
+ */
+async function carregarImagemComoDataURL(
+  urlOuPath: string,
+): Promise<{ dataUrl: string; format: "JPEG" | "PNG"; w: number; h: number } | null> {
+  try {
+    let url = urlOuPath;
+    // Se não for URL absoluta, tenta gerar URL pública/assinada do bucket "pre-preparos"
+    if (!/^https?:\/\//i.test(urlOuPath)) {
+      const { data } = supabase.storage
+        .from("pre-preparos")
+        .getPublicUrl(urlOuPath);
+      url = data.publicUrl;
+    }
+
+    const resp = await fetch(url);
+    if (!resp.ok) return null;
+    const blob = await resp.blob();
+
+    const dataUrl: string = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+
+    const dims: { w: number; h: number } = await new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+      img.onerror = () => resolve({ w: 1, h: 1 });
+      img.src = dataUrl;
+    });
+
+    const format: "JPEG" | "PNG" = blob.type.includes("png") ? "PNG" : "JPEG";
+    return { dataUrl, format, w: dims.w, h: dims.h };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Carrega os dados completos do pré-preparo e gera um PDF A4 retrato minimalista,
+ * compactado em uma única página, com imagens (quando existentes).
  */
 export async function exportarPrePreparoPDF(prePreparoId: string) {
-  // Buscar pré-preparo + ingredientes + unidade
   const { data: preparo, error } = await supabase
     .from("pre_preparos")
     .select(
@@ -61,7 +89,6 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     throw new Error(error?.message || "Pré-preparo não encontrado");
   }
 
-  // Mão de obra
   const { data: maosObra } = await supabase
     .from("pre_preparos_mao_obra")
     .select(`*, perfil:mao_obra_perfis ( nome, valor_hora )`)
@@ -106,66 +133,108 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     (preparo as any).rendimento_unidade?.nome ||
     "";
 
+  // Carregar imagens do pré-preparo (até 2)
+  const imagensPaths = [
+    (preparo as any).imagem_1_url,
+    (preparo as any).imagem_2_url,
+  ].filter((p): p is string => !!p && typeof p === "string");
+
+  const imagensCarregadas = (
+    await Promise.all(imagensPaths.map((p) => carregarImagemComoDataURL(p)))
+  ).filter((i): i is NonNullable<typeof i> => !!i);
+
   // ===== Construir PDF =====
   const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
   const pageW = doc.internal.pageSize.getWidth(); // 210
   const pageH = doc.internal.pageSize.getHeight(); // 297
-  const marginX = 16;
+  const marginX = 14;
   let y = 0;
 
-  // Faixa superior pistache fina + título
+  // Faixa superior
   doc.setFillColor(...COR_PISTACHE);
-  doc.rect(0, 0, pageW, 22, "F");
+  doc.rect(0, 0, pageW, 18, "F");
   doc.setFillColor(...COR_DOURADO);
-  doc.rect(0, 22, pageW, 0.8, "F");
+  doc.rect(0, 18, pageW, 0.6, "F");
+
+  doc.setTextColor(...COR_PRETO);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(13);
+  doc.text("Ficha de Pré-Preparo", marginX, 11.5);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7.5);
+  doc.setTextColor(...COR_CINZA_TEXTO);
+  const dataGer = new Date().toLocaleDateString("pt-BR");
+  doc.text(`Emitido em ${dataGer}`, pageW - marginX, 11.5, { align: "right" });
+
+  y = 24;
+
+  // Cabeçalho com nome + (opcional) imagens à direita
+  const temImagens = imagensCarregadas.length > 0;
+  const colImgW = temImagens ? 56 : 0; // largura reservada das imagens
+  const colTextoW = pageW - marginX * 2 - (temImagens ? colImgW + 4 : 0);
 
   doc.setTextColor(...COR_PRETO);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
-  doc.text("Ficha de Pré-Preparo", marginX, 14);
+  const nomeLinhas = doc.splitTextToSize(preparo.nome || "—", colTextoW);
+  doc.text(nomeLinhas, marginX, y);
+  let yTextoTopo = y + nomeLinhas.length * 6;
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
-  doc.setTextColor(...COR_CINZA_TEXTO);
-  const dataGer = new Date().toLocaleDateString("pt-BR");
-  doc.text(`Emitido em ${dataGer}`, pageW - marginX, 14, { align: "right" });
-
-  y = 32;
-
-  // Nome do pré-preparo
-  doc.setTextColor(...COR_PRETO);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(20);
-  doc.text(preparo.nome || "—", marginX, y);
-  y += 7;
-
-  // Categoria (se houver)
   const nomeCategoria = (preparo as any).categoria?.nome;
   if (nomeCategoria) {
     doc.setFont("helvetica", "italic");
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setTextColor(...COR_CINZA_TEXTO);
-    doc.text(nomeCategoria, marginX, y);
-    y += 6;
+    doc.text(nomeCategoria, marginX, yTextoTopo + 1);
+    yTextoTopo += 5;
   }
 
-  y += 2;
+  // Renderizar imagens à direita (alinhadas verticalmente)
+  let yImagensFim = y - 4;
+  if (temImagens) {
+    const xImg = pageW - marginX - colImgW;
+    const alturaCadaImg = imagensCarregadas.length === 1 ? 38 : 22;
+    const gap = 2;
+    let yImg = y - 4;
+    for (const img of imagensCarregadas) {
+      // manter aspect ratio dentro de colImgW x alturaCadaImg
+      const ratio = img.w / img.h;
+      let drawW = colImgW;
+      let drawH = drawW / ratio;
+      if (drawH > alturaCadaImg) {
+        drawH = alturaCadaImg;
+        drawW = drawH * ratio;
+      }
+      const xCentered = xImg + (colImgW - drawW) / 2;
+      try {
+        doc.addImage(img.dataUrl, img.format, xCentered, yImg, drawW, drawH);
+      } catch {
+        /* silencia falha de imagem isolada */
+      }
+      yImg += alturaCadaImg + gap;
+    }
+    yImagensFim = yImg;
+  }
 
-  // Bloco de meta-informações (linhas leves)
+  y = Math.max(yTextoTopo, yImagensFim) + 2;
+
+  // Linha divisória
   doc.setDrawColor(...COR_PISTACHE);
   doc.setLineWidth(0.3);
   doc.line(marginX, y, pageW - marginX, y);
-  y += 6;
+  y += 5;
 
+  // Meta informações em 3 colunas compactas
   const metaRender = (label: string, valor: string, x: number) => {
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
+    doc.setFontSize(7);
     doc.setTextColor(...COR_CINZA_TEXTO);
     doc.text(label.toUpperCase(), x, y);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
+    doc.setFontSize(10);
     doc.setTextColor(...COR_PRETO);
-    doc.text(valor, x, y + 5);
+    doc.text(valor, x, y + 4);
   };
 
   const colW = (pageW - marginX * 2) / 3;
@@ -180,18 +249,17 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     marginX + colW,
   );
   metaRender("Custo Total", formatarPreco(custoTotal), marginX + colW * 2);
-  y += 11;
+  y += 9;
 
   doc.setDrawColor(...COR_PISTACHE);
   doc.line(marginX, y, pageW - marginX, y);
-  y += 8;
+  y += 5;
 
   // ===== Tabela de Ingredientes =====
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
+  doc.setFontSize(10);
   doc.setTextColor(...COR_PRETO);
   doc.text("Ingredientes", marginX, y);
-  y += 3;
 
   const linhasIng = ingredientes.map((item: any) => {
     const ti = item.ingrediente?.tipo_insumo;
@@ -199,7 +267,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     const marca = item.ingrediente?.marca || "";
     const sigla = ti?.unidade_medida?.sigla || "";
     return [
-      marca ? `${nome}\n${marca}` : nome,
+      marca ? `${nome} — ${marca}` : nome,
       `${Number(item.quantidade_utilizada || 0).toLocaleString("pt-BR")} ${sigla}`,
       formatarPreco(Number(item.custo_ingrediente || 0)),
     ];
@@ -214,9 +282,9 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
       margin: { left: marginX, right: marginX },
       styles: {
         font: "helvetica",
-        fontSize: 9,
+        fontSize: 8,
         textColor: COR_PRETO,
-        cellPadding: { top: 2.5, bottom: 2.5, left: 2, right: 2 },
+        cellPadding: { top: 1.4, bottom: 1.4, left: 2, right: 2 },
         lineColor: COR_PISTACHE,
         lineWidth: 0.1,
       },
@@ -224,35 +292,35 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
         fillColor: COR_CLOUD,
         textColor: COR_PRETO,
         fontStyle: "bold",
+        fontSize: 8,
         lineWidth: { bottom: 0.4 },
         lineColor: COR_DOURADO,
       },
       columnStyles: {
         0: { cellWidth: "auto" },
-        1: { cellWidth: 38, halign: "right" },
-        2: { cellWidth: 32, halign: "right" },
+        1: { cellWidth: 32, halign: "right" },
+        2: { cellWidth: 28, halign: "right" },
       },
-      didDrawPage: () => {},
     });
-    y = (doc as any).lastAutoTable.finalY + 3;
+    y = (doc as any).lastAutoTable.finalY + 2;
   } else {
     doc.setFont("helvetica", "italic");
-    doc.setFontSize(9);
+    doc.setFontSize(8);
     doc.setTextColor(...COR_CINZA_TEXTO);
-    doc.text("Nenhum ingrediente cadastrado.", marginX, y + 6);
-    y += 10;
+    doc.text("Nenhum ingrediente cadastrado.", marginX, y + 5);
+    y += 8;
   }
 
   // ===== Mão de Obra =====
   if (linhasMaoObra.length > 0) {
-    y += 4;
+    y += 2;
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
+    doc.setFontSize(10);
     doc.setTextColor(...COR_PRETO);
     doc.text("Mão de Obra", marginX, y);
 
     autoTable(doc, {
-      startY: y + 5,
+      startY: y + 2,
       head: [["Perfil", "Horas", "Valor/Hora", "Total"]],
       body: linhasMaoObra.map((l) => [
         l.nome,
@@ -264,9 +332,9 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
       margin: { left: marginX, right: marginX },
       styles: {
         font: "helvetica",
-        fontSize: 9,
+        fontSize: 8,
         textColor: COR_PRETO,
-        cellPadding: { top: 2.5, bottom: 2.5, left: 2, right: 2 },
+        cellPadding: { top: 1.4, bottom: 1.4, left: 2, right: 2 },
         lineColor: COR_PISTACHE,
         lineWidth: 0.1,
       },
@@ -274,38 +342,34 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
         fillColor: COR_CLOUD,
         textColor: COR_PRETO,
         fontStyle: "bold",
+        fontSize: 8,
         lineWidth: { bottom: 0.4 },
         lineColor: COR_DOURADO,
       },
       columnStyles: {
         0: { cellWidth: "auto" },
-        1: { cellWidth: 24, halign: "right" },
-        2: { cellWidth: 32, halign: "right" },
-        3: { cellWidth: 32, halign: "right" },
+        1: { cellWidth: 20, halign: "right" },
+        2: { cellWidth: 28, halign: "right" },
+        3: { cellWidth: 28, halign: "right" },
       },
     });
-    y = (doc as any).lastAutoTable.finalY + 3;
+    y = (doc as any).lastAutoTable.finalY + 2;
   }
 
   // ===== Resumo de Custos =====
-  y += 4;
-  if (y > pageH - 60) {
-    doc.addPage();
-    y = 20;
-  }
-
+  y += 2;
   doc.setDrawColor(...COR_DOURADO);
   doc.setLineWidth(0.4);
   doc.line(marginX, y, pageW - marginX, y);
-  y += 6;
+  y += 4;
 
   const linhaResumo = (label: string, valor: string, bold = false) => {
     doc.setFont("helvetica", bold ? "bold" : "normal");
-    doc.setFontSize(bold ? 11 : 9.5);
+    doc.setFontSize(bold ? 9.5 : 8.5);
     doc.setTextColor(...COR_PRETO);
     doc.text(label, marginX, y);
     doc.text(valor, pageW - marginX, y, { align: "right" });
-    y += bold ? 7 : 5.5;
+    y += bold ? 5 : 4.2;
   };
 
   linhaResumo("Custo de ingredientes", formatarPreco(custoIngredientes));
@@ -319,51 +383,57 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     true,
   );
 
-  // ===== Modo de Preparo =====
+  // ===== Modo de Preparo (compacto, ajusta fonte para caber na página) =====
   if (preparo.modo_preparo && preparo.modo_preparo.trim()) {
-    y += 4;
-    if (y > pageH - 50) {
-      doc.addPage();
-      y = 20;
-    }
+    y += 2;
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.setTextColor(...COR_PRETO);
-    doc.text("Modo de Preparo", marginX, y);
-    y += 5;
-
-    doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     doc.setTextColor(...COR_PRETO);
-    const linhas = doc.splitTextToSize(
-      preparo.modo_preparo,
-      pageW - marginX * 2,
-    );
-    for (const linha of linhas) {
-      if (y > pageH - 20) {
-        doc.addPage();
-        y = 20;
-      }
+    doc.text("Modo de Preparo", marginX, y);
+    y += 4;
+
+    // Espaço disponível até o rodapé (rodapé fica em pageH - 12)
+    const espacoDisponivel = pageH - 14 - y;
+    let fontSize = 9;
+    let lineHeight = 4.2;
+    let linhas: string[] = [];
+
+    // Reduz fonte progressivamente até caber
+    while (fontSize >= 6.5) {
+      doc.setFontSize(fontSize);
+      linhas = doc.splitTextToSize(preparo.modo_preparo, pageW - marginX * 2);
+      const alturaTotal = linhas.length * lineHeight;
+      if (alturaTotal <= espacoDisponivel) break;
+      fontSize -= 0.5;
+      lineHeight = fontSize * 0.46;
+    }
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(fontSize);
+    doc.setTextColor(...COR_PRETO);
+
+    // Trunca se ainda assim ultrapassar
+    const maxLinhas = Math.floor((pageH - 14 - y) / lineHeight);
+    const linhasExibir = linhas.slice(0, Math.max(1, maxLinhas));
+    if (linhas.length > linhasExibir.length && linhasExibir.length > 0) {
+      linhasExibir[linhasExibir.length - 1] =
+        linhasExibir[linhasExibir.length - 1].replace(/\s*\S*$/, "") + "…";
+    }
+    for (const linha of linhasExibir) {
       doc.text(linha, marginX, y);
-      y += 5;
+      y += lineHeight;
     }
   }
 
-  // ===== Rodapé em todas as páginas =====
-  const totalPages = (doc as any).internal.getNumberOfPages();
-  for (let i = 1; i <= totalPages; i++) {
-    doc.setPage(i);
-    doc.setDrawColor(...COR_PISTACHE);
-    doc.setLineWidth(0.2);
-    doc.line(marginX, pageH - 12, pageW - marginX, pageH - 12);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
-    doc.setTextColor(...COR_CINZA_TEXTO);
-    doc.text("Caixa de Açúcar — Ficha de Pré-Preparo", marginX, pageH - 7);
-    doc.text(`Página ${i} de ${totalPages}`, pageW - marginX, pageH - 7, {
-      align: "right",
-    });
-  }
+  // ===== Rodapé =====
+  doc.setDrawColor(...COR_PISTACHE);
+  doc.setLineWidth(0.2);
+  doc.line(marginX, pageH - 10, pageW - marginX, pageH - 10);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7.5);
+  doc.setTextColor(...COR_CINZA_TEXTO);
+  doc.text("Caixa de Açúcar — Ficha de Pré-Preparo", marginX, pageH - 5);
+  doc.text("Página 1 de 1", pageW - marginX, pageH - 5, { align: "right" });
 
   const slug = (preparo.nome || "pre-preparo")
     .normalize("NFD")
