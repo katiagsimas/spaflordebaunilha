@@ -1803,6 +1803,22 @@ export default function ReceitaForm() {
             <Button variant="outline" onClick={() => navigate("/precificacao/ficha-tecnica")}>
               Cancelar
             </Button>
+            {id && (
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  try {
+                    await exportarReceitaPDF(id);
+                    toast.success("PDF gerado com sucesso!");
+                  } catch (e: any) {
+                    toast.error(`Erro ao gerar PDF: ${e?.message || e}`);
+                  }
+                }}
+              >
+                <FileDown className="mr-2 h-4 w-4" />
+                Exportar PDF
+              </Button>
+            )}
             <Button onClick={handleSave}>
               {id ? "Atualizar" : "Salvar"}
             </Button>
