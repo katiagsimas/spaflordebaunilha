@@ -6,7 +6,6 @@ import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, ChefHat, Upload, X, FileDown } from "lucide-react";
 import { exportarReceitaPDF } from "@/utils/exportarReceitaPDF";
-import { toast as sonnerToast } from "sonner";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { useCategorias } from "@/hooks/useCategorias";
 import { useUserProfile } from "@/hooks/useUserProfile";
