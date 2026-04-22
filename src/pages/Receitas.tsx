@@ -150,10 +150,25 @@ export default function Receitas() {
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => navigate(`/precificacao/ficha-tecnica/editar/${r.receitaId}`)}><Pencil className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDuplicar(r.receitaId)}><Copy className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" onClick={() => { setReceitaParaDeletar(r.receitaId); setDialogAberto(true); }}><Trash2 className="h-4 w-4" /></Button>
+                      <div className="flex justify-end gap-1">
+                        <Button variant="ghost" size="icon" title="Editar" onClick={() => navigate(`/precificacao/ficha-tecnica/editar/${r.receitaId}`)}><Pencil className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" title="Duplicar" onClick={() => handleDuplicar(r.receitaId)}><Copy className="h-4 w-4" /></Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="Exportar PDF"
+                          onClick={async () => {
+                            try {
+                              await exportarReceitaPDF(r.receitaId);
+                              toast.success("PDF gerado com sucesso!");
+                            } catch (e: any) {
+                              toast.error(`Erro ao gerar PDF: ${e?.message || e}`);
+                            }
+                          }}
+                        >
+                          <FileDown className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" title="Excluir" onClick={() => { setReceitaParaDeletar(r.receitaId); setDialogAberto(true); }}><Trash2 className="h-4 w-4" /></Button>
                       </div>
                     </TableCell>
                   </TableRow>
