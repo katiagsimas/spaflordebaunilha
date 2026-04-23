@@ -8,6 +8,7 @@ const COR_CLOUD: [number, number, number] = [245, 244, 241];
 const COR_PISTACHE: [number, number, number] = [191, 207, 184];
 const COR_DOURADO: [number, number, number] = [198, 168, 90];
 const COR_CINZA_TEXTO: [number, number, number] = [90, 90, 90];
+const COR_ROSE: [number, number, number] = [242, 140, 130]; // #F28C82
 
 const formatarPreco = (v: number) =>
   (v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -156,7 +157,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
   doc.setFillColor(...COR_DOURADO);
   doc.rect(0, 18, pageW, 0.6, "F");
 
-  doc.setTextColor(...COR_PRETO);
+  doc.setTextColor(...COR_ROSE);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
   doc.text("Ficha de Pré-Preparo", marginX, 11.5);
@@ -240,18 +241,13 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     doc.text(valor, x, y + 4);
   };
 
-  const colW = (pageW - marginX * 2) / 3;
-  metaRender(
-    "Tempo de Preparo",
-    `${preparo.tempo_preparo} ${preparo.tempo_preparo_unidade}`,
-    marginX,
-  );
+  const colW = (pageW - marginX * 2) / 2;
   metaRender(
     "Rendimento",
     `${rendimento.toLocaleString("pt-BR")} ${siglaRend}`,
-    marginX + colW,
+    marginX,
   );
-  metaRender("Custo Total", formatarPreco(custoTotal), marginX + colW * 2);
+  metaRender("Custo Total", formatarPreco(custoTotal), marginX + colW);
   y += 10;
 
   doc.setDrawColor(...COR_PISTACHE);
@@ -261,7 +257,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
   // ===== Tabela de Ingredientes =====
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
-  doc.setTextColor(...COR_PRETO);
+  doc.setTextColor(...COR_ROSE);
   doc.text("Ingredientes", marginX, y);
 
   const linhasIng = ingredientes.map((item: any) => {
@@ -318,7 +314,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
   if (linhasMaoObra.length > 0) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(...COR_PRETO);
+    doc.setTextColor(...COR_ROSE);
     doc.text("Mão de Obra", marginX, y);
 
     autoTable(doc, {
@@ -388,7 +384,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
-  doc.setTextColor(...COR_DOURADO);
+  doc.setTextColor(...COR_ROSE);
   doc.text("RESUMO DE CUSTOS", marginX + cardPad, cardY + cardPad + 1);
 
   let yCard = cardY + cardPad + 6;
@@ -407,7 +403,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     y += 2;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(...COR_PRETO);
+    doc.setTextColor(...COR_ROSE);
     doc.text("Modo de Preparo", marginX, y);
     y += 4;
 
