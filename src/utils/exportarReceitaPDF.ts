@@ -139,6 +139,9 @@ export async function exportarReceitaPDF(receitaId: string) {
     };
   });
   const custoMaoObra = linhasMaoObra.reduce((s, l) => s + l.total, 0);
+  const tempoPreparoTotalMinutos = Number((receita as any).tempo_preparo || 0) || Math.round(
+    linhasMaoObra.reduce((s, l) => s + Number(l.horas || 0), 0) * 60,
+  );
 
   const custoProducao = Number(
     receita.custo_total ?? custoIngredientes + custoEmbalagens + custoMaoObra,
@@ -156,7 +159,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   const imagensCarregadas = await Promise.all(
     imagensPaths.map((p: string) => carregarImagemComoDataURL(p)),
   );
-  const tempoPreparo = formatarTempoPreparo(Number((receita as any).tempo_preparo || 0));
+  const tempoPreparo = formatarTempoPreparo(tempoPreparoTotalMinutos);
 
   // ===== PDF =====
   const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
@@ -444,7 +447,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   }
   linhasCard.push({ label: "Valor de venda", valor: formatarPreco(valorVenda), bold: true });
   linhasCard.push({
-    label: `Lucro (${margemPct.toFixed(1)}%)`,
+    label: `Margem (${margemPct.toFixed(1)}%)`,
     valor: formatarPreco(lucro),
     bold: true,
   });

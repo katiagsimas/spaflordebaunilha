@@ -126,6 +126,9 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     };
   });
   const custoMaoObra = linhasMaoObra.reduce((s, l) => s + l.total, 0);
+  const tempoPreparoTotalMinutos = Number((preparo as any).tempo_preparo || 0) || Math.round(
+    linhasMaoObra.reduce((s, l) => s + Number(l.horas || 0), 0) * 60,
+  );
   const custoTotal = custoIngredientes + custoMaoObra;
   const rendimento = Number(preparo.rendimento_quantidade || 1);
   const custoPorUnidade = rendimento > 0 ? custoTotal / rendimento : 0;
@@ -133,7 +136,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     (preparo as any).rendimento_unidade?.sigla ||
     (preparo as any).rendimento_unidade?.nome ||
     "";
-  const tempoPreparo = Number((preparo as any).tempo_preparo || 0);
+  const tempoPreparo = tempoPreparoTotalMinutos;
   const tempoPreparoFormatado = tempoPreparo
     ? tempoPreparo >= 60
       ? `${Math.floor(tempoPreparo / 60)}h${tempoPreparo % 60 ? ` ${tempoPreparo % 60}min` : ""}`
