@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { getTodayISO, formatDateToISO } from "@/lib/dateUtils";
 import { Button } from "@/components/ui/button";
@@ -142,77 +142,45 @@ export default function Dashboard() {
     }
   }, [mesSelecionado, anoSelecionado, modoVisualizacao, user]);
 
+  // Debounce para evitar múltiplas chamadas em cascata via realtime (Semana 1 - otimização)
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const debounceCalendarioRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Configurar realtime updates para atualizar o dashboard quando houver mudanças
   useEffect(() => {
     if (!user) return;
 
+    const recarregarDebounced = () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = setTimeout(() => {
+        carregarDados();
+      }, 2500);
+    };
+
+    const recarregarTudoDebounced = () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      if (debounceCalendarioRef.current) clearTimeout(debounceCalendarioRef.current);
+      debounceTimerRef.current = setTimeout(() => {
+        carregarDados();
+      }, 2500);
+      debounceCalendarioRef.current = setTimeout(() => {
+        carregarCalendarioAnterior();
+        carregarCalendarioSeguinte();
+      }, 2500);
+    };
+
     const channel = supabase
       .channel('dashboard-updates')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'contas_receber_parcelas'
-        },
-        () => {
-          
-          carregarDados();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'contas_receber_pagamentos'
-        },
-        () => {
-          
-          carregarDados();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'contas_pagar_parcelas'
-        },
-        () => {
-          
-          carregarDados();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'contas_pagar_pagamentos'
-        },
-        () => {
-          
-          carregarDados();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'encomendas'
-        },
-        () => {
-          
-          carregarDados();
-          carregarCalendarioAnterior();
-          carregarCalendarioSeguinte();
-        }
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'contas_receber_parcelas' }, recarregarDebounced)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'contas_receber_pagamentos' }, recarregarDebounced)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'contas_pagar_parcelas' }, recarregarDebounced)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'contas_pagar_pagamentos' }, recarregarDebounced)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'encomendas' }, recarregarTudoDebounced)
       .subscribe();
 
     return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      if (debounceCalendarioRef.current) clearTimeout(debounceCalendarioRef.current);
       supabase.removeChannel(channel);
     };
   }, [user, mesSelecionado, anoSelecionado]);
