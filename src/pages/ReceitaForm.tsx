@@ -538,7 +538,7 @@ export default function ReceitaForm() {
           const ext = file.name.split('.').pop() || 'jpg';
           const timestamp = Date.now();
           const fileName = `${timestamp}.${ext}`;
-          const path = `receitas/${userId}/${id}/${fileName}`;
+          const path = `${userId}/${id}/${fileName}`;
 
           const { error: uploadError } = await supabase.storage
             .from('receitas')
@@ -864,7 +864,7 @@ export default function ReceitaForm() {
               // Fazer upload
               const timestamp = Date.now();
               const fileName = `${timestamp}_${index}.${ext}`;
-              const path = `receitas/${user?.id}/${receitaId}/${fileName}`;
+              const path = `${user?.id}/${receitaId}/${fileName}`;
               
               const { error: uploadError } = await supabase.storage
                 .from('receitas')

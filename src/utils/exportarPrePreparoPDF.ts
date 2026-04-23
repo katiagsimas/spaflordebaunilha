@@ -198,7 +198,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
       maiorAltura = Math.max(maiorAltura, drawH);
       xCursor += larguraCada + gap;
     }
-    yAposImagens = y + maiorAltura + 4;
+    yAposImagens = y + maiorAltura + 9;
   }
 
   y = yAposImagens;
