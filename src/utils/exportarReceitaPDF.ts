@@ -8,6 +8,7 @@ const COR_CLOUD: [number, number, number] = [245, 244, 241];
 const COR_PISTACHE: [number, number, number] = [191, 207, 184];
 const COR_DOURADO: [number, number, number] = [198, 168, 90];
 const COR_CINZA_TEXTO: [number, number, number] = [90, 90, 90];
+const COR_ROSE: [number, number, number] = [242, 140, 130]; // #F28C82
 
 const SECTION_GAP = 6; // espaço maior entre seções
 
@@ -159,7 +160,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   doc.setFillColor(...COR_DOURADO);
   doc.rect(0, 18, pageW, 0.6, "F");
 
-  doc.setTextColor(...COR_PRETO);
+  doc.setTextColor(...COR_ROSE);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
   doc.text("Ficha Técnica", marginX, 11.5);
@@ -239,16 +240,12 @@ export async function exportarReceitaPDF(receitaId: string) {
     doc.text(linhasV[0] || "—", x, y + 4);
   };
 
-  const colW = (pageW - marginX * 2) / 3;
-  const tempo = receita.tempo_preparo
-    ? `${receita.tempo_preparo} ${receita.unidade_tempo || ""}`.trim()
-    : "—";
+  const colW = (pageW - marginX * 2) / 2;
   const rendimento = receita.rendimento
     ? `${Number(receita.rendimento).toLocaleString("pt-BR")} ${siglaRend}`.trim()
     : "—";
-  metaRender("Tempo de Preparo", tempo, marginX, colW);
-  metaRender("Rendimento", rendimento, marginX + colW, colW);
-  metaRender("Valor de Venda", formatarPreco(valorVenda), marginX + colW * 2, colW);
+  metaRender("Rendimento", rendimento, marginX, colW);
+  metaRender("Valor de Venda", formatarPreco(valorVenda), marginX + colW, colW);
   y += 10;
 
   doc.setDrawColor(...COR_PISTACHE);
