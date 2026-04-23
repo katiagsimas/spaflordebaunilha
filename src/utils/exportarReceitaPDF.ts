@@ -200,7 +200,7 @@ export async function exportarReceitaPDF(receitaId: string) {
       maiorAltura = Math.max(maiorAltura, drawH);
       xCursor += larguraCada + gap;
     }
-    y += maiorAltura + 4;
+    y += maiorAltura + 9;
   }
 
   // Nome + categoria
