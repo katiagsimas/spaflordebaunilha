@@ -305,18 +305,17 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
         2: { cellWidth: 28, halign: "right" },
       },
     });
-    y = (doc as any).lastAutoTable.finalY + 2;
+    y = (doc as any).lastAutoTable.finalY + 6;
   } else {
     doc.setFont("helvetica", "italic");
     doc.setFontSize(8);
     doc.setTextColor(...COR_CINZA_TEXTO);
     doc.text("Nenhum ingrediente cadastrado.", marginX, y + 5);
-    y += 8;
+    y += 14;
   }
 
   // ===== Mão de Obra =====
   if (linhasMaoObra.length > 0) {
-    y += 2;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.setTextColor(...COR_PRETO);
@@ -356,35 +355,52 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
         3: { cellWidth: 28, halign: "right" },
       },
     });
-    y = (doc as any).lastAutoTable.finalY + 2;
+    y = (doc as any).lastAutoTable.finalY + 6;
   }
 
-  // ===== Resumo de Custos =====
-  y += 2;
-  doc.setDrawColor(...COR_DOURADO);
-  doc.setLineWidth(0.4);
-  doc.line(marginX, y, pageW - marginX, y);
-  y += 4;
-
-  const linhaResumo = (label: string, valor: string, bold = false) => {
-    doc.setFont("helvetica", bold ? "bold" : "normal");
-    doc.setFontSize(bold ? 9.5 : 8.5);
-    doc.setTextColor(...COR_PRETO);
-    doc.text(label, marginX, y);
-    doc.text(valor, pageW - marginX, y, { align: "right" });
-    y += bold ? 5 : 4.2;
-  };
-
-  linhaResumo("Custo de ingredientes", formatarPreco(custoIngredientes));
+  // ===== Card de Resumo de Custos (borda dourada) =====
+  const linhasCard: { label: string; valor: string; bold?: boolean }[] = [
+    { label: "Custo de ingredientes", valor: formatarPreco(custoIngredientes) },
+  ];
   if (custoMaoObra > 0) {
-    linhaResumo("Custo de mão de obra", formatarPreco(custoMaoObra));
+    linhasCard.push({
+      label: "Custo de mão de obra",
+      valor: formatarPreco(custoMaoObra),
+    });
   }
-  linhaResumo("Custo total", formatarPreco(custoTotal), true);
-  linhaResumo(
-    `Custo por ${siglaRend || "unidade"}`,
-    formatarPreco(custoPorUnidade),
-    true,
-  );
+  linhasCard.push({ label: "Custo total", valor: formatarPreco(custoTotal), bold: true });
+  linhasCard.push({
+    label: `Custo por ${siglaRend || "unidade"}`,
+    valor: formatarPreco(custoPorUnidade),
+    bold: true,
+  });
+
+  const cardPad = 4;
+  const lineH = 5.2;
+  const cardH = cardPad * 2 + linhasCard.length * lineH + 2;
+  const cardY = y;
+
+  doc.setFillColor(...COR_CLOUD);
+  doc.roundedRect(marginX, cardY, pageW - marginX * 2, cardH, 2, 2, "F");
+  doc.setDrawColor(...COR_DOURADO);
+  doc.setLineWidth(0.6);
+  doc.roundedRect(marginX, cardY, pageW - marginX * 2, cardH, 2, 2, "S");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(...COR_DOURADO);
+  doc.text("RESUMO DE CUSTOS", marginX + cardPad, cardY + cardPad + 1);
+
+  let yCard = cardY + cardPad + 6;
+  for (const l of linhasCard) {
+    doc.setFont("helvetica", l.bold ? "bold" : "normal");
+    doc.setFontSize(l.bold ? 10 : 9);
+    doc.setTextColor(...COR_PRETO);
+    doc.text(l.label, marginX + cardPad, yCard);
+    doc.text(l.valor, pageW - marginX - cardPad, yCard, { align: "right" });
+    yCard += lineH;
+  }
+  y = cardY + cardH + 6;
 
   // ===== Modo de Preparo (compacto, ajusta fonte para caber na página) =====
   if (preparo.modo_preparo && preparo.modo_preparo.trim()) {
