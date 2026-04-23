@@ -273,7 +273,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   // Ingredientes
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
-  doc.setTextColor(...COR_PRETO);
+  doc.setTextColor(...COR_ROSE);
   doc.text("Ingredientes", marginX, y);
 
   if (ingredientes.length > 0) {
@@ -308,7 +308,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   if (embalagens.length > 0) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(...COR_PRETO);
+    doc.setTextColor(...COR_ROSE);
     doc.text("Embalagens", marginX, y);
 
     autoTable(doc, {
@@ -340,7 +340,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   if (linhasMaoObra.length > 0) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(...COR_PRETO);
+    doc.setTextColor(...COR_ROSE);
     doc.text("Mão de Obra", marginX, y);
 
     autoTable(doc, {
@@ -370,7 +370,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   if (despesas.length > 0) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(...COR_PRETO);
+    doc.setTextColor(...COR_ROSE);
     doc.text("Custos com Vendas", marginX, y);
 
     autoTable(doc, {
@@ -427,7 +427,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   // Título do card
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
-  doc.setTextColor(...COR_DOURADO);
+  doc.setTextColor(...COR_ROSE);
   doc.text("RESUMO DE CUSTOS", marginX + cardPad, cardY + cardPad + 1);
 
   let yCard = cardY + cardPad + 6;
