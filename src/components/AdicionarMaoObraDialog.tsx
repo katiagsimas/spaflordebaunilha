@@ -29,27 +29,34 @@ export function AdicionarMaoObraDialog({
   const [usarValorPadrao, setUsarValorPadrao] = useState(true);
   const [perfilId, setPerfilId] = useState<string>("");
   const [horas, setHoras] = useState("");
+  const [minutos, setMinutos] = useState("");
 
   useEffect(() => {
     if (maoObraEditando) {
       setUsarValorPadrao(maoObraEditando.usar_valor_padrao);
       setPerfilId(maoObraEditando.perfil_id || "");
-      setHoras(maoObraEditando.horas.toString());
+      const totalMin = Math.round((maoObraEditando.horas || 0) * 60);
+      setHoras(String(Math.floor(totalMin / 60)));
+      setMinutos(String(totalMin % 60));
     } else {
       setUsarValorPadrao(true);
       setPerfilId("");
       setHoras("");
+      setMinutos("");
     }
   }, [maoObraEditando, open]);
 
+  const horasInt = parseInt(horas, 10) || 0;
+  const minutosInt = parseInt(minutos, 10) || 0;
+  const horasDecimais = horasInt + minutosInt / 60;
+
   const handleSave = () => {
-    const horasNum = parseFloat(horas);
-    if (isNaN(horasNum) || horasNum <= 0) return;
+    if (horasDecimais <= 0 || minutosInt < 0 || minutosInt >= 60) return;
 
     onSave({
       usar_valor_padrao: usarValorPadrao,
       perfil_id: usarValorPadrao ? null : perfilId || null,
-      horas: horasNum,
+      horas: horasDecimais,
     });
     onOpenChange(false);
   };
