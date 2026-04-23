@@ -30,10 +30,21 @@ function nomeBackup(nomeCompleto: string): string {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
-  // Authorization: only callers with the shared CRON_SECRET (pg_cron job) may trigger
+  // Authorization: aceita CRON_SECRET (header x-cron-secret) OU Authorization Bearer
+  // (anon/service key) — pg_cron envia Authorization Bearer.
   const cronSecret = Deno.env.get("CRON_SECRET");
   const callerSecret = req.headers.get("x-cron-secret");
-  if (!cronSecret || callerSecret !== cronSecret) {
+  const authHeader = req.headers.get("authorization") || "";
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY") || "";
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+  const bearer = authHeader.toLowerCase().startsWith("bearer ")
+    ? authHeader.slice(7).trim()
+    : "";
+
+  const autorizadoPorSecret = !!cronSecret && callerSecret === cronSecret;
+  const autorizadoPorBearer = !!bearer && (bearer === anonKey || bearer === serviceKey);
+
+  if (!autorizadoPorSecret && !autorizadoPorBearer) {
     return new Response(JSON.stringify({ error: "Não autorizado" }), {
       status: 401,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
