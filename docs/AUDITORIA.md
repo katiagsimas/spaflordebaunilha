@@ -1,6 +1,16 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-10T21:00:00Z — Remoção periodicidade 7dias do Caixa Start
+> Última atualização: 2026-04-23T13:20:00Z — Upload de imagens da Ficha Técnica + PDF refinado
+
+---
+
+## FICHA TÉCNICA / PRÉ-PREPAROS — 2026-04-23 13:20 UTC (Upload + PDF)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 49 | Upload autenticado com feedback | ✅ | Ficha Técnica agora valida sessão antes do upload, exibe mensagens claras e mostra barra de progresso com estados enviando/concluído/erro. |
+| 50 | Tempo de preparo persistido | ✅ | Ficha Técnica e Pré-Preparo voltaram a salvar `tempo_preparo` a partir da soma das horas lançadas em mão de obra. |
+| 51 | PDF com placeholder e cabeçalho refinado | ✅ | Exportadores atualizados para manter layout em uma página, usar placeholder quando imagem falhar e aplicar títulos dourados com título principal em preto. |
 
 ---
 
