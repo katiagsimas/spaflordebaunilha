@@ -1,6 +1,14 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-23T19:35:00Z — Correção do tempo de preparo no PDF + ajuste de rótulo
+> Última atualização: 2026-04-23T22:30:00Z — Correção do agendamento de backup (autorização do cron)
+
+---
+
+## BACKUP AGENDADO — 2026-04-23 22:30 UTC (Cron 401)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 54 | Cron de backup retornando 401 | ✅ | A edge function `executar-backups-agendados` exigia o header `x-cron-secret`, mas o pg_cron envia apenas `Authorization: Bearer <anon_key>`. Resultado: nenhum backup automático rodava (ultimo_executado_em = NULL em todos os agendamentos). Função atualizada para aceitar tanto o `x-cron-secret` quanto o `Authorization Bearer` com a anon/service key. Backups pendentes executados manualmente. |
 
 ---
 
