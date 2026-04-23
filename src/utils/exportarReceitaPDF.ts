@@ -8,7 +8,7 @@ const COR_CLOUD: [number, number, number] = [245, 244, 241];
 const COR_PISTACHE: [number, number, number] = [191, 207, 184];
 const COR_DOURADO: [number, number, number] = [198, 168, 90];
 const COR_CINZA_TEXTO: [number, number, number] = [90, 90, 90];
-const COR_ROSE: [number, number, number] = [242, 140, 130]; // #F28C82
+const COR_PLACEHOLDER_BG: [number, number, number] = [235, 232, 226];
 
 const SECTION_GAP = 6; // espaço maior entre seções
 
@@ -53,6 +53,16 @@ async function carregarImagemComoDataURL(
   } catch {
     return null;
   }
+}
+
+function formatarTempoPreparo(totalMinutos: number) {
+  const minutos = Math.max(0, Math.round(Number(totalMinutos || 0)));
+  if (!minutos) return "—";
+  const horas = Math.floor(minutos / 60);
+  const minutosRestantes = minutos % 60;
+  if (horas && minutosRestantes) return `${horas}h ${minutosRestantes}min`;
+  if (horas) return `${horas}h`;
+  return `${minutosRestantes}min`;
 }
 
 export async function exportarReceitaPDF(receitaId: string) {
@@ -143,9 +153,10 @@ export async function exportarReceitaPDF(receitaId: string) {
 
   // Carregar imagens
   const imagensPaths = imagens.map((i: any) => i.url).filter((u: string) => !!u);
-  const imagensCarregadas = (
-    await Promise.all(imagensPaths.map((p: string) => carregarImagemComoDataURL(p)))
-  ).filter((i): i is NonNullable<typeof i> => !!i);
+  const imagensCarregadas = await Promise.all(
+    imagensPaths.map((p: string) => carregarImagemComoDataURL(p)),
+  );
+  const tempoPreparo = formatarTempoPreparo(Number((receita as any).tempo_preparo || 0));
 
   // ===== PDF =====
   const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
@@ -160,7 +171,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   doc.setFillColor(...COR_DOURADO);
   doc.rect(0, 18, pageW, 0.6, "F");
 
-  doc.setTextColor(...COR_ROSE);
+  doc.setTextColor(...COR_PRETO);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
   doc.text("Ficha Técnica", marginX, 11.5);
@@ -173,9 +184,9 @@ export async function exportarReceitaPDF(receitaId: string) {
 
   y = 24;
 
-  // Imagens lado a lado
-  if (imagensCarregadas.length > 0) {
-    const imgsRender = imagensCarregadas.slice(0, 4);
+  // Imagens lado a lado com placeholder quando houver falha
+  if (imagensPaths.length > 0) {
+    const imgsRender = imagensPaths.slice(0, 4).map((_, index) => imagensCarregadas[index] || null);
     const gap = 3;
     const larguraDisponivel = pageW - marginX * 2;
     const qtd = imgsRender.length;
@@ -185,27 +196,53 @@ export async function exportarReceitaPDF(receitaId: string) {
     let maiorAltura = 0;
 
     for (const img of imgsRender) {
-      const ratio = img.w / img.h;
-      let drawW = larguraCada;
-      let drawH = drawW / ratio;
-      if (drawH > alturaMax) {
-        drawH = alturaMax;
-        drawW = drawH * ratio;
+      if (img) {
+        const ratio = img.w / img.h;
+        let drawW = larguraCada;
+        let drawH = drawW / ratio;
+        if (drawH > alturaMax) {
+          drawH = alturaMax;
+          drawW = drawH * ratio;
+        }
+        const xCentered = xCursor + (larguraCada - drawW) / 2;
+        try {
+          doc.addImage(img.dataUrl, img.format, xCentered, y, drawW, drawH);
+          maiorAltura = Math.max(maiorAltura, drawH);
+        } catch {
+          doc.setFillColor(...COR_PLACEHOLDER_BG);
+          doc.roundedRect(xCursor, y, larguraCada, alturaMax, 2, 2, "F");
+          doc.setDrawColor(...COR_DOURADO);
+          doc.roundedRect(xCursor, y, larguraCada, alturaMax, 2, 2, "S");
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(8);
+          doc.setTextColor(...COR_CINZA_TEXTO);
+          doc.text("Imagem indisponível", xCursor + larguraCada / 2, y + alturaMax / 2, {
+            align: "center",
+            baseline: "middle",
+          });
+          maiorAltura = Math.max(maiorAltura, alturaMax);
+        }
+      } else {
+        doc.setFillColor(...COR_PLACEHOLDER_BG);
+        doc.roundedRect(xCursor, y, larguraCada, alturaMax, 2, 2, "F");
+        doc.setDrawColor(...COR_DOURADO);
+        doc.roundedRect(xCursor, y, larguraCada, alturaMax, 2, 2, "S");
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(...COR_CINZA_TEXTO);
+        doc.text("Imagem indisponível", xCursor + larguraCada / 2, y + alturaMax / 2, {
+          align: "center",
+          baseline: "middle",
+        });
+        maiorAltura = Math.max(maiorAltura, alturaMax);
       }
-      const xCentered = xCursor + (larguraCada - drawW) / 2;
-      try {
-        doc.addImage(img.dataUrl, img.format, xCentered, y, drawW, drawH);
-      } catch {
-        /* ignore */
-      }
-      maiorAltura = Math.max(maiorAltura, drawH);
       xCursor += larguraCada + gap;
     }
     y += maiorAltura + 9;
   }
 
   // Nome + categoria
-  doc.setTextColor(...COR_PRETO);
+  doc.setTextColor(...COR_DOURADO);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
   const nomeLinhas = doc.splitTextToSize(receita.nome || "—", pageW - marginX * 2);
@@ -227,7 +264,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   doc.line(marginX, y, pageW - marginX, y);
   y += 6;
 
-  // Meta (3 colunas: tempo, rendimento, valor venda) — removido custo do header (vai no card)
+  // Meta em 3 colunas: tempo, rendimento e valor de venda
   const metaRender = (label: string, valor: string, x: number, w: number) => {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
@@ -240,12 +277,13 @@ export async function exportarReceitaPDF(receitaId: string) {
     doc.text(linhasV[0] || "—", x, y + 4);
   };
 
-  const colW = (pageW - marginX * 2) / 2;
+  const colW = (pageW - marginX * 2) / 3;
   const rendimento = receita.rendimento
     ? `${Number(receita.rendimento).toLocaleString("pt-BR")} ${siglaRend}`.trim()
     : "—";
-  metaRender("Rendimento", rendimento, marginX, colW);
-  metaRender("Valor de Venda", formatarPreco(valorVenda), marginX + colW, colW);
+  metaRender("Tempo de Preparo", tempoPreparo, marginX, colW);
+  metaRender("Rendimento", rendimento, marginX + colW, colW);
+  metaRender("Valor de Venda", formatarPreco(valorVenda), marginX + colW * 2, colW);
   y += 10;
 
   doc.setDrawColor(...COR_PISTACHE);
@@ -273,7 +311,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   // Ingredientes
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
-  doc.setTextColor(...COR_ROSE);
+  doc.setTextColor(...COR_DOURADO);
   doc.text("Ingredientes", marginX, y);
 
   if (ingredientes.length > 0) {
@@ -308,7 +346,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   if (embalagens.length > 0) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(...COR_ROSE);
+    doc.setTextColor(...COR_DOURADO);
     doc.text("Embalagens", marginX, y);
 
     autoTable(doc, {
@@ -340,7 +378,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   if (linhasMaoObra.length > 0) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(...COR_ROSE);
+    doc.setTextColor(...COR_DOURADO);
     doc.text("Mão de Obra", marginX, y);
 
     autoTable(doc, {
@@ -370,7 +408,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   if (despesas.length > 0) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(...COR_ROSE);
+    doc.setTextColor(...COR_DOURADO);
     doc.text("Custos com Vendas", marginX, y);
 
     autoTable(doc, {
@@ -427,7 +465,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   // Título do card
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
-  doc.setTextColor(...COR_ROSE);
+  doc.setTextColor(...COR_DOURADO);
   doc.text("RESUMO DE CUSTOS", marginX + cardPad, cardY + cardPad + 1);
 
   let yCard = cardY + cardPad + 6;
@@ -445,7 +483,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   if (receita.modo_preparo && String(receita.modo_preparo).trim()) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(...COR_ROSE);
+    doc.setTextColor(...COR_DOURADO);
     doc.text("Modo de Preparo", marginX, y);
     y += 5;
 

@@ -15,6 +15,7 @@ import { MaoObraSection, type MaoObraLinha } from "@/components/MaoObraSection";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -117,6 +118,16 @@ interface Receita {
   outrosGastosPersonalizados?: Array<{ id: string; nome: string; valor: number }>;
   despesasVenda?: Array<{ id: string; nome: string; percentual: number; valor: number }>;
   imagens?: string[];
+}
+
+type UploadImagemStatus = "enviando" | "concluído" | "erro";
+
+interface UploadImagemItem {
+  id: string;
+  nome: string;
+  progresso: number;
+  status: UploadImagemStatus;
+  mensagem?: string;
 }
 
 export default function ReceitaForm() {
@@ -248,6 +259,8 @@ export default function ReceitaForm() {
   const [embalagens, setEmbalagens] = useState<EmbalagemReceita[]>([]);
   const [modoPreparo, setModoPreparo] = useState("");
   const [imagens, setImagens] = useState<string[]>([]);
+  const [uploadsImagem, setUploadsImagem] = useState<UploadImagemItem[]>([]);
+  const [imagensComErroPreview, setImagensComErroPreview] = useState<string[]>([]);
   
   // Estados para cadastro em cadeia de ingredientes
   const [mostrarPopoverIngrediente, setMostrarPopoverIngrediente] = useState(false);
@@ -516,21 +529,100 @@ export default function ReceitaForm() {
     setEmbalagens(embalagens.filter((_, i) => i !== index));
   };
 
+  const obterMensagemErroUpload = (mensagem?: string) => {
+    const texto = (mensagem || "").toLowerCase();
+
+    if (
+      texto.includes("row-level security") ||
+      texto.includes("new row violates row-level security policy")
+    ) {
+      return "Sua sessão não tem permissão para enviar imagens agora. Atualize a página e faça login novamente antes de tentar.";
+    }
+
+    if (texto.includes("jwt") || texto.includes("auth") || texto.includes("token")) {
+      return "Sua autenticação expirou. Faça login novamente antes de enviar imagens.";
+    }
+
+    return mensagem || "Não foi possível enviar a imagem.";
+  };
+
+  const atualizarUploadImagem = (uploadId: string, dados: Partial<UploadImagemItem>) => {
+    setUploadsImagem((prev) =>
+      prev.map((item) => (item.id === uploadId ? { ...item, ...dados } : item)),
+    );
+  };
+
+  const obterSrcImagemReceita = (imagem: string) => {
+    if (imagem.startsWith("data:") || /^https?:\/\//i.test(imagem)) {
+      return imagem;
+    }
+
+    const { data } = supabase.storage.from("receitas").getPublicUrl(imagem);
+    return data.publicUrl;
+  };
+
+  const handleErroPreviewImagem = (imagem: string) => {
+    setImagensComErroPreview((prev) =>
+      prev.includes(imagem) ? prev : [...prev, imagem],
+    );
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files) return;
+    if (!files?.length) return;
 
-    const { data: { user } } = await supabase.auth.getUser();
-    const userId = user?.id;
+    const arquivos = Array.from(files);
+    const { data: { session } } = await supabase.auth.getSession();
+    const userId = session?.user?.id;
+
     if (!userId) {
-      toast.error('Usuário não autenticado');
+      toast.error("Sua sessão expirou ou você não está autenticada. Faça login novamente antes de enviar imagens.");
+      e.target.value = "";
       return;
     }
 
+    const uploadsIniciais: UploadImagemItem[] = arquivos.map((file, index) => ({
+      id: `${Date.now()}-${index}-${file.name}`,
+      nome: file.name,
+      progresso: 8,
+      status: "enviando",
+      mensagem: id ? "Enviando imagem..." : "Preparando imagem para salvar...",
+    }));
+
+    setUploadsImagem((prev) => [...uploadsIniciais, ...prev].slice(0, 8));
+
     // Se já existe uma receita (está editando), podemos fazer upload imediatamente
     // Se não existe, salvaremos os arquivos temporariamente e faremos upload ao salvar
-    const uploadPromises = Array.from(files).map(async (file) => {
-      if (!file.type.startsWith('image/')) return null;
+    const uploadPromises = arquivos.map(async (file, index) => {
+      const uploadId = uploadsIniciais[index].id;
+
+      if (!file.type.startsWith("image/")) {
+        atualizarUploadImagem(uploadId, {
+          status: "erro",
+          progresso: 100,
+          mensagem: "Arquivo ignorado: selecione apenas imagens.",
+        });
+        return null;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        atualizarUploadImagem(uploadId, {
+          status: "erro",
+          progresso: 100,
+          mensagem: "Arquivo acima de 5MB. Reduza a imagem antes de enviar.",
+        });
+        return null;
+      }
+
+      const timer = window.setInterval(() => {
+        setUploadsImagem((prev) =>
+          prev.map((item) =>
+            item.id === uploadId && item.status === "enviando"
+              ? { ...item, progresso: Math.min(item.progresso + 12, 90) }
+              : item,
+          ),
+        );
+      }, 250);
 
       try {
         // Se está editando uma receita existente, fazer upload imediatamente
@@ -542,20 +634,28 @@ export default function ReceitaForm() {
 
           const { error: uploadError } = await supabase.storage
             .from('receitas')
-            .upload(path, file, { upsert: false });
+            .upload(path, file, {
+              upsert: false,
+              cacheControl: '3600',
+              contentType: file.type,
+            });
 
           if (uploadError) {
-            console.error('Erro ao fazer upload:', uploadError);
-            toast.error(`Erro ao fazer upload da imagem: ${uploadError.message}`);
-            return null;
+            throw uploadError;
           }
+
+          atualizarUploadImagem(uploadId, {
+            status: "concluído",
+            progresso: 100,
+            mensagem: "Imagem enviada com sucesso.",
+          });
 
           // Retornar o path para adicionar ao estado
           return path;
         } else {
           // Se está criando nova receita, guardar o arquivo em base64 temporariamente
           // Será convertido para Storage após criar a receita
-          return new Promise<string>((resolve) => {
+          const imagemBase64 = await new Promise<string>((resolve) => {
             const reader = new FileReader();
             reader.onload = (event) => {
               if (event.target?.result) {
@@ -564,10 +664,28 @@ export default function ReceitaForm() {
             };
             reader.readAsDataURL(file);
           });
+
+          atualizarUploadImagem(uploadId, {
+            status: "concluído",
+            progresso: 100,
+            mensagem: "Imagem pronta para salvar na ficha técnica.",
+          });
+
+          return imagemBase64;
         }
-      } catch (error) {
+      } catch (error: any) {
+        const mensagem = obterMensagemErroUpload(error?.message);
+
         console.error('Erro ao processar imagem:', error);
+        atualizarUploadImagem(uploadId, {
+          status: "erro",
+          progresso: 100,
+          mensagem,
+        });
+        toast.error(mensagem);
         return null;
+      } finally {
+        window.clearInterval(timer);
       }
     });
 
@@ -575,11 +693,16 @@ export default function ReceitaForm() {
     const validUrls = urls.filter((url): url is string => url !== null);
     
     if (validUrls.length > 0) {
+      setImagensComErroPreview([]);
       setImagens(prev => [...prev, ...validUrls]);
       if (id) {
         toast.success(`${validUrls.length} imagem(ns) adicionada(s) com sucesso`);
+      } else {
+        toast.success(`${validUrls.length} imagem(ns) pronta(s) para salvar`);
       }
     }
+
+    e.target.value = "";
   };
 
   const handleRemoveImage = async (index: number) => {
@@ -602,6 +725,7 @@ export default function ReceitaForm() {
       }
     }
     
+    setImagensComErroPreview((prev) => prev.filter((item) => item !== imagemUrl));
     setImagens(imagens.filter((_, i) => i !== index));
   };
 
@@ -736,7 +860,7 @@ export default function ReceitaForm() {
         categoria: formData.categoria || null,
         tipo: formData.tipo,
         cardapio: formData.cardapio,
-        tempo_preparo: 0, // Mantém campo por compatibilidade mas não usa mais
+        tempo_preparo: Math.round(totalHoras * 60),
         unidade_tempo: "minutos",
         rendimento: Number(formData.rendimento),
         unidade_rendimento: formData.unidadeRendimentoId,
@@ -1401,11 +1525,18 @@ export default function ReceitaForm() {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {imagens.map((imagem, index) => (
                   <div key={index} className="relative group">
-                    <img 
-                      src={imagem} 
-                      alt={`Imagem ${index + 1}`} 
-                      className="w-full h-40 object-cover rounded-lg border-2 border-border"
-                    />
+                    {imagensComErroPreview.includes(imagem) ? (
+                      <div className="flex h-40 w-full items-center justify-center rounded-lg border-2 border-dashed border-border bg-muted px-3 text-center text-sm text-muted-foreground">
+                        Imagem indisponível para visualização
+                      </div>
+                    ) : (
+                      <img
+                        src={obterSrcImagemReceita(imagem)}
+                        alt={`Imagem ${index + 1}`}
+                        className="w-full h-40 object-cover rounded-lg border-2 border-border"
+                        onError={() => handleErroPreviewImagem(imagem)}
+                      />
+                    )}
                     <Button
                       type="button"
                       variant="destructive"
@@ -1434,6 +1565,45 @@ export default function ReceitaForm() {
                   />
                 </label>
               </div>
+
+              {uploadsImagem.length > 0 && (
+                <div className="space-y-3 rounded-lg border bg-muted/30 p-4">
+                  {uploadsImagem.map((upload) => (
+                    <div key={upload.id} className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-3 text-sm">
+                        <span className="truncate font-medium">{upload.nome}</span>
+                        <span
+                          className={
+                            upload.status === "erro"
+                              ? "text-destructive"
+                              : upload.status === "concluído"
+                                ? "text-primary"
+                                : "text-muted-foreground"
+                          }
+                        >
+                          {upload.status === "enviando"
+                            ? "enviando"
+                            : upload.status === "concluído"
+                              ? "concluído"
+                              : "erro"}
+                        </span>
+                      </div>
+                      <Progress value={upload.progresso} className="h-2" />
+                      {upload.mensagem && (
+                        <p
+                          className={
+                            upload.status === "erro"
+                              ? "text-xs text-destructive"
+                              : "text-xs text-muted-foreground"
+                          }
+                        >
+                          {upload.mensagem}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

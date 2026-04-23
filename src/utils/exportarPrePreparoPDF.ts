@@ -8,7 +8,7 @@ const COR_CLOUD: [number, number, number] = [245, 244, 241];
 const COR_PISTACHE: [number, number, number] = [191, 207, 184];
 const COR_DOURADO: [number, number, number] = [198, 168, 90];
 const COR_CINZA_TEXTO: [number, number, number] = [90, 90, 90];
-const COR_ROSE: [number, number, number] = [242, 140, 130]; // #F28C82
+const COR_PLACEHOLDER_BG: [number, number, number] = [235, 232, 226];
 
 const formatarPreco = (v: number) =>
   (v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -133,6 +133,12 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     (preparo as any).rendimento_unidade?.sigla ||
     (preparo as any).rendimento_unidade?.nome ||
     "";
+  const tempoPreparo = Number((preparo as any).tempo_preparo || 0);
+  const tempoPreparoFormatado = tempoPreparo
+    ? tempoPreparo >= 60
+      ? `${Math.floor(tempoPreparo / 60)}h${tempoPreparo % 60 ? ` ${tempoPreparo % 60}min` : ""}`
+      : `${tempoPreparo}min`
+    : "—";
 
   // Carregar imagens do pré-preparo (até 2)
   const imagensPaths = [
@@ -140,9 +146,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     (preparo as any).imagem_2_url,
   ].filter((p): p is string => !!p && typeof p === "string");
 
-  const imagensCarregadas = (
-    await Promise.all(imagensPaths.map((p) => carregarImagemComoDataURL(p)))
-  ).filter((i): i is NonNullable<typeof i> => !!i);
+  const imagensCarregadas = await Promise.all(imagensPaths.map((p) => carregarImagemComoDataURL(p)));
 
   // ===== Construir PDF =====
   const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
@@ -157,7 +161,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
   doc.setFillColor(...COR_DOURADO);
   doc.rect(0, 18, pageW, 0.6, "F");
 
-  doc.setTextColor(...COR_ROSE);
+  doc.setTextColor(...COR_PRETO);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
   doc.text("Ficha de Pré-Preparo", marginX, 11.5);
@@ -171,32 +175,53 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
   y = 24;
 
   // Imagens lado a lado, a partir do canto superior esquerdo
-  const temImagens = imagensCarregadas.length > 0;
+  const temImagens = imagensPaths.length > 0;
   let yAposImagens = y;
   if (temImagens) {
     const gap = 3;
     const larguraDisponivel = pageW - marginX * 2;
-    const qtd = imagensCarregadas.length;
+    const qtd = imagensPaths.length;
     const larguraCada = (larguraDisponivel - gap * (qtd - 1)) / qtd;
     const alturaMax = 42;
     let xCursor = marginX;
     let maiorAltura = 0;
 
-    for (const img of imagensCarregadas) {
-      const ratio = img.w / img.h;
-      let drawW = larguraCada;
-      let drawH = drawW / ratio;
-      if (drawH > alturaMax) {
-        drawH = alturaMax;
-        drawW = drawH * ratio;
+    for (let index = 0; index < imagensPaths.length; index++) {
+      const img = imagensCarregadas[index];
+      if (img) {
+        const ratio = img.w / img.h;
+        let drawW = larguraCada;
+        let drawH = drawW / ratio;
+        if (drawH > alturaMax) {
+          drawH = alturaMax;
+          drawW = drawH * ratio;
+        }
+        const xCentered = xCursor + (larguraCada - drawW) / 2;
+        try {
+          doc.addImage(img.dataUrl, img.format, xCentered, y, drawW, drawH);
+          maiorAltura = Math.max(maiorAltura, drawH);
+        } catch {
+          doc.setFillColor(...COR_PLACEHOLDER_BG);
+          doc.roundedRect(xCursor, y, larguraCada, alturaMax, 2, 2, "F");
+          doc.setDrawColor(...COR_DOURADO);
+          doc.roundedRect(xCursor, y, larguraCada, alturaMax, 2, 2, "S");
+          doc.setTextColor(...COR_CINZA_TEXTO);
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(8);
+          doc.text("Imagem indisponível", xCursor + larguraCada / 2, y + alturaMax / 2, { align: "center", baseline: "middle" });
+          maiorAltura = Math.max(maiorAltura, alturaMax);
+        }
+      } else {
+        doc.setFillColor(...COR_PLACEHOLDER_BG);
+        doc.roundedRect(xCursor, y, larguraCada, alturaMax, 2, 2, "F");
+        doc.setDrawColor(...COR_DOURADO);
+        doc.roundedRect(xCursor, y, larguraCada, alturaMax, 2, 2, "S");
+        doc.setTextColor(...COR_CINZA_TEXTO);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.text("Imagem indisponível", xCursor + larguraCada / 2, y + alturaMax / 2, { align: "center", baseline: "middle" });
+        maiorAltura = Math.max(maiorAltura, alturaMax);
       }
-      const xCentered = xCursor + (larguraCada - drawW) / 2;
-      try {
-        doc.addImage(img.dataUrl, img.format, xCentered, y, drawW, drawH);
-      } catch {
-        /* silencia falha de imagem isolada */
-      }
-      maiorAltura = Math.max(maiorAltura, drawH);
       xCursor += larguraCada + gap;
     }
     yAposImagens = y + maiorAltura + 9;
@@ -205,7 +230,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
   y = yAposImagens;
 
   // Nome (largura total) e categoria abaixo das imagens
-  doc.setTextColor(...COR_PRETO);
+  doc.setTextColor(...COR_DOURADO);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
   const nomeLinhas = doc.splitTextToSize(preparo.nome || "—", pageW - marginX * 2);
@@ -241,13 +266,14 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     doc.text(valor, x, y + 4);
   };
 
-  const colW = (pageW - marginX * 2) / 2;
+  const colW = (pageW - marginX * 2) / 3;
+  metaRender("Tempo de Preparo", tempoPreparoFormatado, marginX);
   metaRender(
     "Rendimento",
     `${rendimento.toLocaleString("pt-BR")} ${siglaRend}`,
-    marginX,
+    marginX + colW,
   );
-  metaRender("Custo Total", formatarPreco(custoTotal), marginX + colW);
+  metaRender("Custo Total", formatarPreco(custoTotal), marginX + colW * 2);
   y += 10;
 
   doc.setDrawColor(...COR_PISTACHE);
@@ -257,7 +283,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
   // ===== Tabela de Ingredientes =====
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
-  doc.setTextColor(...COR_ROSE);
+  doc.setTextColor(...COR_DOURADO);
   doc.text("Ingredientes", marginX, y);
 
   const linhasIng = ingredientes.map((item: any) => {
@@ -314,7 +340,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
   if (linhasMaoObra.length > 0) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(...COR_ROSE);
+    doc.setTextColor(...COR_DOURADO);
     doc.text("Mão de Obra", marginX, y);
 
     autoTable(doc, {
@@ -384,7 +410,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
-  doc.setTextColor(...COR_ROSE);
+  doc.setTextColor(...COR_DOURADO);
   doc.text("RESUMO DE CUSTOS", marginX + cardPad, cardY + cardPad + 1);
 
   let yCard = cardY + cardPad + 6;
@@ -403,7 +429,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     y += 2;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(...COR_ROSE);
+    doc.setTextColor(...COR_DOURADO);
     doc.text("Modo de Preparo", marginX, y);
     y += 4;
 

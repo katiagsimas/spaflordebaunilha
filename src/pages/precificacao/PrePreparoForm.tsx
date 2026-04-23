@@ -602,12 +602,14 @@ export default function PrePreparoForm() {
         url2 = await uploadImagem(imagem2, 2) || url2;
       }
 
+      const totalHorasMaoObra = maosObra.reduce((sum, mo) => sum + Number(mo.horas || 0), 0);
+
       // Salvar pré-preparo
       const dadosPrePreparo = {
         usuario_id: user.id,
         nome: nome.trim(),
         categoria_id: categoriaId || null,
-        tempo_preparo: 0,
+        tempo_preparo: Math.round(totalHorasMaoObra * 60),
         tempo_preparo_unidade: 'minutos',
         rendimento_quantidade: rendimento,
         rendimento_unidade_id: rendimentoUnidadeId,
