@@ -451,7 +451,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
   doc.setTextColor(...COR_CINZA_TEXTO);
-  doc.text("Caixa de Açúcar — Ficha de Pré-Preparo", marginX, pageH - 5);
+  doc.text("Caixa de Açúcar by Umbrella Doce", marginX, pageH - 5);
   doc.text("Página 1 de 1", pageW - marginX, pageH - 5, { align: "right" });
 
   const slug = (preparo.nome || "pre-preparo")
