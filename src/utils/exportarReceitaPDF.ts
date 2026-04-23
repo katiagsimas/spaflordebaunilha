@@ -445,7 +445,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   if (receita.modo_preparo && String(receita.modo_preparo).trim()) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(...COR_PRETO);
+    doc.setTextColor(...COR_ROSE);
     doc.text("Modo de Preparo", marginX, y);
     y += 5;
 
