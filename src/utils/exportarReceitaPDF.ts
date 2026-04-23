@@ -9,8 +9,13 @@ const COR_PISTACHE: [number, number, number] = [191, 207, 184];
 const COR_DOURADO: [number, number, number] = [198, 168, 90];
 const COR_CINZA_TEXTO: [number, number, number] = [90, 90, 90];
 
+const SECTION_GAP = 6; // espaço maior entre seções
+
 const formatarPreco = (v: number) =>
   (v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+const isUUID = (v: string | null | undefined) =>
+  !!v && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
 
 async function carregarImagemComoDataURL(
   urlOuPath: string,
@@ -61,18 +66,9 @@ export async function exportarReceitaPDF(receitaId: string) {
   }
 
   const [ingRes, embRes, despRes, imgRes, moRes] = await Promise.all([
-    supabase
-      .from("receitas_ingredientes")
-      .select("*")
-      .eq("receita_id", receitaId),
-    supabase
-      .from("receitas_embalagens")
-      .select("*")
-      .eq("receita_id", receitaId),
-    supabase
-      .from("receitas_despesas_venda")
-      .select("*")
-      .eq("receita_id", receitaId),
+    supabase.from("receitas_ingredientes").select("*").eq("receita_id", receitaId),
+    supabase.from("receitas_embalagens").select("*").eq("receita_id", receitaId),
+    supabase.from("receitas_despesas_venda").select("*").eq("receita_id", receitaId),
     supabase
       .from("receitas_imagens")
       .select("*")
@@ -89,6 +85,17 @@ export async function exportarReceitaPDF(receitaId: string) {
   const despesas = despRes.data || [];
   const imagens = imgRes.data || [];
   const maosObra = moRes.data || [];
+
+  // Resolver sigla de rendimento (caso venha um UUID)
+  let siglaRend = (receita as any).unidade_rendimento || "";
+  if (isUUID(siglaRend)) {
+    const { data: uniRend } = await supabase
+      .from("unidades_medida")
+      .select("sigla, nome")
+      .eq("id", siglaRend)
+      .maybeSingle();
+    siglaRend = uniRend?.sigla || uniRend?.nome || "";
+  }
 
   const { data: perfilPadrao } = await supabase
     .from("mao_obra_perfis")
@@ -122,8 +129,9 @@ export async function exportarReceitaPDF(receitaId: string) {
   });
   const custoMaoObra = linhasMaoObra.reduce((s, l) => s + l.total, 0);
 
-  const custoProducao =
-    Number(receita.custo_total ?? custoIngredientes + custoEmbalagens + custoMaoObra);
+  const custoProducao = Number(
+    receita.custo_total ?? custoIngredientes + custoEmbalagens + custoMaoObra,
+  );
   const valorVenda = Number(receita.valor_venda || 0);
   const totalDespesasVenda = despesas.reduce(
     (s, d: any) => s + Number(d.valor || 0),
@@ -133,9 +141,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   const margemPct = valorVenda > 0 ? (lucro / valorVenda) * 100 : 0;
 
   // Carregar imagens
-  const imagensPaths = imagens
-    .map((i: any) => i.url)
-    .filter((u: string) => !!u);
+  const imagensPaths = imagens.map((i: any) => i.url).filter((u: string) => !!u);
   const imagensCarregadas = (
     await Promise.all(imagensPaths.map((p: string) => carregarImagemComoDataURL(p)))
   ).filter((i): i is NonNullable<typeof i> => !!i);
@@ -166,7 +172,7 @@ export async function exportarReceitaPDF(receitaId: string) {
 
   y = 24;
 
-  // Imagens lado a lado a partir do canto superior esquerdo
+  // Imagens lado a lado
   if (imagensCarregadas.length > 0) {
     const imgsRender = imagensCarregadas.slice(0, 4);
     const gap = 3;
@@ -218,10 +224,10 @@ export async function exportarReceitaPDF(receitaId: string) {
   doc.setDrawColor(...COR_PISTACHE);
   doc.setLineWidth(0.3);
   doc.line(marginX, y, pageW - marginX, y);
-  y += 5;
+  y += 6;
 
-  // Meta (4 colunas: tempo, rendimento, valor venda, custo produção)
-  const metaRender = (label: string, valor: string, x: number) => {
+  // Meta (3 colunas: tempo, rendimento, valor venda) — removido custo do header (vai no card)
+  const metaRender = (label: string, valor: string, x: number, w: number) => {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
     doc.setTextColor(...COR_CINZA_TEXTO);
@@ -229,25 +235,25 @@ export async function exportarReceitaPDF(receitaId: string) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.setTextColor(...COR_PRETO);
-    doc.text(valor, x, y + 4);
+    const linhasV = doc.splitTextToSize(valor, w - 2);
+    doc.text(linhasV[0] || "—", x, y + 4);
   };
 
-  const colW = (pageW - marginX * 2) / 4;
+  const colW = (pageW - marginX * 2) / 3;
   const tempo = receita.tempo_preparo
     ? `${receita.tempo_preparo} ${receita.unidade_tempo || ""}`.trim()
     : "—";
   const rendimento = receita.rendimento
-    ? `${Number(receita.rendimento).toLocaleString("pt-BR")} ${receita.unidade_rendimento || ""}`.trim()
+    ? `${Number(receita.rendimento).toLocaleString("pt-BR")} ${siglaRend}`.trim()
     : "—";
-  metaRender("Tempo de Preparo", tempo, marginX);
-  metaRender("Rendimento", rendimento, marginX + colW);
-  metaRender("Valor de Venda", formatarPreco(valorVenda), marginX + colW * 2);
-  metaRender("Custo Produção", formatarPreco(custoProducao), marginX + colW * 3);
-  y += 9;
+  metaRender("Tempo de Preparo", tempo, marginX, colW);
+  metaRender("Rendimento", rendimento, marginX + colW, colW);
+  metaRender("Valor de Venda", formatarPreco(valorVenda), marginX + colW * 2, colW);
+  y += 10;
 
   doc.setDrawColor(...COR_PISTACHE);
   doc.line(marginX, y, pageW - marginX, y);
-  y += 5;
+  y += SECTION_GAP;
 
   // Estilos comuns das tabelas
   const styleBase = {
@@ -279,7 +285,7 @@ export async function exportarReceitaPDF(receitaId: string) {
       head: [["Ingrediente", "Quantidade", "Custo"]],
       body: ingredientes.map((i: any) => [
         i.ingrediente || "—",
-        `${Number(i.quantidade_utilizada || 0).toLocaleString("pt-BR")}`,
+        `${Number(i.quantidade_utilizada || 0).toLocaleString("pt-BR")} ${i.unidade_medida || ""}`.trim(),
         formatarPreco(Number(i.custo_receita || 0)),
       ]),
       theme: "plain",
@@ -288,22 +294,21 @@ export async function exportarReceitaPDF(receitaId: string) {
       headStyles: headBase,
       columnStyles: {
         0: { cellWidth: "auto" },
-        1: { cellWidth: 32, halign: "right" },
+        1: { cellWidth: 36, halign: "right" },
         2: { cellWidth: 28, halign: "right" },
       },
     });
-    y = (doc as any).lastAutoTable.finalY + 2;
+    y = (doc as any).lastAutoTable.finalY + SECTION_GAP;
   } else {
     doc.setFont("helvetica", "italic");
     doc.setFontSize(8);
     doc.setTextColor(...COR_CINZA_TEXTO);
     doc.text("Nenhum ingrediente.", marginX, y + 5);
-    y += 8;
+    y += 8 + SECTION_GAP;
   }
 
   // Embalagens
   if (embalagens.length > 0) {
-    y += 1;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.setTextColor(...COR_PRETO);
@@ -312,27 +317,30 @@ export async function exportarReceitaPDF(receitaId: string) {
     autoTable(doc, {
       startY: y + 2,
       head: [["Embalagem", "Quantidade", "Custo"]],
-      body: embalagens.map((e: any) => [
-        e.ingrediente || "—",
-        `${Number(e.quantidade_utilizada || 0).toLocaleString("pt-BR")}`,
-        formatarPreco(Number(e.custo_receita || 0)),
-      ]),
+      body: embalagens.map((e: any) => {
+        const nome = e.embalagem || "—";
+        const marca = e.marca ? ` — ${e.marca}` : "";
+        return [
+          `${nome}${marca}`,
+          `${Number(e.quantidade_utilizada || 0).toLocaleString("pt-BR")} ${e.unidade_medida || ""}`.trim(),
+          formatarPreco(Number(e.custo_receita || 0)),
+        ];
+      }),
       theme: "plain",
       margin: { left: marginX, right: marginX },
       styles: styleBase,
       headStyles: headBase,
       columnStyles: {
         0: { cellWidth: "auto" },
-        1: { cellWidth: 32, halign: "right" },
+        1: { cellWidth: 36, halign: "right" },
         2: { cellWidth: 28, halign: "right" },
       },
     });
-    y = (doc as any).lastAutoTable.finalY + 2;
+    y = (doc as any).lastAutoTable.finalY + SECTION_GAP;
   }
 
   // Mão de Obra
   if (linhasMaoObra.length > 0) {
-    y += 1;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.setTextColor(...COR_PRETO);
@@ -358,12 +366,11 @@ export async function exportarReceitaPDF(receitaId: string) {
         3: { cellWidth: 28, halign: "right" },
       },
     });
-    y = (doc as any).lastAutoTable.finalY + 2;
+    y = (doc as any).lastAutoTable.finalY + SECTION_GAP;
   }
 
   // Despesas de Venda
   if (despesas.length > 0) {
-    y += 1;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.setTextColor(...COR_PRETO);
@@ -387,44 +394,63 @@ export async function exportarReceitaPDF(receitaId: string) {
         2: { cellWidth: 28, halign: "right" },
       },
     });
-    y = (doc as any).lastAutoTable.finalY + 2;
+    y = (doc as any).lastAutoTable.finalY + SECTION_GAP;
   }
 
-  // Resumo
-  y += 2;
-  doc.setDrawColor(...COR_DOURADO);
-  doc.setLineWidth(0.4);
-  doc.line(marginX, y, pageW - marginX, y);
-  y += 4;
-
-  const linhaResumo = (label: string, valor: string, bold = false) => {
-    doc.setFont("helvetica", bold ? "bold" : "normal");
-    doc.setFontSize(bold ? 9.5 : 8.5);
-    doc.setTextColor(...COR_PRETO);
-    doc.text(label, marginX, y);
-    doc.text(valor, pageW - marginX, y, { align: "right" });
-    y += bold ? 5 : 4.2;
-  };
-
-  linhaResumo("Custo de produção", formatarPreco(custoProducao));
+  // ===== Card de Resumo (borda dourada) =====
+  const linhasCard: { label: string; valor: string; bold?: boolean }[] = [
+    { label: "Custo de produção", valor: formatarPreco(custoProducao) },
+  ];
   if (totalDespesasVenda > 0) {
-    linhaResumo("Custos com vendas", formatarPreco(totalDespesasVenda));
+    linhasCard.push({
+      label: "Custos com vendas",
+      valor: formatarPreco(totalDespesasVenda),
+    });
   }
-  linhaResumo("Valor de venda", formatarPreco(valorVenda), true);
-  linhaResumo(
-    `Lucro (${margemPct.toFixed(1)}%)`,
-    formatarPreco(lucro),
-    true,
-  );
+  linhasCard.push({ label: "Valor de venda", valor: formatarPreco(valorVenda), bold: true });
+  linhasCard.push({
+    label: `Lucro (${margemPct.toFixed(1)}%)`,
+    valor: formatarPreco(lucro),
+    bold: true,
+  });
+
+  const cardPad = 4;
+  const lineH = 5.2;
+  const cardH = cardPad * 2 + linhasCard.length * lineH + 2;
+  const cardY = y;
+
+  // Sombra suave do card (cloud)
+  doc.setFillColor(...COR_CLOUD);
+  doc.roundedRect(marginX, cardY, pageW - marginX * 2, cardH, 2, 2, "F");
+  // Borda dourada
+  doc.setDrawColor(...COR_DOURADO);
+  doc.setLineWidth(0.6);
+  doc.roundedRect(marginX, cardY, pageW - marginX * 2, cardH, 2, 2, "S");
+
+  // Título do card
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(...COR_DOURADO);
+  doc.text("RESUMO DE CUSTOS", marginX + cardPad, cardY + cardPad + 1);
+
+  let yCard = cardY + cardPad + 6;
+  for (const l of linhasCard) {
+    doc.setFont("helvetica", l.bold ? "bold" : "normal");
+    doc.setFontSize(l.bold ? 10 : 9);
+    doc.setTextColor(...COR_PRETO);
+    doc.text(l.label, marginX + cardPad, yCard);
+    doc.text(l.valor, pageW - marginX - cardPad, yCard, { align: "right" });
+    yCard += lineH;
+  }
+  y = cardY + cardH + SECTION_GAP;
 
   // Modo de preparo
   if (receita.modo_preparo && String(receita.modo_preparo).trim()) {
-    y += 2;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.setTextColor(...COR_PRETO);
     doc.text("Modo de Preparo", marginX, y);
-    y += 4;
+    y += 5;
 
     const espacoDisponivel = pageH - 14 - y;
     let fontSize = 9;
@@ -463,7 +489,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
   doc.setTextColor(...COR_CINZA_TEXTO);
-  doc.text("Caixa de Açúcar — Ficha Técnica", marginX, pageH - 5);
+  doc.text("Caixa de Açúcar by Umbrella Doce", marginX, pageH - 5);
   doc.text("Página 1 de 1", pageW - marginX, pageH - 5, { align: "right" });
 
   const slug = (receita.nome || "ficha-tecnica")

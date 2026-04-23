@@ -252,11 +252,11 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     marginX + colW,
   );
   metaRender("Custo Total", formatarPreco(custoTotal), marginX + colW * 2);
-  y += 9;
+  y += 10;
 
   doc.setDrawColor(...COR_PISTACHE);
   doc.line(marginX, y, pageW - marginX, y);
-  y += 5;
+  y += 6;
 
   // ===== Tabela de Ingredientes =====
   doc.setFont("helvetica", "bold");
