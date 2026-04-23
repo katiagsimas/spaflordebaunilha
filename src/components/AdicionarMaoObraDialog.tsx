@@ -65,7 +65,7 @@ export function AdicionarMaoObraDialog({
     ? (perfilPadrao?.valor_hora || 0)
     : (perfis.find((p) => p.id === perfilId)?.valor_hora || 0);
 
-  const horasNum = parseFloat(horas) || 0;
+  const horasNum = horasDecimais;
   const custoPreview = valorHoraPreview * horasNum;
 
   return (
@@ -107,19 +107,48 @@ export function AdicionarMaoObraDialog({
           )}
 
           <div className="space-y-2">
-            <Label>Horas</Label>
-            <Input
-              type="number"
-              step="0.01"
-              min="0.01"
-              placeholder="Ex: 2.5"
-              value={horas}
-              onChange={(e) => setHoras(e.target.value)}
-            />
+            <Label>Tempo de Preparo</Label>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Input
+                  type="number"
+                  step="1"
+                  min="0"
+                  placeholder="Horas"
+                  value={horas}
+                  onChange={(e) => setHoras(e.target.value.replace(/[^\d]/g, ""))}
+                />
+                <span className="text-xs text-muted-foreground">Horas</span>
+              </div>
+              <div className="space-y-1">
+                <Input
+                  type="number"
+                  step="1"
+                  min="0"
+                  max="59"
+                  placeholder="Minutos"
+                  value={minutos}
+                  onChange={(e) => {
+                    const v = e.target.value.replace(/[^\d]/g, "");
+                    const n = parseInt(v, 10);
+                    if (v === "" || (n >= 0 && n <= 59)) setMinutos(v);
+                  }}
+                />
+                <span className="text-xs text-muted-foreground">Minutos (0-59)</span>
+              </div>
+            </div>
           </div>
 
           {horasNum > 0 && (
             <div className="p-3 rounded-lg bg-muted text-sm space-y-1">
+              <div className="flex justify-between">
+                <span>Tempo total:</span>
+                <span>
+                  {horasInt > 0 && `${horasInt}h`}
+                  {horasInt > 0 && minutosInt > 0 && " "}
+                  {minutosInt > 0 && `${minutosInt}min`}
+                </span>
+              </div>
               <div className="flex justify-between">
                 <span>Valor/hora:</span>
                 <span>R$ {valorHoraPreview.toFixed(2)}</span>
