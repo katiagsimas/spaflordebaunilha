@@ -1,6 +1,16 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-23T22:30:00Z — Correção do agendamento de backup (autorização do cron)
+> Última atualização: 2026-04-23T23:00:00Z — Otimizações Semana 1 (cron, debounce, índices)
+
+---
+
+## OTIMIZAÇÕES SEMANA 1 — 2026-04-23 23:00 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 55 | Frequência do cron de backup | ✅ | `executar-backups-agendados` alterado de `*/5 * * * *` para `*/30 * * * *` via `cron.alter_job(1, '*/30 * * * *')`. Reduz invocações de Edge Function em ~83%. |
+| 56 | Debounce realtime no Dashboard | ✅ | `src/pages/Dashboard.tsx`: 5 subscriptions `postgres_changes` que chamavam `carregarDados()` diretamente agora passam por debounce de 2,5s via `useRef<setTimeout>`. Evita cascata de reloads em INSERT/UPDATE/DELETE simultâneos. Cleanup do timeout no unmount. |
+| 57 | Índices de performance | ✅ | Criados `idx_tipos_documento_usuario_id`, `idx_contas_receber_usuario_status`, `idx_encomendas_usuario_data_entrega` (com IF NOT EXISTS). Reduz seq_scans nas tabelas de maior volume. |
 
 ---
 
