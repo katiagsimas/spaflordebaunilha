@@ -8,6 +8,7 @@ const COR_CLOUD: [number, number, number] = [245, 244, 241];
 const COR_PISTACHE: [number, number, number] = [191, 207, 184];
 const COR_DOURADO: [number, number, number] = [198, 168, 90];
 const COR_CINZA_TEXTO: [number, number, number] = [90, 90, 90];
+const COR_ROSE: [number, number, number] = [242, 140, 130]; // #F28C82
 
 const SECTION_GAP = 6; // espaço maior entre seções
 
@@ -159,7 +160,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   doc.setFillColor(...COR_DOURADO);
   doc.rect(0, 18, pageW, 0.6, "F");
 
-  doc.setTextColor(...COR_PRETO);
+  doc.setTextColor(...COR_ROSE);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
   doc.text("Ficha Técnica", marginX, 11.5);
@@ -239,16 +240,12 @@ export async function exportarReceitaPDF(receitaId: string) {
     doc.text(linhasV[0] || "—", x, y + 4);
   };
 
-  const colW = (pageW - marginX * 2) / 3;
-  const tempo = receita.tempo_preparo
-    ? `${receita.tempo_preparo} ${receita.unidade_tempo || ""}`.trim()
-    : "—";
+  const colW = (pageW - marginX * 2) / 2;
   const rendimento = receita.rendimento
     ? `${Number(receita.rendimento).toLocaleString("pt-BR")} ${siglaRend}`.trim()
     : "—";
-  metaRender("Tempo de Preparo", tempo, marginX, colW);
-  metaRender("Rendimento", rendimento, marginX + colW, colW);
-  metaRender("Valor de Venda", formatarPreco(valorVenda), marginX + colW * 2, colW);
+  metaRender("Rendimento", rendimento, marginX, colW);
+  metaRender("Valor de Venda", formatarPreco(valorVenda), marginX + colW, colW);
   y += 10;
 
   doc.setDrawColor(...COR_PISTACHE);
@@ -276,7 +273,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   // Ingredientes
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
-  doc.setTextColor(...COR_PRETO);
+  doc.setTextColor(...COR_ROSE);
   doc.text("Ingredientes", marginX, y);
 
   if (ingredientes.length > 0) {
@@ -311,7 +308,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   if (embalagens.length > 0) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(...COR_PRETO);
+    doc.setTextColor(...COR_ROSE);
     doc.text("Embalagens", marginX, y);
 
     autoTable(doc, {
@@ -343,7 +340,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   if (linhasMaoObra.length > 0) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(...COR_PRETO);
+    doc.setTextColor(...COR_ROSE);
     doc.text("Mão de Obra", marginX, y);
 
     autoTable(doc, {
@@ -373,7 +370,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   if (despesas.length > 0) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(...COR_PRETO);
+    doc.setTextColor(...COR_ROSE);
     doc.text("Custos com Vendas", marginX, y);
 
     autoTable(doc, {
@@ -430,7 +427,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   // Título do card
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
-  doc.setTextColor(...COR_DOURADO);
+  doc.setTextColor(...COR_ROSE);
   doc.text("RESUMO DE CUSTOS", marginX + cardPad, cardY + cardPad + 1);
 
   let yCard = cardY + cardPad + 6;
@@ -448,7 +445,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   if (receita.modo_preparo && String(receita.modo_preparo).trim()) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(...COR_PRETO);
+    doc.setTextColor(...COR_ROSE);
     doc.text("Modo de Preparo", marginX, y);
     y += 5;
 
