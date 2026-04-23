@@ -97,7 +97,7 @@ export function MaoObraSection({ maosObra, onChange }: MaoObraSectionProps) {
                 <TableRow>
                   <TableHead>Tipo de Valor</TableHead>
                   <TableHead>Perfil</TableHead>
-                  <TableHead className="w-[120px]">Horas</TableHead>
+                  <TableHead className="w-[140px]">Tempo</TableHead>
                   <TableHead className="w-[120px]">Valor/Hora</TableHead>
                   <TableHead className="w-[120px]">Custo Total</TableHead>
                   <TableHead className="w-[100px]">Ações</TableHead>
@@ -106,6 +106,12 @@ export function MaoObraSection({ maosObra, onChange }: MaoObraSectionProps) {
               <TableBody>
                 {maosObra.map((linha) => {
                   const perfil = perfis.find((p) => p.id === linha.perfil_id);
+                  const totalMin = Math.round((linha.horas || 0) * 60);
+                  const h = Math.floor(totalMin / 60);
+                  const m = totalMin % 60;
+                  const tempoFmt = totalMin === 0
+                    ? "—"
+                    : `${h > 0 ? `${h}h` : ""}${h > 0 && m > 0 ? " " : ""}${m > 0 ? `${m}min` : ""}`;
                   return (
                     <TableRow key={linha.id}>
                       <TableCell>
@@ -123,7 +129,7 @@ export function MaoObraSection({ maosObra, onChange }: MaoObraSectionProps) {
                         )}
                       </TableCell>
                       <TableCell className="text-center">
-                        {linha.horas.toFixed(2)}h
+                        {tempoFmt}
                       </TableCell>
                       <TableCell className="text-right">
                         R$ {calcularValorHora(linha).toFixed(2)}
