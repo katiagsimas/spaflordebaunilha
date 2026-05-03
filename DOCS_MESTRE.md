@@ -1,7 +1,7 @@
 # 📘 DOCUMENTAÇÃO MESTRE — CAIXA DE AÇÚCAR
 
 **Sistema de Gestão para Confeitarias — by Umbrella Doce**  
-**Atualizada em:** Março 2026  
+**Atualizada em:** Maio 2026  
 **Stack:** React 18 + TypeScript + Vite + Tailwind CSS + Lovable Cloud (Supabase)
 
 ---
@@ -15,7 +15,7 @@ Caixa de Açúcar é um sistema web de gestão completo para confeitarias. Permi
 Confeiteiras, doceiras e pequenas empresas do ramo de confeitaria.
 
 ### 1.3 Ecossistema
-O Caixa de Açúcar é um produto do ecossistema **Umbrella Doce**. A criação de usuários é feita exclusivamente pela Plataforma Umbrella Doce via Edge Functions. Não existe autocadastro público.
+O Caixa de Açúcar é um produto independente do ecossistema **Umbrella Doce**. A criação de usuários é feita exclusivamente pelo **painel admin** ou pelo **webhook da Hotmart** (compra automática). Não existe autocadastro público nem SSO externo (removido em abril/2026).
 
 > 📄 Detalhes em [DOCS_AUTENTICACAO.md](./DOCS_AUTENTICACAO.md)
 
@@ -31,7 +31,7 @@ O Caixa de Açúcar é um produto do ecossistema **Umbrella Doce**. A criação 
 | Roteamento | React Router DOM v6 |
 | Backend | Lovable Cloud (Supabase) |
 | Banco de dados | PostgreSQL |
-| Autenticação | Supabase Auth (Magic Link + email/senha) |
+| Autenticação | Supabase Auth (email/senha + Magic Link para convites) |
 | Storage | Supabase Storage |
 | Edge Functions | Deno (Supabase Edge Functions) |
 | Gráficos | Recharts |
@@ -39,6 +39,8 @@ O Caixa de Açúcar é um produto do ecossistema **Umbrella Doce**. A criação 
 | PDF | jsPDF + jspdf-autotable |
 | Planilhas | xlsx |
 | Drag & Drop | @dnd-kit |
+| Emails transacionais | Resend (noreply@umbrelladoce.com.br) |
+| Agendamento | pg_cron (backups agendados) |
 
 ---
 
@@ -49,7 +51,7 @@ src/
 ├── assets/              # Imagens e logos
 ├── components/
 │   ├── ui/              # shadcn/ui
-│   ├── admin/           # EditarUsuarioDialog
+│   ├── admin/           # CriarUsuarioDialog, EditarUsuarioDialog
 │   ├── auth/            # AlterarSenhaObrigatoria
 │   ├── configuracoes/   # ConfiguracaoJuros, ConfiguracaoTagsEncomendas
 │   └── financeiro/      # ContasReceberFormModal, DarBaixaDialog, DarBaixaPagarDialog
@@ -59,21 +61,27 @@ src/
 ├── lib/                 # dateUtils, utils, validacaoSenha
 ├── pages/
 │   ├── admin/           # Governanca, Logs, Usuarios
-│   ├── auth/            # Login, ForgotPassword, SSO
+│   ├── auth/            # Login, ForgotPassword, ResetPassword
 │   ├── cadastros/       # Categorias, Clientes, Fornecedores, SeusDados, UnidadesMedida
-│   ├── configuracoes/   # Bancos, PlanoContas, TiposDocumentos, etc.
+│   ├── configuracoes/   # Bancos, PlanoContas, TiposDocumentos, Backup, etc.
 │   ├── financeiro/      # ContasPagar/Receber, DRE, FluxoCaixa, Dashboard
 │   └── precificacao/    # Ingredientes, Embalagens, PrePreparos
 ├── schemas/             # encomendaSchema, pagamentoSchema (Zod)
-└── utils/               # gerarReciboPagamento, insightsGenerator
+└── utils/               # gerarReciboPagamento, exportarReceitaPDF, exportarPrePreparoPDF, insightsGenerator
 
 supabase/
-├── config.toml          # Auto-gerado (NÃO editar)
-├── migrations/          # Migrações SQL (read-only)
+├── config.toml          # Auto-gerado (NÃO editar project-level settings)
+├── migrations/          # Migrações SQL
 └── functions/
     ├── _shared/cors.ts
-    ├── criar-usuario/
-    └── validar-token-sso/
+    ├── criar-usuario/           # Provisionamento manual (admin)
+    ├── enviar-recuperacao-senha/ # Recuperação de senha via Resend
+    ├── executar-backups-agendados/ # Backup automático via pg_cron
+    └── hotmart-webhook/         # Provisionamento automático (compra Hotmart)
+
+docs/
+├── AUDITORIA.md              # Registro de auditorias e otimizações
+└── PENDENCIAS_SEGURANCA.md   # Pendências de segurança
 ```
 
 ---
@@ -105,6 +113,9 @@ supabase/
 ### 4.4 Sidebar
 Fundo pistache com destaques dourados. Ícone animado de bolo para aniversariantes.
 
+### 4.5 Alertas do Sistema
+Background dourado, texto preto, CTA em coral.
+
 ---
 
 ## 5. MAPA DE ROTAS
@@ -114,8 +125,8 @@ Fundo pistache com destaques dourados. Ícone animado de bolo para aniversariant
 |------|-----------|
 | `/auth/login` | Login com email/senha |
 | `/auth/signup` | **Redireciona para `/auth/login`** (autocadastro desabilitado) |
-| `/auth/forgot-password` | Recuperação de senha |
-| `/auth/sso` | SSO via Umbrella Doce (Magic Link) |
+| `/auth/forgot-password` | Recuperação de senha (via Resend) |
+| `/auth/reset-password` | Redefinição de senha (token via query params) |
 
 ### 5.2 Módulos Principais (protegidos)
 | Rota | Página |
@@ -125,7 +136,7 @@ Fundo pistache com destaques dourados. Ícone animado de bolo para aniversariant
 | `/clientes` | Cadastro PF/PJ com familiares |
 | `/fornecedores` | Cadastro com contatos |
 
-### 5.3 Financeiro (requer Caixa Business ou Admin)
+### 5.3 Financeiro (requer Caixa Business/Start ou Admin)
 | Rota | Página |
 |------|--------|
 | `/financeiro` | Hub |
@@ -174,6 +185,7 @@ Fundo pistache com destaques dourados. Ícone animado de bolo para aniversariant
 | `/configuracoes/juros` | Juros e multas (requer plano) |
 | `/configuracoes/tags-encomendas` | Tags |
 | `/configuracoes/precificacao/mao-de-obra` | Mão de obra |
+| `/configuracoes/backup` | Backup e restauração |
 
 ### 5.6 Administração
 | Rota | Acesso | Descrição |
@@ -201,7 +213,7 @@ Fundo pistache com destaques dourados. Ícone animado de bolo para aniversariant
 - `user_active_session` — Sessão ativa do usuário
 
 ### 6.2 Cadastros
-- `profiles` — Dados do usuário (id = auth.users.id)
+- `profiles` — Dados do usuário (id = auth.users.id), inclui `plano_id`, `plano_tipo`, `plano_inicio`, `plano_fim`, `origem_criacao`, `primeiro_acesso`, `ativo`, `last_login`
 - `clientes` — PF/PJ com endereço e aniversário
 - `cliente_familiares` — Familiares de clientes
 - `fornecedores` — Fornecedores
@@ -223,7 +235,7 @@ Fundo pistache com destaques dourados. Ícone animado de bolo para aniversariant
 - `ingredientes` — Ingredientes cadastrados
 - `embalagens` — Embalagens cadastradas
 - `tipos_insumos` — Tipos de ingredientes/embalagens
-- `pre_preparos` — Pré-preparos
+- `pre_preparos` — Pré-preparos (`tempo_preparo` em minutos, `tempo_preparo_unidade` = 'minutos' ou 'horas')
 - `pre_preparos_ingredientes` — Ingredientes dos pré-preparos
 - `pre_preparos_mao_obra` — Mão de obra dos pré-preparos
 - `mao_obra_perfis` — Perfis de mão de obra
@@ -249,16 +261,21 @@ Fundo pistache com destaques dourados. Ícone animado de bolo para aniversariant
 - `plano_contas` — Plano de contas
 - `custos_fixos` — Custos fixos
 - `configuracoes_juros` — Juros e multas
-- `planos` — Planos do sistema (Base, Negócio, Controle)
+- `planos` — Planos do sistema (Caixa Lite, Caixa Business, Caixa Start)
 
-### 6.7 Views
+### 6.7 Sistema
+- `historico_planos` — Histórico de alterações de plano por usuário
+- `backup_agendamentos` — Agendamentos de backup (diário/semanal)
+- `backups` — Dados de backup exportados (JSONB)
+
+### 6.8 Views
 | View | Descrição |
 |------|-----------|
 | `vw_contas_receber_parcelas` | Parcelas com dados do título, cliente, banco |
 | `vw_contas_receber_dashboard` | Resumo financeiro |
 | `vw_resumo_financeiro` | Resumo de saldos bancários |
 
-### 6.8 Legado
+### 6.9 Legado
 - `user_roles` — Tabela legada de roles (enum `app_role`: admin, moderator, user)
 - `admin_logs` — Logs de ações administrativas
 - `tags` — Tags genéricas (não usada para encomendas)
@@ -270,7 +287,7 @@ Fundo pistache com destaques dourados. Ícone animado de bolo para aniversariant
 ### Contexts
 | Context | Responsabilidade |
 |---------|-----------------|
-| `AuthContext` | Login, signUp (mantido mas não exposto em UI), logout, resetPassword |
+| `AuthContext` | Login, logout, resetPassword (signUp removido da UI) |
 | `GroupContext` | Grupos, papéis, permissões, sessão ativa, isMother |
 | `GlobalLoadingContext` | Loading global com mascote |
 
@@ -288,6 +305,9 @@ Fundo pistache com destaques dourados. Ícone animado de bolo para aniversariant
 | `useEncomendas` | CRUD encomendas |
 | `useCalculosReceita` | Cálculos de precificação |
 | `useMaoObraPerfis` | Perfis de mão de obra |
+| `useMaoObraHistorico` | Histórico de alterações de mão de obra |
+| `usePlanejamento` | Planejamento de produção |
+| `useEncomendasHoje` | Encomendas do dia (Dashboard) |
 
 ---
 
@@ -314,35 +334,59 @@ Verifica autenticação. Redireciona para `/auth/login` se não autenticado.
 
 ## 9. EDGE FUNCTIONS
 
-| Função | Descrição |
-|--------|-----------|
-| `criar-usuario` | Provisionamento de usuários via Umbrella Doce (inviteUserByEmail) |
-| `validar-token-sso` | Validação de JWT SSO e geração de Magic Link |
+| Função | Descrição | Autenticação |
+|--------|-----------|--------------|
+| `criar-usuario` | Provisionamento manual de usuários pelo admin | JWT de admin |
+| `enviar-recuperacao-senha` | Gera link de recovery e envia via Resend | Pública (email no body) |
+| `executar-backups-agendados` | Executa backups agendados dos usuários | pg_cron (anon key) |
+| `hotmart-webhook` | Provisionamento automático via compra Hotmart | Validação `hottok` |
 
-> 📄 Detalhes em [DOCS_AUTENTICACAO.md](./DOCS_AUTENTICACAO.md)
+> 📄 Detalhes de auth em [DOCS_AUTENTICACAO.md](./DOCS_AUTENTICACAO.md)
 
 ---
 
 ## 10. SISTEMA DE PLANOS
 
-| Plano | ID | Acesso |
-|-------|----|--------|
-| Base | `base` | Precificação, Encomendas, Clientes, Fornecedores, configs básicas |
-| Negócio | `negocio` | Acesso total (`*`) |
-| Controle | `controle` | Em breve |
+| Plano | ID | Acesso | Periodicidade |
+|-------|----|--------|---------------|
+| Caixa Lite | `base` | Precificação, Encomendas, Clientes, Fornecedores, configs básicas | Anual (365 dias) |
+| Caixa Business | `negocio` | Acesso total (`*`) | Mensal (30 dias) ou Anual (365 dias) |
+| Caixa Start | `start` | Acesso total (`*`) — período curto de experimentação | 14 dias |
 
 - Validação via `usePlano()` + `PlanoGuard`
+- Enforcement server-side via `user_has_financial_access()` + 12 RLS RESTRICTIVE nas tabelas financeiras
 - Admin ignora restrições
 - Itens bloqueados na sidebar: 40% opacidade + ícone 🔒
 
 ---
 
-## 11. DOCUMENTOS RELACIONADOS
+## 11. SISTEMA DE BACKUP
+
+- **Página:** `/configuracoes/backup`
+- **Tabelas:** `backup_agendamentos` (configuração), `backups` (dados exportados em JSONB)
+- **Cron:** `executar-backups-agendados` roda a cada 30 min via pg_cron
+- **Frequências:** Diário ou Semanal (com dia e horário configuráveis)
+- **Armazenamento:** Dados exportados como JSONB na tabela `backups` (planejado migrar para Storage bucket)
+
+---
+
+## 12. OTIMIZAÇÕES DE PERFORMANCE
+
+### Semana 1 (Abril/2026)
+- **Cron de backup:** Frequência reduzida de `*/5` para `*/30` (~83% menos invocações)
+- **Dashboard realtime:** Debounce de 2,5s em 5 subscriptions `postgres_changes` para evitar cascata de reloads
+- **Índices:** `idx_tipos_documento_usuario_id`, `idx_contas_receber_usuario_status`, `idx_encomendas_usuario_data_entrega`
+
+---
+
+## 13. DOCUMENTOS RELACIONADOS
 
 | Documento | Escopo |
 |-----------|--------|
-| [DOCS_AUTENTICACAO.md](./DOCS_AUTENTICACAO.md) | Login, SSO, Magic Link, primeiro acesso, senhas |
+| [DOCS_AUTENTICACAO.md](./DOCS_AUTENTICACAO.md) | Login, Magic Link, primeiro acesso, senhas, Hotmart webhook |
 | [DOCS_GOVERNANCA.md](./DOCS_GOVERNANCA.md) | Grupos, roles, RLS, permission_flags |
 | [DOCS_FINANCEIRO.md](./DOCS_FINANCEIRO.md) | Contas pagar/receber, DRE, fluxo caixa |
-| [DOCS_PRECIFICACAO.md](./DOCS_PRECIFICACAO.md) | Ingredientes, embalagens, receitas, cálculos |
+| [DOCS_PRECIFICACAO.md](./DOCS_PRECIFICACAO.md) | Ingredientes, embalagens, receitas, cálculos, mão de obra |
 | [DOCS_ENCOMENDAS.md](./DOCS_ENCOMENDAS.md) | Pedidos, itens, tags, vinculação financeira |
+| [docs/AUDITORIA.md](./docs/AUDITORIA.md) | Registro de auditorias e otimizações |
+| [docs/PENDENCIAS_SEGURANCA.md](./docs/PENDENCIAS_SEGURANCA.md) | Pendências de segurança |

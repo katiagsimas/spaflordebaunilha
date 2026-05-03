@@ -1,7 +1,7 @@
 # 🔒 PENDÊNCIAS DE SEGURANÇA — CAIXA DE AÇÚCAR
 
 > Itens que dependem de ação externa ou decisão do time para serem resolvidos.
-> Última atualização: 2026-03-09T03:00:00Z
+> Última atualização: 2026-05-03T00:00:00Z
 
 ---
 
@@ -9,24 +9,13 @@
 
 | # | Severidade | Item | Responsável | Status | Observação |
 |---|-----------|------|-------------|--------|------------|
-| 1 | 🔴 Crítica | Remover método `signUp` do AuthContext | Dev | ✅ Resolvido | Corrigido em 2026-03-08 |
-| 2 | 🔴 Crítica | Limpar ~247 `console.log` com dados sensíveis | Dev | ✅ Resolvido | Corrigido em 2026-03-09 (Auditoria #2 — limpeza real executada) |
 | 3 | 🟡 Média | Adicionar rate limiting na Edge Function `criar-usuario` | Dev/Infra | 🔲 Pendente | Sem throttle atual |
-| 4 | 🟡 Média | Adicionar políticas INSERT/UPDATE/DELETE em `tags_encomendas` | Dev | ✅ Resolvido | Políticas já existem + interface implementada |
-| 5 | 🟡 Média | Criar rota `/auth/reset-password` | Dev | ✅ Resolvido | Corrigido em 2026-03-09 |
 | 6 | 🟡 Baixa | Customizar templates de email do Cloud | Admin/Infra | 🔲 Pendente | Emails usam template padrão |
-| 7 | 🟡 Baixa | Substituir OG Image por URL permanente | Dev | ✅ Resolvido | Corrigido em 2026-03-09 (Auditoria #2 — imagem local `public/og-image.png`) |
-| 8 | 🟡 Média | PlanoGuard enforcement server-side | Dev | ✅ Resolvido | Função `user_has_financial_access` + RLS em 12 tabelas |
 | 9 | 🟡 Média | Vulnerabilidade xlsx (Prototype Pollution/ReDoS) | Dev | ⚠️ Sem fix | v0.19.3 só disponível no SheetJS Pro (pago); uso apenas para export |
 | 10 | 🟡 Média | Leaked Password Protection desabilitado | Admin | 🔲 Pendente | Requer configuração manual no backend: Auth → Settings → Enable HaveIBeenPwned |
-| 11 | 🟡 Baixa | Loading splash usa path de `public/` | Dev | ✅ Resolvido | Logo copiada para `public/umbrella-logo-dourado.png`; index.html atualizado |
-| 12 | 🟡 Baixa | `twitter:site` apontava para `@lovable_dev` | Dev | ✅ Resolvido | Tag removida do index.html |
-| 13 | 🟡 Baixa | Sem tag `<noscript>` | Dev | ✅ Resolvido | Adicionada em index.html |
-| 14 | 🔴 Crítica | Realtime sem RLS em `realtime.messages` | Dev | ✅ Resolvido | Corrigido em 2026-04-19 (RLS + topic scoping por auth.uid()) |
-| 15 | 🔴 Crítica | `historico_planos` policy permitindo bypass | Dev | ✅ Resolvido | Corrigido em 2026-04-19 (política removida; service_role bypassa RLS) |
-| 16 | 🟡 Média | Vazamento cross-tenant em `categorias_plano_contas`/`plano_contas` | Dev | ✅ Resolvido | Corrigido em 2026-04-19 (SELECT restrito ao dono) |
-| 17 | 🟡 Média | Bucket `topo-bolo` público sem scoping | Dev | ✅ Resolvido | Corrigido em 2026-04-19 (SELECT exige folder == auth.uid()) |
-| 18 | 🟡 Baixa | Bucket `comprovantes-receber` sem UPDATE policy | Dev | ✅ Resolvido | Corrigido em 2026-04-19 (UPDATE owner-scoped) |
+| 19 | 🟡 Baixa | Anon key hardcoded no pg_cron job | Dev | 🔲 Pendente | `cron.job` contém `anon_key` inline; considerar uso de vault ou secret |
+| 20 | 🟡 Média | Sem cap de uso para AI Gateway | Dev | 🔲 Pendente | AI habilitado sem limites por usuário |
+| 21 | 🟡 Baixa | Backups armazenados como JSONB no banco | Dev | 🔲 Pendente | Pode inflar tamanho do DB; migrar para Storage bucket |
 
 ---
 
@@ -35,14 +24,26 @@
 | Data (UTC) | Item | Resolução |
 |------------|------|-----------|
 | 2026-03-08 | Loop infinito no AuthContext (`toast` nas deps) | Removido `toast` do array de dependências do `useEffect` |
-| 2026-03-09 | Rota `/auth/reset-password` inexistente | Criado `src/pages/auth/ResetPassword.tsx` com validação de token, formulário com `validarSenhaForte`, chamada `updateUser`, toast + redirect. Rota pública adicionada ao App.tsx. |
-| 2026-03-09 | console.log com dados sensíveis (~247 ocorrências) | Removidos todos os console.log de debug; console.error sanitizados com formato `[Módulo] Erro: error.message` |
-| 2026-03-09 | Políticas RLS INSERT/UPDATE/DELETE em `tags_encomendas` | Políticas já existiam no banco; implementada interface completa para usuários gerenciarem tags personalizadas |
-| 2026-03-09 | OG Image URL temporária | Imagem gerada em `public/og-image.png`; meta tags `og:image` e `twitter:image` usando path local `/og-image.png` |
-| 2026-03-09 | PlanoGuard client-side only (CLIENT_SIDE_AUTH) | Criada função DB `user_has_financial_access()` (SECURITY DEFINER) + 12 políticas RLS RESTRICTIVE nas tabelas financeiras |
+| 2026-03-08 | `signUp` removido do AuthContext | Método removido da interface, implementação e Provider |
+| 2026-03-09 | Rota `/auth/reset-password` inexistente | Criado `ResetPassword.tsx` com validação de token + formulário + redirect |
+| 2026-03-09 | console.log com dados sensíveis (~247 ocorrências) | Removidos todos os console.log de debug |
+| 2026-03-09 | Políticas RLS INSERT/UPDATE/DELETE em `tags_encomendas` | Políticas confirmadas + interface implementada |
+| 2026-03-09 | OG Image URL temporária | Imagem em `public/og-image.png`; meta tags com path local |
+| 2026-03-09 | PlanoGuard client-side only | Criada função DB `user_has_financial_access()` + 12 RLS RESTRICTIVE |
 | 2026-03-09 | twitter:site @lovable_dev | Tag `twitter:site` removida do index.html |
-| 2026-03-09 | Loading splash path `/src/assets/` | Logo copiada para `public/umbrella-logo-dourado.png`; `index.html` atualizado com path `/umbrella-logo-dourado.png` |
-| 2026-03-09 | Sem `<noscript>` fallback | Tag `<noscript>` adicionada ao `index.html` com mensagem em português |
+| 2026-03-09 | Loading splash path `/src/assets/` | Logo copiada para `public/umbrella-logo-dourado.png` |
+| 2026-03-09 | Sem `<noscript>` fallback | Tag `<noscript>` adicionada ao `index.html` |
+| 2026-04-08 | Privilege escalation via profiles.plano_id | Trigger `protect_plan_fields()` bloqueia alteração por não-admin |
+| 2026-04-08 | encomendas_tags permissivas | Políticas ownership-scoped |
+| 2026-04-08 | tags sem ownership | Coluna `user_id` + RLS ownership |
+| 2026-04-08 | topo-bolo storage sem ownership | Políticas com `foldername(name)[1] = auth.uid()` |
+| 2026-04-08 | comprovantes-pagar sem UPDATE policy | Adicionada política UPDATE owner-scoped |
+| 2026-04-08 | Bucket encomendas público | Tornado privado + SELECT owner-scoped + signedUrl |
+| 2026-04-19 | Realtime sem RLS em `realtime.messages` | RLS + topic scoping por auth.uid() |
+| 2026-04-19 | `historico_planos` policy permitindo bypass | Policy removida; service_role bypassa RLS |
+| 2026-04-19 | Vazamento cross-tenant em categorias_plano_contas/plano_contas | SELECT restrito ao dono |
+| 2026-04-19 | Bucket `topo-bolo` público sem scoping | SELECT exige folder == auth.uid() |
+| 2026-04-19 | Bucket `comprovantes-receber` sem UPDATE | UPDATE owner-scoped |
 
 ---
 
