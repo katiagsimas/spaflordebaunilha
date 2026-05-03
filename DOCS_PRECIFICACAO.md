@@ -1,6 +1,6 @@
 # 🧮 DOCUMENTAÇÃO: Módulo de Precificação — Caixa de Açúcar
 
-**Atualizada em:** Março 2026
+**Atualizada em:** Maio 2026
 
 ---
 
@@ -75,7 +75,7 @@ Ingredientes  Embalagens
 ## 5. PRÉ-PREPAROS
 
 **Tabela:** `pre_preparos`
-- `nome`, `tempo_preparo`, `tempo_preparo_unidade`
+- `nome`, `tempo_preparo` (em minutos), `tempo_preparo_unidade` ('minutos' ou 'horas')
 - `rendimento_quantidade`, `rendimento_unidade_id`
 - `custo_total`, `custo_por_unidade`
 - `categoria_id`, `modo_preparo`
@@ -85,7 +85,10 @@ Ingredientes  Embalagens
 - `ingrediente_id`, `quantidade_utilizada`, `custo_ingrediente`, `ordem`
 
 **Tabela:** `pre_preparos_mao_obra`
-- `perfil_id`, `horas`, `usar_valor_padrao`
+- `perfil_id`, `horas` (em horas decimais), `usar_valor_padrao`
+
+### Tempo de Preparo
+O campo "Tempo de Preparo" trabalha exclusivamente em **minutos** e **horas** (não em horas decimais). A mão de obra é lançada com campos separados de horas e minutos que são convertidos para o total em minutos. O tempo total é calculado a partir da soma das horas de mão de obra vinculadas e salvo no cadastro.
 
 **Rotas:**
 - `/precificacao/pre-preparos` — Listagem
@@ -142,6 +145,9 @@ Ingredientes  Embalagens
 - `perfil_id`, `acao`, `valor_antigo`, `valor_novo`
 
 **Configuração:** `/configuracoes/precificacao/mao-de-obra`
+
+### Lançamento de Horas
+O diálogo de adição de mão de obra usa campos separados de **horas** e **minutos** (não horas decimais). O valor é convertido internamente para horas decimais para cálculo de custo.
 
 ---
 
