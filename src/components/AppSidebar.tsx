@@ -390,6 +390,19 @@ export function AppSidebar() {
           </div>
         </SidebarFooter>
       )}
+      {/* Modal "Em Breve" */}
+      <Dialog open={!!comingSoonModal} onOpenChange={() => setComingSoonModal(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 font-display text-xl">
+              {comingSoonModal?.title} <Lock className="h-5 w-5 text-umbrella-dourado" />
+            </DialogTitle>
+            <DialogDescription className="text-base font-body text-muted-foreground pt-2">
+              {comingSoonModal?.message}
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </Sidebar>
   );
 }
