@@ -25,6 +25,13 @@ import {
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 const menuItems = [
   { title: "Meu Painel", url: "/dashboard", icon: LayoutDashboard, active: true },
