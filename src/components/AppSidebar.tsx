@@ -33,16 +33,22 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
-const menuItems = [
+const mainMenuItems = [
   { title: "Meu Painel", url: "/dashboard", icon: LayoutDashboard, active: true },
   { title: "Meu Dinheiro", url: "/financeiro", icon: Wallet, active: true },
   { title: "Minhas Encomendas", url: "/encomendas", icon: ClipboardList, active: true },
   { title: "Meu Cardápio", url: "/precificacao", icon: BookOpen, active: true },
-  { title: "Meus Insumos", url: "/insumos", icon: Package, active: false, comingSoonMessage: "Em breve você terá controle total dos seus ingredientes e embalagens, com custo automático e alertas inteligentes." },
   { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: Users, active: true },
-  { title: "Configurações", url: "/configuracoes", icon: Settings, active: true },
+];
+
+const comingSoonItems = [
+  { title: "Meus Insumos", url: "/insumos", icon: Package, active: false, comingSoonMessage: "Em breve você terá controle total dos seus ingredientes e embalagens, com custo automático e alertas inteligentes." },
   { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false, comingSoonMessage: "Em breve você terá um plano claro para organizar sua produção, suas vendas e crescer com estratégia." },
   { title: "Minha Presença", url: "/presenca", icon: Globe, active: false, comingSoonMessage: "Em breve você terá controle da sua comunicação e presença online para atrair mais clientes e vender todos os dias." },
+];
+
+const systemMenuItems = [
+  { title: "Configurações", url: "/configuracoes", icon: Settings, active: true },
 ];
 
 export function AppSidebar() {
@@ -157,39 +163,26 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.filter(item => {
-                if ((item as any).requiresGroupAdmin) {
-                  return isGroupAdmin() && sessionMode === 'group';
-                }
-                return true;
-              }).map((item) => {
+              {mainMenuItems.map((item) => {
                 const Icon = item.icon;
                 const bloqueado = !isPlanoLoading && !isAdmin && item.active && rotaBloqueada(item.url);
                 return (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={false} disabled={!item.active}>
+                    <SidebarMenuButton asChild isActive={false}>
                       <NavLink
                         to={bloqueado ? "/upgrade" : item.url}
                         end
                         className={({ isActive }) =>
                           `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
-                            isActive && item.active && !bloqueado
+                            isActive && !bloqueado
                               ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
                               : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
-                          } ${!item.active || bloqueado ? "opacity-40 cursor-not-allowed" : ""}`
+                          } ${bloqueado ? "opacity-40 cursor-not-allowed" : ""}`
                         }
-                        onClick={(e) => {
-                          if (!item.active) {
-                            e.preventDefault();
-                            if ((item as any).comingSoonMessage) {
-                              setComingSoonModal({ title: item.title, message: (item as any).comingSoonMessage });
-                            }
-                          }
-                        }}
                       >
                         {({ isActive }) => (
                           <>
-                            <Icon className={`h-5 w-5 ${isActive && item.active && !bloqueado ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
+                            <Icon className={`h-5 w-5 ${isActive && !bloqueado ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
                             {item.title === "Minhas Encomendas" && temEncomendasHoje && !bloqueado && !open && (
                               <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-red-500 animate-ping" />
                             )}
@@ -204,18 +197,10 @@ export function AppSidebar() {
                                     {encomendasHojeQtd} HOJE
                                   </Badge>
                                 )}
-                                {item.title === "Clientes" && aniversariantesClientes.length > 0 && !bloqueado && (
+                                {item.title === "Clientes e Fornecedores" && aniversariantesClientes.length > 0 && !bloqueado && (
                                   <div className="w-5 h-5 rounded-full bg-umbrella-pistache flex items-center justify-center animate-bounce ml-1">
                                     <Cake className="h-3 w-3 text-umbrella-preto" />
                                   </div>
-                                )}
-                                {item.title === "Fornecedores" && aniversariantesFornecedores.length > 0 && !bloqueado && (
-                                  <div className="w-5 h-5 rounded-full bg-umbrella-pink flex items-center justify-center animate-bounce ml-1">
-                                    <Cake className="h-3 w-3 text-umbrella-preto" />
-                                  </div>
-                                )}
-                                {!item.active && (
-                                  <Lock className="h-3.5 w-3.5 text-sidebar-foreground/40" />
                                 )}
                               </>
                             )}
@@ -232,6 +217,130 @@ export function AppSidebar() {
 
         {/* Separador dourado */}
         <div className="mx-4 h-px bg-umbrella-dourado/30" />
+
+        {/* Seção Em Breve */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-sidebar-foreground/50 text-[10px] uppercase tracking-widest font-body">
+            Em Breve
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {comingSoonItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={false} disabled>
+                      <NavLink
+                        to={item.url}
+                        end
+                        className="flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm opacity-40 cursor-not-allowed text-sidebar-foreground/80"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setComingSoonModal({ title: item.title, message: item.comingSoonMessage });
+                        }}
+                      >
+                        <Icon className="h-5 w-5 text-sidebar-foreground/60" />
+                        {open && (
+                          <>
+                            <span className="flex-1">{item.title}</span>
+                            <Lock className="h-3.5 w-3.5 text-sidebar-foreground/40" />
+                          </>
+                        )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Separador dourado */}
+        <div className="mx-4 h-px bg-umbrella-dourado/30" />
+
+        {/* Seção Sistema */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-sidebar-foreground/50 text-[10px] uppercase tracking-widest font-body">
+            Sistema
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {systemMenuItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={false}>
+                      <NavLink
+                        to={item.url}
+                        end
+                        className={({ isActive }) =>
+                          `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
+                            isActive
+                              ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+                              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
+                          }`
+                        }
+                      >
+                        {({ isActive }) => (
+                          <>
+                            <Icon className={`h-5 w-5 ${isActive ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
+                            {open && <span className="flex-1">{item.title}</span>}
+                          </>
+                        )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+              {isAdmin && (
+                <>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={false}>
+                      <NavLink
+                        to="/admin/usuarios"
+                        className={({ isActive }) =>
+                          `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
+                            isActive
+                              ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+                              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
+                          }`
+                        }
+                      >
+                        {({ isActive }) => (
+                          <>
+                            <Shield className={`h-5 w-5 ${isActive ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
+                            {open && <span className="flex-1">Usuários</span>}
+                          </>
+                        )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={false}>
+                      <NavLink
+                        to="/admin/logs"
+                        className={({ isActive }) =>
+                          `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
+                            isActive
+                              ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+                              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
+                          }`
+                        }
+                      >
+                        {({ isActive }) => (
+                          <>
+                            <FileText className={`h-5 w-5 ${isActive ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
+                            {open && <span className="flex-1">Log de Ações</span>}
+                          </>
+                        )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </>
+              )}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
         {/* Seção MOTHER - Governança do Sistema */}
         {isMother && (
@@ -268,61 +377,6 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
 
-
-        {/* Seção de Administração - Apenas para Admins (legado) */}
-        {isAdmin && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-sidebar-foreground/50 text-[10px] uppercase tracking-widest font-body">
-              Sistema
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={false}>
-                    <NavLink
-                      to="/admin/usuarios"
-                      className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
-                          isActive
-                            ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
-                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
-                        }`
-                      }
-                    >
-                      {({ isActive }) => (
-                        <>
-                          <Shield className={`h-5 w-5 ${isActive ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
-                          {open && <span className="flex-1">Usuários</span>}
-                        </>
-                      )}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={false}>
-                    <NavLink
-                      to="/admin/logs"
-                      className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
-                          isActive
-                            ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
-                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
-                        }`
-                      }
-                    >
-                      {({ isActive }) => (
-                        <>
-                          <FileText className={`h-5 w-5 ${isActive ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
-                          {open && <span className="flex-1">Logs de Ações</span>}
-                        </>
-                      )}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
       </SidebarContent>
 
       {open && user && (
