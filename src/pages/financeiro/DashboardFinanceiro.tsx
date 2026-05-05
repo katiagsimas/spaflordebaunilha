@@ -48,6 +48,7 @@ export default function DashboardFinanceiro() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [transferenciaOpen, setTransferenciaOpen] = useState(false);
 
   const [resumo, setResumo] = useState({
     totalReceber: 0,
