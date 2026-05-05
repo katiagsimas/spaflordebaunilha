@@ -178,7 +178,14 @@ export function AppSidebar() {
                               : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
                           } ${!item.active || bloqueado ? "opacity-40 cursor-not-allowed" : ""}`
                         }
-                        onClick={(e) => !item.active && e.preventDefault()}
+                        onClick={(e) => {
+                          if (!item.active) {
+                            e.preventDefault();
+                            if ((item as any).comingSoonMessage) {
+                              setComingSoonModal({ title: item.title, message: (item as any).comingSoonMessage });
+                            }
+                          }
+                        }}
                       >
                         {({ isActive }) => (
                           <>
