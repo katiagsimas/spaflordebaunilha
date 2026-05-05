@@ -310,19 +310,30 @@ export default function DashboardFinanceiro() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate("/financeiro")}
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard Financeiro</h1>
-          <p className="text-muted-foreground">Visão completa da saúde financeira</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/financeiro")}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Dashboard Financeiro</h1>
+            <p className="text-muted-foreground">Visão completa da saúde financeira</p>
+          </div>
         </div>
+        <Button onClick={() => setTransferenciaOpen(true)} variant="outline" className="gap-2">
+          <ArrowLeftRight className="h-4 w-4" />
+          Transferência entre Bancos
+        </Button>
       </div>
+
+      <TransferenciaBancosModal
+        open={transferenciaOpen}
+        onOpenChange={setTransferenciaOpen}
+      />
 
       {/* Cards de Resumo */}
       <div className="grid gap-4 md:grid-cols-5">
