@@ -53,6 +53,7 @@ export function AppSidebar() {
   const { isAdmin } = useIsAdmin();
   const { rotaBloqueada, isLoading: isPlanoLoading } = usePlano();
   const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
+  const [comingSoonModal, setComingSoonModal] = useState<{ title: string; message: string } | null>(null);
 
   const { data: profile } = useQuery({
     queryKey: ['profile', user?.id],
