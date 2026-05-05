@@ -1,6 +1,17 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-04-23T23:00:00Z — Otimizações Semana 1 (cron, debounce, índices)
+> Última atualização: 2026-05-05T12:45:00Z — Transferências Bancárias + Fechamento do Mês
+
+---
+
+## TRANSFERÊNCIAS BANCÁRIAS + FECHAMENTO MÊS — 2026-05-05 12:45 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 58 | Tabela `transferencias_bancos` | ✅ | Tabela criada com RLS por `usuario_id`, policy restrictive `user_has_financial_access`, constraints `valor > 0` e `origem ≠ destino`. |
+| 59 | RPC `realizar_transferencia` | ✅ | Função `SECURITY DEFINER` atômica. REVOKE anon/public, GRANT apenas `authenticated`. Valida saldo, atualiza bancos, insere registro. |
+| 60 | Modal de Transferência | ✅ | `TransferenciaBancosModal.tsx` no Dashboard Financeiro. Selects de origem/destino, validação de saldo em tempo real. |
+| 61 | Fechamento do Mês | ✅ | Processo implícito já existente no Fluxo de Caixa Mensal (saldo final → saldo inicial mês seguinte). Adicionado destaque "Saldo Final do Mês Anterior" no Fluxo Diário. |
 
 ---
 

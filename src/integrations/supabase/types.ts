@@ -2575,6 +2575,45 @@ export type Database = {
           },
         ]
       }
+      transferencias_bancos: {
+        Row: {
+          banco_destino_id: string
+          banco_origem_id: string
+          created_at: string
+          created_by: string
+          data_transferencia: string
+          descricao: string | null
+          id: string
+          owner_group_id: string | null
+          usuario_id: string
+          valor: number
+        }
+        Insert: {
+          banco_destino_id: string
+          banco_origem_id: string
+          created_at?: string
+          created_by: string
+          data_transferencia?: string
+          descricao?: string | null
+          id?: string
+          owner_group_id?: string | null
+          usuario_id: string
+          valor: number
+        }
+        Update: {
+          banco_destino_id?: string
+          banco_origem_id?: string
+          created_at?: string
+          created_by?: string
+          data_transferencia?: string
+          descricao?: string | null
+          id?: string
+          owner_group_id?: string | null
+          usuario_id?: string
+          valor?: number
+        }
+        Relationships: []
+      }
       unidades_medida: {
         Row: {
           ativo: boolean | null
@@ -3112,6 +3151,16 @@ export type Database = {
           p_target_user_id?: string
         }
         Returns: undefined
+      }
+      realizar_transferencia: {
+        Args: {
+          p_banco_destino_id: string
+          p_banco_origem_id: string
+          p_data_transferencia: string
+          p_descricao?: string
+          p_valor: number
+        }
+        Returns: Json
       }
       user_belongs_to_group: {
         Args: { _group_id: string; _user_id: string }
