@@ -562,7 +562,7 @@ export default function Financeiro() {
     return coresBanco[index % coresBanco.length];
   };
 
-  if (loading) return <LoadingState message="Carregando Financeiro" submessage="Preparando suas informações financeiras..." />;
+  if (loading) return <LoadingState message="Carregando Meu Dinheiro" submessage="Preparando suas informações financeiras..." />;
 
   const maxSaldo = Math.max(...bancosSaldos.map(b => b.saldo_atual || 0), 1);
 
