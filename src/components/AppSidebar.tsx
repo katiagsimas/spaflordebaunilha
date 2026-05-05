@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { LayoutDashboard, ShoppingBag, DollarSign, LogOut, Users, User, Truck, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
 import caixaAcucarSidebarIcon from "@/assets/caixa-acucar-sidebar-icon.png";
