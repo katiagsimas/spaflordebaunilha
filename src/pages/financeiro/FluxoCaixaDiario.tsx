@@ -256,15 +256,15 @@ export default function FluxoCaixaDiario() {
 
       {/* Cards de Resumo */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
+        <Card className="border-2 border-primary/30 bg-primary/5">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Saldo Inicial
+            <CardTitle className="text-sm font-medium text-primary">
+              Saldo Final do Mês Anterior
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              R$ {saldoInicial.toFixed(2)}
+            <div className="text-2xl font-bold text-primary">
+              R$ {saldoInicial.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </div>
           </CardContent>
         </Card>
