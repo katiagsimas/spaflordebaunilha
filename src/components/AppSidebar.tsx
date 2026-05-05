@@ -173,7 +173,7 @@ export function AppSidebar() {
                         {({ isActive }) => (
                           <>
                             <Icon className={`h-5 w-5 ${isActive && item.active && !bloqueado ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
-                            {item.title === "Vendas" && temEncomendasHoje && !bloqueado && !open && (
+                            {item.title === "Minhas Encomendas" && temEncomendasHoje && !bloqueado && !open && (
                               <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-red-500 animate-ping" />
                             )}
                             {open && (
