@@ -889,7 +889,7 @@ export default function Dashboard() {
   }
 
   if (loading) {
-    return <LoadingStateFullScreen message="Carregando Dashboard" submessage="Preparando suas informações gerenciais..." />;
+    return <LoadingStateFullScreen message="Carregando Meu Painel" submessage="Preparando suas informações gerenciais..." />;
   }
 
   const primeiroDia = getDay(startOfMonth(dataAtual));
