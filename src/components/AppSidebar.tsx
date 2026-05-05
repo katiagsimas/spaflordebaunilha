@@ -1,4 +1,4 @@
-import { LayoutDashboard, ShoppingBag, DollarSign, LogOut, Users, User, Truck, Cake, Calculator, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, DollarSign, LogOut, Users, User, Truck, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
 import caixaAcucarSidebarIcon from "@/assets/caixa-acucar-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -26,12 +26,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 const menuItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, active: true },
-  { title: "Financeiro", url: "/financeiro", icon: DollarSign, active: true },
-  { title: "Vendas", url: "/encomendas", icon: ShoppingBag, active: true },
-  { title: "Produtos", url: "/precificacao", icon: Calculator, active: true },
-  { title: "Clientes & Fornecedores", url: "/clientes-fornecedores", icon: Users, active: true },
+  { title: "Meu Painel", url: "/dashboard", icon: LayoutDashboard, active: true },
+  { title: "Meu Dinheiro", url: "/financeiro", icon: Wallet, active: true },
+  { title: "Minhas Encomendas", url: "/encomendas", icon: ClipboardList, active: true },
+  { title: "Meu Cardápio", url: "/precificacao", icon: BookOpen, active: true },
+  { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: Users, active: true },
   { title: "Configurações", url: "/configuracoes", icon: Settings, active: true },
+  { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false },
+  { title: "Minha Presença", url: "/presenca", icon: Globe, active: false },
 ];
 
 export function AppSidebar() {
@@ -171,7 +173,7 @@ export function AppSidebar() {
                         {({ isActive }) => (
                           <>
                             <Icon className={`h-5 w-5 ${isActive && item.active && !bloqueado ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
-                            {item.title === "Vendas" && temEncomendasHoje && !bloqueado && !open && (
+                            {item.title === "Minhas Encomendas" && temEncomendasHoje && !bloqueado && !open && (
                               <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-red-500 animate-ping" />
                             )}
                             {open && (
@@ -180,7 +182,7 @@ export function AppSidebar() {
                                 {bloqueado && (
                                   <Lock className="h-3.5 w-3.5 text-sidebar-foreground/50" />
                                 )}
-                                {item.title === "Vendas" && temEncomendasHoje && !bloqueado && (
+                                {item.title === "Minhas Encomendas" && temEncomendasHoje && !bloqueado && (
                                   <Badge className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-body font-bold animate-pulse ml-1">
                                     {encomendasHojeQtd} HOJE
                                   </Badge>
@@ -196,9 +198,7 @@ export function AppSidebar() {
                                   </div>
                                 )}
                                 {!item.active && (
-                                  <Badge className="bg-umbrella-dourado/25 text-sidebar-foreground text-[10px] px-2 py-0.5 rounded-full font-body font-medium">
-                                    Em breve
-                                  </Badge>
+                                  <Lock className="h-3.5 w-3.5 text-sidebar-foreground/40" />
                                 )}
                               </>
                             )}

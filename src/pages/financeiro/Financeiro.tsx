@@ -562,7 +562,7 @@ export default function Financeiro() {
     return coresBanco[index % coresBanco.length];
   };
 
-  if (loading) return <LoadingState message="Carregando Financeiro" submessage="Preparando suas informações financeiras..." />;
+  if (loading) return <LoadingState message="Carregando Meu Dinheiro" submessage="Preparando suas informações financeiras..." />;
 
   const maxSaldo = Math.max(...bancosSaldos.map(b => b.saldo_atual || 0), 1);
 
@@ -572,7 +572,7 @@ export default function Financeiro() {
       <div className="mb-6">
         <h1 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2 whitespace-nowrap">
           <DollarSign className="w-6 h-6 md:w-7 md:h-7 text-primary flex-shrink-0" />
-          MOVIMENTAÇÕES E RELATÓRIOS FINANCEIROS
+          MEU DINHEIRO
         </h1>
       </div>
 
