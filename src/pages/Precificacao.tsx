@@ -110,7 +110,7 @@ export default function Precificacao() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CookingPot className="h-5 w-5" />
-                Produtos à Venda
+                Meu Cardápio Ativo
               </CardTitle>
               <CardDescription>
                 Produtos ativos no seu cardápio com análise de custos e margem
