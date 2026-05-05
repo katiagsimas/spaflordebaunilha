@@ -574,6 +574,7 @@ export default function Financeiro() {
           <DollarSign className="w-6 h-6 md:w-7 md:h-7 text-primary flex-shrink-0" />
           MEU DINHEIRO
         </h1>
+        <p className="text-sm text-muted-foreground font-body mt-1">Controle total do que entra, sai e vira lucro</p>
       </div>
 
       {/* Cards de Navegação */}
