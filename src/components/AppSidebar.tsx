@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { LayoutDashboard, ShoppingBag, DollarSign, LogOut, Users, User, Truck, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
 import caixaAcucarSidebarIcon from "@/assets/caixa-acucar-sidebar-icon.png";
@@ -24,12 +25,20 @@ import {
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 const menuItems = [
   { title: "Meu Painel", url: "/dashboard", icon: LayoutDashboard, active: true },
   { title: "Meu Dinheiro", url: "/financeiro", icon: Wallet, active: true },
   { title: "Minhas Encomendas", url: "/encomendas", icon: ClipboardList, active: true },
   { title: "Meu Cardápio", url: "/precificacao", icon: BookOpen, active: true },
+  { title: "Meus Insumos", url: "/insumos", icon: Package, active: false, comingSoonMessage: "Em breve você terá controle total dos seus ingredientes e embalagens, com custo automático e alertas inteligentes." },
   { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: Users, active: true },
   { title: "Configurações", url: "/configuracoes", icon: Settings, active: true },
   { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false },
@@ -44,6 +53,7 @@ export function AppSidebar() {
   const { isAdmin } = useIsAdmin();
   const { rotaBloqueada, isLoading: isPlanoLoading } = usePlano();
   const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
+  const [comingSoonModal, setComingSoonModal] = useState<{ title: string; message: string } | null>(null);
 
   const { data: profile } = useQuery({
     queryKey: ['profile', user?.id],
@@ -168,7 +178,14 @@ export function AppSidebar() {
                               : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
                           } ${!item.active || bloqueado ? "opacity-40 cursor-not-allowed" : ""}`
                         }
-                        onClick={(e) => !item.active && e.preventDefault()}
+                        onClick={(e) => {
+                          if (!item.active) {
+                            e.preventDefault();
+                            if ((item as any).comingSoonMessage) {
+                              setComingSoonModal({ title: item.title, message: (item as any).comingSoonMessage });
+                            }
+                          }
+                        }}
                       >
                         {({ isActive }) => (
                           <>
@@ -373,6 +390,19 @@ export function AppSidebar() {
           </div>
         </SidebarFooter>
       )}
+      {/* Modal "Em Breve" */}
+      <Dialog open={!!comingSoonModal} onOpenChange={() => setComingSoonModal(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 font-display text-xl">
+              {comingSoonModal?.title} <Lock className="h-5 w-5 text-umbrella-dourado" />
+            </DialogTitle>
+            <DialogDescription className="text-base font-body text-muted-foreground pt-2">
+              {comingSoonModal?.message}
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </Sidebar>
   );
 }
