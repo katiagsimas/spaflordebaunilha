@@ -113,7 +113,7 @@ export default function Precificacao() {
                 Meu Cardápio Ativo
               </CardTitle>
               <CardDescription>
-                Produtos ativos no seu cardápio com análise de custos e margem
+                Produtos com custo, preço e lucro definidos
               </CardDescription>
             </CardHeader>
             <div className="overflow-x-auto">
