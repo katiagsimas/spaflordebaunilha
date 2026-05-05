@@ -935,7 +935,7 @@ const Encomendas = () => {
 
       <PageHeader
         title="Minhas Encomendas"
-        description="Controle completo de pedidos do cliente até a entrega"
+        description="Do pedido à entrega, tudo sob controle"
         actions={
           <Dialog open={dialogOpen} onOpenChange={(open) => {
             setDialogOpen(open);
