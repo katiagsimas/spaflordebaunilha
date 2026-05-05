@@ -30,6 +30,7 @@ const menuItems = [
   { title: "Meu Dinheiro", url: "/financeiro", icon: Wallet, active: true },
   { title: "Minhas Encomendas", url: "/encomendas", icon: ClipboardList, active: true },
   { title: "Meu Cardápio", url: "/precificacao", icon: BookOpen, active: true },
+  { title: "Meus Insumos", url: "/insumos", icon: Package, active: false, comingSoonMessage: "Em breve você terá controle total dos seus ingredientes e embalagens, com custo automático e alertas inteligentes." },
   { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: Users, active: true },
   { title: "Configurações", url: "/configuracoes", icon: Settings, active: true },
   { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false },
