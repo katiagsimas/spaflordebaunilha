@@ -26,12 +26,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 const menuItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, active: true },
-  { title: "Financeiro", url: "/financeiro", icon: DollarSign, active: true },
-  { title: "Vendas", url: "/encomendas", icon: ShoppingBag, active: true },
-  { title: "Produtos", url: "/precificacao", icon: Calculator, active: true },
-  { title: "Clientes & Fornecedores", url: "/clientes-fornecedores", icon: Users, active: true },
+  { title: "Meu Painel", url: "/dashboard", icon: LayoutDashboard, active: true },
+  { title: "Meu Dinheiro", url: "/financeiro", icon: Wallet, active: true },
+  { title: "Minhas Encomendas", url: "/encomendas", icon: ClipboardList, active: true },
+  { title: "Meu Cardápio", url: "/precificacao", icon: BookOpen, active: true },
+  { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: Users, active: true },
   { title: "Configurações", url: "/configuracoes", icon: Settings, active: true },
+  { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false },
+  { title: "Minha Presença", url: "/presenca", icon: Globe, active: false },
 ];
 
 export function AppSidebar() {
