@@ -198,9 +198,7 @@ export function AppSidebar() {
                                   </div>
                                 )}
                                 {!item.active && (
-                                  <Badge className="bg-umbrella-dourado/25 text-sidebar-foreground text-[10px] px-2 py-0.5 rounded-full font-body font-medium">
-                                    Em breve
-                                  </Badge>
+                                  <Lock className="h-3.5 w-3.5 text-sidebar-foreground/40" />
                                 )}
                               </>
                             )}
