@@ -41,8 +41,8 @@ const menuItems = [
   { title: "Meus Insumos", url: "/insumos", icon: Package, active: false, comingSoonMessage: "Em breve você terá controle total dos seus ingredientes e embalagens, com custo automático e alertas inteligentes." },
   { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: Users, active: true },
   { title: "Configurações", url: "/configuracoes", icon: Settings, active: true },
-  { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false },
-  { title: "Minha Presença", url: "/presenca", icon: Globe, active: false },
+  { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false, comingSoonMessage: "Em breve você terá um plano claro para organizar sua produção, suas vendas e crescer com estratégia." },
+  { title: "Minha Presença", url: "/presenca", icon: Globe, active: false, comingSoonMessage: "Em breve você terá controle da sua comunicação e presença online para atrair mais clientes e vender todos os dias." },
 ];
 
 export function AppSidebar() {
