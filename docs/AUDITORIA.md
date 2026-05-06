@@ -1,6 +1,17 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-05T12:45:00Z — Transferências Bancárias + Fechamento do Mês
+> Última atualização: 2026-05-06T00:30:00Z — Correções de segurança (scan)
+
+---
+
+## CORREÇÕES DE SEGURANÇA — 2026-05-06 00:30 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 62 | HTML injection em emails | ✅ | Criado `_shared/escapeHtml.ts`. Aplicado em `criar-usuario`, `hotmart-webhook`, `enviar-recuperacao-senha` para sanitizar nome e email antes de interpolar em templates HTML. |
+| 63 | Backup cron aceita anon key | ✅ | Removida aceitação da anon key em `executar-backups-agendados`. Agora aceita apenas `CRON_SECRET` ou `service_role` key. |
+| 64 | encomendas_tags SELECT permissiva | ✅ | Removida policy `Encomendas_tags visíveis para autenticados` que expunha tags de todos os usuários. Policy owner-scoped permanece. |
+| 65 | comprovantes-receber sem SELECT | ✅ | Adicionada policy SELECT owner-scoped no bucket `comprovantes-receber`. |
 
 ---
 
