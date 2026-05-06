@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.0'
 import { corsHeaders } from '../_shared/cors.ts'
+import { escapeHtml } from '../_shared/escapeHtml.ts'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -74,7 +75,7 @@ Deno.serve(async (req) => {
       .eq('email', email.trim().toLowerCase())
       .single()
 
-    const nomeDisplay = profile?.nome_completo || 'Confeiteira'
+    const nomeDisplay = escapeHtml(profile?.nome_completo || 'Confeiteira')
 
     const html = `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.6;">
