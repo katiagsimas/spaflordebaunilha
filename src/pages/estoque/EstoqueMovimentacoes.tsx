@@ -1,0 +1,106 @@
+import { useEffect } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { PageHeader } from '@/components/PageHeader';
+import { BackButton } from '@/components/BackButton';
+import { useEstoque } from '@/hooks/useEstoque';
+import { LoadingState } from '@/components/LoadingState';
+import { EmptyState } from '@/components/EmptyState';
+import { ArrowDownUp } from 'lucide-react';
+
+const TIPO_LABELS: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+  entrada: { label: 'Entrada', variant: 'default' },
+  saida_producao: { label: 'Saída (Produção)', variant: 'destructive' },
+  saida_manual: { label: 'Saída Manual', variant: 'secondary' },
+  ajuste: { label: 'Ajuste', variant: 'outline' },
+};
+
+export default function EstoqueMovimentacoes() {
+  const { movimentacoes, itens, loadingMov, fetchMovimentacoes } = useEstoque();
+
+  useEffect(() => {
+    fetchMovimentacoes();
+  }, [fetchMovimentacoes]);
+
+  const getItemNome = (estoqueId: string) => {
+    const item = itens.find(i => i.id === estoqueId);
+    return item?.nome_insumo || 'Item removido';
+  };
+
+  if (loadingMov) return <LoadingState />;
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Movimentações de Estoque"
+        description="Histórico completo de entradas, saídas e ajustes"
+        backButton={<BackButton to="/estoque" />}
+      />
+
+      {movimentacoes.length === 0 ? (
+        <EmptyState
+          icon={ArrowDownUp}
+          title="Nenhuma movimentação registrada"
+          description="As movimentações aparecerão aqui conforme você registrar entradas e ajustes."
+        />
+      ) : (
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Insumo</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead className="text-right">Quantidade</TableHead>
+                  <TableHead className="text-right">Custo Unit.</TableHead>
+                  <TableHead className="text-right">Custo Total</TableHead>
+                  <TableHead>Observação</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {movimentacoes.map((mov) => {
+                  const tipoInfo = TIPO_LABELS[mov.tipo_movimentacao] || { label: mov.tipo_movimentacao, variant: 'outline' as const };
+                  const data = new Date(mov.created_at);
+                  return (
+                    <TableRow key={mov.id}>
+                      <TableCell className="font-body text-sm">
+                        {data.toLocaleDateString('pt-BR')}
+                      </TableCell>
+                      <TableCell className="font-body font-medium">
+                        {getItemNome(mov.estoque_id)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={tipoInfo.variant} className="font-body text-xs">
+                          {tipoInfo.label}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right font-body">
+                        {mov.tipo_movimentacao === 'entrada' ? '+' : '-'}
+                        {Number(mov.quantidade).toLocaleString('pt-BR', { maximumFractionDigits: 2 })}
+                      </TableCell>
+                      <TableCell className="text-right font-body">
+                        {mov.custo_unitario != null
+                          ? Number(mov.custo_unitario).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                          : '—'}
+                      </TableCell>
+                      <TableCell className="text-right font-body">
+                        {mov.custo_total != null
+                          ? Number(mov.custo_total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                          : '—'}
+                      </TableCell>
+                      <TableCell className="font-body text-sm text-muted-foreground max-w-48 truncate">
+                        {mov.observacao || '—'}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
