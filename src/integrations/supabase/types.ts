@@ -1329,6 +1329,116 @@ export type Database = {
           },
         ]
       }
+      estoque: {
+        Row: {
+          created_at: string
+          custo_medio: number
+          embalagem_id: string | null
+          estoque_minimo: number | null
+          id: string
+          ingrediente_id: string | null
+          owner_group_id: string | null
+          quantidade_atual: number
+          tipo: string
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string
+          custo_medio?: number
+          embalagem_id?: string | null
+          estoque_minimo?: number | null
+          id?: string
+          ingrediente_id?: string | null
+          owner_group_id?: string | null
+          quantidade_atual?: number
+          tipo: string
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string
+          custo_medio?: number
+          embalagem_id?: string | null
+          estoque_minimo?: number | null
+          id?: string
+          ingrediente_id?: string | null
+          owner_group_id?: string | null
+          quantidade_atual?: number
+          tipo?: string
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estoque_embalagem_id_fkey"
+            columns: ["embalagem_id"]
+            isOneToOne: false
+            referencedRelation: "embalagens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "estoque_ingrediente_id_fkey"
+            columns: ["ingrediente_id"]
+            isOneToOne: false
+            referencedRelation: "ingredientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      estoque_movimentacoes: {
+        Row: {
+          created_at: string
+          custo_total: number | null
+          custo_unitario: number | null
+          estoque_id: string
+          id: string
+          observacao: string | null
+          owner_group_id: string | null
+          quantidade: number
+          referencia_id: string | null
+          referencia_tipo: string | null
+          tipo_movimentacao: string
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string
+          custo_total?: number | null
+          custo_unitario?: number | null
+          estoque_id: string
+          id?: string
+          observacao?: string | null
+          owner_group_id?: string | null
+          quantidade: number
+          referencia_id?: string | null
+          referencia_tipo?: string | null
+          tipo_movimentacao: string
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string
+          custo_total?: number | null
+          custo_unitario?: number | null
+          estoque_id?: string
+          id?: string
+          observacao?: string | null
+          owner_group_id?: string | null
+          quantidade?: number
+          referencia_id?: string | null
+          referencia_tipo?: string | null
+          tipo_movimentacao?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estoque_movimentacoes_estoque_id_fkey"
+            columns: ["estoque_id"]
+            isOneToOne: false
+            referencedRelation: "estoque"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fornecedor_contatos: {
         Row: {
           ativo: boolean | null
