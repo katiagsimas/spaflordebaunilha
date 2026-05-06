@@ -1,6 +1,20 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-06T00:30:00Z — Correções de segurança (scan)
+> Última atualização: 2026-05-06T21:00:00Z — Módulo de Estoque criado
+
+---
+
+## MÓDULO DE ESTOQUE — 2026-05-06 21:00 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 66 | Tabela `estoque` | ✅ | Criada com RLS owner + RESTRICTIVE plan_check |
+| 67 | Tabela `estoque_movimentacoes` | ✅ | Criada com RLS owner + RESTRICTIVE plan_check, sem UPDATE |
+| 68 | Sidebar "Meus Insumos" | ✅ | Movido de "Em Breve" para menu principal, apontando /estoque |
+| 69 | PlanoGuard /estoque/* | ✅ | Rotas bloqueadas para Caixa Lite |
+| 70 | Hook useEstoque | ✅ | CRUD estoque + movimentações + custo médio ponderado |
+| 71 | Páginas Dashboard/Entrada/Ajuste/Movimentações | ✅ | 4 telas criadas em src/pages/estoque/ |
+| 72 | DOCS_ESTOQUE.md | ✅ | Documentação do módulo criada |
 
 ---
 

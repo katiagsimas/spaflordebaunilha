@@ -39,10 +39,10 @@ const mainMenuItems = [
   { title: "Minhas Encomendas", url: "/encomendas", icon: ClipboardList, active: true },
   { title: "Meu Cardápio", url: "/precificacao", icon: BookOpen, active: true },
   { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: Users, active: true },
+  { title: "Meus Insumos", url: "/estoque", icon: Package, active: true },
 ];
 
 const comingSoonItems = [
-  { title: "Meus Insumos", url: "/insumos", icon: Package, active: false, comingSoonMessage: "Em breve você terá controle total dos seus ingredientes e embalagens, com custo automático e alertas inteligentes." },
   { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false, comingSoonMessage: "Em breve você terá um plano claro para organizar sua produção, suas vendas e crescer com estratégia." },
   { title: "Minha Presença", url: "/presenca", icon: Globe, active: false, comingSoonMessage: "Em breve você terá controle da sua comunicação e presença online para atrair mais clientes e vender todos os dias." },
 ];

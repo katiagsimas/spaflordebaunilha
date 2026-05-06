@@ -67,6 +67,10 @@ import LogsAdmin from "./pages/admin/Logs";
 import Governanca from "./pages/admin/Governanca";
 import Upgrade from "./pages/Upgrade";
 import { PlanoGuard } from "./components/PlanoGuard";
+import EstoqueDashboard from "./pages/estoque/EstoqueDashboard";
+import EstoqueEntrada from "./pages/estoque/EstoqueEntrada";
+import EstoqueAjuste from "./pages/estoque/EstoqueAjuste";
+import EstoqueMovimentacoes from "./pages/estoque/EstoqueMovimentacoes";
 
 
 const queryClient = new QueryClient();
@@ -250,6 +254,12 @@ const App = () => (
           
           {/* Financeiro - DRE */}
           <Route path="/financeiro/dre" element={<ProtectedRoute><Layout><PlanoGuard><DRE /></PlanoGuard></Layout></ProtectedRoute>} />
+          
+          {/* Estoque */}
+          <Route path="/estoque" element={<ProtectedRoute><Layout><PlanoGuard><EstoqueDashboard /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/estoque/entrada" element={<ProtectedRoute><Layout><PlanoGuard><EstoqueEntrada /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/estoque/ajuste" element={<ProtectedRoute><Layout><PlanoGuard><EstoqueAjuste /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/estoque/movimentacoes" element={<ProtectedRoute><Layout><PlanoGuard><EstoqueMovimentacoes /></PlanoGuard></Layout></ProtectedRoute>} />
           
           {/* Admin - Gestão de Usuários */}
           <Route path="/admin/usuarios" element={<ProtectedRoute><Layout><Usuarios /></Layout></ProtectedRoute>} />
