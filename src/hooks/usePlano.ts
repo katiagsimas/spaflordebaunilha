@@ -18,6 +18,7 @@ const MODULOS_POR_PLANO: Record<string, string[]> = {
     "/configuracoes/precificacao/mao-de-obra",
     "/configuracoes/dados-confeitaria",
     "/configuracoes/tags-encomendas",
+    // Estoque NÃO incluso no Lite
   ],
   start: ["*"],   // acesso total (período curto)
   negocio: ["*"], // acesso total
