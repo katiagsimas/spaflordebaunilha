@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.0'
 import { corsHeaders } from '../_shared/cors.ts'
+import { escapeHtml } from '../_shared/escapeHtml.ts'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -254,7 +255,8 @@ async function enviarEmailBoasVindas(
     return
   }
 
-  const nomeDisplay = nome || 'Confeiteira'
+  const nomeDisplay = escapeHtml(nome || 'Confeiteira')
+  const emailSafe = escapeHtml(email)
   const planoNome = planoId === 'negocio' ? 'Caixa Business' : 'Caixa Lite'
 
   const html = `
@@ -264,7 +266,7 @@ async function enviarEmailBoasVindas(
       <ol>
         <li>Acesse <a href="https://caixa.umbrelladoce.com.br" style="color: #D89B8C;">caixa.umbrelladoce.com.br</a></li>
         <li>Clique em <strong>"Esqueci minha senha"</strong></li>
-        <li>Digite o email <strong>${email}</strong> para receber o link de acesso</li>
+        <li>Digite o email <strong>${emailSafe}</strong> para receber o link de acesso</li>
       </ol>
       <p><strong>Seu plano:</strong> ${planoNome}</p>
       <p>Qualquer dúvida, responda este email ou acesse o suporte através do e-mail <a href="mailto:ola@umbrelladoce.com.br" style="color: #D89B8C;">ola@umbrelladoce.com.br</a></p>
