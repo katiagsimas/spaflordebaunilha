@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
     : "";
 
   const autorizadoPorSecret = !!cronSecret && callerSecret === cronSecret;
-  const autorizadoPorBearer = !!bearer && (bearer === anonKey || bearer === serviceKey);
+  const autorizadoPorBearer = !!bearer && bearer === serviceKey;
 
   if (!autorizadoPorSecret && !autorizadoPorBearer) {
     return new Response(JSON.stringify({ error: "Não autorizado" }), {
