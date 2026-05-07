@@ -227,6 +227,33 @@ export function AppSidebar() {
             <SidebarMenu>
               {comingSoonItems.map((item) => {
                 const Icon = item.icon;
+                const adminUnlocked = !!(item as any).adminOnly && isAdmin;
+                if (adminUnlocked) {
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild isActive={false}>
+                        <NavLink
+                          to={item.url}
+                          end
+                          className={({ isActive }) =>
+                            `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
+                              isActive
+                                ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+                                : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
+                            }`
+                          }
+                        >
+                          {({ isActive }) => (
+                            <>
+                              <Icon className={`h-5 w-5 ${isActive ? 'text-cda-dourado' : 'text-sidebar-foreground/60'}`} />
+                              {open && <span className="flex-1">{item.title}</span>}
+                            </>
+                          )}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                }
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild isActive={false} disabled>
