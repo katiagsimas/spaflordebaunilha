@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight, Calendar, Gift, Heart, Star, PartyPopper, Fl
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useGroup } from "@/contexts/GroupContext";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addMonths, subMonths, isSameDay, parseISO, differenceInDays, addDays } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addMonths, subMonths, isSameDay, parseISO, differenceInDays, addDays, addWeeks, getMonth, getDate } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 
