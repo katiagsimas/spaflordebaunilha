@@ -88,15 +88,15 @@ docs/
 
 ## 4. DESIGN SYSTEM
 
-### 4.1 Paleta Umbrella Doce
+### 4.1 Paleta Caixa de Açúcar
 | Token | Cor | HSL |
 |-------|-----|-----|
-| `--umbrella-preto` | #1C1C1C | `0 0% 11%` |
-| `--umbrella-cloud` | #F5F4F1 | `40 11% 95%` |
-| `--umbrella-pistache` | #BFCFB8 | `107 22% 76%` |
-| `--umbrella-dourado` | #C6A85A | `42 47% 56%` |
-| `--umbrella-coral` | #F28C82 | `5 82% 73%` |
-| `--umbrella-pink` | #E7A1AF | `345 52% 77%` |
+| `--cda-preto` | #1C1C1C | `0 0% 11%` |
+| `--cda-cloud` | #F5F4F1 | `40 11% 95%` |
+| `--cda-pistache` | #BFCFB8 | `107 22% 76%` |
+| `--cda-dourado` | #C6A85A | `42 47% 56%` |
+| `--cda-coral` | #F28C82 | `5 82% 73%` |
+| `--cda-pink` | #E7A1AF | `345 52% 77%` |
 
 ### 4.2 Tokens Semânticos
 - `--primary`: Preto (#1C1C1C)
