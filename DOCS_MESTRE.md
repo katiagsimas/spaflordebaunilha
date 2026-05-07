@@ -15,7 +15,7 @@ Caixa de Açúcar é um sistema web de gestão completo para confeitarias. Permi
 Confeiteiras, doceiras e pequenas empresas do ramo de confeitaria.
 
 ### 1.3 Ecossistema
-O Caixa de Açúcar é um produto independente do ecossistema **Umbrella Doce**. A criação de usuários é feita exclusivamente pelo **painel admin** ou pelo **webhook da Hotmart** (compra automática). Não existe autocadastro público nem SSO externo (removido em abril/2026).
+O Caixa de Açúcar é o sistema principal da **Umbrella Doce**, concentrando todos os projetos da empresa. A criação de usuários é feita exclusivamente pelo **painel admin** ou pelo **webhook da Hotmart** (compra automática). Não existe autocadastro público nem SSO externo (removido em abril/2026).
 
 > 📄 Detalhes em [DOCS_AUTENTICACAO.md](./DOCS_AUTENTICACAO.md)
 
