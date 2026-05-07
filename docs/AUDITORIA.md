@@ -372,3 +372,10 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 - ✅ Criado `src/hooks/useBaixaEstoqueEncomenda.ts` — função `executarBaixaEstoqueEncomenda` que percorre itens da encomenda, busca ingredientes/embalagens de cada receita, e registra saída de produção no estoque.
 - ✅ Integrado em `src/pages/Encomendas.tsx` — ao mudar status para "entregue", a baixa é executada automaticamente com feedback via toasts.
 - ✅ Movimentações registradas como `saida_producao` com `referencia_tipo = 'encomenda'` e `referencia_id` apontando para a encomenda.
+
+## 2026-05-07T15:52:51Z — Meus Insumos movido para 'Em Breve'
+- Módulo removido do menu principal e adicionado à seção 'Em Breve' com cadeado
+- Acesso liberado apenas para usuários admin
+- PlanoGuard bloqueia /estoque para não-admins
+- Sidebar mostra link ativo (sem cadeado) somente para admin
+
