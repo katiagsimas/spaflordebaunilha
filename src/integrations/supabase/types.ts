@@ -1766,6 +1766,206 @@ export type Database = {
           },
         ]
       }
+      planejamento_datas_comemorativas: {
+        Row: {
+          ativo: boolean
+          cor: string | null
+          created_at: string
+          data_referencia: string
+          icone: string | null
+          id: string
+          is_system: boolean
+          nome: string
+          owner_group_id: string | null
+          tipo: Database["public"]["Enums"]["planejamento_data_tipo"]
+        }
+        Insert: {
+          ativo?: boolean
+          cor?: string | null
+          created_at?: string
+          data_referencia: string
+          icone?: string | null
+          id?: string
+          is_system?: boolean
+          nome: string
+          owner_group_id?: string | null
+          tipo?: Database["public"]["Enums"]["planejamento_data_tipo"]
+        }
+        Update: {
+          ativo?: boolean
+          cor?: string | null
+          created_at?: string
+          data_referencia?: string
+          icone?: string | null
+          id?: string
+          is_system?: boolean
+          nome?: string
+          owner_group_id?: string | null
+          tipo?: Database["public"]["Enums"]["planejamento_data_tipo"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planejamento_datas_comemorativas_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      planejamento_descanso: {
+        Row: {
+          created_at: string
+          data_fim: string
+          data_inicio: string
+          id: string
+          observacao: string | null
+          owner_group_id: string
+          tipo: Database["public"]["Enums"]["planejamento_descanso_tipo"]
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          data_fim: string
+          data_inicio: string
+          id?: string
+          observacao?: string | null
+          owner_group_id: string
+          tipo?: Database["public"]["Enums"]["planejamento_descanso_tipo"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          data_fim?: string
+          data_inicio?: string
+          id?: string
+          observacao?: string | null
+          owner_group_id?: string
+          tipo?: Database["public"]["Enums"]["planejamento_descanso_tipo"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planejamento_descanso_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      planejamento_metas: {
+        Row: {
+          area: Database["public"]["Enums"]["planejamento_area"]
+          created_at: string
+          descricao: string | null
+          id: string
+          owner_group_id: string
+          periodo_fim: string
+          periodo_inicio: string
+          status: Database["public"]["Enums"]["planejamento_status"]
+          titulo: string
+          unidade: string | null
+          updated_at: string
+          valor_alvo: number
+          valor_atual: number
+        }
+        Insert: {
+          area: Database["public"]["Enums"]["planejamento_area"]
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          owner_group_id: string
+          periodo_fim: string
+          periodo_inicio: string
+          status?: Database["public"]["Enums"]["planejamento_status"]
+          titulo: string
+          unidade?: string | null
+          updated_at?: string
+          valor_alvo?: number
+          valor_atual?: number
+        }
+        Update: {
+          area?: Database["public"]["Enums"]["planejamento_area"]
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          owner_group_id?: string
+          periodo_fim?: string
+          periodo_inicio?: string
+          status?: Database["public"]["Enums"]["planejamento_status"]
+          titulo?: string
+          unidade?: string | null
+          updated_at?: string
+          valor_alvo?: number
+          valor_atual?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planejamento_metas_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      planejamento_tarefas: {
+        Row: {
+          area: Database["public"]["Enums"]["planejamento_area"]
+          created_at: string
+          data_conclusao: string | null
+          descricao: string | null
+          id: string
+          owner_group_id: string
+          prazo: string | null
+          prioridade: Database["public"]["Enums"]["planejamento_prioridade"]
+          status: Database["public"]["Enums"]["planejamento_status"]
+          titulo: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          area: Database["public"]["Enums"]["planejamento_area"]
+          created_at?: string
+          data_conclusao?: string | null
+          descricao?: string | null
+          id?: string
+          owner_group_id: string
+          prazo?: string | null
+          prioridade?: Database["public"]["Enums"]["planejamento_prioridade"]
+          status?: Database["public"]["Enums"]["planejamento_status"]
+          titulo: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          area?: Database["public"]["Enums"]["planejamento_area"]
+          created_at?: string
+          data_conclusao?: string | null
+          descricao?: string | null
+          id?: string
+          owner_group_id?: string
+          prazo?: string | null
+          prioridade?: Database["public"]["Enums"]["planejamento_prioridade"]
+          status?: Database["public"]["Enums"]["planejamento_status"]
+          titulo?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planejamento_tarefas_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plano_contas: {
         Row: {
           ativo: boolean | null
@@ -3302,6 +3502,21 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      planejamento_area:
+        | "financeiro"
+        | "vendas"
+        | "marketing"
+        | "pessoal"
+        | "producao"
+        | "atendimento"
+      planejamento_data_tipo: "comemorativa" | "pessoal" | "descanso"
+      planejamento_descanso_tipo: "ferias" | "folga" | "pessoal"
+      planejamento_prioridade: "alta" | "media" | "baixa"
+      planejamento_status:
+        | "pendente"
+        | "em_andamento"
+        | "concluida"
+        | "cancelada"
       role_global: "MOTHER"
       role_group: "ADMIN" | "USER"
       status_entrada: "ATIVO" | "CONSUMIDO"
@@ -3435,6 +3650,23 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      planejamento_area: [
+        "financeiro",
+        "vendas",
+        "marketing",
+        "pessoal",
+        "producao",
+        "atendimento",
+      ],
+      planejamento_data_tipo: ["comemorativa", "pessoal", "descanso"],
+      planejamento_descanso_tipo: ["ferias", "folga", "pessoal"],
+      planejamento_prioridade: ["alta", "media", "baixa"],
+      planejamento_status: [
+        "pendente",
+        "em_andamento",
+        "concluida",
+        "cancelada",
+      ],
       role_global: ["MOTHER"],
       role_group: ["ADMIN", "USER"],
       status_entrada: ["ATIVO", "CONSUMIDO"],
