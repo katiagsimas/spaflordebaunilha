@@ -241,7 +241,14 @@ export function PlanejamentoBemEstar() {
                 <div key={d.id} className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/20">
                   <Icon className={`h-5 w-5 ${info.color} flex-shrink-0`} />
                   <div className="flex-1">
-                    <div className="font-medium">{info.label} — {dias} dia{dias > 1 ? "s" : ""}</div>
+                    <div className="font-medium flex items-center gap-2">
+                      {info.label} — {dias} dia{dias > 1 ? "s" : ""}
+                      {d.recorrente && (
+                        <Badge variant="outline" className="text-[10px] py-0 px-1.5">
+                          🔁 {d.recorrencia_tipo === "semanal" ? "Semanal" : d.recorrencia_tipo === "mensal" ? "Mensal" : "Anual"}
+                        </Badge>
+                      )}
+                    </div>
                     <div className="text-sm text-muted-foreground">
                       {format(parseISO(d.data_inicio), "dd/MM/yyyy")} a {format(parseISO(d.data_fim), "dd/MM/yyyy")}
                     </div>
