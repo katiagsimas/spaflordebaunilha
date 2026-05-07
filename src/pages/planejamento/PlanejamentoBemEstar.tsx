@@ -60,7 +60,7 @@ export function PlanejamentoBemEstar() {
       queryClient.invalidateQueries({ queryKey: ["planejamento-descanso"] });
       toast.success("Descanso registrado!");
       setDialogOpen(false);
-      setForm({ data_inicio: "", data_fim: "", tipo: "folga", observacao: "" });
+      setForm({ data_inicio: "", data_fim: "", tipo: "folga", observacao: "", recorrente: false, recorrencia_tipo: "anual" });
     },
     onError: () => toast.error("Erro ao registrar descanso"),
   });
