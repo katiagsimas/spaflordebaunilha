@@ -43,7 +43,7 @@ const mainMenuItems = [
 
 const comingSoonItems = [
   { title: "Meus Insumos", url: "/estoque", icon: Package, active: false, comingSoonMessage: "Em breve você terá controle total dos seus insumos, com entrada, saída e ajuste de estoque integrados às suas receitas e encomendas.", adminOnly: true },
-  { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false, comingSoonMessage: "Em breve você terá um plano claro para organizar sua produção, suas vendas e crescer com estratégia." },
+  { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false, comingSoonMessage: "Em breve você terá um plano claro para organizar sua produção, suas vendas e crescer com estratégia.", adminOnly: true },
   { title: "Minha Presença", url: "/presenca", icon: Globe, active: false, comingSoonMessage: "Em breve você terá controle da sua comunicação e presença online para atrair mais clientes e vender todos os dias." },
 ];
 
