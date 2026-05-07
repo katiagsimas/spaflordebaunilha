@@ -51,6 +51,8 @@ export function PlanejamentoBemEstar() {
         data_fim: form.data_fim,
         tipo: form.tipo,
         observacao: form.observacao || null,
+        recorrente: form.recorrente,
+        recorrencia_tipo: form.recorrente ? form.recorrencia_tipo : null,
       }) as any);
       if (error) throw error;
     },
