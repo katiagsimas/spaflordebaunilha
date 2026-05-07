@@ -26,7 +26,7 @@ export function PlanejamentoBemEstar() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState({ data_inicio: "", data_fim: "", tipo: "folga", observacao: "" });
+  const [form, setForm] = useState({ data_inicio: "", data_fim: "", tipo: "folga", observacao: "", recorrente: false, recorrencia_tipo: "anual" });
 
   const { data: descansos = [] } = useQuery({
     queryKey: ["planejamento-descanso", activeGroup?.id],
