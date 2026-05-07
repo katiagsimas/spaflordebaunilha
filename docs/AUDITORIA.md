@@ -379,3 +379,16 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 - PlanoGuard bloqueia /estoque para não-admins
 - Sidebar mostra link ativo (sem cadeado) somente para admin
 
+
+
+## 2026-05-07 — Módulo Meu Planejamento (Fase 1)
+- ✅ Criadas tabelas: planejamento_metas, planejamento_tarefas, planejamento_datas_comemorativas, planejamento_descanso
+- ✅ RLS multi-tenancy por owner_group_id em todas as tabelas
+- ✅ Seed de 11 datas comemorativas brasileiras (is_system=true)
+- ✅ Enums: planejamento_area, planejamento_prioridade, planejamento_status, planejamento_data_tipo, planejamento_descanso_tipo
+- ✅ UI com 4 abas: Calendário, Metas, Tarefas, Bem-Estar
+- ✅ Integração: encomendas e descansos exibidos no calendário
+- ✅ Acesso admin-only (PlanoGuard bloqueia /planejamento para não-admin)
+- ✅ Sidebar: Meu Planejamento em 'Em Breve' com adminOnly=true
+- ✅ Documentação: DOCS_PLANEJAMENTO.md criado
+
