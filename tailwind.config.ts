@@ -68,7 +68,7 @@ export default {
           DEFAULT: "hsl(var(--info))",
           light: "hsl(var(--info) / 0.1)",
         },
-        umbrella: {
+        cda: {
           preto: '#1C1C1C',
           cloud: '#F5F4F1',
           pistache: '#BFCFB8',
