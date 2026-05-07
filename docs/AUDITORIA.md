@@ -1,6 +1,19 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-06T21:00:00Z — Módulo de Estoque criado
+> Última atualização: 2026-05-07T12:00:00Z — Remoção de referências ao app Umbrella Doce
+
+---
+
+## REMOÇÃO APP UMBRELLA DOCE — 2026-05-07 12:00 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 73 | Tokens CSS `--umbrella-*` → `--cda-*` | ✅ | Renomeados em index.css, tailwind.config.ts e todos os componentes que usavam classes `umbrella-*` |
+| 74 | Logo `umbrella-logo-dourado.png` → `cda-logo-dourado.png` | ✅ | Renomeado em public/ e src/assets/. Referências atualizadas em index.html e LoadingMascote.tsx |
+| 75 | Alt texts e comentários | ✅ | Alterados de "Umbrella Doce — Gestão para Confeitarias" para "Caixa de Açúcar — Gestão para Confeitarias" |
+| 76 | Link upgrade `gestao.umbrelladoce.com.br` | ✅ | Removido de AlertaExpiracaoPlano.tsx |
+| 77 | DOCS_MESTRE.md | ✅ | Atualizado ecossistema, paleta e tokens. Mantido "by Umbrella Doce" como marca da empresa |
+| 78 | Referências mantidas (empresa) | ℹ️ | Emails (@umbrelladoce.com.br), domínio (caixa.umbrelladoce.com.br) e branding "by Umbrella Doce" preservados — são da empresa, não do app |
 
 ---
 
