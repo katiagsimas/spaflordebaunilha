@@ -1187,6 +1187,7 @@ export type Database = {
           desconto_percentual: number | null
           desconto_valor: number | null
           endereco: string | null
+          estoque_baixa_realizada: boolean
           hora_entrega: string | null
           id: string
           numero: string | null
@@ -1220,6 +1221,7 @@ export type Database = {
           desconto_percentual?: number | null
           desconto_valor?: number | null
           endereco?: string | null
+          estoque_baixa_realizada?: boolean
           hora_entrega?: string | null
           id?: string
           numero?: string | null
@@ -1253,6 +1255,7 @@ export type Database = {
           desconto_percentual?: number | null
           desconto_valor?: number | null
           endereco?: string | null
+          estoque_baixa_realizada?: boolean
           hora_entrega?: string | null
           id?: string
           numero?: string | null

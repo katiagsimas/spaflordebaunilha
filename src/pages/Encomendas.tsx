@@ -33,6 +33,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from 'xlsx';
 import { z } from 'zod';
+import { executarBaixaEstoqueEncomenda } from '@/hooks/useBaixaEstoqueEncomenda';
 
 const statusColors = {
   pendente: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -367,6 +368,28 @@ const Encomendas = () => {
         });
         
         await updateEncomenda(editingOrder.id, dadosParaSalvar);
+        
+        // Baixa automática de estoque ao marcar como "entregue"
+        if (
+          dadosParaSalvar.status === 'entregue' &&
+          editingOrder.status !== 'entregue' &&
+          !editingOrder.estoque_baixa_realizada
+        ) {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            const resultado = await executarBaixaEstoqueEncomenda(
+              editingOrder.id,
+              user.id,
+              editingOrder.owner_group_id,
+            );
+            if (resultado.sucesso && resultado.itensProcessados > 0) {
+              toast.success(`Estoque atualizado: ${resultado.itensProcessados} insumo(s) baixados.`);
+            }
+            if (resultado.avisos.length > 0) {
+              resultado.avisos.forEach(a => toast.warning(a, { duration: 6000 }));
+            }
+          }
+        }
         
         // Salvar tags ao atualizar
         // Deletar tags antigas
