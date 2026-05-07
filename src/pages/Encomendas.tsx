@@ -925,8 +925,8 @@ const Encomendas = () => {
   return (
     <div className="space-y-8">
       {temEncomendasHoje && (
-        <Alert className="border-2 border-umbrella-dourado bg-umbrella-dourado/15 animate-pulse">
-          <AlertCircle className="h-5 w-5 text-umbrella-dourado" />
+        <Alert className="border-2 border-cda-dourado bg-cda-dourado/15 animate-pulse">
+          <AlertCircle className="h-5 w-5 text-cda-dourado" />
           <AlertDescription className="font-semibold text-foreground ml-2">
             🔔 Você tem {encomendasHojeQtd} encomenda{encomendasHojeQtd > 1 ? "s" : ""} para entregar HOJE!
           </AlertDescription>

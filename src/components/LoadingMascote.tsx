@@ -1,5 +1,5 @@
 import React from "react";
-import umbrellaLogo from "@/assets/umbrella-logo-dourado.png";
+import cdaLogo from "@/assets/cda-logo-dourado.png";
 
 interface LoadingMascoteProps {
   size?: number;
@@ -13,7 +13,7 @@ export function LoadingMascote({
   return (
     <div className="flex flex-col items-center justify-center gap-3">
       <img
-        src={umbrellaLogo}
+        src={cdaLogo}
         alt="Carregando - Caixa de Açúcar"
         style={{ width: size, height: size }}
         className="animate-spin-slow"

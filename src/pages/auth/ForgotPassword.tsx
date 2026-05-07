@@ -51,21 +51,21 @@ export default function ForgotPassword() {
           <div className="text-center space-y-3">
             <div className="flex items-center justify-center gap-3">
               <img src={caixaAcucarIcon} alt="Caixa de Açúcar" className="h-20 w-20" />
-              <h1 className="text-3xl font-display font-bold text-umbrella-cloud tracking-tight">
+              <h1 className="text-3xl font-display font-bold text-cda-cloud tracking-tight">
                 Caixa de Açúcar
               </h1>
             </div>
-            <p className="text-sm font-body italic text-umbrella-dourado tracking-wider">
+            <p className="text-sm font-body italic text-cda-dourado tracking-wider">
               by Umbrella Doce
             </p>
           </div>
 
-          <Card className="bg-umbrella-cloud border-0 shadow-elevated rounded-2xl">
+          <Card className="bg-cda-cloud border-0 shadow-elevated rounded-2xl">
             <CardHeader className="pb-2 pt-8">
               <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-2">
                 <Mail className="w-8 h-8 text-green-600" />
               </div>
-              <h2 className="text-xl font-display font-semibold text-umbrella-preto text-center">
+              <h2 className="text-xl font-display font-semibold text-cda-preto text-center">
                 Email Enviado!
               </h2>
               <p className="text-sm font-body text-muted-foreground text-center">
@@ -85,7 +85,7 @@ export default function ForgotPassword() {
             </CardFooter>
           </Card>
 
-          <p className="text-center text-xs font-body text-umbrella-cloud/40">
+          <p className="text-center text-xs font-body text-cda-cloud/40">
             Sistema de gestão para confeitarias
           </p>
         </div>
@@ -98,18 +98,18 @@ export default function ForgotPassword() {
         <div className="text-center space-y-3">
           <div className="flex items-center justify-center gap-3">
             <img src={caixaAcucarIcon} alt="Caixa de Açúcar" className="h-20 w-20" />
-            <h1 className="text-3xl font-display font-bold text-umbrella-cloud tracking-tight">
+            <h1 className="text-3xl font-display font-bold text-cda-cloud tracking-tight">
               Caixa de Açúcar
             </h1>
           </div>
-          <p className="text-sm font-body italic text-umbrella-dourado tracking-wider">
+          <p className="text-sm font-body italic text-cda-dourado tracking-wider">
             by Umbrella Doce
           </p>
         </div>
 
-        <Card className="bg-umbrella-cloud border-0 shadow-elevated rounded-2xl">
+        <Card className="bg-cda-cloud border-0 shadow-elevated rounded-2xl">
           <CardHeader className="pb-2 pt-8">
-            <h2 className="text-xl font-display font-semibold text-umbrella-preto text-center">
+            <h2 className="text-xl font-display font-semibold text-cda-preto text-center">
               Esqueceu sua senha?
             </h2>
             <p className="text-sm font-body text-muted-foreground text-center">
@@ -120,7 +120,7 @@ export default function ForgotPassword() {
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4 px-8">
               <div className="space-y-2">
-                <Label htmlFor="email" className="font-body text-sm font-medium text-umbrella-preto">Email</Label>
+                <Label htmlFor="email" className="font-body text-sm font-medium text-cda-preto">Email</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -161,7 +161,7 @@ export default function ForgotPassword() {
           </form>
         </Card>
 
-        <p className="text-center text-xs font-body text-umbrella-cloud/40">
+        <p className="text-center text-xs font-body text-cda-cloud/40">
           Sistema de gestão para confeitarias
         </p>
       </div>
@@ -169,12 +169,12 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen flex bg-umbrella-preto">
+    <div className="min-h-screen flex bg-cda-preto">
       {/* Lado esquerdo — Imagem de marca */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <img
           src={authBrandImage}
-          alt="Umbrella Doce — Gestão para Confeitarias"
+          alt="Caixa de Açúcar — Gestão para Confeitarias"
           className="absolute inset-0 w-full h-full object-cover"
         />
       </div>

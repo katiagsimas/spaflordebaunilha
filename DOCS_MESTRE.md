@@ -15,7 +15,7 @@ Caixa de Açúcar é um sistema web de gestão completo para confeitarias. Permi
 Confeiteiras, doceiras e pequenas empresas do ramo de confeitaria.
 
 ### 1.3 Ecossistema
-O Caixa de Açúcar é um produto independente do ecossistema **Umbrella Doce**. A criação de usuários é feita exclusivamente pelo **painel admin** ou pelo **webhook da Hotmart** (compra automática). Não existe autocadastro público nem SSO externo (removido em abril/2026).
+O Caixa de Açúcar é o sistema principal da **Umbrella Doce**, concentrando todos os projetos da empresa. A criação de usuários é feita exclusivamente pelo **painel admin** ou pelo **webhook da Hotmart** (compra automática). Não existe autocadastro público nem SSO externo (removido em abril/2026).
 
 > 📄 Detalhes em [DOCS_AUTENTICACAO.md](./DOCS_AUTENTICACAO.md)
 
@@ -88,15 +88,15 @@ docs/
 
 ## 4. DESIGN SYSTEM
 
-### 4.1 Paleta Umbrella Doce
+### 4.1 Paleta Caixa de Açúcar
 | Token | Cor | HSL |
 |-------|-----|-----|
-| `--umbrella-preto` | #1C1C1C | `0 0% 11%` |
-| `--umbrella-cloud` | #F5F4F1 | `40 11% 95%` |
-| `--umbrella-pistache` | #BFCFB8 | `107 22% 76%` |
-| `--umbrella-dourado` | #C6A85A | `42 47% 56%` |
-| `--umbrella-coral` | #F28C82 | `5 82% 73%` |
-| `--umbrella-pink` | #E7A1AF | `345 52% 77%` |
+| `--cda-preto` | #1C1C1C | `0 0% 11%` |
+| `--cda-cloud` | #F5F4F1 | `40 11% 95%` |
+| `--cda-pistache` | #BFCFB8 | `107 22% 76%` |
+| `--cda-dourado` | #C6A85A | `42 47% 56%` |
+| `--cda-coral` | #F28C82 | `5 82% 73%` |
+| `--cda-pink` | #E7A1AF | `345 52% 77%` |
 
 ### 4.2 Tokens Semânticos
 - `--primary`: Preto (#1C1C1C)
