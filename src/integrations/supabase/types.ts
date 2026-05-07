@@ -1777,6 +1777,7 @@ export type Database = {
           is_system: boolean
           nome: string
           owner_group_id: string | null
+          recorrente: boolean
           tipo: Database["public"]["Enums"]["planejamento_data_tipo"]
         }
         Insert: {
@@ -1789,6 +1790,7 @@ export type Database = {
           is_system?: boolean
           nome: string
           owner_group_id?: string | null
+          recorrente?: boolean
           tipo?: Database["public"]["Enums"]["planejamento_data_tipo"]
         }
         Update: {
@@ -1801,6 +1803,7 @@ export type Database = {
           is_system?: boolean
           nome?: string
           owner_group_id?: string | null
+          recorrente?: boolean
           tipo?: Database["public"]["Enums"]["planejamento_data_tipo"]
         }
         Relationships: [
@@ -1821,6 +1824,8 @@ export type Database = {
           id: string
           observacao: string | null
           owner_group_id: string
+          recorrencia_tipo: string | null
+          recorrente: boolean
           tipo: Database["public"]["Enums"]["planejamento_descanso_tipo"]
           updated_at: string
           user_id: string | null
@@ -1832,6 +1837,8 @@ export type Database = {
           id?: string
           observacao?: string | null
           owner_group_id: string
+          recorrencia_tipo?: string | null
+          recorrente?: boolean
           tipo?: Database["public"]["Enums"]["planejamento_descanso_tipo"]
           updated_at?: string
           user_id?: string | null
@@ -1843,6 +1850,8 @@ export type Database = {
           id?: string
           observacao?: string | null
           owner_group_id?: string
+          recorrencia_tipo?: string | null
+          recorrente?: boolean
           tipo?: Database["public"]["Enums"]["planejamento_descanso_tipo"]
           updated_at?: string
           user_id?: string | null
