@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+# ============================================================
+# check-umbrella-refs.sh
+# Verifica que não existem referências ao "app Umbrella Doce"
+# no código-fonte. Apenas "by Umbrella Doce" (marca da empresa),
+# emails @umbrelladoce.com.br e domínio caixa.umbrelladoce.com.br
+# são permitidos.
+# ============================================================
+set -euo pipefail
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+ERRORS=0
+
+echo "🔍 Verificando referências proibidas ao app Umbrella Doce..."
+echo ""
+
+# 1. Tokens CSS antigos --umbrella-*
+echo -n "  [1/6] Tokens CSS --umbrella-* ... "
+HITS=$(rg --count-matches -- '--umbrella-' src/ tailwind.config.ts index.html 2>/dev/null || true)
+if [ -n "$HITS" ]; then
+  echo -e "${RED}FALHOU${NC}"
+  rg -n -- '--umbrella-' src/ tailwind.config.ts index.html 2>/dev/null || true
+  ERRORS=$((ERRORS + 1))
+else
+  echo -e "${GREEN}OK${NC}"
+fi
+
+# 2. Logo antiga umbrella-logo-*
+echo -n "  [2/6] Logo umbrella-logo-* ... "
+HITS=$(find public/ src/assets/ -name 'umbrella-logo-*' 2>/dev/null | head -1)
+if [ -n "$HITS" ]; then
+  echo -e "${RED}FALHOU${NC} — $HITS"
+  ERRORS=$((ERRORS + 1))
+else
+  echo -e "${GREEN}OK${NC}"
+fi
+
+# 3. Link gestao.umbrelladoce.com.br (app antigo)
+echo -n "  [3/6] Link gestao.umbrelladoce.com.br ... "
+HITS=$(rg -rn 'gestao\.umbrelladoce' src/ supabase/ index.html 2>/dev/null || true)
+if [ -n "$HITS" ]; then
+  echo -e "${RED}FALHOU${NC}"
+  echo "$HITS"
+  ERRORS=$((ERRORS + 1))
+else
+  echo -e "${GREEN}OK${NC}"
+fi
+
+# 4. Iframe app.umbrelladoce.com.br
+echo -n "  [4/6] Iframe app.umbrelladoce.com.br ... "
+HITS=$(rg -rn 'app\.umbrelladoce' src/ supabase/ index.html 2>/dev/null || true)
+if [ -n "$HITS" ]; then
+  echo -e "${RED}FALHOU${NC}"
+  echo "$HITS"
+  ERRORS=$((ERRORS + 1))
+else
+  echo -e "${GREEN}OK${NC}"
+fi
+
+# 5. Classes Tailwind umbrella-* (ex: text-umbrella-dourado)
+echo -n "  [5/6] Classes Tailwind umbrella-* ... "
+HITS=$(rg -rn 'umbrella-preto\|umbrella-cloud\|umbrella-pistache\|umbrella-dourado\|umbrella-coral\|umbrella-pink' src/ tailwind.config.ts 2>/dev/null || true)
+if [ -n "$HITS" ]; then
+  echo -e "${RED}FALHOU${NC}"
+  echo "$HITS"
+  ERRORS=$((ERRORS + 1))
+else
+  echo -e "${GREEN}OK${NC}"
+fi
+
+# 6. Texto "app Umbrella Doce" (menção ao app como produto separado)
+echo -n "  [6/6] Texto 'app Umbrella Doce' ... "
+HITS=$(rg -rni 'app umbrella doce' src/ supabase/ index.html DOCS_MESTRE.md DOCS_AUTENTICACAO.md 2>/dev/null || true)
+if [ -n "$HITS" ]; then
+  echo -e "${RED}FALHOU${NC}"
+  echo "$HITS"
+  ERRORS=$((ERRORS + 1))
+else
+  echo -e "${GREEN}OK${NC}"
+fi
+
+echo ""
+
+# Verificação informativa (não bloqueia)
+echo -e "${YELLOW}ℹ️  Referências legítimas mantidas (empresa):${NC}"
+echo "  - 'by Umbrella Doce' (branding)"
+echo "  - Emails @umbrelladoce.com.br"  
+echo "  - Domínio caixa.umbrelladoce.com.br"
+echo ""
+
+if [ "$ERRORS" -gt 0 ]; then
+  echo -e "${RED}❌ $ERRORS verificação(ões) falharam!${NC}"
+  exit 1
+else
+  echo -e "${GREEN}✅ Todas as verificações passaram — nenhuma referência proibida encontrada.${NC}"
+  exit 0
+fi
