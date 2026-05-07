@@ -1,149 +1,101 @@
 
-# Módulo de Estoque — Caixa de Açúcar
+# Módulo "Meu Planejamento"
 
-## Resumo
-
-Módulo integrado de controle de estoque que permite:
-- Visualizar saldo atual de cada ingrediente/embalagem
-- Registrar entradas manuais (compras)
-- Baixa automática ao finalizar encomendas (baseada na ficha técnica)
-- Ajustes manuais (perdas, doações, correções)
-- Custo médio ponderado e valorização do estoque
-- Alertas de estoque mínimo
-- Acesso restrito a Business e Start
+Um hub de planejamento estratégico para confeitarias, com 4 abas principais e integração total com Encomendas, Receitas, Estoque e Financeiro.
 
 ---
 
-## 1. Modelo de Dados
+## Estrutura de Abas
 
-### Tabela `estoque` (saldo atual por insumo)
+### 1. Calendário & Sazonalidade
+- **Calendário visual mensal/semanal** com eventos marcados por cor
+- **Datas comemorativas pré-carregadas** (Dia das Mães, Páscoa, Natal, Dia dos Namorados, Dia das Crianças, etc.) — ícones temáticos, editáveis pelo usuário
+- **Datas pessoais**: férias, folgas, descanso programado (bloqueiam agenda de produção)
+- **Integração com Encomendas**: exibe entregas confirmadas no calendário automaticamente
+- **Planejamento de produção**: com base nas encomendas da semana, mostra o que precisa ser produzido e quando começar o preparo (lead time das receitas)
 
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| id | uuid PK | |
-| usuario_id | uuid | FK auth.users |
-| owner_group_id | uuid | Multi-tenant |
-| tipo | text | 'ingrediente' ou 'embalagem' |
-| ingrediente_id | uuid (nullable) | FK ingredientes |
-| embalagem_id | uuid (nullable) | FK embalagens |
-| quantidade_atual | numeric | Saldo em estoque (na unidade do tipo_insumo) |
-| custo_medio | numeric | Custo médio ponderado unitário |
-| estoque_minimo | numeric (nullable) | Alerta quando abaixo deste valor |
-| updated_at | timestamptz | |
+### 2. Metas & Indicadores (KPIs)
+- **Metas por período** (mensal/trimestral/anual) em 4 áreas:
+  - **Financeiro**: faturamento, lucro, ticket médio (puxa dados do módulo Meu Dinheiro)
+  - **Vendas**: quantidade de encomendas, novos clientes (puxa de Encomendas e Clientes)
+  - **Marketing**: metas de seguidores, posts, campanhas (entrada manual)
+  - **Pessoal**: dias de descanso, horas de capacitação
+- **Barra de progresso visual** para cada meta
+- **Histórico de metas anteriores** para comparação
 
-### Tabela `estoque_movimentacoes` (histórico)
+### 3. Plano de Ação (Tarefas)
+- **Tarefas organizadas por área**: Financeiro, Marketing, Vendas, Atendimento, Produção, Pessoal
+- **Cada tarefa tem**: título, descrição, área, prazo, prioridade (alta/média/baixa), status (pendente/em andamento/concluída)
+- **Sugestões automáticas** baseadas em sazonalidade: ex. "Páscoa em 30 dias — crie sua campanha de ovos"
+- **Checklist de preparação sazonal**: templates prontos para cada data comemorativa (ex: "Checklist Dia das Mães": definir cardápio, postar divulgação, comprar insumos, etc.)
 
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| id | uuid PK | |
-| estoque_id | uuid | FK estoque |
-| usuario_id | uuid | FK auth.users |
-| owner_group_id | uuid | Multi-tenant |
-| tipo_movimentacao | text | 'entrada', 'saida_producao', 'saida_manual', 'ajuste' |
-| quantidade | numeric | Positivo para entrada, positivo (será subtraído) para saída |
-| custo_unitario | numeric (nullable) | Custo na entrada (para calcular custo médio) |
-| custo_total | numeric (nullable) | quantidade * custo_unitario |
-| referencia_tipo | text (nullable) | 'encomenda', 'receita', 'ajuste' |
-| referencia_id | uuid (nullable) | ID da encomenda/receita |
-| observacao | text (nullable) | Motivo do ajuste |
-| created_at | timestamptz | Data da movimentação |
-
-### RLS
-- Todas com `auth.uid() = usuario_id`
-- RESTRICTIVE policy com `user_has_financial_access(auth.uid())` (mesmo padrão do financeiro, restringindo a Business/Start)
+### 4. Meu Bem-Estar
+- **Agenda de descanso**: marcar férias e folgas que bloqueiam produção
+- **Indicador visual**: dias trabalhados vs dias de descanso no mês
+- **Alertas gentis**: "Você não tirou folga há 3 semanas" ou "Lembre-se de descansar antes da temporada de Natal"
 
 ---
 
-## 2. Lógica de Custo Médio Ponderado
+## Banco de Dados (novas tabelas)
 
-Na entrada:
-```
-novo_custo_medio = (quantidade_atual * custo_medio + quantidade_entrada * custo_unitario_entrada) / (quantidade_atual + quantidade_entrada)
-```
+- **`planejamento_metas`**: id, owner_group_id, area (enum: financeiro/vendas/marketing/pessoal), titulo, valor_alvo, valor_atual, periodo_inicio, periodo_fim, status
+- **`planejamento_tarefas`**: id, owner_group_id, user_id, area, titulo, descricao, prioridade, status, prazo, data_conclusao
+- **`planejamento_datas_comemorativas`**: id, owner_group_id, nome, data_referencia (MM-DD), tipo (comemorativa/pessoal/descanso), cor, icone, ativo
+- **`planejamento_descanso`**: id, owner_group_id, user_id, data_inicio, data_fim, tipo (ferias/folga/pessoal), observacao
+- **Seed de datas comemorativas brasileiras** via trigger no primeiro acesso
 
-Na saída: o custo médio não muda, apenas a quantidade diminui.
-
----
-
-## 3. Baixa Automática por Encomenda
-
-Ao mudar o status de uma encomenda para "finalizada" (ou "em produção", a definir):
-1. Para cada item da encomenda, buscar a receita vinculada
-2. Para cada ingrediente/embalagem da receita, calcular consumo proporcional à quantidade produzida
-3. Criar movimentação de saída tipo `saida_producao` com referência à encomenda
-4. Atualizar saldo na tabela `estoque`
-
-Isso será implementado como uma função no frontend (hook `useEstoqueBaixa`) que é chamada na mudança de status.
+RLS: todas as tabelas isoladas por `owner_group_id`, conforme arquitetura multi-tenancy existente.
 
 ---
 
-## 4. Integração com `usePlano`
+## Integrações com Módulos Existentes
 
-- Adicionar `'estoque'` à lista de módulos controlados
-- No sidebar, o item "Meus Insumos" (que já existe como "EM BREVE") vira o ponto de entrada do estoque
-- PlanoGuard bloqueia rotas `/estoque/*` para Lite
-
----
-
-## 5. Rotas e Páginas
-
-| Rota | Página |
-|------|--------|
-| `/estoque` | Dashboard do estoque — cards de resumo + lista de itens com saldo |
-| `/estoque/movimentacoes` | Histórico de movimentações com filtros |
-| `/estoque/entrada` | Formulário de entrada manual (compra) |
-| `/estoque/ajuste` | Formulário de ajuste (perda, correção) |
+| Módulo | Integração |
+|--------|-----------|
+| Encomendas | Entregas aparecem no calendário; contagem alimenta meta de vendas |
+| Meu Dinheiro | Faturamento real alimenta progresso das metas financeiras |
+| Receitas | Lead time das receitas calcula quando iniciar produção |
+| Meus Insumos | (futuro) Alerta de insumos insuficientes para produção planejada |
+| Clientes | Novos clientes contam para meta de vendas |
 
 ---
 
-## 6. UI — Dashboard de Estoque
+## UI & Navegação
 
-- Card "Valor total em estoque" (soma de quantidade * custo_medio)
-- Card "Itens abaixo do mínimo" (com badge de alerta)
-- Card "Última movimentação"
-- Tabela com: Nome do insumo | Tipo | Quantidade atual | Unidade | Custo médio | Status (OK / Baixo)
-- Filtros: tipo (ingrediente/embalagem), status (todos/abaixo do mínimo)
-- Botões: "Nova Entrada" e "Ajuste Manual"
+- **Rota**: `/planejamento` com sub-rotas (`/calendario`, `/metas`, `/tarefas`, `/bem-estar`)
+- **Sidebar**: já existe em "Em Breve" — será ativado quando implementado
+- **Design**: seguir tokens `cda-*`, cards com bordas `cda-pistache`, destaques `cda-dourado`
+- **Responsivo**: calendário adaptável para mobile
 
 ---
 
-## 7. UI — Entrada Manual
+## Fases de Implementação Sugeridas
 
-Formulário com:
-- Autocomplete do ingrediente ou embalagem (reutilizar componentes existentes)
-- Quantidade comprada
-- Preço total da compra (calcula custo unitário automaticamente)
-- Data da compra
-- Observação (opcional)
+**Fase 1 — Fundação**
+- Tabelas no banco + RLS
+- Tela do Calendário com datas comemorativas pré-carregadas
+- CRUD de tarefas por área
 
----
+**Fase 2 — Metas & Integrações**
+- Metas com barras de progresso
+- Integração com Encomendas (entregas no calendário)
+- Integração com Financeiro (faturamento real vs meta)
 
-## 8. UI — Ajuste Manual
-
-- Selecionar item do estoque
-- Tipo: Perda / Doação / Correção de inventário
-- Quantidade (positiva ou negativa)
-- Motivo (obrigatório)
-
----
-
-## 9. Etapas de Implementação
-
-1. **Migração SQL** — Criar tabelas `estoque` e `estoque_movimentacoes` com RLS
-2. **Atualizar controle de plano** — Adicionar módulo 'estoque' ao usePlano
-3. **Hook `useEstoque`** — CRUD do saldo + movimentações
-4. **Hook `useEstoqueBaixa`** — Lógica de baixa automática por encomenda
-5. **Páginas** — Dashboard, Entrada, Ajuste, Movimentações
-6. **Sidebar** — Ativar "Meus Insumos" como link para `/estoque`
-7. **Integração com Encomendas** — Chamar baixa ao finalizar encomenda
-8. **Documentação** — Criar DOCS_ESTOQUE.md e atualizar DOCS_MESTRE.md
+**Fase 3 — Bem-Estar & Inteligência**
+- Aba Meu Bem-Estar com alertas
+- Sugestões automáticas sazonais
+- Checklists pré-prontos por data comemorativa
+- Bloqueio de produção em dias de descanso
 
 ---
 
-## Observações Técnicas
+## Restrição de Plano
 
-- Segue o padrão multi-tenant existente (`owner_group_id`)
-- Segue o padrão de datas do projeto (`dateUtils.ts`)
-- Usa os mesmos componentes de UI (Card, PageHeader, BackButton, Tabs)
-- O backup existente deve incluir as novas tabelas
-- Estoque mínimo gera alerta visual no sidebar (badge) similar ao padrão de aniversariantes
+A definir em fase posterior, conforme sua preferência. O módulo pode começar disponível para admin durante validação (mesmo padrão do "Meus Insumos").
+
+---
+
+## Documentação
+
+- Atualizar `docs/AUDITORIA.md` com cada fase
+- Criar `DOCS_PLANEJAMENTO.md` com arquitetura do módulo

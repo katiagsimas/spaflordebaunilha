@@ -261,6 +261,9 @@ const App = () => (
           <Route path="/estoque/ajuste" element={<ProtectedRoute><Layout><PlanoGuard><EstoqueAjuste /></PlanoGuard></Layout></ProtectedRoute>} />
           <Route path="/estoque/movimentacoes" element={<ProtectedRoute><Layout><PlanoGuard><EstoqueMovimentacoes /></PlanoGuard></Layout></ProtectedRoute>} />
           
+          {/* Planejamento */}
+          <Route path="/planejamento" element={<ProtectedRoute><Layout><PlanoGuard><Planejamento /></PlanoGuard></Layout></ProtectedRoute>} />
+          
           {/* Admin - Gestão de Usuários */}
           <Route path="/admin/usuarios" element={<ProtectedRoute><Layout><Usuarios /></Layout></ProtectedRoute>} />
           <Route path="/admin/logs" element={<ProtectedRoute><Layout><LogsAdmin /></Layout></ProtectedRoute>} />

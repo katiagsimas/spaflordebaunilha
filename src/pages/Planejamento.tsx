@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Target, Settings, Lightbulb, DollarSign, TrendingUp } from "lucide-react";
+import { Target, Settings, Lightbulb, DollarSign, TrendingUp, CalendarDays, ListChecks, HeartPulse } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { usePlanejamento, type PrevisaoFaturamento } from "@/hooks/usePlanejamento";
 import { gerarInsights, type Insight, type InsightType } from "@/utils/insightsGenerator";
 import { PrevisaoFaturamentoCard } from "@/components/PrevisaoFaturamentoCard";
@@ -11,11 +12,16 @@ import { ProjecaoVendasCard } from "@/components/ProjecaoVendasCard";
 import { ConfigurarMetasModal } from "@/components/ConfigurarMetasModal";
 import { BannerBoasVindas, EstadoVazioCard } from "@/components/EstadoVazio";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { PlanejamentoCalendario } from "@/pages/planejamento/PlanejamentoCalendario";
+import { PlanejamentoTarefas } from "@/pages/planejamento/PlanejamentoTarefas";
+import { PlanejamentoBemEstar } from "@/pages/planejamento/PlanejamentoBemEstar";
 
-const opcoes = [];
+const opcoes: any[] = [];
 
 export default function Planejamento() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "calendario";
   const [modalOpen, setModalOpen] = useState(false);
   const [insights, setInsights] = useState<Insight[]>([]);
   const [previsaoData, setPrevisaoData] = useState<PrevisaoFaturamento | null>(null);
@@ -36,180 +42,170 @@ export default function Planejamento() {
     const previsaoCompleta = calcularPrevisaoFaturamentoCompleta();
     const faturamentoAnterior = calcularFaturamentoMesAnterior();
     const projecao = calcularProjecaoVendas();
-
     setPrevisaoData(previsaoCompleta);
-
     const insightsGerados = gerarInsights({
       metaFaturamentoMensal: config.metaFaturamentoMensal,
       previsaoFaturamento: previsao,
       faturamentoMesAnterior: faturamentoAnterior,
       projecaoVendas: projecao.projecao,
     });
-
     setInsights(insightsGerados);
   }, [config]);
 
   const getInsightStyle = (type: InsightType) => {
     switch (type) {
-      case "success":
-        return "bg-success/10 border-l-success";
-      case "warning":
-        return "bg-warning/10 border-l-warning";
-      case "critical":
-        return "bg-error/10 border-l-error";
-      case "info":
-        return "bg-secondary border-l-primary";
-      default:
-        return "bg-muted border-l-muted-foreground";
+      case "success": return "bg-success/10 border-l-success";
+      case "warning": return "bg-warning/10 border-l-warning";
+      case "critical": return "bg-error/10 border-l-error";
+      case "info": return "bg-secondary border-l-primary";
+      default: return "bg-muted border-l-muted-foreground";
     }
   };
 
   const getInsightIconColor = (type: InsightType) => {
     switch (type) {
-      case "success":
-        return "text-success";
-      case "warning":
-        return "text-warning";
-      case "critical":
-        return "text-error";
-      case "info":
-        return "text-primary";
-      default:
-        return "text-muted-foreground";
+      case "success": return "text-success";
+      case "warning": return "text-warning";
+      case "critical": return "text-error";
+      case "info": return "text-primary";
+      default: return "text-muted-foreground";
     }
+  };
+
+  const handleTabChange = (tab: string) => {
+    setSearchParams({ tab });
   };
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
-      {/* Banner de Boas-Vindas */}
-      {!temConfiguracao && (
-        <BannerBoasVindas onConfigurar={() => setModalOpen(true)} />
-      )}
-
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Target className="h-6 w-6 text-primary" />
-            <h1 className="text-3xl font-bold text-foreground">Planejamento</h1>
+            <Target className="h-6 w-6 text-cda-dourado" />
+            <h1 className="text-3xl font-bold text-foreground">Meu Planejamento</h1>
           </div>
           <p className="text-base text-muted-foreground">
-          Métricas e metas do seu negócio
-        </p>
-      </div>
-
-      <Button 
-        className="bg-primary text-primary-foreground hover:bg-accent shadow-[0_4px_6px_rgba(216,155,140,0.3)] transition-all duration-200 hover:-translate-y-0.5"
-        onClick={() => setModalOpen(true)}
-      >
-        <Settings className="h-5 w-5 mr-2" />
-        Configurar Metas
-      </Button>
-    </div>
-
-      <ConfigurarMetasModal open={modalOpen} onOpenChange={setModalOpen} />
-
-      {/* Insights Section */}
-      {temConfiguracao && insights.length > 0 && (
-        <Card className="mb-6 border-l-4 border-l-primary bg-card shadow-soft animate-fade-in">
-          <CardHeader>
-            <div className="flex items-center gap-2 mb-4">
-              <Lightbulb className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold text-foreground">
-                💡 INSIGHTS DO MÊS
-              </h2>
-            </div>
-            <div className="space-y-2">
-              {insights.map((insight, index) => {
-                const Icon = insight.icon;
-                return (
-                  <div
-                    key={index}
-                    className={`p-3 rounded-lg border-l-[3px] ${getInsightStyle(insight.type)} animate-slide-in-left stagger-${Math.min(index + 1, 4)}`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <Icon className={`h-5 w-5 mt-0.5 flex-shrink-0 ${getInsightIconColor(insight.type)}`} />
-                      <p className="text-sm text-foreground">{insight.text}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardHeader>
-        </Card>
-      )}
-
-      {/* Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-        {temConfiguracao ? (
-          <>
-            {/* Cards com dados */}
-            {previsaoData && (
-              <div className="animate-fade-in-up">
-                <PrevisaoFaturamentoCard dados={previsaoData} />
-              </div>
-            )}
-
-            <div className="animate-fade-in-up stagger-1">
-              <ProjecaoVendasCard />
-            </div>
-
-            {opcoes.map((opcao, index) => {
-              const Icon = opcao.icon;
-              return (
-                <Card
-                  key={opcao.title}
-                  className={`transition-all duration-200 animate-fade-in-up stagger-${index + 3} ${
-                    opcao.active
-                      ? "cursor-pointer hover:shadow-elevated hover:-translate-y-1"
-                      : "opacity-60 cursor-not-allowed"
-                  }`}
-                  onClick={() => opcao.active && opcao.url && navigate(opcao.url)}
-                >
-                  <CardHeader>
-                    <div className="flex items-center justify-between mb-2">
-                      <div
-                        className={`w-10 h-10 md:w-12 md:h-12 rounded-lg ${opcao.color} flex items-center justify-center`}
-                      >
-                        <Icon className="h-5 w-5 md:h-6 md:w-6" />
-                      </div>
-                      {!opcao.active && (
-                        <Badge className="bg-warning text-foreground text-xs px-2 py-0.5 rounded-full font-medium">
-                          Em breve
-                        </Badge>
-                      )}
-                    </div>
-                    <CardTitle className="text-lg md:text-2xl">{opcao.title}</CardTitle>
-                    <CardDescription>{opcao.description}</CardDescription>
-                  </CardHeader>
-                </Card>
-              );
-            })}
-          </>
-        ) : (
-          <>
-            {/* Estado vazio - Cards com CTA para configurar */}
-            <EstadoVazioCard
-              titulo="💰 PREVISÃO DE FATURAMENTO"
-              icone={<DollarSign className="h-6 w-6 text-primary" />}
-              onConfigurar={() => setModalOpen(true)}
-            />
-
-            <EstadoVazioCard
-              titulo="📈 PROJEÇÃO DE VENDAS"
-              icone={<TrendingUp className="h-6 w-6 text-warning" />}
-              onConfigurar={() => setModalOpen(true)}
-            />
-          </>
-        )}
-      </div>
-
-      {/* Footer com legenda */}
-      {temConfiguracao && (
-        <div className="mt-8 text-center text-sm text-muted-foreground animate-fade-in">
-          <p>Clique nos cards ativos para acessar as ferramentas de análise</p>
+            Organize sua confeitaria com estratégia e equilíbrio
+          </p>
         </div>
-      )}
+      </div>
+
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4 h-12">
+          <TabsTrigger value="calendario" className="flex items-center gap-1.5 text-xs sm:text-sm">
+            <CalendarDays className="h-4 w-4" />
+            <span className="hidden sm:inline">Calendário</span>
+          </TabsTrigger>
+          <TabsTrigger value="metas" className="flex items-center gap-1.5 text-xs sm:text-sm">
+            <Target className="h-4 w-4" />
+            <span className="hidden sm:inline">Metas</span>
+          </TabsTrigger>
+          <TabsTrigger value="tarefas" className="flex items-center gap-1.5 text-xs sm:text-sm">
+            <ListChecks className="h-4 w-4" />
+            <span className="hidden sm:inline">Tarefas</span>
+          </TabsTrigger>
+          <TabsTrigger value="bem-estar" className="flex items-center gap-1.5 text-xs sm:text-sm">
+            <HeartPulse className="h-4 w-4" />
+            <span className="hidden sm:inline">Bem-Estar</span>
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Calendário */}
+        <TabsContent value="calendario">
+          <PlanejamentoCalendario />
+        </TabsContent>
+
+        {/* Metas (conteúdo existente) */}
+        <TabsContent value="metas">
+          {/* Banner de Boas-Vindas */}
+          {!temConfiguracao && (
+            <BannerBoasVindas onConfigurar={() => setModalOpen(true)} />
+          )}
+
+          <div className="flex justify-end mb-4">
+            <Button
+              className="bg-cda-dourado hover:bg-cda-dourado/90 text-white"
+              onClick={() => setModalOpen(true)}
+            >
+              <Settings className="h-5 w-5 mr-2" />
+              Configurar Metas
+            </Button>
+          </div>
+
+          <ConfigurarMetasModal open={modalOpen} onOpenChange={setModalOpen} />
+
+          {/* Insights */}
+          {temConfiguracao && insights.length > 0 && (
+            <Card className="mb-6 border-l-4 border-l-cda-dourado bg-card shadow-soft animate-fade-in">
+              <CardHeader>
+                <div className="flex items-center gap-2 mb-4">
+                  <Lightbulb className="h-5 w-5 text-cda-dourado" />
+                  <h2 className="text-lg font-semibold text-foreground">
+                    💡 INSIGHTS DO MÊS
+                  </h2>
+                </div>
+                <div className="space-y-2">
+                  {insights.map((insight, index) => {
+                    const Icon = insight.icon;
+                    return (
+                      <div
+                        key={index}
+                        className={`p-3 rounded-lg border-l-[3px] ${getInsightStyle(insight.type)}`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <Icon className={`h-5 w-5 mt-0.5 flex-shrink-0 ${getInsightIconColor(insight.type)}`} />
+                          <p className="text-sm text-foreground">{insight.text}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardHeader>
+            </Card>
+          )}
+
+          {/* Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            {temConfiguracao ? (
+              <>
+                {previsaoData && (
+                  <div className="animate-fade-in-up">
+                    <PrevisaoFaturamentoCard dados={previsaoData} />
+                  </div>
+                )}
+                <div className="animate-fade-in-up">
+                  <ProjecaoVendasCard />
+                </div>
+              </>
+            ) : (
+              <>
+                <EstadoVazioCard
+                  titulo="💰 PREVISÃO DE FATURAMENTO"
+                  icone={<DollarSign className="h-6 w-6 text-cda-dourado" />}
+                  onConfigurar={() => setModalOpen(true)}
+                />
+                <EstadoVazioCard
+                  titulo="📈 PROJEÇÃO DE VENDAS"
+                  icone={<TrendingUp className="h-6 w-6 text-warning" />}
+                  onConfigurar={() => setModalOpen(true)}
+                />
+              </>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* Tarefas */}
+        <TabsContent value="tarefas">
+          <PlanejamentoTarefas />
+        </TabsContent>
+
+        {/* Bem-Estar */}
+        <TabsContent value="bem-estar">
+          <PlanejamentoBemEstar />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
