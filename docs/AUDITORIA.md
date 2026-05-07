@@ -366,3 +366,9 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 - ✅ Criado hook `src/hooks/useEncomendasHoje.ts` para contagem de entregas do dia em tempo real.
 - ✅ Adicionado alerta piscante (banner amarelo dourado + dot vermelho na sidebar) acima do título do módulo Vendas quando há encomendas para hoje.
 - ✅ Mantido card "Saldo Atual" no Dashboard (relocado).
+
+## 2026-05-07 — Baixa Automática de Estoque por Encomenda
+- ✅ Migração: coluna `estoque_baixa_realizada` (boolean, default false) adicionada em `encomendas` para evitar baixa duplicada.
+- ✅ Criado `src/hooks/useBaixaEstoqueEncomenda.ts` — função `executarBaixaEstoqueEncomenda` que percorre itens da encomenda, busca ingredientes/embalagens de cada receita, e registra saída de produção no estoque.
+- ✅ Integrado em `src/pages/Encomendas.tsx` — ao mudar status para "entregue", a baixa é executada automaticamente com feedback via toasts.
+- ✅ Movimentações registradas como `saida_producao` com `referencia_tipo = 'encomenda'` e `referencia_id` apontando para a encomenda.
