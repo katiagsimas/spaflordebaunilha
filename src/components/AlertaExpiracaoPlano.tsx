@@ -58,7 +58,7 @@ export function AlertaExpiracaoPlano() {
         <div className="flex items-center gap-2 shrink-0">
           {isStart && (
             <a
-              href="https://gestao.umbrelladoce.com.br/"
+              href="https://caixadeacucar.lovable.app/"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-cda-preto hover:brightness-110 text-cda-dourado text-xs font-semibold transition-all"
