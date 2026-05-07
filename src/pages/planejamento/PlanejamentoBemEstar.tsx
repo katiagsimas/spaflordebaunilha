@@ -195,6 +195,24 @@ export function PlanejamentoBemEstar() {
                   <Input type="date" value={form.data_fim} onChange={(e) => setForm({ ...form, data_fim: e.target.value })} />
                 </div>
               </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="recorrente"
+                  checked={form.recorrente}
+                  onCheckedChange={(v) => setForm({ ...form, recorrente: !!v })}
+                />
+                <label htmlFor="recorrente" className="text-sm">Repetir automaticamente</label>
+                {form.recorrente && (
+                  <Select value={form.recorrencia_tipo} onValueChange={(v) => setForm({ ...form, recorrencia_tipo: v })}>
+                    <SelectTrigger className="w-32 h-8"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="semanal">Semanal</SelectItem>
+                      <SelectItem value="mensal">Mensal</SelectItem>
+                      <SelectItem value="anual">Anual</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
               <Textarea placeholder="Observação (opcional)" value={form.observacao} onChange={(e) => setForm({ ...form, observacao: e.target.value })} />
               <Button
                 className="w-full bg-cda-dourado hover:bg-cda-dourado/90 text-white"
