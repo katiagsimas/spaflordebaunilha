@@ -47,11 +47,11 @@ export function AlertaExpiracaoPlano() {
       : `Seu acesso expira em ${diasRestantes} dias. Renove para continuar usando o sistema.`;
 
   return (
-    <Alert className="rounded-none border-x-0 border-t-0 bg-umbrella-dourado border-umbrella-dourado text-umbrella-preto">
+    <Alert className="rounded-none border-x-0 border-t-0 bg-cda-dourado border-cda-dourado text-cda-preto">
       <div className="flex items-center justify-between w-full gap-3 flex-wrap">
         <div className="flex items-center gap-2 min-w-0 flex-1">
-          <AlertCircle className="h-4 w-4 text-umbrella-preto shrink-0" />
-          <AlertDescription className="text-sm font-medium text-umbrella-preto">
+          <AlertCircle className="h-4 w-4 text-cda-preto shrink-0" />
+          <AlertDescription className="text-sm font-medium text-cda-preto">
             ⚠️ {mensagem}
           </AlertDescription>
         </div>
@@ -61,7 +61,7 @@ export function AlertaExpiracaoPlano() {
               href="https://gestao.umbrelladoce.com.br/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-umbrella-preto hover:brightness-110 text-umbrella-dourado text-xs font-semibold transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-cda-preto hover:brightness-110 text-cda-dourado text-xs font-semibold transition-all"
             >
               Fazer Upgrade
               <ExternalLink className="h-3 w-3" />
@@ -69,7 +69,7 @@ export function AlertaExpiracaoPlano() {
           )}
           <button
             onClick={() => setDismissed(true)}
-            className="p-1 hover:bg-umbrella-preto/10 rounded transition-colors shrink-0"
+            className="p-1 hover:bg-cda-preto/10 rounded transition-colors shrink-0"
             aria-label="Fechar alerta"
           >
             <X className="h-4 w-4" />

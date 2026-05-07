@@ -2,7 +2,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { supabase } from "@/integrations/supabase/client";
 
-// Paleta Umbrella Doce
+// Paleta Caixa de Açúcar
 const COR_PRETO: [number, number, number] = [28, 28, 28];
 const COR_CLOUD: [number, number, number] = [245, 244, 241];
 const COR_PISTACHE: [number, number, number] = [191, 207, 184];

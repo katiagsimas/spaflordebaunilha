@@ -146,7 +146,7 @@ export function AppSidebar() {
                   Caixa de Açúcar
                 </span>
               </div>
-              <span className="text-[11px] font-light font-body text-umbrella-cloud tracking-wider">
+              <span className="text-[11px] font-light font-body text-cda-cloud tracking-wider">
                 by Umbrella Doce
               </span>
             </div>
@@ -182,7 +182,7 @@ export function AppSidebar() {
                       >
                         {({ isActive }) => (
                           <>
-                            <Icon className={`h-5 w-5 ${isActive && !bloqueado ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
+                            <Icon className={`h-5 w-5 ${isActive && !bloqueado ? 'text-cda-dourado' : 'text-sidebar-foreground/60'}`} />
                             {item.title === "Minhas Encomendas" && temEncomendasHoje && !bloqueado && !open && (
                               <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-red-500 animate-ping" />
                             )}
@@ -198,8 +198,8 @@ export function AppSidebar() {
                                   </Badge>
                                 )}
                                 {item.title === "Clientes e Fornecedores" && aniversariantesClientes.length > 0 && !bloqueado && (
-                                  <div className="w-5 h-5 rounded-full bg-umbrella-pistache flex items-center justify-center animate-bounce ml-1">
-                                    <Cake className="h-3 w-3 text-umbrella-preto" />
+                                  <div className="w-5 h-5 rounded-full bg-cda-pistache flex items-center justify-center animate-bounce ml-1">
+                                    <Cake className="h-3 w-3 text-cda-preto" />
                                   </div>
                                 )}
                               </>
@@ -216,7 +216,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Separador dourado */}
-        <div className="mx-4 h-px bg-umbrella-dourado/30" />
+        <div className="mx-4 h-px bg-cda-dourado/30" />
 
         {/* Seção Em Breve */}
         <SidebarGroup>
@@ -256,7 +256,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Separador dourado */}
-        <div className="mx-4 h-px bg-umbrella-dourado/30" />
+        <div className="mx-4 h-px bg-cda-dourado/30" />
 
         {/* Seção Sistema */}
         <SidebarGroup>
@@ -283,7 +283,7 @@ export function AppSidebar() {
                       >
                         {({ isActive }) => (
                           <>
-                            <Icon className={`h-5 w-5 ${isActive ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
+                            <Icon className={`h-5 w-5 ${isActive ? 'text-cda-dourado' : 'text-sidebar-foreground/60'}`} />
                             {open && <span className="flex-1">{item.title}</span>}
                           </>
                         )}
@@ -308,7 +308,7 @@ export function AppSidebar() {
                       >
                         {({ isActive }) => (
                           <>
-                            <Shield className={`h-5 w-5 ${isActive ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
+                            <Shield className={`h-5 w-5 ${isActive ? 'text-cda-dourado' : 'text-sidebar-foreground/60'}`} />
                             {open && <span className="flex-1">Usuários</span>}
                           </>
                         )}
@@ -329,7 +329,7 @@ export function AppSidebar() {
                       >
                         {({ isActive }) => (
                           <>
-                            <FileText className={`h-5 w-5 ${isActive ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
+                            <FileText className={`h-5 w-5 ${isActive ? 'text-cda-dourado' : 'text-sidebar-foreground/60'}`} />
                             {open && <span className="flex-1">Log de Ações</span>}
                           </>
                         )}
@@ -346,7 +346,7 @@ export function AppSidebar() {
         {isMother && (
           <SidebarGroup>
             <SidebarGroupLabel className="flex items-center gap-2 text-sidebar-foreground/50 text-[10px] uppercase tracking-widest font-body">
-              <Crown className="h-3 w-3 text-umbrella-dourado" />
+              <Crown className="h-3 w-3 text-cda-dourado" />
               Governança
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -365,7 +365,7 @@ export function AppSidebar() {
                     >
                       {({ isActive }) => (
                         <>
-                          <Building2 className={`h-5 w-5 ${isActive ? 'text-umbrella-dourado' : 'text-sidebar-foreground/60'}`} />
+                          <Building2 className={`h-5 w-5 ${isActive ? 'text-cda-dourado' : 'text-sidebar-foreground/60'}`} />
                           {open && <span className="flex-1">Grupos e Usuários</span>}
                         </>
                       )}
@@ -388,7 +388,7 @@ export function AppSidebar() {
                   {activeRole === 'ADMIN' ? 'Admin' : 'Usuário'}
                 </Badge>
                 {isMother && (
-                  <Badge variant="outline" className="text-[10px] border-umbrella-dourado text-umbrella-dourado font-body">
+                  <Badge variant="outline" className="text-[10px] border-cda-dourado text-cda-dourado font-body">
                     <Crown className="h-3 w-3 mr-1" />
                     MOTHER
                   </Badge>
@@ -406,7 +406,7 @@ export function AppSidebar() {
             {planoNome && !isAdmin && (
               <div className="bg-sidebar-accent/30 rounded-md px-3 py-2 space-y-1">
                 <div className="flex items-center gap-1.5">
-                  <Crown className="h-3 w-3 text-umbrella-dourado" />
+                  <Crown className="h-3 w-3 text-cda-dourado" />
                   <span className="text-xs font-semibold font-body text-sidebar-foreground">
                     {planoNome}
                     {profile?.plano_tipo && profile?.plano_id !== 'start' && (
@@ -436,7 +436,7 @@ export function AppSidebar() {
               onClick={handleLogout}
               variant="ghost"
               size="sm"
-              className="w-full bg-umbrella-cloud text-sidebar-foreground hover:text-sidebar-foreground hover:bg-umbrella-cloud/80 border border-umbrella-dourado font-body"
+              className="w-full bg-cda-cloud text-sidebar-foreground hover:text-sidebar-foreground hover:bg-cda-cloud/80 border border-cda-dourado font-body"
             >
               <LogOut className="h-4 w-4 mr-2" />
               Sair
@@ -449,7 +449,7 @@ export function AppSidebar() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-display text-xl">
-              {comingSoonModal?.title} <Lock className="h-5 w-5 text-umbrella-dourado" />
+              {comingSoonModal?.title} <Lock className="h-5 w-5 text-cda-dourado" />
             </DialogTitle>
             <DialogDescription className="text-base font-body text-muted-foreground pt-2">
               {comingSoonModal?.message}

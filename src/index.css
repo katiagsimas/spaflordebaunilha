@@ -2,17 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Umbrella Doce by Ká Simas — Design System */
+/* Caixa de Açúcar by Ká Simas — Design System */
 
 @layer base {
   :root {
-    /* Paleta Umbrella Doce */
-    --umbrella-preto: 0 0% 11%;          /* #1C1C1C */
-    --umbrella-cloud: 40 11% 95%;        /* #F5F4F1 */
-    --umbrella-pistache: 107 22% 76%;    /* #BFCFB8 */
-    --umbrella-dourado: 42 47% 56%;      /* #C6A85A */
-    --umbrella-coral: 5 82% 73%;         /* #F28C82 */
-    --umbrella-pink: 345 52% 77%;        /* #E7A1AF */
+    /* Paleta Caixa de Açúcar */
+    --cda-preto: 0 0% 11%;          /* #1C1C1C */
+    --cda-cloud: 40 11% 95%;        /* #F5F4F1 */
+    --cda-pistache: 107 22% 76%;    /* #BFCFB8 */
+    --cda-dourado: 42 47% 56%;      /* #C6A85A */
+    --cda-coral: 5 82% 73%;         /* #F28C82 */
+    --cda-pink: 345 52% 77%;        /* #E7A1AF */
 
     /* Tokens semânticos */
     --background: 40 11% 95%;

@@ -243,21 +243,21 @@ export function CalendariosEncomendas() {
         {renderCalendario(
           dadosAnterior,
           mesAnterior,
-          "border-umbrella-coral/30 bg-umbrella-coral/10 dark:bg-umbrella-coral/5",
+          "border-cda-coral/30 bg-cda-coral/10 dark:bg-cda-coral/5",
           { hoje: "text-blue-700", comum: "bg-blue-200" },
           "anterior",
         )}
         {renderCalendario(
           dadosAtual,
           mesAtual,
-          "border-umbrella-pistache/30 bg-umbrella-pistache/10 dark:bg-umbrella-pistache/5",
+          "border-cda-pistache/30 bg-cda-pistache/10 dark:bg-cda-pistache/5",
           { hoje: "text-green-700", amanha: "bg-orange-200", comum: "bg-green-200" },
           "atual",
         )}
         {renderCalendario(
           dadosSeguinte,
           mesSeguinte,
-          "border-umbrella-pink/30 bg-umbrella-pink/10 dark:bg-umbrella-pink/5",
+          "border-cda-pink/30 bg-cda-pink/10 dark:bg-cda-pink/5",
           { hoje: "text-purple-700", comum: "bg-purple-200" },
           "seguinte",
         )}
@@ -268,7 +268,7 @@ export function CalendariosEncomendas() {
           <CardTitle className="flex items-center gap-2">
             Encomendas - {format(diaSelecionado, "dd 'de' MMMM", { locale: ptBR })}
             {isToday(diaSelecionado) && (
-              <Badge variant="default" className="bg-umbrella-dourado text-umbrella-preto">
+              <Badge variant="default" className="bg-cda-dourado text-cda-preto">
                 HOJE
               </Badge>
             )}
