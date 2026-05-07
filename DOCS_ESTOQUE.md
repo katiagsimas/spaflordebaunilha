@@ -103,3 +103,33 @@ Todas protegidas por `PlanoGuard` (requer Business/Start).
 ## 7. SIDEBAR
 
 "Meus Insumos" foi movido da seção "Em Breve" para o menu principal, apontando para `/estoque`. Bloqueado com 🔒 para plano Lite.
+
+---
+
+## 8. BAIXA AUTOMÁTICA POR ENCOMENDA
+
+Quando uma encomenda tem seu status alterado para **"entregue"**, o sistema deduz automaticamente do estoque todos os ingredientes e embalagens utilizados nas receitas dos itens da encomenda.
+
+### Fluxo
+1. Usuário muda status da encomenda para "entregue" no módulo Vendas
+2. Sistema busca `encomenda_itens` → para cada item, busca `receitas_ingredientes` e `receitas_embalagens`
+3. Multiplica `quantidade_utilizada` da receita × `quantidade` do item pedido
+4. Para cada insumo com registro em `estoque`, reduz `quantidade_atual` e cria movimentação `saida_producao`
+5. Marca `encomendas.estoque_baixa_realizada = true` para evitar baixa duplicada
+
+### Controle de duplicidade
+- Coluna `estoque_baixa_realizada` (boolean, default false) na tabela `encomendas`
+- Baixa só é executada se: status muda para "entregue" **E** `estoque_baixa_realizada` é false
+
+### Rastreabilidade
+- `tipo_movimentacao`: `saida_producao`
+- `referencia_tipo`: `encomenda`
+- `referencia_id`: UUID da encomenda
+- `observacao`: "Baixa automática — encomenda entregue"
+
+### Avisos
+- Insumos sem registro no estoque são ignorados (aviso via toast)
+- Se a quantidade em estoque é insuficiente, o saldo é zerado (não fica negativo) e um aviso é exibido
+
+### Arquivo
+- `src/hooks/useBaixaEstoqueEncomenda.ts` — função `executarBaixaEstoqueEncomenda()`
