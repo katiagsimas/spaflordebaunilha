@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useGroup } from "@/contexts/GroupContext";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addMonths, subMonths, isSameDay, isSameMonth, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { createISODate } from "@/lib/dateUtils";
+
 
 const iconMap: Record<string, React.ElementType> = {
   heart: Heart,
