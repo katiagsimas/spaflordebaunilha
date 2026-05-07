@@ -83,6 +83,17 @@ else
   echo -e "${GREEN}OK${NC}"
 fi
 
+# 7. Strings em PDFs exportados (exportarReceitaPDF, exportarPrePreparoPDF, gerarReciboPagamento, templates)
+echo -n "  [7/7] Texto 'app Umbrella Doce' em geradores de PDF ... "
+HITS=$(rg -rni 'app umbrella doce' src/utils/exportar*.ts src/utils/gerar*.ts supabase/functions/*/index.ts 2>/dev/null | grep -vi 'by umbrella doce' || true)
+if [ -n "$HITS" ]; then
+  echo -e "${RED}FALHOU${NC}"
+  echo "$HITS"
+  ERRORS=$((ERRORS + 1))
+else
+  echo -e "${GREEN}OK${NC}"
+fi
+
 echo ""
 
 # Verificação informativa (não bloqueia)
