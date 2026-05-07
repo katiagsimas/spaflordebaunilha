@@ -1,31 +1,34 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, DragEvent } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, Calendar, Gift, Heart, Star, PartyPopper, Flame, Baby, Ghost, Egg, Sun } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { ChevronLeft, ChevronRight, Calendar, Gift, Heart, Star, PartyPopper, Flame, Baby, Ghost, Egg, Sun, GripVertical } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useGroup } from "@/contexts/GroupContext";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addMonths, subMonths, isSameDay, isSameMonth, parseISO } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addMonths, subMonths, isSameDay, parseISO, differenceInDays, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
-
+import { toast } from "sonner";
 
 const iconMap: Record<string, React.ElementType> = {
-  heart: Heart,
-  star: Star,
-  "party-popper": PartyPopper,
-  flame: Flame,
-  baby: Baby,
-  ghost: Ghost,
-  egg: Egg,
-  gift: Gift,
-  calendar: Calendar,
-  sun: Sun,
+  heart: Heart, star: Star, "party-popper": PartyPopper, flame: Flame,
+  baby: Baby, ghost: Ghost, egg: Egg, gift: Gift, calendar: Calendar, sun: Sun,
 };
+
+interface CalendarEvent {
+  type: "comemorativa" | "encomenda" | "descanso";
+  id: string;
+  label: string;
+  cor: string;
+  icone: string;
+  draggable: boolean;
+}
 
 export function PlanejamentoCalendario() {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [dragOverDay, setDragOverDay] = useState<string | null>(null);
   const { activeGroup } = useGroup();
+  const queryClient = useQueryClient();
 
   const { data: datasComem = [] } = useQuery({
     queryKey: ["planejamento-datas", activeGroup?.id],
@@ -69,9 +72,7 @@ export function PlanejamentoCalendario() {
   const monthEnd = endOfMonth(currentDate);
   const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
   const startDayOfWeek = getDay(monthStart);
-
   const currentMonth = format(currentDate, "MM");
-  const currentYear = format(currentDate, "yyyy");
 
   const datasDoMes = useMemo(() => {
     return datasComem.filter((d: any) => {
@@ -80,19 +81,19 @@ export function PlanejamentoCalendario() {
     });
   }, [datasComem, currentMonth]);
 
-  const getEventsForDay = (day: Date) => {
+  const getEventsForDay = useCallback((day: Date): CalendarEvent[] => {
     const dayStr = format(day, "MM-dd");
-    const events: { type: string; label: string; cor: string; icone: string }[] = [];
+    const events: CalendarEvent[] = [];
 
     datasComem.forEach((d: any) => {
       if (d.data_referencia === dayStr) {
-        events.push({ type: "comemorativa", label: d.nome, cor: d.cor || "#C6A85A", icone: d.icone || "calendar" });
+        events.push({ type: "comemorativa", id: d.id, label: d.nome, cor: d.cor || "#C6A85A", icone: d.icone || "calendar", draggable: false });
       }
     });
 
     encomendas.forEach((e: any) => {
       if (e.data_entrega && isSameDay(parseISO(e.data_entrega), day)) {
-        events.push({ type: "encomenda", label: `📦 ${e.cliente_nome || "Encomenda"}`, cor: "#BFCFB8", icone: "calendar" });
+        events.push({ type: "encomenda", id: e.id, label: `📦 ${e.cliente_nome || "Encomenda"}`, cor: "#BFCFB8", icone: "calendar", draggable: true });
       }
     });
 
@@ -100,11 +101,59 @@ export function PlanejamentoCalendario() {
       const inicio = parseISO(d.data_inicio);
       const fim = parseISO(d.data_fim);
       if (day >= inicio && day <= fim) {
-        events.push({ type: "descanso", label: `🌴 ${d.tipo === "ferias" ? "Férias" : d.tipo === "folga" ? "Folga" : "Pessoal"}`, cor: "#87CEEB", icone: "sun" });
+        const label = `🌴 ${d.tipo === "ferias" ? "Férias" : d.tipo === "folga" ? "Folga" : "Pessoal"}`;
+        // Only show drag handle on start day
+        events.push({ type: "descanso", id: d.id, label, cor: "#87CEEB", icone: "sun", draggable: isSameDay(day, inicio) });
       }
     });
 
     return events;
+  }, [datasComem, encomendas, descansos]);
+
+  const handleDragStart = (e: DragEvent, event: CalendarEvent, dayStr: string) => {
+    e.dataTransfer.setData("application/json", JSON.stringify({ ...event, originDay: dayStr }));
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: DragEvent, dayISO: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverDay(dayISO);
+  };
+
+  const handleDragLeave = () => setDragOverDay(null);
+
+  const handleDrop = async (e: DragEvent, targetDay: Date) => {
+    e.preventDefault();
+    setDragOverDay(null);
+    try {
+      const payload = JSON.parse(e.dataTransfer.getData("application/json"));
+      const newDate = format(targetDay, "yyyy-MM-dd");
+
+      if (payload.type === "encomenda") {
+        const { error } = await supabase
+          .from("encomendas")
+          .update({ data_entrega: newDate })
+          .eq("id", payload.id);
+        if (error) throw error;
+        toast.success("Data de entrega atualizada!");
+        queryClient.invalidateQueries({ queryKey: ["planejamento-encomendas"] });
+      } else if (payload.type === "descanso") {
+        const descanso = descansos.find((d: any) => d.id === payload.id);
+        if (descanso) {
+          const duration = differenceInDays(parseISO(descanso.data_fim), parseISO(descanso.data_inicio));
+          const novaFim = format(addDays(targetDay, duration), "yyyy-MM-dd");
+          const { error } = await (supabase.from("planejamento_descanso" as any)
+            .update({ data_inicio: newDate, data_fim: novaFim })
+            .eq("id", payload.id) as any);
+          if (error) throw error;
+          toast.success("Descanso reagendado!");
+          queryClient.invalidateQueries({ queryKey: ["planejamento-descanso"] });
+        }
+      }
+    } catch {
+      toast.error("Erro ao mover evento");
+    }
   };
 
   const weekDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
@@ -136,6 +185,12 @@ export function PlanejamentoCalendario() {
         </Card>
       )}
 
+      {/* Dica de arrastar */}
+      <p className="text-xs text-muted-foreground flex items-center gap-1">
+        <GripVertical className="h-3.5 w-3.5" />
+        Arraste encomendas e descansos entre dias para reagendar rapidamente.
+      </p>
+
       {/* Calendário */}
       <Card>
         <CardHeader className="pb-3">
@@ -164,11 +219,20 @@ export function PlanejamentoCalendario() {
             {days.map((day) => {
               const events = getEventsForDay(day);
               const isToday = isSameDay(day, new Date());
+              const dayISO = day.toISOString();
+              const isDragTarget = dragOverDay === dayISO;
               return (
                 <div
-                  key={day.toISOString()}
+                  key={dayISO}
+                  onDragOver={(e) => handleDragOver(e, dayISO)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, day)}
                   className={`min-h-[70px] md:min-h-[90px] border rounded-lg p-1 text-xs transition-colors ${
-                    isToday ? "border-cda-dourado bg-cda-dourado/5 ring-1 ring-cda-dourado/30" : "border-border hover:bg-muted/30"
+                    isDragTarget
+                      ? "border-cda-dourado border-2 bg-cda-dourado/10"
+                      : isToday
+                      ? "border-cda-dourado bg-cda-dourado/5 ring-1 ring-cda-dourado/30"
+                      : "border-border hover:bg-muted/30"
                   }`}
                 >
                   <div className={`font-semibold mb-0.5 ${isToday ? "text-cda-dourado" : "text-foreground"}`}>
@@ -177,8 +241,12 @@ export function PlanejamentoCalendario() {
                   <div className="space-y-0.5 overflow-hidden">
                     {events.slice(0, 3).map((ev, i) => (
                       <div
-                        key={i}
-                        className="truncate text-[10px] rounded px-1 py-0.5"
+                        key={`${ev.id}-${i}`}
+                        draggable={ev.draggable}
+                        onDragStart={ev.draggable ? (e) => handleDragStart(e, ev, dayISO) : undefined}
+                        className={`truncate text-[10px] rounded px-1 py-0.5 ${
+                          ev.draggable ? "cursor-grab active:cursor-grabbing hover:ring-1 hover:ring-cda-dourado/50" : ""
+                        }`}
                         style={{ backgroundColor: ev.cor + "20", color: ev.cor }}
                       >
                         {ev.label}
