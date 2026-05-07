@@ -100,10 +100,27 @@ export function PlanejamentoCalendario() {
     descansos.forEach((d: any) => {
       const inicio = parseISO(d.data_inicio);
       const fim = parseISO(d.data_fim);
+      const duration = differenceInDays(fim, inicio);
+      const label = `🌴 ${d.tipo === "ferias" ? "Férias" : d.tipo === "folga" ? "Folga" : "Pessoal"}`;
+
+      // Check original range
       if (day >= inicio && day <= fim) {
-        const label = `🌴 ${d.tipo === "ferias" ? "Férias" : d.tipo === "folga" ? "Folga" : "Pessoal"}`;
-        // Only show drag handle on start day
         events.push({ type: "descanso", id: d.id, label, cor: "#87CEEB", icone: "sun", draggable: isSameDay(day, inicio) });
+      }
+      // Check recurring projections
+      else if (d.recorrente && d.recorrencia_tipo) {
+        const maxProjections = d.recorrencia_tipo === "semanal" ? 52 : d.recorrencia_tipo === "mensal" ? 12 : 3;
+        for (let i = 1; i <= maxProjections; i++) {
+          let projStart: Date;
+          if (d.recorrencia_tipo === "semanal") projStart = addWeeks(inicio, i);
+          else if (d.recorrencia_tipo === "mensal") projStart = addMonths(inicio, i);
+          else projStart = addMonths(inicio, i * 12);
+          const projEnd = addDays(projStart, duration);
+          if (day >= projStart && day <= projEnd) {
+            events.push({ type: "descanso", id: `${d.id}-r${i}`, label: `🔁 ${label}`, cor: "#87CEEB", icone: "sun", draggable: false });
+            break;
+          }
+        }
       }
     });
 
