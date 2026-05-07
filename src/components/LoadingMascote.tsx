@@ -1,5 +1,5 @@
 import React from "react";
-import cdaLogo from "@/assets/umbrella-logo-dourado.png";
+import cdaLogo from "@/assets/cda-logo-dourado.png";
 
 interface LoadingMascoteProps {
   size?: number;
