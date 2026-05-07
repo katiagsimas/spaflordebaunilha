@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +27,7 @@ export function PlanejamentoBemEstar() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState({ data_inicio: "", data_fim: "", tipo: "folga", observacao: "" });
+  const [form, setForm] = useState({ data_inicio: "", data_fim: "", tipo: "folga", observacao: "", recorrente: false, recorrencia_tipo: "anual" });
 
   const { data: descansos = [] } = useQuery({
     queryKey: ["planejamento-descanso", activeGroup?.id],
@@ -51,6 +52,8 @@ export function PlanejamentoBemEstar() {
         data_fim: form.data_fim,
         tipo: form.tipo,
         observacao: form.observacao || null,
+        recorrente: form.recorrente,
+        recorrencia_tipo: form.recorrente ? form.recorrencia_tipo : null,
       }) as any);
       if (error) throw error;
     },
@@ -58,7 +61,7 @@ export function PlanejamentoBemEstar() {
       queryClient.invalidateQueries({ queryKey: ["planejamento-descanso"] });
       toast.success("Descanso registrado!");
       setDialogOpen(false);
-      setForm({ data_inicio: "", data_fim: "", tipo: "folga", observacao: "" });
+      setForm({ data_inicio: "", data_fim: "", tipo: "folga", observacao: "", recorrente: false, recorrencia_tipo: "anual" });
     },
     onError: () => toast.error("Erro ao registrar descanso"),
   });
@@ -192,6 +195,24 @@ export function PlanejamentoBemEstar() {
                   <Input type="date" value={form.data_fim} onChange={(e) => setForm({ ...form, data_fim: e.target.value })} />
                 </div>
               </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="recorrente"
+                  checked={form.recorrente}
+                  onCheckedChange={(v) => setForm({ ...form, recorrente: !!v })}
+                />
+                <label htmlFor="recorrente" className="text-sm">Repetir automaticamente</label>
+                {form.recorrente && (
+                  <Select value={form.recorrencia_tipo} onValueChange={(v) => setForm({ ...form, recorrencia_tipo: v })}>
+                    <SelectTrigger className="w-32 h-8"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="semanal">Semanal</SelectItem>
+                      <SelectItem value="mensal">Mensal</SelectItem>
+                      <SelectItem value="anual">Anual</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
               <Textarea placeholder="Observação (opcional)" value={form.observacao} onChange={(e) => setForm({ ...form, observacao: e.target.value })} />
               <Button
                 className="w-full bg-cda-dourado hover:bg-cda-dourado/90 text-white"
@@ -220,7 +241,14 @@ export function PlanejamentoBemEstar() {
                 <div key={d.id} className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/20">
                   <Icon className={`h-5 w-5 ${info.color} flex-shrink-0`} />
                   <div className="flex-1">
-                    <div className="font-medium">{info.label} — {dias} dia{dias > 1 ? "s" : ""}</div>
+                    <div className="font-medium flex items-center gap-2">
+                      {info.label} — {dias} dia{dias > 1 ? "s" : ""}
+                      {d.recorrente && (
+                        <Badge variant="outline" className="text-[10px] py-0 px-1.5">
+                          🔁 {d.recorrencia_tipo === "semanal" ? "Semanal" : d.recorrencia_tipo === "mensal" ? "Mensal" : "Anual"}
+                        </Badge>
+                      )}
+                    </div>
                     <div className="text-sm text-muted-foreground">
                       {format(parseISO(d.data_inicio), "dd/MM/yyyy")} a {format(parseISO(d.data_fim), "dd/MM/yyyy")}
                     </div>

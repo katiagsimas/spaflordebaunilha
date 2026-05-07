@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -7,7 +7,8 @@ import { BackButton } from '@/components/BackButton';
 import { useEstoque } from '@/hooks/useEstoque';
 import { LoadingState } from '@/components/LoadingState';
 import { EmptyState } from '@/components/EmptyState';
-import { ArrowDownUp } from 'lucide-react';
+import { ArrowDownUp, Package } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const TIPO_LABELS: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
   entrada: { label: 'Entrada', variant: 'default' },
@@ -16,12 +17,43 @@ const TIPO_LABELS: Record<string, { label: string; variant: 'default' | 'seconda
   ajuste: { label: 'Ajuste', variant: 'outline' },
 };
 
+interface EncomendaRef {
+  id: string;
+  cliente_nome?: string;
+  data_entrega?: string;
+}
+
 export default function EstoqueMovimentacoes() {
   const { movimentacoes, itens, loadingMov, fetchMovimentacoes } = useEstoque();
+  const [encomendasMap, setEncomendasMap] = useState<Record<string, EncomendaRef>>({});
 
   useEffect(() => {
     fetchMovimentacoes();
   }, [fetchMovimentacoes]);
+
+  // Fetch linked encomendas for saida_producao movements
+  useEffect(() => {
+    const encomendaIds = [
+      ...new Set(
+        movimentacoes
+          .filter(m => m.referencia_tipo === 'encomenda' && m.referencia_id)
+          .map(m => m.referencia_id!)
+      ),
+    ];
+    if (encomendaIds.length === 0) return;
+
+    (async () => {
+      const { data } = await supabase
+        .from('encomendas')
+        .select('id, cliente_nome:cliente, data_entrega')
+        .in('id', encomendaIds);
+      if (data) {
+        const map: Record<string, EncomendaRef> = {};
+        data.forEach((e: any) => { map[e.id] = e; });
+        setEncomendasMap(map);
+      }
+    })();
+  }, [movimentacoes]);
 
   const getItemNome = (estoqueId: string) => {
     const item = itens.find(i => i.id === estoqueId);
@@ -56,6 +88,7 @@ export default function EstoqueMovimentacoes() {
                   <TableHead className="text-right">Quantidade</TableHead>
                   <TableHead className="text-right">Custo Unit.</TableHead>
                   <TableHead className="text-right">Custo Total</TableHead>
+                  <TableHead>Referência</TableHead>
                   <TableHead>Observação</TableHead>
                 </TableRow>
               </TableHeader>
@@ -63,6 +96,9 @@ export default function EstoqueMovimentacoes() {
                 {movimentacoes.map((mov) => {
                   const tipoInfo = TIPO_LABELS[mov.tipo_movimentacao] || { label: mov.tipo_movimentacao, variant: 'outline' as const };
                   const data = new Date(mov.created_at);
+                  const encomendaRef = mov.referencia_tipo === 'encomenda' && mov.referencia_id
+                    ? encomendasMap[mov.referencia_id]
+                    : null;
                   return (
                     <TableRow key={mov.id}>
                       <TableCell className="font-body text-sm">
@@ -89,6 +125,23 @@ export default function EstoqueMovimentacoes() {
                         {mov.custo_total != null
                           ? Number(mov.custo_total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
                           : '—'}
+                      </TableCell>
+                      <TableCell className="font-body text-sm">
+                        {encomendaRef ? (
+                          <div className="flex items-center gap-1.5 text-cda-pistache">
+                            <Package className="h-3.5 w-3.5 flex-shrink-0" />
+                            <span className="truncate max-w-32" title={encomendaRef.cliente_nome || ''}>
+                              {encomendaRef.cliente_nome || 'Encomenda'}
+                            </span>
+                            {encomendaRef.data_entrega && (
+                              <span className="text-muted-foreground text-xs">
+                                ({new Date(encomendaRef.data_entrega + 'T12:00:00').toLocaleDateString('pt-BR')})
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
                       </TableCell>
                       <TableCell className="font-body text-sm text-muted-foreground max-w-48 truncate">
                         {mov.observacao || '—'}

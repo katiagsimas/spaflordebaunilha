@@ -18,6 +18,16 @@ export async function executarBaixaEstoqueEncomenda(
   let itensProcessados = 0;
 
   try {
+    // 0. Verificar no banco se a baixa já foi realizada (proteção contra duplo clique / stale state)
+    const { data: encomendaCheck } = await (supabase.from('encomendas') as any)
+      .select('estoque_baixa_realizada')
+      .eq('id', encomendaId)
+      .maybeSingle();
+
+    if (encomendaCheck?.estoque_baixa_realizada) {
+      return { sucesso: true, itensProcessados: 0, avisos: ['Baixa de estoque já foi realizada para esta encomenda.'] };
+    }
+
     // 1. Buscar itens da encomenda
     const { data: itensEncomenda, error: errItens } = await supabase
       .from('encomenda_itens')

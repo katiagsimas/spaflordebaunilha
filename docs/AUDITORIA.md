@@ -1,6 +1,17 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-07T12:00:00Z — Remoção de referências ao app Umbrella Doce
+> Última atualização: 2026-05-07T19:41:00Z — Proteção baixa estoque, DnD calendário, eventos recorrentes
+
+---
+
+## MELHORIAS ESTOQUE + PLANEJAMENTO — 2026-05-07 19:41 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 90 | Proteção duplicidade baixa estoque | ✅ | `executarBaixaEstoqueEncomenda` verifica `estoque_baixa_realizada` no DB antes de executar |
+| 91 | Histórico movimentação enriquecido | ✅ | `EstoqueMovimentacoes` exibe coluna Referência com cliente e data da encomenda vinculada |
+| 92 | Drag-and-drop no calendário | ✅ | Encomendas e descansos podem ser arrastados entre dias no calendário de planejamento |
+| 93 | Eventos recorrentes | ✅ | Descansos recorrentes (semanal/mensal/anual) com projeção automática no calendário. Migration adicionou colunas `recorrente` e `recorrencia_tipo` |
 
 ---
 
