@@ -1766,6 +1766,47 @@ export type Database = {
           },
         ]
       }
+      meu_salario_retiradas: {
+        Row: {
+          created_at: string
+          data_retirada: string
+          descricao: string | null
+          id: string
+          owner_group_id: string
+          updated_at: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          created_at?: string
+          data_retirada: string
+          descricao?: string | null
+          id?: string
+          owner_group_id: string
+          updated_at?: string
+          user_id: string
+          valor: number
+        }
+        Update: {
+          created_at?: string
+          data_retirada?: string
+          descricao?: string | null
+          id?: string
+          owner_group_id?: string
+          updated_at?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meu_salario_retiradas_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       planejamento_datas_comemorativas: {
         Row: {
           ativo: boolean
