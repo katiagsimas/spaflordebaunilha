@@ -164,7 +164,7 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainMenuItems.map((item) => {
+              {mainMenuItems.filter((it) => !(it as any).adminOnly || isAdmin).map((item) => {
                 const Icon = item.icon;
                 const bloqueado = !isPlanoLoading && !isAdmin && item.active && rotaBloqueada(item.url);
                 return (
