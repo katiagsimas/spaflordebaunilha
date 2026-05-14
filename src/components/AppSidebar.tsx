@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LayoutDashboard, ShoppingBag, DollarSign, LogOut, Users, User, Truck, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, DollarSign, LogOut, Users, User, Truck, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
 import caixaAcucarSidebarIcon from "@/assets/caixa-acucar-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -36,6 +36,7 @@ import {
 const mainMenuItems = [
   { title: "Meu Painel", url: "/dashboard", icon: LayoutDashboard, active: true },
   { title: "Meu Dinheiro", url: "/financeiro", icon: Wallet, active: true },
+  { title: "Meu Salário", url: "/meu-salario", icon: Sparkles, active: true, adminOnly: true },
   { title: "Minhas Encomendas", url: "/encomendas", icon: ClipboardList, active: true },
   { title: "Meu Cardápio", url: "/precificacao", icon: BookOpen, active: true },
   { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: Users, active: true },
@@ -163,7 +164,7 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainMenuItems.map((item) => {
+              {mainMenuItems.filter((it) => !(it as any).adminOnly || isAdmin).map((item) => {
                 const Icon = item.icon;
                 const bloqueado = !isPlanoLoading && !isAdmin && item.active && rotaBloqueada(item.url);
                 return (

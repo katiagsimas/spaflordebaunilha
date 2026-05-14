@@ -14,6 +14,12 @@
     --cda-coral: 5 82% 73%;         /* #F28C82 */
     --cda-pink: 345 52% 77%;        /* #E7A1AF */
 
+    /* Renda Doce — escopo do módulo Meu Salário */
+    --rd-vinho: 345 38% 28%;        /* vinho sofisticado */
+    --rd-rose-queimado: 12 45% 55%; /* rosé queimado */
+    --rd-dourado: 40 55% 60%;       /* dourado suave */
+    --rd-creme: 38 50% 96%;         /* creme claro */
+
     /* Tokens semânticos */
     --background: 40 11% 95%;
     --foreground: 0 0% 11%;
@@ -200,4 +206,9 @@
     size: landscape;
     margin: 1cm;
   }
+}
+
+/* Renda Doce scope */
+.renda-doce-scope {
+  background: linear-gradient(180deg, hsl(var(--rd-creme)) 0%, hsl(38 50% 99%) 100%);
 }

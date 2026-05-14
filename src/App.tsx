@@ -71,6 +71,7 @@ import EstoqueDashboard from "./pages/estoque/EstoqueDashboard";
 import EstoqueEntrada from "./pages/estoque/EstoqueEntrada";
 import EstoqueAjuste from "./pages/estoque/EstoqueAjuste";
 import EstoqueMovimentacoes from "./pages/estoque/EstoqueMovimentacoes";
+import MeuSalario from "./pages/meu-salario/MeuSalario";
 
 
 const queryClient = new QueryClient();
@@ -263,7 +264,10 @@ const App = () => (
           
           {/* Planejamento */}
           <Route path="/planejamento" element={<ProtectedRoute><Layout><PlanoGuard><Planejamento /></PlanoGuard></Layout></ProtectedRoute>} />
-          
+
+          {/* Meu Salário (Renda Doce) */}
+          <Route path="/meu-salario" element={<ProtectedRoute><Layout><PlanoGuard><MeuSalario /></PlanoGuard></Layout></ProtectedRoute>} />
+
           {/* Admin - Gestão de Usuários */}
           <Route path="/admin/usuarios" element={<ProtectedRoute><Layout><Usuarios /></Layout></ProtectedRoute>} />
           <Route path="/admin/logs" element={<ProtectedRoute><Layout><LogsAdmin /></Layout></ProtectedRoute>} />

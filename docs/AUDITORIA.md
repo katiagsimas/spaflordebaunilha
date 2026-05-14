@@ -403,3 +403,15 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 - ✅ Sidebar: Meu Planejamento em 'Em Breve' com adminOnly=true
 - ✅ Documentação: DOCS_PLANEJAMENTO.md criado
 
+
+## 2026-05-14 — Módulo Meu Salário (Renda Doce)
+- ✅ Criada tabela meu_salario_retiradas (data_retirada, valor, descricao, owner_group_id, user_id)
+- ✅ RLS multi-tenancy por owner_group_id (SELECT/INSERT/UPDATE/DELETE restrito a membros do grupo)
+- ✅ Trigger update_updated_at_column em UPDATE
+- ✅ Índice (owner_group_id, data_retirada)
+- ✅ Rota /meu-salario protegida por PlanoGuard (admin-only durante validação)
+- ✅ Sidebar: item "Meu Salário" no menu principal logo abaixo de "Meu Dinheiro" (visível apenas para admin)
+- ✅ Tokens visuais Renda Doce isolados (--rd-vinho, --rd-rose-queimado, --rd-dourado, --rd-creme)
+- ✅ Lógica baseada no mês anterior fechado: faturamento - custos - 20% margem = pró-labore saudável
+- ✅ Exportação PDF "Salvar meu resumo"
+- ✅ Documentação: DOCS_MEU_SALARIO.md criado

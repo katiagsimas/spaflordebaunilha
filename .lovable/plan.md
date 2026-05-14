@@ -1,101 +1,119 @@
+## Módulo "Meu Salário" • Método Renda Doce
 
-# Módulo "Meu Planejamento"
+Experiência de consciência financeira para confeiteiras, baseada no mês anterior fechado, com tom acolhedor e identidade visual própria (vinho, rosé queimado, dourado suave, creme).
 
-Um hub de planejamento estratégico para confeitarias, com 4 abas principais e integração total com Encomendas, Receitas, Estoque e Financeiro.
+### 1. Navegação e acesso
 
----
+- Novo item no `mainMenuItems` do `AppSidebar.tsx`, logo abaixo de "Meu Dinheiro":
+  - Título: `Meu Salário`
+  - Ícone: `Sparkles` (lucide)
+  - Rota: `/meu-salario`
+- Rota registrada em `src/App.tsx` dentro do layout autenticado, protegida por `PlanoGuard`.
+- Durante validação: liberar apenas para admin (mesmo padrão de "Meus Insumos" / "Meu Planejamento"), via flag em `PlanoGuard.tsx`. Decisão final de plano fica para depois.
 
-## Estrutura de Abas
+### 2. Estrutura de páginas
 
-### 1. Calendário & Sazonalidade
-- **Calendário visual mensal/semanal** com eventos marcados por cor
-- **Datas comemorativas pré-carregadas** (Dia das Mães, Páscoa, Natal, Dia dos Namorados, Dia das Crianças, etc.) — ícones temáticos, editáveis pelo usuário
-- **Datas pessoais**: férias, folgas, descanso programado (bloqueiam agenda de produção)
-- **Integração com Encomendas**: exibe entregas confirmadas no calendário automaticamente
-- **Planejamento de produção**: com base nas encomendas da semana, mostra o que precisa ser produzido e quando começar o preparo (lead time das receitas)
+Pasta `src/pages/meu-salario/` com:
 
-### 2. Metas & Indicadores (KPIs)
-- **Metas por período** (mensal/trimestral/anual) em 4 áreas:
-  - **Financeiro**: faturamento, lucro, ticket médio (puxa dados do módulo Meu Dinheiro)
-  - **Vendas**: quantidade de encomendas, novos clientes (puxa de Encomendas e Clientes)
-  - **Marketing**: metas de seguidores, posts, campanhas (entrada manual)
-  - **Pessoal**: dias de descanso, horas de capacitação
-- **Barra de progresso visual** para cada meta
-- **Histórico de metas anteriores** para comparação
+- `MeuSalario.tsx` (container com header "Meu Salário • Método Renda Doce" + tabs)
+- `VisaoGeral.tsx` — painel principal
+- `Retiradas.tsx` — histórico + comparação com pró-labore saudável
+- `Educativo.tsx` — mini-conteúdos humanizados
+- Componentes auxiliares em `src/components/meu-salario/`:
+  - `CardResumoMes.tsx` (faturamento, custos, margem, pró-labore sugerido)
+  - `CenarioResultado.tsx` (3 cenários com microcopy acolhedor)
+  - `RetiradaForm.tsx` (registrar retirada)
+  - `HistoricoMensal.tsx` (lista + gráfico leve com Recharts)
+  - `FraseRendaDoce.tsx` (frases rotativas)
 
-### 3. Plano de Ação (Tarefas)
-- **Tarefas organizadas por área**: Financeiro, Marketing, Vendas, Atendimento, Produção, Pessoal
-- **Cada tarefa tem**: título, descrição, área, prazo, prioridade (alta/média/baixa), status (pendente/em andamento/concluída)
-- **Sugestões automáticas** baseadas em sazonalidade: ex. "Páscoa em 30 dias — crie sua campanha de ovos"
-- **Checklist de preparação sazonal**: templates prontos para cada data comemorativa (ex: "Checklist Dia das Mães": definir cardápio, postar divulgação, comprar insumos, etc.)
+### 3. Lógica financeira (Renda Doce)
 
-### 4. Meu Bem-Estar
-- **Agenda de descanso**: marcar férias e folgas que bloqueiam produção
-- **Indicador visual**: dias trabalhados vs dias de descanso no mês
-- **Alertas gentis**: "Você não tirou folga há 3 semanas" ou "Lembre-se de descansar antes da temporada de Natal"
+Sempre usar o **mês anterior fechado** (ex.: em maio analisa abril).
 
----
+```
+faturamento_mes_anterior  = soma de contas a receber RECEBIDAS no mês anterior
+custos_mes_anterior       = soma de contas a pagar PAGAS no mês anterior
+margem_seguranca          = faturamento * 0.20   (fixa)
+pro_labore_saudavel       = faturamento - custos - margem_seguranca
+retiradas_realizadas      = soma de retiradas registradas no mês anterior
+saldo_restante            = pro_labore_saudavel - retiradas_realizadas
+```
 
-## Banco de Dados (novas tabelas)
+Cenários:
+- `saldo_restante > 0` → Cenário 1 (margem disponível)
+- `|saldo_restante| <= 5%` → Cenário 2 (equilíbrio)
+- `saldo_restante < 0` → Cenário 3 (acima do saudável, tom acolhedor)
 
-- **`planejamento_metas`**: id, owner_group_id, area (enum: financeiro/vendas/marketing/pessoal), titulo, valor_alvo, valor_atual, periodo_inicio, periodo_fim, status
-- **`planejamento_tarefas`**: id, owner_group_id, user_id, area, titulo, descricao, prioridade, status, prazo, data_conclusao
-- **`planejamento_datas_comemorativas`**: id, owner_group_id, nome, data_referencia (MM-DD), tipo (comemorativa/pessoal/descanso), cor, icone, ativo
-- **`planejamento_descanso`**: id, owner_group_id, user_id, data_inicio, data_fim, tipo (ferias/folga/pessoal), observacao
-- **Seed de datas comemorativas brasileiras** via trigger no primeiro acesso
+Faturamento e custos serão lidos de tabelas existentes (`contas_receber`, `contas_pagar`) filtrados por `owner_group_id` e data de baixa no intervalo do mês anterior.
 
-RLS: todas as tabelas isoladas por `owner_group_id`, conforme arquitetura multi-tenancy existente.
+### 4. Banco de dados
 
----
+Migração nova: `meu_salario_retiradas`
 
-## Integrações com Módulos Existentes
+| coluna | tipo |
+|---|---|
+| id | uuid PK |
+| owner_group_id | uuid not null |
+| user_id | uuid not null |
+| data_retirada | date not null |
+| valor | numeric(12,2) not null |
+| descricao | text |
+| created_at / updated_at | timestamptz |
 
-| Módulo | Integração |
-|--------|-----------|
-| Encomendas | Entregas aparecem no calendário; contagem alimenta meta de vendas |
-| Meu Dinheiro | Faturamento real alimenta progresso das metas financeiras |
-| Receitas | Lead time das receitas calcula quando iniciar produção |
-| Meus Insumos | (futuro) Alerta de insumos insuficientes para produção planejada |
-| Clientes | Novos clientes contam para meta de vendas |
+- RLS por `owner_group_id` (mesmo padrão de `planejamento_*`).
+- Índice em `(owner_group_id, data_retirada)`.
 
----
+### 5. Hook de dados
 
-## UI & Navegação
+`src/hooks/useMeuSalario.ts`:
+- `useResumoMesAnterior()` — calcula faturamento, custos, margem, pró-labore sugerido, retiradas, saldo, cenário.
+- `useRetiradas(mes)` — lista, criar, editar, excluir.
+- `useHistoricoMeuSalario(meses=6)` — agregado mês a mês para gráfico.
 
-- **Rota**: `/planejamento` com sub-rotas (`/calendario`, `/metas`, `/tarefas`, `/bem-estar`)
-- **Sidebar**: já existe em "Em Breve" — será ativado quando implementado
-- **Design**: seguir tokens `cda-*`, cards com bordas `cda-pistache`, destaques `cda-dourado`
-- **Responsivo**: calendário adaptável para mobile
+### 6. Identidade visual própria
 
----
+Tokens locais no escopo do módulo (sem alterar tema global), via classes utilitárias e variáveis CSS adicionadas em `src/index.css`:
 
-## Fases de Implementação Sugeridas
+```
+--rd-vinho:        345 55% 25%
+--rd-rose-queimado:12 45% 55%
+--rd-dourado:      40 55% 60%
+--rd-creme:        38 50% 96%
+```
 
-**Fase 1 — Fundação**
-- Tabelas no banco + RLS
-- Tela do Calendário com datas comemorativas pré-carregadas
-- CRUD de tarefas por área
+Wrapper `.renda-doce-scope` aplicado em `MeuSalario.tsx` define background creme, cards com borda dourada suave, tipografia mais editorial. Mantém shadcn components para consistência estrutural.
 
-**Fase 2 — Metas & Integrações**
-- Metas com barras de progresso
-- Integração com Encomendas (entregas no calendário)
-- Integração com Financeiro (faturamento real vs meta)
+### 7. Microcopy e área educativa
 
-**Fase 3 — Bem-Estar & Inteligência**
-- Aba Meu Bem-Estar com alertas
-- Sugestões automáticas sazonais
-- Checklists pré-prontos por data comemorativa
-- Bloqueio de produção em dias de descanso
+Strings centralizadas em `src/pages/meu-salario/copy.ts`:
+- frases rotativas ("Lucro não é o que entra. É o que sobra.", etc.)
+- mensagens dos 3 cenários
+- mini-textos educativos (faturamento vs lucro, pró-labore, reserva, retirada saudável, organização)
 
----
+### 8. Exportação PDF "Salvar meu resumo"
 
-## Restrição de Plano
+Botão no header de `VisaoGeral`. Usa `jspdf` (já presente em outros utils) para gerar PDF elegante:
+- capa com "Meu Salário • Método Renda Doce" + mês de referência
+- bloco de números (faturamento, custos, margem, pró-labore saudável, retiradas, saldo)
+- cenário do mês com mensagem
+- rodapé com frase Renda Doce
 
-A definir em fase posterior, conforme sua preferência. O módulo pode começar disponível para admin durante validação (mesmo padrão do "Meus Insumos").
+Arquivo: `src/utils/exportarMeuSalarioPDF.ts`.
 
----
+### 9. Documentação
 
-## Documentação
+- Criar `DOCS_MEU_SALARIO.md` (estrutura, lógica Renda Doce, cenários, RLS, integrações).
+- Atualizar `docs/AUDITORIA.md` com a nova migração + RLS.
 
-- Atualizar `docs/AUDITORIA.md` com cada fase
-- Criar `DOCS_PLANEJAMENTO.md` com arquitetura do módulo
+### Detalhes técnicos
+
+- Datas via `src/lib/dateUtils.ts` (sem timezone shift).
+- Acesso obedece `PlanoGuard` (admin-only por enquanto).
+- Sem alterações no `useEncomendas`, `useFinanceiro` etc. — apenas leituras agregadas via Supabase.
+- Tipos de Supabase atualizados após a migração (auto).
+
+### Fora de escopo (para fases futuras)
+
+- Integração automática de retiradas com lançamentos do "Meu Dinheiro" (apenas leitura agregada por enquanto).
+- Notificações/alertas push.
+- Liberação por plano comercial (decidida depois).
