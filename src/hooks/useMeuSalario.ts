@@ -1,0 +1,219 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useGroup } from "@/contexts/GroupContext";
+import { toast } from "sonner";
+
+export const MARGEM_SEGURANCA = 0.20;
+
+export interface ResumoMes {
+  mesReferencia: string; // YYYY-MM
+  rotuloMes: string; // "abril/2026"
+  faturamento: number;
+  custos: number;
+  margemSeguranca: number;
+  proLaboreSaudavel: number;
+  retiradas: number;
+  saldoRestante: number;
+  cenario: "abaixo" | "equilibrio" | "acima";
+  inicio: string; // YYYY-MM-DD
+  fim: string; // YYYY-MM-DD
+}
+
+export interface Retirada {
+  id: string;
+  owner_group_id: string;
+  user_id: string;
+  data_retirada: string;
+  valor: number;
+  descricao: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+function intervaloMes(year: number, month0: number) {
+  const inicio = new Date(year, month0, 1);
+  const fim = new Date(year, month0 + 1, 0);
+  const fmt = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+      d.getDate()
+    ).padStart(2, "0")}`;
+  return { inicio: fmt(inicio), fim: fmt(fim) };
+}
+
+function rotuloMes(year: number, month0: number) {
+  const meses = [
+    "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+    "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
+  ];
+  return `${meses[month0]} de ${year}`;
+}
+
+function classificarCenario(saldo: number, proLabore: number): ResumoMes["cenario"] {
+  if (proLabore <= 0) return saldo < 0 ? "acima" : "equilibrio";
+  const tolerancia = Math.max(proLabore * 0.05, 1);
+  if (Math.abs(saldo) <= tolerancia) return "equilibrio";
+  return saldo > 0 ? "abaixo" : "acima";
+}
+
+async function calcularResumo(
+  ownerGroupId: string,
+  ano: number,
+  mes0: number
+): Promise<ResumoMes> {
+  const { inicio, fim } = intervaloMes(ano, mes0);
+
+  const [recRes, pagRes, retRes] = await Promise.all([
+    supabase
+      .from("contas_receber")
+      .select("valor, data_recebimento, status")
+      .eq("owner_group_id", ownerGroupId)
+      .gte("data_recebimento", inicio)
+      .lte("data_recebimento", fim)
+      .not("data_recebimento", "is", null),
+    supabase
+      .from("contas_pagar")
+      .select("valor, data_pagamento, status")
+      .eq("owner_group_id", ownerGroupId)
+      .gte("data_pagamento", inicio)
+      .lte("data_pagamento", fim)
+      .not("data_pagamento", "is", null),
+    (supabase.from("meu_salario_retiradas" as any) as any)
+      .select("valor, data_retirada")
+      .eq("owner_group_id", ownerGroupId)
+      .gte("data_retirada", inicio)
+      .lte("data_retirada", fim),
+  ]);
+
+  const faturamento = (recRes.data ?? []).reduce(
+    (s: number, r: any) => s + Number(r.valor || 0),
+    0
+  );
+  const custos = (pagRes.data ?? []).reduce(
+    (s: number, r: any) => s + Number(r.valor || 0),
+    0
+  );
+  const retiradas = (retRes.data ?? []).reduce(
+    (s: number, r: any) => s + Number(r.valor || 0),
+    0
+  );
+
+  const margemSeguranca = faturamento * MARGEM_SEGURANCA;
+  const proLaboreSaudavel = Math.max(0, faturamento - custos - margemSeguranca);
+  const saldoRestante = proLaboreSaudavel - retiradas;
+
+  return {
+    mesReferencia: `${ano}-${String(mes0 + 1).padStart(2, "0")}`,
+    rotuloMes: rotuloMes(ano, mes0),
+    faturamento,
+    custos,
+    margemSeguranca,
+    proLaboreSaudavel,
+    retiradas,
+    saldoRestante,
+    cenario: classificarCenario(saldoRestante, proLaboreSaudavel),
+    inicio,
+    fim,
+  };
+}
+
+export function useResumoMesAnterior() {
+  const { activeGroupId } = useGroup();
+  const hoje = new Date();
+  const ano = hoje.getMonth() === 0 ? hoje.getFullYear() - 1 : hoje.getFullYear();
+  const mes0 = hoje.getMonth() === 0 ? 11 : hoje.getMonth() - 1;
+
+  return useQuery({
+    queryKey: ["meu-salario-resumo", activeGroupId, ano, mes0],
+    queryFn: () => calcularResumo(activeGroupId!, ano, mes0),
+    enabled: !!activeGroupId,
+  });
+}
+
+export function useHistoricoMeuSalario(meses = 6) {
+  const { activeGroupId } = useGroup();
+
+  return useQuery({
+    queryKey: ["meu-salario-historico", activeGroupId, meses],
+    queryFn: async () => {
+      const hoje = new Date();
+      const resumos: ResumoMes[] = [];
+      // Começa no mês anterior e volta `meses` meses
+      for (let i = 1; i <= meses; i++) {
+        const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+        resumos.push(await calcularResumo(activeGroupId!, d.getFullYear(), d.getMonth()));
+      }
+      return resumos.reverse();
+    },
+    enabled: !!activeGroupId,
+  });
+}
+
+export function useRetiradas(inicio: string, fim: string) {
+  const { activeGroupId } = useGroup();
+
+  return useQuery({
+    queryKey: ["meu-salario-retiradas", activeGroupId, inicio, fim],
+    queryFn: async () => {
+      const { data, error } = await (supabase.from("meu_salario_retiradas" as any) as any)
+        .select("*")
+        .eq("owner_group_id", activeGroupId)
+        .gte("data_retirada", inicio)
+        .lte("data_retirada", fim)
+        .order("data_retirada", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as Retirada[];
+    },
+    enabled: !!activeGroupId && !!inicio && !!fim,
+  });
+}
+
+export function useCriarRetirada() {
+  const qc = useQueryClient();
+  const { user } = useAuth();
+  const { activeGroupId } = useGroup();
+
+  return useMutation({
+    mutationFn: async (input: { data_retirada: string; valor: number; descricao?: string }) => {
+      if (!user || !activeGroupId) throw new Error("Sem contexto de grupo");
+      const { error } = await (supabase.from("meu_salario_retiradas" as any) as any).insert({
+        owner_group_id: activeGroupId,
+        user_id: user.id,
+        data_retirada: input.data_retirada,
+        valor: input.valor,
+        descricao: input.descricao ?? null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Retirada registrada");
+      qc.invalidateQueries({ queryKey: ["meu-salario-retiradas"] });
+      qc.invalidateQueries({ queryKey: ["meu-salario-resumo"] });
+      qc.invalidateQueries({ queryKey: ["meu-salario-historico"] });
+    },
+    onError: (e: any) => toast.error(e.message ?? "Erro ao registrar retirada"),
+  });
+}
+
+export function useExcluirRetirada() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await (supabase.from("meu_salario_retiradas" as any) as any)
+        .delete()
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Retirada removida");
+      qc.invalidateQueries({ queryKey: ["meu-salario-retiradas"] });
+      qc.invalidateQueries({ queryKey: ["meu-salario-resumo"] });
+      qc.invalidateQueries({ queryKey: ["meu-salario-historico"] });
+    },
+    onError: (e: any) => toast.error(e.message ?? "Erro ao remover"),
+  });
+}
+
+export function formatBRL(valor: number) {
+  return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
