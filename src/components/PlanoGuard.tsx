@@ -16,8 +16,8 @@ export function PlanoGuard({ children }: { children: React.ReactNode }) {
   // Configurações raiz é sempre acessível
   if (pathname === "/configuracoes") return <>{children}</>;
 
-  // Meus Insumos e Meu Planejamento bloqueados para não-admin (em desenvolvimento)
-  if (pathname.startsWith("/estoque") || pathname.startsWith("/planejamento")) {
+  // Meus Insumos, Meu Planejamento e Meu Salário bloqueados para não-admin (em desenvolvimento)
+  if (pathname.startsWith("/estoque") || pathname.startsWith("/planejamento") || pathname.startsWith("/meu-salario")) {
     return <Navigate to="/upgrade" replace />;
   }
 
