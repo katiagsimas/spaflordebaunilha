@@ -263,11 +263,11 @@ export async function gerarPedidoCliente(encomendaId: string) {
   linhaResumo("TOTAL", fmtBRL(Number(encomenda.valor || 0)), true);
 
   // Pagamentos
-  const pagamentos = Array.isArray(encomenda.pagamentos) ? encomenda.pagamentos : [];
-  const pago = pagamentos
+  const pagamentos: any[] = Array.isArray(encomenda.pagamentos) ? (encomenda.pagamentos as any[]) : [];
+  const pago: number = pagamentos
     .filter((p: any) => p.pago)
     .reduce((s: number, p: any) => s + Number(p.valor || 0), 0);
-  const saldo = Number(encomenda.valor || 0) - pago;
+  const saldo: number = Number(encomenda.valor || 0) - pago;
 
   bloco(doc, 12, y, resumoX - 16, 50, "Pagamento");
   doc.setFont("helvetica", "normal");
