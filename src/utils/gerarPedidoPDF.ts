@@ -340,8 +340,8 @@ export async function gerarOrdemProducao(encomendaId: string) {
     doc.text("CATEGORIAS / EVENTO:", 12, y);
     let tx = 50;
     tags.forEach((t: any) => {
-      const txt = t.nome;
-      const w = doc.getTextWidth(txt) + 6;
+      const txt = String(t.nome ?? "");
+      const w = Number(doc.getTextWidth(txt)) + 6;
       doc.setFillColor(...COR_PISTACHE);
       doc.roundedRect(tx, y - 3.5, w, 5, 1, 1, "F");
       doc.setTextColor(...COR_PRETO);
