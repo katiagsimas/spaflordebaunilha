@@ -63,21 +63,21 @@ async function calcularResumo(
 ): Promise<ResumoMes> {
   const { inicio, fim } = intervaloMes(ano, mes0);
 
-  const [recRes, pagRes, retRes] = await Promise.all([
+  // Considera apenas valores efetivamente pagos/recebidos (não estornados),
+  // usando as tabelas de pagamentos para refletir entradas/saídas reais de caixa.
+  const [recPagRes, pagPagRes, retRes] = await Promise.all([
     supabase
-      .from("contas_receber")
-      .select("valor, data_recebimento, status")
-      .eq("owner_group_id", ownerGroupId)
-      .gte("data_recebimento", inicio)
-      .lte("data_recebimento", fim)
-      .not("data_recebimento", "is", null),
-    supabase
-      .from("contas_pagar")
-      .select("valor, data_pagamento, status")
-      .eq("owner_group_id", ownerGroupId)
+      .from("contas_receber_pagamentos")
+      .select("valor_pago, data_pagamento, estornado, parcela:contas_receber_parcelas!inner(conta_receber:contas_receber!inner(owner_group_id))")
+      .eq("parcela.conta_receber.owner_group_id", ownerGroupId)
       .gte("data_pagamento", inicio)
-      .lte("data_pagamento", fim)
-      .not("data_pagamento", "is", null),
+      .lte("data_pagamento", fim),
+    supabase
+      .from("contas_pagar_pagamentos")
+      .select("valor_pago, data_pagamento, estornado, parcela:contas_pagar_parcelas!inner(conta_pagar:contas_pagar!inner(owner_group_id))")
+      .eq("parcela.conta_pagar.owner_group_id", ownerGroupId)
+      .gte("data_pagamento", inicio)
+      .lte("data_pagamento", fim),
     (supabase.from("meu_salario_retiradas" as any) as any)
       .select("valor, data_retirada")
       .eq("owner_group_id", ownerGroupId)
@@ -85,14 +85,12 @@ async function calcularResumo(
       .lte("data_retirada", fim),
   ]);
 
-  const faturamento = (recRes.data ?? []).reduce(
-    (s: number, r: any) => s + Number(r.valor || 0),
-    0
-  );
-  const custos = (pagRes.data ?? []).reduce(
-    (s: number, r: any) => s + Number(r.valor || 0),
-    0
-  );
+  const faturamento = (recPagRes.data ?? [])
+    .filter((p: any) => !p.estornado)
+    .reduce((s: number, r: any) => s + Number(r.valor_pago || 0), 0);
+  const custos = (pagPagRes.data ?? [])
+    .filter((p: any) => !p.estornado)
+    .reduce((s: number, r: any) => s + Number(r.valor_pago || 0), 0);
   const retiradas = (retRes.data ?? []).reduce(
     (s: number, r: any) => s + Number(r.valor || 0),
     0
