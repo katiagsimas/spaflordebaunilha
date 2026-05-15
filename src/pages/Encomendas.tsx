@@ -9,7 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck, Package, Upload, X, HandCoins, Tag as TagIcon, FileDown, Calendar, ClipboardList, CheckCircle2, XCircle, AlertCircle, ChevronDown, UserPlus } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck, Package, Upload, X, HandCoins, Tag as TagIcon, FileDown, Calendar, ClipboardList, CheckCircle2, XCircle, AlertCircle, ChevronDown, UserPlus, Printer, FileText, ClipboardCheck } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { gerarPedidoCliente, gerarOrdemProducao } from "@/utils/gerarPedidoPDF";
 import { format, isToday, isTomorrow, isWithinInterval, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useEncomendas } from "@/hooks/useEncomendas";
@@ -1929,6 +1931,39 @@ const Encomendas = () => {
                               <HandCoins className="h-4 w-4 text-success" />
                             </Button>
                           )}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" title="Imprimir">
+                                <Printer className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={async () => {
+                                  try {
+                                    await gerarPedidoCliente(encomenda.id);
+                                  } catch (e: any) {
+                                    toast.error(e?.message || "Erro ao gerar PDF");
+                                  }
+                                }}
+                              >
+                                <FileText className="h-4 w-4 mr-2" />
+                                Pedido para o cliente
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={async () => {
+                                  try {
+                                    await gerarOrdemProducao(encomenda.id);
+                                  } catch (e: any) {
+                                    toast.error(e?.message || "Erro ao gerar PDF");
+                                  }
+                                }}
+                              >
+                                <ClipboardCheck className="h-4 w-4 mr-2" />
+                                Ordem de produção
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                           <Button
                             variant="ghost"
                             size="icon"
