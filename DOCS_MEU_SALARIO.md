@@ -19,11 +19,11 @@ Acesso: rota `/meu-salario`, restrita a **admin** durante validação (via `Plan
 
 ## Lógica financeira
 
-Sempre baseada no **mês anterior fechado**.
+Sempre baseada no **mês anterior fechado**, considerando apenas valores **efetivamente pagos/recebidos** (não estornados) — refletindo entradas/saídas reais de caixa.
 
 ```
-faturamento = SUM(contas_receber.valor) WHERE data_recebimento ∈ mês anterior
-custos      = SUM(contas_pagar.valor)   WHERE data_pagamento  ∈ mês anterior
+faturamento = SUM(contas_receber_pagamentos.valor_pago) WHERE data_pagamento ∈ mês anterior AND NOT estornado
+custos      = SUM(contas_pagar_pagamentos.valor_pago)   WHERE data_pagamento ∈ mês anterior AND NOT estornado
 margem      = faturamento * 0.20
 pro_labore_saudavel = max(0, faturamento - custos - margem)
 retiradas   = SUM(meu_salario_retiradas.valor) WHERE data_retirada ∈ mês anterior
