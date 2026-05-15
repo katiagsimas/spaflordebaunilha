@@ -1931,6 +1931,39 @@ const Encomendas = () => {
                               <HandCoins className="h-4 w-4 text-success" />
                             </Button>
                           )}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" title="Imprimir">
+                                <Printer className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={async () => {
+                                  try {
+                                    await gerarPedidoCliente(encomenda.id);
+                                  } catch (e: any) {
+                                    toast.error(e?.message || "Erro ao gerar PDF");
+                                  }
+                                }}
+                              >
+                                <FileText className="h-4 w-4 mr-2" />
+                                Pedido para o cliente
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={async () => {
+                                  try {
+                                    await gerarOrdemProducao(encomenda.id);
+                                  } catch (e: any) {
+                                    toast.error(e?.message || "Erro ao gerar PDF");
+                                  }
+                                }}
+                              >
+                                <ClipboardCheck className="h-4 w-4 mr-2" />
+                                Ordem de produção
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                           <Button
                             variant="ghost"
                             size="icon"
