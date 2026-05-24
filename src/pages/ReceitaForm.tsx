@@ -1048,262 +1048,44 @@ export default function ReceitaForm() {
     }
   };
 
-  const handleCriarTipoIngrediente = async () => {
-    try {
-      if (!novoTipoIngDescricao.trim() || !novoTipoIngQuantidade || !novoTipoIngUnidadeId) {
-        toast.error('Preencha todos os campos!');
-        return;
-      }
+  const handleIngredienteCriado = (data: any) => {
+    setIngredientesCadastrados([...ingredientesCadastrados, data]);
 
-      const qtd = parseFloat(novoTipoIngQuantidade.replace(',', '.'));
-      if (qtd <= 0) {
-        toast.error('Quantidade deve ser maior que zero!');
-        return;
-      }
+    const novoIngrediente: IngredienteReceita = {
+      id: `ing-${Date.now()}`,
+      ingredienteId: data.id,
+      ingrediente: data.tipo_insumo.descricao,
+      marca: data.marca || '',
+      qtdeEmbalagem: data.tipo_insumo.quantidade_embalagem,
+      unidadeMedida: data.tipo_insumo.unidade_medida.sigla,
+      precoEmbalagem: data.preco,
+      quantidadeUtilizada: 0,
+      custoUnitario: data.preco / data.tipo_insumo.quantidade_embalagem,
+      custoReceita: 0,
+    };
 
-      if (!user) throw new Error('Não autenticado');
-
-      const { data, error } = await supabase
-        .from('tipos_insumos')
-        .insert({
-          usuario_id: user.id,
-          tipo: 'ingrediente',
-          descricao: novoTipoIngDescricao.trim(),
-          quantidade_embalagem: qtd,
-          unidade_medida_id: novoTipoIngUnidadeId,
-        })
-        .select(`
-          id,
-          descricao,
-          quantidade_embalagem,
-          unidade_medida:unidades_medida (
-            id,
-            nome,
-            sigla
-          )
-        `)
-        .single();
-
-      if (error) {
-        if (error.code === '23505') {
-          throw new Error('Este tipo já foi cadastrado!');
-        }
-        throw error;
-      }
-
-      toast.success('Tipo cadastrado! Agora vamos cadastrar o ingrediente.');
-      setTipoIngRecemCriado(data);
-      setModalCriarTipoIngAberto(false);
-      setNovoIngMarca('');
-      setNovoIngPreco('');
-      setModalCriarIngredienteAberto(true);
-
-    } catch (error: any) {
-      console.error('Erro ao criar tipo:', error);
-      toast.error(error.message);
-    }
+    setIngredientes([...ingredientes, novoIngrediente]);
+    setTermoBuscaIngrediente('');
   };
 
-  const handleCriarTipoEmbalagem = async () => {
-    try {
-      if (!novoTipoEmbDescricao.trim() || !novoTipoEmbQuantidade || !novoTipoEmbUnidadeId) {
-        toast.error('Preencha todos os campos!');
-        return;
-      }
+  const handleEmbalagemCriada = (data: any) => {
+    setEmbalagensCadastradas([...embalagensCadastradas, data]);
 
-      const qtd = parseFloat(novoTipoEmbQuantidade.replace(',', '.'));
-      if (qtd <= 0) {
-        toast.error('Quantidade deve ser maior que zero!');
-        return;
-      }
+    const novaEmbalagem: EmbalagemReceita = {
+      id: `emb-${Date.now()}`,
+      embalagemId: data.id,
+      embalagem: data.tipo_insumo.descricao,
+      marca: data.marca || '',
+      qtdeEmbalagem: data.tipo_insumo.quantidade_embalagem,
+      unidadeMedida: data.tipo_insumo.unidade_medida.sigla,
+      precoEmbalagem: data.preco,
+      quantidadeUtilizada: 0,
+      custoUnitario: data.preco / data.tipo_insumo.quantidade_embalagem,
+      custoReceita: 0,
+    };
 
-      if (!user) throw new Error('Não autenticado');
-
-      const { data, error } = await supabase
-        .from('tipos_insumos')
-        .insert({
-          usuario_id: user.id,
-          tipo: 'embalagem',
-          descricao: novoTipoEmbDescricao.trim(),
-          quantidade_embalagem: qtd,
-          unidade_medida_id: novoTipoEmbUnidadeId,
-        })
-        .select(`
-          id,
-          descricao,
-          quantidade_embalagem,
-          unidade_medida:unidades_medida (
-            id,
-            nome,
-            sigla
-          )
-        `)
-        .single();
-
-      if (error) {
-        if (error.code === '23505') {
-          throw new Error('Este tipo já foi cadastrado!');
-        }
-        throw error;
-      }
-
-      toast.success('Tipo cadastrado! Agora vamos cadastrar a embalagem.');
-      setTipoEmbRecemCriado(data);
-      setModalCriarTipoEmbAberto(false);
-      setNovoEmbMarca('');
-      setNovoEmbPreco('');
-      setModalCriarEmbalagemAberto(true);
-
-    } catch (error: any) {
-      console.error('Erro ao criar tipo:', error);
-      toast.error(error.message);
-    }
-  };
-
-  const handleCriarIngrediente = async () => {
-    try {
-      if (!tipoIngRecemCriado) {
-        throw new Error('Tipo não encontrado');
-      }
-
-      const precoNum = parseFloat(novoIngPreco.replace(',', '.'));
-      if (!precoNum || precoNum <= 0) {
-        toast.error('Informe um preço válido!');
-        return;
-      }
-
-      if (!user) throw new Error('Não autenticado');
-
-      const { data, error } = await supabase
-        .from('ingredientes')
-        .insert({
-          usuario_id: user.id,
-          tipo_insumo_id: tipoIngRecemCriado.id,
-          marca: novoIngMarca.trim() || null,
-          preco: precoNum,
-          data_atualizacao: new Date().toISOString().split('T')[0],
-        })
-        .select(`
-          *,
-          tipo_insumo:tipos_insumos (
-            id,
-            descricao,
-            quantidade_embalagem,
-            unidade_medida:unidades_medida (
-              nome,
-              sigla
-            )
-          )
-        `)
-        .single();
-
-      if (error) {
-        if (error.code === '23505') {
-          throw new Error('Este ingrediente já foi cadastrado!');
-        }
-        throw error;
-      }
-
-      toast.success('Ingrediente cadastrado e adicionado!');
-
-      setIngredientesCadastrados([...ingredientesCadastrados, data]);
-
-      const novoIngrediente: IngredienteReceita = {
-        id: `ing-${Date.now()}`,
-        ingredienteId: data.id,
-        ingrediente: data.tipo_insumo.descricao,
-        marca: data.marca || '',
-        qtdeEmbalagem: data.tipo_insumo.quantidade_embalagem,
-        unidadeMedida: data.tipo_insumo.unidade_medida.sigla,
-        precoEmbalagem: data.preco,
-        quantidadeUtilizada: 0,
-        custoUnitario: data.preco / data.tipo_insumo.quantidade_embalagem,
-        custoReceita: 0,
-      };
-
-      setIngredientes([...ingredientes, novoIngrediente]);
-
-      setModalCriarIngredienteAberto(false);
-      setTipoIngRecemCriado(null);
-      setTermoBuscaIngrediente('');
-
-    } catch (error: any) {
-      console.error('Erro ao criar ingrediente:', error);
-      toast.error(error.message);
-    }
-  };
-
-  const handleCriarEmbalagem = async () => {
-    try {
-      if (!tipoEmbRecemCriado) {
-        throw new Error('Tipo não encontrado');
-      }
-
-      const precoNum = parseFloat(novoEmbPreco.replace(',', '.'));
-      if (!precoNum || precoNum <= 0) {
-        toast.error('Informe um preço válido!');
-        return;
-      }
-
-      if (!user) throw new Error('Não autenticado');
-
-      const { data, error } = await supabase
-        .from('embalagens')
-        .insert({
-          usuario_id: user.id,
-          tipo_insumo_id: tipoEmbRecemCriado.id,
-          marca: novoEmbMarca.trim() || null,
-          preco: precoNum,
-          data_atualizacao: new Date().toISOString().split('T')[0],
-        })
-        .select(`
-          *,
-          tipo_insumo:tipos_insumos (
-            id,
-            descricao,
-            quantidade_embalagem,
-            unidade_medida:unidades_medida (
-              nome,
-              sigla
-            )
-          )
-        `)
-        .single();
-
-      if (error) {
-        if (error.code === '23505') {
-          throw new Error('Esta embalagem já foi cadastrada!');
-        }
-        throw error;
-      }
-
-      toast.success('Embalagem cadastrada e adicionada!');
-
-      setEmbalagensCadastradas([...embalagensCadastradas, data]);
-
-      const novaEmbalagem: EmbalagemReceita = {
-        id: `emb-${Date.now()}`,
-        embalagemId: data.id,
-        embalagem: data.tipo_insumo.descricao,
-        marca: data.marca || '',
-        qtdeEmbalagem: data.tipo_insumo.quantidade_embalagem,
-        unidadeMedida: data.tipo_insumo.unidade_medida.sigla,
-        precoEmbalagem: data.preco,
-        quantidadeUtilizada: 0,
-        custoUnitario: data.preco / data.tipo_insumo.quantidade_embalagem,
-        custoReceita: 0,
-      };
-
-      setEmbalagens([...embalagens, novaEmbalagem]);
-
-      setModalCriarEmbalagemAberto(false);
-      setTipoEmbRecemCriado(null);
-      setTermoBuscaEmbalagem('');
-
-    } catch (error: any) {
-      console.error('Erro ao criar embalagem:', error);
-      toast.error(error.message);
-    }
+    setEmbalagens([...embalagens, novaEmbalagem]);
+    setTermoBuscaEmbalagem('');
   };
 
   return (
