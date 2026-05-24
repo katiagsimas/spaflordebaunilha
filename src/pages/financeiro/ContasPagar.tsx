@@ -894,19 +894,17 @@ export default function ContasPagar() {
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground">Data de Emissão</Label>
           <div className="grid grid-cols-2 gap-2">
-            <Input
-              type="date"
+            <DatePickerField
               value={dataEmissaoInicio}
-              onChange={(e) => setDataEmissaoInicio(e.target.value)}
+              onChange={setDataEmissaoInicio}
               placeholder="Inicial"
-              className="text-xs"
+              className="flex-1"
             />
-            <Input
-              type="date"
+            <DatePickerField
               value={dataEmissaoFim}
-              onChange={(e) => setDataEmissaoFim(e.target.value)}
+              onChange={setDataEmissaoFim}
               placeholder="Final"
-              className="text-xs"
+              className="flex-1"
             />
           </div>
         </div>
@@ -915,19 +913,17 @@ export default function ContasPagar() {
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground">Data de Pagamento</Label>
           <div className="grid grid-cols-2 gap-2">
-            <Input
-              type="date"
+            <DatePickerField
               value={dataPagamentoInicio}
-              onChange={(e) => setDataPagamentoInicio(e.target.value)}
+              onChange={setDataPagamentoInicio}
               placeholder="Inicial"
-              className="text-xs"
+              className="flex-1"
             />
-            <Input
-              type="date"
+            <DatePickerField
               value={dataPagamentoFim}
-              onChange={(e) => setDataPagamentoFim(e.target.value)}
+              onChange={setDataPagamentoFim}
               placeholder="Final"
-              className="text-xs"
+              className="flex-1"
             />
           </div>
         </div>
@@ -936,19 +932,17 @@ export default function ContasPagar() {
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground">Data de Vencimento</Label>
           <div className="grid grid-cols-2 gap-2">
-            <Input
-              type="date"
+            <DatePickerField
               value={dataVencimentoInicio}
-              onChange={(e) => setDataVencimentoInicio(e.target.value)}
+              onChange={setDataVencimentoInicio}
               placeholder="Inicial"
-              className="text-xs"
+              className="flex-1"
             />
-            <Input
-              type="date"
+            <DatePickerField
               value={dataVencimentoFim}
-              onChange={(e) => setDataVencimentoFim(e.target.value)}
+              onChange={setDataVencimentoFim}
               placeholder="Final"
-              className="text-xs"
+              className="flex-1"
             />
           </div>
         </div>
