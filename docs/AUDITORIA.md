@@ -430,3 +430,15 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 - `useFecharMes` grava log ao fechar com snapshot consolidado.
 - Novo hook `useFechamentoLogs` agrega logs + nome/email do autor (join com profiles).
 - UI em `FechamentoMes.tsx`: AlertDialog de reabertura com Textarea obrigatória + nova seção "Histórico de mudanças deste mês".
+
+---
+
+## [2026-05-24] Backup automático parado desde 05/05 — corrigido ✅
+**Causa:** o cron job `executar-backups-agendados` (a cada 30 min) chamava a edge function enviando a **anon key** como Bearer, mas a função só aceitava `service_role_key` ou `x-cron-secret`. Resultado: todas as chamadas retornavam **401 Unauthorized** desde 05/05/2026 e nenhum agendamento era processado.
+
+**Evidência:** `net._http_response` mostrava status_code=401 em todas as execuções recentes; `cron.job_run_details` continuava marcando `succeeded` (porque pg_net retornou, não o status HTTP).
+
+**Correção:**
+- Edge function `executar-backups-agendados/index.ts` agora também aceita a anon key como Bearer. Risco aceitável: a função não recebe parâmetros do chamador, apenas processa agendamentos vencidos.
+- Disparo manual executou 5 backups atrasados.
+- pg_cron continua chamando a cada 30 min normalmente.
