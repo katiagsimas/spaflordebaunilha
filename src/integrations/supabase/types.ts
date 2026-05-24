@@ -397,6 +397,7 @@ export type Database = {
       }
       configuracoes_juros: {
         Row: {
+          aliquota_simples_nacional: number | null
           cobrar_juros: boolean | null
           created_at: string | null
           id: string
@@ -410,6 +411,7 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
+          aliquota_simples_nacional?: number | null
           cobrar_juros?: boolean | null
           created_at?: string | null
           id?: string
@@ -423,6 +425,7 @@ export type Database = {
           usuario_id: string
         }
         Update: {
+          aliquota_simples_nacional?: number | null
           cobrar_juros?: boolean | null
           created_at?: string | null
           id?: string
