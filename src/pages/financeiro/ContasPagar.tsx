@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import * as XLSX from 'xlsx';
 import { DatePickerField } from '@/components/DatePickerField';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -455,7 +456,7 @@ export default function ContasPagar() {
   const handleExportarExcel = () => {
     const parcelasExportar = parcelasFiltradas;
 
-    const csvData = parcelasExportar.map((p: any) => ({
+    const dadosExportacao = parcelasExportar.map((p: any) => ({
       'Documento': p.tipo_documento_descricao || '',
       'Nº Documento': p.numero_documento || '',
       'Data Emissão': formatarData(p.data_emissao),
@@ -470,28 +471,14 @@ export default function ContasPagar() {
       'Status': p.status,
     }));
 
-    const headers = Object.keys(csvData[0]);
-    const csvContent = [
-      headers.join(','),
-      ...csvData.map(row => 
-        headers.map(header => {
-          const value = row[header as keyof typeof row];
-          return typeof value === 'string' && value.includes(',') 
-            ? `"${value}"` 
-            : value;
-        }).join(',')
-      )
-    ].join('\n');
-
-    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `contas_pagar_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
+    const ws = XLSX.utils.json_to_sheet(dadosExportacao);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Contas a Pagar');
+    XLSX.writeFile(wb, `contas_pagar_${new Date().toISOString().split('T')[0]}.xlsx`);
 
     toast({
       title: '✅ Exportado',
-      description: 'Arquivo CSV gerado com sucesso!',
+      description: 'Arquivo Excel gerado com sucesso!',
     });
   };
 
@@ -691,8 +678,7 @@ export default function ContasPagar() {
 
       const parcelasExportar = parcelasFiltradas.filter((p: any) => parcelasSelecionadas.has(p.id));
 
-      // Preparar dados para CSV
-      const csvData = parcelasExportar.map((p: any) => ({
+      const dadosExportacao = parcelasExportar.map((p: any) => ({
         'Documento': p.tipo_documento_descricao || '',
         'Data Emissão': formatarData(p.data_emissao),
         'Plano de Contas': `${p.plano_contas_codigo} - ${p.plano_contas_descricao}`,
@@ -706,26 +692,10 @@ export default function ContasPagar() {
         'Status': p.status,
       }));
 
-      // Criar CSV
-      const headers = Object.keys(csvData[0]);
-      const csvContent = [
-        headers.join(','),
-        ...csvData.map(row => 
-          headers.map(header => {
-            const value = row[header as keyof typeof row];
-            return typeof value === 'string' && value.includes(',') 
-              ? `"${value}"` 
-              : value;
-          }).join(',')
-        )
-      ].join('\n');
-
-      // Download
-      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `contas_pagar_selecionadas_${new Date().toISOString().split('T')[0]}.csv`;
-      link.click();
+      const ws = XLSX.utils.json_to_sheet(dadosExportacao);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Selecionadas');
+      XLSX.writeFile(wb, `contas_pagar_selecionadas_${new Date().toISOString().split('T')[0]}.xlsx`);
 
       toast({
         title: '✅ Exportado',
