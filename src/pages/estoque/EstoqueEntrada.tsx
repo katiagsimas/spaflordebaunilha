@@ -27,15 +27,22 @@ export default function EstoqueEntrada() {
   const [observacao, setObservacao] = useState('');
   const [salvando, setSalvando] = useState(false);
 
-  // Load ingredientes or embalagens based on type
+  // Load ingredientes/embalagens — mesma fonte usada por Meu Cardápio
   const { data: ingredientes = [] } = useQuery({
     queryKey: ['ingredientes-estoque', user?.id],
     queryFn: async () => {
       const { data } = await supabase
         .from('ingredientes')
-        .select('id, tipo_insumo_id, tipos_insumos:tipo_insumo_id(descricao)')
+        .select('id, marca, preco, tipo_insumo_id, tipos_insumos:tipo_insumo_id(descricao, quantidade_embalagem, unidades_medida:unidade_medida_id(sigla))')
         .eq('usuario_id', user!.id) as any;
-      return (data || []).map((i: any) => ({ id: i.id, nome: i.tipos_insumos?.descricao || 'Ingrediente' }));
+      return (data || []).map((i: any) => ({
+        id: i.id,
+        nome: i.tipos_insumos?.descricao || 'Ingrediente',
+        marca: i.marca || null,
+        preco: Number(i.preco) || 0,
+        quantidade_embalagem: Number(i.tipos_insumos?.quantidade_embalagem) || 0,
+        sigla: i.tipos_insumos?.unidades_medida?.sigla || '',
+      }));
     },
     enabled: !!user && tipo === 'ingrediente',
   });
@@ -45,14 +52,33 @@ export default function EstoqueEntrada() {
     queryFn: async () => {
       const { data } = await supabase
         .from('embalagens')
-        .select('id, tipo_insumo_id, tipos_insumos:tipo_insumo_id(descricao)')
+        .select('id, marca, preco, tipo_insumo_id, tipos_insumos:tipo_insumo_id(descricao, quantidade_embalagem, unidades_medida:unidade_medida_id(sigla))')
         .eq('usuario_id', user!.id) as any;
-      return (data || []).map((e: any) => ({ id: e.id, nome: e.tipos_insumos?.descricao || 'Embalagem' }));
+      return (data || []).map((e: any) => ({
+        id: e.id,
+        nome: e.tipos_insumos?.descricao || 'Embalagem',
+        marca: e.marca || null,
+        preco: Number(e.preco) || 0,
+        quantidade_embalagem: Number(e.tipos_insumos?.quantidade_embalagem) || 0,
+        sigla: e.tipos_insumos?.unidades_medida?.sigla || '',
+      }));
     },
     enabled: !!user && tipo === 'embalagem',
   });
 
-  const insumos = tipo === 'ingrediente' ? ingredientes : embalagens;
+  const insumos: any[] = tipo === 'ingrediente' ? ingredientes : embalagens;
+
+  const formatarPreco = (v: number) =>
+    v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+  const handleSelecionarInsumo = (id: string) => {
+    setInsumoId(id);
+    const item = insumos.find((i) => i.id === id);
+    if (item) {
+      if (item.quantidade_embalagem > 0) setQuantidade(String(item.quantidade_embalagem));
+      if (item.preco > 0) setCustoTotal(String(item.preco));
+    }
+  };
 
   const custoUnitario = Number(quantidade) > 0 ? Number(custoTotal) / Number(quantidade) : 0;
 
