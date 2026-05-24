@@ -25,6 +25,7 @@ export default function FechamentoMes() {
 
   const { fechamento, previa, checklist, isLoading } = useFechamentoMes(refIso);
   const { data: historico } = useListaFechamentos();
+  const { data: logs } = useFechamentoLogs(fechamento?.id);
   const abrir = useAbrirOuCriarFechamento();
   const fechar = useFecharMes();
   const reabrir = useReabrirMes();
