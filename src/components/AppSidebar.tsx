@@ -261,7 +261,7 @@ export function AppSidebar() {
                       <NavLink
                         to={item.url}
                         end
-                        className="flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm opacity-40 cursor-not-allowed text-sidebar-foreground/80"
+                        className="flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm opacity-40 cursor-not-allowed text-[#FFF9F5]"
                         onClick={(e) => {
                           e.preventDefault();
                           setComingSoonModal({ title: item.title, message: item.comingSoonMessage });
