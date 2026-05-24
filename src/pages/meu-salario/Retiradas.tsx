@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRetiradas, useExcluirRetirada } from "@/hooks/useMeuSalario";
 import { formatBRL } from "@/lib/formatUtils";
 import { RetiradaForm } from "@/components/meu-salario/RetiradaForm";
