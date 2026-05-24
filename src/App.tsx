@@ -146,7 +146,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 <div className="h-6 w-px bg-border" />
               </div>
               {ultimoBackupTexto && (
-                <span className="text-xs font-bold text-foreground hidden sm:inline-flex items-center gap-1.5">
+                <span className="text-xs font-bold text-cda-creme hidden sm:inline-flex items-center gap-1.5">
                   💾 Último backup: {ultimoBackupTexto}
                 </span>
               )}
