@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -16,7 +17,7 @@ import {
 } from "@/hooks/useFechamentoMes";
 import { formatBRL } from "@/hooks/useMeuSalario";
 import { formatarMesReferencia } from "@/lib/dateUtils";
-import { Lock, Unlock, CheckCircle2, AlertCircle, History, Clock } from "lucide-react";
+import { Lock, Unlock, CheckCircle2, AlertCircle, History, Clock, ExternalLink } from "lucide-react";
 
 export default function FechamentoMes() {
   const meses = listaMesesRecentes(12);
