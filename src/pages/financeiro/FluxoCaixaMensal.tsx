@@ -80,149 +80,156 @@ export default function FluxoCaixaMensal() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const fluxoCalculado: FluxoMensal[] = [];
-      let saldoAnterior = 0;
-
-      // Buscar saldo inicial dos bancos (Saldo Anterior do Dashboard)
-      const { data: saldosBancos } = await supabase
-        .from('bancos')
-        .select('saldo_inicial')
-        .eq('usuario_id', user.id);
-
-      const saldoInicialBancos = saldosBancos?.reduce((acc, s) => acc + (s.saldo_inicial || 0), 0) || 0;
-
-      // Buscar saldos iniciais configurados até o início do ano
       const inicioAno = `${ano}-01-01`;
-      const { data: saldosConfiguradosAno } = await supabase
-        .from('saldos_iniciais_bancos')
-        .select('saldo_inicial, data_referencia')
-        .eq('user_id', user.id)
-        .lt('data_referencia', inicioAno);
+      const fimAno = `${ano}-12-31`;
 
-      const totalSaldosConfiguradosIniciais = saldosConfiguradosAno?.reduce((acc, s) => acc + (s.saldo_inicial || 0), 0) || 0;
-
-      // Buscar categorias do plano de contas
-      const { data: categorias } = await supabase
-        .from('categorias_plano_contas')
-        .select('id, codigo')
-        .eq('user_id', user.id);
-
-      const getCategoriaId = (codigo: string) => {
-        return categorias?.find(c => c.codigo === codigo)?.id;
-      };
-
-      for (let mes = 0; mes < 12; mes++) {
-        const dataInicio = new Date(ano, mes, 1);
-        const dataFim = new Date(ano, mes + 1, 0);
-        
-        const inicioStr = formatDateToISO(dataInicio);
-        const fimStr = formatDateToISO(dataFim);
-
-        // Para o primeiro mês do ano, calcular o saldo inicial
-        if (mes === 0) {
-          const dataLimite = formatDateToISO(new Date(ano, 0, 1));
-
-          // Buscar movimentações anteriores
-          const { data: entradasAnteriores } = await supabase
-            .from("contas_receber_pagamentos")
-            .select("valor_pago, juros, desconto")
-            .lt("data_pagamento", dataLimite)
-            .eq("estornado", false);
-
-          const { data: saidasAnteriores } = await supabase
-            .from("contas_pagar_pagamentos")
-            .select("valor_pago, juros, desconto")
-            .lt("data_pagamento", dataLimite)
-            .eq("estornado", false);
-
-          const totalEntradasAnt = entradasAnteriores
-            ?.reduce((sum, e) => sum + (e.valor_pago || 0) + (e.juros || 0) - (e.desconto || 0), 0) || 0;
-
-          const totalSaidasAnt = saidasAnteriores
-            ?.reduce((sum, s) => sum + (s.valor_pago || 0) + (s.juros || 0) - (s.desconto || 0), 0) || 0;
-
-          // Calcular: Saldo Bancos + Saldos Configurados + Entradas - Saídas anteriores
-          saldoAnterior = saldoInicialBancos + totalSaldosConfiguradosIniciais + totalEntradasAnt - totalSaidasAnt;
-        }
-
-        // Buscar saldos configurados para o mês ATUAL (que devem aparecer como saldo inicial deste mês)
-        const dataInicioMes = formatDateToISO(new Date(ano, mes, 1));
-        const dataFimMes = formatDateToISO(new Date(ano, mes + 1, 0));
-        const { data: saldosConfiguradosMes } = await supabase
+      // Buscar TODOS os dados necessários em paralelo, fora do loop.
+      const [
+        saldosBancosRes,
+        saldosConfiguradosAntRes,
+        saldosConfiguradosAnoRes,
+        entradasAnterioresRes,
+        saidasAnterioresRes,
+        pagamentosReceberAnoRes,
+        pagamentosPagarAnoRes,
+      ] = await Promise.all([
+        supabase
+          .from('bancos')
+          .select('saldo_inicial')
+          .eq('usuario_id', user.id),
+        supabase
           .from('saldos_iniciais_bancos')
           .select('saldo_inicial, data_referencia')
           .eq('user_id', user.id)
-          .gte('data_referencia', dataInicioMes)
-          .lte('data_referencia', dataFimMes);
-
-        const saldosConfiguradosNoMes = saldosConfiguradosMes?.reduce((acc, s) => acc + (s.saldo_inicial || 0), 0) || 0;
-
-        // Buscar entradas (Contas a Receber pagas) com joins aninhados
-        const { data: pagamentosReceber } = await supabase
-          .from("contas_receber_pagamentos")
+          .lt('data_referencia', inicioAno),
+        supabase
+          .from('saldos_iniciais_bancos')
+          .select('saldo_inicial, data_referencia')
+          .eq('user_id', user.id)
+          .gte('data_referencia', inicioAno)
+          .lte('data_referencia', fimAno),
+        supabase
+          .from('contas_receber_pagamentos')
           .select(`
-            valor_pago,
-            juros,
-            desconto,
-            parcela:contas_receber_parcelas!parcela_id (
-              conta:contas_receber!conta_receber_id (
+            valor_pago, juros, desconto,
+            parcela:contas_receber_parcelas!inner (
+              conta:contas_receber!inner ( usuario_id )
+            )
+          `)
+          .lt('data_pagamento', inicioAno)
+          .eq('estornado', false)
+          .eq('parcela.conta.usuario_id', user.id),
+        supabase
+          .from('contas_pagar_pagamentos')
+          .select(`
+            valor_pago, juros, desconto,
+            parcela:contas_pagar_parcelas!inner (
+              conta:contas_pagar!inner ( usuario_id )
+            )
+          `)
+          .lt('data_pagamento', inicioAno)
+          .eq('estornado', false)
+          .eq('parcela.conta.usuario_id', user.id),
+        supabase
+          .from('contas_receber_pagamentos')
+          .select(`
+            valor_pago, juros, desconto, data_pagamento,
+            parcela:contas_receber_parcelas!inner (
+              conta:contas_receber!inner (
+                usuario_id,
                 plano:plano_contas!plano_conta_id (
                   categoria:categorias_plano_contas!categoria_id ( codigo )
                 )
               )
             )
           `)
-          .gte("data_pagamento", inicioStr)
-          .lte("data_pagamento", fimStr)
-          .eq("estornado", false);
-
-        // Buscar saídas (Contas a Pagar pagas) com joins aninhados
-        const { data: pagamentosPagar } = await supabase
-          .from("contas_pagar_pagamentos")
+          .gte('data_pagamento', inicioAno)
+          .lte('data_pagamento', fimAno)
+          .eq('estornado', false)
+          .eq('parcela.conta.usuario_id', user.id),
+        supabase
+          .from('contas_pagar_pagamentos')
           .select(`
-            valor_pago,
-            juros,
-            desconto,
-            parcela:contas_pagar_parcelas!parcela_id (
-              conta:contas_pagar!conta_pagar_id (
+            valor_pago, juros, desconto, data_pagamento,
+            parcela:contas_pagar_parcelas!inner (
+              conta:contas_pagar!inner (
+                usuario_id,
                 plano:plano_contas!plano_contas_id (
                   categoria:categorias_plano_contas!categoria_id ( codigo )
                 )
               )
             )
           `)
-          .gte("data_pagamento", inicioStr)
-          .lte("data_pagamento", fimStr)
-          .eq("estornado", false);
+          .gte('data_pagamento', inicioAno)
+          .lte('data_pagamento', fimAno)
+          .eq('estornado', false)
+          .eq('parcela.conta.usuario_id', user.id),
+      ]);
 
-        // Processar entradas por categoria (em memória, sem awaits)
-        const entradasPorCategoria: Record<string, number> = {};
-        let totalEntradas = 0;
+      const saldoInicialBancos = (saldosBancosRes.data || [])
+        .reduce((acc, s: any) => acc + (s.saldo_inicial || 0), 0);
 
-        for (const pag of (pagamentosReceber as any[]) || []) {
-          const valorLiquido = (pag.valor_pago || 0) + (pag.juros || 0) - (pag.desconto || 0);
-          totalEntradas += valorLiquido;
+      const totalSaldosConfiguradosIniciais = (saldosConfiguradosAntRes.data || [])
+        .reduce((acc, s: any) => acc + (s.saldo_inicial || 0), 0);
 
-          const codigo = pag?.parcela?.conta?.plano?.categoria?.codigo;
-          if (codigo) {
-            entradasPorCategoria[codigo] = (entradasPorCategoria[codigo] || 0) + valorLiquido;
-          }
+      const totalEntradasAnt = ((entradasAnterioresRes.data as any[]) || [])
+        .reduce((sum, e) => sum + (e.valor_pago || 0) + (e.juros || 0) - (e.desconto || 0), 0);
+
+      const totalSaidasAnt = ((saidasAnterioresRes.data as any[]) || [])
+        .reduce((sum, s) => sum + (s.valor_pago || 0) + (s.juros || 0) - (s.desconto || 0), 0);
+
+      // Indexar saldos configurados do ano por mês (0–11)
+      const saldosConfigPorMes: number[] = Array(12).fill(0);
+      ((saldosConfiguradosAnoRes.data as any[]) || []).forEach((s) => {
+        if (!s.data_referencia) return;
+        const [, mesP] = String(s.data_referencia).split('-').map(Number);
+        const idx = (mesP || 1) - 1;
+        if (idx >= 0 && idx < 12) {
+          saldosConfigPorMes[idx] += s.saldo_inicial || 0;
         }
+      });
 
-        // Processar saídas por categoria (em memória, sem awaits)
-        const saidasPorCategoria: Record<string, number> = {};
-        let totalSaidas = 0;
-
-        for (const pag of (pagamentosPagar as any[]) || []) {
-          const valorLiquido = (pag.valor_pago || 0) + (pag.juros || 0) - (pag.desconto || 0);
-          totalSaidas += valorLiquido;
-
-          const codigo = pag?.parcela?.conta?.plano?.categoria?.codigo;
-          if (codigo) {
-            saidasPorCategoria[codigo] = (saidasPorCategoria[codigo] || 0) + valorLiquido;
-          }
+      // Indexar pagamentos por mês e por categoria (codigo)
+      const entradasPorMesCat: Array<Record<string, number>> = Array.from({ length: 12 }, () => ({}));
+      const totalEntradasMes: number[] = Array(12).fill(0);
+      ((pagamentosReceberAnoRes.data as any[]) || []).forEach((pag) => {
+        if (!pag.data_pagamento) return;
+        const [anoP, mesP] = String(pag.data_pagamento).split('-').map(Number);
+        if (anoP !== ano) return;
+        const idx = (mesP || 1) - 1;
+        const valor = (pag.valor_pago || 0) + (pag.juros || 0) - (pag.desconto || 0);
+        totalEntradasMes[idx] += valor;
+        const codigo = pag?.parcela?.conta?.plano?.categoria?.codigo;
+        if (codigo) {
+          entradasPorMesCat[idx][codigo] = (entradasPorMesCat[idx][codigo] || 0) + valor;
         }
+      });
 
+      const saidasPorMesCat: Array<Record<string, number>> = Array.from({ length: 12 }, () => ({}));
+      const totalSaidasMes: number[] = Array(12).fill(0);
+      ((pagamentosPagarAnoRes.data as any[]) || []).forEach((pag) => {
+        if (!pag.data_pagamento) return;
+        const [anoP, mesP] = String(pag.data_pagamento).split('-').map(Number);
+        if (anoP !== ano) return;
+        const idx = (mesP || 1) - 1;
+        const valor = (pag.valor_pago || 0) + (pag.juros || 0) - (pag.desconto || 0);
+        totalSaidasMes[idx] += valor;
+        const codigo = pag?.parcela?.conta?.plano?.categoria?.codigo;
+        if (codigo) {
+          saidasPorMesCat[idx][codigo] = (saidasPorMesCat[idx][codigo] || 0) + valor;
+        }
+      });
+
+      // Loop puramente em memória — nenhum await aqui dentro
+      const fluxoCalculado: FluxoMensal[] = [];
+      let saldoAnterior = saldoInicialBancos + totalSaldosConfiguradosIniciais + totalEntradasAnt - totalSaidasAnt;
+
+      for (let mes = 0; mes < 12; mes++) {
+        const entradasPorCategoria = entradasPorMesCat[mes];
+        const saidasPorCategoria = saidasPorMesCat[mes];
+        const totalEntradas = totalEntradasMes[mes];
+        const totalSaidas = totalSaidasMes[mes];
+        const saldosConfiguradosNoMes = saldosConfigPorMes[mes];
 
         const entradasCalc = {
           receitaVendas: entradasPorCategoria['1'] || 0,
@@ -231,7 +238,7 @@ export default function FluxoCaixaMensal() {
           importacao: entradasPorCategoria['98'] || 0,
           receitasFinanceiras: entradasPorCategoria['106'] || 0,
           investimentosPositivos: entradasPorCategoria['111'] || 0,
-          total: totalEntradas
+          total: totalEntradas,
         };
 
         const saidasCalc = {
@@ -248,7 +255,7 @@ export default function FluxoCaixaMensal() {
           despesaOperacionalVariavel: saidasPorCategoria['103'] || 0,
           despesasFinanceiras: saidasPorCategoria['107'] || 0,
           campanhasSazonais: saidasPorCategoria['112'] || 0,
-          total: totalSaidas
+          total: totalSaidas,
         };
 
         const saldoOperacional = entradasCalc.total - saidasCalc.total;
@@ -256,11 +263,11 @@ export default function FluxoCaixaMensal() {
 
         fluxoCalculado.push({
           mes: meses[mes],
-          saldoInicial: saldoAnterior + saldosConfiguradosNoMes, // Adicionar saldos configurados ao saldo inicial
+          saldoInicial: saldoAnterior + saldosConfiguradosNoMes,
           entradas: entradasCalc,
           saidas: saidasCalc,
           saldoOperacional,
-          saldoFinal
+          saldoFinal,
         });
 
         saldoAnterior = saldoFinal;
@@ -273,6 +280,7 @@ export default function FluxoCaixaMensal() {
       hideLoading();
     }
   }
+
 
   const handleExportar = () => {
     const headers = ['Categoria', ...meses];
