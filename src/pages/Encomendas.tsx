@@ -192,7 +192,7 @@ const Encomendas = () => {
     // Filtrar encomendas do mês selecionado pela DATA DE ENTREGA
     const encomendasMes = encomendas.filter((enc) => {
       if (!enc.data_entrega) return false;
-      const dataEntrega = new Date(enc.data_entrega);
+      const dataEntrega = parseISOToDate(enc.data_entrega);
       return (
         dataEntrega.getMonth() === mesSelecionado &&
         dataEntrega.getFullYear() === anoSelecionado
@@ -213,17 +213,17 @@ const Encomendas = () => {
 
     const paraHoje = encomendasPendentes.filter((e) => {
       if (!e.data_entrega) return false;
-      return isToday(new Date(e.data_entrega));
+      return isToday(parseISOToDate(e.data_entrega));
     }).length;
 
     const paraAmanha = encomendasPendentes.filter((e) => {
       if (!e.data_entrega) return false;
-      return isTomorrow(new Date(e.data_entrega));
+      return isTomorrow(parseISOToDate(e.data_entrega));
     }).length;
 
     const paraEstaSemana = encomendasPendentes.filter((e) => {
       if (!e.data_entrega) return false;
-      const dataEntrega = new Date(e.data_entrega);
+      const dataEntrega = parseISOToDate(e.data_entrega);
       return (
         !isToday(dataEntrega) &&
         !isTomorrow(dataEntrega) &&
@@ -888,7 +888,7 @@ const Encomendas = () => {
         'Cliente': encomenda.cliente,
         'Status': statusLabels[encomenda.status as keyof typeof statusLabels],
         'Data Pedido': new Date(encomenda.data_pedido).toLocaleDateString("pt-BR"),
-        'Data Entrega': encomenda.data_entrega ? new Date(encomenda.data_entrega).toLocaleDateString("pt-BR") : 'Aguardando Agendamento',
+        'Data Entrega': encomenda.data_entrega ? parseISOToDate(encomenda.data_entrega).toLocaleDateString("pt-BR") : 'Aguardando Agendamento',
         'Hora Entrega': encomenda.hora_entrega ? encomenda.hora_entrega.slice(0, 5) : '-',
         'Tags': encomenda.tags && encomenda.tags.length > 0 ? encomenda.tags.map((t: any) => t.nome).join(', ') : '-',
         'Valor': `R$ ${encomenda.valor.toFixed(2)}`,
@@ -1885,7 +1885,7 @@ const Encomendas = () => {
                       <TableCell>{new Date(encomenda.data_pedido).toLocaleDateString("pt-BR")}</TableCell>
                       <TableCell>
                         {encomenda.data_entrega ? (
-                          new Date(encomenda.data_entrega).toLocaleDateString("pt-BR")
+                          parseISOToDate(encomenda.data_entrega).toLocaleDateString("pt-BR")
                         ) : (
                           <Badge className="bg-red-100 text-red-800 border-red-200" variant="outline">
                             Aguardando Agendamento
