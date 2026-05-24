@@ -16,11 +16,29 @@
     --cda-coral:        5   82% 73%;   /* #F28C82 — mantido */
     --cda-pink:         345 52% 77%;   /* #E7A1AF — mantido */
 
-    /* Renda Doce — escopo do módulo Meu Salário (inalterado) */
+    /*
+     * ────────────────────────────────────────────────────────────────
+     * Renda Doce — sub-tema deliberadamente diferenciado
+     * ────────────────────────────────────────────────────────────────
+     * Estes tokens (--rd-*) NÃO fazem parte do design system global
+     * (--cda-*) por decisão de design. O módulo "Meu Salário" usa uma
+     * paleta própria — "Renda Doce" — com vinho rosado, rosé queimado,
+     * dourado quente e creme suave, criando uma atmosfera mais íntima
+     * e acolhedora para a experiência financeira pessoal da usuária.
+     *
+     * O escopo é isolado via a classe `.renda-doce-scope` aplicada no
+     * container raiz de src/pages/meu-salario/MeuSalario.tsx, garantindo
+     * que estes tokens só afetem este módulo.
+     *
+     * ⚠️  NÃO substituir por tokens --cda-* — a diferenciação visual é
+     *     intencional. Mantenha a paleta coesa apenas dentro do escopo.
+     * ────────────────────────────────────────────────────────────────
+     */
     --rd-vinho:           345 38% 28%;
     --rd-rose-queimado:   12  45% 55%;
     --rd-dourado:         40  55% 60%;
     --rd-creme:           38  50% 96%;
+
 
     /* Tokens semânticos */
     --background:         38  67% 96%;   /* creme */
