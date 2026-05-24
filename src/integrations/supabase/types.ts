@@ -1442,6 +1442,116 @@ export type Database = {
           },
         ]
       }
+      fechamento_checklist_itens: {
+        Row: {
+          concluido: boolean
+          concluido_em: string | null
+          concluido_por: string | null
+          created_at: string
+          descricao: string | null
+          fechamento_id: string
+          id: string
+          ordem: number
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          concluido?: boolean
+          concluido_em?: string | null
+          concluido_por?: string | null
+          created_at?: string
+          descricao?: string | null
+          fechamento_id: string
+          id?: string
+          ordem?: number
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          concluido?: boolean
+          concluido_em?: string | null
+          concluido_por?: string | null
+          created_at?: string
+          descricao?: string | null
+          fechamento_id?: string
+          id?: string
+          ordem?: number
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fechamento_checklist_itens_fechamento_id_fkey"
+            columns: ["fechamento_id"]
+            isOneToOne: false
+            referencedRelation: "fechamentos_mensais"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fechamentos_mensais: {
+        Row: {
+          created_at: string
+          custos: number
+          faturamento: number
+          fechado_em: string | null
+          fechado_por: string | null
+          id: string
+          margem_seguranca: number
+          mes_referencia: string
+          observacoes: string | null
+          owner_group_id: string
+          pro_labore_saudavel: number
+          reaberto_em: string | null
+          reaberto_por: string | null
+          retiradas: number
+          saldo_restante: number
+          snapshot: Json
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          custos?: number
+          faturamento?: number
+          fechado_em?: string | null
+          fechado_por?: string | null
+          id?: string
+          margem_seguranca?: number
+          mes_referencia: string
+          observacoes?: string | null
+          owner_group_id: string
+          pro_labore_saudavel?: number
+          reaberto_em?: string | null
+          reaberto_por?: string | null
+          retiradas?: number
+          saldo_restante?: number
+          snapshot?: Json
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          custos?: number
+          faturamento?: number
+          fechado_em?: string | null
+          fechado_por?: string | null
+          id?: string
+          margem_seguranca?: number
+          mes_referencia?: string
+          observacoes?: string | null
+          owner_group_id?: string
+          pro_labore_saudavel?: number
+          reaberto_em?: string | null
+          reaberto_por?: string | null
+          retiradas?: number
+          saldo_restante?: number
+          snapshot?: Json
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       fornecedor_contatos: {
         Row: {
           ativo: boolean | null
@@ -3371,6 +3481,7 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
+      current_user_group: { Args: never; Returns: string }
       deletar_cadastros_seletivo: {
         Args: { p_selecao: Json; p_user_id: string }
         Returns: Json
@@ -3504,6 +3615,10 @@ export type Database = {
         Args: { _group_id: string; _user_id: string }
         Returns: boolean
       }
+      is_mes_fechado: {
+        Args: { _data: string; _group_id: string }
+        Returns: boolean
+      }
       is_mother: { Args: { _user_id: string }; Returns: boolean }
       log_admin_action: {
         Args: {
@@ -3531,6 +3646,10 @@ export type Database = {
       }
       user_has_financial_access: {
         Args: { _user_id: string }
+        Returns: boolean
+      }
+      user_in_group: {
+        Args: { _group_id: string; _user_id: string }
         Returns: boolean
       }
       validar_estoque_receita: {
