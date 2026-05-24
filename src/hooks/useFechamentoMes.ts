@@ -322,12 +322,12 @@ export function useFechamentoLogs(fechamentoId?: string) {
       if (userIds.length) {
         const { data: profs } = await supabase
           .from("profiles")
-          .select("id, nome, email")
+          .select("id, nome_completo, email")
           .in("id", userIds);
         const mapa = new Map((profs ?? []).map((p: any) => [p.id, p]));
         return logs.map(l => ({
           ...l,
-          usuario_nome: l.usuario_id ? (mapa.get(l.usuario_id) as any)?.nome ?? null : null,
+          usuario_nome: l.usuario_id ? (mapa.get(l.usuario_id) as any)?.nome_completo ?? null : null,
           usuario_email: l.usuario_id ? (mapa.get(l.usuario_id) as any)?.email ?? null : null,
         }));
       }
