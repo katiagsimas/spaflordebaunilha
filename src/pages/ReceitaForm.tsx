@@ -1635,7 +1635,7 @@ export default function ReceitaForm() {
                       <Button 
                         type="button" 
                         variant="default" 
-                        className="w-full font-bold text-xl bg-primary text-foreground hover:bg-primary/90"
+                        className="w-full font-bold text-xl bg-primary text-primary-foreground hover:bg-primary/90"
                         disabled
                       >
                         Total: R$ {(custoIngredientes + custoEmbalagens + custoFixoReceita).toFixed(2)}

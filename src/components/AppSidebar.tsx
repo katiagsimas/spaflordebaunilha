@@ -177,13 +177,13 @@ export function AppSidebar() {
                           `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                             isActive && !bloqueado
                               ? "bg-cda-dourado/20 border-l-2 border-cda-dourado text-cda-dourado font-semibold"
-                              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
+                              : "text-[#FFF9F5] hover:bg-sidebar-accent/20 hover:text-[#FFF9F5]"
                           } ${bloqueado ? "opacity-40 cursor-not-allowed" : ""}`
                         }
                       >
                         {({ isActive }) => (
                           <>
-                            <Icon className={`h-5 w-5 ${isActive && !bloqueado ? 'text-cda-dourado' : 'text-sidebar-foreground/60'}`} />
+                            <Icon className={`h-5 w-5 ${isActive && !bloqueado ? 'text-cda-dourado' : 'text-[#FFF9F5]/80'}`} />
                             {item.title === "Minhas Encomendas" && temEncomendasHoje && !bloqueado && !open && (
                               <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-red-500 animate-ping" />
                             )}
@@ -199,8 +199,8 @@ export function AppSidebar() {
                                   </Badge>
                                 )}
                                 {item.title === "Clientes e Fornecedores" && aniversariantesClientes.length > 0 && !bloqueado && (
-                                  <div className="w-5 h-5 rounded-full bg-cda-vinho flex items-center justify-center animate-bounce ml-1">
-                                    <Cake className="h-3 w-3 text-cda-preto" />
+                                  <div className="w-5 h-5 rounded-full bg-cda-dourado flex items-center justify-center animate-bounce ml-1">
+                                    <Cake className="h-3 w-3 text-cda-vinho" />
                                   </div>
                                 )}
                               </>
@@ -240,13 +240,13 @@ export function AppSidebar() {
                             `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                               isActive
                                 ? "bg-cda-dourado/20 border-l-2 border-cda-dourado text-cda-dourado font-semibold"
-                                : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
+                                : "text-[#FFF9F5] hover:bg-sidebar-accent/20 hover:text-[#FFF9F5]"
                             }`
                           }
                         >
                           {({ isActive }) => (
                             <>
-                              <Icon className={`h-5 w-5 ${isActive ? 'text-cda-dourado' : 'text-sidebar-foreground/60'}`} />
+                              <Icon className={`h-5 w-5 ${isActive ? 'text-cda-dourado' : 'text-[#FFF9F5]/80'}`} />
                               {open && <span className="flex-1">{item.title}</span>}
                             </>
                           )}
@@ -261,13 +261,13 @@ export function AppSidebar() {
                       <NavLink
                         to={item.url}
                         end
-                        className="flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm opacity-40 cursor-not-allowed text-sidebar-foreground/80"
+                        className="flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm opacity-40 cursor-not-allowed text-[#FFF9F5]"
                         onClick={(e) => {
                           e.preventDefault();
                           setComingSoonModal({ title: item.title, message: item.comingSoonMessage });
                         }}
                       >
-                        <Icon className="h-5 w-5 text-sidebar-foreground/60" />
+                        <Icon className="h-5 w-5 text-[#FFF9F5]/80" />
                         {open && (
                           <>
                             <span className="flex-1">{item.title}</span>
@@ -305,13 +305,13 @@ export function AppSidebar() {
                           `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                             isActive
                               ? "bg-cda-dourado/20 border-l-2 border-cda-dourado text-cda-dourado font-semibold"
-                              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
+                              : "text-[#FFF9F5] hover:bg-sidebar-accent/20 hover:text-[#FFF9F5]"
                           }`
                         }
                       >
                         {({ isActive }) => (
                           <>
-                            <Icon className={`h-5 w-5 ${isActive ? 'text-cda-dourado' : 'text-sidebar-foreground/60'}`} />
+                            <Icon className={`h-5 w-5 ${isActive ? 'text-cda-dourado' : 'text-[#FFF9F5]/80'}`} />
                             {open && <span className="flex-1">{item.title}</span>}
                           </>
                         )}
@@ -330,13 +330,13 @@ export function AppSidebar() {
                           `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                             isActive
                               ? "bg-cda-dourado/20 border-l-2 border-cda-dourado text-cda-dourado font-semibold"
-                              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
+                              : "text-[#FFF9F5] hover:bg-sidebar-accent/20 hover:text-[#FFF9F5]"
                           }`
                         }
                       >
                         {({ isActive }) => (
                           <>
-                            <Shield className={`h-5 w-5 ${isActive ? 'text-cda-dourado' : 'text-sidebar-foreground/60'}`} />
+                            <Shield className={`h-5 w-5 ${isActive ? 'text-cda-dourado' : 'text-[#FFF9F5]/80'}`} />
                             {open && <span className="flex-1">Usuários</span>}
                           </>
                         )}
@@ -351,13 +351,13 @@ export function AppSidebar() {
                           `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                             isActive
                               ? "bg-cda-dourado/20 border-l-2 border-cda-dourado text-cda-dourado font-semibold"
-                              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
+                              : "text-[#FFF9F5] hover:bg-sidebar-accent/20 hover:text-[#FFF9F5]"
                           }`
                         }
                       >
                         {({ isActive }) => (
                           <>
-                            <FileText className={`h-5 w-5 ${isActive ? 'text-cda-dourado' : 'text-sidebar-foreground/60'}`} />
+                            <FileText className={`h-5 w-5 ${isActive ? 'text-cda-dourado' : 'text-[#FFF9F5]/80'}`} />
                             {open && <span className="flex-1">Log de Ações</span>}
                           </>
                         )}
@@ -387,13 +387,13 @@ export function AppSidebar() {
                         `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                             isActive
                               ? "bg-cda-dourado/20 border-l-2 border-cda-dourado text-cda-dourado font-semibold"
-                              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
+                              : "text-[#FFF9F5] hover:bg-sidebar-accent/20 hover:text-[#FFF9F5]"
                         }`
                       }
                     >
                       {({ isActive }) => (
                         <>
-                          <Building2 className={`h-5 w-5 ${isActive ? 'text-cda-dourado' : 'text-sidebar-foreground/60'}`} />
+                          <Building2 className={`h-5 w-5 ${isActive ? 'text-cda-dourado' : 'text-[#FFF9F5]/80'}`} />
                           {open && <span className="flex-1">Grupos e Usuários</span>}
                         </>
                       )}
@@ -412,7 +412,7 @@ export function AppSidebar() {
           <div className="space-y-3">
             {activeGroup && sessionMode === 'group' && (
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-[10px] border-sidebar-foreground/30 text-sidebar-foreground/80 font-body">
+                <Badge variant="outline" className="text-[10px] border-[#FFF9F5]/30 text-[#FFF9F5]/70 font-body">
                   {activeRole === 'ADMIN' ? 'Admin' : 'Usuário'}
                 </Badge>
                 {isMother && (
@@ -424,10 +424,10 @@ export function AppSidebar() {
               </div>
             )}
             <div>
-              <p className="text-sm font-semibold font-body text-sidebar-foreground truncate">
+              <p className="text-sm font-semibold font-body text-[#FFF9F5] truncate">
                 {profile?.nome_confeitaria || profile?.nome_completo || user?.email}
               </p>
-              <p className="text-xs font-body text-sidebar-foreground/50 truncate">
+              <p className="text-xs font-body text-[#FFF9F5]/60 truncate">
                 {user?.email}
               </p>
             </div>
@@ -438,7 +438,7 @@ export function AppSidebar() {
                   <span className="text-xs font-semibold font-body text-sidebar-foreground">
                     {planoNome}
                     {profile?.plano_tipo && profile?.plano_id !== 'start' && (
-                      <span className="ml-1 font-normal text-sidebar-foreground/60">
+                      <span className="ml-1 font-normal text-[#FFF9F5]/80">
                         ({profile.plano_tipo === 'anual' ? 'Anual' : 'Mensal'})
                       </span>
                     )}
@@ -447,7 +447,7 @@ export function AppSidebar() {
                 {(profile?.plano_inicio || profile?.plano_fim) && (
                   <div className="flex items-center gap-1.5">
                     <CalendarDays className="h-3 w-3 text-sidebar-foreground/50" />
-                    <span className="text-[10px] font-body text-sidebar-foreground/60">
+                    <span className="text-[10px] font-body text-[#FFF9F5]/80">
                       {profile?.plano_inicio
                         ? new Date(profile.plano_inicio + 'T00:00:00').toLocaleDateString('pt-BR')
                         : '—'}
