@@ -212,6 +212,51 @@ export default function FechamentoMes() {
         </Card>
       )}
 
+      {/* Logs do mês selecionado */}
+      {fechamento && logs && logs.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Clock className="h-4 w-4" /> Histórico de mudanças deste mês
+            </CardTitle>
+            <CardDescription>Registro de fechamentos e reaberturas, com motivo e autor.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {logs.map((log) => (
+              <div key={log.id} className="flex items-start gap-3 p-3 rounded-lg border bg-card">
+                {log.acao === "reaberto" ? (
+                  <Unlock className="h-4 w-4 mt-1 text-cda-coral shrink-0" />
+                ) : (
+                  <Lock className="h-4 w-4 mt-1 text-cda-dourado shrink-0" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant={log.acao === "reaberto" ? "outline" : "default"} className={log.acao === "fechado" ? "bg-cda-dourado text-cda-preto" : ""}>
+                      {log.acao === "reaberto" ? "Reabertura" : "Fechamento"}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(log.created_at).toLocaleString("pt-BR")}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      por <strong>{log.usuario_nome ?? log.usuario_email ?? "—"}</strong>
+                    </span>
+                  </div>
+                  {log.motivo && (
+                    <p className="text-sm mt-1.5 whitespace-pre-wrap">{log.motivo}</p>
+                  )}
+                  {log.snapshot && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Faturamento {formatBRL(Number(log.snapshot.faturamento ?? 0))} · Custos {formatBRL(Number(log.snapshot.custos ?? 0))}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+
       {/* Histórico */}
       <Card>
         <CardHeader>
