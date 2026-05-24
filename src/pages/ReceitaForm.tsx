@@ -134,6 +134,7 @@ interface UploadImagemItem {
 export default function ReceitaForm() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { user } = useAuth();
   const [ingredientesCadastrados, setIngredientesCadastrados] = useState<any[]>([]);
   const [embalagensCadastradas, setEmbalagensCadastradas] = useState<any[]>([]);
   const { categorias, fetchCategoriasAtivas } = useCategorias();
