@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LayoutDashboard, ShoppingBag, DollarSign, LogOut, Users, User, Truck, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles } from "lucide-react";
+import { LayoutDashboard, LogOut, Users, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
 
 import { NavLink, useNavigate } from "react-router-dom";
