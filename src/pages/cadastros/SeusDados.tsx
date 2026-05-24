@@ -198,9 +198,9 @@ export default function SeusDados() {
       queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
       toast.success("✅ Dados salvos com sucesso!");
       
-      // Redirecionar para cadastro de Insumos e Embalagens
+      // Redirecionar para cadastros base (Insumos e Embalagens agora é uso exclusivo do sistema)
       setTimeout(() => {
-        navigate('/configuracoes/tipos-insumos');
+        navigate('/configuracoes/cadastros-base');
       }, 1000);
     },
     onError: (error: any) => {
