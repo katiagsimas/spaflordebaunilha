@@ -415,3 +415,9 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 - ✅ Lógica baseada no mês anterior fechado: faturamento - custos - 20% margem = pró-labore saudável
 - ✅ Exportação PDF "Salvar meu resumo"
 - ✅ Documentação: DOCS_MEU_SALARIO.md criado
+
+## Fechamento de Mês — 2026-05-24T08:06Z
+- Implementadas tabelas `fechamentos_mensais` e `fechamento_checklist_itens` com RLS por grupo.
+- Criadas funções `is_mes_fechado`, `user_in_group` e triggers `BEFORE INSERT/UPDATE/DELETE` em `contas_receber/pagar`, suas parcelas e pagamentos para bloquear alterações em meses fechados.
+- Hook `useFechamentoMes`, página `/financeiro/fechamento-mes`, integração com card no hub Financeiro e snapshot consumido por `useMeuSalario`.
+- Ver `DOCS_FECHAMENTO_MES.md`.
