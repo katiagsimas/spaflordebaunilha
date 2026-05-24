@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LayoutDashboard, ShoppingBag, DollarSign, LogOut, Users, User, Truck, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles } from "lucide-react";
+import { LayoutDashboard, LogOut, Users, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
 
 import { NavLink, useNavigate } from "react-router-dom";
@@ -33,23 +33,48 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
-const mainMenuItems = [
-  { title: "Meu Painel", url: "/dashboard", icon: LayoutDashboard, active: true },
-  { title: "Meu Dinheiro", url: "/financeiro", icon: Wallet, active: true },
-  { title: "Meu Salário", url: "/meu-salario", icon: Sparkles, active: true, adminOnly: true },
-  { title: "Minhas Encomendas", url: "/encomendas", icon: ClipboardList, active: true },
-  { title: "Meu Cardápio", url: "/precificacao", icon: BookOpen, active: true },
-  { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: Users, active: true },
-];
+interface MenuItem {
+  title: string;
+  url: string;
+  icon: React.ComponentType<{ className?: string }>;
+  active: boolean;
+  adminOnly?: boolean;
+  comingSoonMessage?: string;
+}
 
-const comingSoonItems = [
-  { title: "Meus Insumos", url: "/estoque", icon: Package, active: false, comingSoonMessage: "Em breve você terá controle total dos seus insumos, com entrada, saída e ajuste de estoque integrados às suas receitas e encomendas.", adminOnly: true },
-  { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false, comingSoonMessage: "Em breve você terá um plano claro para organizar sua produção, suas vendas e crescer com estratégia.", adminOnly: true },
-  { title: "Minha Presença", url: "/presenca", icon: Globe, active: false, comingSoonMessage: "Em breve você terá controle da sua comunicação e presença online para atrair mais clientes e vender todos os dias." },
-];
-
-const systemMenuItems = [
-  { title: "Configurações", url: "/configuracoes", icon: Settings, active: true },
+const menuSections: { label: string; items: MenuItem[] }[] = [
+  {
+    label: "MEU NEGÓCIO",
+    items: [
+      { title: "Meu Painel", url: "/dashboard", icon: LayoutDashboard, active: true },
+      { title: "Meu Dinheiro", url: "/financeiro", icon: Wallet, active: true },
+      { title: "Meu Salário", url: "/meu-salario", icon: Sparkles, active: true, adminOnly: true },
+    ],
+  },
+  {
+    label: "OPERAÇÃO",
+    items: [
+      { title: "Minhas Encomendas", url: "/encomendas", icon: ClipboardList, active: true },
+      { title: "Meu Cardápio", url: "/precificacao", icon: BookOpen, active: true },
+      { title: "Meus Insumos", url: "/estoque", icon: Package, active: false, comingSoonMessage: "Em breve você terá controle total dos seus insumos, com entrada, saída e ajuste de estoque integrados às suas receitas e encomendas.", adminOnly: true },
+      { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: Users, active: true },
+    ],
+  },
+  {
+    label: "PLANEJAMENTO",
+    items: [
+      { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false, comingSoonMessage: "Em breve você terá um plano claro para organizar sua produção, suas vendas e crescer com estratégia.", adminOnly: true },
+      { title: "Minha Presença", url: "/presenca", icon: Globe, active: false, comingSoonMessage: "Em breve você terá controle da sua comunicação e presença online para atrair mais clientes e vender todos os dias." },
+    ],
+  },
+  {
+    label: "SISTEMA",
+    items: [
+      { title: "Configurações", url: "/configuracoes", icon: Settings, active: true },
+      { title: "Usuários", url: "/admin/usuarios", icon: Shield, active: true, adminOnly: true },
+      { title: "Log de Ações", url: "/admin/logs", icon: FileText, active: true, adminOnly: true },
+    ],
+  },
 ];
 
 export function AppSidebar() {
@@ -158,217 +183,104 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[#FFF9F5]/40 text-[10px] uppercase tracking-widest font-body">
-            Menu Principal
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {mainMenuItems.filter((it) => !(it as any).adminOnly || isAdmin).map((item) => {
-                const Icon = item.icon;
-                const bloqueado = !isPlanoLoading && !isAdmin && item.active && rotaBloqueada(item.url);
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={false}>
-                      <NavLink
-                        to={bloqueado ? "/upgrade" : item.url}
-                        end
-                        className={({ isActive }) =>
-                          `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
-                            isActive && !bloqueado
-                              ? "bg-[#FFF9F5]/[0.08] border-l-2 border-[#C9A14A] text-[#C9A14A] font-semibold"
-                              : "text-[#FFF9F5]/80 hover:bg-[#FFF9F5]/10 hover:text-[#FFF9F5]"
-                          } ${bloqueado ? "opacity-40 cursor-not-allowed" : ""}`
-                        }
-                      >
-                        {({ isActive }) => (
-                          <>
-                            <Icon className={`h-5 w-5 ${isActive && !bloqueado ? 'text-cda-dourado' : 'text-[#FFF9F5]/80'}`} />
-                            {item.title === "Minhas Encomendas" && temEncomendasHoje && !bloqueado && !open && (
-                              <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-red-500 animate-ping" />
-                            )}
-                            {open && (
-                              <>
-                                <span className="flex-1">{item.title}</span>
-                                {bloqueado && (
-                                  <Lock className="h-3.5 w-3.5 text-[#FFF9F5]/40" />
+        {menuSections.map((section, sectionIndex) => (
+          <div key={section.label}>
+            {sectionIndex > 0 && (
+              /* Separador dourado entre seções */
+              <div className="mx-4 h-px bg-cda-dourado/30" />
+            )}
+            <SidebarGroup>
+              <SidebarGroupLabel className="text-[#FFF9F5]/40 text-[10px] uppercase tracking-widest font-body">
+                {section.label}
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {section.items
+                    .filter((item) => !item.adminOnly || isAdmin)
+                    .map((item) => {
+                      const Icon = item.icon;
+                      const bloqueado = !isPlanoLoading && !isAdmin && item.active && rotaBloqueada(item.url);
+                      const isComingSoon = !item.active && !isAdmin;
+
+                      // Se o usuário é admin e o item é adminOnly+inactive, ele pode acessar
+                      const adminUnlocked = item.adminOnly && isAdmin;
+
+                      if (isComingSoon && !adminUnlocked) {
+                        return (
+                          <SidebarMenuItem key={item.title}>
+                            <SidebarMenuButton asChild isActive={false} disabled>
+                              <NavLink
+                                to={item.url}
+                                end
+                                className="flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm opacity-40 cursor-not-allowed text-[#FFF9F5]"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  setComingSoonModal({ title: item.title, message: item.comingSoonMessage || '' });
+                                }}
+                              >
+                                <Icon className="h-5 w-5 text-[#FFF9F5]/80" />
+                                {open && (
+                                  <>
+                                    <span className="flex-1">{item.title}</span>
+                                    <Lock className="h-3.5 w-3.5 text-[#FFF9F5]/40" />
+                                  </>
                                 )}
-                                {item.title === "Minhas Encomendas" && temEncomendasHoje && !bloqueado && (
-                                  <Badge className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-body font-bold animate-pulse ml-1">
-                                    {encomendasHojeQtd} HOJE
-                                  </Badge>
-                                )}
-                                {item.title === "Clientes e Fornecedores" && aniversariantesClientes.length > 0 && !bloqueado && (
-                                  <div className="w-5 h-5 rounded-full bg-cda-dourado flex items-center justify-center animate-bounce ml-1">
-                                    <Cake className="h-3 w-3 text-cda-vinho" />
-                                  </div>
-                                )}
-                              </>
-                            )}
-                          </>
-                        )}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                              </NavLink>
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                        );
+                      }
 
-        {/* Separador dourado */}
-        <div className="mx-4 h-px bg-cda-dourado/30" />
-
-        {/* Seção Em Breve */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[#FFF9F5]/40 text-[10px] uppercase tracking-widest font-body">
-            Em Breve
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {comingSoonItems.map((item) => {
-                const Icon = item.icon;
-                const adminUnlocked = !!(item as any).adminOnly && isAdmin;
-                if (adminUnlocked) {
-                  return (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild isActive={false}>
-                        <NavLink
-                          to={item.url}
-                          end
-                          className={({ isActive }) =>
-                            `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
-                              isActive
-                                ? "bg-[#FFF9F5]/[0.08] border-l-2 border-[#C9A14A] text-[#C9A14A] font-semibold"
-                                : "text-[#FFF9F5]/80 hover:bg-[#FFF9F5]/10 hover:text-[#FFF9F5]"
-                            }`
-                          }
-                        >
-                          {({ isActive }) => (
-                            <>
-                              <Icon className={`h-5 w-5 ${isActive ? 'text-cda-dourado' : 'text-[#FFF9F5]/80'}`} />
-                              {open && <span className="flex-1">{item.title}</span>}
-                            </>
-                          )}
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                }
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={false} disabled>
-                      <NavLink
-                        to={item.url}
-                        end
-                        className="flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm opacity-40 cursor-not-allowed text-[#FFF9F5]"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setComingSoonModal({ title: item.title, message: item.comingSoonMessage });
-                        }}
-                      >
-                        <Icon className="h-5 w-5 text-[#FFF9F5]/80" />
-                        {open && (
-                          <>
-                            <span className="flex-1">{item.title}</span>
-                            <Lock className="h-3.5 w-3.5 text-[#FFF9F5]/40" />
-                          </>
-                        )}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Separador dourado */}
-        <div className="mx-4 h-px bg-cda-dourado/30" />
-
-        {/* Seção Sistema */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[#FFF9F5]/40 text-[10px] uppercase tracking-widest font-body">
-            Sistema
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {systemMenuItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={false}>
-                      <NavLink
-                        to={item.url}
-                        end
-                        className={({ isActive }) =>
-                          `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
-                            isActive
-                              ? "bg-[#FFF9F5]/[0.08] border-l-2 border-[#C9A14A] text-[#C9A14A] font-semibold"
-                              : "text-[#FFF9F5]/80 hover:bg-[#FFF9F5]/10 hover:text-[#FFF9F5]"
-                          }`
-                        }
-                      >
-                        {({ isActive }) => (
-                          <>
-                            <Icon className={`h-5 w-5 ${isActive ? 'text-cda-dourado' : 'text-[#FFF9F5]/80'}`} />
-                            {open && <span className="flex-1">{item.title}</span>}
-                          </>
-                        )}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-              {isAdmin && (
-                <>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={false}>
-                      <NavLink
-                        to="/admin/usuarios"
-                        className={({ isActive }) =>
-                          `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
-                            isActive
-                              ? "bg-[#FFF9F5]/[0.08] border-l-2 border-[#C9A14A] text-[#C9A14A] font-semibold"
-                              : "text-[#FFF9F5]/80 hover:bg-[#FFF9F5]/10 hover:text-[#FFF9F5]"
-                          }`
-                        }
-                      >
-                        {({ isActive }) => (
-                          <>
-                            <Shield className={`h-5 w-5 ${isActive ? 'text-cda-dourado' : 'text-[#FFF9F5]/80'}`} />
-                            {open && <span className="flex-1">Usuários</span>}
-                          </>
-                        )}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={false}>
-                      <NavLink
-                        to="/admin/logs"
-                        className={({ isActive }) =>
-                          `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
-                            isActive
-                              ? "bg-[#FFF9F5]/[0.08] border-l-2 border-[#C9A14A] text-[#C9A14A] font-semibold"
-                              : "text-[#FFF9F5]/80 hover:bg-[#FFF9F5]/10 hover:text-[#FFF9F5]"
-                          }`
-                        }
-                      >
-                        {({ isActive }) => (
-                          <>
-                            <FileText className={`h-5 w-5 ${isActive ? 'text-cda-dourado' : 'text-[#FFF9F5]/80'}`} />
-                            {open && <span className="flex-1">Log de Ações</span>}
-                          </>
-                        )}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </>
-              )}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                      return (
+                        <SidebarMenuItem key={item.title}>
+                          <SidebarMenuButton asChild isActive={false}>
+                            <NavLink
+                              to={bloqueado ? "/upgrade" : item.url}
+                              end
+                              className={({ isActive }) =>
+                                `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
+                                  isActive && !bloqueado
+                                    ? "bg-[#FFF9F5]/[0.08] border-l-2 border-[#C9A14A] text-[#C9A14A] font-semibold"
+                                    : "text-[#FFF9F5]/80 hover:bg-[#FFF9F5]/10 hover:text-[#FFF9F5]"
+                                } ${bloqueado ? "opacity-40 cursor-not-allowed" : ""}`
+                              }
+                            >
+                              {({ isActive }) => (
+                                <>
+                                  <Icon className={`h-5 w-5 ${isActive && !bloqueado ? 'text-cda-dourado' : 'text-[#FFF9F5]/80'}`} />
+                                  {item.title === "Minhas Encomendas" && temEncomendasHoje && !bloqueado && !open && (
+                                    <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-red-500 animate-ping" />
+                                  )}
+                                  {open && (
+                                    <>
+                                      <span className="flex-1">{item.title}</span>
+                                      {bloqueado && (
+                                        <Lock className="h-3.5 w-3.5 text-[#FFF9F5]/40" />
+                                      )}
+                                      {item.title === "Minhas Encomendas" && temEncomendasHoje && !bloqueado && (
+                                        <Badge className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-body font-bold animate-pulse ml-1">
+                                          {encomendasHojeQtd} HOJE
+                                        </Badge>
+                                      )}
+                                      {item.title === "Clientes e Fornecedores" && aniversariantesClientes.length > 0 && !bloqueado && (
+                                        <div className="w-5 h-5 rounded-full bg-cda-dourado flex items-center justify-center animate-bounce ml-1">
+                                          <Cake className="h-3 w-3 text-cda-vinho" />
+                                        </div>
+                                      )}
+                                    </>
+                                  )}
+                                </>
+                              )}
+                            </NavLink>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </div>
+        ))}
 
         {/* Seção MOTHER - Governança do Sistema */}
         {isMother && (
