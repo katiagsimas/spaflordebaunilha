@@ -56,6 +56,7 @@ import FluxoCaixaHub from "./pages/financeiro/FluxoCaixaHub";
 import FluxoCaixaDiario from "./pages/financeiro/FluxoCaixaDiario";
 import FluxoCaixaMensal from "./pages/financeiro/FluxoCaixaMensal";
 import DRE from "./pages/financeiro/DRE";
+import FechamentoMes from "./pages/financeiro/FechamentoMes";
 import AuthLogin from "./pages/auth/Login";
 
 import ForgotPassword from "./pages/auth/ForgotPassword";
@@ -255,6 +256,9 @@ const App = () => (
           
           {/* Financeiro - DRE */}
           <Route path="/financeiro/dre" element={<ProtectedRoute><Layout><PlanoGuard><DRE /></PlanoGuard></Layout></ProtectedRoute>} />
+
+          {/* Financeiro - Fechamento de Mês */}
+          <Route path="/financeiro/fechamento-mes" element={<ProtectedRoute><Layout><PlanoGuard><FechamentoMes /></PlanoGuard></Layout></ProtectedRoute>} />
           
           {/* Estoque */}
           <Route path="/estoque" element={<ProtectedRoute><Layout><PlanoGuard><EstoqueDashboard /></PlanoGuard></Layout></ProtectedRoute>} />
