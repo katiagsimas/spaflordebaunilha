@@ -212,6 +212,18 @@ export function useFecharMes() {
   return useMutation({
     mutationFn: async (input: { id: string; observacoes?: string }) => {
       if (!user || !activeGroupId) throw new Error("Sem contexto");
+
+      const { data: pendentes, error: errPendentes } = await (supabase.from("fechamento_checklist_itens" as any) as any)
+        .select("id")
+        .eq("fechamento_id", input.id)
+        .eq("concluido", false);
+
+      if (errPendentes) throw errPendentes;
+      const qtdPendentes = (pendentes ?? []).length;
+      if (qtdPendentes > 0) {
+        throw new Error(`${qtdPendentes} item(s) do checklist estão pendentes. Conclua todos antes de fechar o mês.`);
+      }
+
       const { data: f } = await (supabase.from("fechamentos_mensais" as any) as any)
         .select("mes_referencia")
         .eq("id", input.id)
