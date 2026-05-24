@@ -25,12 +25,12 @@ export default function FluxoCaixaHub() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
         {/* Card Fluxo Diário */}
         <Card 
-          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-cyan-500"
+          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-2 border-[#C9A14A]/60"
           onClick={() => navigate('/financeiro/fluxo-caixa/diario')}
         >
           <CardHeader className="p-6">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-cyan-50 dark:bg-cyan-950 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0">
                 <Calendar className="h-6 w-6" />
               </div>
               <div>
@@ -47,12 +47,12 @@ export default function FluxoCaixaHub() {
 
         {/* Card Fluxo Mensal */}
         <Card 
-          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-amber-500"
+          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-2 border-[#C9A14A]/60"
           onClick={() => navigate('/financeiro/fluxo-caixa/mensal')}
         >
           <CardHeader className="p-6">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0">
                 <DollarSign className="h-6 w-6" />
               </div>
               <div>

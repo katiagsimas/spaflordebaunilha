@@ -20,15 +20,15 @@ export default function Configuracoes() {
       </div>
 
       {/* Card Informativo */}
-      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border-blue-200 dark:border-blue-800 mb-8">
+      <Card className="bg-[#C9A14A]/10 border border-[#C9A14A]/30 mb-8">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+            <Info className="h-5 w-5 text-[#C9A14A] mt-0.5 shrink-0" />
             <div className="space-y-2">
-              <h3 className="font-semibold text-blue-900 dark:text-blue-100">
+              <h3 className="font-semibold text-[#5B1A2B]">
                 💡 Dica: Configure uma vez, use sempre!
               </h3>
-              <p className="text-sm text-blue-700 dark:text-blue-300">
+              <p className="text-sm text-[#5B1A2B]">
                 Configure todos os valores agora e eles serão aplicados automaticamente em todas as suas 
                 fichas técnicas e controles financeiros. Você sempre pode voltar aqui para ajustar conforme seu negócio cresce.
               </p>
@@ -42,12 +42,12 @@ export default function Configuracoes() {
         
         {/* Card 1: CADASTROS BASE */}
         <Card 
-          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-pink-500"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C9A14A]/60"
           onClick={() => navigate("/configuracoes/cadastros-base")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-pink-50 dark:bg-pink-950 text-pink-600 dark:text-pink-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <Package className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
@@ -64,12 +64,12 @@ export default function Configuracoes() {
 
         {/* Card 2: PRECIFICAÇÃO */}
         <Card 
-          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-blue-500"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C9A14A]/60"
           onClick={() => navigate("/configuracoes/precificacao")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <DollarSign className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
@@ -86,12 +86,12 @@ export default function Configuracoes() {
 
         {/* Card 3: BACKUP */}
         <Card 
-          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-4 border-l-emerald-500"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C9A14A]/60"
           onClick={() => navigate("/configuracoes/backup")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <HardDrive className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">

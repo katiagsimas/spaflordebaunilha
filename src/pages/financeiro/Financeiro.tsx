@@ -582,12 +582,12 @@ export default function Financeiro() {
 
         {/* Card Cadastros */}
         <Card 
-          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-teal-500"
+          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-2 border-[#C9A14A]/60"
           onClick={() => navigate('/financeiro/cadastros')}
         >
           <CardHeader className="p-3">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-950 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0">
                 <Settings className="h-4 w-4" />
               </div>
               <CardTitle className="text-sm font-semibold">
@@ -599,12 +599,12 @@ export default function Financeiro() {
 
         {/* Card Contas a Receber */}
         <Card 
-          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-green-500"
+          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-2 border-[#C9A14A]/60"
           onClick={() => navigate('/financeiro/contas-receber')}
         >
           <CardHeader className="p-3">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-950 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0">
                 <TrendingUp className="h-4 w-4" />
               </div>
               <CardTitle className="text-sm font-semibold">
@@ -616,12 +616,12 @@ export default function Financeiro() {
 
         {/* Card Contas a Pagar */}
         <Card 
-          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-red-500"
+          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-2 border-[#C9A14A]/60"
           onClick={() => navigate('/financeiro/contas-pagar')}
         >
           <CardHeader className="p-3">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0">
                 <TrendingDown className="h-4 w-4" />
               </div>
               <CardTitle className="text-sm font-semibold">
@@ -633,12 +633,12 @@ export default function Financeiro() {
 
         {/* Card Fluxo de Caixa */}
         <Card 
-          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500"
+          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-2 border-[#C9A14A]/60"
           onClick={() => navigate('/financeiro/fluxo-caixa')}
         >
           <CardHeader className="p-3">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0">
                 <Wallet className="h-4 w-4" />
               </div>
               <CardTitle className="text-sm font-semibold">
@@ -650,12 +650,12 @@ export default function Financeiro() {
 
         {/* Card DRE */}
         <Card 
-          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-purple-500"
+          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-2 border-[#C9A14A]/60"
           onClick={() => navigate('/financeiro/dre')}
         >
           <CardHeader className="p-3">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-950 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0">
                 <PieChart className="h-4 w-4" />
               </div>
               <CardTitle className="text-sm font-semibold">
@@ -784,16 +784,16 @@ export default function Financeiro() {
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-primary">
+            <Card className="border border-[#C9A14A]/40">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Saldo Atual</p>
-                    <p className={`text-2xl font-bold ${saldoAtual >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                    <p className="text-2xl font-bold text-foreground">
                       {formatarValor(saldoAtual)}
                     </p>
                   </div>
-                  <DollarSign className="h-8 w-8 text-primary" />
+                  <DollarSign className="h-8 w-8 text-[#C9A14A]" />
                 </div>
               </CardContent>
             </Card>

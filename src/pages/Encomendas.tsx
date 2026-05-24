@@ -1602,66 +1602,66 @@ const Encomendas = () => {
       {/* Cards de Visão Geral */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {/* Total */}
-        <Card className="border-l-4 border-l-blue-500">
+        <Card className="border border-[#C9A14A]/25">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total</p>
                 <p className="text-2xl font-bold">{indicadores.total}</p>
               </div>
-              <ClipboardList className="h-8 w-8 text-blue-500" />
+              <ClipboardList className="h-8 w-8 text-[#5B1A2B]/60" />
             </div>
           </CardContent>
         </Card>
 
         {/* Pendentes */}
-        <Card className="border-l-4 border-l-yellow-500">
+        <Card className="border border-[#C9A14A]/25">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Pendentes</p>
                 <p className="text-2xl font-bold">{indicadores.pendentes}</p>
               </div>
-              <Clock className="h-8 w-8 text-yellow-500" />
+              <Clock className="h-8 w-8 text-[#5B1A2B]/60" />
             </div>
           </CardContent>
         </Card>
 
         {/* Confirmadas */}
-        <Card className="border-l-4 border-l-blue-500">
+        <Card className="border border-[#C9A14A]/25">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Confirmadas</p>
                 <p className="text-2xl font-bold">{indicadores.confirmadas}</p>
               </div>
-              <CheckCircle2 className="h-8 w-8 text-blue-500" />
+              <CheckCircle2 className="h-8 w-8 text-[#5B1A2B]/60" />
             </div>
           </CardContent>
         </Card>
 
         {/* Entregues */}
-        <Card className="border-l-4 border-l-green-500">
+        <Card className="border border-[#C9A14A]/25">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Entregues</p>
                 <p className="text-2xl font-bold">{indicadores.entregues}</p>
               </div>
-              <CheckCircle2 className="h-8 w-8 text-green-500" />
+              <CheckCircle2 className="h-8 w-8 text-[#5B1A2B]/60" />
             </div>
           </CardContent>
         </Card>
 
         {/* Canceladas */}
-        <Card className="border-l-4 border-l-red-500">
+        <Card className="border border-[#C9A14A]/25">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Canceladas</p>
                 <p className="text-2xl font-bold">{indicadores.canceladas}</p>
               </div>
-              <XCircle className="h-8 w-8 text-red-500" />
+              <XCircle className="h-8 w-8 text-[#F28C82]" />
             </div>
           </CardContent>
         </Card>
