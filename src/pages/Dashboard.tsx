@@ -975,8 +975,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* CONTADORES TOPO: Encomendas Confirmadas + Clientes */}
-      <div className="grid gap-2 grid-cols-2 md:grid-cols-2">
+      {/* CONTADOR TOPO: Encomendas Confirmadas */}
+      <div className="grid gap-2 grid-cols-1 md:grid-cols-1">
         <Card
           className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-primary group"
           onClick={() => navigate("/encomendas")}
@@ -1000,43 +1000,19 @@ export default function Dashboard() {
             </div>
           </CardHeader>
         </Card>
-
-        <Card
-          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-accent group"
-          onClick={() => navigate("/cadastros/clientes")}
-        >
-          <CardHeader className="p-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 shrink-0 rounded-md bg-accent/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Users className="h-5 w-5 text-accent-foreground" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <CardTitle className="text-xs leading-tight mb-0.5 text-muted-foreground">
-                  Clientes <span className="font-normal">· {meses[mesSelecionado].slice(0, 3)}</span>
-                </CardTitle>
-                <p className="text-2xl font-bold leading-tight text-foreground">
-                  {contadores.clientes}
-                </p>
-                <p className="text-[10px] text-muted-foreground leading-tight">
-                  Número de clientes atendidos no período
-                </p>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
       </div>
 
-      {/* SALDO ATUAL + FINANCEIRO E ALERTAS (linha única e compacta) */}
-      <div className="grid gap-2 grid-cols-2 md:grid-cols-5">
-        {/* Saldo Atual (destaque, canto esquerdo) */}
+      {/* FINANCEIRO: Saldo Atual | A Receber | A Pagar */}
+      <div className="grid gap-2 grid-cols-1 md:grid-cols-3">
+        {/* Saldo Atual */}
         <Card
-          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-[#C9A14A]/25 group bg-white"
+          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#5B1A2B] group bg-white"
           onClick={() => navigate("/financeiro/dashboard")}
         >
           <CardHeader className="p-2.5">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 shrink-0 rounded-md bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <DollarSign className="h-3.5 w-3.5 text-[#C9A14A]/70" />
+              <div className="w-7 h-7 shrink-0 rounded-md bg-[#5B1A2B]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <DollarSign className="h-3.5 w-3.5 text-[#5B1A2B]" />
               </div>
               <div className="min-w-0">
                 <CardTitle className="text-[11px] leading-tight mb-0.5">Saldo Atual</CardTitle>
@@ -1050,21 +1026,26 @@ export default function Dashboard() {
 
         {/* A Receber */}
         <Card
-          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-[#C9A14A]/25 group"
+          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#C9A14A] group"
           onClick={() => navigate("/financeiro/contas-receber")}
         >
           <CardHeader className="p-2.5">
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 shrink-0 rounded-md bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <TrendingUp className="h-3.5 w-3.5 text-[#C9A14A]/70" />
+                <TrendingUp className="h-3.5 w-3.5 text-[#C9A14A]" />
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <CardTitle className="text-[11px] leading-tight mb-0.5">
                   A Receber <span className="font-normal text-muted-foreground">· {meses[mesSelecionado].slice(0, 3)}</span>
                 </CardTitle>
                 <p className="text-sm font-bold leading-tight truncate text-green-600 dark:text-green-400">
                   R$ {financeiro.receberAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
+                {alertas.receberAtrasado.valor > 0 && (
+                  <p className="text-orange-600 text-[10px] leading-tight mt-0.5">
+                    ⚠ R$ {alertas.receberAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} em atraso
+                  </p>
+                )}
               </div>
             </div>
           </CardHeader>
@@ -1072,70 +1053,152 @@ export default function Dashboard() {
 
         {/* A Pagar */}
         <Card
-          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-[#C9A14A]/25 group"
+          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#F28C82] group"
           onClick={() => navigate("/financeiro/contas-pagar")}
         >
           <CardHeader className="p-2.5">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 shrink-0 rounded-md bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <TrendingDown className="h-3.5 w-3.5 text-[#C9A14A]/70" />
+              <div className="w-7 h-7 shrink-0 rounded-md bg-[#F28C82]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <TrendingDown className="h-3.5 w-3.5 text-[#F28C82]" />
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <CardTitle className="text-[11px] leading-tight mb-0.5">
                   A Pagar <span className="font-normal text-muted-foreground">· {meses[mesSelecionado].slice(0, 3)}</span>
                 </CardTitle>
                 <p className="text-sm font-bold leading-tight truncate text-red-600 dark:text-red-400">
                   R$ {financeiro.pagarAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
-
-        {/* Contas a Receber Atrasadas */}
-        <Card
-          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-[#C9A14A]/25 group"
-          onClick={() => navigate("/financeiro/contas-receber")}
-        >
-          <CardHeader className="p-2.5">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 shrink-0 rounded-md bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <AlertCircle className="h-3.5 w-3.5 text-[#C9A14A]/70 animate-pulse" />
-              </div>
-              <div className="min-w-0">
-                <CardTitle className="text-[11px] leading-tight mb-0.5">
-                  Receber <span className="font-normal text-muted-foreground">· atraso</span>
-                </CardTitle>
-                <p className="text-sm font-bold leading-tight truncate text-orange-600 dark:text-orange-400">
-                  R$ {alertas.receberAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </p>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
-
-        {/* Contas a Pagar Atrasadas */}
-        <Card
-          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-[#C9A14A]/25 group"
-          onClick={() => navigate("/financeiro/contas-pagar")}
-        >
-          <CardHeader className="p-2.5">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 shrink-0 rounded-md bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <AlertCircle className="h-3.5 w-3.5 text-[#C9A14A]/70 animate-pulse" />
-              </div>
-              <div className="min-w-0">
-                <CardTitle className="text-[11px] leading-tight mb-0.5">
-                  Pagar <span className="font-normal text-muted-foreground">· atraso</span>
-                </CardTitle>
-                <p className="text-sm font-bold leading-tight truncate text-orange-600 dark:text-orange-400">
-                  R$ {alertas.pagarAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </p>
+                {alertas.pagarAtrasado.valor > 0 && (
+                  <p className="text-orange-600 text-[10px] leading-tight mt-0.5">
+                    ⚠ R$ {alertas.pagarAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} em atraso
+                  </p>
+                )}
               </div>
             </div>
           </CardHeader>
         </Card>
       </div>
+
+      {/* PRÓXIMAS ENTREGAS */}
+      {(() => {
+        const hojeDate = new Date();
+        hojeDate.setHours(0, 0, 0, 0);
+        const limite = addDays(hojeDate, 7);
+        const proximas = calendarioDados
+          .filter(d => d.dia >= hojeDate && d.dia <= limite && d.encomendas.length > 0)
+          .sort((a, b) => a.dia.getTime() - b.dia.getTime())
+          .flatMap(d => d.encomendas.map(e => ({ ...e, _dia: d.dia })))
+          .slice(0, 5);
+
+        const statusBadge = (status: string) => {
+          if (status === "confirmado") return "bg-[#C9A14A]/20 text-[#5B1A2B]";
+          if (status === "em_producao") return "bg-blue-100 text-blue-700";
+          if (status === "pronto") return "bg-green-100 text-green-700";
+          return "bg-muted text-muted-foreground";
+        };
+
+        return (
+          <Card>
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <CalendarIcon className="h-4 w-4 text-[#5B1A2B]" />
+                Próximas Entregas
+              </CardTitle>
+              <Button
+                variant="link"
+                size="sm"
+                className="text-[#5B1A2B] h-auto p-0"
+                onClick={() => navigate("/encomendas")}
+              >
+                Ver todas
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {proximas.length === 0 ? (
+                <p className="text-muted-foreground text-sm">Nenhuma entrega nos próximos 7 dias</p>
+              ) : (
+                <div className="space-y-2">
+                  {proximas.map((enc) => (
+                    <div
+                      key={enc.id}
+                      className="flex items-center justify-between gap-3 p-2 rounded-md hover:bg-muted/40 transition-colors cursor-pointer"
+                      onClick={() => navigate("/encomendas")}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-muted-foreground">
+                          {format(enc._dia, "EEE, dd/MM", { locale: ptBR })}
+                          {enc.hora_entrega ? ` · ${enc.hora_entrega}` : ""}
+                        </p>
+                        <p className="text-sm font-medium truncate">{enc.cliente}</p>
+                      </div>
+                      <p className="text-sm font-bold text-primary whitespace-nowrap">
+                        R$ {enc.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </p>
+                      <Badge className={`${statusBadge(enc.status)} border-transparent`}>
+                        {enc.status}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })()}
+
+      {/* ANIVERSARIANTES DO MÊS */}
+      {(() => {
+        const hojeStr = format(new Date(), "MM-dd");
+        return (
+          <Card>
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Cake className="h-4 w-4 text-[#C9A14A]" />
+                Aniversariantes este mês
+              </CardTitle>
+              <Button
+                variant="link"
+                size="sm"
+                className="text-[#5B1A2B] h-auto p-0"
+                onClick={() => navigate("/cadastros/clientes")}
+              >
+                Ver clientes
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {aniversariantes.length === 0 ? (
+                <p className="text-muted-foreground text-sm">Nenhum aniversariante este mês.</p>
+              ) : (
+                <div className="space-y-2">
+                  {aniversariantes.map((c: any) => {
+                    const partes = (c.data_aniversario || "").split("-");
+                    const dia = parseInt(partes[2] || "0");
+                    const ehHoje = `${partes[1]}-${partes[2]}` === hojeStr;
+                    return (
+                      <div
+                        key={c.id}
+                        className="flex items-center justify-between gap-3 p-2 rounded-md hover:bg-muted/40 transition-colors"
+                      >
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <span className="text-lg">🎂</span>
+                          <p className="text-sm font-medium truncate">{c.nome}</p>
+                        </div>
+                        <p className="text-xs text-muted-foreground whitespace-nowrap">dia {dia}</p>
+                        {ehHoje && (
+                          <Badge className="bg-[#C9A14A]/20 text-[#5B1A2B] border-transparent">
+                            Hoje! 🎉
+                          </Badge>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })()}
+
 
       {/* VISÃO ECONÔMICA */}
       <Card>
