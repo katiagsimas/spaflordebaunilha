@@ -784,16 +784,16 @@ export default function Financeiro() {
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-primary">
+            <Card className="border border-[#C9A14A]/40">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Saldo Atual</p>
-                    <p className={`text-2xl font-bold ${saldoAtual >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                    <p className="text-2xl font-bold text-foreground">
                       {formatarValor(saldoAtual)}
                     </p>
                   </div>
-                  <DollarSign className="h-8 w-8 text-primary" />
+                  <DollarSign className="h-8 w-8 text-[#C9A14A]" />
                 </div>
               </CardContent>
             </Card>
