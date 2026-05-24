@@ -41,8 +41,23 @@ interface FormDataFornecedor {
 export default function Fornecedores() {
   const navigate = useNavigate();
   const { fornecedores, loading, createFornecedor, updateFornecedor, deleteFornecedor } = useFornecedores();
-  const { contatos, createContato, updateContato, deleteContato, refetch: refetchContatos } = useFornecedorContatos(editingId || "");
   const { activeGroupId } = useGroup();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteContatoId, setDeleteContatoId] = useState<string | null>(null);
+  const [observacoesOpen, setObservacoesOpen] = useState(false);
+  const [busca, setBusca] = useState("");
+  const [porPagina, setPorPagina] = useState(10);
+  const [contatoDialogOpen, setContatoDialogOpen] = useState(false);
+  const [selectedFornecedorId, setSelectedFornecedorId] = useState<string | null>(null);
+  const [editingContato, setEditingContato] = useState<any>(null);
+
+  // Hook de contatos carregado apenas quando há um fornecedor selecionado/expandido
+  const fornecedorContatosId = editingId || selectedFornecedorId || "";
+  const { contatos, createContato, updateContato, deleteContato, refetch: refetchContatos } = useFornecedorContatos(fornecedorContatosId);
+
+  // Query separada para listar aniversariantes do grupo (usada apenas no alerta)
   const { data: contatosGrupo = [] } = useQuery({
     queryKey: ["fornecedor_contatos_grupo", activeGroupId],
     queryFn: async () => {
@@ -56,16 +71,6 @@ export default function Fornecedores() {
     },
     enabled: !!activeGroupId,
   });
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [deleteContatoId, setDeleteContatoId] = useState<string | null>(null);
-  const [observacoesOpen, setObservacoesOpen] = useState(false);
-  const [busca, setBusca] = useState("");
-  const [porPagina, setPorPagina] = useState(10);
-  const [contatoDialogOpen, setContatoDialogOpen] = useState(false);
-  const [selectedFornecedorId, setSelectedFornecedorId] = useState<string | null>(null);
-  const [editingContato, setEditingContato] = useState<any>(null);
 
   const [formData, setFormData] = useState<FormDataFornecedor>({
     nome: "",
