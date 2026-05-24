@@ -23,6 +23,8 @@ import { AlertaAniversariantesContatos } from "@/components/AlertaAniversariante
 import { supabase } from "@/integrations/supabase/client";
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useGroup } from "@/contexts/GroupContext";
+import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import * as XLSX from 'xlsx';
