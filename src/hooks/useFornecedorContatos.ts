@@ -1,12 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useGroup } from '@/contexts/GroupContext';
 import { toast } from 'sonner';
 
 interface FornecedorContato {
   id: string;
   fornecedor_id: string;
   usuario_id: string;
+  owner_group_id?: string;
   nome: string;
   cargo?: string;
   data_aniversario?: string;
@@ -20,17 +22,17 @@ interface FornecedorContato {
 
 export function useFornecedorContatos(fornecedorId?: string) {
   const { user } = useAuth();
-  const userId = user?.id;
+  const { activeGroupId } = useGroup();
   const queryClient = useQueryClient();
 
   const { data: contatos = [], isLoading, refetch } = useQuery({
-    queryKey: ['fornecedor_contatos', fornecedorId ?? 'all', userId],
+    queryKey: ['fornecedor_contatos', fornecedorId ?? 'all', activeGroupId],
     queryFn: async () => {
-      if (!userId) return [];
-      let query = supabase
-        .from('fornecedor_contatos')
+      if (!activeGroupId) return [];
+      let query = (supabase
+        .from('fornecedor_contatos') as any)
         .select('*')
-        .eq('usuario_id', userId)
+        .eq('owner_group_id', activeGroupId)
         .order('nome');
 
       if (fornecedorId) {
@@ -41,18 +43,18 @@ export function useFornecedorContatos(fornecedorId?: string) {
       if (error) throw error;
       return (data || []) as FornecedorContato[];
     },
-    enabled: !!userId,
+    enabled: !!activeGroupId,
   });
 
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: ['fornecedor_contatos'] });
 
   const createMutation = useMutation({
-    mutationFn: async (contato: Omit<FornecedorContato, 'id' | 'usuario_id' | 'created_at' | 'updated_at'>) => {
-      if (!userId) throw new Error('Usuário não autenticado');
-      const { data, error } = await supabase
-        .from('fornecedor_contatos')
-        .insert({ ...contato, usuario_id: userId })
+    mutationFn: async (contato: Omit<FornecedorContato, 'id' | 'usuario_id' | 'owner_group_id' | 'created_at' | 'updated_at'>) => {
+      if (!user?.id || !activeGroupId) throw new Error('Sem contexto de grupo');
+      const { data, error } = await (supabase
+        .from('fornecedor_contatos') as any)
+        .insert({ ...contato, usuario_id: user.id, owner_group_id: activeGroupId })
         .select()
         .single();
       if (error) throw error;
@@ -70,12 +72,12 @@ export function useFornecedorContatos(fornecedorId?: string) {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<FornecedorContato> }) => {
-      if (!userId) throw new Error('Usuário não autenticado');
-      const { data, error } = await supabase
-        .from('fornecedor_contatos')
+      if (!activeGroupId) throw new Error('Sem contexto de grupo');
+      const { data, error } = await (supabase
+        .from('fornecedor_contatos') as any)
         .update(updates)
         .eq('id', id)
-        .eq('usuario_id', userId)
+        .eq('owner_group_id', activeGroupId)
         .select()
         .single();
       if (error) throw error;
@@ -93,12 +95,12 @@ export function useFornecedorContatos(fornecedorId?: string) {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      if (!userId) throw new Error('Usuário não autenticado');
-      const { error } = await supabase
-        .from('fornecedor_contatos')
+      if (!activeGroupId) throw new Error('Sem contexto de grupo');
+      const { error } = await (supabase
+        .from('fornecedor_contatos') as any)
         .delete()
         .eq('id', id)
-        .eq('usuario_id', userId);
+        .eq('owner_group_id', activeGroupId);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -114,7 +116,7 @@ export function useFornecedorContatos(fornecedorId?: string) {
   return {
     contatos,
     loading: isLoading,
-    createContato: (contato: Omit<FornecedorContato, 'id' | 'usuario_id' | 'created_at' | 'updated_at'>) =>
+    createContato: (contato: Omit<FornecedorContato, 'id' | 'usuario_id' | 'owner_group_id' | 'created_at' | 'updated_at'>) =>
       createMutation.mutateAsync(contato),
     updateContato: (id: string, updates: Partial<FornecedorContato>) =>
       updateMutation.mutateAsync({ id, updates }),

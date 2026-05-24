@@ -1610,6 +1610,7 @@ export type Database = {
           id: string
           nome: string
           observacoes: string | null
+          owner_group_id: string | null
           telefone: string | null
           updated_at: string | null
           usuario_id: string
@@ -1624,6 +1625,7 @@ export type Database = {
           id?: string
           nome: string
           observacoes?: string | null
+          owner_group_id?: string | null
           telefone?: string | null
           updated_at?: string | null
           usuario_id: string
@@ -1638,6 +1640,7 @@ export type Database = {
           id?: string
           nome?: string
           observacoes?: string | null
+          owner_group_id?: string | null
           telefone?: string | null
           updated_at?: string | null
           usuario_id?: string
