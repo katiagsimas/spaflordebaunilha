@@ -47,12 +47,14 @@ export interface Receita {
   imagens?: string[];
 }
 
-async function fetchReceitas() {
-  // 1. Buscar todas as receitas em uma única query
+async function fetchReceitas(activeGroupId: string) {
+  // 1. Buscar todas as receitas em uma única query (filtro explícito por grupo)
   const { data: receitasData, error: receitasError } = await supabase
     .from("receitas")
     .select("*")
+    .eq("owner_group_id", activeGroupId)
     .order("nome");
+
 
   if (receitasError) throw receitasError;
   if (!receitasData || receitasData.length === 0) return [];
