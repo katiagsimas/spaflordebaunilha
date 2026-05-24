@@ -22,6 +22,7 @@ import { FamiliaresLista } from "@/components/FamiliaresLista";
 import { useFamiliares } from "@/hooks/useFamiliares";
 import { toast } from "sonner";
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
+import { parseISOToDate } from "@/lib/dateUtils";
 import { Badge } from "@/components/ui/badge";
 import * as XLSX from 'xlsx';
 
