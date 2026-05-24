@@ -199,8 +199,8 @@ export function AppSidebar() {
                                   </Badge>
                                 )}
                                 {item.title === "Clientes e Fornecedores" && aniversariantesClientes.length > 0 && !bloqueado && (
-                                  <div className="w-5 h-5 rounded-full bg-cda-vinho flex items-center justify-center animate-bounce ml-1">
-                                    <Cake className="h-3 w-3 text-cda-preto" />
+                                  <div className="w-5 h-5 rounded-full bg-cda-dourado flex items-center justify-center animate-bounce ml-1">
+                                    <Cake className="h-3 w-3 text-cda-vinho" />
                                   </div>
                                 )}
                               </>
