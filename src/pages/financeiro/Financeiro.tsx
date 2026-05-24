@@ -435,6 +435,7 @@ export default function Financeiro() {
 
     const inadimplentesMap = new Map<string, InadimplenciaItem>();
 
+    // Passo 1: acumular dados por cliente em memória (sem queries)
     for (const parcela of data) {
       const vencimento = new Date(parcela.data_vencimento + 'T00:00:00');
       const hojeDate = new Date(hoje + 'T00:00:00');
@@ -449,19 +450,29 @@ export default function Financeiro() {
         existing.valor += valorDevido;
         existing.dias_atraso = Math.max(existing.dias_atraso, diasAtraso);
       } else {
-        const { data: cliente } = await supabase
-          .from("clientes")
-          .select("telefone")
-          .eq("id", clienteId)
-          .maybeSingle();
-
         inadimplentesMap.set(clienteId, {
           id: clienteId,
           nome: clienteNome,
           valor: valorDevido,
           dias_atraso: diasAtraso,
-          telefone: cliente?.telefone
+          telefone: undefined
         });
+      }
+    }
+
+    // Passo 2: buscar telefones em lote com uma única query
+    const clienteIds = Array.from(inadimplentesMap.keys());
+    if (clienteIds.length > 0) {
+      const { data: clientes } = await supabase
+        .from("clientes")
+        .select("id, telefone")
+        .in("id", clienteIds);
+
+      const telefoneMap = new Map<string, string | null>();
+      clientes?.forEach((c) => telefoneMap.set(c.id, c.telefone));
+
+      for (const item of inadimplentesMap.values()) {
+        item.telefone = telefoneMap.get(item.id) || undefined;
       }
     }
 
