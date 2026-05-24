@@ -36,16 +36,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
 import { toast } from "sonner";
 import { EmbalagemAutocomplete } from "@/components/EmbalagemAutocomplete";
+import { CriarIngredienteModal } from "@/components/CriarIngredienteModal";
+import { CriarEmbalagemModal } from "@/components/CriarEmbalagemModal";
 
 interface CustoFixo {
   id: string;
@@ -267,26 +261,14 @@ export default function ReceitaForm() {
   // Estados para cadastro em cadeia de ingredientes
   const [mostrarPopoverIngrediente, setMostrarPopoverIngrediente] = useState(false);
   const [termoBuscaIngrediente, setTermoBuscaIngrediente] = useState('');
-  const [modalCriarTipoIngAberto, setModalCriarTipoIngAberto] = useState(false);
-  const [modalCriarIngredienteAberto, setModalCriarIngredienteAberto] = useState(false);
-  const [novoTipoIngDescricao, setNovoTipoIngDescricao] = useState('');
-  const [novoTipoIngQuantidade, setNovoTipoIngQuantidade] = useState('');
-  const [novoTipoIngUnidadeId, setNovoTipoIngUnidadeId] = useState('');
-  const [novoIngMarca, setNovoIngMarca] = useState('');
-  const [novoIngPreco, setNovoIngPreco] = useState('');
-  const [tipoIngRecemCriado, setTipoIngRecemCriado] = useState<any>(null);
-  
+  const [modalCriarIngredienteOpen, setModalCriarIngredienteOpen] = useState(false);
+  const [descricaoInicialIng, setDescricaoInicialIng] = useState('');
+
   // Estados para cadastro em cadeia de embalagens
   const [mostrarPopoverEmbalagem, setMostrarPopoverEmbalagem] = useState(false);
   const [termoBuscaEmbalagem, setTermoBuscaEmbalagem] = useState('');
-  const [modalCriarTipoEmbAberto, setModalCriarTipoEmbAberto] = useState(false);
-  const [modalCriarEmbalagemAberto, setModalCriarEmbalagemAberto] = useState(false);
-  const [novoTipoEmbDescricao, setNovoTipoEmbDescricao] = useState('');
-  const [novoTipoEmbQuantidade, setNovoTipoEmbQuantidade] = useState('');
-  const [novoTipoEmbUnidadeId, setNovoTipoEmbUnidadeId] = useState('');
-  const [novoEmbMarca, setNovoEmbMarca] = useState('');
-  const [novoEmbPreco, setNovoEmbPreco] = useState('');
-  const [tipoEmbRecemCriado, setTipoEmbRecemCriado] = useState<any>(null);
+  const [modalCriarEmbalagemOpen, setModalCriarEmbalagemOpen] = useState(false);
+  const [descricaoInicialEmb, setDescricaoInicialEmb] = useState('');
   
   // Estados para precificação
   const [outrosGastosPersonalizados, setOutrosGastosPersonalizados] = useState([
@@ -1058,262 +1040,44 @@ export default function ReceitaForm() {
     }
   };
 
-  const handleCriarTipoIngrediente = async () => {
-    try {
-      if (!novoTipoIngDescricao.trim() || !novoTipoIngQuantidade || !novoTipoIngUnidadeId) {
-        toast.error('Preencha todos os campos!');
-        return;
-      }
+  const handleIngredienteCriado = (data: any) => {
+    setIngredientesCadastrados([...ingredientesCadastrados, data]);
 
-      const qtd = parseFloat(novoTipoIngQuantidade.replace(',', '.'));
-      if (qtd <= 0) {
-        toast.error('Quantidade deve ser maior que zero!');
-        return;
-      }
+    const novoIngrediente: IngredienteReceita = {
+      id: `ing-${Date.now()}`,
+      ingredienteId: data.id,
+      ingrediente: data.tipo_insumo.descricao,
+      marca: data.marca || '',
+      qtdeEmbalagem: data.tipo_insumo.quantidade_embalagem,
+      unidadeMedida: data.tipo_insumo.unidade_medida.sigla,
+      precoEmbalagem: data.preco,
+      quantidadeUtilizada: 0,
+      custoUnitario: data.preco / data.tipo_insumo.quantidade_embalagem,
+      custoReceita: 0,
+    };
 
-      if (!user) throw new Error('Não autenticado');
-
-      const { data, error } = await supabase
-        .from('tipos_insumos')
-        .insert({
-          usuario_id: user.id,
-          tipo: 'ingrediente',
-          descricao: novoTipoIngDescricao.trim(),
-          quantidade_embalagem: qtd,
-          unidade_medida_id: novoTipoIngUnidadeId,
-        })
-        .select(`
-          id,
-          descricao,
-          quantidade_embalagem,
-          unidade_medida:unidades_medida (
-            id,
-            nome,
-            sigla
-          )
-        `)
-        .single();
-
-      if (error) {
-        if (error.code === '23505') {
-          throw new Error('Este tipo já foi cadastrado!');
-        }
-        throw error;
-      }
-
-      toast.success('Tipo cadastrado! Agora vamos cadastrar o ingrediente.');
-      setTipoIngRecemCriado(data);
-      setModalCriarTipoIngAberto(false);
-      setNovoIngMarca('');
-      setNovoIngPreco('');
-      setModalCriarIngredienteAberto(true);
-
-    } catch (error: any) {
-      console.error('Erro ao criar tipo:', error);
-      toast.error(error.message);
-    }
+    setIngredientes([...ingredientes, novoIngrediente]);
+    setTermoBuscaIngrediente('');
   };
 
-  const handleCriarTipoEmbalagem = async () => {
-    try {
-      if (!novoTipoEmbDescricao.trim() || !novoTipoEmbQuantidade || !novoTipoEmbUnidadeId) {
-        toast.error('Preencha todos os campos!');
-        return;
-      }
+  const handleEmbalagemCriada = (data: any) => {
+    setEmbalagensCadastradas([...embalagensCadastradas, data]);
 
-      const qtd = parseFloat(novoTipoEmbQuantidade.replace(',', '.'));
-      if (qtd <= 0) {
-        toast.error('Quantidade deve ser maior que zero!');
-        return;
-      }
+    const novaEmbalagem: EmbalagemReceita = {
+      id: `emb-${Date.now()}`,
+      embalagemId: data.id,
+      embalagem: data.tipo_insumo.descricao,
+      marca: data.marca || '',
+      qtdeEmbalagem: data.tipo_insumo.quantidade_embalagem,
+      unidadeMedida: data.tipo_insumo.unidade_medida.sigla,
+      precoEmbalagem: data.preco,
+      quantidadeUtilizada: 0,
+      custoUnitario: data.preco / data.tipo_insumo.quantidade_embalagem,
+      custoReceita: 0,
+    };
 
-      if (!user) throw new Error('Não autenticado');
-
-      const { data, error } = await supabase
-        .from('tipos_insumos')
-        .insert({
-          usuario_id: user.id,
-          tipo: 'embalagem',
-          descricao: novoTipoEmbDescricao.trim(),
-          quantidade_embalagem: qtd,
-          unidade_medida_id: novoTipoEmbUnidadeId,
-        })
-        .select(`
-          id,
-          descricao,
-          quantidade_embalagem,
-          unidade_medida:unidades_medida (
-            id,
-            nome,
-            sigla
-          )
-        `)
-        .single();
-
-      if (error) {
-        if (error.code === '23505') {
-          throw new Error('Este tipo já foi cadastrado!');
-        }
-        throw error;
-      }
-
-      toast.success('Tipo cadastrado! Agora vamos cadastrar a embalagem.');
-      setTipoEmbRecemCriado(data);
-      setModalCriarTipoEmbAberto(false);
-      setNovoEmbMarca('');
-      setNovoEmbPreco('');
-      setModalCriarEmbalagemAberto(true);
-
-    } catch (error: any) {
-      console.error('Erro ao criar tipo:', error);
-      toast.error(error.message);
-    }
-  };
-
-  const handleCriarIngrediente = async () => {
-    try {
-      if (!tipoIngRecemCriado) {
-        throw new Error('Tipo não encontrado');
-      }
-
-      const precoNum = parseFloat(novoIngPreco.replace(',', '.'));
-      if (!precoNum || precoNum <= 0) {
-        toast.error('Informe um preço válido!');
-        return;
-      }
-
-      if (!user) throw new Error('Não autenticado');
-
-      const { data, error } = await supabase
-        .from('ingredientes')
-        .insert({
-          usuario_id: user.id,
-          tipo_insumo_id: tipoIngRecemCriado.id,
-          marca: novoIngMarca.trim() || null,
-          preco: precoNum,
-          data_atualizacao: new Date().toISOString().split('T')[0],
-        })
-        .select(`
-          *,
-          tipo_insumo:tipos_insumos (
-            id,
-            descricao,
-            quantidade_embalagem,
-            unidade_medida:unidades_medida (
-              nome,
-              sigla
-            )
-          )
-        `)
-        .single();
-
-      if (error) {
-        if (error.code === '23505') {
-          throw new Error('Este ingrediente já foi cadastrado!');
-        }
-        throw error;
-      }
-
-      toast.success('Ingrediente cadastrado e adicionado!');
-
-      setIngredientesCadastrados([...ingredientesCadastrados, data]);
-
-      const novoIngrediente: IngredienteReceita = {
-        id: `ing-${Date.now()}`,
-        ingredienteId: data.id,
-        ingrediente: data.tipo_insumo.descricao,
-        marca: data.marca || '',
-        qtdeEmbalagem: data.tipo_insumo.quantidade_embalagem,
-        unidadeMedida: data.tipo_insumo.unidade_medida.sigla,
-        precoEmbalagem: data.preco,
-        quantidadeUtilizada: 0,
-        custoUnitario: data.preco / data.tipo_insumo.quantidade_embalagem,
-        custoReceita: 0,
-      };
-
-      setIngredientes([...ingredientes, novoIngrediente]);
-
-      setModalCriarIngredienteAberto(false);
-      setTipoIngRecemCriado(null);
-      setTermoBuscaIngrediente('');
-
-    } catch (error: any) {
-      console.error('Erro ao criar ingrediente:', error);
-      toast.error(error.message);
-    }
-  };
-
-  const handleCriarEmbalagem = async () => {
-    try {
-      if (!tipoEmbRecemCriado) {
-        throw new Error('Tipo não encontrado');
-      }
-
-      const precoNum = parseFloat(novoEmbPreco.replace(',', '.'));
-      if (!precoNum || precoNum <= 0) {
-        toast.error('Informe um preço válido!');
-        return;
-      }
-
-      if (!user) throw new Error('Não autenticado');
-
-      const { data, error } = await supabase
-        .from('embalagens')
-        .insert({
-          usuario_id: user.id,
-          tipo_insumo_id: tipoEmbRecemCriado.id,
-          marca: novoEmbMarca.trim() || null,
-          preco: precoNum,
-          data_atualizacao: new Date().toISOString().split('T')[0],
-        })
-        .select(`
-          *,
-          tipo_insumo:tipos_insumos (
-            id,
-            descricao,
-            quantidade_embalagem,
-            unidade_medida:unidades_medida (
-              nome,
-              sigla
-            )
-          )
-        `)
-        .single();
-
-      if (error) {
-        if (error.code === '23505') {
-          throw new Error('Esta embalagem já foi cadastrada!');
-        }
-        throw error;
-      }
-
-      toast.success('Embalagem cadastrada e adicionada!');
-
-      setEmbalagensCadastradas([...embalagensCadastradas, data]);
-
-      const novaEmbalagem: EmbalagemReceita = {
-        id: `emb-${Date.now()}`,
-        embalagemId: data.id,
-        embalagem: data.tipo_insumo.descricao,
-        marca: data.marca || '',
-        qtdeEmbalagem: data.tipo_insumo.quantidade_embalagem,
-        unidadeMedida: data.tipo_insumo.unidade_medida.sigla,
-        precoEmbalagem: data.preco,
-        quantidadeUtilizada: 0,
-        custoUnitario: data.preco / data.tipo_insumo.quantidade_embalagem,
-        custoReceita: 0,
-      };
-
-      setEmbalagens([...embalagens, novaEmbalagem]);
-
-      setModalCriarEmbalagemAberto(false);
-      setTipoEmbRecemCriado(null);
-      setTermoBuscaEmbalagem('');
-
-    } catch (error: any) {
-      console.error('Erro ao criar embalagem:', error);
-      toast.error(error.message);
-    }
+    setEmbalagens([...embalagens, novaEmbalagem]);
+    setTermoBuscaEmbalagem('');
   };
 
   return (
@@ -1492,10 +1256,8 @@ export default function ReceitaForm() {
                               variant="outline"
                               size="sm"
                               onClick={() => {
-                                setNovoTipoIngDescricao(termoBuscaIngrediente);
-                                setNovoTipoIngQuantidade('');
-                                setNovoTipoIngUnidadeId('');
-                                setModalCriarTipoIngAberto(true);
+                                setDescricaoInicialIng(termoBuscaIngrediente);
+                                setModalCriarIngredienteOpen(true);
                                 setMostrarPopoverIngrediente(false);
                               }}
                               className="gap-2"
@@ -1648,10 +1410,8 @@ export default function ReceitaForm() {
                               variant="outline"
                               size="sm"
                               onClick={() => {
-                                setNovoTipoEmbDescricao(termoBuscaEmbalagem);
-                                setNovoTipoEmbQuantidade('');
-                                setNovoTipoEmbUnidadeId('');
-                                setModalCriarTipoEmbAberto(true);
+                                setDescricaoInicialEmb(termoBuscaEmbalagem);
+                                setModalCriarEmbalagemOpen(true);
                                 setMostrarPopoverEmbalagem(false);
                               }}
                               className="gap-2"
@@ -2186,233 +1946,23 @@ export default function ReceitaForm() {
         </CardContent>
       </Card>
 
-      {/* Dialog - Criar Tipo de Ingrediente */}
-      <Dialog open={modalCriarTipoIngAberto} onOpenChange={setModalCriarTipoIngAberto}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Novo Ingrediente</DialogTitle>
-            <DialogDescription>
-              Cadastre o tipo base do ingrediente com sua quantidade padrão
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="descricao-ing">Nome do Ingrediente *</Label>
-              <Input
-                id="descricao-ing"
-                placeholder="Ex: Farinha de Trigo"
-                value={novoTipoIngDescricao}
-                onChange={(e) => setNovoTipoIngDescricao(e.target.value)}
-                autoFocus
-              />
-            </div>
+      <CriarIngredienteModal
+        open={modalCriarIngredienteOpen}
+        onOpenChange={setModalCriarIngredienteOpen}
+        descricaoInicial={descricaoInicialIng}
+        unidades={unidades}
+        userId={user?.id}
+        onIngredienteCriado={handleIngredienteCriado}
+      />
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="quantidade-ing">Qtde na Embalagem *</Label>
-                <Input
-                  id="quantidade-ing"
-                  type="text"
-                  placeholder="Ex: 1000"
-                  value={novoTipoIngQuantidade}
-                  onChange={(e) => {
-                    const valor = e.target.value.replace(/[^\d,]/g, '');
-                    setNovoTipoIngQuantidade(valor);
-                  }}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="unidade-ing">Unidade de Medida *</Label>
-                <Select value={novoTipoIngUnidadeId} onValueChange={setNovoTipoIngUnidadeId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {unidades.map((unidade) => (
-                      <SelectItem key={unidade.id} value={unidade.id}>
-                        {unidade.nome} ({unidade.sigla})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setModalCriarTipoIngAberto(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleCriarTipoIngrediente}>
-              Próximo: Cadastrar Ingrediente
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dialog - Criar Tipo de Embalagem */}
-      <Dialog open={modalCriarTipoEmbAberto} onOpenChange={setModalCriarTipoEmbAberto}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Nova Embalagem</DialogTitle>
-            <DialogDescription>
-              Cadastre o tipo base da embalagem com sua quantidade padrão
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="descricao-emb">Nome da Embalagem *</Label>
-              <Input
-                id="descricao-emb"
-                placeholder="Ex: Caixa de Papelão"
-                value={novoTipoEmbDescricao}
-                onChange={(e) => setNovoTipoEmbDescricao(e.target.value)}
-                autoFocus
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="quantidade-emb">Qtde na Embalagem *</Label>
-                <Input
-                  id="quantidade-emb"
-                  type="text"
-                  placeholder="Ex: 1"
-                  value={novoTipoEmbQuantidade}
-                  onChange={(e) => {
-                    const valor = e.target.value.replace(/[^\d,]/g, '');
-                    setNovoTipoEmbQuantidade(valor);
-                  }}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="unidade-emb">Unidade de Medida *</Label>
-                <Select value={novoTipoEmbUnidadeId} onValueChange={setNovoTipoEmbUnidadeId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {unidades.map((unidade) => (
-                      <SelectItem key={unidade.id} value={unidade.id}>
-                        {unidade.nome} ({unidade.sigla})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setModalCriarTipoEmbAberto(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleCriarTipoEmbalagem}>
-              Próximo: Cadastrar Embalagem
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dialog - Criar Ingrediente */}
-      <Dialog open={modalCriarIngredienteAberto} onOpenChange={setModalCriarIngredienteAberto}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Novo Ingrediente</DialogTitle>
-            {tipoIngRecemCriado && (
-              <p className="text-sm text-muted-foreground">
-                Tipo: {tipoIngRecemCriado.descricao} - {tipoIngRecemCriado.quantidade_embalagem} {tipoIngRecemCriado.unidade_medida?.sigla}
-              </p>
-            )}
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Marca</Label>
-              <Input
-                value={novoIngMarca}
-                onChange={(e) => setNovoIngMarca(e.target.value)}
-                placeholder="Ex: Marca X"
-                autoFocus
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Preço *</Label>
-              <Input
-                type="text"
-                value={novoIngPreco}
-                onChange={(e) => {
-                  const valor = e.target.value.replace(/[^\d,]/g, '');
-                  setNovoIngPreco(valor);
-                }}
-                placeholder="Ex: 5,00"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setModalCriarIngredienteAberto(false);
-              setTipoIngRecemCriado(null);
-            }}>
-              Cancelar
-            </Button>
-            <Button onClick={handleCriarIngrediente}>
-              Cadastrar e Adicionar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dialog - Criar Embalagem */}
-      <Dialog open={modalCriarEmbalagemAberto} onOpenChange={setModalCriarEmbalagemAberto}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Nova Embalagem</DialogTitle>
-            {tipoEmbRecemCriado && (
-              <p className="text-sm text-muted-foreground">
-                Tipo: {tipoEmbRecemCriado.descricao} - {tipoEmbRecemCriado.quantidade_embalagem} {tipoEmbRecemCriado.unidade_medida?.sigla}
-              </p>
-            )}
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Marca</Label>
-              <Input
-                value={novoEmbMarca}
-                onChange={(e) => setNovoEmbMarca(e.target.value)}
-                placeholder="Ex: Marca X"
-                autoFocus
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Preço *</Label>
-              <Input
-                type="text"
-                value={novoEmbPreco}
-                onChange={(e) => {
-                  const valor = e.target.value.replace(/[^\d,]/g, '');
-                  setNovoEmbPreco(valor);
-                }}
-                placeholder="Ex: 5,00"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setModalCriarEmbalagemAberto(false);
-              setTipoEmbRecemCriado(null);
-            }}>
-              Cancelar
-            </Button>
-            <Button onClick={handleCriarEmbalagem}>
-              Cadastrar e Adicionar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <CriarEmbalagemModal
+        open={modalCriarEmbalagemOpen}
+        onOpenChange={setModalCriarEmbalagemOpen}
+        descricaoInicial={descricaoInicialEmb}
+        unidades={unidades}
+        userId={user?.id}
+        onEmbalagemCriada={handleEmbalagemCriada}
+      />
     </div>
   );
 }
