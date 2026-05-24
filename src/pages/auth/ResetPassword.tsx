@@ -159,7 +159,7 @@ export default function ResetPassword() {
           <div className="text-center space-y-3">
             <div className="flex items-center justify-center gap-3">
               <img src={caixaAcucarIcon} alt="Caixa de Açúcar" className="h-20 w-20" />
-              <h1 className="text-3xl font-display font-bold text-cda-cloud tracking-tight">
+              <h1 className="text-3xl font-display font-bold text-cda-creme tracking-tight">
                 Caixa de Açúcar
               </h1>
             </div>
@@ -168,7 +168,7 @@ export default function ResetPassword() {
             </p>
           </div>
 
-          <Card className="bg-cda-cloud border-0 shadow-elevated rounded-2xl">
+          <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">
             <CardContent className="flex flex-col items-center justify-center py-8">
               <LoadingMascote size={64} label="Verificando link..." />
             </CardContent>
@@ -183,7 +183,7 @@ export default function ResetPassword() {
         <div className="text-center space-y-3">
           <div className="flex items-center justify-center gap-3">
             <img src={caixaAcucarIcon} alt="Caixa de Açúcar" className="h-20 w-20" />
-            <h1 className="text-3xl font-display font-bold text-cda-cloud tracking-tight">
+            <h1 className="text-3xl font-display font-bold text-cda-creme tracking-tight">
               Caixa de Açúcar
             </h1>
           </div>
@@ -192,7 +192,7 @@ export default function ResetPassword() {
           </p>
         </div>
 
-        <Card className="bg-cda-cloud border-0 shadow-elevated rounded-2xl">
+        <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">
           <CardHeader className="pb-2 pt-8">
             <h2 className="text-xl font-display font-semibold text-cda-preto text-center">
               Redefinir Senha
@@ -291,7 +291,7 @@ export default function ResetPassword() {
           </Form>
         </Card>
 
-        <p className="text-center text-xs font-body text-cda-cloud/40">
+        <p className="text-center text-xs font-body text-cda-creme/40">
           Sistema de gestão para confeitarias
         </p>
       </div>

@@ -178,7 +178,7 @@ export default function FechamentoMes() {
                   )}
                 </CardDescription>
               </div>
-              {podeFechar && !isFechado && <CheckCircle2 className="h-6 w-6 text-cda-pistache" />}
+              {podeFechar && !isFechado && <CheckCircle2 className="h-6 w-6 text-cda-creme" />}
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -300,7 +300,7 @@ export default function FechamentoMes() {
 }
 
 function Item({ label, valor, positivo, negativo, destaque }: { label: string; valor: number; positivo?: boolean; negativo?: boolean; destaque?: boolean }) {
-  const cor = destaque ? "text-cda-dourado" : positivo ? "text-cda-pistache" : negativo ? "text-cda-coral" : "text-foreground";
+  const cor = destaque ? "text-cda-dourado" : positivo ? "text-cda-creme" : negativo ? "text-cda-coral" : "text-foreground";
   return (
     <div className="space-y-1">
       <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>

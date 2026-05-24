@@ -147,7 +147,7 @@ export function AppSidebar() {
                   Caixa de Açúcar
                 </span>
               </div>
-              <span className="text-[11px] font-light font-body text-cda-cloud tracking-wider">
+              <span className="text-[11px] font-light font-body text-cda-creme tracking-wider">
                 by Umbrella Doce
               </span>
             </div>
@@ -199,7 +199,7 @@ export function AppSidebar() {
                                   </Badge>
                                 )}
                                 {item.title === "Clientes e Fornecedores" && aniversariantesClientes.length > 0 && !bloqueado && (
-                                  <div className="w-5 h-5 rounded-full bg-cda-pistache flex items-center justify-center animate-bounce ml-1">
+                                  <div className="w-5 h-5 rounded-full bg-cda-vinho flex items-center justify-center animate-bounce ml-1">
                                     <Cake className="h-3 w-3 text-cda-preto" />
                                   </div>
                                 )}
@@ -464,7 +464,7 @@ export function AppSidebar() {
               onClick={handleLogout}
               variant="ghost"
               size="sm"
-              className="w-full bg-cda-cloud text-sidebar-foreground hover:text-sidebar-foreground hover:bg-cda-cloud/80 border border-cda-dourado font-body"
+              className="w-full bg-cda-creme text-sidebar-foreground hover:text-sidebar-foreground hover:bg-cda-creme/80 border border-cda-dourado font-body"
             >
               <LogOut className="h-4 w-4 mr-2" />
               Sair
