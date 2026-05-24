@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import * as XLSX from "xlsx";
 import { LoadingMascote } from "@/components/LoadingMascote";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -205,22 +206,18 @@ export default function FluxoCaixaDiario() {
   const saldoFinal = saldoInicial + totais.saldo;
 
   const handleExportar = () => {
-    const csvContent = [
-      ['Dia', 'Entradas', 'Saídas', 'Saldo do Dia', 'Saldo Acumulado'],
-      ...fluxo.map(item => [
-        format(item.dia, 'dd/MM/yyyy'),
-        item.entradas.toFixed(2),
-        item.saidas.toFixed(2),
-        item.saldoDia.toFixed(2),
-        item.saldoAcumulado.toFixed(2)
-      ])
-    ].map(row => row.join(',')).join('\n');
+    const dadosExportacao = fluxo.map(item => ({
+      'Dia': format(item.dia, 'dd/MM/yyyy'),
+      'Entradas': Number(item.entradas.toFixed(2)),
+      'Saídas': Number(item.saidas.toFixed(2)),
+      'Saldo do Dia': Number(item.saldoDia.toFixed(2)),
+      'Saldo Acumulado': Number(item.saldoAcumulado.toFixed(2)),
+    }));
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `fluxo-caixa-diario-${String(mes + 1).padStart(2, '0')}-${ano}.csv`;
-    link.click();
+    const ws = XLSX.utils.json_to_sheet(dadosExportacao);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Fluxo de Caixa Diário');
+    XLSX.writeFile(wb, `fluxo-caixa-diario-${String(mes + 1).padStart(2, '0')}-${ano}.xlsx`);
   };
 
   // Gerar lista de anos (2025 em diante)
@@ -349,7 +346,7 @@ export default function FluxoCaixaDiario() {
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={handleExportar}>
                 <Download className="w-4 h-4 mr-2" />
-                Exportar para Excel
+                Exportar .xlsx
               </Button>
               <Button variant="outline" size="sm" onClick={() => window.print()}>
                 <Printer className="w-4 h-4 mr-2" />
