@@ -1264,10 +1264,8 @@ export default function ReceitaForm() {
                               variant="outline"
                               size="sm"
                               onClick={() => {
-                                setNovoTipoIngDescricao(termoBuscaIngrediente);
-                                setNovoTipoIngQuantidade('');
-                                setNovoTipoIngUnidadeId('');
-                                setModalCriarTipoIngAberto(true);
+                                setDescricaoInicialIng(termoBuscaIngrediente);
+                                setModalCriarIngredienteOpen(true);
                                 setMostrarPopoverIngrediente(false);
                               }}
                               className="gap-2"
