@@ -13,6 +13,7 @@ import { GlobalLoadingProvider, useGlobalLoading } from "@/contexts/GlobalLoadin
 import { LoadingMascote } from "@/components/LoadingMascote";
 import { FirstAccessRedirect } from "@/components/FirstAccessRedirect";
 import { AlertaExpiracaoPlano } from "@/components/AlertaExpiracaoPlano";
+import { PlanExpirationWatcher } from "@/components/PlanExpirationWatcher";
 import Dashboard from "./pages/Dashboard";
 import Encomendas from "./pages/Encomendas";
 import Precificacao from "./pages/Precificacao";
@@ -172,6 +173,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <PlanExpirationWatcher />
           <Routes>
             {/* Auth routes */}
             <Route path="/auth/login" element={<AuthLogin />} />
