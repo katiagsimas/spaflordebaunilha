@@ -5,7 +5,7 @@ import { CenarioResultado } from "@/components/meu-salario/CenarioResultado";
 import { HistoricoMensal } from "@/components/meu-salario/HistoricoMensal";
 import { FraseRendaDoce } from "@/components/meu-salario/FraseRendaDoce";
 import { exportarMeuSalarioPDF } from "@/utils/exportarMeuSalarioPDF";
-import { Download } from "lucide-react";
+import { Download, AlertTriangle } from "lucide-react";
 
 export function VisaoGeral() {
   const { data: resumo, isLoading } = useResumoMesAnterior();
