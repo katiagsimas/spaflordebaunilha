@@ -782,6 +782,7 @@ const Encomendas = () => {
           valor_unitario: produto.valor_unitario,
           subtotal: produto.subtotal,
           usuario_id: user.id,
+          owner_group_id: activeGroupId,
         }));
 
         const { error } = await supabase.from('encomenda_itens').insert(itensParaInserir);
