@@ -397,12 +397,12 @@ export default function ContasPagar() {
 
   const limparFiltros = () => {
     setFiltroStatus('aberto'); // Volta para "aberto" ao limpar filtros
-    setDataEmissaoInicio('');
-    setDataEmissaoFim('');
-    setDataPagamentoInicio('');
-    setDataPagamentoFim('');
-    setDataVencimentoInicio('');
-    setDataVencimentoFim('');
+    setDataEmissaoInicio(undefined);
+    setDataEmissaoFim(undefined);
+    setDataPagamentoInicio(undefined);
+    setDataPagamentoFim(undefined);
+    setDataVencimentoInicio(undefined);
+    setDataVencimentoFim(undefined);
     setFornecedorFiltro('todos');
     setPlanoContasFiltro('todos');
     setCategoriaFiltro('todos');
