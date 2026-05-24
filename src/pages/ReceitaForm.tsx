@@ -970,45 +970,51 @@ export default function ReceitaForm() {
       if (imagens.length > 0) {
         const imagensData = [];
         
-        // Processar cada imagem
+        // Separar imagens que precisam de upload (base64) das que já estão no Storage
+        const indicesBase64 = imagens
+          .map((url, index) => ({ url, index }))
+          .filter((item) => item.url.startsWith('data:'));
+        
+        // Uploads paralelos para imagens base64
+        const uploadPromises = indicesBase64.map(async ({ url, index }) => {
+          const response = await fetch(url);
+          const blob = await response.blob();
+          
+          const mimeType = blob.type;
+          const ext = mimeType.split('/')[1] || 'jpg';
+          
+          const timestamp = Date.now();
+          const fileName = `${timestamp}_${index}.${ext}`;
+          const path = `${user?.id}/${receitaId}/${fileName}`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from('receitas')
+            .upload(path, blob, { upsert: false });
+          
+          if (uploadError) {
+            console.error('Erro ao fazer upload:', uploadError);
+            throw uploadError;
+          }
+          
+          return { index, path };
+        });
+        
+        const uploadResults = await Promise.all(uploadPromises);
+        
+        // Construir imagensData preservando a ordem original
         for (let index = 0; index < imagens.length; index++) {
           const imagemUrl = imagens[index];
           
-          // Se for base64 (nova receita criada), fazer upload para Storage
           if (imagemUrl.startsWith('data:')) {
-            try {
-              // Converter base64 para blob
-              const response = await fetch(imagemUrl);
-              const blob = await response.blob();
-              
-              // Determinar extensão
-              const mimeType = blob.type;
-              const ext = mimeType.split('/')[1] || 'jpg';
-              
-              // Fazer upload
-              const timestamp = Date.now();
-              const fileName = `${timestamp}_${index}.${ext}`;
-              const path = `${user?.id}/${receitaId}/${fileName}`;
-              
-              const { error: uploadError } = await supabase.storage
-                .from('receitas')
-                .upload(path, blob, { upsert: false });
-              
-              if (uploadError) {
-                console.error('Erro ao fazer upload:', uploadError);
-                throw uploadError;
-              }
-              
-              // Adicionar path ao array de imagens
-              imagensData.push({
-                receita_id: receitaId,
-                url: path,
-                ordem: index,
-              });
-            } catch (error) {
-              console.error('Erro ao processar imagem base64:', error);
-              throw error;
+            const result = uploadResults.find((r) => r.index === index);
+            if (!result) {
+              throw new Error(`Upload da imagem ${index} não retornou resultado`);
             }
+            imagensData.push({
+              receita_id: receitaId,
+              url: result.path,
+              ordem: index,
+            });
           } else {
             // Se já é um path do Storage, usar diretamente
             imagensData.push({
