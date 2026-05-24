@@ -43,6 +43,7 @@ export default function Fornecedores() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteContatoId, setDeleteContatoId] = useState<string | null>(null);
   const [observacoesOpen, setObservacoesOpen] = useState(false);
   const [busca, setBusca] = useState("");
   const [porPagina, setPorPagina] = useState(10);
@@ -148,13 +149,18 @@ export default function Fornecedores() {
     setContatoDialogOpen(true);
   };
 
-  const handleDeleteContato = async (id: string) => {
-    if (confirm('Deseja realmente excluir este contato?')) {
-      try {
-        await deleteContato(id);
-      } catch (error: any) {
-        console.error('Erro ao excluir contato:', error);
-      }
+  const handleDeleteContato = (id: string) => {
+    setDeleteContatoId(id);
+  };
+
+  const handleConfirmDeleteContato = async () => {
+    if (!deleteContatoId) return;
+    try {
+      await deleteContato(deleteContatoId);
+    } catch (error: any) {
+      console.error('Erro ao excluir contato:', error);
+    } finally {
+      setDeleteContatoId(null);
     }
   };
 
@@ -479,6 +485,14 @@ export default function Fornecedores() {
         onConfirm={handleDelete}
         title="Excluir Fornecedor"
         description="Tem certeza que deseja excluir este fornecedor? Esta ação não pode ser desfeita."
+      />
+
+      <ConfirmDialog
+        open={!!deleteContatoId}
+        onOpenChange={(open) => !open && setDeleteContatoId(null)}
+        onConfirm={handleConfirmDeleteContato}
+        title="Excluir Contato"
+        description="Tem certeza que deseja excluir este contato? Esta ação não pode ser desfeita."
       />
 
       <AdicionarContatoDialog
