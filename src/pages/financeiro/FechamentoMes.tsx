@@ -12,10 +12,10 @@ import {
 import { PageHeader } from "@/components/PageHeader";
 import {
   useFechamentoMes, useAbrirOuCriarFechamento, useFecharMes, useReabrirMes,
-  useToggleChecklistItem, useListaFechamentos, mesAnteriorIso, listaMesesRecentes,
+  useToggleChecklistItem, useListaFechamentos, useFechamentoLogs, mesAnteriorIso, listaMesesRecentes,
 } from "@/hooks/useFechamentoMes";
 import { formatBRL } from "@/hooks/useMeuSalario";
-import { Lock, Unlock, CheckCircle2, AlertCircle, History } from "lucide-react";
+import { Lock, Unlock, CheckCircle2, AlertCircle, History, Clock } from "lucide-react";
 
 export default function FechamentoMes() {
   const meses = listaMesesRecentes(12);
