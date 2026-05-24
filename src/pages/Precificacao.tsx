@@ -18,28 +18,28 @@ const opcoes = [
     description: "Ingredientes com marca e preço",
     icon: ChefHat,
     url: "/precificacao/ingredientes",
-    color: "text-green-600 bg-green-50 dark:bg-green-950",
+    color: "text-cda-vinho bg-cda-vinho/10 dark:bg-cda-vinho/20",
   },
   {
     title: "Embalagens",
     description: "Embalagens com marca e preço",
     icon: Package,
     url: "/precificacao/embalagens",
-    color: "text-blue-600 bg-blue-50 dark:bg-blue-950",
+    color: "text-cda-dourado bg-cda-dourado/10 dark:bg-cda-dourado/20",
   },
   {
     title: "Pré-Preparos",
     description: "Preparos intermediários para receitas",
     icon: ChefHat,
     url: "/precificacao/pre-preparos",
-    color: "text-purple-600 bg-purple-50 dark:bg-purple-950",
+    color: "text-cda-coral bg-cda-coral/10 dark:bg-cda-coral/20",
   },
   {
     title: "Ficha Técnica",
     description: "Calcule Custos e Preços de Venda",
     icon: CookingPot,
     url: "/precificacao/ficha-tecnica",
-    color: "text-orange-600 bg-orange-50 dark:bg-orange-950",
+    color: "text-cda-pink bg-cda-pink/10 dark:bg-cda-pink/20",
   },
 ];
 
