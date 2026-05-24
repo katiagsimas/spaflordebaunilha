@@ -137,16 +137,25 @@ export default function EstoqueEntrada() {
 
             <div className="space-y-2">
               <Label>Insumo *</Label>
-              <Select value={insumoId} onValueChange={setInsumoId}>
+              <Select value={insumoId} onValueChange={handleSelecionarInsumo}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o insumo" />
                 </SelectTrigger>
                 <SelectContent>
                   {insumos.map((i: any) => (
-                    <SelectItem key={i.id} value={i.id}>{i.nome}</SelectItem>
+                    <SelectItem key={i.id} value={i.id}>
+                      {i.nome}
+                      {i.marca ? ` — ${i.marca}` : ''}
+                      {i.preco > 0 ? ` · ${formatarPreco(i.preco)}` : ''}
+                      {i.quantidade_embalagem > 0 ? ` / ${i.quantidade_embalagem}${i.sigla}` : ''}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground">
+                As marcas e preços vêm de <strong>Meu Cardápio</strong>. Quantidade e custo são
+                pré-preenchidos da embalagem cadastrada — você pode ajustar abaixo.
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
