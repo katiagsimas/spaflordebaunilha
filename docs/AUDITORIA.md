@@ -502,3 +502,6 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 - **Migração:** `ALTER TABLE public.configuracoes_juros ADD COLUMN aliquota_simples_nacional numeric NULL;` — campo opcional por usuário.
 - **`src/components/configuracoes/ConfiguracaoJuros.tsx`:** novo input "Alíquota efetiva do Simples Nacional (%)" com validação 0–100. Persistido em `configuracoes_juros.aliquota_simples_nacional`.
 - **`src/pages/financeiro/DRE.tsx`:** `carregarDRE` busca a alíquota e calcula `impostoRenda[mes] = LAIR × alíquota / 100` quando LAIR > 0. `lucroLiquido = LAIR − impostoRenda`. Quando a alíquota não está configurada, a linha exibe `—` em todos os meses e total, com nota abaixo da tabela orientando o usuário a ir em Configurações. O rótulo da linha mostra a alíquota vigente entre parênteses quando configurada.
+
+## 2026-05-24T16:24:33Z - #M4 corrigido
+- ✅ ContasPagarForm.tsx convertido em wrapper (~115 linhas) seguindo o padrão de ContasReceberForm.tsx. Toda a lógica de formulário, geração de parcelas e persistência foi extraída para src/components/financeiro/ContasPagarFormModal.tsx. Props, callbacks e comportamento preservados.
