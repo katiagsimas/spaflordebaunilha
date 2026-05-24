@@ -22,6 +22,7 @@ import { FamiliaresLista } from "@/components/FamiliaresLista";
 import { useFamiliares } from "@/hooks/useFamiliares";
 import { toast } from "sonner";
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
+import { parseISOToDate } from "@/lib/dateUtils";
 import { Badge } from "@/components/ui/badge";
 import * as XLSX from 'xlsx';
 
@@ -195,7 +196,7 @@ export default function Clientes() {
     
     const clientesAniversariantes = clientes.filter(cliente => {
       if (!cliente.data_aniversario) return false;
-      const dataAniversario = new Date(cliente.data_aniversario + 'T00:00:00');
+      const dataAniversario = parseISOToDate(cliente.data_aniversario);
       return dataAniversario.getMonth() === mesAtual;
     }).map(cliente => ({
       ...cliente,
@@ -204,7 +205,7 @@ export default function Clientes() {
 
     const familiaresAniversariantes = allFamiliares.filter(familiar => {
       if (!familiar.data_nascimento) return false;
-      const dataAniversario = new Date(familiar.data_nascimento + 'T00:00:00');
+      const dataAniversario = parseISOToDate(familiar.data_nascimento);
       return dataAniversario.getMonth() === mesAtual;
     }).map(familiar => {
       const cliente = clientes.find(c => c.id === familiar.cliente_id);
@@ -223,8 +224,8 @@ export default function Clientes() {
     const todos = [...clientesAniversariantes, ...familiaresAniversariantes];
     
     return todos.sort((a, b) => {
-      const dataA = new Date(a.data_aniversario! + 'T00:00:00').getDate();
-      const dataB = new Date(b.data_aniversario! + 'T00:00:00').getDate();
+      const dataA = parseISOToDate(a.data_aniversario)?.getDate() ?? 0;
+      const dataB = parseISOToDate(b.data_aniversario)?.getDate() ?? 0;
       return dataA - dataB;
     });
   }, [clientes, allFamiliares]);
@@ -249,7 +250,7 @@ export default function Clientes() {
       'E-mail': cliente.email || '-',
       'CPF/CNPJ': cliente.cpf_cnpj || '-',
       'Aniversário': cliente.data_aniversario 
-        ? new Date(cliente.data_aniversario + 'T00:00:00').toLocaleDateString('pt-BR')
+        ? parseISOToDate(cliente.data_aniversario)?.toLocaleDateString('pt-BR')
         : '-',
       'CEP': cliente.cep || '-',
       'Endereço': cliente.endereco || '-',
@@ -313,7 +314,7 @@ export default function Clientes() {
                         </p>
                       )}
                       <p className="text-xs text-muted-foreground">
-                        {new Date(item.data_aniversario! + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })}
+                        {parseISOToDate(item.data_aniversario)?.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }) ?? ''}
                       </p>
                       {item.telefone && (
                         <p className="text-xs text-muted-foreground truncate">
@@ -618,7 +619,7 @@ export default function Clientes() {
                       <TableCell>{cliente.email || "-"}</TableCell>
                       <TableCell>
                         {cliente.data_aniversario 
-                          ? new Date(cliente.data_aniversario + 'T00:00:00').toLocaleDateString('pt-BR')
+                          ? parseISOToDate(cliente.data_aniversario)?.toLocaleDateString('pt-BR')
                           : "-"}
                       </TableCell>
                       <TableCell>
