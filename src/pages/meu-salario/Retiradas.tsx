@@ -95,6 +95,39 @@ export function Retiradas() {
           </table>
         )}
       </div>
+
+      <AlertDialog open={dialogoAberto} onOpenChange={(open) => !open && setRetiradaParaExcluir(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir retirada?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {retiradaParaExcluir && (
+                <>
+                  Tem certeza que deseja excluir a retirada de{" "}
+                  <strong>{formatDateBR(retiradaParaExcluir.data_retirada)}</strong> no valor de{" "}
+                  <strong>{formatBRL(Number(retiradaParaExcluir.valor))}</strong>?
+                  <br />
+                  Esta ação não pode ser desfeita.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setRetiradaParaExcluir(null)}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (retiradaParaExcluir) {
+                  excluir.mutate(retiradaParaExcluir.id);
+                }
+                setRetiradaParaExcluir(null);
+              }}
+              className="bg-[hsl(var(--rd-rose-queimado))] text-white hover:bg-[hsl(var(--rd-rose-queimado)/0.9)]"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
