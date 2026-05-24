@@ -768,17 +768,22 @@ const Encomendas = () => {
       
       // Salvar produtos temporários na encomenda criada
       if (tempProdutos.length > 0 && novaEncomenda) {
-        for (const produto of tempProdutos) {
-          await createItem({
-            encomenda_id: novaEncomenda.id,
-            receita_id: produto.receita_id,
-            produto: produto.produto,
-            quantidade: produto.quantidade,
-            unidade_medida: produto.unidade_medida,
-            valor_unitario: produto.valor_unitario,
-            subtotal: produto.subtotal,
-          });
-        }
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Usuário não autenticado');
+
+        const itensParaInserir = tempProdutos.map(produto => ({
+          encomenda_id: novaEncomenda.id,
+          receita_id: produto.receita_id,
+          produto: produto.produto,
+          quantidade: produto.quantidade,
+          unidade_medida: produto.unidade_medida,
+          valor_unitario: produto.valor_unitario,
+          subtotal: produto.subtotal,
+          usuario_id: user.id,
+        }));
+
+        const { error } = await supabase.from('encomenda_itens').insert(itensParaInserir);
+        if (error) throw error;
       }
 
       // Salvar tags da nova encomenda
