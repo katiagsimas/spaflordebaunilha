@@ -217,22 +217,33 @@ export function useFecharMes() {
         .eq("id", input.id)
         .single();
       const valores = await calcularValores(activeGroupId, f.mes_referencia);
+      const snapshot = { ...valores, gerado_em: new Date().toISOString() };
       const { error } = await (supabase.from("fechamentos_mensais" as any) as any)
         .update({
           status: "fechado",
           fechado_em: new Date().toISOString(),
           fechado_por: user.id,
           observacoes: input.observacoes ?? null,
-          snapshot: { ...valores, gerado_em: new Date().toISOString() },
+          snapshot,
           ...valores,
         })
         .eq("id", input.id);
       if (error) throw error;
+
+      await (supabase.from("fechamento_logs" as any) as any).insert({
+        fechamento_id: input.id,
+        owner_group_id: activeGroupId,
+        acao: "fechado",
+        motivo: input.observacoes ?? null,
+        snapshot,
+        usuario_id: user.id,
+      });
     },
     onSuccess: () => {
       toast.success("Mês fechado com sucesso");
       qc.invalidateQueries({ queryKey: ["fechamento"] });
       qc.invalidateQueries({ queryKey: ["fechamentos-lista"] });
+      qc.invalidateQueries({ queryKey: ["fechamento-logs"] });
       qc.invalidateQueries({ queryKey: ["meu-salario-resumo"] });
       qc.invalidateQueries({ queryKey: ["meu-salario-historico"] });
     },
@@ -243,25 +254,86 @@ export function useFecharMes() {
 export function useReabrirMes() {
   const qc = useQueryClient();
   const { user } = useAuth();
+  const { activeGroupId } = useGroup();
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      if (!user) throw new Error("Sem contexto");
+    mutationFn: async (input: { id: string; motivo: string }) => {
+      if (!user || !activeGroupId) throw new Error("Sem contexto");
+      const motivo = (input.motivo ?? "").trim();
+      if (motivo.length < 3) throw new Error("Informe o motivo da reabertura (mínimo 3 caracteres).");
+
+      const { data: atual } = await (supabase.from("fechamentos_mensais" as any) as any)
+        .select("snapshot, faturamento, custos, margem_seguranca, pro_labore_saudavel, retiradas, saldo_restante")
+        .eq("id", input.id)
+        .single();
+
       const { error } = await (supabase.from("fechamentos_mensais" as any) as any)
         .update({
           status: "aberto",
           reaberto_em: new Date().toISOString(),
           reaberto_por: user.id,
         })
-        .eq("id", id);
+        .eq("id", input.id);
       if (error) throw error;
+
+      await (supabase.from("fechamento_logs" as any) as any).insert({
+        fechamento_id: input.id,
+        owner_group_id: activeGroupId,
+        acao: "reaberto",
+        motivo,
+        snapshot: atual?.snapshot ?? atual,
+        usuario_id: user.id,
+      });
     },
     onSuccess: () => {
       toast.success("Mês reaberto");
       qc.invalidateQueries({ queryKey: ["fechamento"] });
       qc.invalidateQueries({ queryKey: ["fechamentos-lista"] });
+      qc.invalidateQueries({ queryKey: ["fechamento-logs"] });
     },
     onError: (e: any) => toast.error(e.message ?? "Erro ao reabrir mês"),
+  });
+}
+
+export interface FechamentoLog {
+  id: string;
+  fechamento_id: string;
+  acao: "fechado" | "reaberto" | "iniciado";
+  motivo: string | null;
+  snapshot: any;
+  usuario_id: string | null;
+  created_at: string;
+  usuario_nome?: string | null;
+  usuario_email?: string | null;
+}
+
+export function useFechamentoLogs(fechamentoId?: string) {
+  return useQuery({
+    queryKey: ["fechamento-logs", fechamentoId],
+    queryFn: async () => {
+      if (!fechamentoId) return [] as FechamentoLog[];
+      const { data, error } = await (supabase.from("fechamento_logs" as any) as any)
+        .select("*")
+        .eq("fechamento_id", fechamentoId)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      const logs = (data ?? []) as FechamentoLog[];
+      const userIds = Array.from(new Set(logs.map(l => l.usuario_id).filter(Boolean))) as string[];
+      if (userIds.length) {
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("id, nome, email")
+          .in("id", userIds);
+        const mapa = new Map((profs ?? []).map((p: any) => [p.id, p]));
+        return logs.map(l => ({
+          ...l,
+          usuario_nome: l.usuario_id ? (mapa.get(l.usuario_id) as any)?.nome ?? null : null,
+          usuario_email: l.usuario_id ? (mapa.get(l.usuario_id) as any)?.email ?? null : null,
+        }));
+      }
+      return logs;
+    },
+    enabled: !!fechamentoId,
   });
 }
 
