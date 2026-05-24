@@ -67,6 +67,30 @@ export default function ConfiguracaoJuros() {
     try {
       setSaving(true);
 
+      if (cobrarJuros) {
+        const percJuros = parseFloat(percentualJuros.replace(',', '.'));
+        if (Number.isNaN(percJuros) || percJuros <= 0) {
+          toast({
+            title: 'Erro de validação',
+            description: 'Informe um percentual de juros válido (maior que zero).',
+            variant: 'destructive',
+          });
+          return;
+        }
+      }
+
+      if (multaAtraso) {
+        const percMulta = parseFloat(percentualMulta.replace(',', '.'));
+        if (Number.isNaN(percMulta) || percMulta <= 0) {
+          toast({
+            title: 'Erro de validação',
+            description: 'Informe um percentual de multa válido (maior que zero).',
+            variant: 'destructive',
+          });
+          return;
+        }
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Não autenticado');
 
