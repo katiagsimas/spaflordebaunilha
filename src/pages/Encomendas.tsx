@@ -59,6 +59,7 @@ const statusLabels = {
 const Encomendas = () => {
   const navigate = useNavigate();
   const { encomendas, loading, createEncomenda, updateEncomenda, deleteEncomenda } = useEncomendas();
+  const { activeGroupId } = useGroup();
   const { clientes } = useClientes();
   const { receitas } = useReceitas();
   const { unidades } = useUnidadesMedida();
