@@ -72,11 +72,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) throw error;
 
-      // Verificar se o usuário está ativo
+      // Verificar se o usuário está ativo e se o plano não está expirado
       if (data.user) {
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
-          .select('ativo')
+          .select('ativo, plano_fim')
           .eq('id', data.user.id)
           .single();
 
@@ -84,10 +84,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.error('Erro ao verificar status do usuário:', profileError);
         }
 
-        // Se usuário está inativo, fazer logout imediatamente
-        if (profile && profile.ativo === false) {
+        // Plano expirado → desativa e bloqueia acesso
+        const hoje = new Date().toISOString().split('T')[0];
+        const planoExpirado = !!profile?.plano_fim && profile.plano_fim < hoje;
+
+        if (profile && (profile.ativo === false || planoExpirado)) {
+          if (planoExpirado && profile.ativo !== false) {
+            // Persiste a inativação (o trigger no banco também garante isso)
+            await supabase
+              .from('profiles')
+              .update({ ativo: false })
+              .eq('id', data.user.id);
+          }
           await supabase.auth.signOut();
-          throw new Error('Sua conta foi desabilitada. Entre em contato com o administrador.');
+          throw new Error(
+            planoExpirado
+              ? 'Seu plano expirou. Entre em contato com o administrador para renovar.'
+              : 'Sua conta foi desabilitada. Entre em contato com o administrador.'
+          );
         }
       }
 
@@ -102,7 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         message = 'Email ou senha incorretos.';
       } else if (error.message?.includes('Email not confirmed')) {
         message = 'Por favor, confirme seu email antes de fazer login.';
-      } else if (error.message?.includes('desabilitada')) {
+      } else if (error.message?.includes('desabilitada') || error.message?.includes('expirou')) {
         message = error.message;
       }
 

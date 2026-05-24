@@ -91,6 +91,9 @@ export default function Usuarios() {
   const { data: profiles, isLoading: isLoadingProfiles } = useQuery({
     queryKey: ['admin-users'],
     queryFn: async () => {
+      // Antes de listar, desativa quem tem plano expirado (idempotente)
+      await supabase.rpc('expire_overdue_plans');
+
       const { data, error } = await supabase
         .from('profiles')
         .select('id, email, nome_completo, nome_confeitaria, created_at, ativo, plano_id, plano_inicio, plano_fim, plano_tipo, last_login, origem_criacao')

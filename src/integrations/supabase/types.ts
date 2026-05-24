@@ -3531,6 +3531,7 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
+      expire_overdue_plans: { Args: never; Returns: number }
       gerar_proximo_codigo_categoria: {
         Args: { p_user_id: string }
         Returns: string
