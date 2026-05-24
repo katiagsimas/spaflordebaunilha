@@ -1,6 +1,16 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-24T15:00:00Z — useReceitas refatorado para 4 queries (N+1 eliminado)
+> Última atualização: 2026-05-24T16:00:00Z — useClientes/useFornecedores/useFornecedorContatos migrados para React Query
+
+---
+
+## REFATORAÇÃO HOOKS CADASTROS — 2026-05-24 16:00 UTC (React Query)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 102 | Migrar useClientes para React Query | ✅ | `useState`+`useEffect` substituídos por `useQuery` (key `["clientes", userId]`) e `useMutation` para create/update/delete com `invalidateQueries`. Toasts movidos para `onSuccess`/`onError`. Interface pública preservada (`createCliente`/`updateCliente`/`deleteCliente` via `mutateAsync`). |
+| 103 | Migrar useFornecedores para React Query | ✅ | Mesmo padrão de `useMaoObraPerfis`. QueryKey `["fornecedores", userId]`. Compatível com `FornecedorAutocomplete` e `cadastros/Fornecedores.tsx`. |
+| 104 | Migrar useFornecedorContatos para React Query | ✅ | QueryKey `["fornecedor_contatos", fornecedorId, userId]`. Invalidação ampla por prefixo `["fornecedor_contatos"]`. Interface (`contatos`, `loading`, `createContato`, `updateContato`, `deleteContato`, `refetch`) preservada. |
 
 ---
 
@@ -9,6 +19,7 @@
 | # | Item | Status | Descrição |
 |---|------|--------|-----------|
 | 100 | Eliminar N+1 em useReceitas | ✅ | `fetchReceitas` agora executa 1 query para receitas + 1 Promise.all com 4 queries usando `.in("receita_id", receitasIds)` para ingredientes, embalagens, despesas e imagens. Map interno trocado por map síncrono que filtra arrays em memória. Antes: até 1 + 4N queries (≈80 para 20 receitas); agora: 5 queries totais. Resultado idêntico. |
+
 
 ---
 
