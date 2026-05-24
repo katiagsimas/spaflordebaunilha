@@ -12,20 +12,61 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Trash2 } from "lucide-react";
+import { Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { formatDateBR, getTodayISO, getFirstDayOfMonth, getLastDayOfMonth } from "@/lib/dateUtils";
 import type { Retirada } from "@/hooks/useMeuSalario";
 
-export function Retiradas() {
-  const { data: resumo } = useResumoMesAnterior();
+const MESES = [
+  "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+  "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
+];
 
-  // Mostra retiradas do mês atual + anterior (escopo amplo de visibilidade)
-  const hoje = getTodayISO();
+function rotuloMes(year: number, month0: number) {
+  return `${MESES[month0]} de ${year}`;
+}
+
+function rotuloPeriodo(inicio: string, fim: string) {
+  const dIni = new Date(inicio + "T00:00:00");
+  const dFim = new Date(fim + "T00:00:00");
+  const mesIni = MESES[dIni.getMonth()];
+  const mesFim = MESES[dFim.getMonth()];
+  const anoIni = dIni.getFullYear();
+  const anoFim = dFim.getFullYear();
+  if (anoIni === anoFim) {
+    if (dIni.getMonth() === dFim.getMonth()) {
+      return `${mesIni} de ${anoIni}`;
+    }
+    return `${mesIni} a ${mesFim} de ${anoFim}`;
+  }
+  return `${mesIni} de ${anoIni} a ${mesFim} de ${anoFim}`;
+}
+
+export function Retiradas() {
+  const hoje = new Date();
+  const hojeISO = getTodayISO();
+
+  // Estado do seletor de período (mês/ano)
+  const [ano, setAno] = useState(hoje.getFullYear());
+  const [mes0, setMes0] = useState(hoje.getMonth());
+
+  // Quando "mes atual" está selecionado, mantém o comportamento original:
+  // mostra do início do mês anterior até o fim do mês atual
+  const ehMesAtual = ano === hoje.getFullYear() && mes0 === hoje.getMonth();
+
   const inicio = useMemo(() => {
-    if (!resumo) return getFirstDayOfMonth(hoje);
-    return resumo.inicio;
-  }, [resumo, hoje]);
-  const fim = useMemo(() => getLastDayOfMonth(hoje), [hoje]);
+    if (ehMesAtual) {
+      const mesAnterior = new Date(hoje.getFullYear(), hoje.getMonth() - 1, 1);
+      return `${mesAnterior.getFullYear()}-${String(mesAnterior.getMonth() + 1).padStart(2, "0")}-01`;
+    }
+    return getFirstDayOfMonth(`${ano}-${String(mes0 + 1).padStart(2, "0")}-01`);
+  }, [ehMesAtual, ano, mes0, hoje]);
+
+  const fim = useMemo(() => {
+    if (ehMesAtual) {
+      return getLastDayOfMonth(hojeISO);
+    }
+    return getLastDayOfMonth(`${ano}-${String(mes0 + 1).padStart(2, "0")}-01`);
+  }, [ehMesAtual, ano, mes0, hojeISO]);
 
   const { data: retiradas = [] } = useRetiradas(inicio, fim);
   const excluir = useExcluirRetirada();
@@ -35,6 +76,31 @@ export function Retiradas() {
 
   const total = retiradas.reduce((s, r) => s + Number(r.valor), 0);
 
+  const podeAvancar = useMemo(() => {
+    if (ano < hoje.getFullYear()) return true;
+    if (ano === hoje.getFullYear() && mes0 < hoje.getMonth()) return true;
+    return false;
+  }, [ano, mes0, hoje]);
+
+  function irAnterior() {
+    if (mes0 === 0) {
+      setMes0(11);
+      setAno((a) => a - 1);
+    } else {
+      setMes0((m) => m - 1);
+    }
+  }
+
+  function irProximo() {
+    if (!podeAvancar) return;
+    if (mes0 === 11) {
+      setMes0(0);
+      setAno((a) => a + 1);
+    } else {
+      setMes0((m) => m + 1);
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
@@ -43,8 +109,57 @@ export function Retiradas() {
           <p className="text-sm text-[hsl(var(--rd-vinho)/0.7)] mt-1">
             Registre cada valor que você tirou do negócio. Sem julgamento — só clareza.
           </p>
+          <p className="text-sm font-medium text-[hsl(var(--rd-vinho))] mt-1">
+            Exibindo retiradas de {rotuloPeriodo(inicio, fim)}
+            {ehMesAtual && (
+              <span className="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-[hsl(var(--rd-dourado)/0.2)] text-[hsl(var(--rd-vinho))]">
+                mês atual + anterior
+              </span>
+            )}
+          </p>
         </div>
         <RetiradaForm />
+      </div>
+
+      {/* Seletor de período */}
+      <div className="flex items-center gap-2">
+        <Button
+          size="icon"
+          variant="outline"
+          onClick={irAnterior}
+          className="border-[hsl(var(--rd-dourado)/0.4)] text-[hsl(var(--rd-vinho))] hover:bg-[hsl(var(--rd-dourado)/0.1)]"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex items-center gap-2">
+          <select
+            value={mes0}
+            onChange={(e) => setMes0(Number(e.target.value))}
+            className="rounded-lg border border-[hsl(var(--rd-dourado)/0.4)] bg-white px-3 py-2 text-sm text-[hsl(var(--rd-vinho))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--rd-dourado)/0.3)]"
+          >
+            {MESES.map((m, i) => (
+              <option key={i} value={i}>{m}</option>
+            ))}
+          </select>
+          <select
+            value={ano}
+            onChange={(e) => setAno(Number(e.target.value))}
+            className="rounded-lg border border-[hsl(var(--rd-dourado)/0.4)] bg-white px-3 py-2 text-sm text-[hsl(var(--rd-vinho))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--rd-dourado)/0.3)]"
+          >
+            {Array.from({ length: 5 }, (_, i) => hoje.getFullYear() - 2 + i).map((a) => (
+              <option key={a} value={a}>{a}</option>
+            ))}
+          </select>
+        </div>
+        <Button
+          size="icon"
+          variant="outline"
+          onClick={irProximo}
+          disabled={!podeAvancar}
+          className="border-[hsl(var(--rd-dourado)/0.4)] text-[hsl(var(--rd-vinho))] hover:bg-[hsl(var(--rd-dourado)/0.1)] disabled:opacity-40"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

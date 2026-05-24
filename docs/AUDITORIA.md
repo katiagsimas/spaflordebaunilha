@@ -1,6 +1,17 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-07T19:41:00Z — Proteção baixa estoque, DnD calendário, eventos recorrentes
+> Última atualização: 2026-05-24T14:00:00Z — Período visível em Retiradas + seletor de mês
+
+---
+
+## MÓDULO MEU SALÁRIO — 2026-05-24 14:00 UTC (Retiradas: período visível + seletor)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 94 | Indicação do período exibido | ✅ | Adicionado rótulo "Exibindo retiradas de {período}" abaixo do subtítulo em Retiradas.tsx. Mostra nome dos meses e ano, com badge "mês atual + anterior" quando aplicável. |
+| 95 | Seletor de mês/ano | ✅ | Controles com setas anterior/próximo + selects de mês e ano. Futuro bloqueado. Ao selecionar mês atual, mantém comportamento original (mês anterior + atual). Ao selecionar mês passado, mostra apenas aquele mês. |
+
+---
 
 ---
 
