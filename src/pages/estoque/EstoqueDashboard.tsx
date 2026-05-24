@@ -53,7 +53,7 @@ export default function EstoqueDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium font-body">Itens Cadastrados</CardTitle>
-            <Package className="h-4 w-4 text-cda-pistache" />
+            <Package className="h-4 w-4 text-cda-creme" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-body">{itens.length}</div>
@@ -163,7 +163,7 @@ export default function EstoqueDashboard() {
                             <AlertTriangle className="h-3 w-3" /> Baixo
                           </Badge>
                         ) : (
-                          <Badge className="bg-cda-pistache text-cda-preto font-body text-xs">OK</Badge>
+                          <Badge className="bg-cda-vinho text-cda-preto font-body text-xs">OK</Badge>
                         )}
                       </TableCell>
                     </TableRow>

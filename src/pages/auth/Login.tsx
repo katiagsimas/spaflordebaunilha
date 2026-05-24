@@ -108,7 +108,7 @@ export default function Login() {
             <div className="text-center space-y-3">
               <div className="flex items-center justify-center gap-3">
                 <img src={caixaAcucarIcon} alt="Caixa de Açúcar" className="h-20 w-20" />
-                <h1 className="text-3xl font-display font-bold text-cda-cloud tracking-tight">
+                <h1 className="text-3xl font-display font-bold text-cda-creme tracking-tight">
                   Caixa de Açúcar
                 </h1>
               </div>
@@ -118,7 +118,7 @@ export default function Login() {
             </div>
 
             {/* Login card */}
-            <Card className="bg-cda-cloud border-0 shadow-elevated rounded-2xl">
+            <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">
               <CardHeader className="pb-2 pt-8">
                 <h2 className="text-xl font-display font-semibold text-cda-preto text-center">
                   Bem-vinda de volta
@@ -202,7 +202,7 @@ export default function Login() {
               </form>
             </Card>
 
-            <p className="text-center text-xs font-body text-cda-cloud/40">
+            <p className="text-center text-xs font-body text-cda-creme/40">
               Sistema de gestão para confeitarias
             </p>
           </div>

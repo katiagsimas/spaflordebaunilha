@@ -250,7 +250,7 @@ export function CalendariosEncomendas() {
         {renderCalendario(
           dadosAtual,
           mesAtual,
-          "border-cda-pistache/30 bg-cda-pistache/10 dark:bg-cda-pistache/5",
+          "border-cda-dourado/30 bg-cda-vinho/10 dark:bg-cda-vinho/5",
           { hoje: "text-green-700", amanha: "bg-orange-200", comum: "bg-green-200" },
           "atual",
         )}
