@@ -1,6 +1,14 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-24T14:30:00Z — formatBRL movido para lib/formatUtils.ts
+> Última atualização: 2026-05-24T15:00:00Z — useReceitas refatorado para 4 queries (N+1 eliminado)
+
+---
+
+## REFATORAÇÃO PRECIFICAÇÃO — 2026-05-24 15:00 UTC (useReceitas: N+1 → 4 queries)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 100 | Eliminar N+1 em useReceitas | ✅ | `fetchReceitas` agora executa 1 query para receitas + 1 Promise.all com 4 queries usando `.in("receita_id", receitasIds)` para ingredientes, embalagens, despesas e imagens. Map interno trocado por map síncrono que filtra arrays em memória. Antes: até 1 + 4N queries (≈80 para 20 receitas); agora: 5 queries totais. Resultado idêntico. |
 
 ---
 
