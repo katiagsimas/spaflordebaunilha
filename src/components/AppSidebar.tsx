@@ -159,7 +159,7 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground/50 text-[10px] uppercase tracking-widest font-body">
+          <SidebarGroupLabel className="text-[#FFF9F5]/50 text-[10px] uppercase tracking-widest font-body">
             Menu Principal
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -176,7 +176,7 @@ export function AppSidebar() {
                         className={({ isActive }) =>
                           `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                             isActive && !bloqueado
-                              ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+                              ? "bg-cda-dourado/20 border-l-2 border-cda-dourado text-cda-dourado font-semibold"
                               : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
                           } ${bloqueado ? "opacity-40 cursor-not-allowed" : ""}`
                         }
@@ -191,7 +191,7 @@ export function AppSidebar() {
                               <>
                                 <span className="flex-1">{item.title}</span>
                                 {bloqueado && (
-                                  <Lock className="h-3.5 w-3.5 text-sidebar-foreground/50" />
+                                  <Lock className="h-3.5 w-3.5 text-[#FFF9F5]/40" />
                                 )}
                                 {item.title === "Minhas Encomendas" && temEncomendasHoje && !bloqueado && (
                                   <Badge className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-body font-bold animate-pulse ml-1">
@@ -221,7 +221,7 @@ export function AppSidebar() {
 
         {/* Seção Em Breve */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground/50 text-[10px] uppercase tracking-widest font-body">
+          <SidebarGroupLabel className="text-[#FFF9F5]/50 text-[10px] uppercase tracking-widest font-body">
             Em Breve
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -239,7 +239,7 @@ export function AppSidebar() {
                           className={({ isActive }) =>
                             `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                               isActive
-                                ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+                                ? "bg-cda-dourado/20 border-l-2 border-cda-dourado text-cda-dourado font-semibold"
                                 : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
                             }`
                           }
@@ -271,7 +271,7 @@ export function AppSidebar() {
                         {open && (
                           <>
                             <span className="flex-1">{item.title}</span>
-                            <Lock className="h-3.5 w-3.5 text-sidebar-foreground/40" />
+                            <Lock className="h-3.5 w-3.5 text-[#FFF9F5]/40" />
                           </>
                         )}
                       </NavLink>
@@ -288,7 +288,7 @@ export function AppSidebar() {
 
         {/* Seção Sistema */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground/50 text-[10px] uppercase tracking-widest font-body">
+          <SidebarGroupLabel className="text-[#FFF9F5]/50 text-[10px] uppercase tracking-widest font-body">
             Sistema
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -304,7 +304,7 @@ export function AppSidebar() {
                         className={({ isActive }) =>
                           `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                             isActive
-                              ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+                              ? "bg-cda-dourado/20 border-l-2 border-cda-dourado text-cda-dourado font-semibold"
                               : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
                           }`
                         }
@@ -329,7 +329,7 @@ export function AppSidebar() {
                         className={({ isActive }) =>
                           `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                             isActive
-                              ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+                              ? "bg-cda-dourado/20 border-l-2 border-cda-dourado text-cda-dourado font-semibold"
                               : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
                           }`
                         }
@@ -350,7 +350,7 @@ export function AppSidebar() {
                         className={({ isActive }) =>
                           `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                             isActive
-                              ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+                              ? "bg-cda-dourado/20 border-l-2 border-cda-dourado text-cda-dourado font-semibold"
                               : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
                           }`
                         }
@@ -373,7 +373,7 @@ export function AppSidebar() {
         {/* Seção MOTHER - Governança do Sistema */}
         {isMother && (
           <SidebarGroup>
-            <SidebarGroupLabel className="flex items-center gap-2 text-sidebar-foreground/50 text-[10px] uppercase tracking-widest font-body">
+            <SidebarGroupLabel className="flex items-center gap-2 text-[#FFF9F5]/50 text-[10px] uppercase tracking-widest font-body">
               <Crown className="h-3 w-3 text-cda-dourado" />
               Governança
             </SidebarGroupLabel>
@@ -385,9 +385,9 @@ export function AppSidebar() {
                       to="/admin/governanca"
                       className={({ isActive }) =>
                         `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
-                          isActive
-                            ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
-                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
+                            isActive
+                              ? "bg-cda-dourado/20 border-l-2 border-cda-dourado text-cda-dourado font-semibold"
+                              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
                         }`
                       }
                     >
@@ -464,7 +464,7 @@ export function AppSidebar() {
               onClick={handleLogout}
               variant="ghost"
               size="sm"
-              className="w-full bg-cda-creme text-sidebar-foreground hover:text-sidebar-foreground hover:bg-cda-creme/80 border border-cda-dourado font-body"
+              className="w-full text-[#FFF9F5]/70 hover:text-cda-coral font-body"
             >
               <LogOut className="h-4 w-4 mr-2" />
               Sair
