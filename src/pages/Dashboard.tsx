@@ -997,17 +997,17 @@ export default function Dashboard() {
       <div className="grid gap-2 grid-cols-2 md:grid-cols-5">
         {/* Saldo Atual (destaque, canto esquerdo) */}
         <Card
-          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-primary group bg-primary/5"
+          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-primary group bg-white"
           onClick={() => navigate("/financeiro/dashboard")}
         >
           <CardHeader className="p-2.5">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 shrink-0 rounded-md bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <DollarSign className="h-3.5 w-3.5 text-primary" />
+              <div className="w-7 h-7 shrink-0 rounded-md bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <DollarSign className="h-3.5 w-3.5 text-[#C9A14A]/60" />
               </div>
               <div className="min-w-0">
                 <CardTitle className="text-[11px] leading-tight mb-0.5">Saldo Atual</CardTitle>
-                <p className={`text-sm font-bold leading-tight truncate ${financeiro.saldoAtual >= 0 ? "text-primary" : "text-red-600"}`}>
+                <p className={`text-sm font-bold leading-tight truncate ${financeiro.saldoAtual >= 0 ? "text-foreground" : "text-red-600"}`}>
                   R$ {financeiro.saldoAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
               </div>
