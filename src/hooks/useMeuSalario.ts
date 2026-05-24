@@ -3,12 +3,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGroup } from "@/contexts/GroupContext";
 import { toast } from "sonner";
+import {
+  getFirstDayOfMonth,
+  getLastDayOfMonth,
+  formatarMesReferencia,
+} from "@/lib/dateUtils";
 
 export const MARGEM_SEGURANCA = 0.20;
 
 export interface ResumoMes {
   mesReferencia: string; // YYYY-MM
-  rotuloMes: string; // "abril/2026"
+  rotuloMes: string; // "abril de 2026"
   faturamento: number;
   custos: number;
   margemSeguranca: number;
@@ -31,23 +36,24 @@ export interface Retirada {
   updated_at: string;
 }
 
+/**
+ * Constrói o intervalo [inicio, fim] do mês usando exclusivamente utilitários
+ * de src/lib/dateUtils.ts — evita bugs de fuso horário do construtor `new Date(y, m, d)`.
+ */
 function intervaloMes(year: number, month0: number) {
-  const inicio = new Date(year, month0, 1);
-  const fim = new Date(year, month0 + 1, 0);
-  const fmt = (d: Date) =>
-    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
-      d.getDate()
-    ).padStart(2, "0")}`;
-  return { inicio: fmt(inicio), fim: fmt(fim) };
+  // Âncora ISO YYYY-MM-DD no primeiro dia do mês (sem horário, sem TZ).
+  const ancora = `${year}-${String(month0 + 1).padStart(2, "0")}-01`;
+  return {
+    inicio: getFirstDayOfMonth(ancora),
+    fim: getLastDayOfMonth(ancora),
+  };
 }
 
 function rotuloMes(year: number, month0: number) {
-  const meses = [
-    "janeiro", "fevereiro", "março", "abril", "maio", "junho",
-    "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
-  ];
-  return `${meses[month0]} de ${year}`;
+  const refIso = `${year}-${String(month0 + 1).padStart(2, "0")}-01`;
+  return formatarMesReferencia(refIso);
 }
+
 
 function classificarCenario(saldo: number, proLabore: number): ResumoMes["cenario"] {
   if (proLabore <= 0) return saldo < 0 ? "acima" : "equilibrio";
