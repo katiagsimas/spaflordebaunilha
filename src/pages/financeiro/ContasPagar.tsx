@@ -375,12 +375,30 @@ export default function ContasPagar() {
     }
 
     // Filtros de data
-    if (dataEmissaoInicio && p.data_emissao < dataEmissaoInicio) return false;
-    if (dataEmissaoFim && p.data_emissao > dataEmissaoFim) return false;
-    if (dataPagamentoInicio && (!p.data_pagamento || p.data_pagamento < dataPagamentoInicio)) return false;
-    if (dataPagamentoFim && (!p.data_pagamento || p.data_pagamento > dataPagamentoFim)) return false;
-    if (dataVencimentoInicio && p.data_vencimento < dataVencimentoInicio) return false;
-    if (dataVencimentoFim && p.data_vencimento > dataVencimentoFim) return false;
+    if (dataEmissaoInicio && p.data_emissao) {
+      const dataEmissao = new Date(p.data_emissao + 'T00:00:00');
+      if (dataEmissao < dataEmissaoInicio) return false;
+    }
+    if (dataEmissaoFim && p.data_emissao) {
+      const dataEmissao = new Date(p.data_emissao + 'T00:00:00');
+      if (dataEmissao > dataEmissaoFim) return false;
+    }
+    if (dataPagamentoInicio && p.data_pagamento) {
+      const dataPagamento = new Date(p.data_pagamento + 'T00:00:00');
+      if (dataPagamento < dataPagamentoInicio) return false;
+    }
+    if (dataPagamentoFim && p.data_pagamento) {
+      const dataPagamento = new Date(p.data_pagamento + 'T00:00:00');
+      if (dataPagamento > dataPagamentoFim) return false;
+    }
+    if (dataVencimentoInicio && p.data_vencimento) {
+      const dataVencimento = new Date(p.data_vencimento + 'T00:00:00');
+      if (dataVencimento < dataVencimentoInicio) return false;
+    }
+    if (dataVencimentoFim && p.data_vencimento) {
+      const dataVencimento = new Date(p.data_vencimento + 'T00:00:00');
+      if (dataVencimento > dataVencimentoFim) return false;
+    }
 
     // Filtros avançados
     if (fornecedorFiltro !== 'todos' && p.conta?.fornecedor_id !== fornecedorFiltro) return false;
