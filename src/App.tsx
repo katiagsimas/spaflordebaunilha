@@ -173,6 +173,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <PlanExpirationWatcher />
           <Routes>
             {/* Auth routes */}
             <Route path="/auth/login" element={<AuthLogin />} />
