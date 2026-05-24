@@ -1,9 +1,20 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useResumoMesAnterior, useRetiradas, useExcluirRetirada, formatBRL } from "@/hooks/useMeuSalario";
 import { RetiradaForm } from "@/components/meu-salario/RetiradaForm";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Trash2 } from "lucide-react";
 import { formatDateBR, getTodayISO, getFirstDayOfMonth, getLastDayOfMonth } from "@/lib/dateUtils";
+import type { Retirada } from "@/hooks/useMeuSalario";
 
 export function Retiradas() {
   const { data: resumo } = useResumoMesAnterior();
