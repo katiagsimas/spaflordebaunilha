@@ -1,5 +1,5 @@
 import React from "react";
-import { Package, UserCircle, Tag, Tags, Archive } from "lucide-react";
+import { UserCircle, Tags } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
