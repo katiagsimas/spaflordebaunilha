@@ -157,7 +157,6 @@ export default function ReceitaForm() {
   useEffect(() => {
     const fetchDados = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
         // Buscar ingredientes normais
@@ -847,7 +846,6 @@ export default function ReceitaForm() {
     }
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Não autenticado');
 
       // Para "Produto para Combo", salvar custo sem embalagens (ingredientes + fixos)
@@ -2070,7 +2068,6 @@ export default function ReceitaForm() {
                   return;
                 }
 
-                const { data: { user } } = await supabase.auth.getUser();
                 if (!user) throw new Error('Não autenticado');
 
                 const { data, error } = await supabase
@@ -2191,7 +2188,6 @@ export default function ReceitaForm() {
                   return;
                 }
 
-                const { data: { user } } = await supabase.auth.getUser();
                 if (!user) throw new Error('Não autenticado');
 
                 const { data, error } = await supabase
@@ -2293,7 +2289,6 @@ export default function ReceitaForm() {
                   return;
                 }
 
-                const { data: { user } } = await supabase.auth.getUser();
                 if (!user) throw new Error('Não autenticado');
 
                 const { data, error } = await supabase
@@ -2415,7 +2410,6 @@ export default function ReceitaForm() {
                   return;
                 }
 
-                const { data: { user } } = await supabase.auth.getUser();
                 if (!user) throw new Error('Não autenticado');
 
                 const { data, error } = await supabase
