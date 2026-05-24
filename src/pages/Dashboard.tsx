@@ -230,6 +230,28 @@ export default function Dashboard() {
     }
   }
 
+  async function carregarAniversariantes() {
+    if (!user) return;
+    const mesAtual = new Date().getMonth() + 1;
+    const { data } = await supabase
+      .from('clientes')
+      .select('id, nome, data_aniversario, telefone')
+      .eq('usuario_id', user.id)
+      .not('data_aniversario', 'is', null);
+
+    const aniversariantesDoMes = (data || []).filter((c: any) => {
+      if (!c.data_aniversario) return false;
+      const mes = parseInt(c.data_aniversario.split('-')[1]);
+      return mes === mesAtual;
+    }).sort((a: any, b: any) => {
+      const diaA = parseInt(a.data_aniversario.split('-')[2]);
+      const diaB = parseInt(b.data_aniversario.split('-')[2]);
+      return diaA - diaB;
+    });
+
+    setAniversariantes(aniversariantesDoMes);
+  }
+
   async function carregarContadoresEGraficos() {
     if (!user) return;
 
