@@ -1381,9 +1381,9 @@ export default function Dashboard() {
                     }
                   />
                   <Legend />
-                  <Line type="monotone" dataKey="receitas" stroke="#10b981" name="Receitas" strokeWidth={2} />
-                  <Line type="monotone" dataKey="custos" stroke="#ef4444" name="Custos" strokeWidth={2} />
-                  <Line type="monotone" dataKey="lucro" stroke="#8b5cf6" name="Lucro" strokeWidth={2} />
+                  <Line type="monotone" dataKey="receitas" stroke="#C9A14A" name="Receitas" strokeWidth={2} />
+                  <Line type="monotone" dataKey="custos" stroke="#F28C82" name="Custos" strokeWidth={2} />
+                  <Line type="monotone" dataKey="lucro" stroke="#5B1A2B" name="Lucro" strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
