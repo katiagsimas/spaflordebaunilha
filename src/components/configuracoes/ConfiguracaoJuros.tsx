@@ -21,6 +21,7 @@ export default function ConfiguracaoJuros() {
   const [percentualJuros, setPercentualJuros] = useState('1,00');
   const [multaAtraso, setMultaAtraso] = useState(false);
   const [percentualMulta, setPercentualMulta] = useState('2,00');
+  const [aliquotaSimples, setAliquotaSimples] = useState('');
   const [observacao, setObservacao] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -49,6 +50,8 @@ export default function ConfiguracaoJuros() {
         setPercentualJuros(data.percentual_juros.toString().replace('.', ','));
         setMultaAtraso(data.multa_atraso);
         setPercentualMulta(data.percentual_multa.toString().replace('.', ','));
+        const aliq = (data as any).aliquota_simples_nacional;
+        setAliquotaSimples(aliq != null ? String(aliq).replace('.', ',') : '');
         setObservacao(data.observacao || '');
       }
     } catch (error: any) {
@@ -94,13 +97,28 @@ export default function ConfiguracaoJuros() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Não autenticado');
 
-      const dados = {
+      let aliquotaParsed: number | null = null;
+      if (aliquotaSimples.trim() !== '') {
+        const a = parseFloat(aliquotaSimples.replace(',', '.'));
+        if (Number.isNaN(a) || a < 0 || a > 100) {
+          toast({
+            title: 'Erro de validação',
+            description: 'Informe uma alíquota válida entre 0 e 100.',
+            variant: 'destructive',
+          });
+          return;
+        }
+        aliquotaParsed = a;
+      }
+
+      const dados: any = {
         usuario_id: user.id,
         cobrar_juros: cobrarJuros,
         tipo_juros: tipoJuros,
         percentual_juros: parseFloat(percentualJuros.replace(',', '.')),
         multa_atraso: multaAtraso,
         percentual_multa: parseFloat(percentualMulta.replace(',', '.')),
+        aliquota_simples_nacional: aliquotaParsed,
         observacao: observacao.trim() || null,
       };
 
@@ -306,6 +324,29 @@ export default function ConfiguracaoJuros() {
             </AlertDescription>
           </Alert>
         )}
+
+        {/* Alíquota Simples Nacional */}
+        <div className="space-y-2 pt-4 border-t">
+          <Label htmlFor="aliquota-simples" className="text-base font-medium">
+            Alíquota efetiva do Simples Nacional (%)
+          </Label>
+          <div className="flex gap-2">
+            <Input
+              id="aliquota-simples"
+              placeholder="Ex: 6,00"
+              value={aliquotaSimples}
+              onChange={(e) => {
+                const valor = e.target.value.replace(/[^\d,]/g, '');
+                setAliquotaSimples(valor);
+              }}
+              className="max-w-xs"
+            />
+            <span className="flex items-center text-muted-foreground">%</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Usada para calcular o Imposto de Renda e CSLL no DRE (alíquota × LAIR). Deixe em branco caso não esteja enquadrado.
+          </p>
+        </div>
 
         {/* Observações */}
         <div className="space-y-2">

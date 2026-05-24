@@ -495,3 +495,10 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 - **`src/hooks/useResumoDashboard.ts`:** novo hook que centraliza as três queries e o estado (`resumo`, `inadimplenciaClientes`, `inadimplenciaFornecedores`, `loading`). Telefones de clientes são buscados em lote com `.in(clienteIds)` (correção do item #A1 aplicada para ambas as rotas). Fornecedores carregados via inner join único.
 - **`src/components/financeiro/TabelaInadimplencia.tsx`:** novo componente reutilizável com props `{ tipo: 'clientes' | 'fornecedores', itens }`. Gerencia internamente paginação TOP 10 / "Ver todos".
 - **`src/pages/financeiro/Financeiro.tsx` e `src/pages/financeiro/DashboardFinanceiro.tsx`:** removidas as funções e estados duplicados; passam a consumir o hook e o componente. Visual unificado seguindo o padrão mais rico do `Financeiro.tsx` (border-l-4 + ícone com badge colorido).
+
+## ✅ DRE: Imposto de Renda calculado via alíquota Simples Nacional configurável — 2026-05-24
+
+- **Problema:** `DRE.tsx` exibia `(-) Imposto de Renda e CSLL` sempre como zero (`linhas.impostoRenda[mes] = 0` hardcoded), fazendo LAIR e Lucro Líquido serem sempre idênticos.
+- **Migração:** `ALTER TABLE public.configuracoes_juros ADD COLUMN aliquota_simples_nacional numeric NULL;` — campo opcional por usuário.
+- **`src/components/configuracoes/ConfiguracaoJuros.tsx`:** novo input "Alíquota efetiva do Simples Nacional (%)" com validação 0–100. Persistido em `configuracoes_juros.aliquota_simples_nacional`.
+- **`src/pages/financeiro/DRE.tsx`:** `carregarDRE` busca a alíquota e calcula `impostoRenda[mes] = LAIR × alíquota / 100` quando LAIR > 0. `lucroLiquido = LAIR − impostoRenda`. Quando a alíquota não está configurada, a linha exibe `—` em todos os meses e total, com nota abaixo da tabela orientando o usuário a ir em Configurações. O rótulo da linha mostra a alíquota vigente entre parênteses quando configurada.

@@ -85,6 +85,7 @@ export default function DRE() {
     return !isNaN(parsed) && parsed >= 2000 && parsed <= 2100 ? parsed : new Date().getFullYear();
   });
   const [dados, setDados] = useState<LinhasDRE | null>(null);
+  const [aliquotaSimples, setAliquotaSimples] = useState<number | null>(null);
   
   const [mesSelecionado, setMesSelecionado] = useState(new Date().getMonth());
   const [anoMensal, setAnoMensal] = useState(new Date().getFullYear());
@@ -103,6 +104,16 @@ export default function DRE() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+
+      // Buscar alíquota efetiva do Simples Nacional configurada
+      const { data: configJuros } = await supabase
+        .from('configuracoes_juros')
+        .select('aliquota_simples_nacional')
+        .eq('usuario_id', user.id)
+        .maybeSingle();
+      const aliquota = (configJuros as any)?.aliquota_simples_nacional;
+      const aliquotaNum = aliquota != null ? Number(aliquota) : null;
+      setAliquotaSimples(aliquotaNum);
 
       const linhas: LinhasDRE = {
         receitaBruta: Array(12).fill(0),
@@ -290,7 +301,12 @@ export default function DRE() {
         linhas.lair[mes] = linhas.resultadoOperacional[mes] + linhas.receitasFinanceiras[mes] -
                            linhas.despesasFinanceiras[mes] + linhas.resultadoNaoOperacional[mes];
 
-        linhas.impostoRenda[mes] = 0;
+        // Imposto de Renda/CSLL = alíquota efetiva do Simples Nacional × LAIR (apenas quando LAIR > 0)
+        if (aliquotaNum != null && linhas.lair[mes] > 0) {
+          linhas.impostoRenda[mes] = linhas.lair[mes] * (aliquotaNum / 100);
+        } else {
+          linhas.impostoRenda[mes] = 0;
+        }
         linhas.lucroLiquido[mes] = linhas.lair[mes] - linhas.impostoRenda[mes];
 
         linhas.margemLiquidaPerc[mes] = linhas.receitaBruta[mes] !== 0
@@ -778,12 +794,14 @@ export default function DRE() {
 
                 {/* IMPOSTO */}
                 <TableRow>
-                  <TableCell>(-) Imposto de Renda e CSLL</TableCell>
+                  <TableCell>(-) Imposto de Renda e CSLL{aliquotaSimples == null ? ' *' : ` (${aliquotaSimples.toString().replace('.', ',')}%)`}</TableCell>
                   {dados.impostoRenda.map((val, i) => (
-                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                    <TableCell key={i} className="text-right">
+                      {aliquotaSimples == null ? '—' : (val > 0 ? val.toFixed(2) : '-')}
+                    </TableCell>
                   ))}
-                  <TableCell className="text-right">{calcularTotal(dados.impostoRenda).toFixed(2)}</TableCell>
-                  <TableCell className="text-right">{calcularAV(calcularTotal(dados.impostoRenda), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                  <TableCell className="text-right">{aliquotaSimples == null ? '—' : calcularTotal(dados.impostoRenda).toFixed(2)}</TableCell>
+                  <TableCell className="text-right">{aliquotaSimples == null ? '—' : calcularAV(calcularTotal(dados.impostoRenda), receitaBrutaTotal).toFixed(0) + '%'}</TableCell>
                 </TableRow>
 
                 {/* LUCRO LÍQUIDO */}
@@ -816,6 +834,19 @@ export default function DRE() {
               </TableBody>
             </Table>
           </div>
+          {aliquotaSimples == null && (
+            <p className="mt-3 text-sm text-muted-foreground">
+              * Alíquota do Simples Nacional não configurada. Acesse{' '}
+              <button
+                type="button"
+                onClick={() => navigate('/configuracoes')}
+                className="underline text-primary hover:opacity-80"
+              >
+                Configurações
+              </button>{' '}
+              para informar.
+            </p>
+          )}
         </CardContent>
       </Card>
 
