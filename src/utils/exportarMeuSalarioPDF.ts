@@ -1,5 +1,6 @@
 import jsPDF from "jspdf";
-import { ResumoMes, formatBRL } from "@/hooks/useMeuSalario";
+import { ResumoMes } from "@/hooks/useMeuSalario";
+import { formatBRL } from "@/lib/formatUtils";
 import { CENARIOS, FRASES_RENDA_DOCE } from "@/pages/meu-salario/copy";
 
 export function exportarMeuSalarioPDF(resumo: ResumoMes) {

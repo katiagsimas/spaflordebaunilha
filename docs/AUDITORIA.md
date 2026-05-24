@@ -1,6 +1,19 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-24T14:00:00Z — Período visível em Retiradas + seletor de mês
+> Última atualização: 2026-05-24T14:30:00Z — formatBRL movido para lib/formatUtils.ts
+
+---
+
+## REFATORAÇÃO MEU SALÁRIO — 2026-05-24 14:30 UTC (formatBRL → src/lib/formatUtils.ts)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 96 | Criar src/lib/formatUtils.ts | ✅ | Função `formatBRL` movida de useMeuSalario.ts para novo arquivo src/lib/formatUtils.ts |
+| 97 | Remover formatBRL de useMeuSalario.ts | ✅ | Export removido do hook — sem mais mistura de formatação com lógica de dados |
+| 98 | Atualizar todos os imports | ✅ | 7 arquivos atualizados: Retiradas.tsx, CardResumoMes.tsx, HistoricoMensal.tsx, CenarioResultado.tsx, FechamentoMes.tsx, exportarMeuSalarioPDF.ts |
+| 99 | Unificação com funções equivalentes | ⚠️ N/A | Outros módulos (PDFs de pedido/receita/pré-preparo, ProjeçãoVendas, PrevisaoFaturamento) usam inline `toLocaleString` — não há função exportada equivalente para unificar; permanecem como estão por estarem em contextos isolados (PDFs inline) |
+
+---
 
 ---
 

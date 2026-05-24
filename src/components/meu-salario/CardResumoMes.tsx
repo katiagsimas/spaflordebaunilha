@@ -1,4 +1,5 @@
-import { ResumoMes, formatBRL } from "@/hooks/useMeuSalario";
+import { ResumoMes } from "@/hooks/useMeuSalario";
+import { formatBRL } from "@/lib/formatUtils";
 import { TrendingUp, Wallet, Shield, Sparkles } from "lucide-react";
 
 interface Props {

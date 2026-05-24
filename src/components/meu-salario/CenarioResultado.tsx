@@ -1,4 +1,5 @@
-import { ResumoMes, formatBRL } from "@/hooks/useMeuSalario";
+import { ResumoMes } from "@/hooks/useMeuSalario";
+import { formatBRL } from "@/lib/formatUtils";
 import { CENARIOS } from "@/pages/meu-salario/copy";
 import { Heart, CheckCircle2, AlertCircle } from "lucide-react";
 
