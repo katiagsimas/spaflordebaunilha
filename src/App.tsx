@@ -139,7 +139,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             </div>
           )}
           
-          <header className="sticky top-0 z-10 h-14 border-b shadow-sm" style={{ backgroundColor: '#BFCFB8' }}>
+          <header className="sticky top-0 z-10 h-14 border-b border-cda-dourado/30 shadow-sm bg-cda-vinho text-cda-creme">
             <div className="flex h-full items-center justify-between px-4">
               <div className="flex items-center gap-3">
                 <SidebarTrigger className="hover:bg-accent/50 transition-colors" />
