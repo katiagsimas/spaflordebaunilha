@@ -116,7 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         message = 'Email ou senha incorretos.';
       } else if (error.message?.includes('Email not confirmed')) {
         message = 'Por favor, confirme seu email antes de fazer login.';
-      } else if (error.message?.includes('desabilitada')) {
+      } else if (error.message?.includes('desabilitada') || error.message?.includes('expirou')) {
         message = error.message;
       }
 
