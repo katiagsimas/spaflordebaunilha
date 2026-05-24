@@ -203,9 +203,9 @@ export default function DRE() {
       const pagamentosReceber = (pagamentosReceberRes.data as any[]) || [];
       const pagamentosPagar = (pagamentosPagarRes.data as any[]) || [];
 
-      // Acumuladores por mês: granular (código) + faixa_dre
-      const planosReceitaMes: Array<Record<string, number>> = Array.from({ length: 12 }, () => ({}));
-      const planosDespesaMes: Array<Record<string, number>> = Array.from({ length: 12 }, () => ({}));
+      // Acumuladores por mês: granular (subfaixa_dre) + faixa_dre
+      const subfaixasReceberMes: Array<Record<string, number>> = Array.from({ length: 12 }, () => ({}));
+      const subfaixasPagarMes: Array<Record<string, number>> = Array.from({ length: 12 }, () => ({}));
       const faixasReceberMes: Array<Record<string, number>> = Array.from({ length: 12 }, () => ({}));
       const faixasPagarMes: Array<Record<string, number>> = Array.from({ length: 12 }, () => ({}));
 
@@ -222,10 +222,10 @@ export default function DRE() {
         if (mes === null) return;
         const valor = (pag.valor_pago || 0) + (pag.juros || 0) - (pag.desconto || 0);
         const cat = pag?.contas_receber_parcelas?.contas_receber?.plano_contas?.categorias_plano_contas;
-        const codigo = cat?.codigo ?? null;
+        const subfaixa = cat?.subfaixa_dre ?? null;
         const faixa = cat?.faixa_dre ?? null;
-        if (codigo) {
-          planosReceitaMes[mes][codigo] = (planosReceitaMes[mes][codigo] || 0) + valor;
+        if (subfaixa) {
+          subfaixasReceberMes[mes][subfaixa] = (subfaixasReceberMes[mes][subfaixa] || 0) + valor;
         }
         if (faixa) {
           faixasReceberMes[mes][faixa] = (faixasReceberMes[mes][faixa] || 0) + valor;
@@ -238,10 +238,10 @@ export default function DRE() {
         if (mes === null) return;
         const valor = (pag.valor_pago || 0) + (pag.juros || 0) - (pag.desconto || 0);
         const cat = pag?.contas_pagar_parcelas?.contas_pagar?.plano_contas?.categorias_plano_contas;
-        const codigo = cat?.codigo ?? null;
+        const subfaixa = cat?.subfaixa_dre ?? null;
         const faixa = cat?.faixa_dre ?? null;
-        if (codigo) {
-          planosDespesaMes[mes][codigo] = (planosDespesaMes[mes][codigo] || 0) + valor;
+        if (subfaixa) {
+          subfaixasPagarMes[mes][subfaixa] = (subfaixasPagarMes[mes][subfaixa] || 0) + valor;
         }
         if (faixa) {
           faixasPagarMes[mes][faixa] = (faixasPagarMes[mes][faixa] || 0) + valor;
@@ -249,27 +249,27 @@ export default function DRE() {
       });
 
       for (let mes = 0; mes < 12; mes++) {
-        const planosReceita = planosReceitaMes[mes];
-        const planosDespesa = planosDespesaMes[mes];
+        const subReceber = subfaixasReceberMes[mes];
+        const subPagar = subfaixasPagarMes[mes];
         const faixasReceber = faixasReceberMes[mes];
         const faixasPagar = faixasPagarMes[mes];
 
-        // Linhas granulares (mantêm detalhamento por código quando disponível)
-        linhas.receitaVendas[mes] = planosReceita['1'] || 0;
-        linhas.receitasFinanceiras[mes] = planosReceita['106'] || 0;
-        linhas.receitasNaoOperacionais[mes] = planosReceita['9'] || 0;
+        // Linhas granulares (mapeadas via subfaixa_dre — sem códigos numéricos)
+        linhas.receitaVendas[mes] = subReceber['Receita com vendas'] || 0;
+        linhas.receitasFinanceiras[mes] = subReceber['Receitas financeiras'] || 0;
+        linhas.receitasNaoOperacionais[mes] = subReceber['Receitas não operacionais'] || 0;
 
-        linhas.impostosSobreVendas[mes] = planosDespesa['2'] || 0;
-        linhas.outrasDeducoes[mes] = planosDespesa['99'] || 0;
-        linhas.cmv[mes] = planosDespesa['3'] || 0;
-        linhas.despesasComerciais[mes] = planosDespesa['8'] || 0;
-        linhas.despesaOperacionalVariavel[mes] = planosDespesa['103'] || 0;
-        linhas.campanhasSazonais[mes] = planosDespesa['112'] || 0;
-        linhas.despesasPessoal[mes] = planosDespesa['5'] || 0;
-        linhas.despesasOcupacao[mes] = planosDespesa['6'] || 0;
-        linhas.despesasAdministrativas[mes] = planosDespesa['7'] || 0;
-        linhas.despesasFinanceiras[mes] = planosDespesa['107'] || 0;
-        linhas.gastosNaoOperacionais[mes] = planosDespesa['10'] || 0;
+        linhas.impostosSobreVendas[mes] = subPagar['Impostos sobre vendas'] || 0;
+        linhas.outrasDeducoes[mes] = subPagar['Outras deduções sobre vendas'] || 0;
+        linhas.cmv[mes] = subPagar['CMV'] || 0;
+        linhas.despesasComerciais[mes] = subPagar['Despesas comerciais'] || 0;
+        linhas.despesaOperacionalVariavel[mes] = subPagar['Despesa operacional variável'] || 0;
+        linhas.campanhasSazonais[mes] = subPagar['Campanhas sazonais'] || 0;
+        linhas.despesasPessoal[mes] = subPagar['Despesas com pessoal'] || 0;
+        linhas.despesasOcupacao[mes] = subPagar['Despesas com ocupação'] || 0;
+        linhas.despesasAdministrativas[mes] = subPagar['Despesas administrativas'] || 0;
+        linhas.despesasFinanceiras[mes] = subPagar['Despesas financeiras'] || 0;
+        linhas.gastosNaoOperacionais[mes] = subPagar['Gastos não operacionais'] || 0;
 
         // Totais via faixa_dre — inclui categorias customizadas
         linhas.receitaBruta[mes] = faixasReceber['Receitas'] || 0;
