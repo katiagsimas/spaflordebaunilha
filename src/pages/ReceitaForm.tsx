@@ -46,6 +46,8 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from "sonner";
 import { EmbalagemAutocomplete } from "@/components/EmbalagemAutocomplete";
+import { CriarIngredienteModal } from "@/components/CriarIngredienteModal";
+import { CriarEmbalagemModal } from "@/components/CriarEmbalagemModal";
 
 interface CustoFixo {
   id: string;
