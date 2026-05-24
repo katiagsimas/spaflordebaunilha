@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { DatePickerField } from '@/components/DatePickerField';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -95,12 +96,12 @@ export default function ContasPagar() {
 
   // Filtros avançados
   const [mostrarFiltrosAvancados, setMostrarFiltrosAvancados] = useState(false);
-  const [dataEmissaoInicio, setDataEmissaoInicio] = useState('');
-  const [dataEmissaoFim, setDataEmissaoFim] = useState('');
-  const [dataPagamentoInicio, setDataPagamentoInicio] = useState('');
-  const [dataPagamentoFim, setDataPagamentoFim] = useState('');
-  const [dataVencimentoInicio, setDataVencimentoInicio] = useState('');
-  const [dataVencimentoFim, setDataVencimentoFim] = useState('');
+  const [dataEmissaoInicio, setDataEmissaoInicio] = useState<Date | undefined>();
+  const [dataEmissaoFim, setDataEmissaoFim] = useState<Date | undefined>();
+  const [dataPagamentoInicio, setDataPagamentoInicio] = useState<Date | undefined>();
+  const [dataPagamentoFim, setDataPagamentoFim] = useState<Date | undefined>();
+  const [dataVencimentoInicio, setDataVencimentoInicio] = useState<Date | undefined>();
+  const [dataVencimentoFim, setDataVencimentoFim] = useState<Date | undefined>();
   const [fornecedorFiltro, setFornecedorFiltro] = useState('todos');
   const [planoContasFiltro, setPlanoContasFiltro] = useState('todos');
   const [categoriaFiltro, setCategoriaFiltro] = useState('todos');
@@ -374,12 +375,30 @@ export default function ContasPagar() {
     }
 
     // Filtros de data
-    if (dataEmissaoInicio && p.data_emissao < dataEmissaoInicio) return false;
-    if (dataEmissaoFim && p.data_emissao > dataEmissaoFim) return false;
-    if (dataPagamentoInicio && (!p.data_pagamento || p.data_pagamento < dataPagamentoInicio)) return false;
-    if (dataPagamentoFim && (!p.data_pagamento || p.data_pagamento > dataPagamentoFim)) return false;
-    if (dataVencimentoInicio && p.data_vencimento < dataVencimentoInicio) return false;
-    if (dataVencimentoFim && p.data_vencimento > dataVencimentoFim) return false;
+    if (dataEmissaoInicio && p.data_emissao) {
+      const dataEmissao = new Date(p.data_emissao + 'T00:00:00');
+      if (dataEmissao < dataEmissaoInicio) return false;
+    }
+    if (dataEmissaoFim && p.data_emissao) {
+      const dataEmissao = new Date(p.data_emissao + 'T00:00:00');
+      if (dataEmissao > dataEmissaoFim) return false;
+    }
+    if (dataPagamentoInicio && p.data_pagamento) {
+      const dataPagamento = new Date(p.data_pagamento + 'T00:00:00');
+      if (dataPagamento < dataPagamentoInicio) return false;
+    }
+    if (dataPagamentoFim && p.data_pagamento) {
+      const dataPagamento = new Date(p.data_pagamento + 'T00:00:00');
+      if (dataPagamento > dataPagamentoFim) return false;
+    }
+    if (dataVencimentoInicio && p.data_vencimento) {
+      const dataVencimento = new Date(p.data_vencimento + 'T00:00:00');
+      if (dataVencimento < dataVencimentoInicio) return false;
+    }
+    if (dataVencimentoFim && p.data_vencimento) {
+      const dataVencimento = new Date(p.data_vencimento + 'T00:00:00');
+      if (dataVencimento > dataVencimentoFim) return false;
+    }
 
     // Filtros avançados
     if (fornecedorFiltro !== 'todos' && p.conta?.fornecedor_id !== fornecedorFiltro) return false;
@@ -396,12 +415,12 @@ export default function ContasPagar() {
 
   const limparFiltros = () => {
     setFiltroStatus('aberto'); // Volta para "aberto" ao limpar filtros
-    setDataEmissaoInicio('');
-    setDataEmissaoFim('');
-    setDataPagamentoInicio('');
-    setDataPagamentoFim('');
-    setDataVencimentoInicio('');
-    setDataVencimentoFim('');
+    setDataEmissaoInicio(undefined);
+    setDataEmissaoFim(undefined);
+    setDataPagamentoInicio(undefined);
+    setDataPagamentoFim(undefined);
+    setDataVencimentoInicio(undefined);
+    setDataVencimentoFim(undefined);
     setFornecedorFiltro('todos');
     setPlanoContasFiltro('todos');
     setCategoriaFiltro('todos');
@@ -894,19 +913,17 @@ export default function ContasPagar() {
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground">Data de Emissão</Label>
           <div className="grid grid-cols-2 gap-2">
-            <Input
-              type="date"
+            <DatePickerField
               value={dataEmissaoInicio}
-              onChange={(e) => setDataEmissaoInicio(e.target.value)}
+              onChange={setDataEmissaoInicio}
               placeholder="Inicial"
-              className="text-xs"
+              className="flex-1"
             />
-            <Input
-              type="date"
+            <DatePickerField
               value={dataEmissaoFim}
-              onChange={(e) => setDataEmissaoFim(e.target.value)}
+              onChange={setDataEmissaoFim}
               placeholder="Final"
-              className="text-xs"
+              className="flex-1"
             />
           </div>
         </div>
@@ -915,19 +932,17 @@ export default function ContasPagar() {
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground">Data de Pagamento</Label>
           <div className="grid grid-cols-2 gap-2">
-            <Input
-              type="date"
+            <DatePickerField
               value={dataPagamentoInicio}
-              onChange={(e) => setDataPagamentoInicio(e.target.value)}
+              onChange={setDataPagamentoInicio}
               placeholder="Inicial"
-              className="text-xs"
+              className="flex-1"
             />
-            <Input
-              type="date"
+            <DatePickerField
               value={dataPagamentoFim}
-              onChange={(e) => setDataPagamentoFim(e.target.value)}
+              onChange={setDataPagamentoFim}
               placeholder="Final"
-              className="text-xs"
+              className="flex-1"
             />
           </div>
         </div>
@@ -936,19 +951,17 @@ export default function ContasPagar() {
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground">Data de Vencimento</Label>
           <div className="grid grid-cols-2 gap-2">
-            <Input
-              type="date"
+            <DatePickerField
               value={dataVencimentoInicio}
-              onChange={(e) => setDataVencimentoInicio(e.target.value)}
+              onChange={setDataVencimentoInicio}
               placeholder="Inicial"
-              className="text-xs"
+              className="flex-1"
             />
-            <Input
-              type="date"
+            <DatePickerField
               value={dataVencimentoFim}
-              onChange={(e) => setDataVencimentoFim(e.target.value)}
+              onChange={setDataVencimentoFim}
               placeholder="Final"
-              className="text-xs"
+              className="flex-1"
             />
           </div>
         </div>
