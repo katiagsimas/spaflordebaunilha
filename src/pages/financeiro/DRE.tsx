@@ -164,8 +164,8 @@ export default function DRE() {
                 usuario_id,
                 plano_contas!plano_conta_id (
                   categorias_plano_contas (
-                    codigo,
-                    faixa_dre
+                    faixa_dre,
+                    subfaixa_dre
                   )
                 )
               )
@@ -187,8 +187,8 @@ export default function DRE() {
                 usuario_id,
                 plano_contas!plano_contas_id (
                   categorias_plano_contas (
-                    codigo,
-                    faixa_dre
+                    faixa_dre,
+                    subfaixa_dre
                   )
                 )
               )
