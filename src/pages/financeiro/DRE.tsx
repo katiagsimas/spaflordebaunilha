@@ -922,9 +922,9 @@ export default function DRE() {
                     formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
                   />
                   <Legend />
-                  <Bar dataKey="receitas" fill="#10b981" name="Receitas" />
-                  <Bar dataKey="custos" fill="#ef4444" name="Custos" />
-                  <Bar dataKey="lucro" fill="#3b82f6" name="Lucro" />
+                  <Bar dataKey="receitas" fill="hsl(var(--success))" name="Receitas" />
+                  <Bar dataKey="custos" fill="hsl(var(--error))" name="Custos" />
+                  <Bar dataKey="lucro" fill="hsl(var(--accent))" name="Lucro" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
