@@ -1489,6 +1489,47 @@ export type Database = {
           },
         ]
       }
+      fechamento_logs: {
+        Row: {
+          acao: string
+          created_at: string
+          fechamento_id: string
+          id: string
+          motivo: string | null
+          owner_group_id: string
+          snapshot: Json | null
+          usuario_id: string | null
+        }
+        Insert: {
+          acao: string
+          created_at?: string
+          fechamento_id: string
+          id?: string
+          motivo?: string | null
+          owner_group_id: string
+          snapshot?: Json | null
+          usuario_id?: string | null
+        }
+        Update: {
+          acao?: string
+          created_at?: string
+          fechamento_id?: string
+          id?: string
+          motivo?: string | null
+          owner_group_id?: string
+          snapshot?: Json | null
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fechamento_logs_fechamento_id_fkey"
+            columns: ["fechamento_id"]
+            isOneToOne: false
+            referencedRelation: "fechamentos_mensais"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fechamentos_mensais: {
         Row: {
           created_at: string
