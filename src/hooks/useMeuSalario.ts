@@ -160,12 +160,13 @@ export function useHistoricoMeuSalario(meses = 6) {
     queryKey: ["meu-salario-historico", activeGroupId, meses],
     queryFn: async () => {
       const hoje = new Date();
-      const resumos: ResumoMes[] = [];
-      // Começa no mês anterior e volta `meses` meses
+      // Dispara todos os cálculos em paralelo
+      const promessas = [];
       for (let i = 1; i <= meses; i++) {
         const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
-        resumos.push(await calcularResumo(activeGroupId!, d.getFullYear(), d.getMonth()));
+        promessas.push(calcularResumo(activeGroupId!, d.getFullYear(), d.getMonth()));
       }
+      const resumos = await Promise.all(promessas);
       return resumos.reverse();
     },
     enabled: !!activeGroupId,
