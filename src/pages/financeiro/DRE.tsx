@@ -293,7 +293,25 @@ export default function DRE() {
           : 0;
       }
 
+      // Sobrescrever meses com fechamento status='fechado' usando o snapshot gravado
+      // (garante integridade histórica: meses fechados não mudam ao alterar lançamentos).
+      const { data: fechamentosFechados } = await (supabase.from("fechamentos_mensais" as any) as any)
+        .select("mes_referencia, snapshot")
+        .eq("status", "fechado")
+        .gte("mes_referencia", `${ano}-01-01`)
+        .lte("mes_referencia", `${ano}-12-01`);
 
+      ((fechamentosFechados as any[]) || []).forEach((f) => {
+        const ld = f?.snapshot?.linhas_dre;
+        if (!ld) return; // snapshot antigo sem detalhamento: mantém o cálculo ao vivo
+        const mesIdx = Number(String(f.mes_referencia).split('-')[1]) - 1;
+        if (mesIdx < 0 || mesIdx > 11) return;
+        (Object.keys(linhas) as Array<keyof LinhasDRE>).forEach((k) => {
+          if (typeof ld[k] === 'number') {
+            (linhas[k] as number[])[mesIdx] = ld[k];
+          }
+        });
+      });
 
       setDados(linhas);
     } catch (error) {
