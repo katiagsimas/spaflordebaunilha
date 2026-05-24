@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -37,14 +37,15 @@ interface Encomenda {
 
 export function useEncomendas() {
   const { user } = useAuth();
-  const [encomendas, setEncomendas] = useState<Encomenda[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const userId = user?.id;
 
-  const fetchEncomendas = async () => {
-    if (!user) return;
-    
-    try {
-      setLoading(true);
+  const queryKey = ['encomendas', userId];
+
+  const { data: encomendas = [], isLoading: loading, refetch } = useQuery<Encomenda[]>({
+    queryKey,
+    enabled: !!userId,
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('encomendas')
         .select(`
@@ -58,102 +59,92 @@ export function useEncomendas() {
             )
           )
         `)
-        .eq('usuario_id', user.id)
+        .eq('usuario_id', userId!)
         .order('data_entrega', { ascending: false });
 
-      if (error) throw error;
-      
-      // Converter topo_imagens, pagamentos e tags de JSON para arrays
-      const encomendasFormatadas = (data || []).map(encomenda => ({
+      if (error) {
+        toast.error('Erro ao carregar encomendas: ' + error.message);
+        throw error;
+      }
+
+      return (data || []).map((encomenda: any) => ({
         ...encomenda,
-        topo_imagens: Array.isArray(encomenda.topo_imagens) 
-          ? encomenda.topo_imagens 
-          : [],
-        pagamentos: Array.isArray(encomenda.pagamentos)
-          ? encomenda.pagamentos
-          : [],
-        tags: encomenda.tags?.map((t: any) => t.tag).filter(Boolean) || []
-      }));
-      
-      setEncomendas(encomendasFormatadas as unknown as Encomenda[]);
-    } catch (err: any) {
-      console.error('Erro ao buscar encomendas:', err);
-      toast.error('Erro ao carregar encomendas: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+        topo_imagens: Array.isArray(encomenda.topo_imagens) ? encomenda.topo_imagens : [],
+        pagamentos: Array.isArray(encomenda.pagamentos) ? encomenda.pagamentos : [],
+        tags: encomenda.tags?.map((t: any) => t.tag).filter(Boolean) || [],
+      })) as unknown as Encomenda[];
+    },
+  });
 
-  const createEncomenda = async (encomenda: Omit<Encomenda, 'id' | 'usuario_id' | 'created_at' | 'updated_at'>) => {
-    if (!user) throw new Error('Usuário não autenticado');
+  const createMutation = useMutation({
+    mutationFn: async (encomenda: Omit<Encomenda, 'id' | 'usuario_id' | 'created_at' | 'updated_at'>) => {
+      if (!userId) throw new Error('Usuário não autenticado');
+      const { data, error } = await supabase
+        .from('encomendas')
+        .insert({ ...encomenda, usuario_id: userId } as any)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['encomendas', userId] });
+      toast.success('Encomenda criada!');
+    },
+    onError: (err: any) => {
+      toast.error('Erro ao criar encomenda: ' + err.message);
+    },
+  });
 
-    const { data, error } = await supabase
-      .from('encomendas')
-      .insert({ ...encomenda, usuario_id: user.id })
-      .select()
-      .single();
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<Encomenda> }) => {
+      if (!userId) throw new Error('Usuário não autenticado');
+      const { data, error } = await supabase
+        .from('encomendas')
+        .update(updates as any)
+        .eq('id', id)
+        .eq('usuario_id', userId)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['encomendas', userId] });
+      toast.success('Encomenda atualizada!');
+    },
+    onError: (err: any) => {
+      toast.error('Erro ao atualizar encomenda: ' + err.message);
+    },
+  });
 
-    if (error) throw error;
-    
-    const encomendaFormatada = {
-      ...data,
-      topo_imagens: Array.isArray(data.topo_imagens) ? data.topo_imagens : [],
-      pagamentos: Array.isArray(data.pagamentos) ? data.pagamentos : []
-    };
-    
-    setEncomendas([encomendaFormatada as unknown as Encomenda, ...encomendas]);
-    toast.success('Encomenda criada!');
-    return data;
-  };
-
-  const updateEncomenda = async (id: string, updates: Partial<Encomenda>) => {
-    if (!user) throw new Error('Usuário não autenticado');
-
-    const { data, error } = await supabase
-      .from('encomendas')
-      .update(updates)
-      .eq('id', id)
-      .eq('usuario_id', user.id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    
-    const encomendaFormatada = {
-      ...data,
-      topo_imagens: Array.isArray(data.topo_imagens) ? data.topo_imagens : [],
-      pagamentos: Array.isArray(data.pagamentos) ? data.pagamentos : []
-    };
-    
-    setEncomendas(encomendas.map(e => e.id === id ? encomendaFormatada as unknown as Encomenda : e));
-    toast.success('Encomenda atualizada!');
-    return data;
-  };
-
-  const deleteEncomenda = async (id: string) => {
-    if (!user) throw new Error('Usuário não autenticado');
-
-    const { error } = await supabase
-      .from('encomendas')
-      .delete()
-      .eq('id', id)
-      .eq('usuario_id', user.id);
-
-    if (error) throw error;
-    setEncomendas(encomendas.filter(e => e.id !== id));
-    toast.success('Encomenda deletada!');
-  };
-
-  useEffect(() => {
-    if (user) fetchEncomendas();
-  }, [user]);
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      if (!userId) throw new Error('Usuário não autenticado');
+      const { error } = await supabase
+        .from('encomendas')
+        .delete()
+        .eq('id', id)
+        .eq('usuario_id', userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['encomendas', userId] });
+      toast.success('Encomenda deletada!');
+    },
+    onError: (err: any) => {
+      toast.error('Erro ao deletar encomenda: ' + err.message);
+    },
+  });
 
   return {
     encomendas,
     loading,
-    createEncomenda,
-    updateEncomenda,
-    deleteEncomenda,
-    refetch: fetchEncomendas,
+    createEncomenda: (encomenda: Omit<Encomenda, 'id' | 'usuario_id' | 'created_at' | 'updated_at'>) =>
+      createMutation.mutateAsync(encomenda),
+    updateEncomenda: (id: string, updates: Partial<Encomenda>) =>
+      updateMutation.mutateAsync({ id, updates }),
+    deleteEncomenda: (id: string) => deleteMutation.mutateAsync(id),
+    refetch,
   };
 }

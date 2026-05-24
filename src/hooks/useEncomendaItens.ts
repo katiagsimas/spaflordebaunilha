@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -19,73 +19,74 @@ interface EncomendaItem {
 
 export function useEncomendaItens(encomendaId: string | null) {
   const { user } = useAuth();
-  const [itens, setItens] = useState<EncomendaItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const userId = user?.id;
 
-  const fetchItens = async () => {
-    if (!user || !encomendaId) {
-      setItens([]);
-      setLoading(false);
-      return;
-    }
-    
-    try {
-      setLoading(true);
+  const queryKey = ['encomenda_itens', encomendaId, userId];
+
+  const { data: itens = [], isLoading: loading, refetch } = useQuery<EncomendaItem[]>({
+    queryKey,
+    enabled: !!userId && !!encomendaId,
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('encomenda_itens')
         .select('*')
-        .eq('usuario_id', user.id)
-        .eq('encomenda_id', encomendaId)
+        .eq('usuario_id', userId!)
+        .eq('encomenda_id', encomendaId!)
         .order('created_at', { ascending: true });
+      if (error) {
+        toast.error('Erro ao carregar itens: ' + error.message);
+        throw error;
+      }
+      return (data || []) as EncomendaItem[];
+    },
+  });
 
+  const createMutation = useMutation({
+    mutationFn: async (item: Omit<EncomendaItem, 'id' | 'usuario_id' | 'created_at' | 'updated_at'>) => {
+      if (!userId) throw new Error('Usuário não autenticado');
+      const { data, error } = await supabase
+        .from('encomenda_itens')
+        .insert({ ...item, usuario_id: userId })
+        .select()
+        .single();
       if (error) throw error;
-      setItens(data || []);
-    } catch (err: any) {
-      console.error('Erro ao buscar itens:', err);
-      toast.error('Erro ao carregar itens: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return data;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['encomenda_itens', variables.encomenda_id, userId] });
+      toast.success('Produto adicionado!');
+    },
+    onError: (err: any) => {
+      toast.error('Erro ao adicionar produto: ' + err.message);
+    },
+  });
 
-  const createItem = async (item: Omit<EncomendaItem, 'id' | 'usuario_id' | 'created_at' | 'updated_at'>) => {
-    if (!user) throw new Error('Usuário não autenticado');
-
-    const { data, error } = await supabase
-      .from('encomenda_itens')
-      .insert({ ...item, usuario_id: user.id })
-      .select()
-      .single();
-
-    if (error) throw error;
-    setItens([...itens, data]);
-    toast.success('Produto adicionado!');
-    return data;
-  };
-
-  const deleteItem = async (id: string) => {
-    if (!user) throw new Error('Usuário não autenticado');
-
-    const { error } = await supabase
-      .from('encomenda_itens')
-      .delete()
-      .eq('id', id)
-      .eq('usuario_id', user.id);
-
-    if (error) throw error;
-    setItens(itens.filter(i => i.id !== id));
-    toast.success('Produto removido!');
-  };
-
-  useEffect(() => {
-    fetchItens();
-  }, [user, encomendaId]);
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      if (!userId) throw new Error('Usuário não autenticado');
+      const { error } = await supabase
+        .from('encomenda_itens')
+        .delete()
+        .eq('id', id)
+        .eq('usuario_id', userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['encomenda_itens', encomendaId, userId] });
+      toast.success('Produto removido!');
+    },
+    onError: (err: any) => {
+      toast.error('Erro ao remover produto: ' + err.message);
+    },
+  });
 
   return {
     itens,
     loading,
-    createItem,
-    deleteItem,
-    refetch: fetchItens,
+    createItem: (item: Omit<EncomendaItem, 'id' | 'usuario_id' | 'created_at' | 'updated_at'>) =>
+      createMutation.mutateAsync(item),
+    deleteItem: (id: string) => deleteMutation.mutateAsync(id),
+    refetch,
   };
 }
