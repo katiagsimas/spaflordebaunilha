@@ -2102,131 +2102,56 @@ export default function ReceitaForm() {
                 {/* Análise da Venda */}
                 {valorVenda > 0 && (
                   <div id="analise-venda" className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
-                    <div className="space-y-3">
-                      <div className={`space-y-2 p-4 rounded-lg border-2 transition-all duration-300 ${
-                        percentualCMV <= 35 
-                          ? 'bg-green-50 border-green-500 shadow-lg shadow-green-200' 
-                          : percentualCMV <= 45 
-                            ? 'bg-yellow-50 border-yellow-500 shadow-lg shadow-yellow-200' 
-                            : 'bg-red-50 border-red-500 shadow-lg shadow-red-200 animate-pulse'
-                      }`}>
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xl">
-                            {percentualCMV <= 35 ? '✅' : percentualCMV <= 45 ? '⚠️' : '❌'}
-                          </span>
-                          <h4 className="font-semibold text-sm">📊 CMV Real</h4>
-                          <span className="text-2xl ml-auto">
-                            {percentualCMV <= 35 ? '😊' : percentualCMV <= 45 ? '😐' : '😰'}
-                          </span>
-                        </div>
-                        <div className={`font-bold transition-all ${
-                          percentualCMV <= 35 
-                            ? 'text-4xl text-green-600' 
-                            : percentualCMV <= 45 
-                              ? 'text-3xl text-yellow-600' 
-                              : 'text-5xl text-red-600'
-                        }`}>
-                          {percentualCMV.toFixed(1)}%
-                        </div>
-                        <p className={`text-sm font-semibold ${
-                          percentualCMV <= 35 
-                            ? 'text-green-700' 
-                            : percentualCMV <= 45 
-                              ? 'text-yellow-700' 
-                              : 'text-red-700'
-                        }`}>
-                          {percentualCMV <= 35 
-                            ? '✓ Excelente! CMV muito saudável' 
-                            : percentualCMV <= 45 
-                              ? '⚠ Aceitável, mas pode melhorar' 
-                              : '✗ ATENÇÃO! CMV muito alto'}
-                        </p>
-                      </div>
-                      
-                      <div className={`text-sm p-3 rounded-lg font-medium ${
-                        percentualCMV <= 35 
-                          ? 'bg-green-100 text-green-800 border border-green-300' 
-                          : percentualCMV <= 45 
-                            ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' 
-                            : 'bg-red-100 text-red-800 border border-red-300'
-                      }`}>
-                        <p className="font-bold text-base mb-1">
-                          {percentualCMV <= 35 
-                            ? '🎉 PARABÉNS!' 
-                            : percentualCMV <= 45 
-                              ? '💡 ATENÇÃO!' 
-                              : '🚨 ALERTA IMPORTANTE!'}
-                        </p>
-                        <p className="text-xs leading-relaxed">
-                          {percentualCMV <= 35 
-                            ? 'Sua margem de lucro está ótima. Com esse CMV, você terá uma boa margem para cobrir despesas operacionais e ainda gerar lucro.' 
-                            : percentualCMV <= 45 
-                              ? 'Seu CMV está na faixa aceitável, mas há espaço para otimização. Considere revisar custos de ingredientes ou ajustar o preço de venda para aumentar sua margem.' 
-                              : 'CMV acima de 45% pode comprometer sua lucratividade! Riscos: pouca margem para despesas operacionais, dificuldade em cobrir custos fixos, vulnerabilidade a variações de preço. Recomenda-se: renegociar preços com fornecedores, otimizar receita ou aumentar preço de venda.'}
-                        </p>
-                      </div>
-                    </div>
+                    <CardAnalise
+                      valor={percentualCMV}
+                      tipo="percentual"
+                      thresholds={{ bom: 35, ok: 45 }}
+                      direcao="abaixo_e_melhor"
+                      titulo="📊 CMV Real"
+                      mensagens={{
+                        bom: '✓ Excelente! CMV muito saudável',
+                        ok: '⚠ Aceitável, mas pode melhorar',
+                        ruim: '✗ ATENÇÃO! CMV muito alto',
+                      }}
+                      emoji={{ bom: '✅', ok: '⚠️', ruim: '❌' }}
+                      emoticon={{ bom: '😊', ok: '😐', ruim: '😰' }}
+                      alertas={{
+                        bom: '🎉 PARABÉNS!',
+                        ok: '💡 ATENÇÃO!',
+                        ruim: '🚨 ALERTA IMPORTANTE!',
+                      }}
+                      descricoes={{
+                        bom: 'Sua margem de lucro está ótima. Com esse CMV, você terá uma boa margem para cobrir despesas operacionais e ainda gerar lucro.',
+                        ok: 'Seu CMV está na faixa aceitável, mas há espaço para otimização. Considere revisar custos de ingredientes ou ajustar o preço de venda para aumentar sua margem.',
+                        ruim: 'CMV acima de 45% pode comprometer sua lucratividade! Riscos: pouca margem para despesas operacionais, dificuldade em cobrir custos fixos, vulnerabilidade a variações de preço. Recomenda-se: renegociar preços com fornecedores, otimizar receita ou aumentar preço de venda.',
+                      }}
+                    />
 
-                    <div className="space-y-3">
-                      <div className={`space-y-2 p-4 rounded-lg border-2 transition-all duration-300 ${
-                        percentualMargemContribuicao >= 65 
-                          ? 'bg-green-50 border-green-500 shadow-lg shadow-green-200' 
-                          : percentualMargemContribuicao >= 55 
-                            ? 'bg-yellow-50 border-yellow-500 shadow-lg shadow-yellow-200' 
-                            : 'bg-red-50 border-red-500 shadow-lg shadow-red-200 animate-pulse'
-                      }`}>
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xl">
-                            {percentualMargemContribuicao >= 65 ? '✅' : percentualMargemContribuicao >= 55 ? '⚠️' : '❌'}
-                          </span>
-                          <h4 className="font-semibold text-sm">💵 Margem de Contribuição</h4>
-                          <span className="text-2xl ml-auto">
-                            {percentualMargemContribuicao >= 65 ? '🎊' : percentualMargemContribuicao >= 55 ? '😕' : '😱'}
-                          </span>
-                        </div>
-                        <div className={`font-bold transition-all ${
-                          percentualMargemContribuicao >= 65 
-                            ? 'text-4xl text-green-600' 
-                            : percentualMargemContribuicao >= 55 
-                              ? 'text-3xl text-yellow-600' 
-                              : 'text-5xl text-red-600'
-                        }`}>
-                          R$ {margemContribuicao.toFixed(2)}
-                        </div>
-                        <p className={`text-sm font-semibold ${
-                          percentualMargemContribuicao >= 65 
-                            ? 'text-green-700' 
-                            : percentualMargemContribuicao >= 55 
-                              ? 'text-yellow-700' 
-                              : 'text-red-700'
-                        }`}>
-                          {percentualMargemContribuicao.toFixed(1)}% do valor de venda
-                        </p>
-                      </div>
-                      
-                      <div className={`text-sm p-3 rounded-lg font-medium ${
-                        percentualMargemContribuicao >= 65 
-                          ? 'bg-green-100 text-green-800 border border-green-300' 
-                          : percentualMargemContribuicao >= 55 
-                            ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' 
-                            : 'bg-red-100 text-red-800 border border-red-300'
-                      }`}>
-                        <p className="font-bold text-base mb-1">
-                          {percentualMargemContribuicao >= 65 
-                            ? '🎉 EXCELENTE MARGEM!' 
-                            : percentualMargemContribuicao >= 55 
-                              ? '💡 MARGEM RAZOÁVEL!' 
-                              : '🚨 MARGEM MUITO BAIXA!'}
-                        </p>
-                        <p className="text-xs leading-relaxed">
-                          {percentualMargemContribuicao >= 65 
-                            ? 'Ótima margem de contribuição! Você tem recursos suficientes para cobrir despesas operacionais, investir no negócio e garantir um bom lucro.' 
-                            : percentualMargemContribuicao >= 55 
-                              ? 'Margem aceitável, mas pode ser melhorada. Busque reduzir custos ou aumentar o preço de venda para ter mais recursos disponíveis após cobrir o CMV.' 
-                              : 'Margem insuficiente! Com essa margem baixa, pode ser difícil cobrir todas as despesas operacionais (aluguel, luz, salários, etc.) e ainda ter lucro. É crucial revisar sua precificação ou reduzir custos.'}
-                        </p>
-                      </div>
-                    </div>
+                    <CardAnalise
+                      valor={percentualMargemContribuicao}
+                      tipo="reais"
+                      valorDisplay={margemContribuicao}
+                      thresholds={{ bom: 65, ok: 55 }}
+                      direcao="acima_e_melhor"
+                      titulo="💵 Margem de Contribuição"
+                      mensagens={{
+                        bom: `${percentualMargemContribuicao.toFixed(1)}% do valor de venda`,
+                        ok: `${percentualMargemContribuicao.toFixed(1)}% do valor de venda`,
+                        ruim: `${percentualMargemContribuicao.toFixed(1)}% do valor de venda`,
+                      }}
+                      emoji={{ bom: '✅', ok: '⚠️', ruim: '❌' }}
+                      emoticon={{ bom: '🎊', ok: '😕', ruim: '😱' }}
+                      alertas={{
+                        bom: '🎉 EXCELENTE MARGEM!',
+                        ok: '💡 MARGEM RAZOÁVEL!',
+                        ruim: '🚨 MARGEM MUITO BAIXA!',
+                      }}
+                      descricoes={{
+                        bom: 'Ótima margem de contribuição! Você tem recursos suficientes para cobrir despesas operacionais, investir no negócio e garantir um bom lucro.',
+                        ok: 'Margem aceitável, mas pode ser melhorada. Busque reduzir custos ou aumentar o preço de venda para ter mais recursos disponíveis após cobrir o CMV.',
+                        ruim: 'Margem insuficiente! Com essa margem baixa, pode ser difícil cobrir todas as despesas operacionais (aluguel, luz, salários, etc.) e ainda ter lucro. É crucial revisar sua precificação ou reduzir custos.',
+                      }}
+                    />
                   </div>
                 )}
               </CardContent>
