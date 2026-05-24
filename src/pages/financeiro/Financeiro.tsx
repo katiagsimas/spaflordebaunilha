@@ -664,6 +664,23 @@ export default function Financeiro() {
             </div>
           </CardHeader>
         </Card>
+
+        {/* Card Fechamento de Mês */}
+        <Card
+          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-cda-dourado"
+          onClick={() => navigate('/financeiro/fechamento-mes')}
+        >
+          <CardHeader className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-cda-dourado/15 text-cda-dourado flex items-center justify-center shrink-0">
+                <CalendarDaysIcon className="h-4 w-4" />
+              </div>
+              <CardTitle className="text-sm font-semibold">
+                Fechamento de Mês
+              </CardTitle>
+            </div>
+          </CardHeader>
+        </Card>
       </div>
 
       {/* Banner de Saldos */}
