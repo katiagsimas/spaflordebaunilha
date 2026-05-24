@@ -928,7 +928,7 @@ export default function Dashboard() {
             value={mesSelecionado.toString()}
             onValueChange={(value) => setMesSelecionado(parseInt(value))}
           >
-            <SelectTrigger className="w-[130px]">
+            <SelectTrigger className="w-[130px] border-[#C9A14A]/40 hover:border-[#C9A14A]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
