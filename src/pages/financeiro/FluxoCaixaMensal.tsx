@@ -152,119 +152,72 @@ export default function FluxoCaixaMensal() {
 
         const saldosConfiguradosNoMes = saldosConfiguradosMes?.reduce((acc, s) => acc + (s.saldo_inicial || 0), 0) || 0;
 
-        // Buscar entradas (Contas a Receber pagas)
+        // Buscar entradas (Contas a Receber pagas) com joins aninhados
         const { data: pagamentosReceber } = await supabase
           .from("contas_receber_pagamentos")
           .select(`
             valor_pago,
             juros,
             desconto,
-            parcela_id
+            parcela:contas_receber_parcelas!parcela_id (
+              conta:contas_receber!conta_receber_id (
+                plano:plano_contas!plano_conta_id (
+                  categoria:categorias_plano_contas!categoria_id ( codigo )
+                )
+              )
+            )
           `)
           .gte("data_pagamento", inicioStr)
           .lte("data_pagamento", fimStr)
           .eq("estornado", false);
 
-        // Buscar saídas (Contas a Pagar pagas)
+        // Buscar saídas (Contas a Pagar pagas) com joins aninhados
         const { data: pagamentosPagar } = await supabase
           .from("contas_pagar_pagamentos")
           .select(`
             valor_pago,
             juros,
             desconto,
-            parcela_id
+            parcela:contas_pagar_parcelas!parcela_id (
+              conta:contas_pagar!conta_pagar_id (
+                plano:plano_contas!plano_contas_id (
+                  categoria:categorias_plano_contas!categoria_id ( codigo )
+                )
+              )
+            )
           `)
           .gte("data_pagamento", inicioStr)
           .lte("data_pagamento", fimStr)
           .eq("estornado", false);
 
-        // Processar entradas por categoria
-        let entradasPorCategoria: Record<string, number> = {};
+        // Processar entradas por categoria (em memória, sem awaits)
+        const entradasPorCategoria: Record<string, number> = {};
         let totalEntradas = 0;
 
-        for (const pag of pagamentosReceber || []) {
+        for (const pag of (pagamentosReceber as any[]) || []) {
           const valorLiquido = (pag.valor_pago || 0) + (pag.juros || 0) - (pag.desconto || 0);
           totalEntradas += valorLiquido;
 
-          // Buscar categoria do pagamento
-          const { data: parcela } = await supabase
-            .from('contas_receber_parcelas')
-            .select('conta_receber_id')
-            .eq('id', pag.parcela_id)
-            .single();
-
-          if (parcela) {
-            const { data: conta } = await supabase
-              .from('contas_receber')
-              .select('plano_conta_id')
-              .eq('id', parcela.conta_receber_id)
-              .single();
-
-            if (conta?.plano_conta_id) {
-              const { data: plano } = await supabase
-                .from('plano_contas')
-                .select('categoria_id')
-                .eq('id', conta.plano_conta_id)
-                .single();
-
-              if (plano?.categoria_id) {
-                const { data: cat } = await supabase
-                  .from('categorias_plano_contas')
-                  .select('codigo')
-                  .eq('id', plano.categoria_id)
-                  .single();
-
-                if (cat?.codigo) {
-                  entradasPorCategoria[cat.codigo] = (entradasPorCategoria[cat.codigo] || 0) + valorLiquido;
-                }
-              }
-            }
+          const codigo = pag?.parcela?.conta?.plano?.categoria?.codigo;
+          if (codigo) {
+            entradasPorCategoria[codigo] = (entradasPorCategoria[codigo] || 0) + valorLiquido;
           }
         }
 
-        // Processar saídas por categoria
-        let saidasPorCategoria: Record<string, number> = {};
+        // Processar saídas por categoria (em memória, sem awaits)
+        const saidasPorCategoria: Record<string, number> = {};
         let totalSaidas = 0;
 
-        for (const pag of pagamentosPagar || []) {
+        for (const pag of (pagamentosPagar as any[]) || []) {
           const valorLiquido = (pag.valor_pago || 0) + (pag.juros || 0) - (pag.desconto || 0);
           totalSaidas += valorLiquido;
 
-          // Buscar categoria do pagamento
-          const { data: parcela } = await supabase
-            .from('contas_pagar_parcelas')
-            .select('conta_pagar_id')
-            .eq('id', pag.parcela_id)
-            .single();
-
-          if (parcela) {
-            const { data: conta } = await supabase
-              .from('contas_pagar')
-              .select('plano_contas_id')
-              .eq('id', parcela.conta_pagar_id)
-              .single();
-
-            if (conta?.plano_contas_id) {
-              const { data: plano } = await supabase
-                .from('plano_contas')
-                .select('categoria_id')
-                .eq('id', conta.plano_contas_id)
-                .single();
-
-              if (plano?.categoria_id) {
-                const { data: cat } = await supabase
-                  .from('categorias_plano_contas')
-                  .select('codigo')
-                  .eq('id', plano.categoria_id)
-                  .single();
-
-                if (cat?.codigo) {
-                  saidasPorCategoria[cat.codigo] = (saidasPorCategoria[cat.codigo] || 0) + valorLiquido;
-                }
-              }
-            }
+          const codigo = pag?.parcela?.conta?.plano?.categoria?.codigo;
+          if (codigo) {
+            saidasPorCategoria[codigo] = (saidasPorCategoria[codigo] || 0) + valorLiquido;
           }
         }
+
 
         const entradasCalc = {
           receitaVendas: entradasPorCategoria['1'] || 0,
