@@ -12,16 +12,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import {
   AlertCircle,
   TrendingUp,
   TrendingDown,
   ChevronLeft,
   ChevronRight,
-  DollarSign
+  DollarSign,
+  Cake,
+  Calendar as CalendarIcon
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import { useNavigate } from "react-router-dom";
 import {
   format,
@@ -31,7 +35,8 @@ import {
   isSameDay,
   isToday,
   isTomorrow,
-  getDay
+  getDay,
+  addDays
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
