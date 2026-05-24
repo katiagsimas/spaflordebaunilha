@@ -63,24 +63,24 @@ export function GroupSelector() {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="outline" 
-          className="w-full justify-between gap-2 bg-sidebar-accent/50 border-sidebar-border hover:bg-sidebar-accent"
+        <Button
+          variant="ghost"
+          className="w-full justify-between gap-2 bg-[#FFF9F5]/10 border border-[#FFF9F5]/20 text-[#FFF9F5] hover:bg-[#FFF9F5]/15 hover:border-[#FFF9F5]/30"
         >
           <div className="flex items-center gap-2 truncate">
             {sessionMode === 'system' ? (
               <>
-                <Settings className="h-4 w-4 text-primary" />
+                <Settings className="h-4 w-4 text-[#FFF9F5]/80" />
                 <span className="truncate font-medium">Modo Sistema</span>
               </>
             ) : (
               <>
-                <Building2 className="h-4 w-4" />
+                <Building2 className="h-4 w-4 text-[#FFF9F5]/80" />
                 <span className="truncate">{activeGroup?.name || 'Selecionar grupo'}</span>
               </>
             )}
           </div>
-          <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+          <ChevronDown className="h-4 w-4 shrink-0 text-[#FFF9F5]/60" />
         </Button>
       </DropdownMenuTrigger>
       

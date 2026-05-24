@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { LayoutDashboard, ShoppingBag, DollarSign, LogOut, Users, User, Truck, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
-import caixaAcucarSidebarIcon from "@/assets/caixa-acucar-sidebar-icon.png";
+
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGroup } from "@/contexts/GroupContext";
@@ -142,7 +142,7 @@ export function AppSidebar() {
             {/* Logo / Brand */}
             <div className="flex flex-col items-center gap-1">
               <div className="flex items-center gap-2">
-                <img src={caixaAcucarSidebarIcon} alt="Caixa de Açúcar" className="h-8 w-8" />
+                <img src="/cda-logo-dourado.png" alt="Caixa de Açúcar" className="h-8 w-8" />
                 <span className="text-lg font-semibold font-body text-sidebar-foreground tracking-wide uppercase">
                   Caixa de Açúcar
                 </span>
