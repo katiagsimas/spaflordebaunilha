@@ -1227,16 +1227,16 @@ export default function Dashboard() {
         </CardHeader>
         <CardContent>
           {tabEconomica === "mensal" ? (
-            <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
+            <div className="grid gap-3 grid-cols-2 md:grid-cols-5">
               {/* Faturamento */}
               <Card 
-                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-2 border-[#C9A14A]/50 group"
+                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#C9A14A] group"
                 onClick={() => navigate("/financeiro/dashboard")}
               >
                 <CardHeader className="p-2.5">
                   <div className="flex flex-col items-center gap-1.5 text-center">
                     <div className="w-7 h-7 rounded-lg bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <TrendingUp className="h-3.5 w-3.5 text-[#C9A14A]/60" />
+                      <TrendingUp className="h-3.5 w-3.5 text-[#C9A14A]" />
                     </div>
                     <div>
                       <CardTitle className="text-[11px] mb-0.5">Faturamento</CardTitle>
@@ -1251,13 +1251,13 @@ export default function Dashboard() {
 
               {/* Custos */}
               <Card 
-                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-2 border-[#C9A14A]/50 group"
+                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#F28C82] group"
                 onClick={() => navigate("/financeiro/dashboard")}
               >
                 <CardHeader className="p-2.5">
                   <div className="flex flex-col items-center gap-1.5 text-center">
-                    <div className="w-7 h-7 rounded-lg bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <TrendingDown className="h-3.5 w-3.5 text-[#C9A14A]/60" />
+                    <div className="w-7 h-7 rounded-lg bg-[#F28C82]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <TrendingDown className="h-3.5 w-3.5 text-[#F28C82]" />
                     </div>
                     <div>
                       <CardTitle className="text-[11px] mb-0.5">Custos Totais</CardTitle>
@@ -1272,13 +1272,13 @@ export default function Dashboard() {
 
               {/* Lucro */}
               <Card 
-                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-2 border-[#C9A14A]/50 group"
+                className={`cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 group ${visaoEconomica.mensal.lucro >= 0 ? "border-l-[#5B1A2B]" : "border-l-[#F28C82]"}`}
                 onClick={() => navigate("/financeiro/dashboard")}
               >
                 <CardHeader className="p-2.5">
                   <div className="flex flex-col items-center gap-1.5 text-center">
-                    <div className="w-7 h-7 rounded-lg bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <DollarSign className="h-3.5 w-3.5 text-[#C9A14A]/60" />
+                    <div className="w-7 h-7 rounded-lg bg-[#5B1A2B]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <DollarSign className="h-3.5 w-3.5 text-[#5B1A2B]" />
                     </div>
                     <div>
                       <CardTitle className="text-[11px] mb-0.5">
@@ -1301,7 +1301,7 @@ export default function Dashboard() {
               </Card>
 
               {/* Ticket Médio */}
-              <Card className="border-l-2 border-[#C9A14A]/50 bg-white">
+              <Card className="border-l-4 border-l-[#C9A14A]/50 bg-white">
                 <CardHeader className="p-2.5">
                   <div className="flex flex-col items-center gap-1.5 text-center">
                     <div className="w-7 h-7 rounded-lg bg-[#C9A14A]/10 flex items-center justify-center">
@@ -1320,6 +1320,53 @@ export default function Dashboard() {
                   </div>
                 </CardHeader>
               </Card>
+
+              {/* Meta do Mês */}
+              {(() => {
+                const meta = profile?.meta_faturamento_mensal || 0;
+                const atual = visaoEconomica.mensal.receitas;
+                const pct = meta > 0 ? Math.min((atual / meta) * 100, 100) : 0;
+                const corBarra = pct >= 80 ? "bg-green-500" : pct >= 50 ? "bg-[#C9A14A]" : "bg-[#F28C82]";
+                return (
+                  <Card
+                    className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#5B1A2B] group"
+                    onClick={() => navigate("/planejamento")}
+                  >
+                    <CardHeader className="p-2.5">
+                      <div className="flex flex-col items-center gap-1.5 text-center">
+                        <div className="w-7 h-7 rounded-lg bg-[#5B1A2B]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <TrendingUp className="h-3.5 w-3.5 text-[#5B1A2B]" />
+                        </div>
+                        <div className="w-full">
+                          <CardTitle className="text-[11px] mb-0.5">Meta do Mês</CardTitle>
+                          <CardDescription className="text-[10px] mb-0.5">{meses[mesSelecionado]}</CardDescription>
+                          {meta > 0 ? (
+                            <>
+                              <p className="text-sm font-bold text-foreground">
+                                {pct.toFixed(0)}%
+                              </p>
+                              <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mt-1">
+                                <div
+                                  className={`h-full ${corBarra} transition-all`}
+                                  style={{ width: `${pct}%` }}
+                                />
+                              </div>
+                              <p className="text-[10px] text-muted-foreground mt-0.5">
+                                R$ {atual.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} / R$ {meta.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              </p>
+                            </>
+                          ) : (
+                            <>
+                              <p className="text-xs text-muted-foreground">Meta não definida</p>
+                              <p className="text-[10px] text-[#5B1A2B] underline mt-1">Definir meta</p>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </CardHeader>
+                  </Card>
+                );
+              })()}
             </div>
           ) : (
             <div className="h-[300px]">
