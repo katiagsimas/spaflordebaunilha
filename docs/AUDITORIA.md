@@ -505,3 +505,6 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 
 ## 2026-05-24T16:24:33Z - #M4 corrigido
 - ✅ ContasPagarForm.tsx convertido em wrapper (~115 linhas) seguindo o padrão de ContasReceberForm.tsx. Toda a lógica de formulário, geração de parcelas e persistência foi extraída para src/components/financeiro/ContasPagarFormModal.tsx. Props, callbacks e comportamento preservados.
+
+## 2026-05-24T16:27:00Z - #C3 corrigido
+- ✅ Sublinhas do DRE.tsx migradas para o campo `subfaixa_dre` (nova coluna em `categorias_plano_contas`). Nenhum código numérico hardcoded restante. Categorias customizadas com `subfaixa_dre` definida passam a aparecer nas sublinhas correspondentes.

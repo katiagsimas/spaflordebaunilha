@@ -228,6 +228,7 @@ export type Database = {
           ordem: number
           owner_group_id: string | null
           padrao_sistema: boolean
+          subfaixa_dre: string | null
           updated_at: string | null
           user_id: string
         }
@@ -243,6 +244,7 @@ export type Database = {
           ordem?: number
           owner_group_id?: string | null
           padrao_sistema?: boolean
+          subfaixa_dre?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -258,6 +260,7 @@ export type Database = {
           ordem?: number
           owner_group_id?: string | null
           padrao_sistema?: boolean
+          subfaixa_dre?: string | null
           updated_at?: string | null
           user_id?: string
         }
