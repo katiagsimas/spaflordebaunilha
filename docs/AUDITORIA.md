@@ -442,3 +442,17 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 - Edge function `executar-backups-agendados/index.ts` agora também aceita a anon key como Bearer. Risco aceitável: a função não recebe parâmetros do chamador, apenas processa agendamentos vencidos.
 - Disparo manual executou 5 backups atrasados.
 - pg_cron continua chamando a cada 30 min normalmente.
+
+## 🔒 Guard de rota /configuracoes/tipos-insumos — $(date -u +"%Y-%m-%d %H:%M UTC")
+
+✅ Implementado guard de acesso à tela interna **Insumos e Embalagens**:
+
+- A rota `/configuracoes/tipos-insumos` só é liberada quando o próprio sistema concede um token one-shot via `grantSystemAccess('tipos-insumos')` antes da navegação.
+- Acesso direto pela URL é bloqueado (mesmo para `admin` e `MOTHER`) e redireciona para `/configuracoes/cadastros-base` com toast de "Acesso restrito".
+- Checagem dupla: token de sistema (sessionStorage one-shot) **+** role (`admin` ou `MOTHER`).
+- A tela permanece como uso exclusivo do sistema (sem entrada em menu/sidebar/cards).
+- Auto-sincronização de Insumos/Embalagens já é garantida via FK `ingredientes.tipo_insumo_id` / `embalagens.tipo_insumo_id` → `tipos_insumos.id` e pelo fluxo de "criar tipo na hora" em Meu Cardápio.
+
+**Arquivos:**
+- `src/lib/systemAccess.ts` (novo)
+- `src/pages/configuracoes/TiposInsumos.tsx` (guard adicionado)
