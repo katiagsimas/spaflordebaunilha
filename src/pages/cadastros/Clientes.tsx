@@ -127,18 +127,29 @@ export default function Clientes() {
       const cliente = clientes.find(c => c.id === id);
       const { supabase } = await import('@/integrations/supabase/client');
       
-      // Verificar se o cliente possui encomendas
+      // Verificar se o cliente possui encomendas.
+      // A tabela `encomendas` não tem FK para `clientes` (apenas o campo string `cliente` com o nome).
+      // Só bloqueia se houver encomendas com esse nome E não existirem outros clientes homônimos —
+      // caso contrário, é impossível desambiguar e a exclusão é permitida.
+      const homonimos = clientes.filter(c => c.nome === cliente?.nome).length;
       const { data: encomendas } = await supabase
         .from('encomendas')
         .select('id')
-        .eq('cliente', cliente?.nome)
+        .eq('cliente', cliente?.nome ?? '')
         .limit(1);
-      
+
       if (encomendas && encomendas.length > 0) {
-        toast.error('Não é possível excluir este cliente pois ele possui encomendas cadastradas.');
+        if (homonimos > 1) {
+          toast.warning(
+            'Existem encomendas vinculadas ao nome deste cliente, mas há mais de um cliente com o mesmo nome — não é possível garantir que pertençam a este. Verifique manualmente antes de excluir.'
+          );
+        } else {
+          toast.error('Não é possível excluir este cliente pois ele possui encomendas cadastradas.');
+        }
         setDeleteId(null);
         return;
       }
+
 
       // Verificar se o cliente possui contas a receber
       const { data: contasReceber } = await supabase
