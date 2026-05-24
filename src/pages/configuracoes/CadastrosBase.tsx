@@ -12,7 +12,7 @@ export default function CadastrosBase() {
     <div className="min-h-screen bg-background">
       <PageHeader
         title="Cadastros Base"
-        description="Gerencie categorias, insumos e embalagens e dados da confeitaria"
+        description="Gerencie categorias e dados da confeitaria"
         backButton={<BackButton to="/configuracoes" />}
       />
       
