@@ -543,3 +543,7 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 
 ## 2026-05-24T16:28:20Z - #C1 corrigido
 - ✅ FluxoCaixaMensal.tsx: todas as queries (saldos bancos, saldos configurados anteriores e do ano, pagamentos anteriores e do ano) agora são feitas em um único `Promise.all` fora do loop, com filtros `.gte/.lte` no banco. O loop dos 12 meses passa a operar apenas em memória sobre os dados pré-carregados (~7 requisições por carregamento, antes ~60).
+
+## 2026-05-24T17:05:00Z - Migração React Query (useEncomendas / useEncomendaItens)
+- ✅ `src/hooks/useEncomendas.ts`: substituído `useState + useEffect + fetch manual` por `useQuery` (`queryKey: ["encomendas", userId]`). Operações `createEncomenda`, `updateEncomenda` e `deleteEncomenda` agora usam `useMutation` com `invalidateQueries` em `onSuccess` e toasts em `onSuccess/onError`. Interface pública preservada (assinaturas via `mutateAsync`).
+- ✅ `src/hooks/useEncomendaItens.ts`: mesma migração para `useQuery` (`queryKey: ["encomenda_itens", encomendaId, userId]`) com mutations `createItem`/`deleteItem`. Toasts movidos para os callbacks da mutation. Sem alteração na API consumida por `Encomendas.tsx`.
