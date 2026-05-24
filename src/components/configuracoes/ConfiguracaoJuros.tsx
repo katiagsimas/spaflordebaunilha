@@ -325,6 +325,29 @@ export default function ConfiguracaoJuros() {
           </Alert>
         )}
 
+        {/* Alíquota Simples Nacional */}
+        <div className="space-y-2 pt-4 border-t">
+          <Label htmlFor="aliquota-simples" className="text-base font-medium">
+            Alíquota efetiva do Simples Nacional (%)
+          </Label>
+          <div className="flex gap-2">
+            <Input
+              id="aliquota-simples"
+              placeholder="Ex: 6,00"
+              value={aliquotaSimples}
+              onChange={(e) => {
+                const valor = e.target.value.replace(/[^\d,]/g, '');
+                setAliquotaSimples(valor);
+              }}
+              className="max-w-xs"
+            />
+            <span className="flex items-center text-muted-foreground">%</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Usada para calcular o Imposto de Renda e CSLL no DRE (alíquota × LAIR). Deixe em branco caso não esteja enquadrado.
+          </p>
+        </div>
+
         {/* Observações */}
         <div className="space-y-2">
           <Label htmlFor="observacao">Observações Internas</Label>
