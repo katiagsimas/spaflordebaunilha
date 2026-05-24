@@ -1134,13 +1134,13 @@ export default function Dashboard() {
             <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
               {/* Faturamento */}
               <Card 
-                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-green-600 group"
+                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-2 border-[#C9A14A]/50 group"
                 onClick={() => navigate("/financeiro/dashboard")}
               >
                 <CardHeader className="p-2.5">
                   <div className="flex flex-col items-center gap-1.5 text-center">
-                    <div className="w-7 h-7 rounded-lg bg-green-50 dark:bg-green-950/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <TrendingUp className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+                    <div className="w-7 h-7 rounded-lg bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <TrendingUp className="h-3.5 w-3.5 text-[#C9A14A]/60" />
                     </div>
                     <div>
                       <CardTitle className="text-[11px] mb-0.5">Faturamento</CardTitle>
@@ -1155,13 +1155,13 @@ export default function Dashboard() {
 
               {/* Custos */}
               <Card 
-                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-red-600 group"
+                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-2 border-[#C9A14A]/50 group"
                 onClick={() => navigate("/financeiro/dashboard")}
               >
                 <CardHeader className="p-2.5">
                   <div className="flex flex-col items-center gap-1.5 text-center">
-                    <div className="w-7 h-7 rounded-lg bg-red-50 dark:bg-red-950/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <TrendingDown className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
+                    <div className="w-7 h-7 rounded-lg bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <TrendingDown className="h-3.5 w-3.5 text-[#C9A14A]/60" />
                     </div>
                     <div>
                       <CardTitle className="text-[11px] mb-0.5">Custos Totais</CardTitle>
@@ -1176,33 +1176,21 @@ export default function Dashboard() {
 
               {/* Lucro */}
               <Card 
-                className={`cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 ${
-                  visaoEconomica.mensal.lucro >= 0
-                    ? "border-l-primary"
-                    : "border-l-red-600"
-                } group`}
+                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-2 border-[#C9A14A]/50 group"
                 onClick={() => navigate("/financeiro/dashboard")}
               >
                 <CardHeader className="p-2.5">
                   <div className="flex flex-col items-center gap-1.5 text-center">
-                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform ${
-                      visaoEconomica.mensal.lucro >= 0
-                        ? "bg-primary/10"
-                        : "bg-red-50 dark:bg-red-950/20"
-                    }`}>
-                      <DollarSign className={`h-3.5 w-3.5 ${
-                        visaoEconomica.mensal.lucro >= 0 ? "text-primary" : "text-red-600 dark:text-red-400"
-                      }`} />
+                    <div className="w-7 h-7 rounded-lg bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <DollarSign className="h-3.5 w-3.5 text-[#C9A14A]/60" />
                     </div>
                     <div>
-                      <CardTitle className={`text-[11px] mb-0.5 ${
-                        visaoEconomica.mensal.lucro >= 0 ? "text-primary" : "text-red-700 dark:text-red-400"
-                      }`}>
+                      <CardTitle className="text-[11px] mb-0.5">
                         Lucro Líquido
                       </CardTitle>
                       <CardDescription className="text-[10px] mb-0.5">{meses[mesSelecionado]}</CardDescription>
                       <p className={`text-sm font-bold ${
-                        visaoEconomica.mensal.lucro >= 0 ? "text-primary" : "text-red-700 dark:text-red-400"
+                        visaoEconomica.mensal.lucro >= 0 ? "text-green-600 dark:text-green-400" : "text-red-700 dark:text-red-400"
                       }`}>
                         R$ {visaoEconomica.mensal.lucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </p>
@@ -1217,7 +1205,7 @@ export default function Dashboard() {
               </Card>
 
               {/* Ticket Médio */}
-              <Card className="border-l-4 border-l-primary bg-white">
+              <Card className="border-l-2 border-[#C9A14A]/50 bg-white">
                 <CardHeader className="p-2.5">
                   <div className="flex flex-col items-center gap-1.5 text-center">
                     <div className="w-7 h-7 rounded-lg bg-[#C9A14A]/10 flex items-center justify-center">
@@ -1226,7 +1214,7 @@ export default function Dashboard() {
                     <div>
                       <CardTitle className="text-[11px] mb-0.5">Ticket Médio</CardTitle>
                       <CardDescription className="text-[10px] mb-0.5">{meses[mesSelecionado]}</CardDescription>
-                      <p className="text-sm font-bold text-primary">
+                      <p className="text-sm font-bold text-foreground">
                         R$ {ticketMedio.mensal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </p>
                       <p className="text-[10px] text-muted-foreground mt-0.5">
