@@ -470,3 +470,15 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 - migration (função + trigger + varredura inicial)
 - `src/contexts/AuthContext.tsx`
 - `src/pages/admin/Usuarios.tsx`
+
+## 🔄 Auto-refresh de Status/Expiração — $(date -u +"%Y-%m-%d %H:%M UTC")
+
+✅ Novo componente `PlanExpirationWatcher` montado dentro do `BrowserRouter`:
+
+- Verifica `plano_fim` do usuário logado **no carregamento do app** e **a cada mudança de rota**.
+- Se `plano_fim < hoje`: persiste `ativo = false` em `profiles` e executa `signOut`, exibindo "Seu plano expirou. Acesso bloqueado."
+- Trigger de banco `trg_enforce_plan_expiration` continua atuando como rede de segurança no servidor.
+
+**Arquivos:**
+- `src/components/PlanExpirationWatcher.tsx` (novo)
+- `src/App.tsx`
