@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useGroup } from "@/contexts/GroupContext";
 
 interface IngredienteReceita {
   id: string;
@@ -46,12 +47,14 @@ export interface Receita {
   imagens?: string[];
 }
 
-async function fetchReceitas() {
-  // 1. Buscar todas as receitas em uma única query
+async function fetchReceitas(activeGroupId: string) {
+  // 1. Buscar todas as receitas em uma única query (filtro explícito por grupo)
   const { data: receitasData, error: receitasError } = await supabase
     .from("receitas")
     .select("*")
+    .eq("owner_group_id", activeGroupId)
     .order("nome");
+
 
   if (receitasError) throw receitasError;
   if (!receitasData || receitasData.length === 0) return [];
@@ -155,10 +158,13 @@ async function fetchReceitas() {
 }
 
 export function useReceitas() {
+  const { activeGroupId } = useGroup();
   const { data: receitas = [], isLoading, error, refetch } = useQuery({
-    queryKey: ["receitas"],
-    queryFn: fetchReceitas,
+    queryKey: ["receitas", activeGroupId],
+    queryFn: () => fetchReceitas(activeGroupId!),
+    enabled: !!activeGroupId,
   });
+
 
   // Retornar apenas receitas ativas
   const receitasAtivas = receitas.filter((receita) => receita.cardapio === "ativo");
