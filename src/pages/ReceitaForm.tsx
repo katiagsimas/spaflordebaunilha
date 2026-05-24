@@ -12,6 +12,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { useMaoObraPerfis } from "@/hooks/useMaoObraPerfis";
 import { useReceitasMaoObra } from "@/hooks/useReceitasMaoObra";
 import { MaoObraSection, type MaoObraLinha } from "@/components/MaoObraSection";
+import { CardAnalise } from "@/components/CardAnalise";
 import { useAuth } from "@/contexts/AuthContext";
 
 import { Input } from "@/components/ui/input";
