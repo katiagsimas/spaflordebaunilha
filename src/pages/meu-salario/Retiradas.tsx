@@ -1,9 +1,20 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useResumoMesAnterior, useRetiradas, useExcluirRetirada, formatBRL } from "@/hooks/useMeuSalario";
 import { RetiradaForm } from "@/components/meu-salario/RetiradaForm";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Trash2 } from "lucide-react";
 import { formatDateBR, getTodayISO, getFirstDayOfMonth, getLastDayOfMonth } from "@/lib/dateUtils";
+import type { Retirada } from "@/hooks/useMeuSalario";
 
 export function Retiradas() {
   const { data: resumo } = useResumoMesAnterior();
@@ -18,6 +29,9 @@ export function Retiradas() {
 
   const { data: retiradas = [] } = useRetiradas(inicio, fim);
   const excluir = useExcluirRetirada();
+
+  const [retiradaParaExcluir, setRetiradaParaExcluir] = useState<Retirada | null>(null);
+  const dialogoAberto = !!retiradaParaExcluir;
 
   const total = retiradas.reduce((s, r) => s + Number(r.valor), 0);
 
@@ -69,7 +83,7 @@ export function Retiradas() {
                     <Button
                       size="icon"
                       variant="ghost"
-                      onClick={() => excluir.mutate(r.id)}
+                      onClick={() => setRetiradaParaExcluir(r)}
                       className="text-[hsl(var(--rd-rose-queimado))] hover:bg-[hsl(var(--rd-rose-queimado)/0.1)]"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -81,6 +95,39 @@ export function Retiradas() {
           </table>
         )}
       </div>
+
+      <AlertDialog open={dialogoAberto} onOpenChange={(open) => !open && setRetiradaParaExcluir(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir retirada?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {retiradaParaExcluir && (
+                <>
+                  Tem certeza que deseja excluir a retirada de{" "}
+                  <strong>{formatDateBR(retiradaParaExcluir.data_retirada)}</strong> no valor de{" "}
+                  <strong>{formatBRL(Number(retiradaParaExcluir.valor))}</strong>?
+                  <br />
+                  Esta ação não pode ser desfeita.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setRetiradaParaExcluir(null)}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (retiradaParaExcluir) {
+                  excluir.mutate(retiradaParaExcluir.id);
+                }
+                setRetiradaParaExcluir(null);
+              }}
+              className="bg-[hsl(var(--rd-rose-queimado))] text-white hover:bg-[hsl(var(--rd-rose-queimado)/0.9)]"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
