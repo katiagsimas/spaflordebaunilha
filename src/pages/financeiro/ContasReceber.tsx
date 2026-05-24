@@ -678,11 +678,11 @@ export default function ContasReceber() {
   const getBadgeStatus = (status: string) => {
     const badges: Record<string, JSX.Element> = {
       aberto: <Badge variant="outline">Aberto</Badge>,
-      pago: <Badge className="bg-green-100 text-green-700 border-green-300">Pago</Badge>,
-      pagamento_parcial: <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">Pagamento Parcial</Badge>,
-      atrasado: <Badge className="bg-red-100 text-red-700 border-red-300">Atrasado</Badge>,
-      vencido: <Badge className="bg-red-100 text-red-700 border-red-300">Vencido</Badge>,
-      adiantado: <Badge className="bg-blue-100 text-blue-700 border-blue-300">Adiantado</Badge>,
+      pago: <Badge className="bg-success/15 text-success border-success/40">Pago</Badge>,
+      pagamento_parcial: <Badge className="bg-warning/15 text-warning border-warning/40">Pagamento Parcial</Badge>,
+      atrasado: <Badge className="bg-cda-coral/15 text-cda-coral border-cda-coral/40">Atrasado</Badge>,
+      vencido: <Badge className="bg-cda-coral/15 text-cda-coral border-cda-coral/40">Vencido</Badge>,
+      adiantado: <Badge className="bg-cda-dourado/15 text-primary border-cda-dourado/40">Adiantado</Badge>,
     };
     return badges[status] || <Badge variant="outline">{status}</Badge>;
   };
@@ -702,12 +702,12 @@ export default function ContasReceber() {
         <Card className="border-l-4 border-l-green-500">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <TrendingUp className="h-4 w-4 text-green-600" />
+              <div className="p-2 bg-success/15 rounded-lg">
+                <TrendingUp className="h-4 w-4 text-success" />
               </div>
               <div>
                 <p className="text-xs font-medium text-muted-foreground">A Receber</p>
-                <p className="text-lg font-bold text-green-600">
+                <p className="text-lg font-bold text-success">
                   {formatarValor(dashboard.total_a_receber)}
                 </p>
               </div>
@@ -718,12 +718,12 @@ export default function ContasReceber() {
         <Card className="border-l-4 border-l-blue-500">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <CheckCircle2 className="h-4 w-4 text-blue-600" />
+              <div className="p-2 bg-cda-dourado/15 rounded-lg">
+                <CheckCircle2 className="h-4 w-4 text-primary" />
               </div>
               <div>
                 <p className="text-xs font-medium text-muted-foreground">Recebido</p>
-                <p className="text-lg font-bold text-blue-600">
+                <p className="text-lg font-bold text-primary">
                   {formatarValor(dashboard.total_recebido)}
                 </p>
               </div>
@@ -734,12 +734,12 @@ export default function ContasReceber() {
         <Card className="border-l-4 border-l-orange-500">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <AlertTriangle className="h-4 w-4 text-orange-600" />
+              <div className="p-2 bg-warning/15 rounded-lg">
+                <AlertTriangle className="h-4 w-4 text-warning" />
               </div>
               <div>
                 <p className="text-xs font-medium text-muted-foreground">Em Atraso</p>
-                <p className="text-lg font-bold text-orange-600">
+                <p className="text-lg font-bold text-warning">
                   {formatarValor(dashboard.total_atrasado)}
                 </p>
               </div>
@@ -750,12 +750,12 @@ export default function ContasReceber() {
         <Card className="border-l-4 border-l-purple-500">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Calendar className="h-4 w-4 text-purple-600" />
+              <div className="p-2 bg-cda-pink/20 rounded-lg">
+                <Calendar className="h-4 w-4 text-cda-pink" />
               </div>
               <div>
                 <p className="text-xs font-medium text-muted-foreground">Vence Hoje</p>
-                <p className="text-lg font-bold text-purple-600">
+                <p className="text-lg font-bold text-cda-pink">
                   {formatarValor(dashboard.vencendo_hoje)}
                 </p>
               </div>
@@ -1100,13 +1100,13 @@ export default function ContasReceber() {
                   </TableCell>
                   <TableCell className="font-medium">{parcela.cliente_nome || 'N/A'}</TableCell>
                   <TableCell>{formatarData(parcela.data_vencimento)}</TableCell>
-                  <TableCell className="text-green-600 font-medium">
+                  <TableCell className="text-success font-medium">
                     {formatarValor(parcela.valor_total)}
                   </TableCell>
                   <TableCell className="font-mono font-medium">
                     {parcela.numero_parcela} de {parcela.numero_parcelas}
                   </TableCell>
-                  <TableCell className="text-green-600 font-medium">
+                  <TableCell className="text-success font-medium">
                     {formatarValor(parcela.valor_parcela)}
                   </TableCell>
                   <TableCell>
@@ -1144,7 +1144,7 @@ export default function ContasReceber() {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem 
                           onClick={() => handleExcluir(parcela.conta_receber_id)}
-                          className="text-red-600"
+                          className="text-cda-coral"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Excluir

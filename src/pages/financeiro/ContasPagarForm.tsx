@@ -470,8 +470,8 @@ export default function ContasPagarForm() {
       </div>
 
       {/* Alert Informativo */}
-      <Alert className={isEdicao ? "bg-amber-50 border-amber-200" : "bg-blue-50 border-blue-200"}>
-        <Info className={isEdicao ? "h-4 w-4 text-amber-600" : "h-4 w-4 text-blue-600"} />
+      <Alert className={isEdicao ? "bg-amber-50 border-amber-200" : "bg-cda-dourado/10 border-cda-dourado/40"}>
+        <Info className={isEdicao ? "h-4 w-4 text-amber-600" : "h-4 w-4 text-primary"} />
         <AlertDescription>
           {isEdicao ? (
             <>
@@ -699,7 +699,7 @@ export default function ContasPagarForm() {
             <div className="flex items-center justify-between">
               <CardTitle>Parcelas Geradas</CardTitle>
               {parcelasEditadas && (
-                <span className="text-xs text-orange-600">
+                <span className="text-xs text-warning">
                   ⚠️ Parcelas editadas
                 </span>
               )}

@@ -393,27 +393,27 @@ export default function DarBaixaDialog({
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Valor Total da Parcela:</span>
-              <span className="font-medium text-green-600">
+              <span className="font-medium text-success">
                 {formatarValor(parcela.valor_parcela)}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Já Pago (Principal):</span>
-              <span className="font-medium text-blue-600">
+              <span className="font-medium text-primary">
                 {formatarValor(valorPagoPrincipal)}
               </span>
             </div>
             <div className="flex justify-between pt-2 border-t">
               <span className="text-sm font-medium">Valor Restante:</span>
-              <span className="font-bold text-red-600">
+              <span className="font-bold text-cda-coral">
                 {formatarValor(valorRestante)}
               </span>
             </div>
           </div>
 
           {parcela.valor_pago > 0 && (
-            <Alert className="bg-blue-50 border-blue-200">
-              <Info className="h-4 w-4 text-blue-600" />
+            <Alert className="bg-cda-dourado/10 border-cda-dourado/40">
+              <Info className="h-4 w-4 text-primary" />
               <AlertDescription>
                 Esta parcela já teve pagamento(s) anterior(es).
               </AlertDescription>
@@ -488,10 +488,10 @@ export default function DarBaixaDialog({
           </div>
 
           {/* Cálculo do Valor Líquido */}
-          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="p-3 bg-cda-dourado/10 border border-cda-dourado/40 rounded-lg">
             <div className="flex justify-between items-center">
               <span className="font-medium">Valor Líquido a Receber:</span>
-              <span className="text-lg font-bold text-blue-700">
+              <span className="text-lg font-bold text-primary">
                 {formatarValor(calcularValorLiquido())}
               </span>
             </div>
@@ -575,7 +575,7 @@ export default function DarBaixaDialog({
               ) : (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-blue-600" />
+                    <FileText className="h-5 w-5 text-primary" />
                     <div>
                       <p className="text-sm font-medium">{arquivoComprovante.name}</p>
                       <p className="text-xs text-muted-foreground">
