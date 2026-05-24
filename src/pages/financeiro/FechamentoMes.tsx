@@ -184,24 +184,44 @@ export default function FechamentoMes() {
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            {checklist.map(item => (
-              <div key={item.id} className="flex items-start gap-3 p-3 rounded-lg border bg-card">
-                <Checkbox
-                  checked={item.concluido}
-                  disabled={isFechado}
-                  onCheckedChange={(c) => toggle.mutate({ id: item.id, concluido: !!c })}
-                  className="mt-1"
-                />
-                <div className="flex-1">
-                  <p className={`font-medium ${item.concluido ? "line-through text-muted-foreground" : ""}`}>
-                    {item.titulo}
-                  </p>
-                  {item.descricao && (
-                    <p className="text-sm text-muted-foreground mt-0.5">{item.descricao}</p>
-                  )}
+            {checklist.map(item => {
+              const anoRef = refIso.split("-")[0];
+              const linkAtalho =
+                item.titulo.includes("DRE")
+                  ? `/financeiro/dre?ano=${anoRef}`
+                  : item.titulo.includes("Fluxo de Caixa")
+                    ? `/financeiro/fluxo-caixa/mensal?ano=${anoRef}`
+                    : null;
+              return (
+                <div key={item.id} className="flex items-start gap-3 p-3 rounded-lg border bg-card">
+                  <Checkbox
+                    checked={item.concluido}
+                    disabled={isFechado}
+                    onCheckedChange={(c) => toggle.mutate({ id: item.id, concluido: !!c })}
+                    className="mt-1"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className={`font-medium ${item.concluido ? "line-through text-muted-foreground" : ""}`}>
+                        {item.titulo}
+                      </p>
+                      {linkAtalho && (
+                        <Link
+                          to={linkAtalho}
+                          className="inline-flex items-center gap-1 text-xs text-cda-dourado hover:underline shrink-0"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          Abrir
+                        </Link>
+                      )}
+                    </div>
+                    {item.descricao && (
+                      <p className="text-sm text-muted-foreground mt-0.5">{item.descricao}</p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </CardContent>
         </Card>
       )}
