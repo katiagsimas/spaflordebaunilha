@@ -21,6 +21,7 @@ export default function FechamentoMes() {
   const meses = listaMesesRecentes(12);
   const [refIso, setRefIso] = useState(mesAnteriorIso());
   const [observacoes, setObservacoes] = useState("");
+  const [motivoReabertura, setMotivoReabertura] = useState("");
 
   const { fechamento, previa, checklist, isLoading } = useFechamentoMes(refIso);
   const { data: historico } = useListaFechamentos();
