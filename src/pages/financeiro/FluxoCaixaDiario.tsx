@@ -69,39 +69,65 @@ export default function FluxoCaixaDiario() {
       const inicio = startOfMonth(mesAno);
       const fim = endOfMonth(mesAno);
       
-      // Calcular saldo inicial
-      const fimMesAnterior = new Date(mesAno.getFullYear(), mesAno.getMonth(), 0);
+      // Calcular saldo inicial — fonte única de verdade
       const inicioMesAtual = format(inicio, "yyyy-MM-dd");
-      
-      // 1. Buscar saldo inicial dos bancos (Saldo Anterior do Dashboard)
-      const { data: saldos } = await supabase
-        .from('bancos')
-        .select('saldo_inicial')
-        .eq('usuario_id', user.id);
 
-      const saldoInicialBancos = saldos?.reduce((acc, s) => acc + (s.saldo_inicial || 0), 0) || 0;
-
-      // 2. Buscar saldos iniciais configurados até o início do mês atual
-      const { data: saldosConfigurados } = await supabase
+      // 1. Buscar o registro mais recente em saldos_iniciais_bancos
+      //    com data_referencia < início do mês atual
+      const { data: saldoRefArr } = await supabase
         .from('saldos_iniciais_bancos')
         .select('saldo_inicial, data_referencia')
         .eq('user_id', user.id)
-        .lt('data_referencia', inicioMesAtual);
+        .lt('data_referencia', inicioMesAtual)
+        .order('data_referencia', { ascending: false })
+        .limit(1);
 
-      const totalSaldosConfigurados = saldosConfigurados?.reduce((acc, s) => acc + (s.saldo_inicial || 0), 0) || 0;
+      const saldoRef = saldoRefArr?.[0];
 
-      // 3. Buscar movimentações anteriores ao mês atual
-      const { data: entradasAnteriores } = await supabase
+      let pontoPartida = 0;
+      let dataInicioMovimentacoes: string | null = null;
+
+      if (saldoRef) {
+        // Caso 1: usar saldo configurado mais recente como ponto de partida
+        // e considerar apenas movimentações posteriores a ele
+        pontoPartida = saldoRef.saldo_inicial || 0;
+        dataInicioMovimentacoes = saldoRef.data_referencia;
+      } else {
+        // Caso 2: usar a soma dos saldo_inicial dos bancos do usuário
+        // e considerar todas as movimentações históricas
+        const { data: bancos } = await supabase
+          .from('bancos')
+          .select('saldo_inicial')
+          .eq('usuario_id', user.id);
+        pontoPartida = bancos?.reduce((acc, b) => acc + (b.saldo_inicial || 0), 0) || 0;
+        dataInicioMovimentacoes = null;
+      }
+
+      // Movimentações entre dataInicioMovimentacoes (exclusivo) e início do mês atual
+      // Filtro de usuario_id via join nas tabelas pai garante isolamento de dados
+      let queryEntradas = supabase
         .from("contas_receber_pagamentos")
-        .select("valor_pago, juros, desconto")
+        .select("valor_pago, juros, desconto, contas_receber_parcelas!inner(contas_receber!inner(usuario_id))")
         .lt("data_pagamento", inicioMesAtual)
-        .eq("estornado", false);
+        .eq("estornado", false)
+        .eq("contas_receber_parcelas.contas_receber.usuario_id", user.id);
 
-      const { data: saidasAnteriores } = await supabase
+      let querySaidas = supabase
         .from("contas_pagar_pagamentos")
-        .select("valor_pago, juros, desconto")
+        .select("valor_pago, juros, desconto, contas_pagar_parcelas!inner(contas_pagar!inner(usuario_id))")
         .lt("data_pagamento", inicioMesAtual)
-        .eq("estornado", false);
+        .eq("estornado", false)
+        .eq("contas_pagar_parcelas.contas_pagar.usuario_id", user.id);
+
+      if (dataInicioMovimentacoes) {
+        queryEntradas = queryEntradas.gte("data_pagamento", dataInicioMovimentacoes);
+        querySaidas = querySaidas.gte("data_pagamento", dataInicioMovimentacoes);
+      }
+
+      const [{ data: entradasAnteriores }, { data: saidasAnteriores }] = await Promise.all([
+        queryEntradas,
+        querySaidas,
+      ]);
 
       const totalEntradasAnteriores = entradasAnteriores
         ?.reduce((sum, e) => sum + (e.valor_pago || 0) + (e.juros || 0) - (e.desconto || 0), 0) || 0;
@@ -109,9 +135,8 @@ export default function FluxoCaixaDiario() {
       const totalSaidasAnteriores = saidasAnteriores
         ?.reduce((sum, s) => sum + (s.valor_pago || 0) + (s.juros || 0) - (s.desconto || 0), 0) || 0;
 
-      // Calcular saldo inicial: Saldo Bancos + Saldos Configurados + Entradas - Saídas anteriores
-      const saldoIni = saldoInicialBancos + totalSaldosConfigurados + totalEntradasAnteriores - totalSaidasAnteriores;
-      
+      const saldoIni = pontoPartida + totalEntradasAnteriores - totalSaidasAnteriores;
+
       setSaldoInicial(saldoIni);
       
       // Buscar todas as entradas do mês
