@@ -122,6 +122,10 @@ export default function Dashboard() {
     clientes: 0
   });
 
+  // Aniversariantes do mês
+  const [aniversariantes, setAniversariantes] = useState<any[]>([]);
+
+
   // Vendas por mês (últimos 6 meses)
   const [vendasPorMes, setVendasPorMes] = useState<{ mes: string; total: number }[]>([]);
   // Fluxo de caixa (últimos 6 meses)
