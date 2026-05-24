@@ -96,12 +96,12 @@ export default function ContasPagar() {
 
   // Filtros avançados
   const [mostrarFiltrosAvancados, setMostrarFiltrosAvancados] = useState(false);
-  const [dataEmissaoInicio, setDataEmissaoInicio] = useState('');
-  const [dataEmissaoFim, setDataEmissaoFim] = useState('');
-  const [dataPagamentoInicio, setDataPagamentoInicio] = useState('');
-  const [dataPagamentoFim, setDataPagamentoFim] = useState('');
-  const [dataVencimentoInicio, setDataVencimentoInicio] = useState('');
-  const [dataVencimentoFim, setDataVencimentoFim] = useState('');
+  const [dataEmissaoInicio, setDataEmissaoInicio] = useState<Date | undefined>();
+  const [dataEmissaoFim, setDataEmissaoFim] = useState<Date | undefined>();
+  const [dataPagamentoInicio, setDataPagamentoInicio] = useState<Date | undefined>();
+  const [dataPagamentoFim, setDataPagamentoFim] = useState<Date | undefined>();
+  const [dataVencimentoInicio, setDataVencimentoInicio] = useState<Date | undefined>();
+  const [dataVencimentoFim, setDataVencimentoFim] = useState<Date | undefined>();
   const [fornecedorFiltro, setFornecedorFiltro] = useState('todos');
   const [planoContasFiltro, setPlanoContasFiltro] = useState('todos');
   const [categoriaFiltro, setCategoriaFiltro] = useState('todos');
