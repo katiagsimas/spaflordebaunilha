@@ -794,12 +794,14 @@ export default function DRE() {
 
                 {/* IMPOSTO */}
                 <TableRow>
-                  <TableCell>(-) Imposto de Renda e CSLL</TableCell>
+                  <TableCell>(-) Imposto de Renda e CSLL{aliquotaSimples == null ? ' *' : ` (${aliquotaSimples.toString().replace('.', ',')}%)`}</TableCell>
                   {dados.impostoRenda.map((val, i) => (
-                    <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
+                    <TableCell key={i} className="text-right">
+                      {aliquotaSimples == null ? '—' : (val > 0 ? val.toFixed(2) : '-')}
+                    </TableCell>
                   ))}
-                  <TableCell className="text-right">{calcularTotal(dados.impostoRenda).toFixed(2)}</TableCell>
-                  <TableCell className="text-right">{calcularAV(calcularTotal(dados.impostoRenda), receitaBrutaTotal).toFixed(0)}%</TableCell>
+                  <TableCell className="text-right">{aliquotaSimples == null ? '—' : calcularTotal(dados.impostoRenda).toFixed(2)}</TableCell>
+                  <TableCell className="text-right">{aliquotaSimples == null ? '—' : calcularAV(calcularTotal(dados.impostoRenda), receitaBrutaTotal).toFixed(0) + '%'}</TableCell>
                 </TableRow>
 
                 {/* LUCRO LÍQUIDO */}
