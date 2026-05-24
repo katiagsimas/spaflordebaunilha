@@ -210,7 +210,7 @@ export default function Fornecedores() {
 
   // Contatos aniversariantes do mês com informação do fornecedor
   const contatosAniversariantes = useMemo(() => {
-    return contatos.map(contato => {
+    return contatosGrupo.map((contato: any) => {
       const fornecedor = fornecedores.find(f => f.id === contato.fornecedor_id);
       return {
         ...contato,
@@ -218,7 +218,7 @@ export default function Fornecedores() {
         fornecedor_id: contato.fornecedor_id,
       };
     });
-  }, [contatos, fornecedores]);
+  }, [contatosGrupo, fornecedores]);
 
   // Filtrar fornecedores por busca
   const fornecedoresFiltrados = useMemo(() => {
