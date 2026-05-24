@@ -687,19 +687,19 @@ export default function ContasReceberDetalhes() {
   const getBadgeStatus = (status) => {
     const badges = {
       aberto: <Badge variant="outline">Aberto</Badge>,
-      pago: <Badge className="bg-green-100 text-green-700 border-green-300">Pago</Badge>,
-      pagamento_parcial: <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">Pagamento Parcial</Badge>,
-      atrasado: <Badge className="bg-red-100 text-red-700 border-red-300">Atrasado</Badge>,
-      adiantado: <Badge className="bg-blue-100 text-blue-700 border-blue-300">Adiantado</Badge>,
+      pago: <Badge className="bg-success/15 text-success border-success/40">Pago</Badge>,
+      pagamento_parcial: <Badge className="bg-warning/15 text-warning border-warning/40">Pagamento Parcial</Badge>,
+      atrasado: <Badge className="bg-cda-coral/15 text-cda-coral border-cda-coral/40">Atrasado</Badge>,
+      adiantado: <Badge className="bg-cda-dourado/15 text-primary border-cda-dourado/40">Adiantado</Badge>,
     };
     return badges[status] || <Badge variant="outline">{status}</Badge>;
   };
 
   const getBadgeTipoLancamento = (tipo) => {
     const badges = {
-      unico: <Badge variant="outline" className="bg-gray-100">Único</Badge>,
-      parcelado: <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300">Parcelado</Badge>,
-      recorrente: <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-300">Recorrente</Badge>,
+      unico: <Badge variant="outline" className="bg-muted/50">Único</Badge>,
+      parcelado: <Badge variant="outline" className="bg-cda-dourado/15 text-primary border-cda-dourado/40">Parcelado</Badge>,
+      recorrente: <Badge variant="outline" className="bg-cda-pink/20 text-cda-pink border-cda-pink/40">Recorrente</Badge>,
     };
     return badges[tipo] || <Badge variant="outline">{tipo}</Badge>;
   };
@@ -845,7 +845,7 @@ export default function ContasReceberDetalhes() {
             <div className="space-y-2 pt-2 border-t">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Valor Total da Conta</span>
-                <span className="font-medium text-lg text-green-600">
+                <span className="font-medium text-lg text-success">
                   {conta.valor ? formatarValor(conta.valor) : 'R$ 0,00'}
                 </span>
               </div>
@@ -854,7 +854,7 @@ export default function ContasReceberDetalhes() {
                 <span className="text-sm text-muted-foreground">
                   {conta.numero_parcelas === 1 ? 'Valor da Parcela' : 'Valor da Próxima Parcela'}
                 </span>
-                <span className="font-medium text-lg text-red-600">
+                <span className="font-medium text-lg text-cda-coral">
                   {(() => {
                     const proximaParcelaAberta = parcelas
                       .filter(p => p.status === 'aberto' || p.status === 'atrasado' || p.status === 'pagamento_parcial')
@@ -886,7 +886,7 @@ export default function ContasReceberDetalhes() {
             <div className="space-y-2 pt-2 border-t">
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Total Pago (Principal)</span>
-                <span className="font-medium text-green-600">
+                <span className="font-medium text-success">
                   {formatarValor(totais.totalPago)}
                 </span>
               </div>
@@ -894,7 +894,7 @@ export default function ContasReceberDetalhes() {
               {totais.totalJuros > 0 && (
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">+ Juros</span>
-                  <span className="font-medium text-red-600">
+                  <span className="font-medium text-cda-coral">
                     {formatarValor(totais.totalJuros)}
                   </span>
                 </div>
@@ -903,7 +903,7 @@ export default function ContasReceberDetalhes() {
               {totais.totalDescontos > 0 && (
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">- Descontos</span>
-                  <span className="font-medium text-blue-600">
+                  <span className="font-medium text-primary">
                     {formatarValor(totais.totalDescontos)}
                   </span>
                 </div>
@@ -911,14 +911,14 @@ export default function ContasReceberDetalhes() {
 
               <div className="flex justify-between pt-2 border-t">
                 <span className="text-sm font-medium">Total Líquido Recebido</span>
-                <span className="font-bold text-green-700">
+                <span className="font-bold text-success">
                   {formatarValor(totais.totalLiquido)}
                 </span>
               </div>
 
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Total em Aberto</span>
-                <span className="font-medium text-red-600">
+                <span className="font-medium text-cda-coral">
                   {formatarValor(totais.totalAberto)}
                 </span>
               </div>
@@ -987,12 +987,12 @@ export default function ContasReceberDetalhes() {
                       </TableCell>
                       <TableCell>{formatarData(parcela.data_emissao)}</TableCell>
                       <TableCell>{formatarData(parcela.data_vencimento)}</TableCell>
-                      <TableCell className="font-medium text-green-600">
+                      <TableCell className="font-medium text-success">
                         {formatarValor(parcela.valor_parcela)}
                       </TableCell>
                       <TableCell className="font-medium">
                         {parcela.valor_pago ? (
-                          <span className="text-green-600">{formatarValor(parcela.valor_pago)}</span>
+                          <span className="text-success">{formatarValor(parcela.valor_pago)}</span>
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
@@ -1006,14 +1006,14 @@ export default function ContasReceberDetalhes() {
                       </TableCell>
                       <TableCell>
                         {parcela.juros ? (
-                          <span className="text-red-600">{formatarValor(parcela.juros)}</span>
+                          <span className="text-cda-coral">{formatarValor(parcela.juros)}</span>
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
                       </TableCell>
                       <TableCell>
                         {parcela.desconto ? (
-                          <span className="text-green-600">{formatarValor(parcela.desconto)}</span>
+                          <span className="text-success">{formatarValor(parcela.desconto)}</span>
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
@@ -1027,8 +1027,8 @@ export default function ContasReceberDetalhes() {
           </div>
 
           {parcelas.length > 0 && (
-            <Alert className="mt-4 bg-blue-50 border-blue-200">
-              <Info className="h-4 w-4 text-blue-600" />
+            <Alert className="mt-4 bg-cda-dourado/10 border-cda-dourado/40">
+              <Info className="h-4 w-4 text-primary" />
               <AlertDescription>
                 <div className="grid grid-cols-3 gap-4 text-sm">
                   <div>
@@ -1109,12 +1109,12 @@ export default function ContasReceberDetalhes() {
                               {/* Linha do Pagamento Principal */}
                               <TableRow key={`pag-${pag.id}`}>
                                 <TableCell>
-                                  <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
+                                  <Badge variant="outline" className="bg-success/15 text-success border-success/40">
                                     Pagamento
                                   </Badge>
                                 </TableCell>
                                 <TableCell>{formatarData(pag.data_pagamento)}</TableCell>
-                                <TableCell className="font-medium text-green-600">
+                                <TableCell className="font-medium text-success">
                                   {formatarValor(parseFloat(pag.valor_pago))}
                                 </TableCell>
                                 <TableCell className="text-sm">
@@ -1135,7 +1135,7 @@ export default function ContasReceberDetalhes() {
                                           href={comp.signed_url || '#'}
                                           target="_blank"
                                           rel="noopener noreferrer"
-                                          className="flex items-center gap-1 text-xs text-blue-600 hover:underline disabled:opacity-50"
+                                          className="flex items-center gap-1 text-xs text-primary hover:underline disabled:opacity-50"
                                           onClick={(e) => {
                                             if (!comp.signed_url) {
                                               e.preventDefault();
@@ -1178,7 +1178,7 @@ export default function ContasReceberDetalhes() {
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={() => handleExcluirPagamento(pag)}
-                          className="text-red-600"
+                          className="text-cda-coral"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Excluir
@@ -1190,14 +1190,14 @@ export default function ContasReceberDetalhes() {
 
                               {/* Linha de Juros (se houver) */}
                               {pag.juros && parseFloat(pag.juros) > 0 && (
-                                <TableRow key={`juros-${pag.id}`} className="bg-red-50/50">
+                                <TableRow key={`juros-${pag.id}`} className="bg-cda-coral/10/50">
                                   <TableCell>
-                                    <Badge variant="outline" className="bg-red-100 text-red-700 border-red-300">
+                                    <Badge variant="outline" className="bg-cda-coral/15 text-cda-coral border-cda-coral/40">
                                       Juros
                                     </Badge>
                                   </TableCell>
                                   <TableCell>{formatarData(pag.data_pagamento)}</TableCell>
-                                  <TableCell className="font-medium text-red-600">
+                                  <TableCell className="font-medium text-cda-coral">
                                     + {formatarValor(parseFloat(pag.juros))}
                                   </TableCell>
                                   <TableCell className="text-sm">
@@ -1206,7 +1206,7 @@ export default function ContasReceberDetalhes() {
                                   <TableCell className="text-sm">
                                     {pag.tipo_documento?.descricao}
                                   </TableCell>
-                                  <TableCell className="text-xs text-red-600">
+                                  <TableCell className="text-xs text-cda-coral">
                                     Juros por atraso
                                   </TableCell>
                                   <TableCell>-</TableCell>
@@ -1216,14 +1216,14 @@ export default function ContasReceberDetalhes() {
 
                               {/* Linha de Desconto (se houver) */}
                               {pag.desconto && parseFloat(pag.desconto) > 0 && (
-                                <TableRow key={`desc-${pag.id}`} className="bg-blue-50/50">
+                                <TableRow key={`desc-${pag.id}`} className="bg-cda-dourado/10/50">
                                   <TableCell>
-                                    <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300">
+                                    <Badge variant="outline" className="bg-cda-dourado/15 text-primary border-cda-dourado/40">
                                       Desconto
                                     </Badge>
                                   </TableCell>
                                   <TableCell>{formatarData(pag.data_pagamento)}</TableCell>
-                                  <TableCell className="font-medium text-blue-600">
+                                  <TableCell className="font-medium text-primary">
                                     - {formatarValor(parseFloat(pag.desconto))}
                                   </TableCell>
                                   <TableCell className="text-sm">
@@ -1232,7 +1232,7 @@ export default function ContasReceberDetalhes() {
                                   <TableCell className="text-sm">
                                     {pag.tipo_documento?.descricao}
                                   </TableCell>
-                                  <TableCell className="text-xs text-blue-600">
+                                  <TableCell className="text-xs text-primary">
                                     Desconto concedido
                                   </TableCell>
                                   <TableCell>-</TableCell>
@@ -1245,7 +1245,7 @@ export default function ContasReceberDetalhes() {
                           {/* SEPARADOR - PAGAMENTOS ESTORNADOS */}
                           {pagamentosEstornados.length > 0 && (
                             <TableRow>
-                              <TableCell colSpan={8} className="bg-gray-100 font-medium text-center py-2">
+                              <TableCell colSpan={8} className="bg-muted/50 font-medium text-center py-2">
                                 Pagamentos Estornados ({pagamentosEstornados.length})
                               </TableCell>
                             </TableRow>
@@ -1255,23 +1255,23 @@ export default function ContasReceberDetalhes() {
                           {pagamentosEstornados.map((pag) => (
                             <>
                               {/* Linha do Pagamento Estornado */}
-                              <TableRow key={`pag-est-${pag.id}`} className="bg-gray-50 opacity-60">
+                              <TableRow key={`pag-est-${pag.id}`} className="bg-muted/30 opacity-60">
                                 <TableCell>
-                                  <Badge variant="outline" className="bg-gray-200 text-gray-700 border-gray-400">
+                                  <Badge variant="outline" className="bg-muted text-muted-foreground border-border">
                                     ESTORNADO
                                   </Badge>
                                 </TableCell>
                                 <TableCell className="line-through">{formatarData(pag.data_pagamento)}</TableCell>
-                                <TableCell className="font-medium text-gray-600 line-through">
+                                <TableCell className="font-medium text-muted-foreground line-through">
                                   {formatarValor(parseFloat(pag.valor_pago))}
                                 </TableCell>
-                                <TableCell className="text-sm text-gray-600">
+                                <TableCell className="text-sm text-muted-foreground">
                                   {pag.banco?.codigo} - {pag.banco?.nome}
                                 </TableCell>
-                                <TableCell className="text-sm text-gray-600">
+                                <TableCell className="text-sm text-muted-foreground">
                                   {pag.tipo_documento?.descricao}
                                 </TableCell>
-                                <TableCell className="text-xs text-gray-600">
+                                <TableCell className="text-xs text-muted-foreground">
                                   <div>
                                     <strong>Estornado em:</strong> {new Date(pag.data_estorno).toLocaleDateString('pt-BR')}
                                   </div>
@@ -1288,7 +1288,7 @@ export default function ContasReceberDetalhes() {
                                           href={comp.signed_url || '#'}
                                           target="_blank"
                                           rel="noopener noreferrer"
-                                          className="flex items-center gap-1 text-xs text-gray-500 hover:underline disabled:opacity-50"
+                                          className="flex items-center gap-1 text-xs text-muted-foreground hover:underline disabled:opacity-50"
                                           onClick={(e) => {
                                             if (!comp.signed_url) {
                                               e.preventDefault();
@@ -1306,7 +1306,7 @@ export default function ContasReceberDetalhes() {
                                       ))}
                                     </div>
                                   ) : (
-                                    <span className="text-xs text-gray-400">-</span>
+                                    <span className="text-xs text-muted-foreground">-</span>
                                   )}
                                 </TableCell>
                                 <TableCell className="text-right">
@@ -1316,41 +1316,41 @@ export default function ContasReceberDetalhes() {
                                     onClick={() => handleReverterEstorno(pag)}
                                     title="Reverter estorno"
                                   >
-                                    <RefreshCw className="h-4 w-4 text-green-600" />
+                                    <RefreshCw className="h-4 w-4 text-success" />
                                   </Button>
                                 </TableCell>
                               </TableRow>
 
                               {/* Juros e Desconto estornados */}
                               {pag.juros && parseFloat(pag.juros) > 0 && (
-                                <TableRow key={`juros-est-${pag.id}`} className="bg-gray-50 opacity-60">
+                                <TableRow key={`juros-est-${pag.id}`} className="bg-muted/30 opacity-60">
                                   <TableCell>
-                                    <Badge variant="outline" className="bg-gray-200 text-gray-600">
+                                    <Badge variant="outline" className="bg-muted text-muted-foreground">
                                       Juros
                                     </Badge>
                                   </TableCell>
                                   <TableCell className="line-through">{formatarData(pag.data_pagamento)}</TableCell>
-                                  <TableCell className="text-gray-600 line-through">
+                                  <TableCell className="text-muted-foreground line-through">
                                     + {formatarValor(parseFloat(pag.juros))}
                                   </TableCell>
-                                  <TableCell colSpan={5} className="text-xs text-gray-500">
+                                  <TableCell colSpan={5} className="text-xs text-muted-foreground">
                                     (Estornado)
                                   </TableCell>
                                 </TableRow>
                               )}
 
                               {pag.desconto && parseFloat(pag.desconto) > 0 && (
-                                <TableRow key={`desc-est-${pag.id}`} className="bg-gray-50 opacity-60">
+                                <TableRow key={`desc-est-${pag.id}`} className="bg-muted/30 opacity-60">
                                   <TableCell>
-                                    <Badge variant="outline" className="bg-gray-200 text-gray-600">
+                                    <Badge variant="outline" className="bg-muted text-muted-foreground">
                                       Desconto
                                     </Badge>
                                   </TableCell>
                                   <TableCell className="line-through">{formatarData(pag.data_pagamento)}</TableCell>
-                                  <TableCell className="text-gray-600 line-through">
+                                  <TableCell className="text-muted-foreground line-through">
                                     - {formatarValor(parseFloat(pag.desconto))}
                                   </TableCell>
-                                  <TableCell colSpan={5} className="text-xs text-gray-500">
+                                  <TableCell colSpan={5} className="text-xs text-muted-foreground">
                                     (Estornado)
                                   </TableCell>
                                 </TableRow>
@@ -1365,16 +1365,16 @@ export default function ContasReceberDetalhes() {
                             </TableCell>
                             <TableCell className="font-bold">
                               <div className="space-y-1">
-                                <div className="text-green-600">
+                                <div className="text-success">
                                   Pago: {formatarValor(totalValorPago)}
                                 </div>
                                 {totalJuros > 0 && (
-                                  <div className="text-red-600 text-sm">
+                                  <div className="text-cda-coral text-sm">
                                     + Juros: {formatarValor(totalJuros)}
                                   </div>
                                 )}
                                 {totalDesconto > 0 && (
-                                  <div className="text-blue-600 text-sm">
+                                  <div className="text-primary text-sm">
                                     - Desconto: {formatarValor(totalDesconto)}
                                   </div>
                                 )}
@@ -1386,7 +1386,7 @@ export default function ContasReceberDetalhes() {
                             <TableCell colSpan={5} className="text-sm text-muted-foreground">
                               {pagamentosAtivos.length} pagamento(s) ativo(s)
                               {pagamentosEstornados.length > 0 && (
-                                <span className="text-gray-500"> | {pagamentosEstornados.length} estornado(s)</span>
+                                <span className="text-muted-foreground"> | {pagamentosEstornados.length} estornado(s)</span>
                               )}
                             </TableCell>
                           </TableRow>
@@ -1414,8 +1414,8 @@ export default function ContasReceberDetalhes() {
           {pagamentoEditando && (
             <div className="space-y-4 py-4">
               {/* Info do Pagamento */}
-              <Alert className="bg-blue-50 border-blue-200">
-                <Info className="h-4 w-4 text-blue-600" />
+              <Alert className="bg-cda-dourado/10 border-cda-dourado/40">
+                <Info className="h-4 w-4 text-primary" />
                 <AlertDescription>
                   <strong>Atenção:</strong> Ao editar, a parcela será recalculada automaticamente.
                 </AlertDescription>
@@ -1563,14 +1563,14 @@ export default function ContasReceberDetalhes() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">Valor:</span>
-                  <span className="font-medium text-green-600">
+                  <span className="font-medium text-success">
                     {formatarValor(parseFloat(pagamentoEstornando.valor_pago))}
                   </span>
                 </div>
                 {pagamentoEstornando.juros && parseFloat(pagamentoEstornando.juros) > 0 && (
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Juros:</span>
-                    <span className="font-medium text-red-600">
+                    <span className="font-medium text-cda-coral">
                       + {formatarValor(parseFloat(pagamentoEstornando.juros))}
                     </span>
                   </div>
@@ -1578,15 +1578,15 @@ export default function ContasReceberDetalhes() {
                 {pagamentoEstornando.desconto && parseFloat(pagamentoEstornando.desconto) > 0 && (
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Desconto:</span>
-                    <span className="font-medium text-blue-600">
+                    <span className="font-medium text-primary">
                       - {formatarValor(parseFloat(pagamentoEstornando.desconto))}
                     </span>
                   </div>
                 )}
               </div>
 
-              <Alert className="bg-red-50 border-red-200">
-                <AlertTriangle className="h-4 w-4 text-red-600" />
+              <Alert className="bg-cda-coral/10 border-cda-coral/30">
+                <AlertTriangle className="h-4 w-4 text-cda-coral" />
                 <AlertDescription>
                   <strong>Atenção:</strong> O estorno recalculará automaticamente o status da parcela.
                   O pagamento permanecerá no histórico para auditoria.

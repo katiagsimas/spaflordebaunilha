@@ -517,7 +517,7 @@ export default function ContasReceberFormModal({
           <div className="flex items-center justify-between">
             <Label className="text-lg font-semibold">Parcelas Geradas</Label>
             {parcelasEditadas && (
-              <span className="text-xs text-orange-600">
+              <span className="text-xs text-warning">
                 ⚠️ Parcelas editadas
               </span>
             )}

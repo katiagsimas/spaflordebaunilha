@@ -360,8 +360,8 @@ export default function FluxoCaixaMensal() {
               </TableHeader>
               <TableBody>
                 {/* SALDO INICIAL */}
-                <TableRow className="bg-blue-50/50">
-                  <TableCell className="font-bold sticky left-0 bg-blue-50/50 z-10">SALDO INICIAL</TableCell>
+                <TableRow className="bg-cda-dourado/10/50">
+                  <TableCell className="font-bold sticky left-0 bg-cda-dourado/10/50 z-10">SALDO INICIAL</TableCell>
                   {fluxo.map((f, i) => (
                     <TableCell key={i} className="text-right font-medium">
                       {f.saldoInicial.toFixed(2)}
@@ -370,10 +370,10 @@ export default function FluxoCaixaMensal() {
                 </TableRow>
 
                 {/* ENTRADAS */}
-                <TableRow className="bg-green-50">
-                  <TableCell className="font-bold sticky left-0 bg-green-50 z-10">ENTRADAS</TableCell>
+                <TableRow className="bg-success/10">
+                  <TableCell className="font-bold sticky left-0 bg-success/10 z-10">ENTRADAS</TableCell>
                   {fluxo.map((f, i) => (
-                    <TableCell key={i} className="text-right font-bold text-green-700">
+                    <TableCell key={i} className="text-right font-bold text-success">
                       {f.entradas.total.toFixed(2)}
                     </TableCell>
                   ))}
@@ -422,10 +422,10 @@ export default function FluxoCaixaMensal() {
                 </TableRow>
 
                 {/* SAÍDAS */}
-                <TableRow className="bg-red-50">
-                  <TableCell className="font-bold sticky left-0 bg-red-50 z-10">SAÍDAS</TableCell>
+                <TableRow className="bg-cda-coral/10">
+                  <TableCell className="font-bold sticky left-0 bg-cda-coral/10 z-10">SAÍDAS</TableCell>
                   {fluxo.map((f, i) => (
-                    <TableCell key={i} className="text-right font-bold text-red-700">
+                    <TableCell key={i} className="text-right font-bold text-cda-coral">
                       {f.saidas.total.toFixed(2)}
                     </TableCell>
                   ))}
@@ -526,7 +526,7 @@ export default function FluxoCaixaMensal() {
                 <TableRow className="bg-amber-50">
                   <TableCell className="font-bold sticky left-0 bg-amber-50 z-10">SALDO OPERACIONAL</TableCell>
                   {fluxo.map((f, i) => (
-                    <TableCell key={i} className={`text-right font-bold ${f.saldoOperacional >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                    <TableCell key={i} className={`text-right font-bold ${f.saldoOperacional >= 0 ? 'text-success' : 'text-cda-coral'}`}>
                       {f.saldoOperacional.toFixed(2)}
                     </TableCell>
                   ))}
@@ -536,7 +536,7 @@ export default function FluxoCaixaMensal() {
                 <TableRow className="bg-primary/10">
                   <TableCell className="font-bold sticky left-0 bg-primary/10 z-10">SALDO FINAL</TableCell>
                   {fluxo.map((f, i) => (
-                    <TableCell key={i} className={`text-right font-bold ${f.saldoFinal >= 0 ? 'text-primary' : 'text-red-700'}`}>
+                    <TableCell key={i} className={`text-right font-bold ${f.saldoFinal >= 0 ? 'text-primary' : 'text-cda-coral'}`}>
                       {f.saldoFinal.toFixed(2)}
                     </TableCell>
                   ))}

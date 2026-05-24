@@ -79,12 +79,12 @@ export default function DashboardFinanceiro() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-green-600" />
+              <TrendingUp className="h-4 w-4 text-success" />
               Total a Receber
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-green-600">
+            <p className="text-2xl font-bold text-success">
               R$ {resumo.totalReceber.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </p>
           </CardContent>
@@ -93,12 +93,12 @@ export default function DashboardFinanceiro() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <TrendingDown className="h-4 w-4 text-red-600" />
+              <TrendingDown className="h-4 w-4 text-cda-coral" />
               Total a Pagar
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-red-600">
+            <p className="text-2xl font-bold text-cda-coral">
               R$ {resumo.totalPagar.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </p>
           </CardContent>
@@ -131,18 +131,18 @@ export default function DashboardFinanceiro() {
         <Card className={`${
           resumo.saldoLiquido >= 0
             ? "border-primary bg-primary/10"
-            : "border-red-500 bg-red-50"
+            : "border-red-500 bg-cda-coral/10"
         }`}>
           <CardHeader className="pb-2">
             <CardTitle className={`text-sm font-medium ${
-              resumo.saldoLiquido >= 0 ? "text-primary" : "text-red-700"
+              resumo.saldoLiquido >= 0 ? "text-primary" : "text-cda-coral"
             }`}>
               Saldo Líquido
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className={`text-2xl font-bold ${
-              resumo.saldoLiquido >= 0 ? "text-primary" : "text-red-700"
+              resumo.saldoLiquido >= 0 ? "text-primary" : "text-cda-coral"
             }`}>
               R$ {resumo.saldoLiquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </p>

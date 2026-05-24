@@ -19,9 +19,9 @@ interface TabelaInadimplenciaProps {
 }
 
 function getCorPorDiasAtraso(dias: number) {
-  if (dias > 30) return 'bg-red-600 text-white';
-  if (dias > 15) return 'bg-orange-500 text-white';
-  return 'bg-yellow-500 text-white';
+  if (dias > 30) return 'bg-cda-coral text-white';
+  if (dias > 15) return 'bg-warning text-white';
+  return 'bg-warning text-white';
 }
 
 export function TabelaInadimplencia({ tipo, itens }: TabelaInadimplenciaProps) {
@@ -32,15 +32,15 @@ export function TabelaInadimplencia({ tipo, itens }: TabelaInadimplenciaProps) {
   const cor = ehClientes
     ? {
         border: 'border-l-red-500',
-        iconBg: 'bg-red-50 dark:bg-red-950',
-        iconText: 'text-red-600 dark:text-red-400',
-        totalText: 'text-red-600 dark:text-red-400',
+        iconBg: 'bg-cda-coral/10 dark:bg-cda-coral/20',
+        iconText: 'text-cda-coral dark:text-cda-coral',
+        totalText: 'text-cda-coral dark:text-cda-coral',
       }
     : {
         border: 'border-l-orange-500',
-        iconBg: 'bg-orange-50 dark:bg-orange-950',
-        iconText: 'text-orange-600 dark:text-orange-400',
-        totalText: 'text-orange-600 dark:text-orange-400',
+        iconBg: 'bg-warning/10 dark:bg-warning/20',
+        iconText: 'text-warning dark:text-warning',
+        totalText: 'text-warning dark:text-warning',
       };
 
   const titulo = ehClientes ? 'Inadimplência - Clientes' : 'Inadimplência - Fornecedores';

@@ -584,19 +584,19 @@ export default function ContasPagarDetalhes() {
   const getBadgeStatus = (status: string) => {
     const badges: Record<string, JSX.Element> = {
       aberto: <Badge variant="outline">Aberto</Badge>,
-      pago: <Badge className="bg-green-100 text-green-700 border-green-300">Pago</Badge>,
-      pagamento_parcial: <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">Pagamento Parcial</Badge>,
-      atrasado: <Badge className="bg-red-100 text-red-700 border-red-300">Atrasado</Badge>,
-      adiantado: <Badge className="bg-blue-100 text-blue-700 border-blue-300">Adiantado</Badge>,
+      pago: <Badge className="bg-success/15 text-success border-success/40">Pago</Badge>,
+      pagamento_parcial: <Badge className="bg-warning/15 text-warning border-warning/40">Pagamento Parcial</Badge>,
+      atrasado: <Badge className="bg-cda-coral/15 text-cda-coral border-cda-coral/40">Atrasado</Badge>,
+      adiantado: <Badge className="bg-cda-dourado/15 text-primary border-cda-dourado/40">Adiantado</Badge>,
     };
     return badges[status] || <Badge variant="outline">{status}</Badge>;
   };
 
   const getBadgeTipoLancamento = (tipo: string) => {
     const badges: Record<string, JSX.Element> = {
-      unico: <Badge variant="outline" className="bg-gray-100">Único</Badge>,
-      parcelado: <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300">Parcelado</Badge>,
-      recorrente: <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-300">Recorrente</Badge>,
+      unico: <Badge variant="outline" className="bg-muted/50">Único</Badge>,
+      parcelado: <Badge variant="outline" className="bg-cda-dourado/15 text-primary border-cda-dourado/40">Parcelado</Badge>,
+      recorrente: <Badge variant="outline" className="bg-cda-pink/20 text-cda-pink border-cda-pink/40">Recorrente</Badge>,
     };
     return badges[tipo] || <Badge variant="outline">{tipo}</Badge>;
   };
@@ -733,27 +733,27 @@ export default function ContasPagarDetalhes() {
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Valor Total:</span>
-                <span className="font-bold text-red-600 text-lg">{formatarValor(conta.valor_total)}</span>
+                <span className="font-bold text-cda-coral text-lg">{formatarValor(conta.valor_total)}</span>
               </div>
               
               <Separator />
               
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Total Pago:</span>
-                <span className="font-medium text-green-600">{formatarValor(totais.totalLiquido)}</span>
+                <span className="font-medium text-success">{formatarValor(totais.totalLiquido)}</span>
               </div>
               
               {totais.totalJuros > 0 && (
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-muted-foreground">Juros:</span>
-                  <span className="text-red-600">+ {formatarValor(totais.totalJuros)}</span>
+                  <span className="text-cda-coral">+ {formatarValor(totais.totalJuros)}</span>
                 </div>
               )}
               
               {totais.totalDescontos > 0 && (
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-muted-foreground">Descontos:</span>
-                  <span className="text-blue-600">- {formatarValor(totais.totalDescontos)}</span>
+                  <span className="text-primary">- {formatarValor(totais.totalDescontos)}</span>
                 </div>
               )}
               
@@ -761,7 +761,7 @@ export default function ContasPagarDetalhes() {
               
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Saldo Restante:</span>
-                <span className="font-bold text-orange-600">{formatarValor(totais.totalAberto)}</span>
+                <span className="font-bold text-warning">{formatarValor(totais.totalAberto)}</span>
               </div>
             </div>
 
@@ -819,9 +819,9 @@ export default function ContasPagarDetalhes() {
                     </div>
                     <div className="text-sm text-muted-foreground space-y-1">
                       <p>Vencimento: <span className="font-medium text-foreground">{formatarData(parcela.data_vencimento)}</span></p>
-                      <p>Valor da Parcela: <span className="font-medium text-red-600">{formatarValor(parcela.valor_parcela)}</span></p>
+                      <p>Valor da Parcela: <span className="font-medium text-cda-coral">{formatarValor(parcela.valor_parcela)}</span></p>
                       {parcela.valor_pago > 0 && (
-                        <p>Valor Pago: <span className="font-medium text-green-600">{formatarValor(parcela.valor_pago)}</span></p>
+                        <p>Valor Pago: <span className="font-medium text-success">{formatarValor(parcela.valor_pago)}</span></p>
                       )}
                       {parcela.data_pagamento && (
                         <p>Data do Pagamento: <span className="font-medium text-foreground">{formatarData(parcela.data_pagamento)}</span></p>
@@ -842,7 +842,7 @@ export default function ContasPagarDetalhes() {
                           setParcelaSelecionada(parcela);
                           setModalDarBaixa(true);
                         }}>
-                          <DollarSign className="mr-2 h-4 w-4 text-green-600" />
+                          <DollarSign className="mr-2 h-4 w-4 text-success" />
                           Dar Baixa
                         </DropdownMenuItem>
                       )}
@@ -864,7 +864,7 @@ export default function ContasPagarDetalhes() {
                         key={pag.id}
                         className={`p-3 rounded-lg border ${
                           pag.estornado 
-                            ? 'bg-red-50 border-red-200' 
+                            ? 'bg-cda-coral/10 border-cda-coral/30' 
                             : 'bg-muted'
                         }`}
                       >
@@ -880,7 +880,7 @@ export default function ContasPagarDetalhes() {
                               </div>
                               <div>
                                 <span className="text-muted-foreground">Valor Pago:</span>
-                                <span className="ml-2 font-medium text-green-600">
+                                <span className="ml-2 font-medium text-success">
                                   {formatarValor(pag.valor_pago)}
                                 </span>
                               </div>
@@ -888,7 +888,7 @@ export default function ContasPagarDetalhes() {
                               {pag.juros > 0 && (
                                 <div>
                                   <span className="text-muted-foreground">Juros:</span>
-                                  <span className="ml-2 font-medium text-red-600">
+                                  <span className="ml-2 font-medium text-cda-coral">
                                     {formatarValor(pag.juros)}
                                   </span>
                                 </div>
@@ -897,7 +897,7 @@ export default function ContasPagarDetalhes() {
                               {pag.desconto > 0 && (
                                 <div>
                                   <span className="text-muted-foreground">Desconto:</span>
-                                  <span className="ml-2 font-medium text-blue-600">
+                                  <span className="ml-2 font-medium text-primary">
                                     {formatarValor(pag.desconto)}
                                   </span>
                                 </div>
@@ -921,7 +921,7 @@ export default function ContasPagarDetalhes() {
                             {/* Valor Líquido */}
                             <div className="pt-2 border-t">
                               <span className="text-sm text-muted-foreground">Valor Líquido:</span>
-                              <span className="ml-2 font-bold text-green-600">
+                              <span className="ml-2 font-bold text-success">
                                 {formatarValor(pag.valor_pago + (pag.juros || 0) - (pag.desconto || 0))}
                               </span>
                             </div>
@@ -945,7 +945,7 @@ export default function ContasPagarDetalhes() {
                                       href={comp.signed_url || '#'}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="text-xs bg-white px-3 py-1.5 rounded border hover:bg-gray-50 flex items-center gap-2 disabled:opacity-50"
+                                      className="text-xs bg-white px-3 py-1.5 rounded border hover:bg-muted/30 flex items-center gap-2 disabled:opacity-50"
                                       onClick={(e) => {
                                         if (!comp.signed_url) {
                                           e.preventDefault();
@@ -967,18 +967,18 @@ export default function ContasPagarDetalhes() {
 
                             {/* Informação de Estorno */}
                             {pag.estornado && (
-                              <div className="pt-2 border-t bg-red-100 -m-3 mt-2 p-3 rounded-b-lg">
+                              <div className="pt-2 border-t bg-cda-coral/15 -m-3 mt-2 p-3 rounded-b-lg">
                                 <div className="flex items-start gap-2">
-                                  <RefreshCw className="h-4 w-4 text-red-600 mt-0.5" />
+                                  <RefreshCw className="h-4 w-4 text-cda-coral mt-0.5" />
                                   <div className="flex-1">
                                     <p className="text-sm font-medium text-red-900">
                                       Pagamento Estornado
                                     </p>
-                                    <p className="text-xs text-red-700">
+                                    <p className="text-xs text-cda-coral">
                                       Data do estorno: {new Date(pag.data_estorno).toLocaleString('pt-BR')}
                                     </p>
                                     {pag.motivo_estorno && (
-                                      <p className="text-xs text-red-700 mt-1">
+                                      <p className="text-xs text-cda-coral mt-1">
                                         Motivo: {pag.motivo_estorno}
                                       </p>
                                     )}
@@ -1008,7 +1008,7 @@ export default function ContasPagarDetalhes() {
                                   </DropdownMenuItem>
                                   <DropdownMenuItem 
                                     onClick={() => handleExcluirPagamento(pag)}
-                                    className="text-red-600"
+                                    className="text-cda-coral"
                                   >
                                     <Trash2 className="mr-2 h-4 w-4" />
                                     Excluir
@@ -1016,7 +1016,7 @@ export default function ContasPagarDetalhes() {
                                 </>
                               ) : (
                                 <DropdownMenuItem onClick={() => handleReverterEstorno(pag)}>
-                                  <RefreshCw className="mr-2 h-4 w-4 text-green-600" />
+                                  <RefreshCw className="mr-2 h-4 w-4 text-success" />
                                   Reverter Estorno
                                 </DropdownMenuItem>
                               )}

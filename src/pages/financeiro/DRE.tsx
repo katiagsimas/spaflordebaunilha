@@ -524,7 +524,7 @@ export default function DRE() {
               </TableHeader>
               <TableBody>
                 {/* RECEITA BRUTA */}
-                <TableRow className="bg-green-50">
+                <TableRow className="bg-success/10">
                   <TableCell className="font-semibold">(+) Receita Bruta</TableCell>
                   {dados.receitaBruta.map((val, i) => (
                     <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
@@ -543,7 +543,7 @@ export default function DRE() {
                 </TableRow>
 
                 {/* DEDUÇÕES */}
-                <TableRow className="bg-red-50">
+                <TableRow className="bg-cda-coral/10">
                   <TableCell className="font-semibold">(-) Deduções Sobre Vendas</TableCell>
                   {dados.totalDeducoes.map((val, i) => (
                     <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
@@ -571,21 +571,21 @@ export default function DRE() {
                 </TableRow>
 
                 {/* RECEITA LÍQUIDA */}
-                <TableRow className="bg-blue-50">
+                <TableRow className="bg-cda-dourado/10">
                   <TableCell className="font-semibold">(=) Receita Líquida</TableCell>
                   {dados.receitaLiquida.map((val, i) => (
-                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-success' : 'text-cda-coral'}`}>
                       {val.toFixed(2)}
                     </TableCell>
                   ))}
-                  <TableCell className={`text-right font-bold ${calcularTotal(dados.receitaLiquida) >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                  <TableCell className={`text-right font-bold ${calcularTotal(dados.receitaLiquida) >= 0 ? 'text-success' : 'text-cda-coral'}`}>
                     {calcularTotal(dados.receitaLiquida).toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.receitaLiquida), receitaBrutaTotal).toFixed(0)}%</TableCell>
                 </TableRow>
 
                 {/* CUSTOS VARIÁVEIS */}
-                <TableRow className="bg-orange-50">
+                <TableRow className="bg-warning/10">
                   <TableCell className="font-semibold">(-) Custos Variáveis</TableCell>
                   {dados.totalCustosVariaveis.map((val, i) => (
                     <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
@@ -631,14 +631,14 @@ export default function DRE() {
                 </TableRow>
 
                 {/* MARGEM DE CONTRIBUIÇÃO */}
-                <TableRow className="bg-purple-50">
+                <TableRow className="bg-cda-pink/15">
                   <TableCell className="font-semibold">(=) Margem de Contribuição</TableCell>
                   {dados.margemContribuicao.map((val, i) => (
-                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-purple-700' : 'text-red-700'}`}>
+                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-cda-pink' : 'text-cda-coral'}`}>
                       {val.toFixed(2)}
                     </TableCell>
                   ))}
-                  <TableCell className={`text-right font-bold ${calcularTotal(dados.margemContribuicao) >= 0 ? 'text-purple-700' : 'text-red-700'}`}>
+                  <TableCell className={`text-right font-bold ${calcularTotal(dados.margemContribuicao) >= 0 ? 'text-cda-pink' : 'text-cda-coral'}`}>
                     {calcularTotal(dados.margemContribuicao).toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.margemContribuicao), receitaBrutaTotal).toFixed(0)}%</TableCell>
@@ -658,7 +658,7 @@ export default function DRE() {
                 </TableRow>
 
                 {/* CUSTOS FIXOS */}
-                <TableRow className="bg-yellow-50">
+                <TableRow className="bg-warning/10">
                   <TableCell className="font-semibold">(-) Custos Fixos</TableCell>
                   {dados.totalCustosFixos.map((val, i) => (
                     <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
@@ -695,14 +695,14 @@ export default function DRE() {
                 </TableRow>
 
                 {/* RESULTADO OPERACIONAL */}
-                <TableRow className="bg-blue-100">
+                <TableRow className="bg-cda-dourado/15">
                   <TableCell className="font-semibold">(=) Resultado Operacional</TableCell>
                   {dados.resultadoOperacional.map((val, i) => (
-                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-blue-700' : 'text-red-700'}`}>
+                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-primary' : 'text-cda-coral'}`}>
                       {val.toFixed(2)}
                     </TableCell>
                   ))}
-                  <TableCell className={`text-right font-bold ${calcularTotal(dados.resultadoOperacional) >= 0 ? 'text-blue-700' : 'text-red-700'}`}>
+                  <TableCell className={`text-right font-bold ${calcularTotal(dados.resultadoOperacional) >= 0 ? 'text-primary' : 'text-cda-coral'}`}>
                     {calcularTotal(dados.resultadoOperacional).toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.resultadoOperacional), receitaBrutaTotal).toFixed(0)}%</TableCell>
@@ -728,10 +728,10 @@ export default function DRE() {
                 </TableRow>
 
                 {/* NÃO OPERACIONAL */}
-                <TableRow className="bg-gray-50">
+                <TableRow className="bg-muted/30">
                   <TableCell className="font-semibold">Resultado Não Operacional</TableCell>
                   {dados.resultadoNaoOperacional.map((val, i) => (
-                    <TableCell key={i} className={`text-right ${val >= 0 ? '' : 'text-red-600'}`}>
+                    <TableCell key={i} className={`text-right ${val >= 0 ? '' : 'text-cda-coral'}`}>
                       {val.toFixed(2)}
                     </TableCell>
                   ))}
@@ -758,14 +758,14 @@ export default function DRE() {
                 </TableRow>
 
                 {/* LAIR */}
-                <TableRow className="bg-yellow-100">
+                <TableRow className="bg-warning/15">
                   <TableCell className="font-semibold">(=) Lucro Antes do Imposto de Renda (LAIR)</TableCell>
                   {dados.lair.map((val, i) => (
-                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-yellow-700' : 'text-red-700'}`}>
+                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-warning' : 'text-cda-coral'}`}>
                       {val.toFixed(2)}
                     </TableCell>
                   ))}
-                  <TableCell className={`text-right font-bold ${calcularTotal(dados.lair) >= 0 ? 'text-yellow-700' : 'text-red-700'}`}>
+                  <TableCell className={`text-right font-bold ${calcularTotal(dados.lair) >= 0 ? 'text-warning' : 'text-cda-coral'}`}>
                     {calcularTotal(dados.lair).toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.lair), receitaBrutaTotal).toFixed(0)}%</TableCell>
@@ -785,11 +785,11 @@ export default function DRE() {
                 <TableRow className="bg-primary/10">
                   <TableCell className="font-bold">(=) Lucro Líquido</TableCell>
                   {dados.lucroLiquido.map((val, i) => (
-                    <TableCell key={i} className={`text-right font-semibold ${val >= 0 ? 'text-primary' : 'text-red-700'}`}>
+                    <TableCell key={i} className={`text-right font-semibold ${val >= 0 ? 'text-primary' : 'text-cda-coral'}`}>
                       {val.toFixed(2)}
                     </TableCell>
                   ))}
-                  <TableCell className={`text-right font-bold ${calcularTotal(dados.lucroLiquido) >= 0 ? 'text-primary' : 'text-red-700'}`}>
+                  <TableCell className={`text-right font-bold ${calcularTotal(dados.lucroLiquido) >= 0 ? 'text-primary' : 'text-cda-coral'}`}>
                     {calcularTotal(dados.lucroLiquido).toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.lucroLiquido), receitaBrutaTotal).toFixed(0)}%</TableCell>
@@ -828,13 +828,13 @@ export default function DRE() {
         <CardContent>
           {/* Cards de Indicadores */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <Card className="border-green-200 bg-green-50">
+            <Card className="border-success/30 bg-success/10">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
-                  <DollarSign className="h-8 w-8 text-green-600" />
+                  <DollarSign className="h-8 w-8 text-success" />
                   <div className="text-right">
                     <p className="text-sm text-muted-foreground">Receitas Totais</p>
-                    <p className="text-2xl font-bold text-green-700">
+                    <p className="text-2xl font-bold text-success">
                       R$ {receitaTotalAnual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </p>
                   </div>
@@ -842,13 +842,13 @@ export default function DRE() {
               </CardContent>
             </Card>
 
-            <Card className="border-red-200 bg-red-50">
+            <Card className="border-cda-coral/30 bg-cda-coral/10">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
-                  <TrendingDown className="h-8 w-8 text-red-600" />
+                  <TrendingDown className="h-8 w-8 text-cda-coral" />
                   <div className="text-right">
                     <p className="text-sm text-muted-foreground">Custos Totais</p>
-                    <p className="text-2xl font-bold text-red-700">
+                    <p className="text-2xl font-bold text-cda-coral">
                       R$ {custosTotaisAnual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </p>
                   </div>
@@ -856,15 +856,15 @@ export default function DRE() {
               </CardContent>
             </Card>
 
-            <Card className={`${lucroLiquidoAnual >= 0 ? 'border-primary bg-primary/10' : 'border-red-500 bg-red-50'}`}>
+            <Card className={`${lucroLiquidoAnual >= 0 ? 'border-primary bg-primary/10' : 'border-red-500 bg-cda-coral/10'}`}>
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
-                  <TrendingUp className={`h-8 w-8 ${lucroLiquidoAnual >= 0 ? 'text-primary' : 'text-red-600'}`} />
+                  <TrendingUp className={`h-8 w-8 ${lucroLiquidoAnual >= 0 ? 'text-primary' : 'text-cda-coral'}`} />
                   <div className="text-right">
-                    <p className={`text-sm ${lucroLiquidoAnual >= 0 ? 'text-primary' : 'text-red-700'}`}>
+                    <p className={`text-sm ${lucroLiquidoAnual >= 0 ? 'text-primary' : 'text-cda-coral'}`}>
                       Lucro Líquido
                     </p>
-                    <p className={`text-2xl font-bold ${lucroLiquidoAnual >= 0 ? 'text-primary' : 'text-red-700'}`}>
+                    <p className={`text-2xl font-bold ${lucroLiquidoAnual >= 0 ? 'text-primary' : 'text-cda-coral'}`}>
                       R$ {lucroLiquidoAnual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </p>
                   </div>
@@ -952,23 +952,23 @@ export default function DRE() {
           {/* Indicadores do Mês */}
           {anoMensal === ano && dadosMensal ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="border-purple-200 bg-purple-50">
+              <Card className="border-cda-pink/30 bg-cda-pink/15">
                 <CardContent className="pt-6">
                   <p className="text-sm text-muted-foreground mb-2">
                     Margem de Contribuição (R$)
                   </p>
-                  <p className={`text-2xl font-bold ${dadosMensal.margemContribuicao >= 0 ? 'text-purple-700' : 'text-red-700'}`}>
+                  <p className={`text-2xl font-bold ${dadosMensal.margemContribuicao >= 0 ? 'text-cda-pink' : 'text-cda-coral'}`}>
                     R$ {dadosMensal.margemContribuicao.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className="border-blue-200 bg-blue-50">
+              <Card className="border-cda-dourado/40 bg-cda-dourado/10">
                 <CardContent className="pt-6">
                   <p className="text-sm text-muted-foreground mb-2">
                     Margem de Contribuição (%)
                   </p>
-                  <p className="text-2xl font-bold text-blue-700">
+                  <p className="text-2xl font-bold text-primary">
                     {dadosMensal.margemContribuicaoPerc.toFixed(1)}%
                   </p>
                 </CardContent>
@@ -979,7 +979,7 @@ export default function DRE() {
                   <p className="text-sm text-muted-foreground mb-2">
                     Resultado Operacional (R$)
                   </p>
-                  <p className={`text-2xl font-bold ${dadosMensal.resultadoOperacional >= 0 ? 'text-blue-700' : 'text-red-700'}`}>
+                  <p className={`text-2xl font-bold ${dadosMensal.resultadoOperacional >= 0 ? 'text-primary' : 'text-cda-coral'}`}>
                     R$ {dadosMensal.resultadoOperacional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </CardContent>
@@ -990,7 +990,7 @@ export default function DRE() {
                   <p className="text-sm text-muted-foreground mb-2">
                     Margem Líquida (%)
                   </p>
-                  <p className={`text-2xl font-bold ${dadosMensal.margemLiquidaPerc >= 0 ? 'text-primary' : 'text-red-700'}`}>
+                  <p className={`text-2xl font-bold ${dadosMensal.margemLiquidaPerc >= 0 ? 'text-primary' : 'text-cda-coral'}`}>
                     {dadosMensal.margemLiquidaPerc.toFixed(1)}%
                   </p>
                 </CardContent>
