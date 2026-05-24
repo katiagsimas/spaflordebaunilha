@@ -12,16 +12,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import {
   AlertCircle,
   TrendingUp,
   TrendingDown,
   ChevronLeft,
   ChevronRight,
-  DollarSign
+  DollarSign,
+  Cake,
+  Calendar as CalendarIcon
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import { useNavigate } from "react-router-dom";
 import {
   format,
@@ -31,7 +35,8 @@ import {
   isSameDay,
   isToday,
   isTomorrow,
-  getDay
+  getDay,
+  addDays
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
@@ -68,6 +73,7 @@ interface DadosDia {
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { profile } = useUserProfile();
   const navigate = useNavigate();
   const [mesSelecionado, setMesSelecionado] = useState(new Date().getMonth());
   const [anoSelecionado, setAnoSelecionado] = useState(new Date().getFullYear());
@@ -115,6 +121,10 @@ export default function Dashboard() {
     encomendasConfirmadas: 0,
     clientes: 0
   });
+
+  // Aniversariantes do mês
+  const [aniversariantes, setAniversariantes] = useState<any[]>([]);
+
 
   // Vendas por mês (últimos 6 meses)
   const [vendasPorMes, setVendasPorMes] = useState<{ mes: string; total: number }[]>([]);
@@ -210,13 +220,36 @@ export default function Dashboard() {
         carregarCalendario(),
         carregarFinanceiro(),
         carregarVisaoEconomica(),
-        carregarContadoresEGraficos()
+        carregarContadoresEGraficos(),
+        carregarAniversariantes()
       ]);
     } catch (error) {
       console.error("Erro ao carregar dashboard:", error);
     } finally {
       setLoading(false);
     }
+  }
+
+  async function carregarAniversariantes() {
+    if (!user) return;
+    const mesAtual = new Date().getMonth() + 1;
+    const { data } = await supabase
+      .from('clientes')
+      .select('id, nome, data_aniversario, telefone')
+      .eq('usuario_id', user.id)
+      .not('data_aniversario', 'is', null);
+
+    const aniversariantesDoMes = (data || []).filter((c: any) => {
+      if (!c.data_aniversario) return false;
+      const mes = parseInt(c.data_aniversario.split('-')[1]);
+      return mes === mesAtual;
+    }).sort((a: any, b: any) => {
+      const diaA = parseInt(a.data_aniversario.split('-')[2]);
+      const diaB = parseInt(b.data_aniversario.split('-')[2]);
+      return diaA - diaB;
+    });
+
+    setAniversariantes(aniversariantesDoMes);
   }
 
   async function carregarContadoresEGraficos() {
@@ -942,8 +975,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* CONTADORES TOPO: Encomendas Confirmadas + Clientes */}
-      <div className="grid gap-2 grid-cols-2 md:grid-cols-2">
+      {/* CONTADOR TOPO: Encomendas Confirmadas */}
+      <div className="grid gap-2 grid-cols-1 md:grid-cols-1">
         <Card
           className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-primary group"
           onClick={() => navigate("/encomendas")}
@@ -967,43 +1000,19 @@ export default function Dashboard() {
             </div>
           </CardHeader>
         </Card>
-
-        <Card
-          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-accent group"
-          onClick={() => navigate("/cadastros/clientes")}
-        >
-          <CardHeader className="p-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 shrink-0 rounded-md bg-accent/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Users className="h-5 w-5 text-accent-foreground" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <CardTitle className="text-xs leading-tight mb-0.5 text-muted-foreground">
-                  Clientes <span className="font-normal">· {meses[mesSelecionado].slice(0, 3)}</span>
-                </CardTitle>
-                <p className="text-2xl font-bold leading-tight text-foreground">
-                  {contadores.clientes}
-                </p>
-                <p className="text-[10px] text-muted-foreground leading-tight">
-                  Número de clientes atendidos no período
-                </p>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
       </div>
 
-      {/* SALDO ATUAL + FINANCEIRO E ALERTAS (linha única e compacta) */}
-      <div className="grid gap-2 grid-cols-2 md:grid-cols-5">
-        {/* Saldo Atual (destaque, canto esquerdo) */}
+      {/* FINANCEIRO: Saldo Atual | A Receber | A Pagar */}
+      <div className="grid gap-2 grid-cols-1 md:grid-cols-3">
+        {/* Saldo Atual */}
         <Card
-          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-[#C9A14A]/25 group bg-white"
+          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#5B1A2B] group bg-white"
           onClick={() => navigate("/financeiro/dashboard")}
         >
           <CardHeader className="p-2.5">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 shrink-0 rounded-md bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <DollarSign className="h-3.5 w-3.5 text-[#C9A14A]/70" />
+              <div className="w-7 h-7 shrink-0 rounded-md bg-[#5B1A2B]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <DollarSign className="h-3.5 w-3.5 text-[#5B1A2B]" />
               </div>
               <div className="min-w-0">
                 <CardTitle className="text-[11px] leading-tight mb-0.5">Saldo Atual</CardTitle>
@@ -1017,21 +1026,26 @@ export default function Dashboard() {
 
         {/* A Receber */}
         <Card
-          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-[#C9A14A]/25 group"
+          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#C9A14A] group"
           onClick={() => navigate("/financeiro/contas-receber")}
         >
           <CardHeader className="p-2.5">
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 shrink-0 rounded-md bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <TrendingUp className="h-3.5 w-3.5 text-[#C9A14A]/70" />
+                <TrendingUp className="h-3.5 w-3.5 text-[#C9A14A]" />
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <CardTitle className="text-[11px] leading-tight mb-0.5">
                   A Receber <span className="font-normal text-muted-foreground">· {meses[mesSelecionado].slice(0, 3)}</span>
                 </CardTitle>
                 <p className="text-sm font-bold leading-tight truncate text-green-600 dark:text-green-400">
                   R$ {financeiro.receberAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
+                {alertas.receberAtrasado.valor > 0 && (
+                  <p className="text-orange-600 text-[10px] leading-tight mt-0.5">
+                    ⚠ R$ {alertas.receberAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} em atraso
+                  </p>
+                )}
               </div>
             </div>
           </CardHeader>
@@ -1039,70 +1053,152 @@ export default function Dashboard() {
 
         {/* A Pagar */}
         <Card
-          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-[#C9A14A]/25 group"
+          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#F28C82] group"
           onClick={() => navigate("/financeiro/contas-pagar")}
         >
           <CardHeader className="p-2.5">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 shrink-0 rounded-md bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <TrendingDown className="h-3.5 w-3.5 text-[#C9A14A]/70" />
+              <div className="w-7 h-7 shrink-0 rounded-md bg-[#F28C82]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <TrendingDown className="h-3.5 w-3.5 text-[#F28C82]" />
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <CardTitle className="text-[11px] leading-tight mb-0.5">
                   A Pagar <span className="font-normal text-muted-foreground">· {meses[mesSelecionado].slice(0, 3)}</span>
                 </CardTitle>
                 <p className="text-sm font-bold leading-tight truncate text-red-600 dark:text-red-400">
                   R$ {financeiro.pagarAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
-
-        {/* Contas a Receber Atrasadas */}
-        <Card
-          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-[#C9A14A]/25 group"
-          onClick={() => navigate("/financeiro/contas-receber")}
-        >
-          <CardHeader className="p-2.5">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 shrink-0 rounded-md bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <AlertCircle className="h-3.5 w-3.5 text-[#C9A14A]/70 animate-pulse" />
-              </div>
-              <div className="min-w-0">
-                <CardTitle className="text-[11px] leading-tight mb-0.5">
-                  Receber <span className="font-normal text-muted-foreground">· atraso</span>
-                </CardTitle>
-                <p className="text-sm font-bold leading-tight truncate text-orange-600 dark:text-orange-400">
-                  R$ {alertas.receberAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </p>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
-
-        {/* Contas a Pagar Atrasadas */}
-        <Card
-          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-[#C9A14A]/25 group"
-          onClick={() => navigate("/financeiro/contas-pagar")}
-        >
-          <CardHeader className="p-2.5">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 shrink-0 rounded-md bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <AlertCircle className="h-3.5 w-3.5 text-[#C9A14A]/70 animate-pulse" />
-              </div>
-              <div className="min-w-0">
-                <CardTitle className="text-[11px] leading-tight mb-0.5">
-                  Pagar <span className="font-normal text-muted-foreground">· atraso</span>
-                </CardTitle>
-                <p className="text-sm font-bold leading-tight truncate text-orange-600 dark:text-orange-400">
-                  R$ {alertas.pagarAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </p>
+                {alertas.pagarAtrasado.valor > 0 && (
+                  <p className="text-orange-600 text-[10px] leading-tight mt-0.5">
+                    ⚠ R$ {alertas.pagarAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} em atraso
+                  </p>
+                )}
               </div>
             </div>
           </CardHeader>
         </Card>
       </div>
+
+      {/* PRÓXIMAS ENTREGAS */}
+      {(() => {
+        const hojeDate = new Date();
+        hojeDate.setHours(0, 0, 0, 0);
+        const limite = addDays(hojeDate, 7);
+        const proximas = calendarioDados
+          .filter(d => d.dia >= hojeDate && d.dia <= limite && d.encomendas.length > 0)
+          .sort((a, b) => a.dia.getTime() - b.dia.getTime())
+          .flatMap(d => d.encomendas.map(e => ({ ...e, _dia: d.dia })))
+          .slice(0, 5);
+
+        const statusBadge = (status: string) => {
+          if (status === "confirmado") return "bg-[#C9A14A]/20 text-[#5B1A2B]";
+          if (status === "em_producao") return "bg-blue-100 text-blue-700";
+          if (status === "pronto") return "bg-green-100 text-green-700";
+          return "bg-muted text-muted-foreground";
+        };
+
+        return (
+          <Card>
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <CalendarIcon className="h-4 w-4 text-[#5B1A2B]" />
+                Próximas Entregas
+              </CardTitle>
+              <Button
+                variant="link"
+                size="sm"
+                className="text-[#5B1A2B] h-auto p-0"
+                onClick={() => navigate("/encomendas")}
+              >
+                Ver todas
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {proximas.length === 0 ? (
+                <p className="text-muted-foreground text-sm">Nenhuma entrega nos próximos 7 dias</p>
+              ) : (
+                <div className="space-y-2">
+                  {proximas.map((enc) => (
+                    <div
+                      key={enc.id}
+                      className="flex items-center justify-between gap-3 p-2 rounded-md hover:bg-muted/40 transition-colors cursor-pointer"
+                      onClick={() => navigate("/encomendas")}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-muted-foreground">
+                          {format(enc._dia, "EEE, dd/MM", { locale: ptBR })}
+                          {enc.hora_entrega ? ` · ${enc.hora_entrega}` : ""}
+                        </p>
+                        <p className="text-sm font-medium truncate">{enc.cliente}</p>
+                      </div>
+                      <p className="text-sm font-bold text-primary whitespace-nowrap">
+                        R$ {enc.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </p>
+                      <Badge className={`${statusBadge(enc.status)} border-transparent`}>
+                        {enc.status}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })()}
+
+      {/* ANIVERSARIANTES DO MÊS */}
+      {(() => {
+        const hojeStr = format(new Date(), "MM-dd");
+        return (
+          <Card>
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Cake className="h-4 w-4 text-[#C9A14A]" />
+                Aniversariantes este mês
+              </CardTitle>
+              <Button
+                variant="link"
+                size="sm"
+                className="text-[#5B1A2B] h-auto p-0"
+                onClick={() => navigate("/cadastros/clientes")}
+              >
+                Ver clientes
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {aniversariantes.length === 0 ? (
+                <p className="text-muted-foreground text-sm">Nenhum aniversariante este mês.</p>
+              ) : (
+                <div className="space-y-2">
+                  {aniversariantes.map((c: any) => {
+                    const partes = (c.data_aniversario || "").split("-");
+                    const dia = parseInt(partes[2] || "0");
+                    const ehHoje = `${partes[1]}-${partes[2]}` === hojeStr;
+                    return (
+                      <div
+                        key={c.id}
+                        className="flex items-center justify-between gap-3 p-2 rounded-md hover:bg-muted/40 transition-colors"
+                      >
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <span className="text-lg">🎂</span>
+                          <p className="text-sm font-medium truncate">{c.nome}</p>
+                        </div>
+                        <p className="text-xs text-muted-foreground whitespace-nowrap">dia {dia}</p>
+                        {ehHoje && (
+                          <Badge className="bg-[#C9A14A]/20 text-[#5B1A2B] border-transparent">
+                            Hoje! 🎉
+                          </Badge>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })()}
+
 
       {/* VISÃO ECONÔMICA */}
       <Card>
@@ -1131,16 +1227,16 @@ export default function Dashboard() {
         </CardHeader>
         <CardContent>
           {tabEconomica === "mensal" ? (
-            <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
+            <div className="grid gap-3 grid-cols-2 md:grid-cols-5">
               {/* Faturamento */}
               <Card 
-                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-2 border-[#C9A14A]/50 group"
+                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#C9A14A] group"
                 onClick={() => navigate("/financeiro/dashboard")}
               >
                 <CardHeader className="p-2.5">
                   <div className="flex flex-col items-center gap-1.5 text-center">
                     <div className="w-7 h-7 rounded-lg bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <TrendingUp className="h-3.5 w-3.5 text-[#C9A14A]/60" />
+                      <TrendingUp className="h-3.5 w-3.5 text-[#C9A14A]" />
                     </div>
                     <div>
                       <CardTitle className="text-[11px] mb-0.5">Faturamento</CardTitle>
@@ -1155,13 +1251,13 @@ export default function Dashboard() {
 
               {/* Custos */}
               <Card 
-                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-2 border-[#C9A14A]/50 group"
+                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#F28C82] group"
                 onClick={() => navigate("/financeiro/dashboard")}
               >
                 <CardHeader className="p-2.5">
                   <div className="flex flex-col items-center gap-1.5 text-center">
-                    <div className="w-7 h-7 rounded-lg bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <TrendingDown className="h-3.5 w-3.5 text-[#C9A14A]/60" />
+                    <div className="w-7 h-7 rounded-lg bg-[#F28C82]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <TrendingDown className="h-3.5 w-3.5 text-[#F28C82]" />
                     </div>
                     <div>
                       <CardTitle className="text-[11px] mb-0.5">Custos Totais</CardTitle>
@@ -1176,13 +1272,13 @@ export default function Dashboard() {
 
               {/* Lucro */}
               <Card 
-                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-2 border-[#C9A14A]/50 group"
+                className={`cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 group ${visaoEconomica.mensal.lucro >= 0 ? "border-l-[#5B1A2B]" : "border-l-[#F28C82]"}`}
                 onClick={() => navigate("/financeiro/dashboard")}
               >
                 <CardHeader className="p-2.5">
                   <div className="flex flex-col items-center gap-1.5 text-center">
-                    <div className="w-7 h-7 rounded-lg bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <DollarSign className="h-3.5 w-3.5 text-[#C9A14A]/60" />
+                    <div className="w-7 h-7 rounded-lg bg-[#5B1A2B]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <DollarSign className="h-3.5 w-3.5 text-[#5B1A2B]" />
                     </div>
                     <div>
                       <CardTitle className="text-[11px] mb-0.5">
@@ -1205,7 +1301,7 @@ export default function Dashboard() {
               </Card>
 
               {/* Ticket Médio */}
-              <Card className="border-l-2 border-[#C9A14A]/50 bg-white">
+              <Card className="border-l-4 border-l-[#C9A14A]/50 bg-white">
                 <CardHeader className="p-2.5">
                   <div className="flex flex-col items-center gap-1.5 text-center">
                     <div className="w-7 h-7 rounded-lg bg-[#C9A14A]/10 flex items-center justify-center">
@@ -1224,6 +1320,53 @@ export default function Dashboard() {
                   </div>
                 </CardHeader>
               </Card>
+
+              {/* Meta do Mês */}
+              {(() => {
+                const meta = profile?.meta_faturamento_mensal || 0;
+                const atual = visaoEconomica.mensal.receitas;
+                const pct = meta > 0 ? Math.min((atual / meta) * 100, 100) : 0;
+                const corBarra = pct >= 80 ? "bg-green-500" : pct >= 50 ? "bg-[#C9A14A]" : "bg-[#F28C82]";
+                return (
+                  <Card
+                    className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#5B1A2B] group"
+                    onClick={() => navigate("/planejamento")}
+                  >
+                    <CardHeader className="p-2.5">
+                      <div className="flex flex-col items-center gap-1.5 text-center">
+                        <div className="w-7 h-7 rounded-lg bg-[#5B1A2B]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <TrendingUp className="h-3.5 w-3.5 text-[#5B1A2B]" />
+                        </div>
+                        <div className="w-full">
+                          <CardTitle className="text-[11px] mb-0.5">Meta do Mês</CardTitle>
+                          <CardDescription className="text-[10px] mb-0.5">{meses[mesSelecionado]}</CardDescription>
+                          {meta > 0 ? (
+                            <>
+                              <p className="text-sm font-bold text-foreground">
+                                {pct.toFixed(0)}%
+                              </p>
+                              <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mt-1">
+                                <div
+                                  className={`h-full ${corBarra} transition-all`}
+                                  style={{ width: `${pct}%` }}
+                                />
+                              </div>
+                              <p className="text-[10px] text-muted-foreground mt-0.5">
+                                R$ {atual.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} / R$ {meta.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              </p>
+                            </>
+                          ) : (
+                            <>
+                              <p className="text-xs text-muted-foreground">Meta não definida</p>
+                              <p className="text-[10px] text-[#5B1A2B] underline mt-1">Definir meta</p>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </CardHeader>
+                  </Card>
+                );
+              })()}
             </div>
           ) : (
             <div className="h-[300px]">
@@ -1238,9 +1381,9 @@ export default function Dashboard() {
                     }
                   />
                   <Legend />
-                  <Line type="monotone" dataKey="receitas" stroke="#10b981" name="Receitas" strokeWidth={2} />
-                  <Line type="monotone" dataKey="custos" stroke="#ef4444" name="Custos" strokeWidth={2} />
-                  <Line type="monotone" dataKey="lucro" stroke="#8b5cf6" name="Lucro" strokeWidth={2} />
+                  <Line type="monotone" dataKey="receitas" stroke="#C9A14A" name="Receitas" strokeWidth={2} />
+                  <Line type="monotone" dataKey="custos" stroke="#F28C82" name="Custos" strokeWidth={2} />
+                  <Line type="monotone" dataKey="lucro" stroke="#5B1A2B" name="Lucro" strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
