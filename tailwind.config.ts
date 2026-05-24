@@ -69,12 +69,17 @@ export default {
           light: "hsl(var(--info) / 0.1)",
         },
         cda: {
-          preto: '#1C1C1C',
-          cloud: '#F5F4F1',
-          pistache: '#BFCFB8',
-          dourado: '#C6A85A',
+          vinho: '#5B1A2B',
+          'vinho-escuro': '#3D0F1C',
+          dourado: '#C9A14A',
+          creme: '#FDF6EE',
+          preto: '#121212',
+          branco: '#FFF9F5',
           coral: '#F28C82',
           pink: '#E7A1AF',
+          // legacy aliases (mantidos p/ compatibilidade)
+          cloud: '#FDF6EE',
+          pistache: '#5B1A2B',
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
