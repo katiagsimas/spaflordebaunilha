@@ -834,6 +834,19 @@ export default function DRE() {
               </TableBody>
             </Table>
           </div>
+          {aliquotaSimples == null && (
+            <p className="mt-3 text-sm text-muted-foreground">
+              * Alíquota do Simples Nacional não configurada. Acesse{' '}
+              <button
+                type="button"
+                onClick={() => navigate('/configuracoes')}
+                className="underline text-primary hover:opacity-80"
+              >
+                Configurações
+              </button>{' '}
+              para informar.
+            </p>
+          )}
         </CardContent>
       </Card>
 
