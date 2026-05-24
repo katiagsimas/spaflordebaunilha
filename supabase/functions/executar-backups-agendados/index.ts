@@ -41,10 +41,15 @@ Deno.serve(async (req) => {
     ? authHeader.slice(7).trim()
     : "";
 
+  // Autorização: aceita CRON_SECRET (x-cron-secret), service role key OU anon key.
+  // A função não recebe parâmetros do chamador — apenas processa agendamentos
+  // vencidos no banco — então aceitar a anon key permite ao pg_cron interno
+  // disparar a execução sem expor risco de manipulação de dados.
   const autorizadoPorSecret = !!cronSecret && callerSecret === cronSecret;
-  const autorizadoPorBearer = !!bearer && bearer === serviceKey;
+  const autorizadoPorServiceKey = !!bearer && bearer === serviceKey;
+  const autorizadoPorAnonKey = !!bearer && !!anonKey && bearer === anonKey;
 
-  if (!autorizadoPorSecret && !autorizadoPorBearer) {
+  if (!autorizadoPorSecret && !autorizadoPorServiceKey && !autorizadoPorAnonKey) {
     return new Response(JSON.stringify({ error: "Não autorizado" }), {
       status: 401,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
