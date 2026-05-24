@@ -30,6 +30,9 @@ export function Retiradas() {
   const { data: retiradas = [] } = useRetiradas(inicio, fim);
   const excluir = useExcluirRetirada();
 
+  const [retiradaParaExcluir, setRetiradaParaExcluir] = useState<Retirada | null>(null);
+  const dialogoAberto = !!retiradaParaExcluir;
+
   const total = retiradas.reduce((s, r) => s + Number(r.valor), 0);
 
   return (
