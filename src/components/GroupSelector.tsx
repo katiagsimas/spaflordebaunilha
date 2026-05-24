@@ -36,7 +36,7 @@ export function GroupSelector() {
     );
   }
 
-  if (groups.length === 0 && !isMother) {
+  if (groups.length <= 1 && !isMother) {
     return null;
   }
 
