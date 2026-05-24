@@ -17,7 +17,7 @@ import {
   Printer,
   DollarSign
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { BackButton } from "@/components/BackButton";
 import { useGlobalLoading } from "@/contexts/GlobalLoadingContext";
@@ -56,8 +56,13 @@ interface FluxoMensal {
 
 export default function FluxoCaixaMensal() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { showLoading, hideLoading } = useGlobalLoading();
-  const [ano, setAno] = useState(new Date().getFullYear());
+  const [ano, setAno] = useState(() => {
+    const anoParam = searchParams.get("ano");
+    const parsed = anoParam ? parseInt(anoParam, 10) : NaN;
+    return !isNaN(parsed) && parsed >= 2000 && parsed <= 2100 ? parsed : new Date().getFullYear();
+  });
   const [fluxo, setFluxo] = useState<FluxoMensal[] | null>(null);
 
   const meses = [
