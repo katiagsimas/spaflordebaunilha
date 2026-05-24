@@ -158,10 +158,13 @@ async function fetchReceitas(activeGroupId: string) {
 }
 
 export function useReceitas() {
+  const { activeGroupId } = useGroup();
   const { data: receitas = [], isLoading, error, refetch } = useQuery({
-    queryKey: ["receitas"],
-    queryFn: fetchReceitas,
+    queryKey: ["receitas", activeGroupId],
+    queryFn: () => fetchReceitas(activeGroupId!),
+    enabled: !!activeGroupId,
   });
+
 
   // Retornar apenas receitas ativas
   const receitasAtivas = receitas.filter((receita) => receita.cardapio === "ativo");
