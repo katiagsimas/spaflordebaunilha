@@ -856,7 +856,7 @@ export default function DRE() {
               </CardContent>
             </Card>
 
-            <Card className={`${lucroLiquidoAnual >= 0 ? 'border-primary bg-primary/10' : 'border-red-500 bg-cda-coral/10'}`}>
+            <Card className={`${lucroLiquidoAnual >= 0 ? 'border-primary bg-primary/10' : 'border-cda-coral bg-cda-coral/10'}`}>
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <TrendingUp className={`h-8 w-8 ${lucroLiquidoAnual >= 0 ? 'text-primary' : 'text-cda-coral'}`} />

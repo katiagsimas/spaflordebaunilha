@@ -319,7 +319,7 @@ export default function FluxoCaixaDiario() {
           </CardContent>
         </Card>
 
-        <Card className={`border-2 ${saldoFinal >= 0 ? 'border-primary bg-primary/10' : 'border-red-500 bg-cda-coral/10'}`}>
+        <Card className={`border-2 ${saldoFinal >= 0 ? 'border-primary bg-primary/10' : 'border-cda-coral bg-cda-coral/10'}`}>
           <CardHeader className="pb-2">
             <CardTitle className={`text-sm font-medium ${saldoFinal >= 0 ? 'text-primary' : 'text-cda-coral'}`}>
               Saldo Final

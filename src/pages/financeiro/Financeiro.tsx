@@ -321,9 +321,9 @@ export default function Financeiro() {
   const coresBanco = [
     { border: 'border-l-blue-500', text: 'text-primary', bg: 'bg-cda-dourado/10 dark:bg-cda-dourado/20' },
     { border: 'border-l-green-500', text: 'text-success', bg: 'bg-success/10 dark:bg-success/20' },
-    { border: 'border-l-purple-500', text: 'text-cda-pink', bg: 'bg-cda-pink/15 dark:bg-purple-950' },
+    { border: 'border-l-cda-pink', text: 'text-cda-pink', bg: 'bg-cda-pink/15 dark:bg-cda-pink/20' },
     { border: 'border-l-orange-500', text: 'text-warning', bg: 'bg-warning/10 dark:bg-warning/20' },
-    { border: 'border-l-pink-500', text: 'text-cda-pink', bg: 'bg-cda-pink/10 dark:bg-pink-950' },
+    { border: 'border-l-cda-pink', text: 'text-cda-pink', bg: 'bg-cda-pink/10 dark:bg-cda-pink/20' },
     { border: 'border-l-cyan-500', text: 'text-cyan-600', bg: 'bg-cyan-50 dark:bg-cyan-950' },
     { border: 'border-l-indigo-500', text: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-950' },
     { border: 'border-l-teal-500', text: 'text-teal-600', bg: 'bg-teal-50 dark:bg-teal-950' },

@@ -971,7 +971,7 @@ export default function ContasPagarDetalhes() {
                                 <div className="flex items-start gap-2">
                                   <RefreshCw className="h-4 w-4 text-cda-coral mt-0.5" />
                                   <div className="flex-1">
-                                    <p className="text-sm font-medium text-red-900">
+                                    <p className="text-sm font-medium text-cda-coral">
                                       Pagamento Estornado
                                     </p>
                                     <p className="text-xs text-cda-coral">

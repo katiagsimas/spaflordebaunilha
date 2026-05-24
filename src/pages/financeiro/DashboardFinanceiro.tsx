@@ -131,7 +131,7 @@ export default function DashboardFinanceiro() {
         <Card className={`${
           resumo.saldoLiquido >= 0
             ? "border-primary bg-primary/10"
-            : "border-red-500 bg-cda-coral/10"
+            : "border-cda-coral bg-cda-coral/10"
         }`}>
           <CardHeader className="pb-2">
             <CardTitle className={`text-sm font-medium ${
