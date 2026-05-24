@@ -269,26 +269,14 @@ export default function ReceitaForm() {
   // Estados para cadastro em cadeia de ingredientes
   const [mostrarPopoverIngrediente, setMostrarPopoverIngrediente] = useState(false);
   const [termoBuscaIngrediente, setTermoBuscaIngrediente] = useState('');
-  const [modalCriarTipoIngAberto, setModalCriarTipoIngAberto] = useState(false);
-  const [modalCriarIngredienteAberto, setModalCriarIngredienteAberto] = useState(false);
-  const [novoTipoIngDescricao, setNovoTipoIngDescricao] = useState('');
-  const [novoTipoIngQuantidade, setNovoTipoIngQuantidade] = useState('');
-  const [novoTipoIngUnidadeId, setNovoTipoIngUnidadeId] = useState('');
-  const [novoIngMarca, setNovoIngMarca] = useState('');
-  const [novoIngPreco, setNovoIngPreco] = useState('');
-  const [tipoIngRecemCriado, setTipoIngRecemCriado] = useState<any>(null);
-  
+  const [modalCriarIngredienteOpen, setModalCriarIngredienteOpen] = useState(false);
+  const [descricaoInicialIng, setDescricaoInicialIng] = useState('');
+
   // Estados para cadastro em cadeia de embalagens
   const [mostrarPopoverEmbalagem, setMostrarPopoverEmbalagem] = useState(false);
   const [termoBuscaEmbalagem, setTermoBuscaEmbalagem] = useState('');
-  const [modalCriarTipoEmbAberto, setModalCriarTipoEmbAberto] = useState(false);
-  const [modalCriarEmbalagemAberto, setModalCriarEmbalagemAberto] = useState(false);
-  const [novoTipoEmbDescricao, setNovoTipoEmbDescricao] = useState('');
-  const [novoTipoEmbQuantidade, setNovoTipoEmbQuantidade] = useState('');
-  const [novoTipoEmbUnidadeId, setNovoTipoEmbUnidadeId] = useState('');
-  const [novoEmbMarca, setNovoEmbMarca] = useState('');
-  const [novoEmbPreco, setNovoEmbPreco] = useState('');
-  const [tipoEmbRecemCriado, setTipoEmbRecemCriado] = useState<any>(null);
+  const [modalCriarEmbalagemOpen, setModalCriarEmbalagemOpen] = useState(false);
+  const [descricaoInicialEmb, setDescricaoInicialEmb] = useState('');
   
   // Estados para precificação
   const [outrosGastosPersonalizados, setOutrosGastosPersonalizados] = useState([
