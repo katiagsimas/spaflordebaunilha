@@ -15,6 +15,7 @@ import {
   useToggleChecklistItem, useListaFechamentos, useFechamentoLogs, mesAnteriorIso, listaMesesRecentes,
 } from "@/hooks/useFechamentoMes";
 import { formatBRL } from "@/hooks/useMeuSalario";
+import { formatarMesReferencia } from "@/lib/dateUtils";
 import { Lock, Unlock, CheckCircle2, AlertCircle, History, Clock } from "lucide-react";
 
 export default function FechamentoMes() {
@@ -278,7 +279,7 @@ export default function FechamentoMes() {
                       ? <Lock className="h-4 w-4 text-cda-dourado" />
                       : <AlertCircle className="h-4 w-4 text-muted-foreground" />}
                     <div>
-                      <p className="font-medium">{f.mes_referencia.slice(0, 7)}</p>
+                      <p className="font-medium">{formatarMesReferencia(f.mes_referencia)}</p>
                       <p className="text-xs text-muted-foreground">
                         {f.status === "fechado" ? "Fechado" : "Em andamento"}
                         {f.fechado_em && ` em ${new Date(f.fechado_em).toLocaleDateString("pt-BR")}`}

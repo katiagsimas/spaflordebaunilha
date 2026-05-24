@@ -130,3 +130,19 @@ export function isToday(dateString: string): boolean {
   const today = getTodayISO();
   return dateString === today;
 }
+
+/**
+ * Formata uma string de mês referência (YYYY-MM-DD) para exibição legível em português
+ * Ex: "2026-05-01" -> "maio de 2026"
+ */
+export function formatarMesReferencia(refIso: string): string {
+  const datePart = refIso.split('T')[0];
+  const [year, month] = datePart.split('-');
+  const meses = [
+    'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+    'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'
+  ];
+  const mesIndex = parseInt(month, 10) - 1;
+  if (mesIndex < 0 || mesIndex > 11) return datePart;
+  return `${meses[mesIndex]} de ${year}`;
+}
