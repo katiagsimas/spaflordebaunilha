@@ -36,14 +36,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
 import { toast } from "sonner";
 import { EmbalagemAutocomplete } from "@/components/EmbalagemAutocomplete";
 import { CriarIngredienteModal } from "@/components/CriarIngredienteModal";
