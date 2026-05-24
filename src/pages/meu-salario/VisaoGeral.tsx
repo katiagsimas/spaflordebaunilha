@@ -5,13 +5,29 @@ import { CenarioResultado } from "@/components/meu-salario/CenarioResultado";
 import { HistoricoMensal } from "@/components/meu-salario/HistoricoMensal";
 import { FraseRendaDoce } from "@/components/meu-salario/FraseRendaDoce";
 import { exportarMeuSalarioPDF } from "@/utils/exportarMeuSalarioPDF";
-import { Download } from "lucide-react";
+import { Download, AlertTriangle } from "lucide-react";
 
 export function VisaoGeral() {
-  const { data: resumo, isLoading } = useResumoMesAnterior();
+  const { data: resumo, isLoading, error } = useResumoMesAnterior();
   const { data: historico } = useHistoricoMeuSalario(6);
 
-  if (isLoading || !resumo) {
+  if (isLoading) {
+    return <div className="text-[hsl(var(--rd-vinho))] py-10 text-center">Preparando seu resumo...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-2xl border border-[hsl(var(--rd-rose-queimado))] bg-[hsl(var(--rd-rose-queimado)/0.08)] p-6 text-center">
+        <AlertTriangle className="h-8 w-8 text-[hsl(var(--rd-rose-queimado))] mx-auto mb-3" />
+        <h3 className="text-lg font-semibold text-[hsl(var(--rd-vinho))]">Não foi possível carregar o resumo</h3>
+        <p className="text-sm text-[hsl(var(--rd-vinho)/0.8)] mt-2">
+          {error instanceof Error ? error.message : "Ocorreu um erro inesperado ao buscar os dados. Tente novamente."}
+        </p>
+      </div>
+    );
+  }
+
+  if (!resumo) {
     return <div className="text-[hsl(var(--rd-vinho))] py-10 text-center">Preparando seu resumo...</div>;
   }
 

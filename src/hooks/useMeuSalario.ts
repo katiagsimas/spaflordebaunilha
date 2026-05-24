@@ -110,6 +110,10 @@ async function calcularResumo(
       .lte("data_retirada", fim),
   ]);
 
+  if (recPagRes.error) throw new Error("Falha ao consultar recebimentos: " + recPagRes.error.message);
+  if (pagPagRes.error) throw new Error("Falha ao consultar pagamentos: " + pagPagRes.error.message);
+  if (retRes.error) throw new Error("Falha ao consultar retiradas: " + retRes.error.message);
+
   const faturamento = (recPagRes.data ?? [])
     .filter((p: any) => !p.estornado)
     .reduce((s: number, r: any) => s + Number(r.valor_pago || 0), 0);
