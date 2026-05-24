@@ -159,7 +159,7 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[#FFF9F5]/50 text-[10px] uppercase tracking-widest font-body">
+          <SidebarGroupLabel className="text-[#FFF9F5]/40 text-[10px] uppercase tracking-widest font-body">
             Menu Principal
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -176,8 +176,8 @@ export function AppSidebar() {
                         className={({ isActive }) =>
                           `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                             isActive && !bloqueado
-                              ? "bg-cda-dourado/20 border-l-2 border-cda-dourado text-cda-dourado font-semibold"
-                              : "text-[#FFF9F5] hover:bg-sidebar-accent/20 hover:text-[#FFF9F5]"
+                              ? "bg-[#FFF9F5]/[0.08] border-l-2 border-[#C9A14A] text-[#C9A14A] font-semibold"
+                              : "text-[#FFF9F5]/80 hover:bg-[#FFF9F5]/10 hover:text-[#FFF9F5]"
                           } ${bloqueado ? "opacity-40 cursor-not-allowed" : ""}`
                         }
                       >
@@ -221,7 +221,7 @@ export function AppSidebar() {
 
         {/* Seção Em Breve */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[#FFF9F5]/50 text-[10px] uppercase tracking-widest font-body">
+          <SidebarGroupLabel className="text-[#FFF9F5]/40 text-[10px] uppercase tracking-widest font-body">
             Em Breve
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -239,8 +239,8 @@ export function AppSidebar() {
                           className={({ isActive }) =>
                             `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                               isActive
-                                ? "bg-cda-dourado/20 border-l-2 border-cda-dourado text-cda-dourado font-semibold"
-                                : "text-[#FFF9F5] hover:bg-sidebar-accent/20 hover:text-[#FFF9F5]"
+                                ? "bg-[#FFF9F5]/[0.08] border-l-2 border-[#C9A14A] text-[#C9A14A] font-semibold"
+                                : "text-[#FFF9F5]/80 hover:bg-[#FFF9F5]/10 hover:text-[#FFF9F5]"
                             }`
                           }
                         >
@@ -288,7 +288,7 @@ export function AppSidebar() {
 
         {/* Seção Sistema */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[#FFF9F5]/50 text-[10px] uppercase tracking-widest font-body">
+          <SidebarGroupLabel className="text-[#FFF9F5]/40 text-[10px] uppercase tracking-widest font-body">
             Sistema
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -304,8 +304,8 @@ export function AppSidebar() {
                         className={({ isActive }) =>
                           `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                             isActive
-                              ? "bg-cda-dourado/20 border-l-2 border-cda-dourado text-cda-dourado font-semibold"
-                              : "text-[#FFF9F5] hover:bg-sidebar-accent/20 hover:text-[#FFF9F5]"
+                              ? "bg-[#FFF9F5]/[0.08] border-l-2 border-[#C9A14A] text-[#C9A14A] font-semibold"
+                              : "text-[#FFF9F5]/80 hover:bg-[#FFF9F5]/10 hover:text-[#FFF9F5]"
                           }`
                         }
                       >
@@ -329,8 +329,8 @@ export function AppSidebar() {
                         className={({ isActive }) =>
                           `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                             isActive
-                              ? "bg-cda-dourado/20 border-l-2 border-cda-dourado text-cda-dourado font-semibold"
-                              : "text-[#FFF9F5] hover:bg-sidebar-accent/20 hover:text-[#FFF9F5]"
+                              ? "bg-[#FFF9F5]/[0.08] border-l-2 border-[#C9A14A] text-[#C9A14A] font-semibold"
+                              : "text-[#FFF9F5]/80 hover:bg-[#FFF9F5]/10 hover:text-[#FFF9F5]"
                           }`
                         }
                       >
@@ -350,8 +350,8 @@ export function AppSidebar() {
                         className={({ isActive }) =>
                           `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                             isActive
-                              ? "bg-cda-dourado/20 border-l-2 border-cda-dourado text-cda-dourado font-semibold"
-                              : "text-[#FFF9F5] hover:bg-sidebar-accent/20 hover:text-[#FFF9F5]"
+                              ? "bg-[#FFF9F5]/[0.08] border-l-2 border-[#C9A14A] text-[#C9A14A] font-semibold"
+                              : "text-[#FFF9F5]/80 hover:bg-[#FFF9F5]/10 hover:text-[#FFF9F5]"
                           }`
                         }
                       >
@@ -373,7 +373,7 @@ export function AppSidebar() {
         {/* Seção MOTHER - Governança do Sistema */}
         {isMother && (
           <SidebarGroup>
-            <SidebarGroupLabel className="flex items-center gap-2 text-[#FFF9F5]/50 text-[10px] uppercase tracking-widest font-body">
+            <SidebarGroupLabel className="flex items-center gap-2 text-[#FFF9F5]/40 text-[10px] uppercase tracking-widest font-body">
               <Crown className="h-3 w-3 text-cda-dourado" />
               Governança
             </SidebarGroupLabel>
@@ -386,8 +386,8 @@ export function AppSidebar() {
                       className={({ isActive }) =>
                         `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                             isActive
-                              ? "bg-cda-dourado/20 border-l-2 border-cda-dourado text-cda-dourado font-semibold"
-                              : "text-[#FFF9F5] hover:bg-sidebar-accent/20 hover:text-[#FFF9F5]"
+                              ? "bg-[#FFF9F5]/[0.08] border-l-2 border-[#C9A14A] text-[#C9A14A] font-semibold"
+                              : "text-[#FFF9F5]/80 hover:bg-[#FFF9F5]/10 hover:text-[#FFF9F5]"
                         }`
                       }
                     >
