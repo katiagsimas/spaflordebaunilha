@@ -47,38 +47,50 @@ export interface Receita {
 }
 
 async function fetchReceitas() {
+  // 1. Buscar todas as receitas em uma única query
   const { data: receitasData, error: receitasError } = await supabase
     .from("receitas")
     .select("*")
     .order("nome");
 
   if (receitasError) throw receitasError;
-  if (!receitasData) return [];
+  if (!receitasData || receitasData.length === 0) return [];
 
-  // Buscar ingredientes, embalagens e despesas para cada receita
-  const receitas = await Promise.all(
-    receitasData.map(async (receita) => {
-      const [ingredientesRes, embalagensRes, despesasRes, imagensRes] = await Promise.all([
-        supabase
-          .from("receitas_ingredientes")
-          .select("*")
-          .eq("receita_id", receita.id),
-        supabase
-          .from("receitas_embalagens")
-          .select("*")
-          .eq("receita_id", receita.id),
-        supabase
-          .from("receitas_despesas_venda")
-          .select("*")
-          .eq("receita_id", receita.id),
-        supabase
-          .from("receitas_imagens")
-          .select("*")
-          .eq("receita_id", receita.id)
-          .order("ordem"),
-      ]);
+  // 2. Extrair todos os IDs
+  const receitasIds = receitasData.map((r) => r.id);
 
-      const ingredientes: IngredienteReceita[] = (ingredientesRes.data || []).map((ing) => ({
+  // 3. Single Promise.all com 4 queries usando .in()
+  const [ingredientesRes, embalagensRes, despesasRes, imagensRes] = await Promise.all([
+    supabase
+      .from("receitas_ingredientes")
+      .select("*")
+      .in("receita_id", receitasIds),
+    supabase
+      .from("receitas_embalagens")
+      .select("*")
+      .in("receita_id", receitasIds),
+    supabase
+      .from("receitas_despesas_venda")
+      .select("*")
+      .in("receita_id", receitasIds),
+    supabase
+      .from("receitas_imagens")
+      .select("*")
+      .in("receita_id", receitasIds)
+      .order("ordem"),
+  ]);
+
+  // 4. Verificar erros
+  if (ingredientesRes.error) throw ingredientesRes.error;
+  if (embalagensRes.error) throw embalagensRes.error;
+  if (despesasRes.error) throw despesasRes.error;
+  if (imagensRes.error) throw imagensRes.error;
+
+  // 5. Map síncrono em memória filtrando os arrays já carregados
+  const receitas: Receita[] = receitasData.map((receita) => {
+    const ingredientes: IngredienteReceita[] = (ingredientesRes.data || [])
+      .filter((ing) => ing.receita_id === receita.id)
+      .map((ing) => ({
         id: ing.id,
         ingredienteId: ing.ingrediente_id,
         ingrediente: ing.ingrediente,
@@ -91,7 +103,9 @@ async function fetchReceitas() {
         custoReceita: Number(ing.custo_receita),
       }));
 
-      const embalagens: EmbalagemReceita[] = (embalagensRes.data || []).map((emb) => ({
+    const embalagens: EmbalagemReceita[] = (embalagensRes.data || [])
+      .filter((emb) => emb.receita_id === receita.id)
+      .map((emb) => ({
         id: emb.id,
         embalagemId: emb.embalagem_id,
         embalagem: emb.embalagem,
@@ -104,35 +118,38 @@ async function fetchReceitas() {
         custoReceita: Number(emb.custo_receita),
       }));
 
-      const despesasVenda = (despesasRes.data || []).map((desp) => ({
+    const despesasVenda = (despesasRes.data || [])
+      .filter((desp) => desp.receita_id === receita.id)
+      .map((desp) => ({
         id: desp.despesa_id,
         nome: desp.nome,
         percentual: Number(desp.percentual),
         valor: Number(desp.valor),
       }));
 
-      const imagens = (imagensRes.data || []).map((img) => img.url);
+    const imagens = (imagensRes.data || [])
+      .filter((img) => img.receita_id === receita.id)
+      .map((img) => img.url);
 
-      return {
-        id: receita.id,
-        nome: receita.nome,
-        categoria: receita.categoria || undefined,
-        tipo: (receita.tipo as "produto_avulso" | "produto_combo") || undefined,
-        cardapio: (receita.cardapio as "ativo" | "fora") || "ativo",
-        tempoPreparo: Number(receita.tempo_preparo),
-        unidadeTempo: receita.unidade_tempo as "minutos" | "horas",
-        rendimento: Number(receita.rendimento),
-        unidadeRendimento: receita.unidade_rendimento,
-        ingredientes,
-        embalagens,
-        custoTotal: Number(receita.custo_total),
-        valorVenda: receita.valor_venda ? Number(receita.valor_venda) : undefined,
-        despesasVenda,
-        modoPreparo: receita.modo_preparo || undefined,
-        imagens,
-      };
-    })
-  );
+    return {
+      id: receita.id,
+      nome: receita.nome,
+      categoria: receita.categoria || undefined,
+      tipo: (receita.tipo as "produto_avulso" | "produto_combo") || undefined,
+      cardapio: (receita.cardapio as "ativo" | "fora") || "ativo",
+      tempoPreparo: Number(receita.tempo_preparo),
+      unidadeTempo: receita.unidade_tempo as "minutos" | "horas",
+      rendimento: Number(receita.rendimento),
+      unidadeRendimento: receita.unidade_rendimento,
+      ingredientes,
+      embalagens,
+      custoTotal: Number(receita.custo_total),
+      valorVenda: receita.valor_venda ? Number(receita.valor_venda) : undefined,
+      despesasVenda,
+      modoPreparo: receita.modo_preparo || undefined,
+      imagens,
+    };
+  });
 
   return receitas;
 }
