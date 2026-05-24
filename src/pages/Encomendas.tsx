@@ -22,6 +22,7 @@ import { ClienteAutocomplete } from "@/components/ClienteAutocomplete";
 import { useClientes } from "@/hooks/useClientes";
 import { useReceitas } from "@/hooks/useReceitas";
 import { useEncomendaItens } from "@/hooks/useEncomendaItens";
+import { useGroup } from "@/contexts/GroupContext";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import ContasReceberFormModal from "@/components/financeiro/ContasReceberFormModal";
 import { useNavigate } from "react-router-dom";
@@ -58,6 +59,7 @@ const statusLabels = {
 const Encomendas = () => {
   const navigate = useNavigate();
   const { encomendas, loading, createEncomenda, updateEncomenda, deleteEncomenda } = useEncomendas();
+  const { activeGroupId } = useGroup();
   const { clientes } = useClientes();
   const { receitas } = useReceitas();
   const { unidades } = useUnidadesMedida();
@@ -780,6 +782,7 @@ const Encomendas = () => {
           valor_unitario: produto.valor_unitario,
           subtotal: produto.subtotal,
           usuario_id: user.id,
+          owner_group_id: activeGroupId,
         }));
 
         const { error } = await supabase.from('encomenda_itens').insert(itensParaInserir);
