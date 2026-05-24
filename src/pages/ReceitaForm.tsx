@@ -1418,10 +1418,8 @@ export default function ReceitaForm() {
                               variant="outline"
                               size="sm"
                               onClick={() => {
-                                setNovoTipoEmbDescricao(termoBuscaEmbalagem);
-                                setNovoTipoEmbQuantidade('');
-                                setNovoTipoEmbUnidadeId('');
-                                setModalCriarTipoEmbAberto(true);
+                                setDescricaoInicialEmb(termoBuscaEmbalagem);
+                                setModalCriarEmbalagemOpen(true);
                                 setMostrarPopoverEmbalagem(false);
                               }}
                               className="gap-2"
