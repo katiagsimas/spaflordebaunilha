@@ -129,7 +129,7 @@ export default function DRE() {
         margemLiquidaPerc: Array(12).fill(0),
       };
 
-      // Buscar todos os planos de contas e suas categorias
+      // Buscar todos os planos de contas, suas categorias (código + faixa_dre)
       const { data: planosContas } = await supabase
         .from("plano_contas")
         .select(`
@@ -137,26 +137,27 @@ export default function DRE() {
           codigo_estruturado,
           categoria_id,
           categorias_plano_contas (
-            codigo
+            codigo,
+            faixa_dre
           )
         `)
         .eq("user_id", user.id);
 
-      const planosMap = new Map();
+      // Map: plano_conta_id -> { codigo, faixaDre }
+      const planosMap = new Map<string, { codigo: string | null; faixaDre: string | null }>();
       planosContas?.forEach((plano: any) => {
-        const codigoCategoria = plano.categorias_plano_contas?.codigo;
-        planosMap.set(plano.id, codigoCategoria);
+        planosMap.set(plano.id, {
+          codigo: plano.categorias_plano_contas?.codigo ?? null,
+          faixaDre: plano.categorias_plano_contas?.faixa_dre ?? null,
+        });
       });
 
-      for (let mes = 0; mes < 12; mes++) {
-        const dataInicio = new Date(ano, mes, 1);
-        const dataFim = new Date(ano, mes + 1, 0);
-        
-        const inicioStr = formatDateToISO(dataInicio);
-        const fimStr = formatDateToISO(dataFim);
+      // Buscar TODAS as contas do ano de uma vez (em paralelo)
+      const inicioAno = `${ano}-01-01`;
+      const fimAno = `${ano}-12-31`;
 
-        // Buscar receitas (todas as parcelas com base na data de emissão)
-        const { data: contasReceber } = await supabase
+      const [contasReceberRes, contasPagarRes] = await Promise.all([
+        supabase
           .from("contas_receber")
           .select(`
             id,
@@ -169,54 +170,10 @@ export default function DRE() {
               data_emissao
             )
           `)
-          .eq("usuario_id", user.id);
-
-        const planosReceita: any = {};
-        
-        contasReceber?.forEach((conta: any) => {
-          if (!conta.plano_conta_id) return;
-          
-          const codigoCategoria = planosMap.get(conta.plano_conta_id);
-          if (!codigoCategoria) return;
-
-          // Para lançamentos não recorrentes, usar data_emissao da conta principal
-          if (conta.tipo_lancamento !== 'recorrente') {
-            // Extrair ano e mês diretamente da string ISO para evitar problemas de fuso horário
-            const [anoEmissao, mesEmissaoStr] = conta.data_emissao.split('-').map(Number);
-            const mesEmissao = mesEmissaoStr - 1; // JavaScript meses são 0-11
-            
-            // Se a data de emissão da conta está neste mês/ano, somar TODAS as parcelas
-            if (mesEmissao === mes && anoEmissao === ano) {
-              conta.contas_receber_parcelas?.forEach((parcela: any) => {
-                if (!planosReceita[codigoCategoria]) {
-                  planosReceita[codigoCategoria] = 0;
-                }
-                planosReceita[codigoCategoria] += parcela.valor_parcela || 0;
-              });
-            }
-          } else {
-            // Para lançamentos recorrentes, usar data_emissao de cada parcela
-            conta.contas_receber_parcelas?.forEach((parcela: any) => {
-              // Extrair ano e mês diretamente da string ISO para evitar problemas de fuso horário
-              const [anoEmissaoParcela, mesEmissaoParcelaStr] = parcela.data_emissao.split('-').map(Number);
-              const mesEmissaoParcela = mesEmissaoParcelaStr - 1; // JavaScript meses são 0-11
-              
-              if (mesEmissaoParcela === mes && anoEmissaoParcela === ano) {
-                if (!planosReceita[codigoCategoria]) {
-                  planosReceita[codigoCategoria] = 0;
-                }
-                planosReceita[codigoCategoria] += parcela.valor_parcela || 0;
-              }
-            });
-          }
-        });
-
-        linhas.receitaVendas[mes] = planosReceita['1'] || 0;
-        linhas.receitasFinanceiras[mes] = planosReceita['106'] || 0;
-        linhas.receitasNaoOperacionais[mes] = planosReceita['9'] || 0;
-
-        // Buscar despesas (todas as parcelas com base na data de emissão)
-        const { data: contasPagar } = await supabase
+          .eq("usuario_id", user.id)
+          .gte("data_emissao", inicioAno)
+          .lte("data_emissao", fimAno),
+        supabase
           .from("contas_pagar")
           .select(`
             id,
@@ -229,47 +186,83 @@ export default function DRE() {
               data_emissao
             )
           `)
-          .eq("usuario_id", user.id);
+          .eq("usuario_id", user.id)
+          .gte("data_emissao", inicioAno)
+          .lte("data_emissao", fimAno),
+      ]);
 
-        const planosDespesa: any = {};
-        
-        contasPagar?.forEach((conta: any) => {
-          if (!conta.plano_contas_id) return;
-          
-          const codigoCategoria = planosMap.get(conta.plano_contas_id);
-          if (!codigoCategoria) return;
+      const contasReceberAno = contasReceberRes.data || [];
+      const contasPagarAno = contasPagarRes.data || [];
 
-          // Para lançamentos não recorrentes, usar data_emissao da conta principal
-          if (conta.tipo_lancamento !== 'recorrente') {
-            // Extrair ano e mês diretamente da string ISO para evitar problemas de fuso horário
-            const [anoEmissao, mesEmissaoStr] = conta.data_emissao.split('-').map(Number);
-            const mesEmissao = mesEmissaoStr - 1; // JavaScript meses são 0-11
-            
-            // Se a data de emissão da conta está neste mês/ano, somar TODAS as parcelas
-            if (mesEmissao === mes && anoEmissao === ano) {
-              conta.contas_pagar_parcelas?.forEach((parcela: any) => {
-                if (!planosDespesa[codigoCategoria]) {
-                  planosDespesa[codigoCategoria] = 0;
-                }
-                planosDespesa[codigoCategoria] += parcela.valor_parcela || 0;
-              });
-            }
-          } else {
-            // Para lançamentos recorrentes, usar data_emissao de cada parcela
-            conta.contas_pagar_parcelas?.forEach((parcela: any) => {
-              // Extrair ano e mês diretamente da string ISO para evitar problemas de fuso horário
-              const [anoEmissaoParcela, mesEmissaoParcelaStr] = parcela.data_emissao.split('-').map(Number);
-              const mesEmissaoParcela = mesEmissaoParcelaStr - 1; // JavaScript meses são 0-11
-              
-              if (mesEmissaoParcela === mes && anoEmissaoParcela === ano) {
-                if (!planosDespesa[codigoCategoria]) {
-                  planosDespesa[codigoCategoria] = 0;
-                }
-                planosDespesa[codigoCategoria] += parcela.valor_parcela || 0;
-              }
-            });
+      // Helper: para cada parcela contribuinte no mês/ano, chama o callback
+      // (replica a lógica original: não recorrente usa data_emissao da conta;
+      // recorrente usa data_emissao de cada parcela)
+      const forEachParcelaNoMes = (
+        conta: any,
+        parcelas: any[] | undefined,
+        mes: number,
+        cb: (valor: number) => void
+      ) => {
+        if (conta.tipo_lancamento !== 'recorrente') {
+          if (!conta.data_emissao) return;
+          const [anoEmissao, mesEmissaoStr] = String(conta.data_emissao).split('-').map(Number);
+          const mesEmissao = mesEmissaoStr - 1;
+          if (mesEmissao === mes && anoEmissao === ano) {
+            parcelas?.forEach((p: any) => cb(p.valor_parcela || 0));
           }
+        } else {
+          parcelas?.forEach((p: any) => {
+            if (!p.data_emissao) return;
+            const [anoP, mesPStr] = String(p.data_emissao).split('-').map(Number);
+            const mesP = mesPStr - 1;
+            if (mesP === mes && anoP === ano) cb(p.valor_parcela || 0);
+          });
+        }
+      };
+
+      for (let mes = 0; mes < 12; mes++) {
+        // Acumuladores: por código (granular) e por faixa_dre (totais dinâmicos)
+        const planosReceita: Record<string, number> = {};
+        const planosDespesa: Record<string, number> = {};
+        const faixasReceber: Record<string, number> = {};
+        const faixasPagar: Record<string, number> = {};
+
+        // Processa contas a receber em memória
+        contasReceberAno.forEach((conta: any) => {
+          if (!conta.plano_conta_id) return;
+          const info = planosMap.get(conta.plano_conta_id);
+          if (!info) return;
+
+          forEachParcelaNoMes(conta, conta.contas_receber_parcelas, mes, (valor) => {
+            if (info.codigo) {
+              planosReceita[info.codigo] = (planosReceita[info.codigo] || 0) + valor;
+            }
+            if (info.faixaDre) {
+              faixasReceber[info.faixaDre] = (faixasReceber[info.faixaDre] || 0) + valor;
+            }
+          });
         });
+
+        // Processa contas a pagar em memória
+        contasPagarAno.forEach((conta: any) => {
+          if (!conta.plano_contas_id) return;
+          const info = planosMap.get(conta.plano_contas_id);
+          if (!info) return;
+
+          forEachParcelaNoMes(conta, conta.contas_pagar_parcelas, mes, (valor) => {
+            if (info.codigo) {
+              planosDespesa[info.codigo] = (planosDespesa[info.codigo] || 0) + valor;
+            }
+            if (info.faixaDre) {
+              faixasPagar[info.faixaDre] = (faixasPagar[info.faixaDre] || 0) + valor;
+            }
+          });
+        });
+
+        // Linhas granulares (mantêm detalhamento por código quando disponível)
+        linhas.receitaVendas[mes] = planosReceita['1'] || 0;
+        linhas.receitasFinanceiras[mes] = planosReceita['106'] || 0;
+        linhas.receitasNaoOperacionais[mes] = planosReceita['9'] || 0;
 
         linhas.impostosSobreVendas[mes] = planosDespesa['2'] || 0;
         linhas.outrasDeducoes[mes] = planosDespesa['99'] || 0;
@@ -283,36 +276,47 @@ export default function DRE() {
         linhas.despesasFinanceiras[mes] = planosDespesa['107'] || 0;
         linhas.gastosNaoOperacionais[mes] = planosDespesa['10'] || 0;
 
-        // Calcular totais e indicadores
-        linhas.receitaBruta[mes] = linhas.receitaVendas[mes];
-        linhas.totalDeducoes[mes] = linhas.impostosSobreVendas[mes] + linhas.outrasDeducoes[mes];
+        // Totais via faixa_dre — inclui categorias customizadas além dos códigos padrão
+        linhas.receitaBruta[mes] = faixasReceber['Receitas'] || 0;
+        linhas.totalDeducoes[mes] = faixasPagar['Deduções sobre vendas'] || 0;
         linhas.receitaLiquida[mes] = linhas.receitaBruta[mes] - linhas.totalDeducoes[mes];
-        
-        linhas.totalCustosVariaveis[mes] = linhas.cmv[mes] + linhas.despesasComerciais[mes] + 
-                                           linhas.despesaOperacionalVariavel[mes] + linhas.campanhasSazonais[mes];
-        
+
+        linhas.totalCustosVariaveis[mes] = faixasPagar['Custos variáveis'] || 0;
         linhas.margemContribuicao[mes] = linhas.receitaLiquida[mes] - linhas.totalCustosVariaveis[mes];
-        linhas.margemContribuicaoPerc[mes] = linhas.receitaBruta[mes] !== 0 
-          ? (linhas.margemContribuicao[mes] / linhas.receitaBruta[mes]) * 100 
+        linhas.margemContribuicaoPerc[mes] = linhas.receitaBruta[mes] !== 0
+          ? (linhas.margemContribuicao[mes] / linhas.receitaBruta[mes]) * 100
           : 0;
 
-        linhas.totalCustosFixos[mes] = linhas.despesasPessoal[mes] + linhas.despesasOcupacao[mes] + 
-                                       linhas.despesasAdministrativas[mes];
-        
+        linhas.totalCustosFixos[mes] = faixasPagar['Custos fixos'] || 0;
         linhas.resultadoOperacional[mes] = linhas.margemContribuicao[mes] - linhas.totalCustosFixos[mes];
-        
-        linhas.resultadoNaoOperacional[mes] = linhas.receitasNaoOperacionais[mes] - linhas.gastosNaoOperacionais[mes];
-        
-        linhas.lair[mes] = linhas.resultadoOperacional[mes] + linhas.receitasFinanceiras[mes] - 
+
+        // Resultado não operacional: receitas (receber) - gastos (pagar) na faixa
+        const receitasNaoOpFaixa = faixasReceber['Resultado não operacional'] || 0;
+        const gastosNaoOpFaixa = faixasPagar['Resultado não operacional'] || 0;
+        linhas.resultadoNaoOperacional[mes] = receitasNaoOpFaixa - gastosNaoOpFaixa;
+
+        // Resultado financeiro via faixa (sobrescreve linhas granulares para incluir custom)
+        const receitasFinFaixa = faixasReceber['Resultado financeiro'] || 0;
+        const despesasFinFaixa = faixasPagar['Resultado financeiro'] || 0;
+        // Mantém os arrays granulares populados com o total da faixa quando houver custom
+        if (receitasFinFaixa > linhas.receitasFinanceiras[mes]) {
+          linhas.receitasFinanceiras[mes] = receitasFinFaixa;
+        }
+        if (despesasFinFaixa > linhas.despesasFinanceiras[mes]) {
+          linhas.despesasFinanceiras[mes] = despesasFinFaixa;
+        }
+
+        linhas.lair[mes] = linhas.resultadoOperacional[mes] + linhas.receitasFinanceiras[mes] -
                            linhas.despesasFinanceiras[mes] + linhas.resultadoNaoOperacional[mes];
-        
+
         linhas.impostoRenda[mes] = 0;
         linhas.lucroLiquido[mes] = linhas.lair[mes] - linhas.impostoRenda[mes];
-        
-        linhas.margemLiquidaPerc[mes] = linhas.receitaBruta[mes] !== 0 
-          ? (linhas.lucroLiquido[mes] / linhas.receitaBruta[mes]) * 100 
+
+        linhas.margemLiquidaPerc[mes] = linhas.receitaBruta[mes] !== 0
+          ? (linhas.lucroLiquido[mes] / linhas.receitaBruta[mes]) * 100
           : 0;
       }
+
 
       setDados(linhas);
     } catch (error) {
