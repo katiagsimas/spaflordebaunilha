@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { LayoutDashboard, ShoppingBag, DollarSign, LogOut, Users, User, Truck, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
-import caixaAcucarSidebarIcon from "@/assets/caixa-acucar-sidebar-icon.png";
+
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGroup } from "@/contexts/GroupContext";
