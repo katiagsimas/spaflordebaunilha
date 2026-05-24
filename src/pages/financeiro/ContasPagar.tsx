@@ -134,11 +134,33 @@ export default function ContasPagar() {
   const [darBaixaOpen, setDarBaixaOpen] = useState(false);
   const [parcelaSelecionadaBaixa, setParcelaSelecionadaBaixa] = useState<any>(null);
 
+  // Config de juros
+  const [configJuros, setConfigJuros] = useState<any>(null);
+
   useEffect(() => {
     fetchDashboard();
     fetchParcelas();
     fetchDadosFiltros();
+    fetchConfigJuros();
   }, []);
+
+  const fetchConfigJuros = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('configuracoes_juros')
+        .select('*')
+        .eq('usuario_id', user.id)
+        .maybeSingle();
+
+      setConfigJuros(data);
+    } catch (error) {
+      console.error('Erro ao buscar config juros:', error);
+    }
+  };
+
 
   const fetchDashboard = async () => {
     try {
@@ -529,6 +551,27 @@ export default function ContasPagar() {
           // Calcular valor restante
           const valorRestante = parcela.valor_parcela - (parcela.valor_pago || 0);
 
+          // Calcular juros por atraso (mesma lógica de ContasReceber)
+          let juros = 0;
+          if (configJuros && configJuros.cobrar_juros) {
+            const venc = new Date(parcela.data_vencimento + 'T00:00:00');
+            const pag = new Date(dataPagamentoLote + 'T00:00:00');
+            const diffDays = Math.ceil((pag.getTime() - venc.getTime()) / (1000 * 60 * 60 * 24));
+
+            if (diffDays > 0) {
+              if (configJuros.tipo_juros === 'mensal') {
+                const taxaDia = configJuros.percentual_juros / 30;
+                juros = valorRestante * (taxaDia / 100) * diffDays;
+              } else {
+                juros = valorRestante * (configJuros.percentual_juros / 100) * diffDays;
+              }
+
+              if (configJuros.multa_atraso) {
+                juros += valorRestante * (configJuros.percentual_multa / 100);
+              }
+            }
+          }
+
           // Inserir pagamento
           const { error } = await supabase
             .from('contas_pagar_pagamentos' as any)
@@ -536,12 +579,13 @@ export default function ContasPagar() {
               parcela_id: parcela.id,
               data_pagamento: dataPagamentoLote,
               valor_pago: valorRestante,
-              juros: 0,
+              juros: juros,
               desconto: 0,
               banco_id: bancoIdLote,
               tipo_documento_id: tipoDocumentoIdLote,
               observacao: observacaoLote.trim() || null,
             });
+
 
           if (error) throw error;
           sucessos++;
