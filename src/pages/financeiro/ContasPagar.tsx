@@ -1111,7 +1111,7 @@ export default function ContasPagar() {
 
           <Button variant="outline" size="sm" onClick={handleExportarExcel}>
             <Download className="mr-2 h-4 w-4" />
-            Exportar para Excel
+            Exportar .xlsx
           </Button>
         </div>
       </div>
