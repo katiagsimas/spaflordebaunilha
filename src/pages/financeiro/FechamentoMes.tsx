@@ -109,7 +109,7 @@ export default function FechamentoMes() {
               </AlertDialog>
             )}
             {fechamento && isFechado && (
-              <AlertDialog>
+              <AlertDialog onOpenChange={(open) => { if (!open) setMotivoReabertura(""); }}>
                 <AlertDialogTrigger asChild>
                   <Button variant="outline"><Unlock className="h-4 w-4 mr-2" /> Reabrir mês</Button>
                 </AlertDialogTrigger>
@@ -118,12 +118,22 @@ export default function FechamentoMes() {
                     <AlertDialogTitle>Reabrir este mês?</AlertDialogTitle>
                     <AlertDialogDescription>
                       Lançamentos voltarão a poder ser criados e editados dentro do período.
-                      O snapshot anterior será mantido até você fechar novamente.
+                      O snapshot anterior será mantido no histórico. Informe o motivo da reabertura — ele ficará registrado no log.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
+                  <Textarea
+                    placeholder="Motivo da reabertura (obrigatório)"
+                    value={motivoReabertura}
+                    onChange={e => setMotivoReabertura(e.target.value)}
+                  />
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => reabrir.mutate(fechamento.id)}>Reabrir</AlertDialogAction>
+                    <AlertDialogAction
+                      disabled={motivoReabertura.trim().length < 3 || reabrir.isPending}
+                      onClick={() => reabrir.mutate({ id: fechamento.id, motivo: motivoReabertura })}
+                    >
+                      Reabrir
+                    </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
