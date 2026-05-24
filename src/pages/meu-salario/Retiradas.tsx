@@ -83,7 +83,7 @@ export function Retiradas() {
                     <Button
                       size="icon"
                       variant="ghost"
-                      onClick={() => excluir.mutate(r.id)}
+                      onClick={() => setRetiradaParaExcluir(r)}
                       className="text-[hsl(var(--rd-rose-queimado))] hover:bg-[hsl(var(--rd-rose-queimado)/0.1)]"
                     >
                       <Trash2 className="h-4 w-4" />
