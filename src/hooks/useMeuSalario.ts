@@ -144,11 +144,13 @@ async function calcularResumo(
   };
 }
 
-export function useResumoMesAnterior() {
+export function useResumoMesAnterior(params?: { ano?: number; mes0?: number }) {
   const { activeGroupId } = useGroup();
   const hoje = new Date();
-  const ano = hoje.getMonth() === 0 ? hoje.getFullYear() - 1 : hoje.getFullYear();
-  const mes0 = hoje.getMonth() === 0 ? 11 : hoje.getMonth() - 1;
+  const anoDefault = hoje.getMonth() === 0 ? hoje.getFullYear() - 1 : hoje.getFullYear();
+  const mes0Default = hoje.getMonth() === 0 ? 11 : hoje.getMonth() - 1;
+  const ano = params?.ano ?? anoDefault;
+  const mes0 = params?.mes0 ?? mes0Default;
 
   return useQuery({
     queryKey: ["meu-salario-resumo", activeGroupId, ano, mes0],
