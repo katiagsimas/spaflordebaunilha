@@ -456,3 +456,17 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 **Arquivos:**
 - `src/lib/systemAccess.ts` (novo)
 - `src/pages/configuracoes/TiposInsumos.tsx` (guard adicionado)
+
+## 🔒 Expiração automática de plano — $(date -u +"%Y-%m-%d %H:%M UTC")
+
+✅ Implementado bloqueio automático de usuários com plano expirado:
+
+- **DB:** função `public.expire_overdue_plans()` (SECURITY DEFINER) marca `ativo = false` em todos os perfis cujo `plano_fim < CURRENT_DATE`.
+- **DB:** trigger `trg_enforce_plan_expiration` em `profiles` (BEFORE INSERT/UPDATE de `plano_fim`/`ativo`) força `ativo = false` quando o plano está vencido.
+- **App (`AuthContext.signIn`):** valida `plano_fim` no login; se expirado, faz `signOut` e exibe "Seu plano expirou. Entre em contato com o administrador para renovar."
+- **Admin > Usuários:** ao carregar a lista, executa `rpc('expire_overdue_plans')` para refletir o status atualizado em tempo real.
+
+**Arquivos:**
+- migration (função + trigger + varredura inicial)
+- `src/contexts/AuthContext.tsx`
+- `src/pages/admin/Usuarios.tsx`
