@@ -482,3 +482,9 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 **Arquivos:**
 - `src/components/PlanExpirationWatcher.tsx` (novo)
 - `src/App.tsx`
+
+## ✅ DRE com integridade histórica via snapshot — 2026-05-24
+
+- **`src/hooks/useFechamentoMes.ts`:** nova função `calcularLinhasDreMes(userId, refIso)` que reproduz a mesma lógica do `DRE.tsx` (regime de caixa, joins até `categorias_plano_contas` para obter `codigo` e `faixa_dre`). `useFecharMes` agora grava `snapshot.linhas_dre` com o detalhamento completo do mês fechado.
+- **`src/pages/financeiro/DRE.tsx`:** após o cálculo ao vivo, busca `fechamentos_mensais` com `status='fechado'` no ano e sobrescreve os arrays mensais com os valores de `snapshot.linhas_dre`. Snapshots antigos sem detalhamento são ignorados (fallback para cálculo ao vivo).
+- **Efeito:** meses fechados ficam congelados — alterações posteriores em `contas_receber`/`contas_pagar` não modificam mais o DRE histórico.
