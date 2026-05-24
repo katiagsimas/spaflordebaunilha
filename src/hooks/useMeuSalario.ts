@@ -63,6 +63,31 @@ async function calcularResumo(
 ): Promise<ResumoMes> {
   const { inicio, fim } = intervaloMes(ano, mes0);
 
+  // Se houver fechamento consolidado para este mês, usar o snapshot
+  const refIso = `${ano}-${String(mes0 + 1).padStart(2, "0")}-01`;
+  const { data: fechamento } = await (supabase.from("fechamentos_mensais" as any) as any)
+    .select("status, faturamento, custos, margem_seguranca, pro_labore_saudavel, retiradas, saldo_restante")
+    .eq("owner_group_id", ownerGroupId)
+    .eq("mes_referencia", refIso)
+    .eq("status", "fechado")
+    .maybeSingle();
+
+  if (fechamento) {
+    const faturamento = Number(fechamento.faturamento);
+    const custos = Number(fechamento.custos);
+    const margemSeguranca = Number(fechamento.margem_seguranca);
+    const proLaboreSaudavel = Number(fechamento.pro_labore_saudavel);
+    const retiradas = Number(fechamento.retiradas);
+    const saldoRestante = Number(fechamento.saldo_restante);
+    return {
+      mesReferencia: `${ano}-${String(mes0 + 1).padStart(2, "0")}`,
+      rotuloMes: rotuloMes(ano, mes0),
+      faturamento, custos, margemSeguranca, proLaboreSaudavel, retiradas, saldoRestante,
+      cenario: classificarCenario(saldoRestante, proLaboreSaudavel),
+      inicio, fim,
+    };
+  }
+
   // Considera apenas valores efetivamente pagos/recebidos (não estornados),
   // usando as tabelas de pagamentos para refletir entradas/saídas reais de caixa.
   const [recPagRes, pagPagRes, retRes] = await Promise.all([
