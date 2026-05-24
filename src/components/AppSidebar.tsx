@@ -412,7 +412,7 @@ export function AppSidebar() {
           <div className="space-y-3">
             {activeGroup && sessionMode === 'group' && (
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-[10px] border-sidebar-foreground/30 text-sidebar-foreground/80 font-body">
+                <Badge variant="outline" className="text-[10px] border-[#FFF9F5]/30 text-[#FFF9F5]/70 font-body">
                   {activeRole === 'ADMIN' ? 'Admin' : 'Usuário'}
                 </Badge>
                 {isMother && (
@@ -424,10 +424,10 @@ export function AppSidebar() {
               </div>
             )}
             <div>
-              <p className="text-sm font-semibold font-body text-sidebar-foreground truncate">
+              <p className="text-sm font-semibold font-body text-[#FFF9F5] truncate">
                 {profile?.nome_confeitaria || profile?.nome_completo || user?.email}
               </p>
-              <p className="text-xs font-body text-sidebar-foreground/50 truncate">
+              <p className="text-xs font-body text-[#FFF9F5]/60 truncate">
                 {user?.email}
               </p>
             </div>
