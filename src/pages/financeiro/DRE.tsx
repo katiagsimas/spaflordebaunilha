@@ -322,15 +322,72 @@ export default function DRE() {
 
     const receitaBrutaTotal = calcularTotal(dados.receitaBruta);
 
+    const linha = (label: string, valores: number[]) => [
+      label,
+      ...valores.map(v => Number(v.toFixed(2))),
+      Number(calcularTotal(valores).toFixed(2)),
+      calcularAV(calcularTotal(valores), receitaBrutaTotal).toFixed(0) + "%",
+    ];
+
+    const linhaPerc = (label: string, perc: number[], totalPerc: number) => [
+      label,
+      ...perc.map(v => v.toFixed(0) + "%"),
+      totalPerc.toFixed(0) + "%",
+      "-",
+    ];
+
+    const totalMargemContribPerc = receitaBrutaTotal !== 0
+      ? (calcularTotal(dados.margemContribuicao) / receitaBrutaTotal) * 100
+      : 0;
+    const totalMargemLiquidaPerc = receitaBrutaTotal !== 0
+      ? (calcularTotal(dados.lucroLiquido) / receitaBrutaTotal) * 100
+      : 0;
+
     const worksheet_data = [
       ["Demonstrativo de Resultado", "", "", "", "", "", "", "", "", "", "", "", "", ano, "AV%"],
       ["Descrição", ...meses, ano.toString(), "AV%"],
-      ["(+) Receita Bruta", ...dados.receitaBruta.map(v => v.toFixed(2)), receitaBrutaTotal.toFixed(2), "100%"],
-      ["1 - Receita com Vendas", ...dados.receitaVendas.map(v => v.toFixed(2)), calcularTotal(dados.receitaVendas).toFixed(2), calcularAV(calcularTotal(dados.receitaVendas), receitaBrutaTotal).toFixed(0) + "%"],
-      ["(-) Deduções Sobre Vendas", ...dados.totalDeducoes.map(v => v.toFixed(2)), calcularTotal(dados.totalDeducoes).toFixed(2), calcularAV(calcularTotal(dados.totalDeducoes), receitaBrutaTotal).toFixed(0) + "%"],
-      ["(=) Receita Líquida", ...dados.receitaLiquida.map(v => v.toFixed(2)), calcularTotal(dados.receitaLiquida).toFixed(2), calcularAV(calcularTotal(dados.receitaLiquida), receitaBrutaTotal).toFixed(0) + "%"],
-      ["(=) Lucro Líquido", ...dados.lucroLiquido.map(v => v.toFixed(2)), calcularTotal(dados.lucroLiquido).toFixed(2), calcularAV(calcularTotal(dados.lucroLiquido), receitaBrutaTotal).toFixed(0) + "%"],
+      // RECEITA BRUTA
+      ["(+) Receita Bruta", ...dados.receitaBruta.map(v => Number(v.toFixed(2))), Number(receitaBrutaTotal.toFixed(2)), "100%"],
+      linha("    1 - Receita com Vendas", dados.receitaVendas),
+      // DEDUÇÕES
+      linha("(-) Deduções Sobre Vendas", dados.totalDeducoes),
+      linha("    2 - Impostos Sobre Vendas", dados.impostosSobreVendas),
+      linha("    99 - Outras Deduções sobre Vendas", dados.outrasDeducoes),
+      // RECEITA LÍQUIDA
+      linha("(=) Receita Líquida", dados.receitaLiquida),
+      // CUSTOS VARIÁVEIS
+      linha("(-) Custos Variáveis", dados.totalCustosVariaveis),
+      linha("    3 - CMV - Custo de Mercadoria Vendida", dados.cmv),
+      linha("    8 - Despesas Comerciais", dados.despesasComerciais),
+      linha("    103 - Despesa Operacional Variável", dados.despesaOperacionalVariavel),
+      linha("    112 - Campanhas Sazonais", dados.campanhasSazonais),
+      // MARGEM DE CONTRIBUIÇÃO
+      linha("(=) Margem de Contribuição", dados.margemContribuicao),
+      linhaPerc("(=) % Margem de Contribuição", dados.margemContribuicaoPerc, totalMargemContribPerc),
+      // CUSTOS FIXOS
+      linha("(-) Custos Fixos", dados.totalCustosFixos),
+      linha("    5 - Despesas com Pessoal", dados.despesasPessoal),
+      linha("    6 - Despesas com Ocupação", dados.despesasOcupacao),
+      linha("    7 - Despesas Administrativas", dados.despesasAdministrativas),
+      // RESULTADO OPERACIONAL
+      linha("(=) Resultado Operacional", dados.resultadoOperacional),
+      // FINANCEIRO
+      linha("  106 - Receitas Financeiras", dados.receitasFinanceiras),
+      linha("  107 - Despesas Financeiras", dados.despesasFinanceiras),
+      // NÃO OPERACIONAL
+      linha("Resultado Não Operacional", dados.resultadoNaoOperacional),
+      linha("    9 - Receitas não Operacionais", dados.receitasNaoOperacionais),
+      linha("    10 - Gastos não Operacionais", dados.gastosNaoOperacionais),
+      // LAIR
+      linha("(=) Lucro Antes do Imposto de Renda (LAIR)", dados.lair),
+      // IMPOSTO
+      linha("(-) Imposto de Renda e CSLL", dados.impostoRenda),
+      // LUCRO LÍQUIDO
+      linha("(=) Lucro Líquido", dados.lucroLiquido),
+      // MARGEM LÍQUIDA
+      linhaPerc("(=) % Margem Líquida", dados.margemLiquidaPerc, totalMargemLiquidaPerc),
     ];
+
 
     const worksheet = XLSX.utils.aoa_to_sheet(worksheet_data);
     const workbook = XLSX.utils.book_new();
