@@ -345,7 +345,8 @@ export function useFecharMes() {
         .eq("id", input.id)
         .single();
       const valores = await calcularValores(activeGroupId, f.mes_referencia);
-      const snapshot = { ...valores, gerado_em: new Date().toISOString() };
+      const linhasDre = await calcularLinhasDreMes(user.id, f.mes_referencia);
+      const snapshot = { ...valores, linhas_dre: linhasDre, gerado_em: new Date().toISOString() };
       const { error } = await (supabase.from("fechamentos_mensais" as any) as any)
         .update({
           status: "fechado",
