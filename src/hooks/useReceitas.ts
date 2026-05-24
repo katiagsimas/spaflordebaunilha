@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useGroup } from "@/contexts/GroupContext";
 
 interface IngredienteReceita {
   id: string;
