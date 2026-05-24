@@ -90,6 +90,122 @@ async function calcularValores(ownerGroupId: string, refIso: string) {
   return { faturamento, custos, margem_seguranca: margem, pro_labore_saudavel: proLabore, retiradas, saldo_restante: saldo };
 }
 
+/**
+ * Calcula o detalhamento de linhas do DRE para um único mês (regime de caixa),
+ * usando exatamente a mesma lógica de DRE.tsx — filtrado por usuario_id.
+ * Retorna um objeto de campos escalares (uma "fatia" mensal de LinhasDRE).
+ */
+export async function calcularLinhasDreMes(userId: string, refIso: string) {
+  const { inicio, fim } = intervaloMes(refIso);
+
+  const [pagamentosReceberRes, pagamentosPagarRes] = await Promise.all([
+    supabase
+      .from("contas_receber_pagamentos")
+      .select(`
+        valor_pago, juros, desconto, data_pagamento,
+        contas_receber_parcelas!inner (
+          contas_receber!inner (
+            usuario_id,
+            plano_contas!plano_conta_id (
+              categorias_plano_contas ( codigo, faixa_dre )
+            )
+          )
+        )
+      `)
+      .eq("estornado", false)
+      .eq("contas_receber_parcelas.contas_receber.usuario_id", userId)
+      .gte("data_pagamento", inicio)
+      .lte("data_pagamento", fim),
+    supabase
+      .from("contas_pagar_pagamentos")
+      .select(`
+        valor_pago, juros, desconto, data_pagamento,
+        contas_pagar_parcelas!inner (
+          contas_pagar!inner (
+            usuario_id,
+            plano_contas!plano_contas_id (
+              categorias_plano_contas ( codigo, faixa_dre )
+            )
+          )
+        )
+      `)
+      .eq("estornado", false)
+      .eq("contas_pagar_parcelas.contas_pagar.usuario_id", userId)
+      .gte("data_pagamento", inicio)
+      .lte("data_pagamento", fim),
+  ]);
+
+  const planosReceita: Record<string, number> = {};
+  const planosDespesa: Record<string, number> = {};
+  const faixasReceber: Record<string, number> = {};
+  const faixasPagar: Record<string, number> = {};
+
+  ((pagamentosReceberRes.data as any[]) || []).forEach((pag) => {
+    const valor = (pag.valor_pago || 0) + (pag.juros || 0) - (pag.desconto || 0);
+    const cat = pag?.contas_receber_parcelas?.contas_receber?.plano_contas?.categorias_plano_contas;
+    if (cat?.codigo) planosReceita[cat.codigo] = (planosReceita[cat.codigo] || 0) + valor;
+    if (cat?.faixa_dre) faixasReceber[cat.faixa_dre] = (faixasReceber[cat.faixa_dre] || 0) + valor;
+  });
+
+  ((pagamentosPagarRes.data as any[]) || []).forEach((pag) => {
+    const valor = (pag.valor_pago || 0) + (pag.juros || 0) - (pag.desconto || 0);
+    const cat = pag?.contas_pagar_parcelas?.contas_pagar?.plano_contas?.categorias_plano_contas;
+    if (cat?.codigo) planosDespesa[cat.codigo] = (planosDespesa[cat.codigo] || 0) + valor;
+    if (cat?.faixa_dre) faixasPagar[cat.faixa_dre] = (faixasPagar[cat.faixa_dre] || 0) + valor;
+  });
+
+  const receitaVendas = planosReceita['1'] || 0;
+  let receitasFinanceiras = planosReceita['106'] || 0;
+  const receitasNaoOperacionais = planosReceita['9'] || 0;
+
+  const impostosSobreVendas = planosDespesa['2'] || 0;
+  const outrasDeducoes = planosDespesa['99'] || 0;
+  const cmv = planosDespesa['3'] || 0;
+  const despesasComerciais = planosDespesa['8'] || 0;
+  const despesaOperacionalVariavel = planosDespesa['103'] || 0;
+  const campanhasSazonais = planosDespesa['112'] || 0;
+  const despesasPessoal = planosDespesa['5'] || 0;
+  const despesasOcupacao = planosDespesa['6'] || 0;
+  const despesasAdministrativas = planosDespesa['7'] || 0;
+  let despesasFinanceiras = planosDespesa['107'] || 0;
+  const gastosNaoOperacionais = planosDespesa['10'] || 0;
+
+  const receitaBruta = faixasReceber['Receitas'] || 0;
+  const totalDeducoes = faixasPagar['Deduções sobre vendas'] || 0;
+  const receitaLiquida = receitaBruta - totalDeducoes;
+
+  const totalCustosVariaveis = faixasPagar['Custos variáveis'] || 0;
+  const margemContribuicao = receitaLiquida - totalCustosVariaveis;
+  const margemContribuicaoPerc = receitaBruta !== 0 ? (margemContribuicao / receitaBruta) * 100 : 0;
+
+  const totalCustosFixos = faixasPagar['Custos fixos'] || 0;
+  const resultadoOperacional = margemContribuicao - totalCustosFixos;
+
+  const receitasNaoOpFaixa = faixasReceber['Resultado não operacional'] || 0;
+  const gastosNaoOpFaixa = faixasPagar['Resultado não operacional'] || 0;
+  const resultadoNaoOperacional = receitasNaoOpFaixa - gastosNaoOpFaixa;
+
+  const receitasFinFaixa = faixasReceber['Resultado financeiro'] || 0;
+  const despesasFinFaixa = faixasPagar['Resultado financeiro'] || 0;
+  if (receitasFinFaixa > receitasFinanceiras) receitasFinanceiras = receitasFinFaixa;
+  if (despesasFinFaixa > despesasFinanceiras) despesasFinanceiras = despesasFinFaixa;
+
+  const lair = resultadoOperacional + receitasFinanceiras - despesasFinanceiras + resultadoNaoOperacional;
+  const impostoRenda = 0;
+  const lucroLiquido = lair - impostoRenda;
+  const margemLiquidaPerc = receitaBruta !== 0 ? (lucroLiquido / receitaBruta) * 100 : 0;
+
+  return {
+    receitaBruta, receitaVendas, impostosSobreVendas, outrasDeducoes, totalDeducoes, receitaLiquida,
+    cmv, despesasComerciais, despesaOperacionalVariavel, campanhasSazonais, totalCustosVariaveis,
+    margemContribuicao, margemContribuicaoPerc,
+    despesasPessoal, despesasOcupacao, despesasAdministrativas, totalCustosFixos,
+    resultadoOperacional, receitasFinanceiras, despesasFinanceiras,
+    receitasNaoOperacionais, gastosNaoOperacionais, resultadoNaoOperacional,
+    lair, impostoRenda, lucroLiquido, margemLiquidaPerc,
+  };
+}
+
 export function useFechamentoMes(refIso: string) {
   const { activeGroupId } = useGroup();
 
