@@ -20,15 +20,15 @@ export default function Configuracoes() {
       </div>
 
       {/* Card Informativo */}
-      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border-blue-200 dark:border-blue-800 mb-8">
+      <Card className="bg-[#C9A14A]/10 border border-[#C9A14A]/30 mb-8">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+            <Info className="h-5 w-5 text-[#C9A14A] mt-0.5 shrink-0" />
             <div className="space-y-2">
-              <h3 className="font-semibold text-blue-900 dark:text-blue-100">
+              <h3 className="font-semibold text-[#5B1A2B]">
                 💡 Dica: Configure uma vez, use sempre!
               </h3>
-              <p className="text-sm text-blue-700 dark:text-blue-300">
+              <p className="text-sm text-[#5B1A2B]">
                 Configure todos os valores agora e eles serão aplicados automaticamente em todas as suas 
                 fichas técnicas e controles financeiros. Você sempre pode voltar aqui para ajustar conforme seu negócio cresce.
               </p>
