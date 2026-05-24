@@ -547,3 +547,8 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 ## 2026-05-24T17:05:00Z - Migração React Query (useEncomendas / useEncomendaItens)
 - ✅ `src/hooks/useEncomendas.ts`: substituído `useState + useEffect + fetch manual` por `useQuery` (`queryKey: ["encomendas", userId]`). Operações `createEncomenda`, `updateEncomenda` e `deleteEncomenda` agora usam `useMutation` com `invalidateQueries` em `onSuccess` e toasts em `onSuccess/onError`. Interface pública preservada (assinaturas via `mutateAsync`).
 - ✅ `src/hooks/useEncomendaItens.ts`: mesma migração para `useQuery` (`queryKey: ["encomenda_itens", encomendaId, userId]`) com mutations `createItem`/`deleteItem`. Toasts movidos para os callbacks da mutation. Sem alteração na API consumida por `Encomendas.tsx`.
+
+## 2026-05-24T17:30:00Z - Migração multi-tenant (useEncomendas / useEncomendaItens)
+- ✅ `src/hooks/useEncomendas.ts`: passa a usar `useGroup()` (`activeGroupId`). Leituras filtradas por `.eq('owner_group_id', activeGroupId)`; queryKey atualizada para `['encomendas', activeGroupId]`. Inserts gravam `owner_group_id: activeGroupId` mantendo `usuario_id: user.id` (rastreio + RLS atual). `update`/`delete` escopados por `owner_group_id`.
+- ✅ `src/hooks/useEncomendaItens.ts`: mesma migração. Leituras por `.eq('owner_group_id', activeGroupId).eq('encomenda_id', ...)`; queryKey `['encomenda_itens', encomendaId, activeGroupId]`. Inserts gravam `owner_group_id` + `usuario_id`.
+- ✅ `src/pages/Encomendas.tsx`: batch insert em `encomenda_itens` agora inclui `owner_group_id: activeGroupId`. Novo `useGroup()` adicionado ao componente.
