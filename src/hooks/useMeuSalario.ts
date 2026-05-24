@@ -244,6 +244,3 @@ export function useExcluirRetirada() {
   });
 }
 
-export function formatBRL(valor: number) {
-  return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}

@@ -15,7 +15,7 @@ import {
   useFechamentoMes, useAbrirOuCriarFechamento, useFecharMes, useReabrirMes,
   useToggleChecklistItem, useListaFechamentos, useFechamentoLogs, mesAnteriorIso, listaMesesRecentes,
 } from "@/hooks/useFechamentoMes";
-import { formatBRL } from "@/hooks/useMeuSalario";
+import { formatBRL } from "@/lib/formatUtils";
 import { formatarMesReferencia } from "@/lib/dateUtils";
 import { Lock, Unlock, CheckCircle2, AlertCircle, History, Clock, ExternalLink } from "lucide-react";
 

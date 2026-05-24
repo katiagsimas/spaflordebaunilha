@@ -1,4 +1,5 @@
-import { ResumoMes, formatBRL } from "@/hooks/useMeuSalario";
+import { ResumoMes } from "@/hooks/useMeuSalario";
+import { formatBRL } from "@/lib/formatUtils";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
 
 interface Props {
