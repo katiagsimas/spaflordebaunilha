@@ -488,3 +488,10 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 - **`src/hooks/useFechamentoMes.ts`:** nova função `calcularLinhasDreMes(userId, refIso)` que reproduz a mesma lógica do `DRE.tsx` (regime de caixa, joins até `categorias_plano_contas` para obter `codigo` e `faixa_dre`). `useFecharMes` agora grava `snapshot.linhas_dre` com o detalhamento completo do mês fechado.
 - **`src/pages/financeiro/DRE.tsx`:** após o cálculo ao vivo, busca `fechamentos_mensais` com `status='fechado'` no ano e sobrescreve os arrays mensais com os valores de `snapshot.linhas_dre`. Snapshots antigos sem detalhamento são ignorados (fallback para cálculo ao vivo).
 - **Efeito:** meses fechados ficam congelados — alterações posteriores em `contas_receber`/`contas_pagar` não modificam mais o DRE histórico.
+
+## ✅ Refatoração dashboard financeiro: hook + componente compartilhados — 2026-05-24
+
+- **Problema:** `Financeiro.tsx` e `DashboardFinanceiro.tsx` duplicavam `carregarResumoDashboard`, `carregarInadimplenciaClientes` e `carregarInadimplenciaFornecedores`, mais o bloco de renderização das tabelas de inadimplência. Além disso, a cópia em `DashboardFinanceiro.tsx` usava loop com `await` por cliente (N+1) para buscar telefones.
+- **`src/hooks/useResumoDashboard.ts`:** novo hook que centraliza as três queries e o estado (`resumo`, `inadimplenciaClientes`, `inadimplenciaFornecedores`, `loading`). Telefones de clientes são buscados em lote com `.in(clienteIds)` (correção do item #A1 aplicada para ambas as rotas). Fornecedores carregados via inner join único.
+- **`src/components/financeiro/TabelaInadimplencia.tsx`:** novo componente reutilizável com props `{ tipo: 'clientes' | 'fornecedores', itens }`. Gerencia internamente paginação TOP 10 / "Ver todos".
+- **`src/pages/financeiro/Financeiro.tsx` e `src/pages/financeiro/DashboardFinanceiro.tsx`:** removidas as funções e estados duplicados; passam a consumir o hook e o componente. Visual unificado seguindo o padrão mais rico do `Financeiro.tsx` (border-l-4 + ícone com badge colorido).
