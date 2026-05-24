@@ -1351,6 +1351,7 @@ export default function Dashboard() {
                       variant={modoVisualizacao === 'mensal' ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setModoVisualizacao('mensal')}
+                      className={modoVisualizacao === 'mensal' ? "bg-[#5B1A2B] text-[#FFF9F5]" : "border border-[#C9A14A]/50 text-[#5B1A2B] bg-transparent hover:border-[#C9A14A] hover:text-[#5B1A2B]"}
                     >
                       Mensal
                     </Button>
@@ -1358,6 +1359,7 @@ export default function Dashboard() {
                       variant={modoVisualizacao === 'anual' ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setModoVisualizacao('anual')}
+                      className={modoVisualizacao === 'anual' ? "bg-[#5B1A2B] text-[#FFF9F5]" : "border border-[#C9A14A]/50 text-[#5B1A2B] bg-transparent hover:border-[#C9A14A] hover:text-[#5B1A2B]"}
                     >
                       Anual
                     </Button>
