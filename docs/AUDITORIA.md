@@ -421,3 +421,12 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 - Criadas funções `is_mes_fechado`, `user_in_group` e triggers `BEFORE INSERT/UPDATE/DELETE` em `contas_receber/pagar`, suas parcelas e pagamentos para bloquear alterações em meses fechados.
 - Hook `useFechamentoMes`, página `/financeiro/fechamento-mes`, integração com card no hub Financeiro e snapshot consumido por `useMeuSalario`.
 - Ver `DOCS_FECHAMENTO_MES.md`.
+
+---
+
+## [2026-05-24] Histórico de Reabertura de Fechamento de Mês ✅
+- Criada tabela `fechamento_logs` (ação, motivo, snapshot, autor, timestamp) com RLS por grupo.
+- `useReabrirMes` agora exige motivo (mín. 3 caracteres) e grava log com snapshot anterior.
+- `useFecharMes` grava log ao fechar com snapshot consolidado.
+- Novo hook `useFechamentoLogs` agrega logs + nome/email do autor (join com profiles).
+- UI em `FechamentoMes.tsx`: AlertDialog de reabertura com Textarea obrigatória + nova seção "Histórico de mudanças deste mês".

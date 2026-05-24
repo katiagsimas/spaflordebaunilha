@@ -12,18 +12,20 @@ import {
 import { PageHeader } from "@/components/PageHeader";
 import {
   useFechamentoMes, useAbrirOuCriarFechamento, useFecharMes, useReabrirMes,
-  useToggleChecklistItem, useListaFechamentos, mesAnteriorIso, listaMesesRecentes,
+  useToggleChecklistItem, useListaFechamentos, useFechamentoLogs, mesAnteriorIso, listaMesesRecentes,
 } from "@/hooks/useFechamentoMes";
 import { formatBRL } from "@/hooks/useMeuSalario";
-import { Lock, Unlock, CheckCircle2, AlertCircle, History } from "lucide-react";
+import { Lock, Unlock, CheckCircle2, AlertCircle, History, Clock } from "lucide-react";
 
 export default function FechamentoMes() {
   const meses = listaMesesRecentes(12);
   const [refIso, setRefIso] = useState(mesAnteriorIso());
   const [observacoes, setObservacoes] = useState("");
+  const [motivoReabertura, setMotivoReabertura] = useState("");
 
   const { fechamento, previa, checklist, isLoading } = useFechamentoMes(refIso);
   const { data: historico } = useListaFechamentos();
+  const { data: logs } = useFechamentoLogs(fechamento?.id);
   const abrir = useAbrirOuCriarFechamento();
   const fechar = useFecharMes();
   const reabrir = useReabrirMes();
@@ -107,7 +109,7 @@ export default function FechamentoMes() {
               </AlertDialog>
             )}
             {fechamento && isFechado && (
-              <AlertDialog>
+              <AlertDialog onOpenChange={(open) => { if (!open) setMotivoReabertura(""); }}>
                 <AlertDialogTrigger asChild>
                   <Button variant="outline"><Unlock className="h-4 w-4 mr-2" /> Reabrir mês</Button>
                 </AlertDialogTrigger>
@@ -116,12 +118,22 @@ export default function FechamentoMes() {
                     <AlertDialogTitle>Reabrir este mês?</AlertDialogTitle>
                     <AlertDialogDescription>
                       Lançamentos voltarão a poder ser criados e editados dentro do período.
-                      O snapshot anterior será mantido até você fechar novamente.
+                      O snapshot anterior será mantido no histórico. Informe o motivo da reabertura — ele ficará registrado no log.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
+                  <Textarea
+                    placeholder="Motivo da reabertura (obrigatório)"
+                    value={motivoReabertura}
+                    onChange={e => setMotivoReabertura(e.target.value)}
+                  />
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => reabrir.mutate(fechamento.id)}>Reabrir</AlertDialogAction>
+                    <AlertDialogAction
+                      disabled={motivoReabertura.trim().length < 3 || reabrir.isPending}
+                      onClick={() => reabrir.mutate({ id: fechamento.id, motivo: motivoReabertura })}
+                    >
+                      Reabrir
+                    </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
@@ -199,6 +211,51 @@ export default function FechamentoMes() {
           <CardContent className="text-sm whitespace-pre-wrap">{fechamento.observacoes}</CardContent>
         </Card>
       )}
+
+      {/* Logs do mês selecionado */}
+      {fechamento && logs && logs.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Clock className="h-4 w-4" /> Histórico de mudanças deste mês
+            </CardTitle>
+            <CardDescription>Registro de fechamentos e reaberturas, com motivo e autor.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {logs.map((log) => (
+              <div key={log.id} className="flex items-start gap-3 p-3 rounded-lg border bg-card">
+                {log.acao === "reaberto" ? (
+                  <Unlock className="h-4 w-4 mt-1 text-cda-coral shrink-0" />
+                ) : (
+                  <Lock className="h-4 w-4 mt-1 text-cda-dourado shrink-0" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant={log.acao === "reaberto" ? "outline" : "default"} className={log.acao === "fechado" ? "bg-cda-dourado text-cda-preto" : ""}>
+                      {log.acao === "reaberto" ? "Reabertura" : "Fechamento"}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(log.created_at).toLocaleString("pt-BR")}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      por <strong>{log.usuario_nome ?? log.usuario_email ?? "—"}</strong>
+                    </span>
+                  </div>
+                  {log.motivo && (
+                    <p className="text-sm mt-1.5 whitespace-pre-wrap">{log.motivo}</p>
+                  )}
+                  {log.snapshot && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Faturamento {formatBRL(Number(log.snapshot.faturamento ?? 0))} · Custos {formatBRL(Number(log.snapshot.custos ?? 0))}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
 
       {/* Histórico */}
       <Card>
