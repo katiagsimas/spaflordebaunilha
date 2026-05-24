@@ -1,11 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useGroup } from '@/contexts/GroupContext';
 import { toast } from 'sonner';
 
 interface Encomenda {
   id: string;
   usuario_id: string;
+  owner_group_id?: string | null;
   cliente: string;
   data_pedido: string;
   data_entrega: string;
@@ -37,14 +39,15 @@ interface Encomenda {
 
 export function useEncomendas() {
   const { user } = useAuth();
+  const { activeGroupId } = useGroup();
   const queryClient = useQueryClient();
   const userId = user?.id;
 
-  const queryKey = ['encomendas', userId];
+  const queryKey = ['encomendas', activeGroupId];
 
   const { data: encomendas = [], isLoading: loading, refetch } = useQuery<Encomenda[]>({
     queryKey,
-    enabled: !!userId,
+    enabled: !!activeGroupId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('encomendas')
@@ -59,7 +62,7 @@ export function useEncomendas() {
             )
           )
         `)
-        .eq('usuario_id', userId!)
+        .eq('owner_group_id', activeGroupId!)
         .order('data_entrega', { ascending: false });
 
       if (error) {
@@ -77,18 +80,19 @@ export function useEncomendas() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async (encomenda: Omit<Encomenda, 'id' | 'usuario_id' | 'created_at' | 'updated_at'>) => {
+    mutationFn: async (encomenda: Omit<Encomenda, 'id' | 'usuario_id' | 'owner_group_id' | 'created_at' | 'updated_at'>) => {
       if (!userId) throw new Error('Usuário não autenticado');
+      if (!activeGroupId) throw new Error('Grupo não selecionado');
       const { data, error } = await supabase
         .from('encomendas')
-        .insert({ ...encomenda, usuario_id: userId } as any)
+        .insert({ ...encomenda, owner_group_id: activeGroupId, usuario_id: userId } as any)
         .select()
         .single();
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['encomendas', userId] });
+      queryClient.invalidateQueries({ queryKey: ['encomendas', activeGroupId] });
       toast.success('Encomenda criada!');
     },
     onError: (err: any) => {
@@ -98,19 +102,19 @@ export function useEncomendas() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Encomenda> }) => {
-      if (!userId) throw new Error('Usuário não autenticado');
+      if (!activeGroupId) throw new Error('Grupo não selecionado');
       const { data, error } = await supabase
         .from('encomendas')
         .update(updates as any)
         .eq('id', id)
-        .eq('usuario_id', userId)
+        .eq('owner_group_id', activeGroupId)
         .select()
         .single();
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['encomendas', userId] });
+      queryClient.invalidateQueries({ queryKey: ['encomendas', activeGroupId] });
       toast.success('Encomenda atualizada!');
     },
     onError: (err: any) => {
@@ -120,16 +124,16 @@ export function useEncomendas() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      if (!userId) throw new Error('Usuário não autenticado');
+      if (!activeGroupId) throw new Error('Grupo não selecionado');
       const { error } = await supabase
         .from('encomendas')
         .delete()
         .eq('id', id)
-        .eq('usuario_id', userId);
+        .eq('owner_group_id', activeGroupId);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['encomendas', userId] });
+      queryClient.invalidateQueries({ queryKey: ['encomendas', activeGroupId] });
       toast.success('Encomenda deletada!');
     },
     onError: (err: any) => {
@@ -140,7 +144,7 @@ export function useEncomendas() {
   return {
     encomendas,
     loading,
-    createEncomenda: (encomenda: Omit<Encomenda, 'id' | 'usuario_id' | 'created_at' | 'updated_at'>) =>
+    createEncomenda: (encomenda: Omit<Encomenda, 'id' | 'usuario_id' | 'owner_group_id' | 'created_at' | 'updated_at'>) =>
       createMutation.mutateAsync(encomenda),
     updateEncomenda: (id: string, updates: Partial<Encomenda>) =>
       updateMutation.mutateAsync({ id, updates }),
