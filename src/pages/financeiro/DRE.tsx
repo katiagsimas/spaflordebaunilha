@@ -28,7 +28,7 @@ import {
   TrendingDown,
   DollarSign
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useGlobalLoading } from "@/contexts/GlobalLoadingContext";
@@ -76,9 +76,14 @@ interface LinhasDRE {
 
 export default function DRE() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { showLoading, hideLoading } = useGlobalLoading();
-  const [ano, setAno] = useState(new Date().getFullYear());
+  const [ano, setAno] = useState(() => {
+    const anoParam = searchParams.get("ano");
+    const parsed = anoParam ? parseInt(anoParam, 10) : NaN;
+    return !isNaN(parsed) && parsed >= 2000 && parsed <= 2100 ? parsed : new Date().getFullYear();
+  });
   const [dados, setDados] = useState<LinhasDRE | null>(null);
   
   const [mesSelecionado, setMesSelecionado] = useState(new Date().getMonth());
