@@ -1114,6 +1114,7 @@ export default function Dashboard() {
                 variant={tabEconomica === "mensal" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setTabEconomica("mensal")}
+                className={tabEconomica === "mensal" ? "bg-[#5B1A2B] text-[#FFF9F5]" : "border border-[#C9A14A]/50 text-[#5B1A2B] bg-transparent hover:border-[#C9A14A] hover:text-[#5B1A2B]"}
               >
                 Mensal
               </Button>
@@ -1121,6 +1122,7 @@ export default function Dashboard() {
                 variant={tabEconomica === "anual" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setTabEconomica("anual")}
+                className={tabEconomica === "anual" ? "bg-[#5B1A2B] text-[#FFF9F5]" : "border border-[#C9A14A]/50 text-[#5B1A2B] bg-transparent hover:border-[#C9A14A] hover:text-[#5B1A2B]"}
               >
                 Anual
               </Button>
