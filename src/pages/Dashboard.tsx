@@ -912,7 +912,7 @@ export default function Dashboard() {
             value={anoSelecionado.toString()}
             onValueChange={(value) => setAnoSelecionado(parseInt(value))}
           >
-            <SelectTrigger className="w-[100px]">
+            <SelectTrigger className="w-[100px] border-[#C9A14A]/40 hover:border-[#C9A14A]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
