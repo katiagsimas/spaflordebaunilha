@@ -67,13 +67,8 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
-interface InadimplenciaItem {
-  id: string;
-  nome: string;
-  valor: number;
-  dias_atraso: number;
-  telefone?: string;
-}
+import { useResumoDashboard } from '@/hooks/useResumoDashboard';
+import { TabelaInadimplencia } from '@/components/financeiro/TabelaInadimplencia';
 
 export default function Financeiro() {
   const navigate = useNavigate();
