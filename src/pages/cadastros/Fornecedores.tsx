@@ -39,7 +39,21 @@ interface FormDataFornecedor {
 export default function Fornecedores() {
   const navigate = useNavigate();
   const { fornecedores, loading, createFornecedor, updateFornecedor, deleteFornecedor } = useFornecedores();
-  const { contatos, createContato, updateContato, deleteContato, refetch: refetchContatos } = useFornecedorContatos();
+  const { contatos, createContato, updateContato, deleteContato, refetch: refetchContatos } = useFornecedorContatos(editingId || "");
+  const { activeGroupId } = useGroup();
+  const { data: contatosGrupo = [] } = useQuery({
+    queryKey: ["fornecedor_contatos_grupo", activeGroupId],
+    queryFn: async () => {
+      if (!activeGroupId) return [] as any[];
+      const { data, error } = await (supabase
+        .from("fornecedor_contatos") as any)
+        .select("*")
+        .eq("owner_group_id", activeGroupId);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!activeGroupId,
+  });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
