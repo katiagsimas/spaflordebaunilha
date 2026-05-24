@@ -1217,11 +1217,11 @@ export default function Dashboard() {
               </Card>
 
               {/* Ticket Médio */}
-              <Card className="border-l-4 border-l-primary bg-primary/5">
+              <Card className="border-l-4 border-l-primary bg-white">
                 <CardHeader className="p-2.5">
                   <div className="flex flex-col items-center gap-1.5 text-center">
-                    <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <DollarSign className="h-3.5 w-3.5 text-primary" />
+                    <div className="w-7 h-7 rounded-lg bg-[#C9A14A]/10 flex items-center justify-center">
+                      <DollarSign className="h-3.5 w-3.5 text-[#C9A14A]/60" />
                     </div>
                     <div>
                       <CardTitle className="text-[11px] mb-0.5">Ticket Médio</CardTitle>
