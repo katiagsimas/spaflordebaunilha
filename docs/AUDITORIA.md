@@ -508,3 +508,6 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 
 ## 2026-05-24T16:27:00Z - #C3 corrigido
 - ✅ Sublinhas do DRE.tsx migradas para o campo `subfaixa_dre` (nova coluna em `categorias_plano_contas`). Nenhum código numérico hardcoded restante. Categorias customizadas com `subfaixa_dre` definida passam a aparecer nas sublinhas correspondentes.
+
+## 2026-05-24T16:28:20Z - #C1 corrigido
+- ✅ FluxoCaixaMensal.tsx: todas as queries (saldos bancos, saldos configurados anteriores e do ano, pagamentos anteriores e do ano) agora são feitas em um único `Promise.all` fora do loop, com filtros `.gte/.lte` no banco. O loop dos 12 meses passa a operar apenas em memória sobre os dados pré-carregados (~7 requisições por carregamento, antes ~60).
