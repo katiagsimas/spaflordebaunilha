@@ -23,6 +23,8 @@ import { AlertaAniversariantesContatos } from "@/components/AlertaAniversariante
 import { supabase } from "@/integrations/supabase/client";
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useGroup } from "@/contexts/GroupContext";
+import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import * as XLSX from 'xlsx';
@@ -39,7 +41,7 @@ interface FormDataFornecedor {
 export default function Fornecedores() {
   const navigate = useNavigate();
   const { fornecedores, loading, createFornecedor, updateFornecedor, deleteFornecedor } = useFornecedores();
-  const { contatos, createContato, updateContato, deleteContato, refetch: refetchContatos } = useFornecedorContatos();
+  const { activeGroupId } = useGroup();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -50,6 +52,25 @@ export default function Fornecedores() {
   const [contatoDialogOpen, setContatoDialogOpen] = useState(false);
   const [selectedFornecedorId, setSelectedFornecedorId] = useState<string | null>(null);
   const [editingContato, setEditingContato] = useState<any>(null);
+
+  // Hook de contatos carregado apenas quando há um fornecedor selecionado/expandido
+  const fornecedorContatosId = editingId || selectedFornecedorId || "";
+  const { contatos, createContato, updateContato, deleteContato, refetch: refetchContatos } = useFornecedorContatos(fornecedorContatosId);
+
+  // Query separada para listar aniversariantes do grupo (usada apenas no alerta)
+  const { data: contatosGrupo = [] } = useQuery({
+    queryKey: ["fornecedor_contatos_grupo", activeGroupId],
+    queryFn: async () => {
+      if (!activeGroupId) return [] as any[];
+      const { data, error } = await (supabase
+        .from("fornecedor_contatos") as any)
+        .select("*")
+        .eq("owner_group_id", activeGroupId);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!activeGroupId,
+  });
 
   const [formData, setFormData] = useState<FormDataFornecedor>({
     nome: "",
@@ -189,7 +210,7 @@ export default function Fornecedores() {
 
   // Contatos aniversariantes do mês com informação do fornecedor
   const contatosAniversariantes = useMemo(() => {
-    return contatos.map(contato => {
+    return contatosGrupo.map((contato: any) => {
       const fornecedor = fornecedores.find(f => f.id === contato.fornecedor_id);
       return {
         ...contato,
@@ -197,7 +218,7 @@ export default function Fornecedores() {
         fornecedor_id: contato.fornecedor_id,
       };
     });
-  }, [contatos, fornecedores]);
+  }, [contatosGrupo, fornecedores]);
 
   // Filtrar fornecedores por busca
   const fornecedoresFiltrados = useMemo(() => {

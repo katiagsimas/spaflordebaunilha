@@ -20,30 +20,26 @@ interface FornecedorContato {
   updated_at?: string;
 }
 
-export function useFornecedorContatos(fornecedorId?: string) {
+export function useFornecedorContatos(fornecedorId: string) {
   const { user } = useAuth();
   const { activeGroupId } = useGroup();
   const queryClient = useQueryClient();
 
   const { data: contatos = [], isLoading, refetch } = useQuery({
-    queryKey: ['fornecedor_contatos', fornecedorId ?? 'all', activeGroupId],
+    queryKey: ['fornecedor_contatos', fornecedorId, activeGroupId],
     queryFn: async () => {
-      if (!activeGroupId) return [];
-      let query = (supabase
+      if (!activeGroupId || !fornecedorId) return [];
+      const { data, error } = await (supabase
         .from('fornecedor_contatos') as any)
         .select('*')
         .eq('owner_group_id', activeGroupId)
+        .eq('fornecedor_id', fornecedorId)
         .order('nome');
 
-      if (fornecedorId) {
-        query = query.eq('fornecedor_id', fornecedorId);
-      }
-
-      const { data, error } = await query;
       if (error) throw error;
       return (data || []) as FornecedorContato[];
     },
-    enabled: !!activeGroupId,
+    enabled: !!fornecedorId && !!activeGroupId,
   });
 
   const invalidate = () =>
