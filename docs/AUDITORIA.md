@@ -1,8 +1,17 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-24T16:00:00Z — useClientes/useFornecedores/useFornecedorContatos migrados para React Query
+> Última atualização: 2026-05-24T18:00:00Z — ReceitaForm: 6 chamadas `supabase.auth.getUser()` substituídas por `useAuth()`
 
 ---
+
+## REFATORAÇÃO RECEITAFORM — 2026-05-24 18:00 UTC (useAuth centralizado)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| 105 | Centralizar acesso ao user em ReceitaForm | ✅ | Removidas 6 chamadas redundantes a `await supabase.auth.getUser()` (useEffect de carregamento, handleSave e 4 handlers inline de criação em cadeia). Substituídas por uma única instância de `const { user } = useAuth()` no topo do componente. Guards `if (!user)` preservados usando a variável do hook. |
+
+---
+
 
 ## REFATORAÇÃO HOOKS CADASTROS — 2026-05-24 16:00 UTC (React Query)
 

@@ -12,6 +12,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { useMaoObraPerfis } from "@/hooks/useMaoObraPerfis";
 import { useReceitasMaoObra } from "@/hooks/useReceitasMaoObra";
 import { MaoObraSection, type MaoObraLinha } from "@/components/MaoObraSection";
+import { useAuth } from "@/contexts/AuthContext";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -133,6 +134,7 @@ interface UploadImagemItem {
 export default function ReceitaForm() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { user } = useAuth();
   const [ingredientesCadastrados, setIngredientesCadastrados] = useState<any[]>([]);
   const [embalagensCadastradas, setEmbalagensCadastradas] = useState<any[]>([]);
   const { categorias, fetchCategoriasAtivas } = useCategorias();
@@ -155,7 +157,6 @@ export default function ReceitaForm() {
   useEffect(() => {
     const fetchDados = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
         // Buscar ingredientes normais
@@ -845,7 +846,6 @@ export default function ReceitaForm() {
     }
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Não autenticado');
 
       // Para "Produto para Combo", salvar custo sem embalagens (ingredientes + fixos)
@@ -2068,7 +2068,6 @@ export default function ReceitaForm() {
                   return;
                 }
 
-                const { data: { user } } = await supabase.auth.getUser();
                 if (!user) throw new Error('Não autenticado');
 
                 const { data, error } = await supabase
@@ -2189,7 +2188,6 @@ export default function ReceitaForm() {
                   return;
                 }
 
-                const { data: { user } } = await supabase.auth.getUser();
                 if (!user) throw new Error('Não autenticado');
 
                 const { data, error } = await supabase
@@ -2291,7 +2289,6 @@ export default function ReceitaForm() {
                   return;
                 }
 
-                const { data: { user } } = await supabase.auth.getUser();
                 if (!user) throw new Error('Não autenticado');
 
                 const { data, error } = await supabase
@@ -2413,7 +2410,6 @@ export default function ReceitaForm() {
                   return;
                 }
 
-                const { data: { user } } = await supabase.auth.getUser();
                 if (!user) throw new Error('Não autenticado');
 
                 const { data, error } = await supabase
