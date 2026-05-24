@@ -220,7 +220,8 @@ export default function Dashboard() {
         carregarCalendario(),
         carregarFinanceiro(),
         carregarVisaoEconomica(),
-        carregarContadoresEGraficos()
+        carregarContadoresEGraficos(),
+        carregarAniversariantes()
       ]);
     } catch (error) {
       console.error("Erro ao carregar dashboard:", error);
