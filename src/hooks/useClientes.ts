@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -24,86 +24,96 @@ interface Cliente {
 
 export function useClientes() {
   const { user } = useAuth();
-  const [clientes, setClientes] = useState<Cliente[]>([]);
-  const [loading, setLoading] = useState(true);
+  const userId = user?.id;
+  const queryClient = useQueryClient();
 
-  const fetchClientes = async () => {
-    if (!user) return;
-    
-    try {
-      setLoading(true);
+  const { data: clientes = [], isLoading, refetch } = useQuery({
+    queryKey: ['clientes', userId],
+    queryFn: async () => {
+      if (!userId) return [];
       const { data, error } = await supabase
         .from('clientes')
         .select('*')
-        .eq('usuario_id', user.id)
+        .eq('usuario_id', userId)
         .order('nome');
-
       if (error) throw error;
-      setClientes(data || []);
-    } catch (err: any) {
-      console.error('Erro ao buscar clientes:', err);
-      toast.error('Erro ao carregar clientes: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return (data || []) as Cliente[];
+    },
+    enabled: !!userId,
+  });
 
-  const createCliente = async (cliente: Omit<Cliente, 'id' | 'usuario_id' | 'created_at' | 'updated_at'>) => {
-    if (!user) throw new Error('Usuário não autenticado');
+  const createMutation = useMutation({
+    mutationFn: async (cliente: Omit<Cliente, 'id' | 'usuario_id' | 'created_at' | 'updated_at'>) => {
+      if (!userId) throw new Error('Usuário não autenticado');
+      const { data, error } = await supabase
+        .from('clientes')
+        .insert({ ...cliente, usuario_id: userId })
+        .select()
+        .single();
+      if (error) throw error;
+      return data as Cliente;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clientes'] });
+      toast.success('Cliente criado com sucesso!');
+    },
+    onError: (err: any) => {
+      console.error('Erro ao criar cliente:', err);
+      toast.error('Erro ao criar cliente: ' + err.message);
+    },
+  });
 
-    const { data, error } = await supabase
-      .from('clientes')
-      .insert({ ...cliente, usuario_id: user.id })
-      .select()
-      .single();
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<Cliente> }) => {
+      if (!userId) throw new Error('Usuário não autenticado');
+      const { data, error } = await supabase
+        .from('clientes')
+        .update(updates)
+        .eq('id', id)
+        .eq('usuario_id', userId)
+        .select()
+        .single();
+      if (error) throw error;
+      return data as Cliente;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clientes'] });
+      toast.success('Cliente atualizado!');
+    },
+    onError: (err: any) => {
+      console.error('Erro ao atualizar cliente:', err);
+      toast.error('Erro ao atualizar cliente: ' + err.message);
+    },
+  });
 
-    if (error) throw error;
-    setClientes([...clientes, data]);
-    toast.success('Cliente criado com sucesso!');
-    return data;
-  };
-
-  const updateCliente = async (id: string, updates: Partial<Cliente>) => {
-    if (!user) throw new Error('Usuário não autenticado');
-
-    const { data, error } = await supabase
-      .from('clientes')
-      .update(updates)
-      .eq('id', id)
-      .eq('usuario_id', user.id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    setClientes(clientes.map(c => c.id === id ? data : c));
-    toast.success('Cliente atualizado!');
-    return data;
-  };
-
-  const deleteCliente = async (id: string) => {
-    if (!user) throw new Error('Usuário não autenticado');
-
-    const { error } = await supabase
-      .from('clientes')
-      .delete()
-      .eq('id', id)
-      .eq('usuario_id', user.id);
-
-    if (error) throw error;
-    setClientes(clientes.filter(c => c.id !== id));
-    toast.success('Cliente deletado!');
-  };
-
-  useEffect(() => {
-    if (user) fetchClientes();
-  }, [user]);
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      if (!userId) throw new Error('Usuário não autenticado');
+      const { error } = await supabase
+        .from('clientes')
+        .delete()
+        .eq('id', id)
+        .eq('usuario_id', userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clientes'] });
+      toast.success('Cliente deletado!');
+    },
+    onError: (err: any) => {
+      console.error('Erro ao deletar cliente:', err);
+      toast.error('Erro ao deletar cliente: ' + err.message);
+    },
+  });
 
   return {
     clientes,
-    loading,
-    createCliente,
-    updateCliente,
-    deleteCliente,
-    refetch: fetchClientes,
+    loading: isLoading,
+    createCliente: (cliente: Omit<Cliente, 'id' | 'usuario_id' | 'created_at' | 'updated_at'>) =>
+      createMutation.mutateAsync(cliente),
+    updateCliente: (id: string, updates: Partial<Cliente>) =>
+      updateMutation.mutateAsync({ id, updates }),
+    deleteCliente: (id: string) => deleteMutation.mutateAsync(id),
+    refetch,
   };
 }

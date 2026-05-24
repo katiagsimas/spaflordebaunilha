@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -20,18 +20,17 @@ interface FornecedorContato {
 
 export function useFornecedorContatos(fornecedorId?: string) {
   const { user } = useAuth();
-  const [contatos, setContatos] = useState<FornecedorContato[]>([]);
-  const [loading, setLoading] = useState(true);
+  const userId = user?.id;
+  const queryClient = useQueryClient();
 
-  const fetchContatos = async () => {
-    if (!user) return;
-    
-    try {
-      setLoading(true);
+  const { data: contatos = [], isLoading, refetch } = useQuery({
+    queryKey: ['fornecedor_contatos', fornecedorId ?? 'all', userId],
+    queryFn: async () => {
+      if (!userId) return [];
       let query = supabase
         .from('fornecedor_contatos')
         .select('*')
-        .eq('usuario_id', user.id)
+        .eq('usuario_id', userId)
         .order('nome');
 
       if (fornecedorId) {
@@ -39,73 +38,87 @@ export function useFornecedorContatos(fornecedorId?: string) {
       }
 
       const { data, error } = await query;
-
       if (error) throw error;
-      setContatos(data || []);
-    } catch (err: any) {
-      console.error('Erro ao buscar contatos:', err);
-      toast.error('Erro ao carregar contatos: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return (data || []) as FornecedorContato[];
+    },
+    enabled: !!userId,
+  });
 
-  const createContato = async (contato: Omit<FornecedorContato, 'id' | 'usuario_id' | 'created_at' | 'updated_at'>) => {
-    if (!user) throw new Error('Usuário não autenticado');
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: ['fornecedor_contatos'] });
 
-    const { data, error } = await supabase
-      .from('fornecedor_contatos')
-      .insert({ ...contato, usuario_id: user.id })
-      .select()
-      .single();
+  const createMutation = useMutation({
+    mutationFn: async (contato: Omit<FornecedorContato, 'id' | 'usuario_id' | 'created_at' | 'updated_at'>) => {
+      if (!userId) throw new Error('Usuário não autenticado');
+      const { data, error } = await supabase
+        .from('fornecedor_contatos')
+        .insert({ ...contato, usuario_id: userId })
+        .select()
+        .single();
+      if (error) throw error;
+      return data as FornecedorContato;
+    },
+    onSuccess: () => {
+      invalidate();
+      toast.success('Contato criado com sucesso!');
+    },
+    onError: (err: any) => {
+      console.error('Erro ao criar contato:', err);
+      toast.error('Erro ao criar contato: ' + err.message);
+    },
+  });
 
-    if (error) throw error;
-    setContatos([...contatos, data]);
-    toast.success('Contato criado com sucesso!');
-    return data;
-  };
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<FornecedorContato> }) => {
+      if (!userId) throw new Error('Usuário não autenticado');
+      const { data, error } = await supabase
+        .from('fornecedor_contatos')
+        .update(updates)
+        .eq('id', id)
+        .eq('usuario_id', userId)
+        .select()
+        .single();
+      if (error) throw error;
+      return data as FornecedorContato;
+    },
+    onSuccess: () => {
+      invalidate();
+      toast.success('Contato atualizado!');
+    },
+    onError: (err: any) => {
+      console.error('Erro ao atualizar contato:', err);
+      toast.error('Erro ao atualizar contato: ' + err.message);
+    },
+  });
 
-  const updateContato = async (id: string, updates: Partial<FornecedorContato>) => {
-    if (!user) throw new Error('Usuário não autenticado');
-
-    const { data, error } = await supabase
-      .from('fornecedor_contatos')
-      .update(updates)
-      .eq('id', id)
-      .eq('usuario_id', user.id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    setContatos(contatos.map(c => c.id === id ? data : c));
-    toast.success('Contato atualizado!');
-    return data;
-  };
-
-  const deleteContato = async (id: string) => {
-    if (!user) throw new Error('Usuário não autenticado');
-
-    const { error } = await supabase
-      .from('fornecedor_contatos')
-      .delete()
-      .eq('id', id)
-      .eq('usuario_id', user.id);
-
-    if (error) throw error;
-    setContatos(contatos.filter(c => c.id !== id));
-    toast.success('Contato deletado!');
-  };
-
-  useEffect(() => {
-    if (user) fetchContatos();
-  }, [user, fornecedorId]);
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      if (!userId) throw new Error('Usuário não autenticado');
+      const { error } = await supabase
+        .from('fornecedor_contatos')
+        .delete()
+        .eq('id', id)
+        .eq('usuario_id', userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      invalidate();
+      toast.success('Contato deletado!');
+    },
+    onError: (err: any) => {
+      console.error('Erro ao deletar contato:', err);
+      toast.error('Erro ao deletar contato: ' + err.message);
+    },
+  });
 
   return {
     contatos,
-    loading,
-    createContato,
-    updateContato,
-    deleteContato,
-    refetch: fetchContatos,
+    loading: isLoading,
+    createContato: (contato: Omit<FornecedorContato, 'id' | 'usuario_id' | 'created_at' | 'updated_at'>) =>
+      createMutation.mutateAsync(contato),
+    updateContato: (id: string, updates: Partial<FornecedorContato>) =>
+      updateMutation.mutateAsync({ id, updates }),
+    deleteContato: (id: string) => deleteMutation.mutateAsync(id),
+    refetch,
   };
 }
