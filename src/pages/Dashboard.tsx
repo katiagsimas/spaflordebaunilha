@@ -912,7 +912,7 @@ export default function Dashboard() {
             value={anoSelecionado.toString()}
             onValueChange={(value) => setAnoSelecionado(parseInt(value))}
           >
-            <SelectTrigger className="w-[100px]">
+            <SelectTrigger className="w-[100px] border-[#C9A14A]/40 hover:border-[#C9A14A]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -928,7 +928,7 @@ export default function Dashboard() {
             value={mesSelecionado.toString()}
             onValueChange={(value) => setMesSelecionado(parseInt(value))}
           >
-            <SelectTrigger className="w-[130px]">
+            <SelectTrigger className="w-[130px] border-[#C9A14A]/40 hover:border-[#C9A14A]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -997,17 +997,17 @@ export default function Dashboard() {
       <div className="grid gap-2 grid-cols-2 md:grid-cols-5">
         {/* Saldo Atual (destaque, canto esquerdo) */}
         <Card
-          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-primary group bg-primary/5"
+          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-primary group bg-white"
           onClick={() => navigate("/financeiro/dashboard")}
         >
           <CardHeader className="p-2.5">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 shrink-0 rounded-md bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <DollarSign className="h-3.5 w-3.5 text-primary" />
+              <div className="w-7 h-7 shrink-0 rounded-md bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <DollarSign className="h-3.5 w-3.5 text-[#C9A14A]/60" />
               </div>
               <div className="min-w-0">
                 <CardTitle className="text-[11px] leading-tight mb-0.5">Saldo Atual</CardTitle>
-                <p className={`text-sm font-bold leading-tight truncate ${financeiro.saldoAtual >= 0 ? "text-primary" : "text-red-600"}`}>
+                <p className={`text-sm font-bold leading-tight truncate ${financeiro.saldoAtual >= 0 ? "text-foreground" : "text-red-600"}`}>
                   R$ {financeiro.saldoAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
               </div>
@@ -1114,6 +1114,7 @@ export default function Dashboard() {
                 variant={tabEconomica === "mensal" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setTabEconomica("mensal")}
+                className={tabEconomica === "mensal" ? "bg-[#5B1A2B] text-[#FFF9F5]" : "border border-[#C9A14A]/50 text-[#5B1A2B] bg-transparent hover:border-[#C9A14A] hover:text-[#5B1A2B]"}
               >
                 Mensal
               </Button>
@@ -1121,6 +1122,7 @@ export default function Dashboard() {
                 variant={tabEconomica === "anual" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setTabEconomica("anual")}
+                className={tabEconomica === "anual" ? "bg-[#5B1A2B] text-[#FFF9F5]" : "border border-[#C9A14A]/50 text-[#5B1A2B] bg-transparent hover:border-[#C9A14A] hover:text-[#5B1A2B]"}
               >
                 Anual
               </Button>
@@ -1215,11 +1217,11 @@ export default function Dashboard() {
               </Card>
 
               {/* Ticket Médio */}
-              <Card className="border-l-4 border-l-primary bg-primary/5">
+              <Card className="border-l-4 border-l-primary bg-white">
                 <CardHeader className="p-2.5">
                   <div className="flex flex-col items-center gap-1.5 text-center">
-                    <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <DollarSign className="h-3.5 w-3.5 text-primary" />
+                    <div className="w-7 h-7 rounded-lg bg-[#C9A14A]/10 flex items-center justify-center">
+                      <DollarSign className="h-3.5 w-3.5 text-[#C9A14A]/60" />
                     </div>
                     <div>
                       <CardTitle className="text-[11px] mb-0.5">Ticket Médio</CardTitle>
@@ -1349,6 +1351,7 @@ export default function Dashboard() {
                       variant={modoVisualizacao === 'mensal' ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setModoVisualizacao('mensal')}
+                      className={modoVisualizacao === 'mensal' ? "bg-[#5B1A2B] text-[#FFF9F5]" : "border border-[#C9A14A]/50 text-[#5B1A2B] bg-transparent hover:border-[#C9A14A] hover:text-[#5B1A2B]"}
                     >
                       Mensal
                     </Button>
@@ -1356,6 +1359,7 @@ export default function Dashboard() {
                       variant={modoVisualizacao === 'anual' ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setModoVisualizacao('anual')}
+                      className={modoVisualizacao === 'anual' ? "bg-[#5B1A2B] text-[#FFF9F5]" : "border border-[#C9A14A]/50 text-[#5B1A2B] bg-transparent hover:border-[#C9A14A] hover:text-[#5B1A2B]"}
                     >
                       Anual
                     </Button>
