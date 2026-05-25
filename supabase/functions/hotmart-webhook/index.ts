@@ -32,7 +32,7 @@ function resolverPlano(productId: string, planName: string | null): { planoId: s
 
 function calcularPlanoFim(planoInicio: string, planoTipo: string): string {
   const inicio = new Date(planoInicio + 'T00:00:00')
-  const diasMap: Record<string, number> = { 'anual': 365, 'mensal': 30, '7dias': 7, '14dias': 14 }
+  const diasMap: Record<string, number> = { 'anual': 365, 'mensal': 30 }
   const dias = diasMap[planoTipo] ?? 365
   inicio.setDate(inicio.getDate() + dias)
   return inicio.toISOString().split('T')[0]
