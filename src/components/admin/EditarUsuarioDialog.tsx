@@ -615,7 +615,6 @@ export function EditarUsuarioDialog({
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="base">Caixa Lite</SelectItem>
-                          <SelectItem value="start">Caixa Start</SelectItem>
                           <SelectItem value="negocio">Caixa Business</SelectItem>
                         </SelectContent>
                       </Select>
@@ -629,12 +628,9 @@ export function EditarUsuarioDialog({
                   name="planoTipo"
                   render={({ field }) => {
                     const planoIdAtual = form.watch('planoId');
-                    // Força anual quando plano é Lite; força 7dias/14dias quando Start
+                    // Força anual quando plano é Lite
                     if (planoIdAtual === 'base' && field.value !== 'anual') {
                       field.onChange('anual');
-                    }
-                    if (planoIdAtual === 'start' && field.value !== '14dias') {
-                      field.onChange('14dias');
                     }
                     return (
                       <FormItem>
@@ -646,7 +642,6 @@ export function EditarUsuarioDialog({
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {planoIdAtual === 'start' && <SelectItem value="14dias">14 dias</SelectItem>}
                             {planoIdAtual === 'negocio' && <SelectItem value="mensal">Mensal (30 dias)</SelectItem>}
                             {(planoIdAtual === 'base' || planoIdAtual === 'negocio') && <SelectItem value="anual">Anual (365 dias)</SelectItem>}
                           </SelectContent>
