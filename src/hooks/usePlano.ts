@@ -19,7 +19,7 @@ const MODULOS_POR_PLANO: Record<string, string[]> = {
     "/configuracoes/tags-encomendas",
     // Estoque NÃO incluso no Lite
   ],
-  start: ["*"],   // acesso total (período curto)
+  
   negocio: ["*"], // acesso total
   controle: [],   // em breve
 };
