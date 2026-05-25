@@ -155,7 +155,7 @@ Ao registrar pagamento de uma encomenda, é possível gerar uma conta a receber 
 
 **6. Módulo Estoque**
 
-Disponível para os planos Business e Start. Controla entradas, saídas e ajustes, mantendo custo médio ponderado e visibilidade do que está disponível em cada momento.
+Disponível para o plano Business. Controla entradas, saídas e ajustes, mantendo custo médio ponderado e visibilidade do que está disponível em cada momento.
 
 **6.1. Funcionalidades**
 
