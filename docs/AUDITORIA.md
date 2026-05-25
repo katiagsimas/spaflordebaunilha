@@ -678,3 +678,11 @@ Com RLS habilitado e nenhuma policy, o bucket fica inacessível para qualquer cl
   - Removida chamada client-side `supabase.rpc('expire_overdue_plans')` em `src/pages/admin/Usuarios.tsx`.
   - Enforcement por linha permanece via trigger `trg_enforce_plan_expiration` e `PlanExpirationWatcher`. Execução em massa pode ser feita por edge function agendada com service_role.
 - **Status:** ✅ Corrigido
+
+## 2026-05-25 22:30 UTC — Limpeza `plano_tipo` 7dias/14dias
+✅ Removidas chaves `'7dias'` e `'14dias'` do `diasMap` em:
+- `supabase/functions/hotmart-webhook/index.ts`
+- `src/components/admin/CriarUsuarioDialog.tsx`
+- `src/components/admin/EditarUsuarioDialog.tsx`
+
+Motivo: períodos de teste associados ao plano Start (descontinuado em 2026-05-25). Banco já não possui perfis usando esses valores. Migrations históricas preservadas.
