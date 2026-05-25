@@ -610,3 +610,16 @@ Antes existiam apenas SELECT e UPDATE; agora o ciclo completo do CRUD de comprov
 Com RLS habilitado e nenhuma policy, o bucket fica inacessível para qualquer cliente. O único bucket de logos em uso continua sendo `logotipos` (referenciado em `src/pages/cadastros/SeusDados.tsx`).
 
 ⚠️ **Pendência manual:** o registro do bucket vazio `logos` em `storage.buckets` não pôde ser removido via SQL (trigger `storage.protect_delete()` bloqueia DELETE direto). Excluir manualmente em **Cloud → Storage → bucket `logos` → Delete**.
+
+---
+
+## 2026-05-25 — Consolidação de group-scoping: `fechamentos_mensais` e `fechamento_checklist_itens`
+
+✅ Substituído `user_in_group(owner_group_id, auth.uid())` por `user_belongs_to_group(auth.uid(), owner_group_id)` nas 8 políticas RLS das tabelas:
+
+- `fechamentos_mensais` (SELECT, INSERT, UPDATE, DELETE)
+- `fechamento_checklist_itens` (SELECT, INSERT, UPDATE, DELETE — via EXISTS em `fechamentos_mensais`)
+
+**Motivação:** alinhar com o padrão multi-tenant usado nos demais módulos (`clientes`, `fechamento_logs`, etc.), eliminando o achado `INCONSISTENT_GROUP_SCOPING` da auditoria de segurança. Verificado previamente que não há divergência entre `profiles.owner_group_id` e `user_group_roles` (0 inconsistências) e que `fechamentos_mensais` não possui coluna `usuario_id` — é recurso de grupo por design.
+
+**Impacto comportamental:** nenhum. Todos os membros ativos do grupo dono continuam com acesso completo aos fechamentos e checklists.
