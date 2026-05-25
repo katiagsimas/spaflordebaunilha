@@ -173,7 +173,7 @@ async function deduzirEstoque(params: {
   if (qtdAtual < params.quantidade) {
     return {
       processado: true,
-      aviso: `Estoque de "${estoqueItem.id}" ficou negativo (zerado). Quantidade insuficiente.`,
+      aviso: `Estoque de ${nomeInsumo} ficou insuficiente — quantidade zerada.`,
     };
   }
 
