@@ -144,7 +144,6 @@ export default function Usuarios() {
       ativos: profilesSemAdmin.filter(u => u.ativo !== false).length,
       inativos: profilesSemAdmin.filter(u => u.ativo === false).length,
       baseAnual: profilesSemAdmin.filter(u => u.ativo !== false && (!u.plano_id || u.plano_id === 'base')).length,
-      start14: profilesSemAdmin.filter(u => u.ativo !== false && u.plano_id === 'start').length,
       negocioMensal: profilesSemAdmin.filter(u => u.ativo !== false && u.plano_id === 'negocio' && u.plano_tipo === 'mensal').length,
       negocioAnual: profilesSemAdmin.filter(u => u.ativo !== false && u.plano_id === 'negocio' && u.plano_tipo === 'anual').length,
     });
