@@ -51,7 +51,7 @@ O acesso aos módulos é controlado por planos. Cada usuário possui um plano at
 
 - **Business:** todos os módulos do Lite + Financeiro completo (contas a pagar/receber, fluxo de caixa, DRE, bancos, fechamento de mês) + Estoque.
 
-- **Start:** plano superior com todos os módulos do Business + Planejamento estratégico e funcionalidades premium.
+> _Plano **Start** foi descontinuado em 2026-05-25 e não está mais disponível._
 
 **2. Autenticação e Acesso**
 
