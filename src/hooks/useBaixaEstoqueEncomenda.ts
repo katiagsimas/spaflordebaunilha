@@ -33,7 +33,7 @@ export async function executarBaixaEstoqueEncomenda(
       .from('encomenda_itens')
       .select('receita_id, quantidade')
       .eq('encomenda_id', encomendaId)
-      .eq('usuario_id', userId);
+      .eq('owner_group_id', ownerGroupId);
 
     if (errItens) throw errItens;
     if (!itensEncomenda || itensEncomenda.length === 0) {
