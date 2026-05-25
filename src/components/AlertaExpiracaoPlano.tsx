@@ -34,7 +34,6 @@ export function AlertaExpiracaoPlano() {
   });
 
   const diasRestantes = planoInfo?.diasRestantes;
-  const isStart = planoInfo?.planoId === 'start';
 
   if (dismissed || isAdmin || diasRestantes === null || diasRestantes === undefined || diasRestantes > 7 || diasRestantes < 0) {
     return null;
@@ -56,17 +55,6 @@ export function AlertaExpiracaoPlano() {
           </AlertDescription>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          {isStart && (
-            <a
-              href="https://caixadeacucar.lovable.app/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-cda-preto hover:brightness-110 text-cda-dourado text-xs font-semibold transition-all"
-            >
-              Fazer Upgrade
-              <ExternalLink className="h-3 w-3" />
-            </a>
-          )}
           <button
             onClick={() => setDismissed(true)}
             className="p-1 hover:bg-cda-preto/10 rounded transition-colors shrink-0"
