@@ -219,9 +219,8 @@ export function useEstoque() {
     quantidade: number;
     motivo: string;
     tipo_ajuste: string;
-    owner_group_id?: string;
   }) => {
-    if (!user) return;
+    if (!user || !activeGroupId) return;
 
     const item = itens.find(i => i.id === params.estoque_id);
     if (!item) throw new Error('Item não encontrado');
@@ -237,7 +236,7 @@ export function useEstoque() {
       .insert({
         estoque_id: params.estoque_id,
         usuario_id: user.id,
-        owner_group_id: params.owner_group_id || null,
+        owner_group_id: activeGroupId,
         tipo_movimentacao: params.tipo_ajuste === 'correcao' ? 'ajuste' : 'saida_manual',
         quantidade: params.quantidade,
         observacao: params.motivo,
