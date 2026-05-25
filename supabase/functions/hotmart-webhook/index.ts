@@ -135,7 +135,15 @@ Deno.serve(async (req) => {
       ].filter(Boolean).map(String)
       const planName = planNameParts.join(' | ')
       console.log('planName sources:', planNameParts)
-      const { planoId, planoTipo } = resolverPlano(product.id?.toString() || '', planName)
+      const resolved = resolverPlano(product.id?.toString() || '', planName)
+      if (!resolved) {
+        console.log('=== Hotmart Webhook - Plano descontinuado (Start), evento ignorado ===')
+        return new Response(
+          JSON.stringify({ success: true, event, action: 'ignored_discontinued_plan' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        )
+      }
+      const { planoId, planoTipo } = resolved
       const planoInicio = new Date().toISOString().split('T')[0]
       const planoFim = calcularPlanoFim(planoInicio, planoTipo)
 
