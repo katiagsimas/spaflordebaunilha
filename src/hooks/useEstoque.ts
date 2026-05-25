@@ -103,7 +103,7 @@ async function fetchEstoqueMovimentacoes(
     .select('*')
     .eq('owner_group_id', activeGroupId)
     .order('created_at', { ascending: false })
-    .limit(200);
+    .limit(500);
 
   if (estoqueId) {
     query = query.eq('estoque_id', estoqueId);

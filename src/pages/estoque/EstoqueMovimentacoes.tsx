@@ -77,7 +77,7 @@ export default function EstoqueMovimentacoes() {
           title="Nenhuma movimentação registrada"
           description="As movimentações aparecerão aqui conforme você registrar entradas e ajustes."
         />
-      ) : (
+      ) : (<>
         <Card>
           <CardContent className="p-0">
             <Table>
@@ -154,7 +154,12 @@ export default function EstoqueMovimentacoes() {
             </Table>
           </CardContent>
         </Card>
-      )}
+        {movimentacoes.length === 500 && (
+          <p className="text-sm text-muted-foreground text-center py-2">
+            Exibindo as 500 movimentações mais recentes. Registros anteriores não estão visíveis.
+          </p>
+        )}
+      </>)}
     </div>
   );
 }
