@@ -141,9 +141,8 @@ export function useEstoque() {
     quantidade: number;
     custo_total: number;
     observacao?: string;
-    owner_group_id?: string;
   }) => {
-    if (!user) return;
+    if (!user || !activeGroupId) return;
 
     const custoUnitario = params.quantidade > 0 ? params.custo_total / params.quantidade : 0;
 
@@ -153,7 +152,7 @@ export function useEstoque() {
 
     let { data: existing } = await (supabase.from('estoque' as any) as any)
       .select('*')
-      .eq('usuario_id', user.id)
+      .eq('owner_group_id', activeGroupId)
       .eq(filterCol, filterVal)
       .maybeSingle();
 
@@ -180,7 +179,7 @@ export function useEstoque() {
     } else {
       const insertData: any = {
         usuario_id: user.id,
-        owner_group_id: params.owner_group_id || null,
+        owner_group_id: activeGroupId,
         tipo: params.tipo,
         ingrediente_id: params.ingrediente_id || null,
         embalagem_id: params.embalagem_id || null,
@@ -202,7 +201,7 @@ export function useEstoque() {
       .insert({
         estoque_id: estoqueId,
         usuario_id: user.id,
-        owner_group_id: params.owner_group_id || null,
+        owner_group_id: activeGroupId,
         tipo_movimentacao: 'entrada',
         quantidade: params.quantidade,
         custo_unitario: Math.round(custoUnitario * 100) / 100,
