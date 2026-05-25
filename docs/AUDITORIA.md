@@ -596,3 +596,17 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 - **DELETE** (owner-scoped): `(storage.foldername(name))[1] = auth.uid()::text`
 
 Antes existiam apenas SELECT e UPDATE; agora o ciclo completo do CRUD de comprovantes está coberto e owner-scoped.
+
+---
+
+## 2026-05-25 — Bucket órfão `logos` neutralizado
+
+✅ Removidas as 4 políticas RLS associadas ao bucket `logos` em `storage.objects`:
+- `Logos são públicos para visualização` (SELECT)
+- `Usuários podem fazer upload de seus próprios logos` (INSERT)
+- `Usuários podem atualizar seus próprios logos` (UPDATE)
+- `Usuários podem deletar seus próprios logos` (DELETE)
+
+Com RLS habilitado e nenhuma policy, o bucket fica inacessível para qualquer cliente. O único bucket de logos em uso continua sendo `logotipos` (referenciado em `src/pages/cadastros/SeusDados.tsx`).
+
+⚠️ **Pendência manual:** o registro do bucket vazio `logos` em `storage.buckets` não pôde ser removido via SQL (trigger `storage.protect_delete()` bloqueia DELETE direto). Excluir manualmente em **Cloud → Storage → bucket `logos` → Delete**.
