@@ -37,13 +37,14 @@ interface SeusDadosForm {
 
 export default function SeusDados() {
   const { user } = useAuth();
+  const { activeGroup } = useGroup();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isAdmin } = useIsAdmin();
 
   // Buscar perfil do usuário
   const { data: profile, isLoading } = useQuery({
-    queryKey: ['profile', user?.id],
+    queryKey: ['profile', user?.id, activeGroup?.id],
     queryFn: async () => {
       if (!user) return null;
       const { data, error } = await supabase
