@@ -37,7 +37,7 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
   useEffect(() => {
     if (planoInicio) {
       const inicioISO = formatDateToISO(planoInicio);
-      const diasMap: Record<string, number> = { 'anual': 365, 'mensal': 30, '7dias': 7, '14dias': 14 };
+      const diasMap: Record<string, number> = { 'anual': 365, 'mensal': 30 };
       const dias = diasMap[planoTipo] ?? 365;
       const fimISO = addDaysToDate(inicioISO, dias);
       setPlanoFim(parseISOToDate(fimISO));
