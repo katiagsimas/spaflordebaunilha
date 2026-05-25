@@ -18,7 +18,7 @@ Tabela `public.planos` (registros vigentes):
 |------------|------------------|:-----:|:--------:|----------------------------------------------------------------------------|
 | `base`     | Caixa Lite       |  ✅   |    ❌    | Precificação e controle de pedidos — a fundação do negócio.                |
 | `negocio`  | Caixa Business   |  ✅   |    ❌    | Gestão financeira completa — do pedido ao caixa.                           |
-| `start`    | Caixa Start      |  ✅   |    ❌    | Acesso rápido com periodicidade de 7 ou 14 dias e acesso completo.         |
+| ~~`start`~~ | ~~Caixa Start~~ | ❌ DESCONT. | — | Histórico: acesso completo em janela de 7/14 dias. Removido em 2026-05-25. |
 | `controle` | Plano Controle   |  ❌   |    ✅    | Controle de estoque e produção (não disponível para venda).                |
 
 ### 1.1 Módulos liberados por plano
