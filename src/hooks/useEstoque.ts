@@ -52,7 +52,7 @@ export function useEstoque() {
       const { data, error } = await supabase
         .from('estoque' as any)
         .select('*')
-        .eq('usuario_id', user.id)
+        .eq('owner_group_id', activeGroupId)
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
