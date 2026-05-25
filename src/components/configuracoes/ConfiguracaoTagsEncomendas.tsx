@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useGroup } from '@/contexts/GroupContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,7 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { 
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -46,9 +47,8 @@ export default function ConfiguracaoTagsEncomendas() {
   const { user } = useAuth();
   const { activeGroup } = useGroup();
   const activeGroupId = activeGroup?.id;
-  
-  const [tags, setTags] = useState<TagEncomenda[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -60,12 +60,12 @@ export default function ConfiguracaoTagsEncomendas() {
     descricao: ''
   });
 
-  const fetchTags = useCallback(async () => {
-    try {
-      if (!user) return;
-      if (!activeGroupId) return;
+  const queryKey = ['tags_encomendas', activeGroupId] as const;
 
-      // Buscar tags do sistema (user_id = null) e tags do grupo
+  const { data: tags = [], isLoading } = useQuery<TagEncomenda[]>({
+    queryKey,
+    enabled: !!user && !!activeGroupId,
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('tags_encomendas')
         .select('*')
@@ -74,23 +74,13 @@ export default function ConfiguracaoTagsEncomendas() {
         .order('nome');
 
       if (error) throw error;
-      setTags(data || []);
-    } catch (error) {
-      console.error('Erro ao buscar tags:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível carregar as tags.',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [user, activeGroupId, toast]);
+      return (data || []) as TagEncomenda[];
+    },
+  });
 
   useEffect(() => {
-    fetchTags();
+    if (!activeGroupId) return;
 
-    // Escutar mudanças em tempo real na tabela tags_encomendas
     const channel = supabase
       .channel('tags-encomendas-changes')
       .on(
@@ -101,7 +91,7 @@ export default function ConfiguracaoTagsEncomendas() {
           table: 'tags_encomendas'
         },
         () => {
-          fetchTags();
+          queryClient.invalidateQueries({ queryKey: ['tags_encomendas', activeGroupId] });
         }
       )
       .subscribe();
@@ -109,21 +99,12 @@ export default function ConfiguracaoTagsEncomendas() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [fetchTags]);
+  }, [queryClient, activeGroupId]);
 
-  const handleCreateTag = async () => {
-    if (!formData.nome.trim()) {
-      toast({
-        title: 'Erro',
-        description: 'O nome da tag é obrigatório.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    try {
-      if (!user) return;
-      if (!activeGroupId) return;
+  const createMutation = useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error('Usuário não autenticado');
+      if (!activeGroupId) throw new Error('Grupo ativo não definido');
 
       const { error } = await supabase
         .from('tags_encomendas')
@@ -138,26 +119,96 @@ export default function ConfiguracaoTagsEncomendas() {
         });
 
       if (error) throw error;
-
-      toast({
-        title: 'Sucesso',
-        description: 'Tag criada com sucesso!',
-      });
-
+    },
+    onSuccess: () => {
+      toast({ title: 'Sucesso', description: 'Tag criada com sucesso!' });
       setShowCreateDialog(false);
       setFormData({ nome: '', cor: '#3B82F6', descricao: '' });
-      fetchTags();
-    } catch (error: any) {
+      queryClient.invalidateQueries({ queryKey: ['tags_encomendas', activeGroupId] });
+    },
+    onError: (error: any) => {
       console.error('[ConfiguracaoTags] Erro:', error.message);
       toast({
         title: 'Erro',
         description: 'Não foi possível criar a tag.',
         variant: 'destructive',
       });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async () => {
+      if (!editingTag) throw new Error('Tag não selecionada');
+
+      const { error } = await supabase
+        .from('tags_encomendas')
+        .update({
+          nome: formData.nome.trim(),
+          cor: formData.cor,
+          descricao: formData.descricao.trim() || null,
+        })
+        .eq('id', editingTag.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({ title: 'Sucesso', description: 'Tag atualizada com sucesso!' });
+      setShowEditDialog(false);
+      setEditingTag(null);
+      setFormData({ nome: '', cor: '#3B82F6', descricao: '' });
+      queryClient.invalidateQueries({ queryKey: ['tags_encomendas', activeGroupId] });
+    },
+    onError: (error: any) => {
+      console.error('[ConfiguracaoTags] Erro:', error.message);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível atualizar a tag.',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      if (!deletingTag) throw new Error('Tag não selecionada');
+
+      const { error } = await supabase
+        .from('tags_encomendas')
+        .delete()
+        .eq('id', deletingTag.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({ title: 'Sucesso', description: 'Tag excluída com sucesso!' });
+      setShowDeleteDialog(false);
+      setDeletingTag(null);
+      queryClient.invalidateQueries({ queryKey: ['tags_encomendas', activeGroupId] });
+    },
+    onError: (error: any) => {
+      console.error('[ConfiguracaoTags] Erro:', error.message);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível excluir a tag.',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const handleCreateTag = () => {
+    if (!formData.nome.trim()) {
+      toast({
+        title: 'Erro',
+        description: 'O nome da tag é obrigatório.',
+        variant: 'destructive',
+      });
+      return;
     }
+    if (!user || !activeGroupId) return;
+    createMutation.mutate();
   };
 
-  const handleEditTag = async () => {
+  const handleEditTag = () => {
     if (!editingTag || !formData.nome.trim()) {
       toast({
         title: 'Erro',
@@ -169,66 +220,15 @@ export default function ConfiguracaoTagsEncomendas() {
 
     if (editingTag.padrao_sistema) return;
 
-    try {
-      const { error } = await supabase
-        .from('tags_encomendas')
-        .update({
-          nome: formData.nome.trim(),
-          cor: formData.cor,
-          descricao: formData.descricao.trim() || null,
-        })
-        .eq('id', editingTag.id);
-
-      if (error) throw error;
-
-      toast({
-        title: 'Sucesso',
-        description: 'Tag atualizada com sucesso!',
-      });
-
-      setShowEditDialog(false);
-      setEditingTag(null);
-      setFormData({ nome: '', cor: '#3B82F6', descricao: '' });
-      fetchTags();
-    } catch (error: any) {
-      console.error('[ConfiguracaoTags] Erro:', error.message);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível atualizar a tag.',
-        variant: 'destructive',
-      });
-    }
+    updateMutation.mutate();
   };
 
-  const handleDeleteTag = async () => {
+  const handleDeleteTag = () => {
     if (!deletingTag) return;
 
     if (deletingTag.padrao_sistema) return;
 
-    try {
-      const { error } = await supabase
-        .from('tags_encomendas')
-        .delete()
-        .eq('id', deletingTag.id);
-
-      if (error) throw error;
-
-      toast({
-        title: 'Sucesso',
-        description: 'Tag excluída com sucesso!',
-      });
-
-      setShowDeleteDialog(false);
-      setDeletingTag(null);
-      fetchTags();
-    } catch (error: any) {
-      console.error('[ConfiguracaoTags] Erro:', error.message);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível excluir a tag.',
-        variant: 'destructive',
-      });
-    }
+    deleteMutation.mutate();
   };
 
   const openEditDialog = (tag: TagEncomenda) => {
@@ -246,7 +246,7 @@ export default function ConfiguracaoTagsEncomendas() {
     setShowDeleteDialog(true);
   };
 
-  if (loading) {
+  if (isLoading) {
     return <LoadingState message="Carregando tags..." />;
   }
 
@@ -319,7 +319,7 @@ export default function ConfiguracaoTagsEncomendas() {
                 <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
                   Cancelar
                 </Button>
-                <Button onClick={handleCreateTag}>
+                <Button onClick={handleCreateTag} disabled={createMutation.isPending}>
                   Criar Tag
                 </Button>
               </DialogFooter>
@@ -362,7 +362,7 @@ export default function ConfiguracaoTagsEncomendas() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <div 
+                      <div
                         className="w-6 h-6 rounded border"
                         style={{ backgroundColor: tag.cor }}
                       />
@@ -452,7 +452,7 @@ export default function ConfiguracaoTagsEncomendas() {
             <Button variant="outline" onClick={() => setShowEditDialog(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleEditTag}>
+            <Button onClick={handleEditTag} disabled={updateMutation.isPending}>
               Salvar Alterações
             </Button>
           </DialogFooter>
