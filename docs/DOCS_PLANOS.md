@@ -1,11 +1,11 @@
 # 💳 DOCUMENTAÇÃO: Planos de Acesso, Vinculação de Usuários e Webhook Hotmart
 
-**Versão:** 1.1
+**Versão:** 1.2
 **Atualizada em:** 25/05/2026
 **Escopo:** Catálogo de planos, vínculo com `profiles`, provisionamento via Hotmart, regras de expiração, upgrade e continuidade.
 
 > ⚠️ **2026-05-25 — Plano `Caixa Start` DESCONTINUADO.**
-> Registro removido de `public.planos`; usuários migrados para `base` e desativados; webhook Hotmart rejeita eventos com `start` no nome do produto (resposta 200 + `action: 'ignored_discontinued_plan'`). As menções abaixo permanecem apenas como referência histórica.
+> Registro removido de `public.planos`; usuários migrados para `base` e desativados. O webhook Hotmart **não rejeita mais** por palavra-chave `start` — eventos são resolvidos como `base` (Lite) ou `negocio` (Business) conforme demais palavras-chave. Periodicidades `7dias`/`14dias` removidas de `diasMap`. As menções ao Start abaixo permanecem **apenas como referência histórica** e não refletem o comportamento atual.
 
 
 ---
