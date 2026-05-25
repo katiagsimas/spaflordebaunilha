@@ -29,12 +29,12 @@ export default function EstoqueEntrada() {
 
   // Load ingredientes/embalagens — mesma fonte usada por Meu Cardápio
   const { data: ingredientes = [] } = useQuery({
-    queryKey: ['ingredientes-estoque', user?.id],
+    queryKey: ['ingredientes-estoque', activeGroup?.id],
     queryFn: async () => {
       const { data } = await supabase
         .from('ingredientes')
         .select('id, marca, preco, tipo_insumo_id, tipos_insumos:tipo_insumo_id(descricao, quantidade_embalagem, unidades_medida:unidade_medida_id(sigla))')
-        .eq('usuario_id', user!.id) as any;
+        .eq('owner_group_id', activeGroup?.id) as any;
       return (data || []).map((i: any) => ({
         id: i.id,
         nome: i.tipos_insumos?.descricao || 'Ingrediente',
@@ -44,16 +44,16 @@ export default function EstoqueEntrada() {
         sigla: i.tipos_insumos?.unidades_medida?.sigla || '',
       }));
     },
-    enabled: !!user && tipo === 'ingrediente',
+    enabled: !!activeGroup?.id && tipo === 'ingrediente',
   });
 
   const { data: embalagens = [] } = useQuery({
-    queryKey: ['embalagens-estoque', user?.id],
+    queryKey: ['embalagens-estoque', activeGroup?.id],
     queryFn: async () => {
       const { data } = await supabase
         .from('embalagens')
         .select('id, marca, preco, tipo_insumo_id, tipos_insumos:tipo_insumo_id(descricao, quantidade_embalagem, unidades_medida:unidade_medida_id(sigla))')
-        .eq('usuario_id', user!.id) as any;
+        .eq('owner_group_id', activeGroup?.id) as any;
       return (data || []).map((e: any) => ({
         id: e.id,
         nome: e.tipos_insumos?.descricao || 'Embalagem',
@@ -63,7 +63,7 @@ export default function EstoqueEntrada() {
         sigla: e.tipos_insumos?.unidades_medida?.sigla || '',
       }));
     },
-    enabled: !!user && tipo === 'embalagem',
+    enabled: !!activeGroup?.id && tipo === 'embalagem',
   });
 
   const insumos: any[] = tipo === 'ingrediente' ? ingredientes : embalagens;
