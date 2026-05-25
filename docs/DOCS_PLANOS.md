@@ -53,8 +53,8 @@ Colunas em `public.profiles`:
 
 | Coluna           | Tipo    | Descrição                                                          |
 |------------------|---------|--------------------------------------------------------------------|
-| `plano_id`       | text    | FK lógica para `planos.id` (`base`, `negocio`, `start`, `controle`). |
-| `plano_tipo`     | text    | `mensal`, `anual`, `7dias`, `14dias`.                              |
+| `plano_id`       | text    | FK lógica para `planos.id` (`base`, `negocio`, `controle`). Histórico pode conter `start`. |
+| `plano_tipo`     | text    | `mensal`, `anual`. Histórico pode conter `7dias`/`14dias`.         |
 | `plano_inicio`   | date    | Data de ativação do ciclo vigente (YYYY-MM-DD).                    |
 | `plano_fim`      | date    | Data de expiração (YYYY-MM-DD).                                    |
 | `ativo`          | boolean | Habilita/desabilita acesso. Sincronizado com `plano_fim`.          |
