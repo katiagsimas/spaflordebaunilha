@@ -26,12 +26,10 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
   const [planoInicio, setPlanoInicio] = useState<Date | undefined>(new Date());
   const [planoFim, setPlanoFim] = useState<Date | undefined>(undefined);
 
-  // Caixa Lite só permite recorrência anual; Caixa Start só 7 ou 14 dias
+  // Caixa Lite só permite recorrência anual
   useEffect(() => {
     if (planoId === 'base') {
       setPlanoTipo('anual');
-    } else if (planoId === 'start') {
-      setPlanoTipo('14dias');
     }
   }, [planoId]);
 
