@@ -173,7 +173,7 @@ Cada entrada recalcula o custo médio ponderado do item: (saldo_atual × custo_a
 
 **7. Módulo Financeiro**
 
-Conjunto mais robusto da plataforma, exclusivo dos planos Business e Start. Reúne contas a pagar, contas a receber, plano de contas, bancos, fluxo de caixa, DRE, fechamento de mês e configurações de juros.
+Conjunto mais robusto da plataforma, exclusivo do plano Business. Reúne contas a pagar, contas a receber, plano de contas, bancos, fluxo de caixa, DRE, fechamento de mês e configurações de juros.
 
 **7.1. Contas a Receber**
 
