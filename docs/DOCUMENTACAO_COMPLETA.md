@@ -307,7 +307,7 @@ Cada usuário pode gerar backups manuais e/ou agendar backups automáticos diár
 
 **13. Integração Hotmart**
 
-O provisionamento e a renovação de planos são automáticos via Webhook Hotmart. O sistema mapeia palavras-chave no nome do produto vendido para identificar o plano (Lite, Business, Start) e a duração (mensal, trimestral, anual).
+O provisionamento e a renovação de planos são automáticos via Webhook Hotmart. O sistema mapeia palavras-chave no nome do produto vendido para identificar o plano (Lite ou Business) e a duração (mensal ou anual).
 
 **13.1. Eventos Tratados**
 
