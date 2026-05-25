@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useGroup } from '@/contexts/GroupContext';
 import { toast } from 'sonner';
 
 export interface EstoqueItem {
@@ -37,20 +38,21 @@ export interface EstoqueMovimentacao {
 
 export function useEstoque() {
   const { user } = useAuth();
+  const { activeGroupId } = useGroup();
   const [itens, setItens] = useState<EstoqueItem[]>([]);
   const [movimentacoes, setMovimentacoes] = useState<EstoqueMovimentacao[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMov, setLoadingMov] = useState(false);
 
   const fetchEstoque = useCallback(async () => {
-    if (!user) return;
+    if (!activeGroupId) { setItens([]); setLoading(false); return; }
     try {
       setLoading(true);
       // Fetch estoque items
       const { data, error } = await supabase
         .from('estoque' as any)
         .select('*')
-        .eq('usuario_id', user.id)
+        .eq('owner_group_id', activeGroupId)
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
@@ -106,15 +108,15 @@ export function useEstoque() {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [activeGroupId]);
 
   const fetchMovimentacoes = useCallback(async (estoqueId?: string) => {
-    if (!user) return;
+    if (!activeGroupId) { setMovimentacoes([]); return; }
     try {
       setLoadingMov(true);
       let query = (supabase.from('estoque_movimentacoes' as any) as any)
         .select('*')
-        .eq('usuario_id', user.id)
+        .eq('owner_group_id', activeGroupId)
         .order('created_at', { ascending: false })
         .limit(200);
 
@@ -130,7 +132,7 @@ export function useEstoque() {
     } finally {
       setLoadingMov(false);
     }
-  }, [user]);
+  }, [activeGroupId]);
 
   const registrarEntrada = async (params: {
     tipo: 'ingrediente' | 'embalagem';
@@ -139,9 +141,8 @@ export function useEstoque() {
     quantidade: number;
     custo_total: number;
     observacao?: string;
-    owner_group_id?: string;
   }) => {
-    if (!user) return;
+    if (!user || !activeGroupId) return;
 
     const custoUnitario = params.quantidade > 0 ? params.custo_total / params.quantidade : 0;
 
@@ -151,7 +152,7 @@ export function useEstoque() {
 
     let { data: existing } = await (supabase.from('estoque' as any) as any)
       .select('*')
-      .eq('usuario_id', user.id)
+      .eq('owner_group_id', activeGroupId)
       .eq(filterCol, filterVal)
       .maybeSingle();
 
@@ -178,7 +179,7 @@ export function useEstoque() {
     } else {
       const insertData: any = {
         usuario_id: user.id,
-        owner_group_id: params.owner_group_id || null,
+        owner_group_id: activeGroupId,
         tipo: params.tipo,
         ingrediente_id: params.ingrediente_id || null,
         embalagem_id: params.embalagem_id || null,
@@ -200,7 +201,7 @@ export function useEstoque() {
       .insert({
         estoque_id: estoqueId,
         usuario_id: user.id,
-        owner_group_id: params.owner_group_id || null,
+        owner_group_id: activeGroupId,
         tipo_movimentacao: 'entrada',
         quantidade: params.quantidade,
         custo_unitario: Math.round(custoUnitario * 100) / 100,
@@ -218,9 +219,8 @@ export function useEstoque() {
     quantidade: number;
     motivo: string;
     tipo_ajuste: string;
-    owner_group_id?: string;
   }) => {
-    if (!user) return;
+    if (!user || !activeGroupId) return;
 
     const item = itens.find(i => i.id === params.estoque_id);
     if (!item) throw new Error('Item não encontrado');
@@ -236,7 +236,7 @@ export function useEstoque() {
       .insert({
         estoque_id: params.estoque_id,
         usuario_id: user.id,
-        owner_group_id: params.owner_group_id || null,
+        owner_group_id: activeGroupId,
         tipo_movimentacao: params.tipo_ajuste === 'correcao' ? 'ajuste' : 'saida_manual',
         quantidade: params.quantidade,
         observacao: params.motivo,
