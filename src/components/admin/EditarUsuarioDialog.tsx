@@ -151,7 +151,7 @@ export function EditarUsuarioDialog({
   useEffect(() => {
     if (planoInicio) {
       const inicioISO = formatDateToISO(planoInicio);
-      const diasMap: Record<string, number> = { 'anual': 365, 'mensal': 30, '7dias': 7, '14dias': 14 };
+      const diasMap: Record<string, number> = { 'anual': 365, 'mensal': 30 };
       const dias = diasMap[planoTipoWatch] ?? 365;
       const fimISO = addDaysToDate(inicioISO, dias);
       setPlanoFim(parseISOToDate(fimISO));
