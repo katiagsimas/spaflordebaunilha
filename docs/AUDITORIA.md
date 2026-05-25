@@ -1,6 +1,6 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-25T21:30:00Z — Correções em **SeusDados.tsx** (storage path, persistência imediata de avatar, queryKey escopada por grupo, e-mail no update).
+> Última atualização: 2026-05-25T22:15:00Z — Regra de rejeição do plano Start removida do webhook Hotmart (`resolverPlano`).
 
 ---
 
