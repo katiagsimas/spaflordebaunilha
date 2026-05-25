@@ -108,11 +108,12 @@ Regras (case-insensitive):
 
 | Palavra-chave detectada                                              | Resultado                          |
 |----------------------------------------------------------------------|------------------------------------|
-| `start` ou `caixa start`                                             | `start` + `14dias` (sempre)        |
 | `business`, `negocio`, `negócio`, `caixa business`                   | `negocio` (+ ver periodicidade)    |
-| nenhuma das acima                                                    | `base` + `anual` (Lite)            |
+| nenhuma das acima (inclusive `start`/`caixa start`)                  | `base` + `anual` (Lite)            |
 | `anual`, `annual`, `yearly` (apenas para `negocio`)                  | `anual`                            |
 | ausência das anteriores (apenas para `negocio`)                      | `mensal`                           |
+
+> Após 2026-05-25 a palavra-chave `start` **não é mais tratada** — eventos Hotmart com plano Start caem no fallback `base`/`anual`.
 
 `calcularPlanoFim` soma os dias correspondentes ao `plano_tipo` ao `plano_inicio` (hoje, em UTC date).
 
