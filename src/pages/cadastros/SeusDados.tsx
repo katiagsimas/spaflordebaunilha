@@ -123,6 +123,17 @@ export default function SeusDados() {
         .getPublicUrl(filePath);
 
       setLogomarca(publicUrl);
+
+      // Persistir avatar_url no perfil imediatamente
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+
       toast.success("Logo enviada com sucesso!");
     } catch (error: any) {
       console.error('Erro ao fazer upload da logo:', error);
@@ -146,6 +157,17 @@ export default function SeusDados() {
       }
 
       setLogomarca("");
+
+      // Limpar avatar_url no perfil imediatamente
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+
       toast.success("Logo removida com sucesso!");
     } catch (error: any) {
       console.error('Erro ao remover logo:', error);
