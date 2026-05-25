@@ -2,7 +2,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, X, ExternalLink } from 'lucide-react';
+import { AlertCircle, X } from 'lucide-react';
 import { useState } from 'react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 
