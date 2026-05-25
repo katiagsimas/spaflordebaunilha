@@ -16,7 +16,7 @@ export function AlertaExpiracaoPlano() {
     queryFn: async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('plano_fim, plano_id')
+        .select('plano_fim')
         .eq('id', user!.id)
         .single();
 
@@ -26,7 +26,7 @@ export function AlertaExpiracaoPlano() {
       hoje.setHours(0, 0, 0, 0);
       const fim = new Date(data.plano_fim + 'T00:00:00');
       const diff = Math.ceil((fim.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24));
-      return { diasRestantes: diff, planoId: data.plano_id };
+      return { diasRestantes: diff };
     },
     enabled: !!user?.id && !isAdmin,
     staleTime: 1000 * 60 * 30,
