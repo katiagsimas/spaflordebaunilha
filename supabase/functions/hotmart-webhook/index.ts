@@ -16,13 +16,6 @@ function resolverPlano(productId: string, planName: string | null): { planoId: s
   const nome = (planName || '').toLowerCase()
   console.log('resolverPlano - input:', { productId, planName, nomeLower: nome })
 
-  // Plano Start foi descontinuado — rejeita o evento
-  const isStart = nome.includes('start') || nome.includes('caixa start')
-  if (isStart) {
-    console.log('resolverPlano - Plano Start descontinuado, evento ignorado')
-    return null
-  }
-
   const isNegocio = nome.includes('business') || nome.includes('negocio') || nome.includes('negócio') || nome.includes('caixa business')
   const planoId = isNegocio ? 'negocio' : 'base'
 
