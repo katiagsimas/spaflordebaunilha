@@ -143,19 +143,17 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="base">Caixa Lite</SelectItem>
-                  <SelectItem value="start">Caixa Start</SelectItem>
                   <SelectItem value="negocio">Caixa Business</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label>Periodicidade</Label>
-              <Select value={planoTipo} onValueChange={setPlanoTipo} disabled={planoId === 'base' || planoId === 'start'}>
+              <Select value={planoTipo} onValueChange={setPlanoTipo} disabled={planoId === 'base'}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {planoId === 'start' && <SelectItem value="14dias">14 dias</SelectItem>}
                   {planoId === 'negocio' && <SelectItem value="mensal">Mensal (30 dias)</SelectItem>}
                   {(planoId === 'base' || planoId === 'negocio') && <SelectItem value="anual">Anual (365 dias)</SelectItem>}
                 </SelectContent>
