@@ -180,7 +180,6 @@ Componente headless montado no layout principal. Em cada mudança de rota, reval
 
 Banner global exibido para não-admin quando `0 ≤ diasRestantes ≤ 7`:
 - Mensagens diferenciadas para "hoje", "amanhã" e "em N dias".
-- Para plano `start`, mostra CTA **"Fazer Upgrade"** apontando para `https://caixadeacucar.lovable.app/` (página comercial).
 - Dismissable na sessão.
 
 ### 5.4 Bloqueio de módulo (`PlanoGuard` + `/upgrade`)
