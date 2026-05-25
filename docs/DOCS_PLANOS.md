@@ -1,11 +1,11 @@
 # 💳 DOCUMENTAÇÃO: Planos de Acesso, Vinculação de Usuários e Webhook Hotmart
 
-**Versão:** 1.1
+**Versão:** 1.2
 **Atualizada em:** 25/05/2026
 **Escopo:** Catálogo de planos, vínculo com `profiles`, provisionamento via Hotmart, regras de expiração, upgrade e continuidade.
 
 > ⚠️ **2026-05-25 — Plano `Caixa Start` DESCONTINUADO.**
-> Registro removido de `public.planos`; usuários migrados para `base` e desativados; webhook Hotmart rejeita eventos com `start` no nome do produto (resposta 200 + `action: 'ignored_discontinued_plan'`). As menções abaixo permanecem apenas como referência histórica.
+> Registro removido de `public.planos`; usuários migrados para `base` e desativados. O webhook Hotmart **não rejeita mais** por palavra-chave `start` — eventos são resolvidos como `base` (Lite) ou `negocio` (Business) conforme demais palavras-chave. Periodicidades `7dias`/`14dias` removidas de `diasMap`. As menções ao Start abaixo permanecem **apenas como referência histórica** e não refletem o comportamento atual.
 
 
 ---
@@ -18,7 +18,7 @@ Tabela `public.planos` (registros vigentes):
 |------------|------------------|:-----:|:--------:|----------------------------------------------------------------------------|
 | `base`     | Caixa Lite       |  ✅   |    ❌    | Precificação e controle de pedidos — a fundação do negócio.                |
 | `negocio`  | Caixa Business   |  ✅   |    ❌    | Gestão financeira completa — do pedido ao caixa.                           |
-| `start`    | Caixa Start      |  ✅   |    ❌    | Acesso rápido com periodicidade de 7 ou 14 dias e acesso completo.         |
+| ~~`start`~~ | ~~Caixa Start~~ | ❌ DESCONT. | — | Histórico: acesso completo em janela de 7/14 dias. Removido em 2026-05-25. |
 | `controle` | Plano Controle   |  ❌   |    ✅    | Controle de estoque e produção (não disponível para venda).                |
 
 ### 1.1 Módulos liberados por plano
@@ -28,9 +28,9 @@ Definido em `src/hooks/usePlano.ts` (`MODULOS_POR_PLANO`):
 | Plano       | Acesso                                                                                       |
 |-------------|----------------------------------------------------------------------------------------------|
 | **base**    | Dashboard, Precificação, Encomendas, Clientes, Fornecedores e Configurações listadas. **Sem** Financeiro, Estoque, Meu Salário, Planejamento. |
-| **start**   | `*` — acesso total (janela curta de 7/14 dias).                                              |
 | **negocio** | `*` — acesso total.                                                                          |
 | **controle**| `[]` — bloqueado (em breve).                                                                 |
+| ~~**start**~~ | ~~Histórico: acesso total `*` em janela de 7/14 dias.~~ Descontinuado em 2026-05-25.       |
 
 A rota `/configuracoes` (raiz) é sempre acessível. Os módulos `/estoque`, `/planejamento` e `/meu-salario` ficam bloqueados para não-admin via `PlanoGuard` (ainda em desenvolvimento para usuários comuns).
 
@@ -40,10 +40,10 @@ A rota `/configuracoes` (raiz) é sempre acessível. Os módulos `/estoque`, `/p
 |------------|---------------:|----------------------------|
 | `mensal`   | 30             | Caixa Business             |
 | `anual`    | 365            | Caixa Lite (sempre), Caixa Business |
-| `7dias`    | 7              | Caixa Start                |
-| `14dias`   | 14             | Caixa Start (padrão)       |
+| ~~`7dias`~~ | ~~7~~         | ~~Caixa Start~~ (descontinuado)    |
+| ~~`14dias`~~ | ~~14~~       | ~~Caixa Start~~ (descontinuado)    |
 
-> **Regra fixa:** Caixa Lite (`base`) é sempre anual. Caixa Start é sempre `14dias` quando provisionado pelo webhook.
+> **Regra fixa:** Caixa Lite (`base`) é sempre anual. Periodicidades `7dias`/`14dias` foram removidas do `diasMap` (webhook e dialogs admin) em 2026-05-25.
 
 ---
 
@@ -53,8 +53,8 @@ Colunas em `public.profiles`:
 
 | Coluna           | Tipo    | Descrição                                                          |
 |------------------|---------|--------------------------------------------------------------------|
-| `plano_id`       | text    | FK lógica para `planos.id` (`base`, `negocio`, `start`, `controle`). |
-| `plano_tipo`     | text    | `mensal`, `anual`, `7dias`, `14dias`.                              |
+| `plano_id`       | text    | FK lógica para `planos.id` (`base`, `negocio`, `controle`). Histórico pode conter `start`. |
+| `plano_tipo`     | text    | `mensal`, `anual`. Histórico pode conter `7dias`/`14dias`.         |
 | `plano_inicio`   | date    | Data de ativação do ciclo vigente (YYYY-MM-DD).                    |
 | `plano_fim`      | date    | Data de expiração (YYYY-MM-DD).                                    |
 | `ativo`          | boolean | Habilita/desabilita acesso. Sincronizado com `plano_fim`.          |
@@ -108,11 +108,12 @@ Regras (case-insensitive):
 
 | Palavra-chave detectada                                              | Resultado                          |
 |----------------------------------------------------------------------|------------------------------------|
-| `start` ou `caixa start`                                             | `start` + `14dias` (sempre)        |
 | `business`, `negocio`, `negócio`, `caixa business`                   | `negocio` (+ ver periodicidade)    |
-| nenhuma das acima                                                    | `base` + `anual` (Lite)            |
+| nenhuma das acima (inclusive `start`/`caixa start`)                  | `base` + `anual` (Lite)            |
 | `anual`, `annual`, `yearly` (apenas para `negocio`)                  | `anual`                            |
 | ausência das anteriores (apenas para `negocio`)                      | `mensal`                           |
+
+> Após 2026-05-25 a palavra-chave `start` **não é mais tratada** — eventos Hotmart com plano Start caem no fallback `base`/`anual`.
 
 `calcularPlanoFim` soma os dias correspondentes ao `plano_tipo` ao `plano_inicio` (hoje, em UTC date).
 
@@ -154,7 +155,7 @@ Regras (case-insensitive):
 
 Campos recebidos: `email`, `nomeCompleto`, `nomeConfeitaria`, `planoId`, `planoTipo`, `planoInicio`, `planoFim`/`planoExpiraEm`, `role`.
 
-Cálculo do `plano_fim` (se não informado): `planoInicio + 365 dias` se `anual`, senão `+30 dias`. Para `start`, o admin define explicitamente 7 ou 14 dias.
+Cálculo do `plano_fim` (se não informado): `planoInicio + 365 dias` se `anual`, senão `+30 dias`.
 
 Origem registrada: `origem_criacao = 'admin'`.
 
@@ -179,7 +180,6 @@ Componente headless montado no layout principal. Em cada mudança de rota, reval
 
 Banner global exibido para não-admin quando `0 ≤ diasRestantes ≤ 7`:
 - Mensagens diferenciadas para "hoje", "amanhã" e "em N dias".
-- Para plano `start`, mostra CTA **"Fazer Upgrade"** apontando para `https://caixadeacucar.lovable.app/` (página comercial).
 - Dismissable na sessão.
 
 ### 5.4 Bloqueio de módulo (`PlanoGuard` + `/upgrade`)

@@ -1,6 +1,16 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-25T22:15:00Z — Regra de rejeição do plano Start removida do webhook Hotmart (`resolverPlano`).
+> Última atualização: 2026-05-25T22:45:00Z — Limpeza de menções residuais ao Caixa Start em docs e log do webhook (`SWITCH_PLAN`).
+
+---
+
+## LIMPEZA RESIDUAL PLANO START — 2026-05-25 22:45 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| RF-PLAN | Log do webhook `SWITCH_PLAN` | ✅ | Mensagem `"SWITCH_PLAN ignorado — plano Start descontinuado"` substituída por `"SWITCH_PLAN ignorado — plano não reconhecido"` em `hotmart-webhook/index.ts:316`. Response `action` mudou de `ignored_discontinued_plan` para `ignored_unknown_plan` (fallback genérico, já que `resolverPlano` não rejeita mais por palavra-chave `start`). |
+| RF-PLAN | `docs/DOCS_PLANOS.md` | ✅ | Catálogo, módulos, periodicidades (`7dias`/`14dias`), regras do `resolverPlano`, cálculo de `plano_fim` e CTA "Fazer Upgrade" do `AlertaExpiracaoPlano` marcados como descontinuados/atualizados. Aviso de topo refinado. Versão 1.2. |
+| RF-PLAN | `docs/DOCUMENTACAO_COMPLETA.md` | ✅ | Removida menção ao plano Start na seção 1 (substituída por nota de descontinuação); módulos Estoque (§6) e Financeiro (§7) passam a citar apenas Business; integração Hotmart (§13) não lista mais Start nem "trimestral". |
 
 ---
 

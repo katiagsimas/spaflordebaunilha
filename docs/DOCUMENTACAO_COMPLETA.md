@@ -51,7 +51,7 @@ O acesso aos módulos é controlado por planos. Cada usuário possui um plano at
 
 - **Business:** todos os módulos do Lite + Financeiro completo (contas a pagar/receber, fluxo de caixa, DRE, bancos, fechamento de mês) + Estoque.
 
-- **Start:** plano superior com todos os módulos do Business + Planejamento estratégico e funcionalidades premium.
+> _Plano **Start** foi descontinuado em 2026-05-25 e não está mais disponível._
 
 **2. Autenticação e Acesso**
 
@@ -155,7 +155,7 @@ Ao registrar pagamento de uma encomenda, é possível gerar uma conta a receber 
 
 **6. Módulo Estoque**
 
-Disponível para os planos Business e Start. Controla entradas, saídas e ajustes, mantendo custo médio ponderado e visibilidade do que está disponível em cada momento.
+Disponível para o plano Business. Controla entradas, saídas e ajustes, mantendo custo médio ponderado e visibilidade do que está disponível em cada momento.
 
 **6.1. Funcionalidades**
 
@@ -173,7 +173,7 @@ Cada entrada recalcula o custo médio ponderado do item: (saldo_atual × custo_a
 
 **7. Módulo Financeiro**
 
-Conjunto mais robusto da plataforma, exclusivo dos planos Business e Start. Reúne contas a pagar, contas a receber, plano de contas, bancos, fluxo de caixa, DRE, fechamento de mês e configurações de juros.
+Conjunto mais robusto da plataforma, exclusivo do plano Business. Reúne contas a pagar, contas a receber, plano de contas, bancos, fluxo de caixa, DRE, fechamento de mês e configurações de juros.
 
 **7.1. Contas a Receber**
 
@@ -307,7 +307,7 @@ Cada usuário pode gerar backups manuais e/ou agendar backups automáticos diár
 
 **13. Integração Hotmart**
 
-O provisionamento e a renovação de planos são automáticos via Webhook Hotmart. O sistema mapeia palavras-chave no nome do produto vendido para identificar o plano (Lite, Business, Start) e a duração (mensal, trimestral, anual).
+O provisionamento e a renovação de planos são automáticos via Webhook Hotmart. O sistema mapeia palavras-chave no nome do produto vendido para identificar o plano (Lite ou Business) e a duração (mensal ou anual).
 
 **13.1. Eventos Tratados**
 
