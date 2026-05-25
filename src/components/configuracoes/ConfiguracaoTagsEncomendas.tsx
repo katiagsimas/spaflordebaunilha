@@ -167,6 +167,8 @@ export default function ConfiguracaoTagsEncomendas() {
       return;
     }
 
+    if (editingTag.padrao_sistema) return;
+
     try {
       const { error } = await supabase
         .from('tags_encomendas')
