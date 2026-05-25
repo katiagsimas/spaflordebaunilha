@@ -28,9 +28,9 @@ Definido em `src/hooks/usePlano.ts` (`MODULOS_POR_PLANO`):
 | Plano       | Acesso                                                                                       |
 |-------------|----------------------------------------------------------------------------------------------|
 | **base**    | Dashboard, Precificação, Encomendas, Clientes, Fornecedores e Configurações listadas. **Sem** Financeiro, Estoque, Meu Salário, Planejamento. |
-| **start**   | `*` — acesso total (janela curta de 7/14 dias).                                              |
 | **negocio** | `*` — acesso total.                                                                          |
 | **controle**| `[]` — bloqueado (em breve).                                                                 |
+| ~~**start**~~ | ~~Histórico: acesso total `*` em janela de 7/14 dias.~~ Descontinuado em 2026-05-25.       |
 
 A rota `/configuracoes` (raiz) é sempre acessível. Os módulos `/estoque`, `/planejamento` e `/meu-salario` ficam bloqueados para não-admin via `PlanoGuard` (ainda em desenvolvimento para usuários comuns).
 
@@ -40,10 +40,10 @@ A rota `/configuracoes` (raiz) é sempre acessível. Os módulos `/estoque`, `/p
 |------------|---------------:|----------------------------|
 | `mensal`   | 30             | Caixa Business             |
 | `anual`    | 365            | Caixa Lite (sempre), Caixa Business |
-| `7dias`    | 7              | Caixa Start                |
-| `14dias`   | 14             | Caixa Start (padrão)       |
+| ~~`7dias`~~ | ~~7~~         | ~~Caixa Start~~ (descontinuado)    |
+| ~~`14dias`~~ | ~~14~~       | ~~Caixa Start~~ (descontinuado)    |
 
-> **Regra fixa:** Caixa Lite (`base`) é sempre anual. Caixa Start é sempre `14dias` quando provisionado pelo webhook.
+> **Regra fixa:** Caixa Lite (`base`) é sempre anual. Periodicidades `7dias`/`14dias` foram removidas do `diasMap` (webhook e dialogs admin) em 2026-05-25.
 
 ---
 
