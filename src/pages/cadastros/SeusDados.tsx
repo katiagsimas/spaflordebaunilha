@@ -134,7 +134,7 @@ export default function SeusDados() {
 
       if (updateError) throw updateError;
 
-      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['profile', user?.id, activeGroup?.id] });
 
       toast.success("Logo enviada com sucesso!");
     } catch (error: any) {
@@ -168,7 +168,7 @@ export default function SeusDados() {
 
       if (updateError) throw updateError;
 
-      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['profile', user?.id, activeGroup?.id] });
 
       toast.success("Logo removida com sucesso!");
     } catch (error: any) {
