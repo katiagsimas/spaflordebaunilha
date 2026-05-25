@@ -82,7 +82,7 @@ export default function ConfiguracaoTagsEncomendas() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [fetchTags]);
 
   const fetchTags = async () => {
     try {
