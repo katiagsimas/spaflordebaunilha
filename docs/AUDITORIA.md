@@ -1,8 +1,21 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-25T15:39:00Z — Trigger `protect_plan_fields` estendida para proteger `profiles.ativo` contra auto-reativação
+> Última atualização: 2026-05-25T19:55:00Z — Remoção completa do plano **Caixa Start** (DB, webhook Hotmart e UI admin).
 
 ---
+
+## REMOÇÃO PLANO START — 2026-05-25 19:55 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| RF-PLAN | Plano Caixa Start descontinuado | ✅ | 7 usuários com `plano_id='start'` desativados (`ativo=false`) e migrados para `plano_id='base'` / `plano_tipo='anual'`. Registros em `historico_planos` referenciando `start` foram apagados. Registro `id='start'` removido de `public.planos`. |
+| RF-PLAN | Webhook Hotmart | ✅ | `resolverPlano()` agora retorna `null` quando o nome do plano contém `start`. Os handlers `PURCHASE_APPROVED` / `PURCHASE_COMPLETE` e `SWITCH_PLAN` respondem 200 com `action: 'ignored_discontinued_plan'` sem provisionar nem alterar usuário. |
+| RF-PLAN | UI Admin | ✅ | Opção "Caixa Start" removida de `CriarUsuarioDialog` e `EditarUsuarioDialog`; card de estatística "Start 14d" e filtros relacionados removidos de `Usuarios.tsx`; badge "Start" removida da listagem; export Excel sem rótulo Start. |
+| RF-PLAN | Frontend geral | ✅ | `usePlano.ts` sem entrada `start`; `AlertaExpiracaoPlano` sem CTA "Fazer Upgrade" (que era exclusivo Start); `AppSidebar` exibe `plano_tipo` para todos os planos restantes. |
+
+---
+
+
 
 ## SEGURANÇA PROFILES — 2026-05-25 15:39 UTC (Proteção do campo `ativo`)
 
