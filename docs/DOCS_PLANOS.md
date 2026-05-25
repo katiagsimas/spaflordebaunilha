@@ -155,7 +155,7 @@ Regras (case-insensitive):
 
 Campos recebidos: `email`, `nomeCompleto`, `nomeConfeitaria`, `planoId`, `planoTipo`, `planoInicio`, `planoFim`/`planoExpiraEm`, `role`.
 
-Cálculo do `plano_fim` (se não informado): `planoInicio + 365 dias` se `anual`, senão `+30 dias`. Para `start`, o admin define explicitamente 7 ou 14 dias.
+Cálculo do `plano_fim` (se não informado): `planoInicio + 365 dias` se `anual`, senão `+30 dias`.
 
 Origem registrada: `origem_criacao = 'admin'`.
 
