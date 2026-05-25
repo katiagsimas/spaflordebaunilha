@@ -108,15 +108,15 @@ export function useEstoque() {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [activeGroupId]);
 
   const fetchMovimentacoes = useCallback(async (estoqueId?: string) => {
-    if (!user) return;
+    if (!activeGroupId) { setMovimentacoes([]); return; }
     try {
       setLoadingMov(true);
       let query = (supabase.from('estoque_movimentacoes' as any) as any)
         .select('*')
-        .eq('usuario_id', user.id)
+        .eq('owner_group_id', activeGroupId)
         .order('created_at', { ascending: false })
         .limit(200);
 
@@ -132,7 +132,7 @@ export function useEstoque() {
     } finally {
       setLoadingMov(false);
     }
-  }, [user]);
+  }, [activeGroupId]);
 
   const registrarEntrada = async (params: {
     tipo: 'ingrediente' | 'embalagem';
