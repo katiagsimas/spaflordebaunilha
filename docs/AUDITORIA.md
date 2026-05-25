@@ -1,6 +1,17 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-25T19:55:00Z — Remoção completa do plano **Caixa Start** (DB, webhook Hotmart e UI admin).
+> Última atualização: 2026-05-25T21:30:00Z — Correções em **SeusDados.tsx** (storage path, persistência imediata de avatar, queryKey escopada por grupo, e-mail no update).
+
+---
+
+## CORREÇÕES SEUSDADOS.TSX — 2026-05-25 21:30 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| SD-1 | Storage path da logo | ✅ | `handleImageUpload` e `handleRemoveImage` passaram a usar caminhos iniciando diretamente com `${user.id}/...`, eliminando o prefixo `logotipos/` que conflitava com as policies do bucket (escopadas por `(storage.foldername(name))[1] = auth.uid()::text`). Atualizado em `upload`, `list` e `remove`. |
+| SD-2 | Persistência imediata de `avatar_url` | ✅ | Após o upload bem-sucedido, `handleImageUpload` agora executa `update({ avatar_url: publicUrl })` em `profiles` antes do toast e invalida a query do perfil. `handleRemoveImage` faz o mesmo com `avatar_url: null`. Evita órfãos no Storage quando o usuário fecha a página sem submeter o formulário. |
+| SD-3 | QueryKey escopada por grupo | ✅ | `useGroup()` importado e `activeGroup` destructurado. `useQuery` do perfil e as 3 chamadas a `invalidateQueries` (upload, remove, mutation onSuccess) agora usam `['profile', user?.id, activeGroup?.id]`, alinhando ao padrão multi-tenant do projeto e garantindo invalidação correta ao trocar de grupo ativo. |
+| SD-4 | Campo `email` no update do perfil | ✅ | `updateProfileMutation` passou a incluir `email: data.email` no objeto enviado ao `.update()` de `profiles`, junto a `nome_completo`, `telefone` e `cpf`. O campo já existia no formulário/useForm mas não era persistido. |
 
 ---
 
