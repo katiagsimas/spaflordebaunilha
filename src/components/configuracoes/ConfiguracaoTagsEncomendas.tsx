@@ -87,12 +87,13 @@ export default function ConfiguracaoTagsEncomendas() {
   const fetchTags = async () => {
     try {
       if (!user) return;
+      if (!activeGroupId) return;
 
-      // Buscar tags do sistema (user_id = null) e tags do usuário
+      // Buscar tags do sistema (user_id = null) e tags do grupo
       const { data, error } = await supabase
         .from('tags_encomendas')
         .select('*')
-        .or(`user_id.is.null,user_id.eq.${user.id}`)
+        .or(`user_id.is.null,owner_group_id.eq.${activeGroupId}`)
         .eq('ativo', true)
         .order('nome');
 
