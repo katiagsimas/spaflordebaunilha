@@ -1,6 +1,16 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-25T15:37:00Z — Storage hardening: buckets pre-preparos/receitas privatizados + bucket órfão logos bloqueado
+> Última atualização: 2026-05-25T15:39:00Z — Trigger `protect_plan_fields` estendida para proteger `profiles.ativo` contra auto-reativação
+
+---
+
+## SEGURANÇA PROFILES — 2026-05-25 15:39 UTC (Proteção do campo `ativo`)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| RF-S | Usuário desativado podia se reativar via API | ✅ | Trigger `protect_plan_fields()` em `profiles` agora também executa `NEW.ativo := OLD.ativo` para não-admins. Apenas admins e service_role (edge functions) podem alterar `ativo`. Fecha o vetor onde um usuário desativado com sessão válida poderia fazer `update({ativo:true}).eq('id', auth.uid())`. |
+
+---
 
 ---
 
