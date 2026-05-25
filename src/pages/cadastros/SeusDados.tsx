@@ -219,7 +219,7 @@ export default function SeusDados() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['profile', user?.id, activeGroup?.id] });
       toast.success("✅ Dados salvos com sucesso!");
       
       // Redirecionar para cadastros base (Insumos e Embalagens agora é uso exclusivo do sistema)
