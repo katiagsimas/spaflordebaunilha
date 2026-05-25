@@ -12,18 +12,18 @@ import { escapeHtml } from '../_shared/escapeHtml.ts'
  *   - SWITCH_PLAN → atualiza plano
  */
 
-function resolverPlano(productId: string, planName: string | null): { planoId: string; planoTipo: string } {
+function resolverPlano(productId: string, planName: string | null): { planoId: string; planoTipo: string } | null {
   const nome = (planName || '').toLowerCase()
   console.log('resolverPlano - input:', { productId, planName, nomeLower: nome })
 
+  // Plano Start foi descontinuado — rejeita o evento
   const isStart = nome.includes('start') || nome.includes('caixa start')
-  const isNegocio = nome.includes('business') || nome.includes('negocio') || nome.includes('negócio') || nome.includes('caixa business')
-
   if (isStart) {
-    console.log('resolverPlano - detectado Start (sempre 14dias)')
-    return { planoId: 'start', planoTipo: '14dias' }
+    console.log('resolverPlano - Plano Start descontinuado, evento ignorado')
+    return null
   }
 
+  const isNegocio = nome.includes('business') || nome.includes('negocio') || nome.includes('negócio') || nome.includes('caixa business')
   const planoId = isNegocio ? 'negocio' : 'base'
 
   // Caixa Lite é sempre anual; Business pode ser mensal ou anual
