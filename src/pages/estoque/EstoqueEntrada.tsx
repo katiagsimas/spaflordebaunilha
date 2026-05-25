@@ -98,7 +98,6 @@ export default function EstoqueEntrada() {
         quantidade: Number(quantidade),
         custo_total: Number(custoTotal),
         observacao: observacao || undefined,
-        owner_group_id: activeGroup?.id,
       });
       navigate('/estoque');
     } catch (err: any) {
