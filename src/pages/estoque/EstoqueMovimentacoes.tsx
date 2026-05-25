@@ -159,7 +159,7 @@ export default function EstoqueMovimentacoes() {
             Exibindo as 500 movimentações mais recentes. Registros anteriores não estão visíveis.
           </p>
         )}
-      )}
+      </>)}
     </div>
   );
 }
