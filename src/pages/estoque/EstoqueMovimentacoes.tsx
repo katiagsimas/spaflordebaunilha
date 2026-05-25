@@ -26,35 +26,35 @@ interface EncomendaRef {
 
 export default function EstoqueMovimentacoes() {
   const { movimentacoes, itens, loadingMov, fetchMovimentacoes } = useEstoque();
-  const [encomendasMap, setEncomendasMap] = useState<Record<string, EncomendaRef>>({});
 
-  useEffect(() => {
-    fetchMovimentacoes();
-  }, [fetchMovimentacoes]);
-
-  // Fetch linked encomendas for saida_producao movements
-  useEffect(() => {
-    const encomendaIds = [
+  const encomendaIds = useMemo(
+    () => [
       ...new Set(
         movimentacoes
           .filter(m => m.referencia_tipo === 'encomenda' && m.referencia_id)
           .map(m => m.referencia_id!)
       ),
-    ];
-    if (encomendaIds.length === 0) return;
+    ],
+    [movimentacoes]
+  );
 
-    (async () => {
+  const encomendasQuery = useQuery({
+    queryKey: ['encomendas-ref-estoque', encomendaIds],
+    enabled: encomendaIds.length > 0,
+    queryFn: async () => {
       const { data } = await supabase
         .from('encomendas')
         .select('id, cliente_nome:cliente, data_entrega')
         .in('id', encomendaIds);
+      const map: Record<string, EncomendaRef> = {};
       if (data) {
-        const map: Record<string, EncomendaRef> = {};
         data.forEach((e: any) => { map[e.id] = e; });
-        setEncomendasMap(map);
       }
-    })();
-  }, [movimentacoes]);
+      return map;
+    },
+  });
+
+  const encomendasMap = encomendasQuery.data || {};
 
   const getItemNome = (estoqueId: string) => {
     const item = itens.find(i => i.id === estoqueId);
