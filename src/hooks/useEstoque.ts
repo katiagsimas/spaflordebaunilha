@@ -239,6 +239,8 @@ export function useEstoque() {
         owner_group_id: activeGroupId,
         tipo_movimentacao: params.tipo_ajuste === 'correcao' ? 'ajuste' : 'saida_manual',
         quantidade: params.quantidade,
+        custo_unitario: Math.round(item.custo_medio * 100) / 100,
+        custo_total: Math.round(item.custo_medio * params.quantidade * 100) / 100,
         observacao: params.motivo,
       });
     if (movError) throw movError;
