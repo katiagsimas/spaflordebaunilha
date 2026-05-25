@@ -44,6 +44,8 @@ interface TagEncomenda {
 export default function ConfiguracaoTagsEncomendas() {
   const { toast } = useToast();
   const { user } = useAuth();
+  const { activeGroup } = useGroup();
+  const activeGroupId = activeGroup?.id;
   
   const [tags, setTags] = useState<TagEncomenda[]>([]);
   const [loading, setLoading] = useState(true);
