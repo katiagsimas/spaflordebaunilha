@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LoadingState } from '@/components/LoadingState';
@@ -41,6 +42,7 @@ interface TagEncomenda {
 
 export default function ConfiguracaoTagsEncomendas() {
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const [tags, setTags] = useState<TagEncomenda[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,7 +83,6 @@ export default function ConfiguracaoTagsEncomendas() {
 
   const fetchTags = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
       // Buscar tags do sistema (user_id = null) e tags do usuário
@@ -117,7 +118,6 @@ export default function ConfiguracaoTagsEncomendas() {
     }
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
       const { error } = await supabase
