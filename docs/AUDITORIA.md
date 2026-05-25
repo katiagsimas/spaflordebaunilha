@@ -586,3 +586,13 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 - ✅ Criado `src/components/CriarIngredienteModal.tsx`: encapsula os dois Dialogs (tipo de ingrediente + detalhe ingrediente), os estados internos do formulário e os handlers `handleCriarTipo`/`handleCriarIngrediente`. Aceita `open`, `onOpenChange`, `descricaoInicial`, `unidades`, `userId`, `onIngredienteCriado(data)`.
 - ✅ Criado `src/components/CriarEmbalagemModal.tsx`: mesma estrutura para embalagens.
 - ✅ `src/pages/ReceitaForm.tsx`: removidos 11 estados granulares (`novoTipoIng*`, `novoIng*`, `tipoIngRecemCriado` e equivalentes de embalagem) e 4 handlers (`handleCriarTipoIngrediente`, `handleCriarIngrediente`, `handleCriarTipoEmbalagem`, `handleCriarEmbalagem`). Mantidos apenas `descricaoInicialIng/Emb` + flags `modalCriar*Open` e dois callbacks finos (`handleIngredienteCriado`/`handleEmbalagemCriada`) que adicionam o registro retornado em `ingredientesCadastrados`/`embalagensCadastradas` e na lista da receita. Imports de `Dialog*` removidos. Arquivo reduziu de 2.418 → 1.968 linhas (-450).
+
+---
+
+## 2026-05-25 — Políticas faltantes no bucket `comprovantes-receber`
+
+✅ Adicionadas políticas RLS em `storage.objects` para o bucket `comprovantes-receber`:
+- **INSERT** (owner-scoped): `(storage.foldername(name))[1] = auth.uid()::text`
+- **DELETE** (owner-scoped): `(storage.foldername(name))[1] = auth.uid()::text`
+
+Antes existiam apenas SELECT e UPDATE; agora o ciclo completo do CRUD de comprovantes está coberto e owner-scoped.
