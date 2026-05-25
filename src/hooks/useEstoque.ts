@@ -38,13 +38,14 @@ export interface EstoqueMovimentacao {
 
 export function useEstoque() {
   const { user } = useAuth();
+  const { activeGroupId } = useGroup();
   const [itens, setItens] = useState<EstoqueItem[]>([]);
   const [movimentacoes, setMovimentacoes] = useState<EstoqueMovimentacao[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMov, setLoadingMov] = useState(false);
 
   const fetchEstoque = useCallback(async () => {
-    if (!user) return;
+    if (!activeGroupId) { setItens([]); setLoading(false); return; }
     try {
       setLoading(true);
       // Fetch estoque items
