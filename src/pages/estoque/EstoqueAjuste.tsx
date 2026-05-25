@@ -38,7 +38,6 @@ export default function EstoqueAjuste() {
         quantidade: Number(quantidade),
         motivo: `[${tipoAjuste.toUpperCase()}] ${motivo}`,
         tipo_ajuste: tipoAjuste === 'correcao' ? 'correcao' : 'saida_manual',
-        owner_group_id: activeGroup?.id,
       });
       navigate('/estoque');
     } catch (err: any) {
