@@ -163,7 +163,7 @@ export default function EstoqueDashboard() {
                             <AlertTriangle className="h-3 w-3" /> Baixo
                           </Badge>
                         ) : (
-                          <Badge className="bg-cda-vinho text-cda-preto font-body text-xs">OK</Badge>
+                          <Badge className="bg-success-light text-success font-body text-xs">OK</Badge>
                         )}
                       </TableCell>
                     </TableRow>
