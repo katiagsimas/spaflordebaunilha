@@ -198,6 +198,7 @@ export default function SeusDados() {
           nome_confeitaria: data.razaoSocial,
           razao_social: data.nomeFantasia,
           nome_completo: data.nomeResponsavel,
+          email: data.email,
           telefone: data.telefone,
           cpf: data.cnpjCpf,
           inscricao_estadual: data.inscricaoEstadual,
