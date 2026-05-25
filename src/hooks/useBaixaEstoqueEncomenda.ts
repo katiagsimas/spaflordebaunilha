@@ -33,7 +33,7 @@ export async function executarBaixaEstoqueEncomenda(
       .from('encomenda_itens')
       .select('receita_id, quantidade')
       .eq('encomenda_id', encomendaId)
-      .eq('usuario_id', userId);
+      .eq('owner_group_id', ownerGroupId);
 
     if (errItens) throw errItens;
     if (!itensEncomenda || itensEncomenda.length === 0) {
@@ -120,7 +120,7 @@ async function deduzirEstoque(params: {
   // Buscar item no estoque
   const { data: estoqueItem } = await (supabase.from('estoque' as any) as any)
     .select('*')
-    .eq('usuario_id', params.userId)
+    .eq('owner_group_id', params.ownerGroupId)
     .eq(filterCol, params.insumoId)
     .maybeSingle();
 
