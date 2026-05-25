@@ -82,7 +82,7 @@ export default function Usuarios() {
     ativos: 0,
     inativos: 0,
     baseAnual: 0,
-    start14: 0,
+    
     negocioMensal: 0,
     negocioAnual: 0,
   });
