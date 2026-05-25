@@ -623,3 +623,14 @@ Com RLS habilitado e nenhuma policy, o bucket fica inacessível para qualquer cl
 **Motivação:** alinhar com o padrão multi-tenant usado nos demais módulos (`clientes`, `fechamento_logs`, etc.), eliminando o achado `INCONSISTENT_GROUP_SCOPING` da auditoria de segurança. Verificado previamente que não há divergência entre `profiles.owner_group_id` e `user_group_roles` (0 inconsistências) e que `fechamentos_mensais` não possui coluna `usuario_id` — é recurso de grupo por design.
 
 **Impacto comportamental:** nenhum. Todos os membros ativos do grupo dono continuam com acesso completo aos fechamentos e checklists.
+
+---
+
+## 2026-05-25 — DEFINER_OR_RPC_BYPASS: expire_overdue_plans
+
+- **Problema:** função `public.expire_overdue_plans()` (SECURITY DEFINER) tinha `GRANT EXECUTE TO authenticated`, permitindo a qualquer usuário logado disparar um UPDATE em massa em `profiles` (apesar do filtro `plano_fim < CURRENT_DATE`, violava o princípio do least-privilege).
+- **Correção:**
+  - `REVOKE EXECUTE ... FROM authenticated, anon, public` e `GRANT EXECUTE ... TO service_role`.
+  - Removida chamada client-side `supabase.rpc('expire_overdue_plans')` em `src/pages/admin/Usuarios.tsx`.
+  - Enforcement por linha permanece via trigger `trg_enforce_plan_expiration` e `PlanExpirationWatcher`. Execução em massa pode ser feita por edge function agendada com service_role.
+- **Status:** ✅ Corrigido
