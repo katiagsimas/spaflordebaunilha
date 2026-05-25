@@ -65,7 +65,7 @@ export function useEstoque() {
       let ingredientesMap: Record<string, { nome: string; unidade: string }> = {};
       let embalagensMap: Record<string, { nome: string; unidade: string }> = {};
 
-      if (ingredienteIds.length > 0) {
+      const buscarIngredientes = async () => {
         const { data: ingredientes } = await supabase
           .from('ingredientes')
           .select('id, tipo_insumo_id, tipos_insumos:tipo_insumo_id(descricao, unidade_medida_id, unidades_medida:unidade_medida_id(sigla))')
@@ -76,9 +76,9 @@ export function useEstoque() {
             unidade: ing.tipos_insumos?.unidades_medida?.sigla || '',
           };
         });
-      }
+      };
 
-      if (embalagemIds.length > 0) {
+      const buscarEmbalagens = async () => {
         const { data: embalagens } = await supabase
           .from('embalagens')
           .select('id, tipo_insumo_id, tipos_insumos:tipo_insumo_id(descricao, unidade_medida_id, unidades_medida:unidade_medida_id(sigla))')
@@ -89,7 +89,12 @@ export function useEstoque() {
             unidade: emb.tipos_insumos?.unidades_medida?.sigla || '',
           };
         });
-      }
+      };
+
+      const promises: Promise<void>[] = [];
+      if (ingredienteIds.length > 0) promises.push(buscarIngredientes());
+      if (embalagemIds.length > 0) promises.push(buscarEmbalagens());
+      await Promise.all(promises);
 
       const enriched: EstoqueItem[] = items.map(item => ({
         ...item,
