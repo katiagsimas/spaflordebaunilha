@@ -131,6 +131,24 @@ async function deduzirEstoque(params: {
     };
   }
 
+  // Buscar nome legível do insumo para mensagens
+  let nomeInsumo = params.tipo === 'ingrediente' ? 'Ingrediente' : 'Embalagem';
+  if (params.tipo === 'ingrediente') {
+    const { data: ing } = await supabase
+      .from('ingredientes')
+      .select('tipo_insumo_id, tipos_insumos:tipo_insumo_id(descricao)')
+      .eq('id', params.insumoId)
+      .maybeSingle();
+    nomeInsumo = ing?.tipos_insumos?.descricao || nomeInsumo;
+  } else {
+    const { data: emb } = await supabase
+      .from('embalagens')
+      .select('tipo_insumo_id, tipos_insumos:tipo_insumo_id(descricao)')
+      .eq('id', params.insumoId)
+      .maybeSingle();
+    nomeInsumo = emb?.tipos_insumos?.descricao || nomeInsumo;
+  }
+
   const qtdAtual = Number(estoqueItem.quantidade_atual) || 0;
   const novaQtd = Math.max(0, qtdAtual - params.quantidade);
 
@@ -155,7 +173,7 @@ async function deduzirEstoque(params: {
   if (qtdAtual < params.quantidade) {
     return {
       processado: true,
-      aviso: `Estoque de "${estoqueItem.id}" ficou negativo (zerado). Quantidade insuficiente.`,
+      aviso: `Estoque de ${nomeInsumo} ficou insuficiente — quantidade zerada.`,
     };
   }
 
