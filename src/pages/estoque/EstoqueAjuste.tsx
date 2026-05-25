@@ -30,6 +30,10 @@ export default function EstoqueAjuste() {
       toast.error('Preencha todos os campos obrigatórios');
       return;
     }
+    if (itemSelecionado && Number(quantidade) > Number(itemSelecionado.quantidade_atual)) {
+      toast.error('Quantidade informada supera o estoque disponível');
+      return;
+    }
 
     try {
       setSalvando(true);
