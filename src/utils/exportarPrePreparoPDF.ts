@@ -22,12 +22,13 @@ async function carregarImagemComoDataURL(
 ): Promise<{ dataUrl: string; format: "JPEG" | "PNG"; w: number; h: number } | null> {
   try {
     let url = urlOuPath;
-    // Se não for URL absoluta, tenta gerar URL pública/assinada do bucket "pre-preparos"
+    // Se não for URL absoluta, gera URL assinada (temporária) do bucket "pre-preparos"
     if (!/^https?:\/\//i.test(urlOuPath)) {
-      const { data } = supabase.storage
+      const { data } = await supabase.storage
         .from("pre-preparos")
-        .getPublicUrl(urlOuPath);
-      url = data.publicUrl;
+        .createSignedUrl(urlOuPath, 3600);
+      if (!data?.signedUrl) return null;
+      url = data.signedUrl;
     }
 
     const resp = await fetch(url);

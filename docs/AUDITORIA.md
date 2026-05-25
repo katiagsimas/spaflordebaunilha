@@ -1,6 +1,16 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-24T18:00:00Z — ReceitaForm: 6 chamadas `supabase.auth.getUser()` substituídas por `useAuth()`
+> Última atualização: 2026-05-25T15:37:00Z — Storage hardening: buckets pre-preparos/receitas privatizados + bucket órfão logos bloqueado
+
+---
+
+## SEGURANÇA STORAGE — 2026-05-25 15:37 UTC (Privatização de buckets de imagens)
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| RF-S | Buckets pre-preparos e receitas públicos | ✅ | Buckets tornados privados (`storage.buckets.public = false`). Policies SELECT antigas removidas; novas `Group members can view {recipe,pre-preparo} images` restringem SELECT a authenticated pertencente ao mesmo `owner_group_id` do uploader (matched via `(storage.foldername(name))[1]`). Código atualizado para `createSignedUrl(3600)` em `src/utils/exportarReceitaPDF.ts`, `src/utils/exportarPrePreparoPDF.ts` e `src/pages/ReceitaForm.tsx` (state map `signedImageUrls` + useEffect). |
+| RF-S | Bucket órfão `logos` sem políticas | ✅ | Policy RESTRICTIVE `Deny all access to orphan logos bucket` em `storage.objects` nega qualquer operação onde `bucket_id = 'logos'`. Remoção física pendente via Storage API. |
+| RF-S | comprovantes-receber SELECT (falso positivo) | ✅ | Scanner confirmou que a policy existente já está corretamente escopada (`foldername(name)[1] = auth.uid()::text`). Finding ignorado. |
 
 ---
 
