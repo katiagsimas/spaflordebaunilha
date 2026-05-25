@@ -167,6 +167,8 @@ export default function ConfiguracaoTagsEncomendas() {
       return;
     }
 
+    if (editingTag.padrao_sistema) return;
+
     try {
       const { error } = await supabase
         .from('tags_encomendas')
@@ -200,6 +202,8 @@ export default function ConfiguracaoTagsEncomendas() {
 
   const handleDeleteTag = async () => {
     if (!deletingTag) return;
+
+    if (deletingTag.padrao_sistema) return;
 
     try {
       const { error } = await supabase
