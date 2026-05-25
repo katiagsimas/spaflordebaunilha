@@ -26,8 +26,11 @@ async function carregarImagemComoDataURL(
     if (urlOuPath.startsWith("data:")) {
       url = urlOuPath;
     } else if (!/^https?:\/\//i.test(urlOuPath)) {
-      const { data } = supabase.storage.from("receitas").getPublicUrl(urlOuPath);
-      url = data.publicUrl;
+      const { data } = await supabase.storage
+        .from("receitas")
+        .createSignedUrl(urlOuPath, 3600);
+      if (!data?.signedUrl) return null;
+      url = data.signedUrl;
     }
 
     const resp = await fetch(url);
