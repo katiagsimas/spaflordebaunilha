@@ -318,7 +318,15 @@ Deno.serve(async (req) => {
       const switchPlanName = switchPlanNameParts.join(' | ')
       console.log('SWITCH_PLAN planName sources:', switchPlanNameParts)
       const switchProduct = (data.subscription as Record<string, unknown>)?.product as Record<string, unknown> || product
-      const { planoId, planoTipo } = resolverPlano(switchProduct?.id?.toString() || '', switchPlanName)
+      const resolvedSwitch = resolverPlano(switchProduct?.id?.toString() || '', switchPlanName)
+      if (!resolvedSwitch) {
+        console.log('SWITCH_PLAN ignorado — plano Start descontinuado')
+        return new Response(
+          JSON.stringify({ success: true, event, action: 'ignored_discontinued_plan' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        )
+      }
+      const { planoId, planoTipo } = resolvedSwitch
       const planoInicio = new Date().toISOString().split('T')[0]
       const planoFim = calcularPlanoFim(planoInicio, planoTipo)
       console.log('SWITCH_PLAN - Plano atual:', switchPlanName, '| Resolvido:', planoId, planoTipo)
