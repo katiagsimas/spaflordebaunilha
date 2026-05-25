@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useGroup } from '@/contexts/GroupContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LoadingState } from '@/components/LoadingState';
@@ -43,6 +44,8 @@ interface TagEncomenda {
 export default function ConfiguracaoTagsEncomendas() {
   const { toast } = useToast();
   const { user } = useAuth();
+  const { activeGroup } = useGroup();
+  const activeGroupId = activeGroup?.id;
   
   const [tags, setTags] = useState<TagEncomenda[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,12 +87,13 @@ export default function ConfiguracaoTagsEncomendas() {
   const fetchTags = async () => {
     try {
       if (!user) return;
+      if (!activeGroupId) return;
 
-      // Buscar tags do sistema (user_id = null) e tags do usuário
+      // Buscar tags do sistema (user_id = null) e tags do grupo
       const { data, error } = await supabase
         .from('tags_encomendas')
         .select('*')
-        .or(`user_id.is.null,user_id.eq.${user.id}`)
+        .or(`user_id.is.null,owner_group_id.eq.${activeGroupId}`)
         .eq('ativo', true)
         .order('nome');
 
@@ -119,6 +123,7 @@ export default function ConfiguracaoTagsEncomendas() {
 
     try {
       if (!user) return;
+      if (!activeGroupId) return;
 
       const { error } = await supabase
         .from('tags_encomendas')
@@ -127,6 +132,7 @@ export default function ConfiguracaoTagsEncomendas() {
           cor: formData.cor,
           descricao: formData.descricao.trim() || null,
           user_id: user.id,
+          owner_group_id: activeGroupId,
           padrao_sistema: false,
           ativo: true
         });
