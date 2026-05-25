@@ -1,8 +1,12 @@
 # 💳 DOCUMENTAÇÃO: Planos de Acesso, Vinculação de Usuários e Webhook Hotmart
 
-**Versão:** 1.0  
-**Atualizada em:** 25/05/2026  
+**Versão:** 1.1
+**Atualizada em:** 25/05/2026
 **Escopo:** Catálogo de planos, vínculo com `profiles`, provisionamento via Hotmart, regras de expiração, upgrade e continuidade.
+
+> ⚠️ **2026-05-25 — Plano `Caixa Start` DESCONTINUADO.**
+> Registro removido de `public.planos`; usuários migrados para `base` e desativados; webhook Hotmart rejeita eventos com `start` no nome do produto (resposta 200 + `action: 'ignored_discontinued_plan'`). As menções abaixo permanecem apenas como referência histórica.
+
 
 ---
 
