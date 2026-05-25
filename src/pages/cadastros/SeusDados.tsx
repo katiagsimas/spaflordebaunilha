@@ -105,7 +105,7 @@ export default function SeusDados() {
     try {
       // Determinar extensão do arquivo
       const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
-      const filePath = `logotipos/${user.id}/logo.${ext}`;
+      const filePath = `${user.id}/logo.${ext}`;
 
       // Upload para o Storage (upsert = true para substituir se existir)
       const { error: uploadError } = await supabase.storage
@@ -137,11 +137,11 @@ export default function SeusDados() {
       // Buscar arquivos do usuário no bucket
       const { data: files } = await supabase.storage
         .from('logotipos')
-        .list(`logotipos/${user.id}`);
+        .list(`${user.id}`);
 
       // Deletar todos os arquivos do usuário (geralmente apenas 1 logo)
       if (files && files.length > 0) {
-        const filePaths = files.map(f => `logotipos/${user.id}/${f.name}`);
+        const filePaths = files.map(f => `${user.id}/${f.name}`);
         await supabase.storage.from('logotipos').remove(filePaths);
       }
 
