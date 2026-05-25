@@ -77,7 +77,7 @@ export default function EstoqueMovimentacoes() {
           title="Nenhuma movimentação registrada"
           description="As movimentações aparecerão aqui conforme você registrar entradas e ajustes."
         />
-      ) : (
+      ) : (<>
         <Card>
           <CardContent className="p-0">
             <Table>
