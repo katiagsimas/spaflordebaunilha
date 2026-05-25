@@ -313,9 +313,9 @@ Deno.serve(async (req) => {
       const switchProduct = (data.subscription as Record<string, unknown>)?.product as Record<string, unknown> || product
       const resolvedSwitch = resolverPlano(switchProduct?.id?.toString() || '', switchPlanName)
       if (!resolvedSwitch) {
-        console.log('SWITCH_PLAN ignorado — plano Start descontinuado')
+        console.log('SWITCH_PLAN ignorado — plano não reconhecido:', switchPlanName)
         return new Response(
-          JSON.stringify({ success: true, event, action: 'ignored_discontinued_plan' }),
+          JSON.stringify({ success: true, event, action: 'ignored_unknown_plan' }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
         )
       }
