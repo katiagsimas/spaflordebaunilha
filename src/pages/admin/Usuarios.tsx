@@ -91,8 +91,9 @@ export default function Usuarios() {
   const { data: profiles, isLoading: isLoadingProfiles } = useQuery({
     queryKey: ['admin-users'],
     queryFn: async () => {
-      // Antes de listar, desativa quem tem plano expirado (idempotente)
-      await supabase.rpc('expire_overdue_plans');
+      // Expiração de planos é tratada server-side pelo trigger
+      // `trg_enforce_plan_expiration` e por job agendado (service_role).
+
 
       const { data, error } = await supabase
         .from('profiles')
