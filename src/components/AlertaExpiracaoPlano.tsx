@@ -2,7 +2,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, X, ExternalLink } from 'lucide-react';
+import { AlertCircle, X } from 'lucide-react';
 import { useState } from 'react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 
@@ -16,7 +16,7 @@ export function AlertaExpiracaoPlano() {
     queryFn: async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('plano_fim, plano_id')
+        .select('plano_fim')
         .eq('id', user!.id)
         .single();
 
@@ -26,7 +26,7 @@ export function AlertaExpiracaoPlano() {
       hoje.setHours(0, 0, 0, 0);
       const fim = new Date(data.plano_fim + 'T00:00:00');
       const diff = Math.ceil((fim.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24));
-      return { diasRestantes: diff, planoId: data.plano_id };
+      return { diasRestantes: diff };
     },
     enabled: !!user?.id && !isAdmin,
     staleTime: 1000 * 60 * 30,
@@ -34,7 +34,6 @@ export function AlertaExpiracaoPlano() {
   });
 
   const diasRestantes = planoInfo?.diasRestantes;
-  const isStart = planoInfo?.planoId === 'start';
 
   if (dismissed || isAdmin || diasRestantes === null || diasRestantes === undefined || diasRestantes > 7 || diasRestantes < 0) {
     return null;
@@ -56,17 +55,6 @@ export function AlertaExpiracaoPlano() {
           </AlertDescription>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          {isStart && (
-            <a
-              href="https://caixadeacucar.lovable.app/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-cda-preto hover:brightness-110 text-cda-dourado text-xs font-semibold transition-all"
-            >
-              Fazer Upgrade
-              <ExternalLink className="h-3 w-3" />
-            </a>
-          )}
           <button
             onClick={() => setDismissed(true)}
             className="p-1 hover:bg-cda-preto/10 rounded transition-colors shrink-0"
