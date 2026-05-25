@@ -123,6 +123,7 @@ export default function ConfiguracaoTagsEncomendas() {
 
     try {
       if (!user) return;
+      if (!activeGroupId) return;
 
       const { error } = await supabase
         .from('tags_encomendas')
@@ -131,6 +132,7 @@ export default function ConfiguracaoTagsEncomendas() {
           cor: formData.cor,
           descricao: formData.descricao.trim() || null,
           user_id: user.id,
+          owner_group_id: activeGroupId,
           padrao_sistema: false,
           ativo: true
         });
