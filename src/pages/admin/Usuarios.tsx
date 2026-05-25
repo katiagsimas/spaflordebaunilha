@@ -160,7 +160,6 @@ export default function Usuarios() {
 
     const isAtivo = usuario.ativo !== false;
     const isBase = !usuario.plano_id || usuario.plano_id === 'base';
-    const isStart = usuario.plano_id === 'start';
     const isNegocio = usuario.plano_id === 'negocio';
 
     switch (filtroCard) {
@@ -168,7 +167,6 @@ export default function Usuarios() {
       case 'ativos': return matchEmail && isAtivo;
       case 'inativos': return matchEmail && !isAtivo;
       case 'baseAnual': return matchEmail && isAtivo && isBase;
-      case 'start14': return matchEmail && isAtivo && isStart;
       case 'negocioMensal': return matchEmail && isAtivo && isNegocio && usuario.plano_tipo === 'mensal';
       case 'negocioAnual': return matchEmail && isAtivo && isNegocio && usuario.plano_tipo === 'anual';
       default: return matchEmail;
