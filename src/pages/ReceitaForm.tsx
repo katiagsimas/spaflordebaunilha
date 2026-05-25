@@ -536,13 +536,34 @@ export default function ReceitaForm() {
     );
   };
 
+  const [signedImageUrls, setSignedImageUrls] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const pathsToSign = imagens.filter(
+      (i) => i && !i.startsWith("data:") && !/^https?:\/\//i.test(i) && !signedImageUrls[i],
+    );
+    if (pathsToSign.length === 0) return;
+    (async () => {
+      const entries: [string, string][] = [];
+      await Promise.all(
+        pathsToSign.map(async (path) => {
+          const { data } = await supabase.storage
+            .from("receitas")
+            .createSignedUrl(path, 3600);
+          if (data?.signedUrl) entries.push([path, data.signedUrl]);
+        }),
+      );
+      if (entries.length > 0) {
+        setSignedImageUrls((prev) => ({ ...prev, ...Object.fromEntries(entries) }));
+      }
+    })();
+  }, [imagens, signedImageUrls]);
+
   const obterSrcImagemReceita = (imagem: string) => {
     if (imagem.startsWith("data:") || /^https?:\/\//i.test(imagem)) {
       return imagem;
     }
-
-    const { data } = supabase.storage.from("receitas").getPublicUrl(imagem);
-    return data.publicUrl;
+    return signedImageUrls[imagem] || "";
   };
 
   const handleErroPreviewImagem = (imagem: string) => {
