@@ -154,6 +154,11 @@ export default function EstoqueMovimentacoes() {
             </Table>
           </CardContent>
         </Card>
+        {movimentacoes.length === 500 && (
+          <p className="text-sm text-muted-foreground text-center py-2">
+            Exibindo as 500 movimentações mais recentes. Registros anteriores não estão visíveis.
+          </p>
+        )}
       )}
     </div>
   );
