@@ -125,17 +125,40 @@ Deno.serve(async (req) => {
           .eq("id", ag.usuario_id)
           .single();
 
-        const modulos: string[] = (ag.modulos && ag.modulos.length > 0)
+        // Verifica se o usuário é MOTHER (necessário para incluir módulo governanca)
+        const { data: globalRole } = await admin
+          .from("user_global_roles")
+          .select("role_global")
+          .eq("user_id", ag.usuario_id)
+          .eq("role_global", "MOTHER")
+          .maybeSingle();
+        const isMother = !!globalRole;
+
+        let modulos: string[] = (ag.modulos && ag.modulos.length > 0)
           ? ag.modulos
           : ["operacao", "comercial", "negocio", "sistema"];
+
+        // Filtra módulos motherOnly se o usuário não for MOTHER
+        if (!isMother) {
+          modulos = modulos.filter((m) => !MODULOS_MOTHER_ONLY.has(m));
+        }
 
         const tabelas = tabelasDosModulos(modulos);
         const dados: Record<string, any[]> = {};
 
         for (const t of tabelas) {
-          // profiles é filtrado pelo próprio id do usuário (1 linha).
+          // Tabelas de governança: snapshot global (apenas MOTHER chega aqui).
+          if (GOVERNANCA_TABELAS.has(t) && isMother) {
+            const res = await admin.from(t).select("*");
+            if (!res.error && res.data) dados[t] = res.data;
+            continue;
+          }
+          // profiles: se MOTHER e módulo governanca incluído → todos os perfis; senão apenas o do usuário.
           if (t === "profiles") {
-            const res = await admin.from("profiles").select("*").eq("id", ag.usuario_id);
+            const q = (isMother && modulos.includes("governanca"))
+              ? admin.from("profiles").select("*")
+              : admin.from("profiles").select("*").eq("id", ag.usuario_id);
+            const res = await q;
             if (!res.error && res.data) dados[t] = res.data;
             continue;
           }
