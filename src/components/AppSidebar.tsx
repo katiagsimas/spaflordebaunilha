@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { LayoutDashboard, Users, Cake, BookOpen, Settings, FileText, Building2, Lock, Package, Wallet, ClipboardList, CalendarCheck, Sparkles, MessageCircle, ListChecks, HardDrive, FileSignature, ScrollText } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
+import { useMotherView } from "@/hooks/useMotherView";
 import { useConversaDoceAccess } from "@/hooks/useConversaDoceAccess";
 
 import { NavLink } from "react-router-dom";
