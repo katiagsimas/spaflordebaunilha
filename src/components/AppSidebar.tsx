@@ -319,56 +319,7 @@ export function AppSidebar() {
       {open && user && (
         <SidebarFooter className="border-t border-sidebar-border p-5">
           <div className="space-y-3">
-            {activeGroup && sessionMode === 'group' && (
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-[10px] border-[#FFF9F5]/30 text-[#FFF9F5]/70 font-body">
-                  {activeRole === 'ADMIN' ? 'Admin' : 'Usuário'}
-                </Badge>
-                {isMother && (
-                  <Badge variant="outline" className="text-[10px] border-cda-dourado text-cda-dourado font-body">
-                    <Crown className="h-3 w-3 mr-1" />
-                    MOTHER
-                  </Badge>
-                )}
-              </div>
-            )}
-            <div>
-              <p className="text-sm font-semibold font-body text-[#FFF9F5] truncate">
-                {profile?.nome_confeitaria || profile?.nome_completo || user?.email}
-              </p>
-              <p className="text-xs font-body text-[#FFF9F5]/60 truncate">
-                {user?.email}
-              </p>
-            </div>
-            {planoNome && !isAdmin && (
-              <div className="bg-sidebar-accent/30 rounded-md px-3 py-2 space-y-1">
-                <div className="flex items-center gap-1.5">
-                  <Crown className="h-3 w-3 text-cda-dourado" />
-                  <span className="text-xs font-semibold font-body text-sidebar-foreground">
-                    {planoNome}
-                    {profile?.plano_tipo && (
-                      <span className="ml-1 font-normal text-[#FFF9F5]/80">
-                        ({profile.plano_tipo === 'anual' ? 'Anual' : 'Mensal'})
-                      </span>
-                    )}
-                  </span>
-                </div>
-                {(profile?.plano_inicio || profile?.plano_fim) && (
-                  <div className="flex items-center gap-1.5">
-                    <CalendarDays className="h-3 w-3 text-sidebar-foreground/50" />
-                    <span className="text-[10px] font-body text-[#FFF9F5]/80">
-                      {profile?.plano_inicio
-                        ? new Date(profile.plano_inicio + 'T00:00:00').toLocaleDateString('pt-BR')
-                        : '—'}
-                      {' → '}
-                      {profile?.plano_fim
-                        ? new Date(profile.plano_fim + 'T00:00:00').toLocaleDateString('pt-BR')
-                        : '—'}
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
+
             <Button
               onClick={async () => {
                 try {
