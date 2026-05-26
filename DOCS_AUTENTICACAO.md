@@ -1,7 +1,7 @@
 # 🔐 DOCUMENTAÇÃO: Autenticação — Caixa de Açúcar
 
-**Atualizada em:** Abril 2026  
-**Versão:** 4.0
+**Atualizada em:** Maio 2026  
+**Versão:** 4.1
 
 ---
 
@@ -12,7 +12,7 @@ O Caixa de Açúcar é uma plataforma independente. A autenticação segue estes
 1. **Sem autocadastro**: A rota `/auth/signup` redireciona para `/auth/login`
 2. **Provisionamento duplo**: Novos usuários são criados pelo **admin** (painel) ou pelo **Webhook da Hotmart** (compra automática)
 3. **Login direto**: Acesso via email/senha em `/auth/login`
-4. **Convite por email**: Novos usuários recebem Magic Link para definir senha
+4. **Convite por email**: Novos usuários recebem link de definição de senha por e-mail customizado via Resend (sem Magic Link nativo do Supabase)
 
 ---
 
@@ -70,9 +70,10 @@ Verifica profiles.primeiro_acesso === true?
 
 **Fluxo:**
 1. Admin preenche formulário e confirma
-2. Edge function `criar-usuario` é invocada
-3. Sistema envia Magic Link por email ao novo usuário
-4. Usuário clica no link, define senha no primeiro acesso
+2. Edge function `criar-usuario` é invocada (com rate limit 10 req/60s por IP)
+3. Usuário é criado no Supabase Auth com senha temporária e `primeiro_acesso = true`; e-mails nativos do Supabase ficam suprimidos
+4. Edge function gera link de recovery (`admin.generateLink`) e envia e-mail customizado via Resend (`noreply@umbrelladoce.com.br`) apontando direto para `/auth/reset-password?token_hash=...`
+5. Usuário clica no link, define a própria senha e é redirecionado ao login
 
 ### 3.2 Via Webhook Hotmart (Automático)
 
@@ -186,7 +187,8 @@ Implementada em `src/lib/validacaoSenha.ts`:
 | `SUPABASE_SERVICE_ROLE_KEY` | Auto-configurado |
 | `SUPABASE_ANON_KEY` | Auto-configurado |
 | `HOTMART_HOTTOK` | Validação do webhook Hotmart |
-| `SITE_URL` | URL base para redirects de Magic Link |
+| `SITE_URL` | URL base para construir os links de recuperação/convite enviados via Resend |
+| `RESEND_API_KEY` | Envio de e-mails transacionais (convite, recuperação de senha) |
 
 ---
 
@@ -201,5 +203,6 @@ Implementada em `src/lib/validacaoSenha.ts`:
 | `src/components/admin/CriarUsuarioDialog.tsx` | Dialog de criação pelo admin |
 | `src/contexts/AuthContext.tsx` | Contexto de autenticação |
 | `src/lib/validacaoSenha.ts` | Validação de senha forte |
-| `supabase/functions/criar-usuario/index.ts` | Edge Function criação (admin) |
+| `supabase/functions/criar-usuario/index.ts` | Edge Function criação (admin) — inclui rate limit por IP |
+| `supabase/functions/enviar-recuperacao-senha/index.ts` | Edge Function de recuperação de senha (Resend) |
 | `supabase/functions/hotmart-webhook/index.ts` | Edge Function webhook Hotmart |
