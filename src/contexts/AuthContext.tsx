@@ -116,22 +116,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
           const { data: hist } = await supabase
             .from('historico_planos')
-            .select('id, plano_novo, created_at')
+            .select('id, plano_novo, tipo_evento, plano_inicio, created_at')
             .eq('user_id', data.user.id)
-            .eq('tipo_evento', 'renovacao_imersao')
+            .in('tipo_evento', ['renovacao_imersao', 'upgrade', 'downgrade_agendado', 'renovacao', 'downgrade_aplicado'])
             .gte('created_at', since)
             .order('created_at', { ascending: false })
             .limit(1)
             .maybeSingle();
 
           if (hist?.id) {
-            const flagKey = `cda-renovacao-toast-${hist.id}`;
+            const flagKey = `cda-evento-plano-toast-${hist.id}`;
             if (!localStorage.getItem(flagKey)) {
               const planoNome = hist.plano_novo === 'negocio' ? 'Caixa Business' : 'Caixa Lite';
-              toast({
-                title: '🎉 Renovação confirmada!',
-                description: `Bem-vinda ao ${planoNome}. Seus dados foram preservados.`,
-              });
+              const inicio = hist.plano_inicio
+                ? new Date(hist.plano_inicio + 'T00:00:00').toLocaleDateString('pt-BR')
+                : '';
+              const map: Record<string, { title: string; description: string }> = {
+                renovacao_imersao: {
+                  title: '🎉 Renovação confirmada!',
+                  description: `Bem-vinda ao ${planoNome}. Seus dados foram preservados.`,
+                },
+                upgrade: {
+                  title: '🚀 Upgrade liberado!',
+                  description: `Você agora está no ${planoNome}. Todos os módulos premium estão disponíveis.`,
+                },
+                renovacao: {
+                  title: '✨ Renovação confirmada!',
+                  description: `Seu ${planoNome} foi renovado. Acesso garantido sem interrupção.`,
+                },
+                downgrade_agendado: {
+                  title: 'Mudança de plano agendada',
+                  description: `Sua migração para ${planoNome} entra em vigor em ${inicio}. Até lá, nada muda.`,
+                },
+                downgrade_aplicado: {
+                  title: 'Plano atualizado',
+                  description: `Você agora está no ${planoNome}. Seus dados continuam preservados.`,
+                },
+              };
+              const m = map[hist.tipo_evento];
+              if (m) toast(m);
               localStorage.setItem(flagKey, '1');
             }
             // Limpa flags do modal de expiração da Imersão para não reaparecer
@@ -140,7 +163,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             } catch {}
           }
         } catch (e) {
-          console.warn('[AuthContext] check renovação imersão falhou:', e);
+          console.warn('[AuthContext] check evento plano falhou:', e);
         }
       }
     } catch (error: any) {
