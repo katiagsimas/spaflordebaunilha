@@ -7,26 +7,18 @@ export function PlanoGuard({ children }: { children: React.ReactNode }) {
   const { isAdmin, isLoading: isLoadingAdmin } = useIsAdmin();
   const { pathname } = useLocation();
 
-  // Aguardar carregamento
   if (isLoadingPlano || isLoadingAdmin) return null;
-
-  // Admin tem acesso total independente do plano
   if (isAdmin) return <>{children}</>;
-
-  // Configurações raiz é sempre acessível
   if (pathname === "/configuracoes") return <>{children}</>;
 
-  // Meus Insumos, Meu Planejamento e Meu Salário bloqueados para não-admin
-  // Conversa Doce é liberada para todos os usuários cujo plano permita (validado por temAcesso abaixo)
+  // Estoque/Planejamento/Meu Salário: bloqueados para Lite.
+  // Imersão tem plano "*" e passa direto pelo temAcesso abaixo.
   if (
-    pathname.startsWith("/estoque") ||
-    pathname.startsWith("/planejamento") ||
-    pathname.startsWith("/meu-salario")
+    !temAcesso(pathname) ||
+    (pathname.startsWith("/estoque") && !temAcesso("/estoque")) ||
+    (pathname.startsWith("/planejamento") && !temAcesso("/planejamento")) ||
+    (pathname.startsWith("/meu-salario") && !temAcesso("/meu-salario"))
   ) {
-    return <Navigate to="/upgrade" replace />;
-  }
-
-  if (!temAcesso(pathname)) {
     return <Navigate to="/upgrade" replace />;
   }
 

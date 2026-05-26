@@ -7,11 +7,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Loader2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Mail, Lock, Eye, EyeOff, ExternalLink } from 'lucide-react';
 
 import { z } from 'zod';
 import { toast } from 'sonner';
 import authBrandImage from '@/assets/auth-brand-image.png';
+import { URL_UPGRADE_EXTERNO } from '@/lib/constants';
 
 const loginSchema = z.object({
   email: z.string().trim().email({ message: "Email inválido" }).max(255, { message: "Email muito longo" }),
@@ -24,6 +25,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [mostrarAlterarSenha, setMostrarAlterarSenha] = useState(false);
+  const [planoExpirado, setPlanoExpirado] = useState(false);
   const { signIn, user } = useAuth();
   const navigate = useNavigate();
 
@@ -47,6 +49,7 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setPlanoExpirado(false);
     try {
       const validated = loginSchema.parse({ email: email.trim(), password });
       await signIn(validated.email, validated.password);
@@ -72,7 +75,10 @@ export default function Login() {
       } else {
         navigate('/dashboard');
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.message?.toLowerCase?.().includes('expirou')) {
+        setPlanoExpirado(true);
+      }
       if (error instanceof z.ZodError) {
         // Validation errors
       }
@@ -198,6 +204,18 @@ export default function Login() {
                       'Entrar'
                     )}
                   </Button>
+
+                  {planoExpirado && (
+                    <a
+                      href={URL_UPGRADE_EXTERNO}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full inline-flex items-center justify-center gap-2 bg-cda-coral text-cda-branco font-body font-semibold py-2.5 rounded-md hover:bg-cda-coral/90 transition-colors text-sm"
+                    >
+                      Renovar acesso à Imersão
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  )}
                 </CardFooter>
               </form>
             </Card>

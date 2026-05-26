@@ -1,8 +1,22 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-26T13:00:00Z — Padronização de cores do rodapé.
+> Última atualização: 2026-05-26T13:40:00Z — Fluxo de notificações da Imersão.
 
 ---
+
+## FLUXO DE EXPIRAÇÃO — IMERSÃO A RECEITA QUE FALTAVA — 2026-05-26 13:40 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| IM-1 | Tabela `imersao_notificacoes_log` | ✅ | Criada com campos `user_id`, `dias_restantes`, `tipo` (aluna/admin), `email_destinatario`, `enviado_em`, `erro`. Unique index `(user_id, dias_restantes, tipo, dia_BR)` garante idempotência diária. RLS: admin lê tudo via `has_role`; service_role gerencia. Grants padrão. |
+| IM-2 | Edge Function `notificar-expiracao-imersao` | ✅ | `verify_jwt = false`. Busca alunas com `plano_id='aluna_imersao'`, `ativo=true`, `plano_fim ∈ {hoje+7, hoje+3, hoje+1}` (timezone America/Sao_Paulo). Envia e-mails via Resend (`RESEND_API_KEY` reutilizada). Templates HTML inline com branding Vinho/Dourado e CTA para `https://upcaixa.umbrelladoce.com.br`. E-mail consolidado para admin via secret `EMAIL_ADMIN_IMERSAO`. Idempotência por insert na tabela de log antes do envio. |
+| IM-3 | Agendamento pg_cron `notificar-expiracao-imersao-diario` | ✅ | Job diário às 12:00 UTC (09:00 BRT) via `net.http_post` para a edge function. Inserido via `cron.schedule`. |
+| IM-4 | Redirect externo para alunas Imersão | ✅ | `src/pages/Upgrade.tsx`: se `plano.id === 'aluna_imersao'` → `window.location.href = URL_UPGRADE_EXTERNO` (`https://upcaixa.umbrelladoce.com.br`). Constante em `src/lib/constants.ts`. |
+| IM-5 | Notificações em tela (aluna) | ✅ | `AlertaExpiracaoPlano` ganhou CTA "Renovar agora" → URL externa quando plano é Imersão. Novo `ModalExpiracaoImersao` aparece uma vez por sessão (sessionStorage) em D-1 e D-0 com CTA destacado. |
+| IM-6 | CTA pós-expiração no Login | ✅ | `src/pages/auth/Login.tsx`: ao detectar erro contendo "expirou" no signIn, exibe botão coral "Renovar acesso à Imersão" → URL externa. |
+| IM-7 | Painel admin — alunas expirando | ✅ | Novo card `AlunasImersaoExpirando` em `/configuracoes/usuarios` (aba Usuários) lista alunas com `plano_fim` entre hoje e hoje+7, ordenadas por vencimento. Badge colorida por proximidade (destructive ≤1d, default ≤3d, secondary >3d). |
+
+
 
 ## PADRONIZAÇÃO VISUAL — RODAPÉ — 2026-05-26 13:00 UTC
 
