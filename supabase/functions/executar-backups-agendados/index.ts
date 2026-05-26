@@ -91,12 +91,23 @@ Deno.serve(async (req) => {
         const json = JSON.stringify(dados);
         const tamanho = `${(new Blob([json]).size / 1024).toFixed(1)} KB`;
 
+        // Upload do JSON para o bucket privado `backups`
+        const storagePath = `${ag.usuario_id}/${nome}-${Date.now()}.json`;
+        const { error: upErr } = await admin.storage
+          .from("backups")
+          .upload(storagePath, new Blob([json], { type: "application/json" }), {
+            contentType: "application/json",
+            upsert: false,
+          });
+        if (upErr) throw upErr;
+
         await admin.from("backups").insert({
           usuario_id: ag.usuario_id,
           nome,
           tamanho,
-          dados,
+          storage_path: storagePath,
         });
+
 
         const { data: prox } = await admin.rpc("calcular_proxima_execucao_backup", {
           p_frequencia: ag.frequencia,

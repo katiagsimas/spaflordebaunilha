@@ -119,28 +119,31 @@ export type Database = {
       backups: {
         Row: {
           created_at: string
-          dados: Json
+          dados: Json | null
           id: string
           nome: string
           owner_group_id: string | null
+          storage_path: string | null
           tamanho: string | null
           usuario_id: string
         }
         Insert: {
           created_at?: string
-          dados?: Json
+          dados?: Json | null
           id?: string
           nome: string
           owner_group_id?: string | null
+          storage_path?: string | null
           tamanho?: string | null
           usuario_id: string
         }
         Update: {
           created_at?: string
-          dados?: Json
+          dados?: Json | null
           id?: string
           nome?: string
           owner_group_id?: string | null
+          storage_path?: string | null
           tamanho?: string | null
           usuario_id?: string
         }
