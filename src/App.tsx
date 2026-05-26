@@ -80,6 +80,7 @@ import MeuSalario from "./pages/meu-salario/MeuSalario";
 import ConversaDoce from "./pages/conversa-doce/ConversaDoce";
 import ConversaDoceRespostas from "./pages/conversa-doce/ConversaDoceRespostas";
 import OrganizacaoDoce from "./pages/organizacao-doce/OrganizacaoDoce";
+import SSOReturnPage from "./pages/SSOReturnPage";
 
 
 const queryClient = new QueryClient();
