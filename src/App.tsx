@@ -15,6 +15,7 @@ import { LoadingMascote } from "@/components/LoadingMascote";
 import { FirstAccessRedirect } from "@/components/FirstAccessRedirect";
 import { AlertaExpiracaoPlano } from "@/components/AlertaExpiracaoPlano";
 import { PlanExpirationWatcher } from "@/components/PlanExpirationWatcher";
+import { ModalExpiracaoImersao } from "@/components/ModalExpiracaoImersao";
 import { UserMenu, UserGreeting } from "@/components/UserMenu";
 import Dashboard from "./pages/Dashboard";
 import Encomendas from "./pages/Encomendas";
@@ -161,6 +162,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
           </header>
           <AlertaExpiracaoPlano />
+          <ModalExpiracaoImersao />
           <main className="flex-1 p-6 md:p-8 bg-app">
             <FirstAccessRedirect />
             {children}
