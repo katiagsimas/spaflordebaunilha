@@ -5,7 +5,6 @@ export type BackupModuloId =
   | "operacao"
   | "comercial"
   | "negocio"
-  | "planejamento"
   | "sistema";
 
 export interface BackupModuloDef {
@@ -84,18 +83,6 @@ export const BACKUP_MODULOS: BackupModuloDef[] = [
       "fechamentos_mensais",
       "fechamento_logs",
       "fechamento_checklist_itens",
-    ],
-  },
-  {
-    id: "planejamento",
-    titulo: "Planejamento",
-    descricao: "Metas, tarefas, datas comemorativas e bem-estar",
-    tabelas: [
-      "planejamento_metas",
-      "planejamento_tarefas",
-      "planejamento_datas_comemorativas",
-      "planejamento_descanso",
-      "organizacao_doce_state",
     ],
   },
   {
