@@ -169,7 +169,7 @@ Demonstrativo de Resultados do Exercício:
 
 ---
 
-## 6. DASHBOARD FINANCEIRO
+## 8. DASHBOARD FINANCEIRO
 
 **Rota:** `/financeiro/dashboard`
 
@@ -180,7 +180,7 @@ Utiliza view `vw_contas_receber_dashboard`:
 
 ---
 
-## 7. CONFIGURAÇÕES FINANCEIRAS
+## 9. CONFIGURAÇÕES FINANCEIRAS
 
 | Configuração | Rota | Tabela |
 |-------------|------|--------|
@@ -196,7 +196,7 @@ Utiliza view `vw_contas_receber_dashboard`:
 
 ---
 
-## 8. RLS
+## 10. RLS
 
 ### Tabelas principais
 `contas_receber`, `contas_pagar`: `auth.uid() = usuario_id`
@@ -213,7 +213,7 @@ EXISTS (
 
 ---
 
-## 9. INTEGRAÇÃO COM ENCOMENDAS
+## 11. INTEGRAÇÃO COM ENCOMENDAS
 
 Encomendas podem gerar contas a receber automaticamente:
 - `encomendas.conta_receber_id` → FK para `contas_receber.id`
@@ -221,7 +221,7 @@ Encomendas podem gerar contas a receber automaticamente:
 
 ---
 
-## 10. VIEWS
+## 12. VIEWS
 
 | View | Descrição |
 |------|-----------|
