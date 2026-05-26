@@ -194,6 +194,9 @@ const App = () => (
             
             <Route path="/auth/forgot-password" element={<ForgotPassword />} />
             <Route path="/auth/reset-password" element={<ResetPassword />} />
+
+            {/* SSO público — retorno do Planejamento D.O.C.E. */}
+            <Route path="/sso-return" element={<SSOReturnPage />} />
           {/* Redirecionar raiz para Dashboard */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           
