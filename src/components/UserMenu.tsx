@@ -23,6 +23,31 @@ export function getPrimeiroNome(nomeCompleto?: string | null, fallbackEmail?: st
   return "Confeiteira";
 }
 
+export function UserGreeting() {
+  const { user } = useAuth();
+  const { data: profile } = useQuery({
+    queryKey: ["profile-menu", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from("profiles")
+        .select("nome_completo")
+        .eq("id", user.id)
+        .single();
+      return data;
+    },
+    enabled: !!user,
+    staleTime: 1000 * 60 * 5,
+  });
+  if (!user) return null;
+  const primeiroNome = getPrimeiroNome(profile?.nome_completo, user?.email);
+  return (
+    <span className="hidden md:inline text-sm font-body text-cda-creme">
+      Olá, <span className="font-semibold text-cda-dourado">{primeiroNome}</span>!
+    </span>
+  );
+}
+
 export function UserMenu() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
@@ -61,9 +86,7 @@ export function UserMenu() {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="hidden md:inline text-sm font-body text-cda-creme">
-        Olá, <span className="font-semibold text-cda-dourado">{primeiroNome}</span>!
-      </span>
+
 
       <Popover>
         <PopoverTrigger asChild>
