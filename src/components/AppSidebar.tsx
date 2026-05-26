@@ -55,6 +55,9 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
       { title: "Meu Painel", url: "/dashboard", icon: LayoutDashboard, active: true },
       { title: "Meu Dinheiro", url: "/financeiro", icon: Wallet, active: true },
       { title: "Meu Salário", url: "/meu-salario", icon: Sparkles, active: true, adminOnly: true },
+      { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false, comingSoonMessage: "Em breve você terá um plano claro para organizar sua produção, suas vendas e crescer com estratégia.", motherOnly: true },
+      { title: "Conversa Doce", url: "/conversa-doce", icon: MessageCircle, active: true, conversaDoce: true },
+      { title: "Planejamento Doce", url: "/planejamento-doce", icon: Sparkles, active: false, motherUnlock: true, comingSoonMessage: "Estamos preparando algo especial para você! Em breve, o Planejamento Doce estará disponível para te ajudar a organizar seu ano com campanhas, metas e estratégias para crescer com doçura." },
     ],
   },
   {
@@ -71,14 +74,6 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
     items: [
       { title: "Pedidos e Encomendas", url: "/encomendas", icon: ClipboardList, active: true },
       { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: Users, active: true },
-    ],
-  },
-  {
-    label: "MEU MUNDO DOCE",
-    items: [
-      { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false, comingSoonMessage: "Em breve você terá um plano claro para organizar sua produção, suas vendas e crescer com estratégia.", motherOnly: true },
-      { title: "Conversa Doce", url: "/conversa-doce", icon: MessageCircle, active: true, conversaDoce: true },
-      { title: "Planejamento Doce", url: "/planejamento-doce", icon: Sparkles, active: false, motherUnlock: true, comingSoonMessage: "Estamos preparando algo especial para você! Em breve, o Planejamento Doce estará disponível para te ajudar a organizar seu ano com campanhas, metas e estratégias para crescer com doçura." },
     ],
   },
   {
