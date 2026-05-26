@@ -65,7 +65,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
     label: "PLANEJAMENTO",
     items: [
       { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false, comingSoonMessage: "Em breve você terá um plano claro para organizar sua produção, suas vendas e crescer com estratégia.", adminOnly: true },
-      { title: "Conversa Doce", url: "/n", icon: MessageCircle, active: true },
+      { title: "Conversa Doce", url: "/conversa-doce", icon: MessageCircle, active: true },
     ],
   },
   {
