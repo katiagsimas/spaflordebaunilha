@@ -31,7 +31,7 @@ export default function Planejamento() {
   const { profile } = useUserProfile();
   const { plano } = usePlano();
   const { isAdmin } = useIsAdmin();
-  const { open: openPlannerDoce, loading: loadingSsoDoce } = useOpenPlannerDoce();
+  const { abrir: abrirPlannerDoce, loading: loadingSsoDoce } = useOpenPlannerDoce();
   const podeAcessarPlanejamentoDoce =
     plano?.id === "negocio" || plano?.id === "aluna_imersao" || isAdmin;
 
