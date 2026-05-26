@@ -21,6 +21,8 @@
 
 ## Pendências Resolvidas (Histórico)
 
+| 2026-05-26 | #20 — Sem cap de uso para AI Gateway | Implementado P-3: edge function `ai-proxy` + `ai_usage_quotas` + RPCs SECURITY DEFINER. Lite=50/mês, Business=500/mês, MOTHER ilimitado. |
+
 | Data (UTC) | Item | Resolução |
 |------------|------|-----------|
 | 2026-03-08 | Loop infinito no AuthContext (`toast` nas deps) | Removido `toast` do array de dependências do `useEffect` |
