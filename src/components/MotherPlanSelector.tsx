@@ -1,4 +1,5 @@
 import { Crown, Eye } from "lucide-react";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -29,9 +30,16 @@ export function MotherPlanSelector() {
   const current: string = view ?? "default";
 
   const handleChange = (v: string) => {
-    setMotherView(v === "default" ? null : (v as MotherViewPlan));
+    const newView = v === "default" ? null : (v as MotherViewPlan);
+    setMotherView(newView);
     // Atualiza queries que dependem do plano (sidebar, dashboards, gates)
     queryClient.invalidateQueries({ queryKey: ["plano"] });
+
+    const label = OPCOES.find((o) => o.value === v)?.label ?? "Modo alterado";
+    toast.success(label, {
+      description: "Visualização atualizada. O sistema recarregará as permissões conforme o plano selecionado.",
+      duration: 4000,
+    });
   };
 
   return (
