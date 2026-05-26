@@ -17,6 +17,7 @@ import { AlertaExpiracaoPlano } from "@/components/AlertaExpiracaoPlano";
 import { PlanExpirationWatcher } from "@/components/PlanExpirationWatcher";
 import { ModalExpiracaoImersao } from "@/components/ModalExpiracaoImersao";
 import { UserMenu, UserGreeting } from "@/components/UserMenu";
+import { MotherPlanSelector } from "@/components/MotherPlanSelector";
 import Dashboard from "./pages/Dashboard";
 import Encomendas from "./pages/Encomendas";
 import Precificacao from "./pages/Precificacao";
@@ -158,11 +159,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           )}
           
           <header className="sticky top-0 z-10 h-14 border-b border-cda-dourado/30 shadow-sm bg-cda-vinho text-cda-creme">
-            <div className="flex h-full items-center justify-between px-4 gap-3">
-              <div className="flex items-center gap-3">
+            <div className="flex h-full items-center px-4 gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <SidebarToggleLabeled />
                 <div className="h-6 w-px bg-cda-creme/30 hidden sm:block" />
                 <UserGreeting />
+              </div>
+              <div className="flex-1 flex items-center justify-center">
+                <MotherPlanSelector />
               </div>
               <div className="flex items-center gap-2">
                 <BackupBadge texto={ultimoBackupTexto} />
