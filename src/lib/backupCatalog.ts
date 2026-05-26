@@ -110,7 +110,7 @@ export const BACKUP_MODULOS: BackupModuloDef[] = [
   {
     id: "governanca",
     titulo: "Governança / Usuários",
-    descricao: "Grupos, papéis globais e por grupo, perfis e logs administrativos (apenas MOTHER)",
+    descricao: "Grupos, papéis globais e por grupo, perfis e histórico de planos (apenas MOTHER)",
     motherOnly: true,
     tabelas: [
       "groups",
@@ -118,7 +118,6 @@ export const BACKUP_MODULOS: BackupModuloDef[] = [
       "user_group_roles",
       "user_roles",
       "profiles",
-      "admin_logs",
       "historico_planos",
     ],
   },
