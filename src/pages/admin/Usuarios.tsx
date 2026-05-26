@@ -611,7 +611,7 @@ export default function Usuarios() {
                         <TableCell>{profile.email}</TableCell>
                         <TableCell>
                           <Badge variant="outline" className="font-body text-xs">
-                            {profile.plano_id === 'negocio' ? 'Business' : profile.plano_id === 'controle' ? 'Controle' : 'Lite'}
+                            {profile.plano_id === 'negocio' ? 'Business' : profile.plano_id === 'aluna_imersao' ? 'Imersão' : profile.plano_id === 'controle' ? 'Controle' : 'Lite'}
                           </Badge>
                         </TableCell>
                         <TableCell>
