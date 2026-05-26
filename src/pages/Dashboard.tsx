@@ -27,7 +27,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
-import { useOpenPlannerDoce } from "@/hooks/useOpenPlannerDoce";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserProfile } from "@/hooks/useUserProfile";
