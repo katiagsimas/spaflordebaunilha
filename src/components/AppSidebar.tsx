@@ -41,10 +41,12 @@ interface MenuItem {
   active: boolean;
   adminOnly?: boolean;
   motherOnly?: boolean;
+  motherUnlock?: boolean;
   ssoDoce?: boolean;
   conversaDoce?: boolean;
   comingSoonMessage?: string;
 }
+
 
 const menuSections: { label: string; items: MenuItem[] }[] = [
   {
