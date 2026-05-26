@@ -383,17 +383,18 @@ export function AppSidebar() {
               <LogOut className="h-4 w-4 mr-2" />
               Sair
             </Button>
-            {isMother && (
-              <Button
-                onClick={() => setDiagOpen(true)}
-                variant="ghost"
-                size="sm"
-                className="w-full text-[#FFF9F5]/50 hover:text-cda-dourado font-body text-xs"
-              >
-                <Bug className="h-3.5 w-3.5 mr-2" />
-                Diagnóstico do Menu
-              </Button>
-            )}
+            <Button
+              onClick={() => {
+                console.log('[Sidebar Diag]', { isAdmin, isMother, isPlanoLoading, userEmail: user?.email });
+                setDiagOpen(true);
+              }}
+              variant="ghost"
+              size="sm"
+              className="w-full text-[#FFF9F5]/50 hover:text-cda-dourado font-body text-xs border border-cda-dourado/30"
+            >
+              <Bug className="h-3.5 w-3.5 mr-2" />
+              Diagnóstico do Menu
+            </Button>
           </div>
         </SidebarFooter>
       )}
