@@ -18,7 +18,8 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { BACKUP_MODULOS, DEFAULT_MODULOS, tabelasDosModulos, type BackupModuloId } from "@/lib/backupCatalog";
+import { BACKUP_MODULOS, DEFAULT_MODULOS, tabelasDosModulos, modulosDisponiveis, type BackupModuloId } from "@/lib/backupCatalog";
+import { useGroup } from "@/contexts/GroupContext";
 
 interface BackupRecord {
   id: string;
