@@ -1905,6 +1905,36 @@ export type Database = {
           },
         ]
       }
+      imersao_notificacoes_log: {
+        Row: {
+          dias_restantes: number
+          email_destinatario: string
+          enviado_em: string
+          erro: string | null
+          id: string
+          tipo: string
+          user_id: string | null
+        }
+        Insert: {
+          dias_restantes: number
+          email_destinatario: string
+          enviado_em?: string
+          erro?: string | null
+          id?: string
+          tipo: string
+          user_id?: string | null
+        }
+        Update: {
+          dias_restantes?: number
+          email_destinatario?: string
+          enviado_em?: string
+          erro?: string | null
+          id?: string
+          tipo?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       ingredientes: {
         Row: {
           categoria: string | null
