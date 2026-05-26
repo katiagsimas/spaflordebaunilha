@@ -1,6 +1,7 @@
 # 📦 DOCUMENTAÇÃO: Módulo de Estoque — Caixa de Açúcar
 
 **Criado em:** Maio 2026
+**Última atualização:** 26/05/2026
 
 ---
 
@@ -10,7 +11,9 @@ Módulo de controle de estoque de ingredientes e embalagens para confeitarias. P
 
 ### Acesso
 - **Caixa Lite**: ❌ Não tem acesso
-- **Caixa Business / Caixa Start**: ✅ Acesso completo
+- **Caixa Business**: ✅ Acesso completo
+- **Aluna Imersão (`aluna_imersao`)**: ✅ Acesso completo (equivalente Business por 30 dias)
+- **Caixa Start**: ⚠️ Plano descontinuado em 25/05/2026 — usuários legados mantêm acesso
 - **Admin**: ✅ Acesso total independente do plano
 
 ---
@@ -83,7 +86,7 @@ Na saída: custo médio não muda, apenas quantidade diminui.
 | `/estoque/ajuste` | Formulário de ajuste manual (perda/doação/correção) |
 | `/estoque/movimentacoes` | Histórico de movimentações |
 
-Todas protegidas por `PlanoGuard` (requer Business/Start).
+Todas protegidas por `PlanoGuard` (requer Business, `aluna_imersao` ou Start legado).
 
 ---
 

@@ -1,7 +1,7 @@
 # 🔐 DOCUMENTAÇÃO: Autenticação — Caixa de Açúcar
 
-**Atualizada em:** Maio 2026  
-**Versão:** 4.1
+**Atualizada em:** 26/05/2026  
+**Versão:** 4.2
 
 ---
 
@@ -65,8 +65,8 @@ Verifica profiles.primeiro_acesso === true?
 | Email | ✅ | Email do novo usuário |
 | Nome Completo | ❌ | Nome completo |
 | Nome da Confeitaria | ❌ | Nome da confeitaria |
-| Plano | ✅ | `base` ou `negocio` |
-| Periodicidade | ✅ | `mensal` (30 dias) ou `anual` (365 dias) |
+| Plano | ✅ | `base` (Lite), `negocio` (Business) ou `aluna_imersao` (30 dias Business — provisionamento manual fora do webhook Hotmart) |
+| Periodicidade | ✅ | `mensal` (30 dias) ou `anual` (365 dias). `aluna_imersao` é fixado em 30 dias |
 
 **Fluxo:**
 1. Admin preenche formulário e confirma
@@ -95,10 +95,28 @@ Verifica profiles.primeiro_acesso === true?
 | `PURCHASE_PROTEST` | Ignorado |
 
 **Detecção de plano:** O sistema analisa o nome do plano/oferta da Hotmart:
-- Contém "business/caixa business/negócio/negocio" → Caixa Business
-- Caso contrário → Caixa Lite
+- Contém "business/caixa business/negócio/negocio" → Caixa Business (`negocio`)
+- Caso contrário → Caixa Lite (`base`)
 - Contém "anual/annual/yearly" → Anual (365 dias)
 - Caso contrário → Mensal (30 dias)
+- ⚠️ **Plano Start descontinuado em 25/05/2026** — o webhook não provisiona mais Start; usuários legados permanecem ativos.
+- ℹ️ **Plano `aluna_imersao` NÃO é provisionado pelo webhook** — é criado manualmente via painel admin (ver `MODULO_IMERSAO`).
+
+### 3.3 Upgrade/Downgrade Agendado (`plano_pendente_*`)
+
+Quando a aluna troca de plano antes do vencimento, o webhook **não** altera o plano ativo imediatamente. Em vez disso grava em `profiles`:
+
+| Coluna | Descrição |
+|--------|-----------|
+| `plano_pendente` | Novo plano que entrará em vigor |
+| `plano_pendente_periodicidade` | `mensal` / `anual` |
+| `plano_pendente_data_aplicacao` | Data em que o novo plano deve ser aplicado (geralmente `acesso_expira_em` atual) |
+
+A edge function **`aplicar-planos-pendentes`** roda diariamente (cron) e, para todos os perfis com `plano_pendente_data_aplicacao <= now()`:
+1. Move `plano_pendente_*` → `plano` / `periodicidade`
+2. Recalcula `acesso_expira_em`
+3. Registra evento em `historico_planos` (`tipo_evento = 'downgrade_agendado'` ou `'upgrade_agendado'`)
+4. Limpa os campos `plano_pendente_*`
 
 **URL do Webhook:** `https://lypifrxdzjfdgkcacubl.supabase.co/functions/v1/hotmart-webhook`
 
@@ -206,3 +224,5 @@ Implementada em `src/lib/validacaoSenha.ts`:
 | `supabase/functions/criar-usuario/index.ts` | Edge Function criação (admin) — inclui rate limit por IP |
 | `supabase/functions/enviar-recuperacao-senha/index.ts` | Edge Function de recuperação de senha (Resend) |
 | `supabase/functions/hotmart-webhook/index.ts` | Edge Function webhook Hotmart |
+| `supabase/functions/aplicar-planos-pendentes/index.ts` | Cron diário que efetiva upgrades/downgrades agendados (`plano_pendente_*`) |
+| `supabase/functions/notificar-expiracao-imersao/index.ts` | Notificações de fim de acesso para `aluna_imersao` |
