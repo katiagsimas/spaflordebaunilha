@@ -215,7 +215,7 @@ Deno.serve(async (req) => {
 
       const { data: existingProfile } = await supabaseAdmin
         .from('profiles')
-        .select('id, ativo')
+        .select('id, ativo, plano_id')
         .eq('email', email)
         .single()
 
@@ -228,6 +228,11 @@ Deno.serve(async (req) => {
       }
 
       let userId: string
+      // Renovação a partir da Imersão: plano antigo era aluna_imersao e novo é Lite/Business
+      const ehRenovacaoImersao =
+        existingProfile?.plano_id === 'aluna_imersao' &&
+        (planoId === 'base' || planoId === 'negocio')
+      const planoAnterior = existingProfile?.plano_id ?? null
 
       if (existingUser && existingProfile) {
         userId = existingUser.id
@@ -242,11 +247,14 @@ Deno.serve(async (req) => {
           })
           .eq('id', userId)
 
-        if (existingProfile.ativo === false) {
+        if (ehRenovacaoImersao) {
+          await enviarEmailRenovacaoAluna(email, buyerName, planoId, planoFim)
+          await enviarEmailRenovacaoAdmin(email, buyerName, planoId, planoFim, `${product.id ?? ''}/${offerCode ?? ''}`)
+        } else if (existingProfile.ativo === false) {
           await enviarEmailBoasVindas(email, buyerName, planoId)
         }
 
-        console.log('Usuário existente atualizado:', userId)
+        console.log('Usuário existente atualizado:', userId, ehRenovacaoImersao ? '(RENOVACAO_IMERSAO)' : '')
       } else if (existingUser && !existingProfile) {
         userId = existingUser.id
         await supabaseAdmin
@@ -298,12 +306,14 @@ Deno.serve(async (req) => {
       // Record plan history
       await supabaseAdmin.from('historico_planos').insert({
         user_id: userId,
+        plano_anterior: ehRenovacaoImersao ? planoAnterior : null,
         plano_novo: planoId,
         plano_tipo_novo: planoTipo,
         plano_inicio: planoInicio,
         plano_fim: planoFim,
-        tipo_evento: 'criacao',
+        tipo_evento: ehRenovacaoImersao ? 'renovacao_imersao' : 'criacao',
         origem: 'webhook',
+        observacao: ehRenovacaoImersao ? `Renovação Imersão → ${planoId}` : null,
       })
 
       console.log('=== Hotmart Webhook - Usuário provisionado ===')
