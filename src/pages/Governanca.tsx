@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Shield, FileText, ChevronRight } from "lucide-react";
+import { Shield, FileText, Archive, ChevronRight } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { PermissionGuard } from "@/components/PermissionGuard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
