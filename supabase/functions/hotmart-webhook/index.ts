@@ -184,6 +184,25 @@ Deno.serve(async (req) => {
     // === EVENTOS DE ATIVAÇÃO ===
     if (['PURCHASE_APPROVED', 'PURCHASE_COMPLETE'].includes(event)) {
       const offer = (purchase.offer || {}) as Record<string, unknown>
+      const transactionId = (purchase.transaction as string | undefined)?.toString().trim() || null
+
+      // Idempotência: se a transaction Hotmart já foi processada, ignorar reenvios
+      if (transactionId) {
+        const { data: jaProcessada } = await supabaseAdmin
+          .from('historico_planos')
+          .select('id')
+          .ilike('observacao', `%tx:${transactionId}%`)
+          .limit(1)
+          .maybeSingle()
+        if (jaProcessada) {
+          console.log('=== Hotmart Webhook - Transaction já processada, ignorando reenvio ===', transactionId)
+          return new Response(
+            JSON.stringify({ success: true, event, action: 'duplicate_ignored', transaction: transactionId }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+          )
+        }
+      }
+
       // Concatenar todos os campos possíveis para maximizar detecção de palavras-chave
       const planNameParts = [
         plan.name,
