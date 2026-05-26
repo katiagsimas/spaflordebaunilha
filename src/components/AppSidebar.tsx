@@ -324,6 +324,31 @@ export function AppSidebar() {
           </DialogHeader>
         </DialogContent>
       </Dialog>
+
+      {/* Modal "Upgrade necessário" para usuárias Lite */}
+      <Dialog open={!!upgradeModal} onOpenChange={() => setUpgradeModal(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 font-display text-xl">
+              {upgradeModal?.title} <Lock className="h-5 w-5 text-cda-dourado" />
+            </DialogTitle>
+            <DialogDescription className="text-base font-body text-muted-foreground pt-2">
+              Este módulo é exclusivo do <strong>Plano Caixa Business</strong>. Faça o upgrade do seu plano para liberar <strong>{upgradeModal?.title}</strong> e todas as ferramentas avançadas do Caixa de Açúcar.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end pt-2">
+            <a
+              href="https://caixa.umbrelladoce.com.br"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setUpgradeModal(null)}
+              className="inline-flex items-center justify-center rounded-md bg-cda-coral px-5 py-2.5 text-sm font-semibold font-body text-cda-preto shadow hover:opacity-90 transition"
+            >
+              Quero fazer o upgrade
+            </a>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Sidebar>
   );
 }
