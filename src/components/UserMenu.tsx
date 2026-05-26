@@ -155,15 +155,41 @@ export function UserMenu() {
           align="end"
           className="w-80 p-0 overflow-hidden border-cda-dourado/30"
         >
-          {/* Header com saudação + badges */}
-          <div className="bg-gradient-to-b from-cda-vinho-escuro to-cda-vinho text-cda-creme px-4 py-4 space-y-2">
-            <div>
-              <p className="text-xs uppercase tracking-wider text-cda-creme/70 font-body">
-                Olá,
-              </p>
-              <p className="font-display text-xl text-cda-dourado leading-tight">
-                {primeiroNome}!
-              </p>
+          {/* Header com avatar + saudação + badges */}
+          <div className="bg-gradient-to-b from-cda-vinho-escuro to-cda-vinho text-cda-creme px-4 py-4 space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Avatar className="h-14 w-14 ring-2 ring-cda-dourado/60">
+                  {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt={primeiroNome} />}
+                  <AvatarFallback className="bg-cda-dourado/20 text-cda-dourado font-display text-lg">
+                    {iniciais}
+                  </AvatarFallback>
+                </Avatar>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  aria-label="Alterar foto"
+                  className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-cda-dourado text-cda-preto flex items-center justify-center shadow ring-2 ring-cda-vinho hover:bg-cda-dourado/90 disabled:opacity-60"
+                >
+                  {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarUpload}
+                />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs uppercase tracking-wider text-cda-creme/70 font-body">
+                  Olá,
+                </p>
+                <p className="font-display text-xl text-cda-dourado leading-tight truncate">
+                  {primeiroNome}!
+                </p>
+              </div>
             </div>
             {mostraBadges && (
               <div className="flex items-center gap-2 flex-wrap pt-1">
