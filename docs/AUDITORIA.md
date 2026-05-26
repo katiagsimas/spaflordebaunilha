@@ -870,3 +870,20 @@ Substituiu a abordagem com Vault (que exigia `vault.create_secret` manual no SQL
 - Edge function `criar-usuario`: aceita `imersaoTurma`, marca `origem_criacao='imersao'`, email de boas-vindas com bloco específico mencionando Hotmart Club para gravações/Playbook.
 - Lib centralizada `src/lib/planos.ts` (`PLANO_LABELS`, `getPlanoLabel`, `IMERSAO_DIAS_ACESSO`).
 - Provisionamento manual (não passa pelo webhook Hotmart). Após 30 dias `plano_fim` expira e o `AuthContext` bloqueia o login — dados preservados para reativação.
+
+---
+
+## 2026-05-26 — Renovação automática de alunas da Imersão (Hotmart)
+
+**Implementado:**
+- Webhook `hotmart-webhook` detecta transição `aluna_imersao → base/negocio` e registra `tipo_evento = 'renovacao_imersao'` em `historico_planos` (com `plano_anterior` preenchido).
+- Dois e-mails via Resend disparados imediatamente:
+  - Aluna: confirmação branded (Vinho/Dourado) com nova validade e CTA para o app.
+  - Admin (`EMAIL_ADMIN_IMERSAO`): resumo da renovação (nome, e-mail, plano novo, validade, productId/offerCode).
+- `AuthContext.signIn`: toast "🎉 Renovação confirmada" no primeiro login após renovação (flag em `localStorage` por `historico_planos.id`).
+
+**Ofertas Hotmart cadastradas em `hotmart_produtos`:**
+- Caixa Lite anual — productId `7449074`, offerCode `6yjlyf2i`
+- Caixa Business anual — productId `7448785`, offerCode `oytrdfwm`
+
+**Dados preservados:** id do usuário, grupo, cadastros e histórico. Apenas `plano_id`, `plano_tipo`, `plano_inicio`, `plano_fim` e `ativo` são atualizados.

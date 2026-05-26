@@ -109,6 +109,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         title: '✅ Bem-vindo(a) de volta!',
         description: 'Login realizado com sucesso.',
       });
+
+      // Toast de boas-vindas após renovação automática a partir da Imersão
+      if (data.user) {
+        try {
+          const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+          const { data: hist } = await supabase
+            .from('historico_planos')
+            .select('id, plano_novo, created_at')
+            .eq('user_id', data.user.id)
+            .eq('tipo_evento', 'renovacao_imersao')
+            .gte('created_at', since)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          if (hist?.id) {
+            const flagKey = `cda-renovacao-toast-${hist.id}`;
+            if (!localStorage.getItem(flagKey)) {
+              const planoNome = hist.plano_novo === 'negocio' ? 'Caixa Business' : 'Caixa Lite';
+              toast({
+                title: '🎉 Renovação confirmada!',
+                description: `Bem-vinda ao ${planoNome}. Seus dados foram preservados.`,
+              });
+              localStorage.setItem(flagKey, '1');
+            }
+          }
+        } catch (e) {
+          console.warn('[AuthContext] check renovação imersão falhou:', e);
+        }
+      }
     } catch (error: any) {
       let message = 'Erro ao fazer login. Tente novamente.';
       
