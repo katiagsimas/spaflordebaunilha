@@ -91,12 +91,14 @@ Deno.serve(async (req) => {
     }
 
     const requestBody = await req.json()
-    const { email, nomeCompleto, nomeConfeitaria, planoId, role } = requestBody
+    const { email, nomeCompleto, nomeConfeitaria, planoId, role, imersaoTurma } = requestBody
 
     const planoTipo = requestBody.planoTipo || null
     const hoje = new Date().toISOString().split('T')[0]
     let planoInicio: string | null = requestBody.planoInicio || hoje
     let planoFim: string | null = null
+
+    const diasMap: Record<string, number> = { anual: 365, mensal: 30, imersao: 30 }
 
     if (requestBody.planoFim) {
       planoFim = requestBody.planoFim
@@ -104,11 +106,13 @@ Deno.serve(async (req) => {
       planoFim = requestBody.planoExpiraEm.split('T')[0]
     } else if (planoTipo) {
       const fim = new Date(planoInicio!)
-      fim.setDate(fim.getDate() + (planoTipo === 'anual' ? 365 : 30))
+      fim.setDate(fim.getDate() + (diasMap[planoTipo] ?? 365))
       planoFim = fim.toISOString().split('T')[0]
     }
 
-    console.log('Dados:', { email, nomeCompleto, nomeConfeitaria, planoId, planoTipo, planoInicio, planoFim })
+    const isImersao = planoId === 'aluna_imersao'
+
+    console.log('Dados:', { email, nomeCompleto, nomeConfeitaria, planoId, planoTipo, planoInicio, planoFim, imersaoTurma })
 
     // Verificar se o usuário existe no Auth
     const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers()
@@ -121,12 +125,16 @@ Deno.serve(async (req) => {
       .eq('email', email)
       .single()
 
-    const planoFields = {
+    const planoFields: Record<string, any> = {
       plano_id: planoId || null,
       plano_tipo: planoTipo,
       plano_inicio: planoInicio,
       plano_fim: planoFim,
-      origem_criacao: 'admin',
+      origem_criacao: isImersao ? 'imersao' : 'admin',
+    }
+
+    if (isImersao) {
+      planoFields.imersao_turma = imersaoTurma || null
     }
 
     let userId: string
