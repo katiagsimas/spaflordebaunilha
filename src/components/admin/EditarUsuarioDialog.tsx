@@ -322,6 +322,9 @@ export function EditarUsuarioDialog({
           plano_tipo: data.planoTipo,
           plano_inicio: planoInicio ? formatDateToISO(planoInicio) : null,
           plano_fim: planoFim ? formatDateToISO(planoFim) : null,
+          conversa_doce_ativo: conversaDoceAtivo,
+          conversa_doce_inicio: conversaDoceInicio ? formatDateToISO(conversaDoceInicio) : null,
+          conversa_doce_fim: conversaDoceFim ? formatDateToISO(conversaDoceFim) : null,
         } as any)
         .eq('id', userId);
 
