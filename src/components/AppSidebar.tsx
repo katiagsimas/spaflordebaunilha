@@ -199,7 +199,7 @@ export function AppSidebar() {
               <SidebarGroupContent>
                 <SidebarMenu>
                   {section.items
-                    .filter((item) => (!item.adminOnly || isAdmin) && (!item.motherOnly || isMother) && (!item.ssoDoce || podeAcessarSsoDoce))
+                    .filter((item) => (!item.adminOnly || isAdmin) && (!item.motherOnly || isMother) && (!item.ssoDoce || podeAcessarSsoDoce) && (!item.conversaDoce || podeAcessarConversaDoce))
                     .map((item) => {
                       const Icon = item.icon;
                       const bloqueado = !isPlanoLoading && !isAdmin && item.active && rotaBloqueada(item.url);
