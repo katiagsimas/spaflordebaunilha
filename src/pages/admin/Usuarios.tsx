@@ -28,6 +28,7 @@ import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState';
 
 import { EditarUsuarioDialog } from '@/components/admin/EditarUsuarioDialog';
+import { getPlanoLabel } from '@/lib/planos';
 import { CriarUsuarioDialog } from '@/components/admin/CriarUsuarioDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { toast } from '@/hooks/use-toast';
@@ -197,7 +198,7 @@ export default function Usuarios() {
         'Nome Completo': usuario.nome_completo || 'N/A',
         'Status': usuario.ativo !== false ? 'Ativo' : 'Inativo',
         'Permissão': isAdmin ? 'Administrador' : 'Usuário',
-        'Plano': usuario.plano_id === 'negocio' ? 'Caixa Business' : 'Caixa Lite',
+        'Plano': getPlanoLabel(usuario.plano_id),
         'Início do Plano': usuario.plano_inicio ? new Date(usuario.plano_inicio + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A',
         'Expiração do Plano': usuario.plano_fim ? new Date(usuario.plano_fim + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A',
       };
@@ -610,7 +611,7 @@ export default function Usuarios() {
                         <TableCell>{profile.email}</TableCell>
                         <TableCell>
                           <Badge variant="outline" className="font-body text-xs">
-                            {profile.plano_id === 'negocio' ? 'Business' : profile.plano_id === 'controle' ? 'Controle' : 'Lite'}
+                            {profile.plano_id === 'negocio' ? 'Business' : profile.plano_id === 'aluna_imersao' ? 'Imersão' : profile.plano_id === 'controle' ? 'Controle' : 'Lite'}
                           </Badge>
                         </TableCell>
                         <TableCell>

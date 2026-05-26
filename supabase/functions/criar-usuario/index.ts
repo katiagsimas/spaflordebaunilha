@@ -91,12 +91,14 @@ Deno.serve(async (req) => {
     }
 
     const requestBody = await req.json()
-    const { email, nomeCompleto, nomeConfeitaria, planoId, role } = requestBody
+    const { email, nomeCompleto, nomeConfeitaria, planoId, role, imersaoTurma } = requestBody
 
     const planoTipo = requestBody.planoTipo || null
     const hoje = new Date().toISOString().split('T')[0]
     let planoInicio: string | null = requestBody.planoInicio || hoje
     let planoFim: string | null = null
+
+    const diasMap: Record<string, number> = { anual: 365, mensal: 30, imersao: 30 }
 
     if (requestBody.planoFim) {
       planoFim = requestBody.planoFim
@@ -104,11 +106,13 @@ Deno.serve(async (req) => {
       planoFim = requestBody.planoExpiraEm.split('T')[0]
     } else if (planoTipo) {
       const fim = new Date(planoInicio!)
-      fim.setDate(fim.getDate() + (planoTipo === 'anual' ? 365 : 30))
+      fim.setDate(fim.getDate() + (diasMap[planoTipo] ?? 365))
       planoFim = fim.toISOString().split('T')[0]
     }
 
-    console.log('Dados:', { email, nomeCompleto, nomeConfeitaria, planoId, planoTipo, planoInicio, planoFim })
+    const isImersao = planoId === 'aluna_imersao'
+
+    console.log('Dados:', { email, nomeCompleto, nomeConfeitaria, planoId, planoTipo, planoInicio, planoFim, imersaoTurma })
 
     // Verificar se o usuário existe no Auth
     const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers()
@@ -121,12 +125,16 @@ Deno.serve(async (req) => {
       .eq('email', email)
       .single()
 
-    const planoFields = {
+    const planoFields: Record<string, any> = {
       plano_id: planoId || null,
       plano_tipo: planoTipo,
       plano_inicio: planoInicio,
       plano_fim: planoFim,
-      origem_criacao: 'admin',
+      origem_criacao: isImersao ? 'imersao' : 'admin',
+    }
+
+    if (isImersao) {
+      planoFields.imersao_turma = imersaoTurma || null
     }
 
     let userId: string
@@ -289,19 +297,30 @@ async function enviarEmailBoasVindas(
 
   const nomeDisplay = escapeHtml(nome || 'Confeiteira')
   const emailSafe = escapeHtml(email)
-  const planoNome = planoId === 'negocio' ? 'Caixa Business' : 'Caixa Lite'
+  const planoNome =
+    planoId === 'negocio' ? 'Caixa Business'
+    : planoId === 'aluna_imersao' ? 'Aluna da Imersão (30 dias de acesso completo)'
+    : 'Caixa Lite'
+
+  const blocoImersao = planoId === 'aluna_imersao' ? `
+      <div style="margin: 16px 0; padding: 12px 16px; background: #FBF1DE; border-left: 4px solid #C9A14A; border-radius: 4px;">
+        <p style="margin: 0 0 8px 0;"><strong>🎓 Imersão A Receita que Faltava</strong></p>
+        <p style="margin: 0; font-size: 14px;">Você tem <strong>30 dias</strong> de acesso completo ao Caixa Business. As gravações da imersão e o Playbook da Confeiteira Empresária ficam disponíveis na área de membros da Hotmart.</p>
+      </div>
+  ` : ''
 
   const html = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.6;">
       <p>Olá, ${nomeDisplay}!</p>
       <p>Sua conta foi criada. Veja como acessar a plataforma agora:</p>
       <ol>
-        <li>Acesse <a href="https://caixa.umbrelladoce.com.br" style="color: #D89B8C;">caixa.umbrelladoce.com.br</a></li>
+        <li>Acesse <a href="https://caixadeacucar.lovable.app" style="color: #5B1A2B;">caixadeacucar.lovable.app</a></li>
         <li>Clique em <strong>"Esqueci minha senha"</strong></li>
         <li>Digite o email <strong>${emailSafe}</strong> para receber o link de acesso</li>
       </ol>
       <p><strong>Seu plano:</strong> ${planoNome}</p>
-      <p>Qualquer dúvida, responda este email ou acesse o suporte através do e-mail <a href="mailto:ola@umbrelladoce.com.br" style="color: #D89B8C;">ola@umbrelladoce.com.br</a></p>
+      ${blocoImersao}
+      <p>Qualquer dúvida, responda este email ou acesse o suporte através do e-mail <a href="mailto:ola@umbrelladoce.com.br" style="color: #5B1A2B;">ola@umbrelladoce.com.br</a></p>
       <br/>
       <p>Umbrella Doce</p>
     </div>

@@ -7,6 +7,7 @@ import { toast } from '@/hooks/use-toast';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { DatePickerField } from '@/components/DatePickerField';
 import { formatDateToISO, parseISOToDate, addDaysToDate } from '@/lib/dateUtils';
+import { IMERSAO_DIAS_ACESSO } from '@/lib/planos';
 import {
   Dialog,
   DialogContent,
@@ -151,7 +152,7 @@ export function EditarUsuarioDialog({
   useEffect(() => {
     if (planoInicio) {
       const inicioISO = formatDateToISO(planoInicio);
-      const diasMap: Record<string, number> = { 'anual': 365, 'mensal': 30 };
+      const diasMap: Record<string, number> = { anual: 365, mensal: 30, imersao: IMERSAO_DIAS_ACESSO };
       const dias = diasMap[planoTipoWatch] ?? 365;
       const fimISO = addDaysToDate(inicioISO, dias);
       setPlanoFim(parseISOToDate(fimISO));
@@ -621,6 +622,7 @@ export function EditarUsuarioDialog({
                         <SelectContent>
                           <SelectItem value="base">Caixa Lite</SelectItem>
                           <SelectItem value="negocio">Caixa Business</SelectItem>
+                          <SelectItem value="aluna_imersao">Aluna da Imersão (30 dias)</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -633,14 +635,21 @@ export function EditarUsuarioDialog({
                   name="planoTipo"
                   render={({ field }) => {
                     const planoIdAtual = form.watch('planoId');
-                    // Força anual quando plano é Lite
+                    // Força tipo correto conforme plano
                     if (planoIdAtual === 'base' && field.value !== 'anual') {
                       field.onChange('anual');
                     }
+                    if (planoIdAtual === 'aluna_imersao' && field.value !== 'imersao') {
+                      field.onChange('imersao');
+                    }
+                    if (planoIdAtual === 'negocio' && field.value !== 'mensal' && field.value !== 'anual') {
+                      field.onChange('anual');
+                    }
+                    const isImersao = planoIdAtual === 'aluna_imersao';
                     return (
                       <FormItem>
                         <FormLabel>Periodicidade</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value} disabled={planoIdAtual === 'base'}>
+                        <Select onValueChange={field.onChange} value={field.value} disabled={planoIdAtual === 'base' || isImersao}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Periodicidade" />
@@ -649,6 +658,7 @@ export function EditarUsuarioDialog({
                           <SelectContent>
                             {planoIdAtual === 'negocio' && <SelectItem value="mensal">Mensal (30 dias)</SelectItem>}
                             {(planoIdAtual === 'base' || planoIdAtual === 'negocio') && <SelectItem value="anual">Anual (365 dias)</SelectItem>}
+                            {isImersao && <SelectItem value="imersao">Imersão ({IMERSAO_DIAS_ACESSO} dias)</SelectItem>}
                           </SelectContent>
                         </Select>
                         <FormMessage />

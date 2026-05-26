@@ -2597,6 +2597,7 @@ export type Database = {
           estado: string | null
           horas_diaria_trabalho: number | null
           id: string
+          imersao_turma: string | null
           inscricao_estadual: string | null
           instagram: string | null
           last_login: string | null
@@ -2635,6 +2636,7 @@ export type Database = {
           estado?: string | null
           horas_diaria_trabalho?: number | null
           id: string
+          imersao_turma?: string | null
           inscricao_estadual?: string | null
           instagram?: string | null
           last_login?: string | null
@@ -2673,6 +2675,7 @@ export type Database = {
           estado?: string | null
           horas_diaria_trabalho?: number | null
           id?: string
+          imersao_turma?: string | null
           inscricao_estadual?: string | null
           instagram?: string | null
           last_login?: string | null
