@@ -40,13 +40,11 @@ export function useUnidadesMedida() {
 
       if (error) throw error;
       
-      // Se não houver unidades, criar as padrão
       if (!data || data.length === 0) {
         await createUnidadesPadrao();
-        return;
+      } else {
+        setUnidades(data);
       }
-      
-      setUnidades(data);
     } catch (err: any) {
       console.error('Erro ao buscar unidades:', err);
       toast.error('Erro ao carregar unidades: ' + err.message);
