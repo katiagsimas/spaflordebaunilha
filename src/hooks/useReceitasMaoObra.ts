@@ -61,6 +61,7 @@ export function useReceitasMaoObra(receitaId?: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["receitas_mao_obra"] });
       queryClient.invalidateQueries({ queryKey: ["calculos_receitas"] });
+      toast.success("Mão de obra salva com sucesso!");
     },
     onError: (error) => {
       console.error("Erro ao salvar mãos de obra:", error);
