@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/tooltip";
 
 export function ClearCacheButton() {
+  const [expanded, setExpanded] = useState(false);
   const handleClear = async () => {
     try {
       await supabase.auth.signOut().catch(() => {});
@@ -36,23 +37,31 @@ export function ClearCacheButton() {
       <Tooltip>
         <TooltipTrigger asChild>
           <button
-            onClick={handleClear}
-            className="flex items-center gap-2 h-9 px-3 rounded-full bg-cda-creme/10 hover:bg-cda-creme/20 text-cda-creme ring-1 ring-cda-dourado/30 transition-all font-body text-xs"
+            onClick={() => {
+              if (expanded) {
+                handleClear();
+              } else {
+                setExpanded(true);
+              }
+            }}
+            onBlur={() => setExpanded(false)}
+            className={`flex items-center gap-2 h-9 rounded-full bg-cda-creme/10 hover:bg-cda-creme/20 text-cda-creme ring-1 ring-cda-creme/20 transition-all font-body text-xs ${expanded ? 'px-3' : 'px-2'}`}
             aria-label="Limpar cache e recarregar"
           >
             <RefreshCw className="h-4 w-4" />
-            <span className="hidden md:inline whitespace-nowrap">Limpar cache</span>
+            {expanded && <span className="whitespace-nowrap">Limpar cache</span>}
           </button>
         </TooltipTrigger>
         <TooltipContent side="bottom" className="bg-cda-preto text-cda-creme border-cda-dourado/40 max-w-[240px]">
           <span className="font-body text-xs">
-            Faz logout, limpa o cache do navegador e recarrega o app. Útil quando o menu ou permissões parecem desatualizados.
+            Faz logout, limpa o cache do navegador e recarrega o app. Clique novamente para confirmar.
           </span>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );
 }
+
 
 export function SidebarToggleLabeled() {
   const { state, toggleSidebar, isMobile, openMobile } = useSidebar();
