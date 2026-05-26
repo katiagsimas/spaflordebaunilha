@@ -66,15 +66,14 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
     items: [
       { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false, comingSoonMessage: "Em breve você terá um plano claro para organizar sua produção, suas vendas e crescer com estratégia.", adminOnly: true },
       { title: "Conversa Doce", url: "/n", icon: MessageCircle, active: true },
-      { title: "Minha Presença", url: "/presenca", icon: Globe, active: false, comingSoonMessage: "Em breve você terá controle da sua comunicação e presença online para atrair mais clientes e vender todos os dias." },
     ],
   },
   {
     label: "SISTEMA",
     items: [
       { title: "Configurações", url: "/configuracoes", icon: Settings, active: true },
-      { title: "Usuários", url: "/admin/usuarios", icon: Shield, active: true, adminOnly: true },
-      { title: "Log de Ações", url: "/admin/logs", icon: FileText, active: true, adminOnly: true },
+      { title: "Usuários", url: "/admin/usuarios", icon: Shield, active: true, motherOnly: true },
+      { title: "Log de Ações", url: "/admin/logs", icon: FileText, active: true, motherOnly: true },
     ],
   },
 ];
