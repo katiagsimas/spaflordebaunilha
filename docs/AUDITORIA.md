@@ -732,3 +732,10 @@ Substituiu a abordagem com Vault (que exigia `vault.create_secret` manual no SQL
 - Atualiza status, `fechado_em`, `fechado_por`, observações, snapshot e os 6 agregados; insere `fechamento_logs`.
 - `EXECUTE` apenas para `authenticated`; revogado de PUBLIC/anon.
 - `useFecharMes` (src/hooks/useFechamentoMes.ts) agora chama `supabase.rpc('fechar_mes', ...)`. Removido o guard cliente-side de contagem de pendentes e o UPDATE direto na tabela. Montagem do snapshot/DRE permanece no cliente (não alterada).
+
+## 2026-05-26 — Fechamento de mês: privilégios da RPC corrigidos ✅
+
+- **Problema:** `public.fechar_mes` mantinha EXECUTE padrão `PUBLIC`, permitindo chamadas por `anon`.
+- **Correção:** Migration `20260526-010829-604713` executa `REVOKE EXECUTE ... FROM PUBLIC, anon; GRANT EXECUTE ... TO authenticated;` na assinatura exata confirmada no banco (`p_fechamento_id uuid, p_observacoes text, p_snapshot jsonb, p_faturamento numeric, p_custos numeric, p_margem_seguranca numeric, p_pro_labore_saudavel numeric, p_retiradas numeric, p_saldo_restante numeric`).
+- **Assinatura:** `pg_get_function_identity_arguments(oid)` retornou `p_fechamento_id uuid, p_observacoes text, p_snapshot jsonb, p_faturamento numeric, p_custos numeric, p_margem_seguranca numeric, p_pro_labore_saudavel numeric, p_retiradas numeric, p_saldo_restante numeric`.
+- **Status:** P-4 da auditoria Sprint 1/2 → ✅ CONFIRMADO.
