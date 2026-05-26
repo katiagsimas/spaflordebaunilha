@@ -155,10 +155,6 @@ export function AppSidebar() {
     enabled: !!user,
   });
 
-  const handleLogout = async () => {
-    await signOut();
-    navigate("/auth/login");
-  };
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border" style={{ width: open ? '280px' : undefined }}>
