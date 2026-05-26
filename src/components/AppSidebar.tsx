@@ -212,15 +212,15 @@ export function AppSidebar() {
               <SidebarGroupContent>
                 <SidebarMenu>
                   {section.items
-                    .filter((item) => (!item.adminOnly || isAdmin) && (!item.motherOnly || isMother) && (!item.ssoDoce || podeAcessarSsoDoce) && (!item.conversaDoce || podeAcessarConversaDoce))
+                    .filter((item) => (!item.adminOnly || effectiveIsAdmin) && (!item.motherOnly || effectiveIsMother) && (!item.ssoDoce || podeAcessarSsoDoce) && (!item.conversaDoce || podeAcessarConversaDoce))
                     .map((item) => {
                       const Icon = item.icon;
-                      const bloqueado = !isPlanoLoading && !isAdmin && item.active && rotaBloqueada(item.url);
-                      const isComingSoon = !item.active && !isAdmin;
+                      const bloqueado = !isPlanoLoading && !effectiveIsAdmin && item.active && rotaBloqueada(item.url);
+                      const isComingSoon = !item.active && !effectiveIsAdmin;
 
                       // Se o usuário é admin e o item é adminOnly+inactive, ele pode acessar
-                      const adminUnlocked = item.adminOnly && isAdmin;
-                      const motherUnlocked = item.motherUnlock && isMother;
+                      const adminUnlocked = item.adminOnly && effectiveIsAdmin;
+                      const motherUnlocked = item.motherUnlock && effectiveIsMother;
 
                       if (isComingSoon && !adminUnlocked && !motherUnlocked) {
                         return (
