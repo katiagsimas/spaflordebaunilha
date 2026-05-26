@@ -2643,6 +2643,10 @@ export type Database = {
           plano_fim: string | null
           plano_id: string | null
           plano_inicio: string | null
+          plano_pendente_fim: string | null
+          plano_pendente_id: string | null
+          plano_pendente_inicio: string | null
+          plano_pendente_tipo: string | null
           plano_tipo: string | null
           primeiro_acesso: boolean | null
           razao_social: string | null
@@ -2682,6 +2686,10 @@ export type Database = {
           plano_fim?: string | null
           plano_id?: string | null
           plano_inicio?: string | null
+          plano_pendente_fim?: string | null
+          plano_pendente_id?: string | null
+          plano_pendente_inicio?: string | null
+          plano_pendente_tipo?: string | null
           plano_tipo?: string | null
           primeiro_acesso?: boolean | null
           razao_social?: string | null
@@ -2721,6 +2729,10 @@ export type Database = {
           plano_fim?: string | null
           plano_id?: string | null
           plano_inicio?: string | null
+          plano_pendente_fim?: string | null
+          plano_pendente_id?: string | null
+          plano_pendente_inicio?: string | null
+          plano_pendente_tipo?: string | null
           plano_tipo?: string | null
           primeiro_acesso?: boolean | null
           razao_social?: string | null
