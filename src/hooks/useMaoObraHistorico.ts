@@ -23,7 +23,7 @@ export function useMaoObraHistorico(perfilId?: string, dataInicial?: string, dat
       
       let query = supabase
         .from("mao_obra_perfis_historico")
-        .select("*, mao_obra_perfis!inner(nome)")
+        .select("*, mao_obra_perfis(nome)")
         .eq("user_id", userId)
         .order("registrado_em", { ascending: false });
 
