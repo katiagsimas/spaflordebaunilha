@@ -111,7 +111,54 @@ Tabela `saldos_iniciais_bancos`:
 
 ---
 
-## 5. DRE
+## 5. TRANSFERÊNCIAS ENTRE BANCOS
+
+**Rota:** `/financeiro/transferencias`  
+**Tabela:** `transferencias_bancos`
+
+Permite mover saldo entre contas bancárias cadastradas sem impactar receitas/despesas — apenas reflete no Fluxo de Caixa.
+
+| Campo | Descrição |
+|-------|-----------|
+| `banco_origem_id` | Banco de saída (débito) |
+| `banco_destino_id` | Banco de entrada (crédito) |
+| `valor` | Valor transferido |
+| `data_transferencia` | Data efetiva |
+| `descricao` | Observação livre |
+| `owner_group_id` | Multi-tenant |
+
+**Regras:**
+- Bancos origem e destino devem ser diferentes
+- Valor > 0
+- Aparece como saída no banco origem e entrada no banco destino dentro do Fluxo de Caixa
+- Não entra no DRE (movimentação patrimonial, não receita/despesa)
+
+---
+
+## 6. FECHAMENTO DE MÊS
+
+**Rota:** `/financeiro/fechamento-mes`  
+**Tabela:** `fechamentos_mensais`  
+**Doc detalhado:** `docs/DOCS_FECHAMENTO_MES.md`
+
+Consolida o mês e **trava** lançamentos retroativos. Após fechar:
+- Bloqueia INSERT/UPDATE/DELETE em `contas_receber_pagamentos` e `contas_pagar_pagamentos` com `data_pagamento` dentro do mês fechado
+- Bloqueia ajustes em `transferencias_bancos` dentro do período
+- Snapshot de saldos por banco é gravado e usado como `saldo_inicial` do mês seguinte
+
+| Campo | Descrição |
+|-------|-----------|
+| `mes_referencia`, `ano_referencia` | Período fechado |
+| `status` | `aberto` / `fechado` |
+| `data_fechamento`, `fechado_por` | Auditoria |
+| `snapshot_saldos` | JSONB com saldo final por banco |
+| `owner_group_id` | Multi-tenant |
+
+Reabertura disponível apenas para admin / role MOTHER do grupo.
+
+---
+
+## 7. DRE
 
 **Rota:** `/financeiro/dre`
 
