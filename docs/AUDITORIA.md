@@ -790,3 +790,19 @@ Substituiu a abordagem com Vault (que exigia `vault.create_secret` manual no SQL
 - **Layout global:**
   - Rodapé com texto `Umbrella Doce by Ká Simas · CNPJ 65.786.966/0001-41 · Todos os direitos reservados.` adicionado ao `Layout` em `src/App.tsx`.
   - Botão "Limpar cache e recarregar" movido do rodapé da Sidebar para o cabeçalho (entre `BackupBadge` e `UserMenu`) como ícone colapsável (`ClearCacheButton` em `HeaderControls.tsx`): primeiro clique expande o título, segundo clique executa a limpeza + hard reload.
+
+---
+
+## 2026-05-26 — Consolidação de Usuários + Governança no sidebar
+
+**Mudança:** A entrada "Grupos e Usuários" (rota `/admin/governanca`) foi removida do sidebar. O conteúdo da página `Governanca` agora é renderizado como aba **Grupos** dentro de `/admin/usuarios` (a aba **Usuários** mantém o dashboard original).
+
+**Motivação:** Admin-Mãe tinha dois pontos de entrada redundantes ("Usuários" e "Grupos e Usuários"). A gestão de grupos é detalhe interno de acesso, então foi reposicionada como aba secundária.
+
+**Detalhes técnicos:**
+- `src/pages/admin/Governanca.tsx`: novo prop `embedded?: boolean`. Quando `true`, suprime `PageHeader`, wrapper `min-h-screen` e a `Tabs` interna (Grupos/Usuários), expondo apenas a gestão de Grupos + dialog "Adicionar Usuário ao Grupo".
+- `src/pages/admin/Usuarios.tsx`: envolve o conteúdo em `Tabs` com abas **Usuários** (existente) e **Grupos** (`<Governanca embedded />`).
+- `src/components/AppSidebar.tsx`: removido `SidebarGroup` "Governança" e item "Grupos e Usuários".
+- A rota `/admin/governanca` continua registrada no `App.tsx` (acessível por URL direta) — nenhuma RLS, migração SQL ou Edge Function foi alterada.
+
+**Status:** ✅ Concluído

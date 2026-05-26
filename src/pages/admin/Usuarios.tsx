@@ -34,6 +34,9 @@ import { toast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import * as XLSX from '@/lib/xlsxShim';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Building2 } from 'lucide-react';
+import Governanca from './Governanca';
 
 interface UserProfile {
   id: string;
@@ -452,13 +455,28 @@ export default function Usuarios() {
         <div className="flex items-center justify-between">
           <PageHeader
             title="Usuários do Sistema"
-            description="Gerencie todos os usuários cadastrados e suas permissões"
+            description="Gerencie todos os usuários cadastrados, suas permissões e a estrutura de grupos"
           />
           <Button onClick={() => setShowCriarDialog(true)}>
             <UserPlus className="mr-2 h-4 w-4" />
             Criar Usuário
           </Button>
         </div>
+
+        <Tabs defaultValue="usuarios" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="usuarios" className="gap-2">
+              <Users className="h-4 w-4" />
+              Usuários
+            </TabsTrigger>
+            <TabsTrigger value="grupos" className="gap-2">
+              <Building2 className="h-4 w-4" />
+              Grupos
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="usuarios" className="space-y-6">
+
 
         {/* Dashboard de Resumo */}
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-9 gap-1.5">
@@ -688,7 +706,14 @@ export default function Usuarios() {
           )}
         </CardContent>
       </Card>
+          </TabsContent>
+
+          <TabsContent value="grupos" className="space-y-6">
+            <Governanca embedded />
+          </TabsContent>
+        </Tabs>
       </div>
+
 
 
       <CriarUsuarioDialog

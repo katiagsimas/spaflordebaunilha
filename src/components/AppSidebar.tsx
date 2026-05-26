@@ -279,40 +279,8 @@ export function AppSidebar() {
           </div>
         ))}
 
-        {/* Seção MOTHER - Governança do Sistema */}
-        {isMother && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="flex items-center gap-2 text-[#FFF9F5]/40 text-[10px] uppercase tracking-widest font-body">
-              <Crown className="h-3 w-3 text-cda-dourado" />
-              Governança
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={false}>
-                    <NavLink
-                      to="/admin/governanca"
-                      className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
-                            isActive
-                              ? "bg-[#FFF9F5]/[0.08] border-l-2 border-[#C9A14A] text-[#C9A14A] font-semibold"
-                              : "text-[#FFF9F5]/80 hover:bg-[#FFF9F5]/10 hover:text-[#FFF9F5]"
-                        }`
-                      }
-                    >
-                      {({ isActive }) => (
-                        <>
-                          <Building2 className={`h-5 w-5 ${isActive ? 'text-cda-dourado' : 'text-[#FFF9F5]/80'}`} />
-                          {open && <span className="flex-1">Grupos e Usuários</span>}
-                        </>
-                      )}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        {/* Governança consolidada dentro de "Usuários" (aba Grupos). Rota /admin/governanca permanece acessível por URL direta. */}
+
 
       </SidebarContent>
 

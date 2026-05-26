@@ -38,7 +38,11 @@ interface UserWithRoles {
   }[];
 }
 
-export default function Governanca() {
+interface GovernancaProps {
+  embedded?: boolean;
+}
+
+export default function Governanca({ embedded = false }: GovernancaProps = {}) {
   const { isMother, refreshGroups } = useGroup();
   const { user } = useAuth();
   const [groups, setGroups] = useState<Group[]>([]);
@@ -282,12 +286,164 @@ export default function Governanca() {
   };
 
   if (!isMother) {
+    if (embedded) {
+      return (
+        <div className="p-6">
+          <PermissionGuard requireMother />
+        </div>
+      );
+    }
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <PageHeader title="Governança" description="Acesso restrito" />
         <div className="flex-1 p-6">
           <PermissionGuard requireMother />
         </div>
+      </div>
+    );
+  }
+
+  // Conteúdo principal — quando embarcado em outra página, suprime PageHeader,
+  // wrapper de tela inteira e as abas internas (mostra apenas a gestão de Grupos).
+  if (embedded) {
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-lg font-semibold">Grupos do Sistema</h2>
+            <p className="text-sm text-muted-foreground">
+              Grupos organizam acessos internos. Cada usuário pertence a um grupo com um papel (ADMIN ou USER).
+            </p>
+          </div>
+          <Dialog open={showNewGroupDialog} onOpenChange={setShowNewGroupDialog}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Novo Grupo
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Criar Novo Grupo</DialogTitle>
+                <DialogDescription>
+                  Crie um novo grupo para organizar usuários e dados.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="groupName">Nome do Grupo</Label>
+                  <Input
+                    id="groupName"
+                    value={newGroupName}
+                    onChange={(e) => setNewGroupName(e.target.value)}
+                    placeholder="Ex: Minha Confeitaria"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setShowNewGroupDialog(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleCreateGroup}>
+                  Criar Grupo
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {groups.map((group) => (
+            <Card key={group.id} className={!group.is_active ? 'opacity-60' : ''}>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Building2 className="h-4 w-4" />
+                    {group.name}
+                  </CardTitle>
+                  <Badge variant={group.is_active ? 'default' : 'secondary'}>
+                    {group.is_active ? 'Ativo' : 'Inativo'}
+                  </Badge>
+                </div>
+                <CardDescription className="text-xs">
+                  Criado em {new Date(group.created_at).toLocaleDateString('pt-BR')}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Status</span>
+                  <Switch
+                    checked={group.is_active}
+                    onCheckedChange={() => handleToggleGroupActive(group)}
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => {
+                    setSelectedGroup(group);
+                    setShowAddUserToGroupDialog(true);
+                  }}
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Adicionar Usuário
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Dialog para adicionar usuário ao grupo */}
+        <Dialog open={showAddUserToGroupDialog} onOpenChange={setShowAddUserToGroupDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Adicionar Usuário ao Grupo</DialogTitle>
+              <DialogDescription>
+                Adicione um usuário ao grupo "{selectedGroup?.name}"
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Usuário</Label>
+                <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um usuário" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {users
+                      .filter(u => !u.groups.some(g => g.group_id === selectedGroup?.id))
+                      .map((u) => (
+                        <SelectItem key={u.id} value={u.id}>
+                          {u.nome_completo || u.email}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Papel no Grupo</Label>
+                <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as 'ADMIN' | 'USER')}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ADMIN">Administrador</SelectItem>
+                    <SelectItem value="USER">Usuário</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowAddUserToGroupDialog(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleAddUserToGroup}>
+                Adicionar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
