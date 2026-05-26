@@ -197,7 +197,7 @@ export default function Usuarios() {
         'Nome Completo': usuario.nome_completo || 'N/A',
         'Status': usuario.ativo !== false ? 'Ativo' : 'Inativo',
         'Permissão': isAdmin ? 'Administrador' : 'Usuário',
-        'Plano': usuario.plano_id === 'negocio' ? 'Caixa Business' : 'Caixa Lite',
+        'Plano': getPlanoLabel(usuario.plano_id),
         'Início do Plano': usuario.plano_inicio ? new Date(usuario.plano_inicio + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A',
         'Expiração do Plano': usuario.plano_fim ? new Date(usuario.plano_fim + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A',
       };
