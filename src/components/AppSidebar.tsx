@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LayoutDashboard, Users, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles, MessageCircle, Bug, CheckCircle2, EyeOff, Clock, ListChecks, HardDrive, FileSignature, ScrollText } from "lucide-react";
+import { LayoutDashboard, Users, Cake, BookOpen, Settings, FileText, Building2, Lock, Package, Wallet, ClipboardList, CalendarCheck, Sparkles, MessageCircle, ListChecks, HardDrive, FileSignature, ScrollText } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
 import { useConversaDoceAccess } from "@/hooks/useConversaDoceAccess";
 
