@@ -20,6 +20,7 @@ import { format } from "date-fns";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { BACKUP_MODULOS, DEFAULT_MODULOS, tabelasDosModulos, modulosDisponiveis, type BackupModuloId } from "@/lib/backupCatalog";
 import { useGroup } from "@/contexts/GroupContext";
+import { RestaurarBackupDialog, type RestaurarBackupAlvo } from "@/components/backup/RestaurarBackupDialog";
 
 interface BackupRecord {
   id: string;
