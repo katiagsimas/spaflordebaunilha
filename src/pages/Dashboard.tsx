@@ -27,7 +27,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
-import { useOpenPlannerDoce } from "@/hooks/useOpenPlannerDoce";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -89,9 +89,6 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const { plano } = usePlano();
   const { isAdmin } = useIsAdmin();
-  const { abrir: abrirPlanejamentoDoce, loading: loadingSsoDoce } = useOpenPlannerDoce();
-  const podeAcessarPlanejamentoDoce =
-    plano?.id === "negocio" || plano?.id === "aluna_imersao" || isAdmin;
 
   const [alertas, setAlertas] = useState({
     receberAtrasado: { quantidade: 0, valor: 0 },
@@ -1006,46 +1003,6 @@ export default function Dashboard() {
                 </p>
       </div>
 
-      {/* PLANEJAMENTO DOCE: SSO para o app Planejamento Estratégico */}
-      {podeAcessarPlanejamentoDoce && (
-        <button
-          type="button"
-          onClick={abrirPlanejamentoDoce}
-          disabled={loadingSsoDoce}
-          aria-label="Abrir Planejamento DOCE em nova sessão"
-          aria-busy={loadingSsoDoce}
-          className="group relative w-full overflow-hidden rounded-lg border border-cda-dourado/40 bg-gradient-to-br from-cda-vinho to-cda-vinho-escuro p-4 text-left shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-cda-dourado focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-cda-dourado/20 ring-1 ring-cda-dourado/40 transition-transform group-hover:scale-110">
-              {loadingSsoDoce ? (
-                <Loader2 className="h-6 w-6 animate-spin text-cda-dourado" />
-              ) : (
-                <Sparkles className="h-6 w-6 text-cda-dourado" />
-              )}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <h3 className="font-display text-lg font-bold leading-tight text-cda-branco">
-                  Planejamento DOCE
-                </h3>
-                <span className="rounded-full bg-cda-dourado/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-cda-dourado">
-                  Estratégia
-                </span>
-              </div>
-              <p className="mt-0.5 text-sm text-cda-branco/80">
-                {loadingSsoDoce
-                  ? "Abrindo seu Planejamento..."
-                  : "Acesse seu planejamento anual e campanhas estratégicas"}
-              </p>
-            </div>
-            <ArrowRight
-              className="hidden h-5 w-5 shrink-0 text-cda-dourado transition-transform group-hover:translate-x-1 sm:block"
-              aria-hidden="true"
-            />
-          </div>
-        </button>
-      )}
             </div>
           </CardHeader>
         </Card>

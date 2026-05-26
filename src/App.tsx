@@ -21,6 +21,7 @@ import Dashboard from "./pages/Dashboard";
 import Encomendas from "./pages/Encomendas";
 import Precificacao from "./pages/Precificacao";
 import Planejamento from "./pages/Planejamento";
+import PlanejamentoDoce from "./pages/PlanejamentoDoce";
 import SeusDados from "./pages/cadastros/SeusDados";
 import MaoDeObra from "./pages/configuracoes/precificacao/MaoDeObra";
 
@@ -286,6 +287,7 @@ const App = () => (
           
           {/* Planejamento */}
           <Route path="/planejamento" element={<ProtectedRoute><Layout><PlanoGuard><Planejamento /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/planejamento-doce" element={<ProtectedRoute><Layout><PlanejamentoDoce /></Layout></ProtectedRoute>} />
 
           {/* Meu Salário (Renda Doce) */}
           <Route path="/meu-salario" element={<ProtectedRoute><Layout><PlanoGuard><MeuSalario /></PlanoGuard></Layout></ProtectedRoute>} />
