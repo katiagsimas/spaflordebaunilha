@@ -106,6 +106,7 @@ export function AppSidebar() {
   const { temAcesso: podeAcessarConversaDoce } = useConversaDoceAccess();
   const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
   const [comingSoonModal, setComingSoonModal] = useState<{ title: string; message: string } | null>(null);
+  const [upgradeModal, setUpgradeModal] = useState<{ title: string } | null>(null);
 
 
   const { data: profile } = useQuery({
@@ -254,12 +255,18 @@ export function AppSidebar() {
                             <NavLink
                               to={bloqueado ? "/upgrade" : item.url}
                               end
+                              onClick={(e) => {
+                                if (bloqueado) {
+                                  e.preventDefault();
+                                  setUpgradeModal({ title: item.title });
+                                }
+                              }}
                               className={({ isActive }) =>
                                 `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                                   isActive && !bloqueado
                                     ? "bg-[#FFF9F5]/[0.08] border-l-2 border-[#C9A14A] text-[#C9A14A] font-semibold"
                                     : "text-[#FFF9F5]/80 hover:bg-[#FFF9F5]/10 hover:text-[#FFF9F5]"
-                                } ${bloqueado ? "opacity-40 cursor-not-allowed" : ""}`
+                                } ${bloqueado ? "opacity-60" : ""}`
                               }
                             >
                               {({ isActive }) => (
@@ -315,6 +322,31 @@ export function AppSidebar() {
               {comingSoonModal?.message}
             </DialogDescription>
           </DialogHeader>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal "Upgrade necessário" para usuárias Lite */}
+      <Dialog open={!!upgradeModal} onOpenChange={() => setUpgradeModal(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 font-display text-xl">
+              {upgradeModal?.title} <Lock className="h-5 w-5 text-cda-dourado" />
+            </DialogTitle>
+            <DialogDescription className="text-base font-body text-muted-foreground pt-2">
+              Este módulo é exclusivo do <strong>Plano Caixa Business</strong>. Faça o upgrade do seu plano para liberar <strong>{upgradeModal?.title}</strong> e todas as ferramentas avançadas do Caixa de Açúcar.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end pt-2">
+            <a
+              href="https://caixa.umbrelladoce.com.br"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setUpgradeModal(null)}
+              className="inline-flex items-center justify-center rounded-md bg-cda-coral px-5 py-2.5 text-sm font-semibold font-body text-cda-preto shadow hover:opacity-90 transition"
+            >
+              Quero fazer o upgrade
+            </a>
+          </div>
         </DialogContent>
       </Dialog>
     </Sidebar>

@@ -11,11 +11,9 @@ export function PlanoGuard({ children }: { children: React.ReactNode }) {
   if (isAdmin) return <>{children}</>;
   if (pathname === "/configuracoes") return <>{children}</>;
 
-  // Estoque/Planejamento/Meu Salário: bloqueados para Lite.
-  // Imersão tem plano "*" e passa direto pelo temAcesso abaixo.
+  // Estoque agora liberado no Lite. Planejamento e Meu Salário continuam restritos.
   if (
     !temAcesso(pathname) ||
-    (pathname.startsWith("/estoque") && !temAcesso("/estoque")) ||
     (pathname.startsWith("/planejamento") && !temAcesso("/planejamento")) ||
     (pathname.startsWith("/meu-salario") && !temAcesso("/meu-salario"))
   ) {
