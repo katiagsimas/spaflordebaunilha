@@ -354,7 +354,7 @@ Deno.serve(async (req) => {
       const switchPlanName = switchPlanNameParts.join(' | ')
       console.log('SWITCH_PLAN planName sources:', switchPlanNameParts)
       const switchProduct = (data.subscription as Record<string, unknown>)?.product as Record<string, unknown> || product
-      const resolvedSwitch = resolverPlano(switchProduct?.id?.toString() || '', switchPlanName)
+      const resolvedSwitch = await resolverPlano(supabaseAdmin, switchProduct?.id?.toString() || '', switchPlanName)
       if (!resolvedSwitch) {
         console.log('SWITCH_PLAN ignorado — plano não reconhecido:', switchPlanName)
         return new Response(
