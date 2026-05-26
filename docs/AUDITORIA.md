@@ -1,5 +1,17 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
+> Última atualização: 2026-05-26T20:00:00Z — Remoção do módulo Planejamento do backup.
+
+## BACKUP — REMOÇÃO DO MÓDULO PLANEJAMENTO — 2026-05-26 20:00 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| BK-1 | `src/lib/backupCatalog.ts` | ✅ | Removido módulo `planejamento` do catálogo (`BackupModuloId`, `BACKUP_MODULOS`, `DEFAULT_MODULOS`). O módulo continua existindo no app, mas suas tabelas não são mais incluídas em backups manuais nem agendados. |
+| BK-2 | Edge Function `executar-backups-agendados` | ✅ | Removido entry `planejamento` do `MODULO_TABELAS` e do fallback de módulos padrão. Deploy realizado. |
+| BK-3 | Memória do projeto | ✅ | Atualizado `mem://features/backup-system` para refletir os 4 módulos atuais (sem planejamento). |
+
+---
+
 > Última atualização: 2026-05-26T16:30:00Z — Proteção anti-replay SSO (`sso_token_log`).
 
 ## SEGURANÇA — 2026-05-26 16:30 UTC (Anti-replay SSO)
