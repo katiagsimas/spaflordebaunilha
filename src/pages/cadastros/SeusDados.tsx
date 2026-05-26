@@ -1,12 +1,31 @@
 import { PageHeader } from "@/components/PageHeader";
 import { LoadingMascote } from "@/components/LoadingMascote";
-import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useViaCEP } from "@/hooks/useViaCEP";
-import { Save, Upload, X, Search } from "lucide-react";
+import {
+  Save,
+  Upload,
+  X,
+  Search,
+  User as UserIcon,
+  Building2,
+  MapPin,
+  Landmark,
+  BadgeCheck,
+  FileSignature,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
@@ -16,164 +35,216 @@ import { useGroup } from "@/contexts/GroupContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 interface SeusDadosForm {
-  razaoSocial: string;
-  nomeFantasia: string;
-  cnpjCpf: string;
-  inscricaoEstadual: string;
+  // Pessoal
   nomeResponsavel: string;
-  telefone: string;
   email: string;
+
+  // Empresa
+  razaoSocial: string;       // Razão Social (corresponds to profiles.razao_social)
+  nomeFantasia: string;      // Nome Fantasia (corresponds to profiles.nome_confeitaria)
+  cnpjCpf: string;
+  documentoTipo: "cpf" | "cnpj";
+  telefone: string;          // WhatsApp
+  telefoneFixo: string;
+  emailComercial: string;
+  instagram: string;
+
+  // Endereço
+  cep: string;
   endereco: string;
   numero: string;
+  complemento: string;
   bairro: string;
   cidade: string;
   estado: string;
-  cep: string;
-  logomarca?: string;
+
+  // Bancário
+  banco: string;
+  agencia: string;
+  conta: string;
+  tipoConta: string;
+  titular: string;
+  pix: string;
+
+  // Legal
+  inscricaoEstadual: string;
+  inscricaoMunicipal: string;
+  certificacoes: string;
 }
+
+const BANKS = [
+  "Banco do Brasil",
+  "Bradesco",
+  "Caixa Econômica",
+  "Itaú",
+  "Santander",
+  "Nubank",
+  "Inter",
+  "C6 Bank",
+  "PagBank",
+  "Mercado Pago",
+  "Sicoob",
+  "Sicredi",
+  "Outro",
+];
+
+const UF_LIST = [
+  "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG",
+  "PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO",
+];
 
 export default function SeusDados() {
   const { user } = useAuth();
   const { activeGroup } = useGroup();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { isAdmin } = useIsAdmin();
 
-  // Buscar perfil do usuário
   const { data: profile, isLoading } = useQuery({
-    queryKey: ['profile', user?.id, activeGroup?.id],
+    queryKey: ["profile", user?.id, activeGroup?.id],
     queryFn: async () => {
       if (!user) return null;
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
         .maybeSingle();
-      
-      if (error) {
-        console.error('Erro ao buscar perfil:', error);
-        throw error;
-      }
+      if (error) throw error;
       return data;
     },
     enabled: !!user,
   });
 
   const [logomarca, setLogomarca] = useState<string>("");
+  const [assinatura, setAssinatura] = useState<string>("");
   const { buscarCEP, loading } = useViaCEP();
 
   const { register, handleSubmit, setValue, watch, reset } = useForm<SeusDadosForm>();
 
-  // Pré-preencher com dados do perfil quando disponível
   useEffect(() => {
-    if (profile) {
-      const initialData = {
-        razaoSocial: profile.nome_confeitaria || "",
-        nomeFantasia: profile.razao_social || "",
-        cnpjCpf: profile.cpf || "",
-        inscricaoEstadual: profile.inscricao_estadual || "",
-        nomeResponsavel: profile.nome_completo || "",
-        telefone: profile.whatsapp || profile.telefone || "",
-        email: profile.email || "",
-        endereco: profile.endereco || "",
-        numero: profile.numero || "",
-        bairro: profile.bairro || "",
-        cidade: profile.cidade || "",
-        estado: profile.estado || "",
-        cep: profile.cep || "",
-        logomarca: profile.avatar_url || "",
-      };
-      reset(initialData);
-      if (profile.avatar_url) {
-        setLogomarca(profile.avatar_url);
-      }
-    }
+    if (!profile) return;
+    const bancarios = (profile as any).dados_bancarios || {};
+    reset({
+      nomeResponsavel: profile.nome_completo || "",
+      email: profile.email || "",
+      razaoSocial: (profile as any).razao_social || "",
+      nomeFantasia: profile.nome_confeitaria || "",
+      cnpjCpf: profile.cpf || "",
+      documentoTipo: ((profile as any).documento_tipo as "cpf" | "cnpj") || "cpf",
+      telefone: profile.whatsapp || profile.telefone || "",
+      telefoneFixo: (profile as any).telefone_fixo || "",
+      emailComercial: (profile as any).email_comercial || "",
+      instagram: (profile as any).instagram || "",
+      cep: profile.cep || "",
+      endereco: profile.endereco || "",
+      numero: (profile as any).numero || "",
+      complemento: (profile as any).complemento || "",
+      bairro: (profile as any).bairro || "",
+      cidade: profile.cidade || "",
+      estado: profile.estado || "",
+      banco: bancarios.banco || "",
+      agencia: bancarios.agencia || "",
+      conta: bancarios.conta || "",
+      tipoConta: bancarios.tipo_conta || "",
+      titular: bancarios.titular || "",
+      pix: bancarios.pix || "",
+      inscricaoEstadual: (profile as any).inscricao_estadual || "",
+      inscricaoMunicipal: (profile as any).inscricao_municipal || "",
+      certificacoes: (profile as any).certificacoes || "",
+    });
+    if (profile.avatar_url) setLogomarca(profile.avatar_url);
+    if ((profile as any).assinatura_url) setAssinatura((profile as any).assinatura_url);
   }, [profile, reset]);
 
   const cepValue = watch("cep");
+  const documentoTipo = watch("documentoTipo");
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
-
     if (file.size > 5 * 1024 * 1024) {
       toast.error("A imagem deve ter no máximo 5MB");
       return;
     }
-
     try {
-      // Determinar extensão do arquivo
-      const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
+      const ext = file.name.split(".").pop()?.toLowerCase() || "png";
       const filePath = `${user.id}/logo.${ext}`;
-
-      // Upload para o Storage (upsert = true para substituir se existir)
       const { error: uploadError } = await supabase.storage
-        .from('logotipos')
-        .upload(filePath, file, { 
-          upsert: true,
-          contentType: file.type
-        });
-
+        .from("logotipos")
+        .upload(filePath, file, { upsert: true, contentType: file.type });
       if (uploadError) throw uploadError;
-
-      // Obter URL pública
-      const { data: { publicUrl } } = supabase.storage
-        .from('logotipos')
-        .getPublicUrl(filePath);
-
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("logotipos").getPublicUrl(filePath);
       setLogomarca(publicUrl);
-
-      // Persistir avatar_url no perfil imediatamente
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: publicUrl })
-        .eq('id', user.id);
-
-      if (updateError) throw updateError;
-
-      queryClient.invalidateQueries({ queryKey: ['profile', user?.id, activeGroup?.id] });
-
+      await supabase.from("profiles").update({ avatar_url: publicUrl }).eq("id", user.id);
+      queryClient.invalidateQueries({ queryKey: ["profile", user?.id, activeGroup?.id] });
+      queryClient.invalidateQueries({ queryKey: ["business-profile", user?.id] });
       toast.success("Logo enviada com sucesso!");
     } catch (error: any) {
-      console.error('Erro ao fazer upload da logo:', error);
       toast.error("Erro ao enviar logo: " + error.message);
     }
   };
 
   const handleRemoveImage = async () => {
     if (!user) return;
-
     try {
-      // Buscar arquivos do usuário no bucket
-      const { data: files } = await supabase.storage
-        .from('logotipos')
-        .list(`${user.id}`);
-
-      // Deletar todos os arquivos do usuário (geralmente apenas 1 logo)
-      if (files && files.length > 0) {
-        const filePaths = files.map(f => `${user.id}/${f.name}`);
-        await supabase.storage.from('logotipos').remove(filePaths);
+      const { data: files } = await supabase.storage.from("logotipos").list(`${user.id}`);
+      if (files?.length) {
+        await supabase.storage.from("logotipos").remove(files.map((f) => `${user.id}/${f.name}`));
       }
-
       setLogomarca("");
-
-      // Limpar avatar_url no perfil imediatamente
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: null })
-        .eq('id', user.id);
-
-      if (updateError) throw updateError;
-
-      queryClient.invalidateQueries({ queryKey: ['profile', user?.id, activeGroup?.id] });
-
-      toast.success("Logo removida com sucesso!");
+      await supabase.from("profiles").update({ avatar_url: null }).eq("id", user.id);
+      queryClient.invalidateQueries({ queryKey: ["profile", user?.id, activeGroup?.id] });
+      queryClient.invalidateQueries({ queryKey: ["business-profile", user?.id] });
+      toast.success("Logo removida!");
     } catch (error: any) {
-      console.error('Erro ao remover logo:', error);
       toast.error("Erro ao remover logo: " + error.message);
+    }
+  };
+
+  const handleAssinaturaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("A assinatura deve ter no máximo 2MB");
+      return;
+    }
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+      const filePath = `${user.id}/assinatura.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("assinaturas")
+        .upload(filePath, file, { upsert: true, contentType: file.type });
+      if (uploadError) throw uploadError;
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("assinaturas").getPublicUrl(filePath);
+      setAssinatura(publicUrl);
+      await supabase.from("profiles").update({ assinatura_url: publicUrl } as any).eq("id", user.id);
+      queryClient.invalidateQueries({ queryKey: ["profile", user?.id, activeGroup?.id] });
+      queryClient.invalidateQueries({ queryKey: ["business-profile", user?.id] });
+      toast.success("Assinatura enviada!");
+    } catch (error: any) {
+      toast.error("Erro ao enviar assinatura: " + error.message);
+    }
+  };
+
+  const handleRemoveAssinatura = async () => {
+    if (!user) return;
+    try {
+      const { data: files } = await supabase.storage.from("assinaturas").list(`${user.id}`);
+      if (files?.length) {
+        await supabase.storage.from("assinaturas").remove(files.map((f) => `${user.id}/${f.name}`));
+      }
+      setAssinatura("");
+      await supabase.from("profiles").update({ assinatura_url: null } as any).eq("id", user.id);
+      queryClient.invalidateQueries({ queryKey: ["profile", user?.id, activeGroup?.id] });
+      queryClient.invalidateQueries({ queryKey: ["business-profile", user?.id] });
+      toast.success("Assinatura removida!");
+    } catch (error: any) {
+      toast.error("Erro ao remover assinatura: " + error.message);
     }
   };
 
@@ -187,70 +258,63 @@ export default function SeusDados() {
     }
   };
 
-  // Mutation para atualizar perfil
   const updateProfileMutation = useMutation({
     mutationFn: async (data: SeusDadosForm) => {
       if (!user) throw new Error("Usuário não autenticado");
-      
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          nome_confeitaria: data.razaoSocial,
-          razao_social: data.nomeFantasia,
-          nome_completo: data.nomeResponsavel,
-          email: data.email,
-          telefone: data.telefone,
-          cpf: data.cnpjCpf,
-          inscricao_estadual: data.inscricaoEstadual,
-          endereco: data.endereco,
-          numero: data.numero,
-          bairro: data.bairro,
-          cidade: data.cidade,
-          estado: data.estado,
-          cep: data.cep,
-          whatsapp: data.telefone,
-          avatar_url: logomarca || null,
-          primeiro_acesso: false,
-        })
-        .eq('id', user.id);
-
-      if (error) {
-        console.error('Erro do Supabase:', error);
-        throw error;
-      }
+      const payload: any = {
+        nome_completo: data.nomeResponsavel,
+        email: data.email,
+        nome_confeitaria: data.nomeFantasia,
+        razao_social: data.razaoSocial,
+        cpf: data.cnpjCpf,
+        documento_tipo: data.documentoTipo,
+        whatsapp: data.telefone,
+        telefone: data.telefone,
+        telefone_fixo: data.telefoneFixo || null,
+        email_comercial: data.emailComercial || null,
+        instagram: data.instagram || null,
+        cep: data.cep,
+        endereco: data.endereco,
+        numero: data.numero,
+        complemento: data.complemento || null,
+        bairro: data.bairro,
+        cidade: data.cidade,
+        estado: data.estado,
+        inscricao_estadual: data.inscricaoEstadual || null,
+        inscricao_municipal: data.inscricaoMunicipal || null,
+        certificacoes: data.certificacoes || null,
+        dados_bancarios: {
+          banco: data.banco || null,
+          agencia: data.agencia || null,
+          conta: data.conta || null,
+          tipo_conta: data.tipoConta || null,
+          titular: data.titular || null,
+          pix: data.pix || null,
+        },
+        avatar_url: logomarca || null,
+        assinatura_url: assinatura || null,
+        primeiro_acesso: false,
+      };
+      const { error } = await supabase.from("profiles").update(payload).eq("id", user.id);
+      if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile', user?.id, activeGroup?.id] });
+      queryClient.invalidateQueries({ queryKey: ["profile", user?.id, activeGroup?.id] });
+      queryClient.invalidateQueries({ queryKey: ["business-profile", user?.id] });
       toast.success("✅ Dados salvos com sucesso!");
-      
-      // Redirecionar para cadastros base (Insumos e Embalagens agora é uso exclusivo do sistema)
-      setTimeout(() => {
-        navigate('/configuracoes/cadastros-base');
-      }, 1000);
     },
     onError: (error: any) => {
-      console.error('Erro ao salvar dados:', error);
-      
-      // Mensagens de erro mais específicas
-      let errorMessage = "Erro ao salvar dados. Tente novamente.";
-      
-      if (error?.message?.includes("value too long")) {
-        errorMessage = "Um dos campos excedeu o tamanho máximo permitido. Verifique os dados e tente novamente.";
-      } else if (error?.message) {
-        errorMessage = `Erro: ${error.message}`;
-      }
-      
-      toast.error(errorMessage);
+      toast.error(error?.message ? `Erro: ${error.message}` : "Erro ao salvar dados.");
     },
   });
 
   const onSubmit = (data: SeusDadosForm) => {
-    if (!data.razaoSocial?.trim()) {
+    if (!data.nomeFantasia?.trim()) {
       toast.error("Nome Fantasia é obrigatório");
       return;
     }
     if (!data.telefone?.trim()) {
-      toast.error("Telefone/WhatsApp é obrigatório");
+      toast.error("WhatsApp é obrigatório");
       return;
     }
     updateProfileMutation.mutate(data);
@@ -267,211 +331,350 @@ export default function SeusDados() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={profile?.primeiro_acesso ? "Bem-vinda! Complete seus dados" : "Dados da Confeitaria"}
-        description={profile?.primeiro_acesso ? "Por favor, complete as informações da sua confeitaria para começar" : "Cadastre as informações do seu negócio para que sejam usadas em toda a plataforma"}
+        title={profile?.primeiro_acesso ? "Bem-vinda! Complete seus dados" : "Meus Dados"}
+        description="Gerencie seu perfil e os dados empresariais que serão usados em propostas, contratos, relatórios e em toda a plataforma."
       />
 
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <Card>
+          <CardContent className="pt-6">
+            <Tabs defaultValue="pessoal" className="w-full">
+              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1 h-auto p-1 mb-6">
+                <TabsTrigger value="pessoal" className="text-xs sm:text-sm">
+                  <UserIcon className="h-3.5 w-3.5 mr-1 hidden sm:inline" /> Pessoal
+                </TabsTrigger>
+                <TabsTrigger value="empresa" className="text-xs sm:text-sm">
+                  <Building2 className="h-3.5 w-3.5 mr-1 hidden sm:inline" /> Empresa
+                </TabsTrigger>
+                <TabsTrigger value="endereco" className="text-xs sm:text-sm">
+                  <MapPin className="h-3.5 w-3.5 mr-1 hidden sm:inline" /> Endereço
+                </TabsTrigger>
+                <TabsTrigger value="bancario" className="text-xs sm:text-sm">
+                  <Landmark className="h-3.5 w-3.5 mr-1 hidden sm:inline" /> Bancário
+                </TabsTrigger>
+                <TabsTrigger value="legal" className="text-xs sm:text-sm">
+                  <BadgeCheck className="h-3.5 w-3.5 mr-1 hidden sm:inline" /> Legal
+                </TabsTrigger>
+                <TabsTrigger value="assinatura" className="text-xs sm:text-sm">
+                  <FileSignature className="h-3.5 w-3.5 mr-1 hidden sm:inline" /> Assinatura
+                </TabsTrigger>
+              </TabsList>
 
+              {/* PESSOAL */}
+              <TabsContent value="pessoal" className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="nomeResponsavel">Nome Completo</Label>
+                    <Input id="nomeResponsavel" {...register("nomeResponsavel")} placeholder="Seu nome completo" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">E-mail de Acesso</Label>
+                    <Input id="email" type="email" {...register("email")} placeholder="seu@email.com" />
+                  </div>
+                </div>
+              </TabsContent>
 
-      <Card>
-        <CardContent className="pt-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="logomarca">Logomarca da Empresa</Label>
-              <div className="space-y-4">
-                {logomarca ? (
-                  <div className="relative inline-block">
-                    <img 
-                      src={logomarca} 
-                      alt="Logomarca" 
-                      className="max-w-xs max-h-48 rounded-lg border-2 border-border object-contain bg-muted p-4"
-                    />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute -top-2 -right-2"
-                      onClick={handleRemoveImage}
-                    >
-                      <X className="h-4 w-4" />
+              {/* EMPRESA */}
+              <TabsContent value="empresa" className="space-y-6">
+                <div>
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                    Logo do Negócio
+                  </h3>
+                  {logomarca ? (
+                    <div className="relative inline-block">
+                      <img
+                        src={logomarca}
+                        alt="Logomarca"
+                        className="max-w-xs max-h-48 rounded-lg border-2 border-border object-contain bg-muted p-4"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute -top-2 -right-2"
+                        onClick={handleRemoveImage}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-4">
+                      <Input type="file" accept="image/*" onChange={handleImageUpload} className="max-w-sm" />
+                      <Upload className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Formatos: JPG, PNG, WEBP. Máx. 5MB.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                    Identificação
+                  </h3>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="nomeFantasia">
+                        Nome Fantasia <span className="text-destructive">*</span>
+                      </Label>
+                      <Input id="nomeFantasia" {...register("nomeFantasia", { required: true })} placeholder="Nome da confeitaria" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="razaoSocial">Razão Social</Label>
+                      <Input id="razaoSocial" {...register("razaoSocial")} placeholder="Razão social" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Tipo de Documento</Label>
+                      <Select value={documentoTipo} onValueChange={(v) => setValue("documentoTipo", v as "cpf" | "cnpj")}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="cpf">CPF</SelectItem>
+                          <SelectItem value="cnpj">CNPJ</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="cnpjCpf">CPF / CNPJ</Label>
+                      <Input
+                        id="cnpjCpf"
+                        {...register("cnpjCpf")}
+                        placeholder="000.000.000-00 ou 00.000.000/0001-00"
+                        onBlur={(e) => setValue("cnpjCpf", formatCpfCnpj(e.target.value))}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                    Contato
+                  </h3>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="telefone">
+                        WhatsApp <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="telefone"
+                        {...register("telefone", { required: true })}
+                        placeholder="(00) 00000-0000"
+                        onBlur={(e) => setValue("telefone", formatPhone(e.target.value))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="telefoneFixo">Telefone Fixo</Label>
+                      <Input
+                        id="telefoneFixo"
+                        {...register("telefoneFixo")}
+                        placeholder="(00) 0000-0000"
+                        onBlur={(e) => setValue("telefoneFixo", formatPhone(e.target.value))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="instagram">Instagram</Label>
+                      <Input id="instagram" {...register("instagram")} placeholder="@seuinstagram" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="emailComercial">E-mail Comercial</Label>
+                      <Input id="emailComercial" type="email" {...register("emailComercial")} placeholder="contato@suaconfeitaria.com" />
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* ENDEREÇO */}
+              <TabsContent value="endereco" className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="cep">CEP</Label>
+                  <div className="flex gap-2">
+                    <Input id="cep" {...register("cep")} placeholder="00000-000" maxLength={9} className="max-w-xs" />
+                    <Button type="button" variant="outline" onClick={handleBuscarCEP} disabled={loading || !cepValue}>
+                      <Search className="h-4 w-4 mr-2" />
+                      {loading ? "Buscando..." : "Buscar"}
                     </Button>
                   </div>
-                ) : (
-                  <div className="flex items-center gap-4">
-                    <Input
-                      id="logomarca"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="max-w-sm"
-                    />
-                    <Upload className="h-5 w-5 text-muted-foreground" />
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="endereco">Rua / Avenida</Label>
+                    <Input id="endereco" {...register("endereco")} placeholder="Rua, Avenida" />
                   </div>
-                )}
-                <p className="text-sm text-muted-foreground">
-                  Formatos aceitos: JPG, PNG, WEBP. Tamanho máximo: 5MB
-                </p>
-              </div>
-            </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="numero">Número</Label>
+                    <Input id="numero" {...register("numero")} placeholder="Nº" />
+                  </div>
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="razaoSocial">Nome Fantasia <span className="text-destructive">*</span></Label>
-              <Input
-                id="razaoSocial"
-                {...register("razaoSocial", { required: true })}
-                placeholder="Nome da empresa"
-                required
-              />
-            </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="complemento">Complemento</Label>
+                    <Input id="complemento" {...register("complemento")} placeholder="Apto, Sala..." />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bairro">Bairro</Label>
+                    <Input id="bairro" {...register("bairro")} placeholder="Bairro" />
+                  </div>
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="nomeFantasia">Razão Social</Label>
-              <Input
-                id="nomeFantasia"
-                {...register("nomeFantasia")}
-                placeholder="Razão Social da Empresa"
-              />
-            </div>
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="cidade">Cidade</Label>
+                    <Input id="cidade" {...register("cidade")} placeholder="Cidade" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Estado (UF)</Label>
+                    <Select value={watch("estado")} onValueChange={(v) => setValue("estado", v)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="UF" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {UF_LIST.map((uf) => (
+                          <SelectItem key={uf} value={uf}>{uf}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </TabsContent>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="cnpjCpf">CNPJ ou CPF</Label>
-                <Input
-                  id="cnpjCpf"
-                  {...register("cnpjCpf")}
-                  placeholder="00.000.000/0000-00"
-                  onBlur={(e) => setValue("cnpjCpf", formatCpfCnpj(e.target.value))}
-                />
-              </div>
+              {/* BANCÁRIO */}
+              <TabsContent value="bancario" className="space-y-6">
+                <div>
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <Landmark className="h-4 w-4" /> Dados Bancários
+                  </h3>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>Banco</Label>
+                      <Select value={watch("banco")} onValueChange={(v) => setValue("banco", v)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione o banco" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {BANKS.map((b) => (
+                            <SelectItem key={b} value={b}>{b}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="agencia">Agência</Label>
+                      <Input id="agencia" {...register("agencia")} placeholder="0000" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="conta">Conta</Label>
+                      <Input id="conta" {...register("conta")} placeholder="00000-0" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Tipo de Conta</Label>
+                      <Select value={watch("tipoConta")} onValueChange={(v) => setValue("tipoConta", v)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="corrente">Conta Corrente</SelectItem>
+                          <SelectItem value="poupanca">Conta Poupança</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                      <Label htmlFor="titular">Titular da Conta</Label>
+                      <Input id="titular" {...register("titular")} placeholder="Nome completo do titular" />
+                    </div>
+                  </div>
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="inscricaoEstadual">Inscrição Estadual</Label>
-                <Input
-                  id="inscricaoEstadual"
-                  {...register("inscricaoEstadual")}
-                  placeholder="000.000.000.000"
-                />
-              </div>
-            </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                    Chave PIX
+                  </h3>
+                  <div className="space-y-2">
+                    <Input id="pix" {...register("pix")} placeholder="CPF, CNPJ, e-mail, telefone ou chave aleatória" />
+                    <p className="text-xs text-muted-foreground">
+                      Esta chave será exibida nas propostas e contratos para recebimento de pagamentos.
+                    </p>
+                  </div>
+                </div>
+              </TabsContent>
 
-            <div className="space-y-2">
-              <Label htmlFor="nomeResponsavel">Nome da(o) Responsável</Label>
-              <Input
-                id="nomeResponsavel"
-                {...register("nomeResponsavel")}
-                placeholder="Nome completo"
-              />
-            </div>
+              {/* LEGAL */}
+              <TabsContent value="legal" className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="inscricaoEstadual">Inscrição Estadual</Label>
+                    <Input id="inscricaoEstadual" {...register("inscricaoEstadual")} placeholder="Número da inscrição estadual" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="inscricaoMunicipal">Inscrição Municipal</Label>
+                    <Input id="inscricaoMunicipal" {...register("inscricaoMunicipal")} placeholder="Número da inscrição municipal" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="certificacoes">Certificações / Registros</Label>
+                  <Textarea
+                    id="certificacoes"
+                    {...register("certificacoes")}
+                    placeholder="Ex: Alvará Sanitário, Curso de Boas Práticas, MEI nº..."
+                    rows={3}
+                  />
+                </div>
+              </TabsContent>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="telefone">Telefone/WhatsApp <span className="text-destructive">*</span></Label>
-                <Input
-                  id="telefone"
-                  {...register("telefone", { required: true })}
-                  placeholder="(00) 00000-0000"
-                  required
-                  onBlur={(e) => setValue("telefone", formatPhone(e.target.value))}
-                />
-              </div>
+              {/* ASSINATURA */}
+              <TabsContent value="assinatura" className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                    Assinatura Digitalizada
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Envie uma imagem da sua assinatura para inseri-la automaticamente em propostas e contratos.
+                  </p>
+                  {assinatura ? (
+                    <div className="relative inline-block">
+                      <img
+                        src={assinatura}
+                        alt="Assinatura"
+                        className="max-w-xs max-h-32 rounded-lg border-2 border-border object-contain bg-muted p-4"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute -top-2 -right-2"
+                        onClick={handleRemoveAssinatura}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-4">
+                      <Input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleAssinaturaUpload} className="max-w-sm" />
+                      <Upload className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Formatos: PNG, JPG, WEBP. Máx. 2MB. Prefira PNG com fundo transparente.
+                  </p>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">E-mail</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  {...register("email")}
-                  placeholder="seu@email.com"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="cep">CEP</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="cep"
-                  {...register("cep")}
-                  placeholder="00000-000"
-                  maxLength={9}
-                  className="max-w-xs"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleBuscarCEP}
-                  disabled={loading || !cepValue}
-                >
-                  <Search className="h-4 w-4 mr-2" />
-                  {loading ? "Buscando..." : "Buscar"}
-                </Button>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Digite o CEP e clique em Buscar para preencher automaticamente
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="endereco">Endereço</Label>
-                <Input
-                  id="endereco"
-                  {...register("endereco")}
-                  placeholder="Rua, Avenida"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="numero">Número</Label>
-                <Input
-                  id="numero"
-                  {...register("numero")}
-                  placeholder="Nº"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="bairro">Bairro</Label>
-                <Input
-                  id="bairro"
-                  {...register("bairro")}
-                  placeholder="Bairro"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cidade">Cidade</Label>
-                <Input
-                  id="cidade"
-                  {...register("cidade")}
-                  placeholder="Cidade"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="estado">Estado</Label>
-                <Input
-                  id="estado"
-                  {...register("estado")}
-                  placeholder="UF"
-                  maxLength={2}
-                />
-              </div>
-            </div>
-
-            <Button 
-              type="submit" 
-              className="w-full"
-              disabled={updateProfileMutation.isPending}
-            >
-              <Save className="h-4 w-4 mr-2" />
-              {updateProfileMutation.isPending ? "Salvando..." : profile?.primeiro_acesso ? "Salvar e Continuar" : "Salvar Dados"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+        <div className="flex justify-end">
+          <Button type="submit" disabled={updateProfileMutation.isPending} className="min-w-[200px]">
+            <Save className="h-4 w-4 mr-2" />
+            {updateProfileMutation.isPending
+              ? "Salvando..."
+              : profile?.primeiro_acesso
+              ? "Salvar e Continuar"
+              : "Salvar Dados"}
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }
