@@ -739,3 +739,9 @@ Substituiu a abordagem com Vault (que exigia `vault.create_secret` manual no SQL
 - **Correção:** Migration `20260526-010829-604713` executa `REVOKE EXECUTE ... FROM PUBLIC, anon; GRANT EXECUTE ... TO authenticated;` na assinatura exata confirmada no banco (`p_fechamento_id uuid, p_observacoes text, p_snapshot jsonb, p_faturamento numeric, p_custos numeric, p_margem_seguranca numeric, p_pro_labore_saudavel numeric, p_retiradas numeric, p_saldo_restante numeric`).
 - **Assinatura:** `pg_get_function_identity_arguments(oid)` retornou `p_fechamento_id uuid, p_observacoes text, p_snapshot jsonb, p_faturamento numeric, p_custos numeric, p_margem_seguranca numeric, p_pro_labore_saudavel numeric, p_retiradas numeric, p_saldo_restante numeric`.
 - **Status:** P-4 da auditoria Sprint 1/2 → ✅ CONFIRMADO.
+
+### 2026-05-26 — P-8: Refatoração `ContasPagarForm` (page wrapper enxuto)
+- **Problema:** `src/pages/financeiro/ContasPagarForm.tsx` tinha 120 linhas concentrando fetch de dados, transformações e estado de loading antes de delegar ao Modal.
+- **Correção:** Toda lógica de carregamento (fetch da conta, transformações iniciais, estado `loadingConta` e tela de loading) movida para `src/components/financeiro/ContasPagarFormModal.tsx`. O Modal agora recebe apenas `contaId?`, `onSucesso` e `onCancelar` e dispara seus próprios fetches via `useEffect`. A página é um wrapper de rota com 24 linhas: extrai `id` de `useParams`, controla estado `open` e redireciona para `/financeiro/contas-pagar` ao fechar.
+- **Não alterado:** Lógica de submit, validação, campos do formulário e `ContasPagar.tsx` (listagem).
+- **Status:** P-8 da auditoria Sprint 1/2 → ✅ CONFIRMADO.
