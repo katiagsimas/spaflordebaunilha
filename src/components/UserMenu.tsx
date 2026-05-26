@@ -35,7 +35,7 @@ function useProfileMenu(userId?: string) {
       if (!userId) return null;
       const { data } = await supabase
         .from("profiles")
-        .select("nome_completo, nome_confeitaria, plano_tipo, plano_inicio, plano_fim")
+        .select("nome_completo, nome_confeitaria, plano_tipo, plano_inicio, plano_fim, avatar_url")
         .eq("id", userId)
         .single();
       return data;
