@@ -3541,6 +3541,20 @@ export type Database = {
         Returns: undefined
       }
       expire_overdue_plans: { Args: never; Returns: number }
+      fechar_mes: {
+        Args: {
+          p_custos: number
+          p_faturamento: number
+          p_fechamento_id: string
+          p_margem_seguranca: number
+          p_observacoes: string
+          p_pro_labore_saudavel: number
+          p_retiradas: number
+          p_saldo_restante: number
+          p_snapshot: Json
+        }
+        Returns: undefined
+      }
       gerar_proximo_codigo_categoria: {
         Args: { p_user_id: string }
         Returns: string
