@@ -260,14 +260,16 @@ export function UserMenu() {
 
           {/* Ações */}
           <div className="p-2 space-y-1">
-            <Button
-              variant="ghost"
-              className="w-full justify-start font-body text-sm"
-              onClick={() => navigate("/upgrade")}
-            >
-              <ArrowUpCircle className="h-4 w-4 mr-2 text-cda-dourado" />
-              Atualizar plano
-            </Button>
+            {!isMother && (
+              <Button
+                variant="ghost"
+                className="w-full justify-start font-body text-sm"
+                onClick={() => navigate("/upgrade")}
+              >
+                <ArrowUpCircle className="h-4 w-4 mr-2 text-cda-dourado" />
+                Atualizar plano
+              </Button>
+            )}
             <Button
               variant="ghost"
               className="w-full justify-start font-body text-sm"
