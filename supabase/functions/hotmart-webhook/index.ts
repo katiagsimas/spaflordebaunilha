@@ -522,5 +522,122 @@ async function enviarEmailBoasVindas(
     }
   } catch (err) {
     console.error('Erro ao enviar email de boas-vindas:', err)
+}
+
+function formatarDataBR(iso: string): string {
+  const [y, m, d] = iso.split('-')
+  return `${d}/${m}/${y}`
+}
+
+async function enviarEmailRenovacaoAluna(
+  email: string,
+  nome: string | null,
+  planoId: string,
+  planoFim: string,
+) {
+  const resendApiKey = Deno.env.get('RESEND_API_KEY')
+  if (!resendApiKey) {
+    console.warn('RESEND_API_KEY não configurada - email renovação aluna não enviado')
+    return
   }
+
+  const nomeDisplay = escapeHtml(nome || 'Confeiteira')
+  const planoNome = planoId === 'negocio' ? 'Caixa Business' : 'Caixa Lite'
+  const validade = escapeHtml(formatarDataBR(planoFim))
+
+  const html = `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; color: #121212; line-height: 1.6; background: #FDF6EE; padding: 32px 24px; border-radius: 12px;">
+      <h1 style="color: #5B1A2B; font-size: 22px; margin: 0 0 16px;">🎉 Sua renovação foi confirmada!</h1>
+      <p>Olá, ${nomeDisplay}!</p>
+      <p>Que alegria ter você por mais um ano com a gente. Sua jornada agora segue no <strong>${planoNome}</strong>, com acesso até <strong>${validade}</strong>.</p>
+      <p style="background: #C9A14A; color: #121212; padding: 12px 16px; border-radius: 8px; margin: 20px 0;">
+        ✨ <strong>Todos os seus cadastros, receitas, clientes e histórico foram preservados.</strong> Você continua exatamente de onde parou.
+      </p>
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="https://caixa.umbrelladoce.com.br"
+           style="background: #5B1A2B; color: #FFF9F5; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+          Entrar no Caixa de Açúcar
+        </a>
+      </div>
+      <p style="font-size: 13px; color: #555;">Qualquer dúvida, responda este e-mail ou fale com a gente em <a href="mailto:ola@umbrelladoce.com.br" style="color: #5B1A2B;">ola@umbrelladoce.com.br</a>.</p>
+      <p style="margin-top: 24px;">Com carinho,<br/><strong>Equipe Umbrella Doce</strong></p>
+    </div>
+  `
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'Caixa de Açúcar <noreply@umbrelladoce.com.br>',
+        to: [email],
+        subject: `🎉 Bem-vinda ao ${planoNome} — sua renovação foi confirmada!`,
+        html,
+      }),
+    })
+    if (!res.ok) {
+      console.error('Erro Resend (renovação aluna):', res.status, await res.text())
+    } else {
+      console.log('Email renovação enviado para aluna:', email)
+    }
+  } catch (err) {
+    console.error('Erro ao enviar email renovação aluna:', err)
+  }
+}
+
+async function enviarEmailRenovacaoAdmin(
+  emailAluna: string,
+  nomeAluna: string | null,
+  planoId: string,
+  planoFim: string,
+  source: string,
+) {
+  const resendApiKey = Deno.env.get('RESEND_API_KEY')
+  const emailAdmin = Deno.env.get('EMAIL_ADMIN_IMERSAO')
+  if (!resendApiKey || !emailAdmin) {
+    console.warn('EMAIL_ADMIN_IMERSAO ou RESEND_API_KEY ausente - email admin não enviado')
+    return
+  }
+
+  const nomeDisplay = escapeHtml(nomeAluna || 'Aluna')
+  const emailSafe = escapeHtml(emailAluna)
+  const planoNome = planoId === 'negocio' ? 'Caixa Business' : 'Caixa Lite'
+  const validade = escapeHtml(formatarDataBR(planoFim))
+  const sourceSafe = escapeHtml(source)
+
+  const html = `
+    <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; color: #121212; line-height: 1.6;">
+      <h2 style="color: #5B1A2B;">✨ Renovação de aluna da Imersão</h2>
+      <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+        <tr><td style="padding: 6px 0;"><strong>Aluna:</strong></td><td>${nomeDisplay}</td></tr>
+        <tr><td style="padding: 6px 0;"><strong>E-mail:</strong></td><td>${emailSafe}</td></tr>
+        <tr><td style="padding: 6px 0;"><strong>De:</strong></td><td>Aluna Imersão</td></tr>
+        <tr><td style="padding: 6px 0;"><strong>Para:</strong></td><td>${planoNome} (anual)</td></tr>
+        <tr><td style="padding: 6px 0;"><strong>Nova validade:</strong></td><td>${validade}</td></tr>
+        <tr><td style="padding: 6px 0;"><strong>Origem Hotmart:</strong></td><td>${sourceSafe}</td></tr>
+      </table>
+      <p style="font-size: 13px; color: #666;">Dados, cadastros e histórico da aluna foram preservados automaticamente.</p>
+    </div>
+  `
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'Caixa de Açúcar <noreply@umbrelladoce.com.br>',
+        to: [emailAdmin],
+        subject: `Aluna renovou: ${nomeAluna || emailAluna} → ${planoNome}`,
+        html,
+      }),
+    })
+    if (!res.ok) {
+      console.error('Erro Resend (renovação admin):', res.status, await res.text())
+    } else {
+      console.log('Email renovação enviado para admin:', emailAdmin)
+    }
+  } catch (err) {
+    console.error('Erro ao enviar email renovação admin:', err)
+  }
+}
 }
