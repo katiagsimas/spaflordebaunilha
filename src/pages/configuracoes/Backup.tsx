@@ -18,7 +18,8 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { BACKUP_MODULOS, DEFAULT_MODULOS, tabelasDosModulos, type BackupModuloId } from "@/lib/backupCatalog";
+import { BACKUP_MODULOS, DEFAULT_MODULOS, tabelasDosModulos, modulosDisponiveis, type BackupModuloId } from "@/lib/backupCatalog";
+import { useGroup } from "@/contexts/GroupContext";
 
 interface BackupRecord {
   id: string;
@@ -43,8 +44,10 @@ const RETENCAO_OPCOES = [7, 15, 30, 60, 90, 180, 365];
 export default function Backup() {
   const { user } = useAuth();
   const { profile, loading: profileLoading } = useUserProfile();
+  const { isMother } = useGroup();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const modulosVisiveis = modulosDisponiveis(isMother);
 
   const [backups, setBackups] = useState<BackupRecord[]>([]);
   const [realizandoBackup, setRealizandoBackup] = useState(false);
@@ -406,7 +409,7 @@ export default function Backup() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {BACKUP_MODULOS.map((mod) => {
+            {modulosVisiveis.map((mod) => {
               const checked = modulosManual.includes(mod.id);
               return (
                 <label
@@ -520,7 +523,7 @@ export default function Backup() {
             <div className="space-y-2 pt-2 border-t">
               <Label className="text-xs text-muted-foreground">Módulos incluídos automaticamente</Label>
               <div className="flex flex-wrap gap-1.5">
-                {BACKUP_MODULOS.map((m) => {
+                {modulosVisiveis.map((m) => {
                   const ativo = modulosAgendamento.includes(m.id);
                   return (
                     <button

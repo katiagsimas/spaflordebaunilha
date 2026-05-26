@@ -5,13 +5,16 @@ export type BackupModuloId =
   | "operacao"
   | "comercial"
   | "negocio"
-  | "sistema";
+  | "sistema"
+  | "governanca";
 
 export interface BackupModuloDef {
   id: BackupModuloId;
   titulo: string;
   descricao: string;
   tabelas: string[];
+  /** Visível e executável apenas para o usuário MOTHER. */
+  motherOnly?: boolean;
 }
 
 export const BACKUP_MODULOS: BackupModuloDef[] = [
@@ -104,9 +107,31 @@ export const BACKUP_MODULOS: BackupModuloDef[] = [
       "tags",
     ],
   },
+  {
+    id: "governanca",
+    titulo: "Governança / Usuários",
+    descricao: "Grupos, papéis globais e por grupo, perfis e logs administrativos (apenas MOTHER)",
+    motherOnly: true,
+    tabelas: [
+      "groups",
+      "user_global_roles",
+      "user_group_roles",
+      "user_roles",
+      "profiles",
+      "admin_logs",
+      "historico_planos",
+    ],
+  },
 ];
 
-export const DEFAULT_MODULOS: BackupModuloId[] = BACKUP_MODULOS.map((m) => m.id);
+/** Módulos padrão (não inclui `motherOnly`); use `modulosDisponiveis(isMother)` para a lista visível. */
+export const DEFAULT_MODULOS: BackupModuloId[] = BACKUP_MODULOS
+  .filter((m) => !m.motherOnly)
+  .map((m) => m.id);
+
+export function modulosDisponiveis(isMother: boolean): BackupModuloDef[] {
+  return BACKUP_MODULOS.filter((m) => !m.motherOnly || isMother);
+}
 
 export function tabelasDosModulos(modulos: BackupModuloId[]): string[] {
   const set = new Set<string>();
