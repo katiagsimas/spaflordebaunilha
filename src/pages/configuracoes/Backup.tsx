@@ -753,16 +753,12 @@ export default function Backup() {
                 </div>
               )}
               <Button
-                onClick={() => backupSelecionado && restaurarDoHistorico(backupSelecionado)}
+                onClick={() => backupSelecionado && abrirRestauracaoHistorico(backupSelecionado)}
                 disabled={!backupSelecionado || restaurando}
                 className="w-full"
                 size="sm"
               >
-                {restaurando ? (
-                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Restaurando...</>
-                ) : (
-                  <><RotateCcw className="h-4 w-4 mr-2" /> Restaurar selecionado</>
-                )}
+                <RotateCcw className="h-4 w-4 mr-2" /> Restaurar selecionado
               </Button>
             </div>
 
