@@ -1,0 +1,1 @@
+DELETE FROM public.groups WHERE id = '52a7d74e-9083-4859-8fd1-33aa75475f11';
