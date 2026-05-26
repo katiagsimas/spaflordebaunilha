@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LayoutDashboard, Users, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles, MessageCircle, Bug, CheckCircle2, EyeOff, Clock, RefreshCw } from "lucide-react";
+import { LayoutDashboard, Users, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles, MessageCircle, Bug, CheckCircle2, EyeOff, Clock, ListChecks } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
 
 import { NavLink } from "react-router-dom";
@@ -66,6 +66,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
     items: [
       { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false, comingSoonMessage: "Em breve você terá um plano claro para organizar sua produção, suas vendas e crescer com estratégia.", adminOnly: true },
       { title: "Conversa Doce", url: "/conversa-doce", icon: MessageCircle, active: true },
+      { title: "Organização Doce", url: "/organizacao-doce", icon: ListChecks, active: true },
     ],
   },
   {
@@ -320,36 +321,6 @@ export function AppSidebar() {
         <SidebarFooter className="border-t border-sidebar-border p-5">
           <div className="space-y-3">
 
-            <Button
-              onClick={async () => {
-                try {
-                  // 1) signOut local para invalidar tokens em memória
-                  await supabase.auth.signOut().catch(() => {});
-                  // 2) limpar storages
-                  try { localStorage.clear(); } catch {}
-                  try { sessionStorage.clear(); } catch {}
-                  // 3) limpar caches do Service Worker, se houver
-                  if ('caches' in window) {
-                    const keys = await caches.keys();
-                    await Promise.all(keys.map((k) => caches.delete(k)));
-                  }
-                  if ('serviceWorker' in navigator) {
-                    const regs = await navigator.serviceWorker.getRegistrations();
-                    await Promise.all(regs.map((r) => r.unregister()));
-                  }
-                } finally {
-                  // 4) hard reload com cache-buster e ir para login
-                  window.location.replace(`/auth/login?cleared=${Date.now()}`);
-                }
-              }}
-              variant="ghost"
-              size="sm"
-              className="w-full text-[#FFF9F5]/70 hover:text-cda-dourado font-body text-xs border border-cda-dourado/30"
-              title="Faz logout, limpa o cache do navegador e recarrega o app. Útil quando o menu ou permissões parecem desatualizados."
-            >
-              <RefreshCw className="h-3.5 w-3.5 mr-2" />
-              Limpar cache e recarregar
-            </Button>
             {isMother && (
               <Button
                 onClick={() => {
