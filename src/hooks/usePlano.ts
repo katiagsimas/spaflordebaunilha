@@ -5,11 +5,19 @@ import { useMotherView } from "./useMotherView";
 
 const MODULOS_POR_PLANO: Record<string, string[]> = {
   base: [
+    // MEU PAINEL
     "/dashboard",
+    // MINHA OPERAÇÃO (acesso total)
+    "/cadastros",
     "/precificacao",
-    "/encomendas",
+    "/estoque",
+    "/organizacao-doce",
+    // MEU COMERCIAL (parcial: apenas Clientes/Fornecedores e Pedidos/Encomendas)
+    "/clientes-fornecedores",
     "/clientes",
     "/fornecedores",
+    "/encomendas",
+    // SISTEMA (acesso total)
     "/configuracoes",
     "/configuracoes/cadastros-base",
     "/configuracoes/categorias-receitas",
@@ -18,7 +26,9 @@ const MODULOS_POR_PLANO: Record<string, string[]> = {
     "/configuracoes/precificacao/mao-de-obra",
     "/configuracoes/dados-confeitaria",
     "/configuracoes/tags-encomendas",
-    // Estoque NÃO incluso no Lite
+    "/configuracoes/backup",
+    // Bloqueados (mostram modal de upgrade): /financeiro, /conversa-doce,
+    // /comercial/propostas, /comercial/contratos
   ],
 
   negocio: ["*"], // acesso total
