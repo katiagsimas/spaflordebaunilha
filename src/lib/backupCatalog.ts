@@ -124,7 +124,14 @@ export const BACKUP_MODULOS: BackupModuloDef[] = [
   },
 ];
 
-export const DEFAULT_MODULOS: BackupModuloId[] = BACKUP_MODULOS.map((m) => m.id);
+/** Módulos padrão (não inclui `motherOnly`); use `modulosDisponiveis(isMother)` para a lista visível. */
+export const DEFAULT_MODULOS: BackupModuloId[] = BACKUP_MODULOS
+  .filter((m) => !m.motherOnly)
+  .map((m) => m.id);
+
+export function modulosDisponiveis(isMother: boolean): BackupModuloDef[] {
+  return BACKUP_MODULOS.filter((m) => !m.motherOnly || isMother);
+}
 
 export function tabelasDosModulos(modulos: BackupModuloId[]): string[] {
   const set = new Set<string>();
