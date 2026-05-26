@@ -260,7 +260,8 @@ Deno.serve(async (req) => {
           .update({
             ativo: true,
             nome_completo: buyerName || undefined,
-            primeiro_acesso: existingProfile.ativo === false,
+            // Renovação não deve forçar troca de senha; só novo provisionamento
+            primeiro_acesso: ehRenovacaoImersao ? false : (existingProfile.ativo === false),
             ...planoFields,
             updated_at: new Date().toISOString()
           })
