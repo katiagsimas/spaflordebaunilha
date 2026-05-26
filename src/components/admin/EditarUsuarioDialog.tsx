@@ -292,14 +292,19 @@ export function EditarUsuarioDialog({
       if (profileError) throw profileError;
 
       if (data.role !== userRole) {
-        await supabase.from('user_roles').delete().eq('user_id', userId);
+        // Sistema novo: user_global_roles (apenas MOTHER é papel global)
+        // Mapear legado 'admin' -> 'MOTHER'. Outros papéis não são globais.
+        await supabase.from('user_global_roles').delete().eq('user_id', userId);
 
-        const { error: roleError } = await supabase.from('user_roles').insert([{
-          user_id: userId,
-          role: data.role as any,
-        }]);
+        if (data.role === 'admin') {
+          const { error: roleError } = await supabase.from('user_global_roles').insert([{
+            user_id: userId,
+            role_global: 'MOTHER',
+            is_active: true,
+          }]);
 
-        if (roleError) throw roleError;
+          if (roleError) throw roleError;
+        }
 
         if (user && userData) {
           await supabase.from('admin_logs').insert({

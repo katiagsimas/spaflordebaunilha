@@ -106,16 +106,23 @@ export default function Usuarios() {
     enabled: isAdmin,
   });
 
-  // Buscar roles de todos os usuários
+  // Buscar roles globais de todos os usuários (sistema novo)
   const { data: rolesData, isLoading: isLoadingRoles } = useQuery({
     queryKey: ['admin-user-roles'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
+        .from('user_global_roles')
+        .select('user_id, role_global, is_active');
       
       if (error) throw error;
-      return data;
+      // Mapear para o formato legado (role minúscula) para manter compatibilidade
+      // MOTHER (system admin) -> 'admin'
+      return (data || [])
+        .filter((r) => r.is_active)
+        .map((r) => ({
+          user_id: r.user_id,
+          role: r.role_global === 'MOTHER' ? 'admin' : String(r.role_global).toLowerCase(),
+        }));
     },
     enabled: isAdmin,
   });
