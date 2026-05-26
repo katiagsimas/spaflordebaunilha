@@ -15,7 +15,7 @@ import { LoadingMascote } from "@/components/LoadingMascote";
 import { FirstAccessRedirect } from "@/components/FirstAccessRedirect";
 import { AlertaExpiracaoPlano } from "@/components/AlertaExpiracaoPlano";
 import { PlanExpirationWatcher } from "@/components/PlanExpirationWatcher";
-import { UserMenu } from "@/components/UserMenu";
+import { UserMenu, UserGreeting } from "@/components/UserMenu";
 import Dashboard from "./pages/Dashboard";
 import Encomendas from "./pages/Encomendas";
 import Precificacao from "./pages/Precificacao";
