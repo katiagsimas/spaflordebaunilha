@@ -176,11 +176,9 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        {open && (
-          <div className="px-4 py-3 border-b border-sidebar-border">
-            <GroupSelector />
-          </div>
-        )}
+        {open && <GroupSelector />}
+
+
 
         {menuSections.map((section, sectionIndex) => (
           <div key={section.label}>
