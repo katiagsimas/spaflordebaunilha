@@ -104,7 +104,7 @@ Deno.serve(async (req) => {
 
         const modulos: string[] = (ag.modulos && ag.modulos.length > 0)
           ? ag.modulos
-          : ["operacao", "comercial", "negocio", "planejamento", "sistema"];
+          : ["operacao", "comercial", "negocio", "sistema"];
 
         const tabelas = tabelasDosModulos(modulos);
         const dados: Record<string, any[]> = {};
