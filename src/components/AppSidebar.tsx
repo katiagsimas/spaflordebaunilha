@@ -60,9 +60,9 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
   {
     label: "MINHA OPERAÇÃO",
     items: [
-      { title: "Minhas Encomendas", url: "/encomendas", icon: ClipboardList, active: true },
-      { title: "Meu Cardápio", url: "/precificacao", icon: BookOpen, active: true },
-      { title: "Meus Insumos", url: "/estoque", icon: Package, active: true },
+      { title: "Pedidos e Encomendas", url: "/encomendas", icon: ClipboardList, active: true },
+      { title: "Cardápio", url: "/precificacao", icon: BookOpen, active: true },
+      { title: "Estoque", url: "/estoque", icon: Package, active: true },
       { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: Users, active: true },
     ],
   },
