@@ -18,15 +18,16 @@ export function useReceitasMaoObra(receitaId?: string) {
   const { data: maosObra = [], isLoading } = useQuery({
     queryKey: ["receitas_mao_obra", receitaId, userId],
     queryFn: async () => {
-      if (!receitaId) return [];
-      
+      if (!receitaId || !userId) return [];
+
       const { data, error } = await supabase
         .from("receitas_mao_obra")
-        .select("*")
-        .eq("receita_id", receitaId);
+        .select("id, receita_id, perfil_id, usar_valor_padrao, horas, receitas!inner(usuario_id)")
+        .eq("receita_id", receitaId)
+        .eq("receitas.usuario_id", userId);
 
       if (error) throw error;
-      return data as ReceitaMaoObra[];
+      return (data ?? []).map(({ receitas, ...rest }: any) => rest) as ReceitaMaoObra[];
     },
     enabled: !!receitaId && !!userId,
   });
@@ -60,6 +61,7 @@ export function useReceitasMaoObra(receitaId?: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["receitas_mao_obra"] });
       queryClient.invalidateQueries({ queryKey: ["calculos_receitas"] });
+      toast.success("Mão de obra salva com sucesso!");
     },
     onError: (error) => {
       console.error("Erro ao salvar mãos de obra:", error);
