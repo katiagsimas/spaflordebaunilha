@@ -82,6 +82,7 @@ export function useMaoObraPerfis() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["mao_obra_perfis"] });
+      queryClient.invalidateQueries({ queryKey: ["calculos_receitas"] });
       toast.success("Perfil atualizado com sucesso!");
     },
     onError: (error) => {
@@ -92,6 +93,20 @@ export function useMaoObraPerfis() {
 
   const deletePerfil = useMutation({
     mutationFn: async (id: string) => {
+      // Verificar se o perfil está vinculado a alguma receita
+      const { count, error: checkError } = await supabase
+        .from("receitas_mao_obra")
+        .select("id", { count: "exact", head: true })
+        .eq("perfil_id", id);
+
+      if (checkError) throw checkError;
+
+      if (count && count > 0) {
+        throw new Error(
+          `Este perfil está vinculado a ${count} receita(s). Remova o vínculo antes de excluir.`
+        );
+      }
+
       const { error } = await supabase
         .from("mao_obra_perfis")
         .delete()
@@ -103,9 +118,9 @@ export function useMaoObraPerfis() {
       queryClient.invalidateQueries({ queryKey: ["mao_obra_perfis"] });
       toast.success("Perfil removido com sucesso!");
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error("Erro ao remover perfil:", error);
-      toast.error("Erro ao remover perfil");
+      toast.error(error.message || "Erro ao remover perfil");
     },
   });
 
