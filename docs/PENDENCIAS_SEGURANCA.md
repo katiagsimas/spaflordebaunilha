@@ -22,6 +22,7 @@
 ## Pendências Resolvidas (Histórico)
 
 | Data (UTC) | Item | Resolução |
+| 2026-05-26 | Limpeza — assets órfãos em `src/assets/` | Removidos `auth-background.png`, `donnas-box-logo.png`, `donnas-logo.png`, `doces-background.jpg`, `caixa-acucar-logo.png` e o duplicado `cda-logo-dourado.png` (mantido apenas em `public/`). |
 | 2026-05-26 | #10 — Leaked Password Protection desabilitado | HIBP habilitado via `configure_auth` (`password_hibp_enabled: true`). |
 |------------|------|-----------|
 | 2026-05-26 | #9 — Vulnerabilidade `xlsx` (Prototype Pollution / ReDoS) | Pacote `xlsx` removido. Adicionado `exceljs@4.4.0`. Criado shim em `src/lib/xlsxShim.ts` com a mesma API mínima usada no app (`utils.json_to_sheet`, `utils.aoa_to_sheet`, `utils.book_new`, `utils.book_append_sheet`, `writeFile`). Todos os 18 imports de `xlsx` substituídos por `@/lib/xlsxShim` — comportamento de exportação preservado, sem necessidade de SheetJS Pro. |
