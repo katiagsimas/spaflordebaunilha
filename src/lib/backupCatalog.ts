@@ -18,11 +18,17 @@ export const BACKUP_MODULOS: BackupModuloDef[] = [
   {
     id: "operacao",
     titulo: "Minha Operação",
-    descricao: "Receitas, ingredientes, embalagens, estoque e pré-preparos",
+    descricao: "Cadastros, Cardápio, Estoque e Organização Doce",
     tabelas: [
+      // Cadastros
       "categorias",
       "ingredientes",
       "embalagens",
+      "tipos_insumos",
+      "unidades_medida",
+      "mao_obra_perfis",
+      "mao_obra_perfis_historico",
+      // Cardápio
       "receitas",
       "receitas_ingredientes",
       "receitas_embalagens",
@@ -32,12 +38,11 @@ export const BACKUP_MODULOS: BackupModuloDef[] = [
       "pre_preparos",
       "pre_preparos_ingredientes",
       "pre_preparos_mao_obra",
+      // Estoque
       "estoque",
       "estoque_movimentacoes",
-      "unidades_medida",
-      "tipos_insumos",
-      "mao_obra_perfis",
-      "mao_obra_perfis_historico",
+      // Organização Doce
+      "organizacao_doce_state",
     ],
   },
   {
@@ -61,8 +66,9 @@ export const BACKUP_MODULOS: BackupModuloDef[] = [
   {
     id: "negocio",
     titulo: "Meu Negócio",
-    descricao: "Financeiro, contas, custos fixos e fechamentos",
+    descricao: "Meu Dinheiro, fechamentos, Conversa Doce e Meu Salário",
     tabelas: [
+      // Meu Dinheiro
       "bancos",
       "saldos_iniciais_bancos",
       "transferencias_bancos",
@@ -79,19 +85,23 @@ export const BACKUP_MODULOS: BackupModuloDef[] = [
       "contas_pagar_comprovantes",
       "custos_fixos",
       "configuracoes_juros",
-      "meu_salario_retiradas",
+      // Fechamentos
       "fechamentos_mensais",
       "fechamento_logs",
       "fechamento_checklist_itens",
+      // Meu Salário
+      "meu_salario_retiradas",
+      // Conversa Doce
+      "conversa_doce_favoritos",
     ],
   },
   {
     id: "sistema",
     titulo: "Sistema",
-    descricao: "Preferências, tags e favoritos da Conversa Doce",
+    descricao: "Meus Dados (perfil da confeitaria) e tags do sistema",
     tabelas: [
+      "profiles",
       "tags",
-      "conversa_doce_favoritos",
     ],
   },
 ];

@@ -1,6 +1,18 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-26T20:00:00Z — Remoção do módulo Planejamento do backup.
+> Última atualização: 2026-05-26T20:30:00Z — Refinamento do escopo de backup por módulo.
+
+## BACKUP — REFINAMENTO DO ESCOPO POR MÓDULO — 2026-05-26 20:30 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| BK-R1 | `src/lib/backupCatalog.ts` | ✅ | Módulo **Minha Operação** agora cobre Cadastros + Cardápio + Estoque + **Organização Doce** (incluída `organizacao_doce_state`). |
+| BK-R2 | `src/lib/backupCatalog.ts` | ✅ | Módulo **Meu Negócio** consolidado: Meu Dinheiro (bancos, plano de contas, contas a pagar/receber, custos fixos, juros), Fechamentos, Meu Salário e **Conversa Doce** (`conversa_doce_favoritos` migrada de Sistema). |
+| BK-R3 | `src/lib/backupCatalog.ts` | ✅ | Módulo **Sistema** redefinido para refletir Configurações / Meus Dados: inclui `profiles` (perfil da confeitaria) e `tags` do sistema. |
+| BK-R4 | Edge Function `executar-backups-agendados` | ✅ | `MODULO_TABELAS` espelhado com o novo catálogo. Tratamento especial para `profiles` (filtrado por `id = usuario_id`). Deploy realizado. |
+
+---
+
 
 ## BACKUP — REMOÇÃO DO MÓDULO PLANEJAMENTO — 2026-05-26 20:00 UTC
 
