@@ -26,11 +26,6 @@ export default function Planejamento() {
   const [insights, setInsights] = useState<Insight[]>([]);
   const [previsaoData, setPrevisaoData] = useState<PrevisaoFaturamento | null>(null);
   const { profile } = useUserProfile();
-  const { plano } = usePlano();
-  const { isAdmin } = useIsAdmin();
-  const { abrir: abrirPlannerDoce, loading: loadingSsoDoce } = useOpenPlannerDoce();
-  const podeAcessarPlanejamentoDoce =
-    plano?.id === "negocio" || plano?.id === "aluna_imersao" || isAdmin;
 
   const temConfiguracao = profile?.meta_faturamento_mensal && profile.meta_faturamento_mensal > 0;
 
