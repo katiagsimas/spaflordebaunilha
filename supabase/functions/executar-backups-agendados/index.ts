@@ -8,13 +8,18 @@ const corsHeaders = {
 // Catálogo de tabelas por módulo (espelho de src/lib/backupCatalog.ts)
 const MODULO_TABELAS: Record<string, string[]> = {
   operacao: [
+    // Cadastros
     "categorias", "ingredientes", "embalagens",
+    "tipos_insumos", "unidades_medida",
+    "mao_obra_perfis", "mao_obra_perfis_historico",
+    // Cardápio
     "receitas", "receitas_ingredientes", "receitas_embalagens",
     "receitas_mao_obra", "receitas_despesas_venda", "receitas_imagens",
     "pre_preparos", "pre_preparos_ingredientes", "pre_preparos_mao_obra",
+    // Estoque
     "estoque", "estoque_movimentacoes",
-    "unidades_medida", "tipos_insumos",
-    "mao_obra_perfis", "mao_obra_perfis_historico",
+    // Organização Doce
+    "organizacao_doce_state",
   ],
   comercial: [
     "clientes", "cliente_familiares",
@@ -23,14 +28,21 @@ const MODULO_TABELAS: Record<string, string[]> = {
     "encomendas", "encomenda_itens", "encomendas_tags", "tags_encomendas",
   ],
   negocio: [
+    // Meu Dinheiro
     "bancos", "saldos_iniciais_bancos", "transferencias_bancos",
     "plano_contas", "categorias_plano_contas", "tipos_documento",
     "contas_receber", "contas_receber_parcelas", "contas_receber_pagamentos", "contas_receber_comprovantes",
     "contas_pagar", "contas_pagar_parcelas", "contas_pagar_pagamentos", "contas_pagar_comprovantes",
-    "custos_fixos", "configuracoes_juros", "meu_salario_retiradas",
+    "custos_fixos", "configuracoes_juros",
+    // Fechamentos
     "fechamentos_mensais", "fechamento_logs", "fechamento_checklist_itens",
+    // Meu Salário
+    "meu_salario_retiradas",
+    // Conversa Doce
+    "conversa_doce_favoritos",
   ],
-  sistema: ["tags", "conversa_doce_favoritos"],
+  // Sistema: Meus Dados (profiles) e tags do sistema
+  sistema: ["profiles", "tags"],
 };
 
 // Tabelas que filtram por owner_group_id (multi-tenant) e que precisam filtrar via usuario_id na ausência.
