@@ -255,12 +255,18 @@ export function AppSidebar() {
                             <NavLink
                               to={bloqueado ? "/upgrade" : item.url}
                               end
+                              onClick={(e) => {
+                                if (bloqueado) {
+                                  e.preventDefault();
+                                  setUpgradeModal({ title: item.title });
+                                }
+                              }}
                               className={({ isActive }) =>
                                 `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                                   isActive && !bloqueado
                                     ? "bg-[#FFF9F5]/[0.08] border-l-2 border-[#C9A14A] text-[#C9A14A] font-semibold"
                                     : "text-[#FFF9F5]/80 hover:bg-[#FFF9F5]/10 hover:text-[#FFF9F5]"
-                                } ${bloqueado ? "opacity-40 cursor-not-allowed" : ""}`
+                                } ${bloqueado ? "opacity-60" : ""}`
                               }
                             >
                               {({ isActive }) => (
