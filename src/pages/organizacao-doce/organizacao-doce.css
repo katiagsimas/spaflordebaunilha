@@ -38,7 +38,7 @@
 .od-header::after { content: ''; position: absolute; bottom: -40px; left: -40px; width: 120px; height: 120px; border-radius: 50%; border: 1px solid hsl(var(--cda-dourado) / 0.08); }
 .od-eyebrow { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--od-gold); font-weight: 500; margin-bottom: 12px; opacity: .85; position: relative; z-index: 1; }
 .od-title { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 500; color: var(--od-cream); line-height: 1.25; margin: 0; position: relative; z-index: 1; }
-.od-title em { font-style: italic; color: var(--od-gold-pale); font-size: 16px; display: block; margin-top: 4px; }
+.od-title em { font-style: italic; color: hsl(var(--cda-dourado) / 0.95); font-size: 16px; display: block; margin-top: 4px; }
 .od-divider { width: 32px; height: 1px; background: var(--od-gold); margin: 14px auto 0; opacity: .6; }
 .od-week { font-size: 12px; color: hsl(var(--cda-creme) / 0.65); font-weight: 300; letter-spacing: .5px; margin-top: 10px; }
 .od-week-range { font-size: 11px; color: hsl(var(--cda-dourado) / 0.85); font-weight: 300; letter-spacing: .4px; margin-top: 4px; }
