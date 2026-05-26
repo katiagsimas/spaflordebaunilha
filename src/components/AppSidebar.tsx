@@ -159,28 +159,29 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border" style={{ width: open ? '280px' : undefined }}>
-      <SidebarHeader className="border-b border-sidebar-border p-6">
+      <SidebarHeader className="h-14 border-b border-sidebar-border px-4 py-0 flex items-center justify-center">
         {open && (
-          <div className="space-y-4">
-            {/* Logo / Brand */}
-            <div className="flex flex-col items-center gap-1">
-              <div className="flex items-center gap-2">
-                <img src="/cda-logo-dourado.png" alt="Caixa de Açúcar" className="h-8 w-8" />
-                <span className="text-lg font-semibold font-body text-sidebar-foreground tracking-wide uppercase">
-                  Caixa de Açúcar
-                </span>
-              </div>
-              <span className="text-[11px] font-light font-body text-cda-creme tracking-wider">
+          <div className="flex items-center gap-2">
+            <img src="/cda-logo-dourado.png" alt="Caixa de Açúcar" className="h-7 w-7" />
+            <div className="flex flex-col leading-tight">
+              <span className="text-sm font-semibold font-body text-sidebar-foreground tracking-wide uppercase">
+                Caixa de Açúcar
+              </span>
+              <span className="text-[9px] font-light font-body text-cda-creme/70 tracking-wider">
                 by Umbrella Doce
               </span>
             </div>
-            {/* Seletor de Grupo */}
-            <GroupSelector />
           </div>
         )}
       </SidebarHeader>
 
       <SidebarContent>
+        {open && (
+          <div className="px-4 py-3 border-b border-sidebar-border">
+            <GroupSelector />
+          </div>
+        )}
+
         {menuSections.map((section, sectionIndex) => (
           <div key={section.label}>
             {sectionIndex > 0 && (
