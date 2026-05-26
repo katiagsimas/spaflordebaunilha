@@ -119,21 +119,19 @@ Deno.serve(async (req) => {
     }
 
     // ===== Usuário existe? =====
-    // Lista filtrando por email (admin.listUsers aceita filter)
-    const { data: usersList, error: listError } = await admin.auth.admin.listUsers({
-      page: 1,
-      perPage: 1,
-      // @ts-ignore — filter é suportado pela API admin
-      filter: `email.eq.${email}`,
-    })
-    if (listError) {
-      console.error('[validar-token-retorno-doce] falha listUsers:', listError.message)
+    // Usa função SQL SECURITY DEFINER (admin.auth.admin.listUsers não suporta filter por email no supabase-js)
+    const { data: userIdData, error: lookupUserError } = await admin.rpc(
+      'get_user_id_by_email',
+      { _email: email },
+    )
+    if (lookupUserError) {
+      console.error('[validar-token-retorno-doce] falha get_user_id_by_email:', lookupUserError.message)
       return jsonResponse({ error: 'internal_error' }, 500)
     }
-    const user = usersList?.users?.find((u) => u.email?.toLowerCase() === email)
-    if (!user) {
+    if (!userIdData) {
+      console.warn('[validar-token-retorno-doce] usuário não encontrado para email:', email)
       return jsonResponse(
-        { error: 'user_not_found', message: 'Usuário não encontrado na Caixa de Açúcar' },
+        { error: 'user_not_found', message: 'Sua conta do Planner ainda não está vinculada à Caixa de Açúcar' },
         404,
       )
     }
