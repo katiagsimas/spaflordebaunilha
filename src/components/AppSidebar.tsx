@@ -106,6 +106,7 @@ export function AppSidebar() {
   const { temAcesso: podeAcessarConversaDoce } = useConversaDoceAccess();
   const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
   const [comingSoonModal, setComingSoonModal] = useState<{ title: string; message: string } | null>(null);
+  const [upgradeModal, setUpgradeModal] = useState<{ title: string } | null>(null);
 
 
   const { data: profile } = useQuery({
