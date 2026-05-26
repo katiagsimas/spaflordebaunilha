@@ -32,7 +32,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useGlobalLoading } from "@/contexts/GlobalLoadingContext";
-import * as XLSX from "xlsx";
+import * as XLSX from "@/lib/xlsxShim";
 import {
   BarChart,
   Bar,

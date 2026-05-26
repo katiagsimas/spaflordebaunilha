@@ -32,7 +32,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Edit, Trash2, Info, Search, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import * as XLSX from 'xlsx';
+import * as XLSX from '@/lib/xlsxShim';
 
 export default function TiposInsumosIngredientes() {
   const { toast } = useToast();

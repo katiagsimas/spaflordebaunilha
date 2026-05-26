@@ -33,7 +33,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { toast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import * as XLSX from 'xlsx';
+import * as XLSX from '@/lib/xlsxShim';
 
 interface UserProfile {
   id: string;

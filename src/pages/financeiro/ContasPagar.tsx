@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import * as XLSX from 'xlsx';
+import * as XLSX from '@/lib/xlsxShim';
 import { DatePickerField } from '@/components/DatePickerField';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';

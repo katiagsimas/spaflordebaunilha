@@ -24,7 +24,7 @@ import { toast } from "sonner";
 import { formatPhone, formatCpfCnpj } from "@/lib/utils";
 import { parseISOToDate } from "@/lib/dateUtils";
 import { Badge } from "@/components/ui/badge";
-import * as XLSX from 'xlsx';
+import * as XLSX from '@/lib/xlsxShim';
 
 export default function Clientes() {
   const navigate = useNavigate();

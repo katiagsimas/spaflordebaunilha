@@ -11,7 +11,7 @@
 |---|-----------|------|-------------|--------|------------|
 | 3 | 🟡 Média | Rate limiting na Edge Function `criar-usuario` | Dev/Infra | ⏸️ Bloqueado | Plataforma ainda não tem primitivas próprias de rate limiting. Implementação ad-hoc possível, mas será refeita quando infra oficial chegar. |
 | 6 | 🟡 Baixa | Customizar templates de email do Cloud | Admin/Infra | 🔲 Pendente | Emails usam template padrão |
-| 9 | 🟡 Média | Vulnerabilidade xlsx (Prototype Pollution/ReDoS) | Dev | ⚠️ Sem fix | v0.19.3 só disponível no SheetJS Pro (pago); uso apenas para export |
+| 10 | 🟡 Média | Leaked Password Protection desabilitado | Admin | ⏸️ Sem acesso | Lovable Cloud não expõe a toggle no painel; aguardando suporte nativo |
 | 10 | 🟡 Média | Leaked Password Protection desabilitado | Admin | ⏸️ Sem acesso | Lovable Cloud não expõe a toggle no painel; aguardando suporte nativo |
 
 
@@ -23,6 +23,7 @@
 
 | Data (UTC) | Item | Resolução |
 |------------|------|-----------|
+| 2026-05-26 | #9 — Vulnerabilidade `xlsx` (Prototype Pollution / ReDoS) | Pacote `xlsx` removido. Adicionado `exceljs@4.4.0`. Criado shim em `src/lib/xlsxShim.ts` com a mesma API mínima usada no app (`utils.json_to_sheet`, `utils.aoa_to_sheet`, `utils.book_new`, `utils.book_append_sheet`, `writeFile`). Todos os 18 imports de `xlsx` substituídos por `@/lib/xlsxShim` — comportamento de exportação preservado, sem necessidade de SheetJS Pro. |
 | 2026-05-26 | #21 — Backups armazenados como JSONB no banco | Bucket privado `backups` criado com RLS owner-scoped (`auth.uid()` por pasta). Edge function `executar-backups-agendados` e tela `Backup.tsx` passam a fazer upload do JSON para Storage; `backups.dados` virou opcional para compatibilidade com backups antigos. Download/restore usa `storage.download()` quando há `storage_path`. |
 | 2026-05-26 | #19 — Anon key armazenada em `private.config` | Migrada para `vault.secrets` (`cron_anon_key`); `private.get_anon_key()` agora lê do Vault; tabela `private.config` removida. |
 | 2026-05-26 | #20 — Sem cap de uso para AI Gateway | Implementado P-3: edge function `ai-proxy` + `ai_usage_quotas` + RPCs SECURITY DEFINER. Lite=50/mês, Business=500/mês, MOTHER ilimitado. |

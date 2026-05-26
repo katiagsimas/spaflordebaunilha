@@ -27,7 +27,7 @@ import { useGroup } from "@/contexts/GroupContext";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import * as XLSX from 'xlsx';
+import * as XLSX from '@/lib/xlsxShim';
 
 interface FormDataFornecedor {
   nome: string;

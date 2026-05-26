@@ -61,7 +61,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
-import * as XLSX from 'xlsx';
+import * as XLSX from '@/lib/xlsxShim';
 import { BackButton } from '@/components/BackButton';
 import { PageHeader } from '@/components/PageHeader';
 

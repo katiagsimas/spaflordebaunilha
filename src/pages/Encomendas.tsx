@@ -34,7 +34,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 
 import { supabase } from "@/integrations/supabase/client";
-import * as XLSX from 'xlsx';
+import * as XLSX from '@/lib/xlsxShim';
 import { z } from 'zod';
 import { executarBaixaEstoqueEncomenda } from '@/hooks/useBaixaEstoqueEncomenda';
 
