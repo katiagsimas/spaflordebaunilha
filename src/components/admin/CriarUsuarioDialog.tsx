@@ -7,8 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePickerField } from '@/components/DatePickerField';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 import { formatDateToISO, parseISOToDate, addDaysToDate, getTodayISO } from '@/lib/dateUtils';
+import { IMERSAO_DIAS_ACESSO } from '@/lib/planos';
 
 interface CriarUsuarioDialogProps {
   open: boolean;
@@ -25,24 +26,42 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
   const [planoTipo, setPlanoTipo] = useState('anual');
   const [planoInicio, setPlanoInicio] = useState<Date | undefined>(new Date());
   const [planoFim, setPlanoFim] = useState<Date | undefined>(undefined);
+  const [imersaoTurma, setImersaoTurma] = useState('');
 
-  // Caixa Lite só permite recorrência anual
+  const isImersao = planoId === 'aluna_imersao';
+
+  // Ajustar tipo automaticamente conforme plano selecionado
   useEffect(() => {
-    if (planoId === 'base') {
+    if (planoId === 'base') setPlanoTipo('anual');
+    if (planoId === 'aluna_imersao') setPlanoTipo('imersao');
+    if (planoId === 'negocio' && (planoTipo !== 'mensal' && planoTipo !== 'anual')) {
       setPlanoTipo('anual');
     }
   }, [planoId]);
 
-  // Auto-calculate planoFim when planoInicio or planoTipo changes
+  // Calcular data fim
   useEffect(() => {
-    if (planoInicio) {
-      const inicioISO = formatDateToISO(planoInicio);
-      const diasMap: Record<string, number> = { 'anual': 365, 'mensal': 30 };
-      const dias = diasMap[planoTipo] ?? 365;
-      const fimISO = addDaysToDate(inicioISO, dias);
-      setPlanoFim(parseISOToDate(fimISO));
-    }
+    if (!planoInicio) return;
+    const inicioISO = formatDateToISO(planoInicio);
+    const diasMap: Record<string, number> = {
+      anual: 365,
+      mensal: 30,
+      imersao: IMERSAO_DIAS_ACESSO,
+    };
+    const dias = diasMap[planoTipo] ?? 365;
+    setPlanoFim(parseISOToDate(addDaysToDate(inicioISO, dias)));
   }, [planoInicio, planoTipo]);
+
+  const resetForm = () => {
+    setEmail('');
+    setNomeCompleto('');
+    setNomeConfeitaria('');
+    setPlanoId('base');
+    setPlanoTipo('anual');
+    setPlanoInicio(new Date());
+    setPlanoFim(undefined);
+    setImersaoTurma('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,7 +81,8 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
           planoTipo,
           planoInicio: planoInicio ? formatDateToISO(planoInicio) : getTodayISO(),
           planoFim: planoFim ? formatDateToISO(planoFim) : null,
-        }
+          imersaoTurma: isImersao ? (imersaoTurma.trim() || null) : null,
+        },
       });
 
       if (error) throw error;
@@ -70,18 +90,14 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
 
       toast({
         title: data.updated ? '✅ Plano atualizado' : data.reactivated ? '✅ Usuário reativado' : '✅ Usuário criado',
-        description: data.updated
-          ? 'O plano do usuário foi atualizado com sucesso.'
-          : 'O usuário foi criado e um email de boas-vindas foi enviado.',
+        description: isImersao
+          ? `Aluna da Imersão criada com ${IMERSAO_DIAS_ACESSO} dias de acesso completo ao sistema.`
+          : data.updated
+            ? 'O plano do usuário foi atualizado com sucesso.'
+            : 'O usuário foi criado e um email de boas-vindas foi enviado.',
       });
 
-      setEmail('');
-      setNomeCompleto('');
-      setNomeConfeitaria('');
-      setPlanoId('base');
-      setPlanoTipo('anual');
-      setPlanoInicio(new Date());
-      setPlanoFim(undefined);
+      resetForm();
       onOpenChange(false);
       onSuccess?.();
     } catch (err: any) {
@@ -107,32 +123,15 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email *</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="confeiteira@email.com"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-            />
+            <Input id="email" type="email" placeholder="confeiteira@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="nome">Nome Completo</Label>
-            <Input
-              id="nome"
-              placeholder="Maria da Silva"
-              value={nomeCompleto}
-              onChange={e => setNomeCompleto(e.target.value)}
-            />
+            <Input id="nome" placeholder="Maria da Silva" value={nomeCompleto} onChange={e => setNomeCompleto(e.target.value)} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="confeitaria">Nome da Confeitaria</Label>
-            <Input
-              id="confeitaria"
-              placeholder="Doces da Maria"
-              value={nomeConfeitaria}
-              onChange={e => setNomeConfeitaria(e.target.value)}
-            />
+            <Input id="confeitaria" placeholder="Doces da Maria" value={nomeConfeitaria} onChange={e => setNomeConfeitaria(e.target.value)} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -144,38 +143,55 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
                 <SelectContent>
                   <SelectItem value="base">Caixa Lite</SelectItem>
                   <SelectItem value="negocio">Caixa Business</SelectItem>
+                  <SelectItem value="aluna_imersao">Aluna da Imersão (30 dias)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label>Periodicidade</Label>
-              <Select value={planoTipo} onValueChange={setPlanoTipo} disabled={planoId === 'base'}>
+              <Select value={planoTipo} onValueChange={setPlanoTipo} disabled={planoId === 'base' || isImersao}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {planoId === 'negocio' && <SelectItem value="mensal">Mensal (30 dias)</SelectItem>}
                   {(planoId === 'base' || planoId === 'negocio') && <SelectItem value="anual">Anual (365 dias)</SelectItem>}
+                  {isImersao && <SelectItem value="imersao">Imersão ({IMERSAO_DIAS_ACESSO} dias)</SelectItem>}
                 </SelectContent>
               </Select>
             </div>
           </div>
+
+          {isImersao && (
+            <div className="rounded-md border border-cda-dourado/40 bg-cda-dourado/10 p-3 space-y-2">
+              <div className="flex items-center gap-2 text-sm font-semibold text-cda-preto">
+                <Sparkles className="h-4 w-4 text-cda-dourado" />
+                Aluna da Imersão A Receita que Faltava
+              </div>
+              <p className="text-xs text-cda-preto/80">
+                Acesso completo ao Caixa Business por {IMERSAO_DIAS_ACESSO} dias. Após esse período, a conta fica
+                inativa automaticamente — os dados ficam preservados para reativação futura.
+              </p>
+              <div className="space-y-1.5">
+                <Label htmlFor="imersao-turma" className="text-xs">Turma (opcional)</Label>
+                <Input
+                  id="imersao-turma"
+                  placeholder="Ex.: Turma 01 — Out/2026"
+                  value={imersaoTurma}
+                  onChange={e => setImersaoTurma(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Data Início</Label>
-              <DatePickerField
-                value={planoInicio}
-                onChange={setPlanoInicio}
-                placeholder="Data início..."
-              />
+              <DatePickerField value={planoInicio} onChange={setPlanoInicio} placeholder="Data início..." />
             </div>
             <div className="space-y-2">
               <Label>Data Expiração</Label>
-              <DatePickerField
-                value={planoFim}
-                onChange={setPlanoFim}
-                placeholder="Data expiração..."
-              />
+              <DatePickerField value={planoFim} onChange={setPlanoFim} placeholder="Data expiração..." />
             </div>
           </div>
           <DialogFooter>
