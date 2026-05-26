@@ -412,6 +412,8 @@ export function EditarUsuarioDialog({
       queryClient.invalidateQueries({ queryKey: ['admin-user-roles'] });
       queryClient.invalidateQueries({ queryKey: ['plano'] });
       queryClient.invalidateQueries({ queryKey: ['historico-planos', userId] });
+      queryClient.invalidateQueries({ queryKey: ['conversa-doce-profile', userId] });
+      queryClient.invalidateQueries({ queryKey: ['conversa-doce-access'] });
       onOpenChange(false);
     },
     onError: (error: any) => {
