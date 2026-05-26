@@ -57,7 +57,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
     items: [
       { title: "Minhas Encomendas", url: "/encomendas", icon: ClipboardList, active: true },
       { title: "Meu Cardápio", url: "/precificacao", icon: BookOpen, active: true },
-      { title: "Meus Insumos", url: "/estoque", icon: Package, active: false, comingSoonMessage: "Em breve você terá controle total dos seus insumos, com entrada, saída e ajuste de estoque integrados às suas receitas e encomendas.", adminOnly: true },
+      { title: "Meus Insumos", url: "/estoque", icon: Package, active: true },
       { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: Users, active: true },
     ],
   },
