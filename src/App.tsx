@@ -5,7 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarToggleLabeled, BackupBadge, SairButton } from "@/components/HeaderControls";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { GroupProvider } from "@/contexts/GroupContext";
@@ -146,15 +147,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <header className="sticky top-0 z-10 h-14 border-b border-cda-dourado/30 shadow-sm bg-cda-vinho text-cda-creme">
             <div className="flex h-full items-center justify-between px-4 gap-3">
               <div className="flex items-center gap-3">
-                <SidebarTrigger className="text-cda-creme hover:bg-cda-creme/10 hover:text-cda-creme transition-colors" />
-                <div className="h-6 w-px bg-cda-creme/30" />
-                {ultimoBackupTexto && (
-                  <span className="text-xs font-bold text-cda-creme hidden sm:inline-flex items-center gap-1.5">
-                    💾 Último backup: {ultimoBackupTexto}
-                  </span>
-                )}
+                <SidebarToggleLabeled />
+                <div className="h-6 w-px bg-cda-creme/30 hidden sm:block" />
+                <BackupBadge texto={ultimoBackupTexto} />
               </div>
-              <UserMenu />
+              <div className="flex items-center gap-2">
+                <UserMenu />
+                <SairButton />
+              </div>
             </div>
           </header>
           <AlertaExpiracaoPlano />
