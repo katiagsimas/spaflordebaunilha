@@ -375,15 +375,6 @@ export function AppSidebar() {
               </div>
             )}
             <Button
-              onClick={handleLogout}
-              variant="ghost"
-              size="sm"
-              className="w-full text-[#FFF9F5]/70 hover:text-cda-coral font-body"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Sair
-            </Button>
-            <Button
               onClick={async () => {
                 try {
                   // 1) signOut local para invalidar tokens em memória
