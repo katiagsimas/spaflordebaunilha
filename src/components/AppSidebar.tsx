@@ -209,8 +209,9 @@ export function AppSidebar() {
 
                       // Se o usuário é admin e o item é adminOnly+inactive, ele pode acessar
                       const adminUnlocked = item.adminOnly && isAdmin;
+                      const motherUnlocked = item.motherUnlock && isMother;
 
-                      if (isComingSoon && !adminUnlocked) {
+                      if (isComingSoon && !adminUnlocked && !motherUnlocked) {
                         return (
                           <SidebarMenuItem key={item.title}>
                             <SidebarMenuButton asChild isActive={false} disabled>
