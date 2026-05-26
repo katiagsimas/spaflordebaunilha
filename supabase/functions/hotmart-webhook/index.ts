@@ -173,9 +173,9 @@ Deno.serve(async (req) => {
       console.log('planName sources:', planNameParts)
       const resolved = await resolverPlano(supabaseAdmin, product.id?.toString() || '', planName)
       if (!resolved) {
-        console.log('=== Hotmart Webhook - Plano descontinuado (Start), evento ignorado ===')
+        console.log('=== Hotmart Webhook - Produto não reconhecido, evento ignorado ===', { productId: product.id, planName })
         return new Response(
-          JSON.stringify({ success: true, event, action: 'ignored_discontinued_plan' }),
+          JSON.stringify({ success: true, event, action: 'ignored_unknown_product', productId: product.id }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
         )
       }
