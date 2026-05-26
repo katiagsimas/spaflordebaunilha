@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { LayoutDashboard, Users, Cake, BookOpen, Settings, FileText, Building2, Lock, Package, Wallet, ClipboardList, CalendarCheck, Sparkles, MessageCircle, ListChecks, HardDrive, FileSignature, ScrollText } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
+import { useMotherView } from "@/hooks/useMotherView";
 import { useConversaDoceAccess } from "@/hooks/useConversaDoceAccess";
 
 import { NavLink } from "react-router-dom";
@@ -96,8 +97,12 @@ export function AppSidebar() {
   const { user } = useAuth();
   const { isMother, isGroupAdmin, sessionMode, activeGroup, activeRole } = useGroup();
   const { isAdmin } = useIsAdmin();
+  const { enabled: motherEnabled, view: motherView } = useMotherView();
+  const simulating = motherEnabled && !!motherView;
+  const effectiveIsMother = isMother && !simulating;
+  const effectiveIsAdmin = isAdmin && !simulating;
   const { rotaBloqueada, isLoading: isPlanoLoading, plano } = usePlano();
-  const podeAcessarSsoDoce = isAdmin || plano?.id === "negocio" || plano?.id === "aluna_imersao";
+  const podeAcessarSsoDoce = effectiveIsAdmin || plano?.id === "negocio" || plano?.id === "aluna_imersao";
   const { temAcesso: podeAcessarConversaDoce } = useConversaDoceAccess();
   const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
   const [comingSoonModal, setComingSoonModal] = useState<{ title: string; message: string } | null>(null);
@@ -207,15 +212,15 @@ export function AppSidebar() {
               <SidebarGroupContent>
                 <SidebarMenu>
                   {section.items
-                    .filter((item) => (!item.adminOnly || isAdmin) && (!item.motherOnly || isMother) && (!item.ssoDoce || podeAcessarSsoDoce) && (!item.conversaDoce || podeAcessarConversaDoce))
+                    .filter((item) => (!item.adminOnly || effectiveIsAdmin) && (!item.motherOnly || effectiveIsMother) && (!item.ssoDoce || podeAcessarSsoDoce) && (!item.conversaDoce || podeAcessarConversaDoce))
                     .map((item) => {
                       const Icon = item.icon;
-                      const bloqueado = !isPlanoLoading && !isAdmin && item.active && rotaBloqueada(item.url);
-                      const isComingSoon = !item.active && !isAdmin;
+                      const bloqueado = !isPlanoLoading && !effectiveIsAdmin && item.active && rotaBloqueada(item.url);
+                      const isComingSoon = !item.active && !effectiveIsAdmin;
 
                       // Se o usuário é admin e o item é adminOnly+inactive, ele pode acessar
-                      const adminUnlocked = item.adminOnly && isAdmin;
-                      const motherUnlocked = item.motherUnlock && isMother;
+                      const adminUnlocked = item.adminOnly && effectiveIsAdmin;
+                      const motherUnlocked = item.motherUnlock && effectiveIsMother;
 
                       if (isComingSoon && !adminUnlocked && !motherUnlocked) {
                         return (
