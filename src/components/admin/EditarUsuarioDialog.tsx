@@ -7,6 +7,7 @@ import { toast } from '@/hooks/use-toast';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { DatePickerField } from '@/components/DatePickerField';
 import { formatDateToISO, parseISOToDate, addDaysToDate } from '@/lib/dateUtils';
+import { IMERSAO_DIAS_ACESSO } from '@/lib/planos';
 import {
   Dialog,
   DialogContent,
