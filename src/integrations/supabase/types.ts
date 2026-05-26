@@ -2618,6 +2618,9 @@ export type Database = {
           bairro: string | null
           cep: string | null
           cidade: string | null
+          conversa_doce_ativo: boolean
+          conversa_doce_fim: string | null
+          conversa_doce_inicio: string | null
           cpf: string | null
           created_at: string | null
           custo_fixo_mensal: number | null
@@ -2661,6 +2664,9 @@ export type Database = {
           bairro?: string | null
           cep?: string | null
           cidade?: string | null
+          conversa_doce_ativo?: boolean
+          conversa_doce_fim?: string | null
+          conversa_doce_inicio?: string | null
           cpf?: string | null
           created_at?: string | null
           custo_fixo_mensal?: number | null
@@ -2704,6 +2710,9 @@ export type Database = {
           bairro?: string | null
           cep?: string | null
           cidade?: string | null
+          conversa_doce_ativo?: boolean
+          conversa_doce_fim?: string | null
+          conversa_doce_inicio?: string | null
           cpf?: string | null
           created_at?: string | null
           custo_fixo_mensal?: number | null
