@@ -110,12 +110,12 @@ export function useCategorias() {
     const { data: receitasCount, error: checkError } = await supabase
       .from('receitas')
       .select('id')
-      .eq('categoria_id', id);
+      .eq('categoria_id' as any, id);
 
     if (checkError) throw checkError;
 
-    if (count && count > 0) {
-      toast.error(`Esta categoria está vinculada a ${count} receita(s). Remova o vínculo antes de excluir.`);
+    if (receitasCount && receitasCount.length > 0) {
+      toast.error(`Esta categoria está vinculada a ${receitasCount.length} receita(s). Remova o vínculo antes de excluir.`);
       return;
     }
 
