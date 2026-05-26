@@ -727,6 +727,56 @@ export function EditarUsuarioDialog({
                 </div>
               </div>
 
+              {/* Acesso ao módulo Conversa Doce */}
+              <Separator className="my-4" />
+              <Card className="border-cda-dourado/30">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-cda-dourado" />
+                    Acesso ao Conversa Doce
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-start gap-2">
+                    <Checkbox
+                      id="conversa-doce-ativo"
+                      checked={conversaDoceAtivo}
+                      onCheckedChange={(checked) => setConversaDoceAtivo(checked === true)}
+                    />
+                    <div className="space-y-1">
+                      <label htmlFor="conversa-doce-ativo" className="text-sm font-medium cursor-pointer">
+                        Liberar acesso ao Conversa Doce
+                      </label>
+                      <p className="text-xs text-muted-foreground">
+                        Para Aluna da Imersão, o acesso é vinculado automaticamente ao período do plano (30 dias).
+                        O histórico de favoritos é preservado após a expiração.
+                      </p>
+                    </div>
+                  </div>
+
+                  {conversaDoceAtivo && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Início do acesso</label>
+                        <DatePickerField
+                          value={conversaDoceInicio}
+                          onChange={setConversaDoceInicio}
+                          placeholder="Data início..."
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Fim do acesso</label>
+                        <DatePickerField
+                          value={conversaDoceFim}
+                          onChange={setConversaDoceFim}
+                          placeholder="Data fim (vazio = sem expiração)..."
+                        />
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
               <FormField
                 control={form.control}
                 name="ativo"
