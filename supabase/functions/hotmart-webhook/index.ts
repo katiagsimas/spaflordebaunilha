@@ -234,10 +234,11 @@ Deno.serve(async (req) => {
 
       const { data: existingProfile } = await supabaseAdmin
         .from('profiles')
-        .select('id, ativo, plano_id')
+        .select('id, ativo, plano_id, plano_tipo, plano_fim')
         .eq('email', email)
         .single()
 
+      const hojeISO = planoInicio
       const planoFields = {
         plano_id: planoId,
         plano_tipo: planoTipo,
@@ -245,36 +246,119 @@ Deno.serve(async (req) => {
         plano_fim: planoFim,
         origem_criacao: 'webhook',
       }
+      const planoAnterior = existingProfile?.plano_id ?? null
+      const planoTipoAnterior = existingProfile?.plano_tipo ?? null
+      const planoFimAnterior = existingProfile?.plano_fim ?? null
+      const ativoAnterior = existingProfile?.ativo ?? false
+      const aindaVigente = !!planoFimAnterior && planoFimAnterior >= hojeISO
+
+      // Classifica o evento para decidir como atualizar o perfil e quais e-mails enviar
+      type TipoEvento =
+        | 'renovacao_imersao'
+        | 'upgrade'
+        | 'downgrade_agendado'
+        | 'renovacao'
+        | 'reativacao'
+        | 'criacao'
+
+      let tipoEvento: TipoEvento = 'criacao'
+      if (existingUser && existingProfile) {
+        if (planoAnterior === 'aluna_imersao' && (planoId === 'base' || planoId === 'negocio')) {
+          tipoEvento = 'renovacao_imersao'
+        } else if (!ativoAnterior || !aindaVigente) {
+          tipoEvento = 'reativacao'
+        } else if (planoAnterior === 'base' && planoId === 'negocio') {
+          tipoEvento = 'upgrade'
+        } else if (planoAnterior === 'negocio' && planoId === 'base') {
+          tipoEvento = 'downgrade_agendado'
+        } else if (planoAnterior === planoId) {
+          tipoEvento = 'renovacao'
+        }
+      }
+
+      // Calcula plano_fim efetivo conforme o tipo do evento
+      // - renovação simples / upgrade: estende a partir do plano_fim atual (não perde dias)
+      // - downgrade: NÃO sobrescreve plano atual; só agenda
+      // - demais: hoje + duração
+      let planoFimEfetivo = planoFim
+      if (tipoEvento === 'renovacao' || tipoEvento === 'upgrade') {
+        const base = aindaVigente && planoFimAnterior ? planoFimAnterior : hojeISO
+        planoFimEfetivo = calcularPlanoFim(base, planoTipo)
+      }
+
+      // Datas do plano pendente (apenas para downgrade agendado)
+      const pendenteInicio = aindaVigente && planoFimAnterior
+        ? (() => { const d = new Date(planoFimAnterior + 'T00:00:00'); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0] })()
+        : hojeISO
+      const pendenteFim = calcularPlanoFim(pendenteInicio, planoTipo)
 
       let userId: string
-      // Renovação a partir da Imersão: plano antigo era aluna_imersao e novo é Lite/Business
-      const ehRenovacaoImersao =
-        existingProfile?.plano_id === 'aluna_imersao' &&
-        (planoId === 'base' || planoId === 'negocio')
-      const planoAnterior = existingProfile?.plano_id ?? null
 
       if (existingUser && existingProfile) {
         userId = existingUser.id
-        await supabaseAdmin
-          .from('profiles')
-          .update({
-            ativo: true,
-            nome_completo: buyerName || undefined,
-            // Renovação não deve forçar troca de senha; só novo provisionamento
-            primeiro_acesso: ehRenovacaoImersao ? false : (existingProfile.ativo === false),
-            ...planoFields,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', userId)
 
-        if (ehRenovacaoImersao) {
-          await enviarEmailRenovacaoAluna(email, buyerName, planoId, planoFim)
-          await enviarEmailRenovacaoAdmin(email, buyerName, planoId, planoFim, `${product.id ?? ''}/${offerCode ?? ''}`)
-        } else if (existingProfile.ativo === false) {
-          await enviarEmailBoasVindas(email, buyerName, planoId)
+        if (tipoEvento === 'downgrade_agendado') {
+          // Mantém Business ativo até planoFimAnterior; Lite entra depois via cron
+          await supabaseAdmin
+            .from('profiles')
+            .update({
+              nome_completo: buyerName || undefined,
+              plano_pendente_id: planoId,
+              plano_pendente_tipo: planoTipo,
+              plano_pendente_inicio: pendenteInicio,
+              plano_pendente_fim: pendenteFim,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', userId)
+
+          await enviarEmailMudancaPlanoAluna(email, buyerName, 'downgrade_agendado', {
+            planoAnterior, planoNovo: planoId, planoFimAnterior, pendenteInicio, pendenteFim,
+          })
+          await enviarEmailMudancaPlanoAdmin(email, buyerName, 'downgrade_agendado', {
+            planoAnterior, planoNovo: planoId, planoFimAnterior, pendenteInicio, pendenteFim,
+            origemHotmart: `${product.id ?? ''}/${offerCode ?? ''}`,
+          })
+        } else {
+          // Aplica plano imediatamente
+          await supabaseAdmin
+            .from('profiles')
+            .update({
+              ativo: true,
+              nome_completo: buyerName || undefined,
+              primeiro_acesso: tipoEvento === 'reativacao'
+                ? (existingProfile.ativo === false)
+                : false,
+              plano_id: planoId,
+              plano_tipo: planoTipo,
+              plano_inicio: planoInicio,
+              plano_fim: planoFimEfetivo,
+              origem_criacao: 'webhook',
+              // Limpa qualquer plano pendente anterior (upgrade cancela downgrade agendado)
+              plano_pendente_id: null,
+              plano_pendente_tipo: null,
+              plano_pendente_inicio: null,
+              plano_pendente_fim: null,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', userId)
+
+          if (tipoEvento === 'renovacao_imersao') {
+            await enviarEmailRenovacaoAluna(email, buyerName, planoId, planoFimEfetivo)
+            await enviarEmailRenovacaoAdmin(email, buyerName, planoId, planoFimEfetivo, `${product.id ?? ''}/${offerCode ?? ''}`)
+          } else if (tipoEvento === 'upgrade' || tipoEvento === 'renovacao') {
+            await enviarEmailMudancaPlanoAluna(email, buyerName, tipoEvento, {
+              planoAnterior, planoNovo: planoId, planoFimNovo: planoFimEfetivo,
+            })
+            await enviarEmailMudancaPlanoAdmin(email, buyerName, tipoEvento, {
+              planoAnterior, planoNovo: planoId, planoFimNovo: planoFimEfetivo,
+              origemHotmart: `${product.id ?? ''}/${offerCode ?? ''}`,
+            })
+          } else if (tipoEvento === 'reativacao') {
+            await enviarEmailBoasVindas(email, buyerName, planoId)
+          }
         }
 
-        console.log('Usuário existente atualizado:', userId, ehRenovacaoImersao ? '(RENOVACAO_IMERSAO)' : '')
+        console.log('Usuário existente atualizado:', userId, `(${tipoEvento})`)
       } else if (existingUser && !existingProfile) {
         userId = existingUser.id
         await supabaseAdmin
@@ -324,20 +408,26 @@ Deno.serve(async (req) => {
         .upsert({ user_id: userId, role: 'user' }, { onConflict: 'user_id,role' })
 
       // Record plan history
+      const observacaoBits: string[] = []
+      if (tipoEvento === 'renovacao_imersao') observacaoBits.push(`Renovação Imersão → ${planoId}`)
+      if (tipoEvento === 'downgrade_agendado') observacaoBits.push(`Downgrade agendado para ${pendenteInicio}`)
+      if (tipoEvento === 'upgrade') observacaoBits.push(`Upgrade ${planoAnterior} → ${planoId}`)
+      if (tipoEvento === 'renovacao') observacaoBits.push(`Renovação ${planoId}`)
+      if (transactionId) observacaoBits.push(`tx:${transactionId}`)
+
       await supabaseAdmin.from('historico_planos').insert({
         user_id: userId,
-        plano_anterior: ehRenovacaoImersao ? planoAnterior : null,
+        plano_anterior: planoAnterior,
+        plano_tipo_anterior: planoTipoAnterior,
         plano_novo: planoId,
         plano_tipo_novo: planoTipo,
-        plano_inicio: planoInicio,
-        plano_fim: planoFim,
-        tipo_evento: ehRenovacaoImersao ? 'renovacao_imersao' : 'criacao',
+        plano_inicio: tipoEvento === 'downgrade_agendado' ? pendenteInicio : planoInicio,
+        plano_fim: tipoEvento === 'downgrade_agendado' ? pendenteFim : planoFimEfetivo,
+        tipo_evento: tipoEvento,
         origem: 'webhook',
-        observacao: [
-          ehRenovacaoImersao ? `Renovação Imersão → ${planoId}` : null,
-          transactionId ? `tx:${transactionId}` : null,
-        ].filter(Boolean).join(' | ') || null,
+        observacao: observacaoBits.length ? observacaoBits.join(' | ') : null,
       })
+
 
       console.log('=== Hotmart Webhook - Usuário provisionado ===')
       return new Response(
@@ -545,6 +635,7 @@ async function enviarEmailBoasVindas(
     }
   } catch (err) {
     console.error('Erro ao enviar email de boas-vindas:', err)
+  }
 }
 
 function formatarDataBR(iso: string): string {
@@ -663,4 +754,197 @@ async function enviarEmailRenovacaoAdmin(
     console.error('Erro ao enviar email renovação admin:', err)
   }
 }
+
+// ============================================================
+// E-mails de mudança de plano (upgrade / downgrade / renovação)
+// ============================================================
+
+const PLANO_NOME: Record<string, string> = {
+  base: 'Caixa Lite',
+  negocio: 'Caixa Business',
+  aluna_imersao: 'Imersão A Receita que Faltava',
+}
+
+const MODULOS_BUSINESS = [
+  'Financeiro completo (Contas a Pagar/Receber, DRE, Fluxo de Caixa)',
+  'Controle de Estoque',
+  'Planejamento Estratégico',
+  'Conversa Doce (IA)',
+]
+
+interface MudancaPayload {
+  planoAnterior?: string | null
+  planoNovo: string
+  planoFimNovo?: string
+  planoFimAnterior?: string | null
+  pendenteInicio?: string
+  pendenteFim?: string
+  origemHotmart?: string
+}
+
+type TipoMudanca = 'upgrade' | 'downgrade_agendado' | 'renovacao'
+
+async function enviarEmailMudancaPlanoAluna(
+  email: string,
+  nome: string | null,
+  tipo: TipoMudanca,
+  p: MudancaPayload,
+) {
+  const resendApiKey = Deno.env.get('RESEND_API_KEY')
+  if (!resendApiKey) {
+    console.warn('RESEND_API_KEY não configurada - email mudança aluna não enviado')
+    return
+  }
+
+  const nomeDisplay = escapeHtml(nome?.trim() || 'Confeiteira')
+  const planoNovoNome = PLANO_NOME[p.planoNovo] ?? p.planoNovo
+  let subject = ''
+  let corpo = ''
+
+  if (tipo === 'upgrade') {
+    const validade = escapeHtml(formatarDataBR(p.planoFimNovo!))
+    subject = `🚀 Bem-vinda ao ${planoNovoNome} — acesso liberado!`
+    corpo = `
+      <p>Olá, ${nomeDisplay}!</p>
+      <p>Você acaba de desbloquear o <strong>${planoNovoNome}</strong>. Todos os módulos premium já estão disponíveis:</p>
+      <ul style="padding-left: 18px;">
+        ${MODULOS_BUSINESS.map(m => `<li>${escapeHtml(m)}</li>`).join('')}
+      </ul>
+      <p>Seu acesso vai até <strong>${validade}</strong> e todos os seus dados continuam intactos.</p>
+    `
+  } else if (tipo === 'renovacao') {
+    const validade = escapeHtml(formatarDataBR(p.planoFimNovo!))
+    subject = `✨ Renovação confirmada — ${planoNovoNome} até ${validade}`
+    corpo = `
+      <p>Olá, ${nomeDisplay}!</p>
+      <p>Sua renovação anual do <strong>${planoNovoNome}</strong> foi confirmada. Acesso garantido até <strong>${validade}</strong>, sem interrupção e com tudo no lugar.</p>
+      <p>Obrigada por continuar com a gente. 💛</p>
+    `
+  } else {
+    // downgrade_agendado
+    const fimAtual = escapeHtml(formatarDataBR(p.planoFimAnterior!))
+    const inicioLite = escapeHtml(formatarDataBR(p.pendenteInicio!))
+    subject = `Mudança de plano confirmada — ${planoNovoNome} a partir de ${inicioLite}`
+    corpo = `
+      <p>Olá, ${nomeDisplay}!</p>
+      <p>Recebemos sua contratação do <strong>${planoNovoNome}</strong>. Como você ainda tem acesso ao Caixa Business até <strong>${fimAtual}</strong>, sua mudança acontece automaticamente nessa data — você não perde nem um dia do que já pagou.</p>
+      <p style="background:#FDF6EE;border-left:4px solid #C9A14A;padding:12px 16px;margin:20px 0;border-radius:6px;">
+        <strong>A partir de ${inicioLite}:</strong><br/>
+        ✅ Continua: Encomendas, Receitas, Precificação, Clientes &amp; Fornecedores, Cadastros, Meu Painel<br/>
+        ⏸️ Fica em pausa: Financeiro completo, Controle de Estoque, Planejamento Estratégico, Conversa Doce
+      </p>
+      <p>Seus dados ficam preservados — se um dia voltar para o Business, está tudo aqui.</p>
+    `
+  }
+
+  const html = `
+    <div style="font-family:'Segoe UI',Tahoma,sans-serif;max-width:600px;margin:0 auto;color:#121212;line-height:1.6;background:#FDF6EE;padding:32px 24px;border-radius:12px;">
+      <h1 style="color:#5B1A2B;font-size:22px;margin:0 0 16px;">${subject.replace(/[—-].*$/, '').trim()}</h1>
+      ${corpo}
+      <div style="text-align:center;margin:32px 0;">
+        <a href="https://caixa.umbrelladoce.com.br" style="background:#5B1A2B;color:#FFF9F5;padding:14px 32px;text-decoration:none;border-radius:8px;font-weight:bold;display:inline-block;">Acessar minha conta</a>
+      </div>
+      <p style="font-size:13px;color:#555;">Dúvidas? Fale com a gente em <a href="mailto:ola@umbrelladoce.com.br" style="color:#5B1A2B;">ola@umbrelladoce.com.br</a>.</p>
+      <p style="margin-top:24px;">Com carinho,<br/><strong>Equipe Umbrella Doce</strong></p>
+    </div>
+  `
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'Caixa de Açúcar <noreply@umbrelladoce.com.br>',
+        to: [email],
+        subject,
+        html,
+      }),
+    })
+    if (!res.ok) {
+      console.error(`Erro Resend (${tipo} aluna):`, res.status, await res.text())
+    } else {
+      console.log(`Email ${tipo} enviado para aluna:`, email)
+    }
+  } catch (err) {
+    console.error(`Erro ao enviar email ${tipo} aluna:`, err)
+  }
+}
+
+async function enviarEmailMudancaPlanoAdmin(
+  emailAluna: string,
+  nomeAluna: string | null,
+  tipo: TipoMudanca,
+  p: MudancaPayload,
+) {
+  const resendApiKey = Deno.env.get('RESEND_API_KEY')
+  const emailAdmin = Deno.env.get('EMAIL_ADMIN_IMERSAO')
+  if (!resendApiKey || !emailAdmin) {
+    console.warn('EMAIL_ADMIN_IMERSAO ou RESEND_API_KEY ausente - email admin não enviado')
+    return
+  }
+
+  const nomeDisplay = escapeHtml(nomeAluna?.trim() || 'Aluna')
+  const emailSafe = escapeHtml(emailAluna)
+  const planoAntNome = p.planoAnterior ? (PLANO_NOME[p.planoAnterior] ?? p.planoAnterior) : '—'
+  const planoNovoNome = PLANO_NOME[p.planoNovo] ?? p.planoNovo
+  const origemSafe = escapeHtml(p.origemHotmart || '')
+
+  let subject = ''
+  let linhas = ''
+
+  if (tipo === 'upgrade') {
+    subject = `Upgrade: ${nomeAluna?.trim() || emailAluna} → ${planoNovoNome}`
+    linhas = `
+      <tr><td><strong>De:</strong></td><td>${escapeHtml(planoAntNome)}</td></tr>
+      <tr><td><strong>Para:</strong></td><td>${planoNovoNome} (anual)</td></tr>
+      <tr><td><strong>Nova validade:</strong></td><td>${escapeHtml(formatarDataBR(p.planoFimNovo!))}</td></tr>
+    `
+  } else if (tipo === 'renovacao') {
+    subject = `Renovação: ${nomeAluna?.trim() || emailAluna} → ${planoNovoNome}`
+    linhas = `
+      <tr><td><strong>Plano:</strong></td><td>${planoNovoNome} (anual) — renovação</td></tr>
+      <tr><td><strong>Nova validade:</strong></td><td>${escapeHtml(formatarDataBR(p.planoFimNovo!))}</td></tr>
+    `
+  } else {
+    subject = `Downgrade agendado: ${nomeAluna?.trim() || emailAluna} → ${planoNovoNome} em ${formatarDataBR(p.pendenteInicio!)}`
+    linhas = `
+      <tr><td><strong>De:</strong></td><td>${escapeHtml(planoAntNome)}</td></tr>
+      <tr><td><strong>Para:</strong></td><td>${planoNovoNome} (anual)</td></tr>
+      <tr><td><strong>Vigência atual mantida até:</strong></td><td>${escapeHtml(formatarDataBR(p.planoFimAnterior!))}</td></tr>
+      <tr><td><strong>${planoNovoNome} ativa em:</strong></td><td>${escapeHtml(formatarDataBR(p.pendenteInicio!))}</td></tr>
+      <tr><td><strong>Nova validade ${planoNovoNome}:</strong></td><td>${escapeHtml(formatarDataBR(p.pendenteFim!))}</td></tr>
+    `
+  }
+
+  const html = `
+    <div style="font-family:'Segoe UI',sans-serif;max-width:600px;margin:0 auto;color:#121212;line-height:1.6;">
+      <h2 style="color:#5B1A2B;">${escapeHtml(subject)}</h2>
+      <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+        <tr><td style="padding:6px 0;"><strong>Aluna:</strong></td><td>${nomeDisplay}</td></tr>
+        <tr><td style="padding:6px 0;"><strong>E-mail:</strong></td><td>${emailSafe}</td></tr>
+        ${linhas}
+        ${origemSafe ? `<tr><td style="padding:6px 0;"><strong>Origem Hotmart:</strong></td><td>${origemSafe}</td></tr>` : ''}
+      </table>
+    </div>
+  `
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'Caixa de Açúcar <noreply@umbrelladoce.com.br>',
+        to: [emailAdmin],
+        subject,
+        html,
+      }),
+    })
+    if (!res.ok) {
+      console.error(`Erro Resend (${tipo} admin):`, res.status, await res.text())
+    } else {
+      console.log(`Email ${tipo} enviado para admin:`, emailAdmin)
+    }
+  } catch (err) {
+    console.error(`Erro ao enviar email ${tipo} admin:`, err)
+  }
 }
