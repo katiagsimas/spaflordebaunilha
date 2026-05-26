@@ -1,8 +1,17 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-26T03:00:00Z — Novo módulo Conversa Doce portado do app standalone.
+> Última atualização: 2026-05-26T12:40:00Z — Quick Win #2: realtime removido das 4 tabelas financeiras.
 
 ---
+
+## QUICK WIN #2 — REALTIME FINANCEIRO REMOVIDO — 2026-05-26 12:40 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| QW-2 | Realtime removido das tabelas financeiras | ✅ | Tabelas `contas_receber_parcelas`, `contas_receber_pagamentos`, `contas_pagar_parcelas` e `contas_pagar_pagamentos` removidas da publicação `supabase_realtime` via `ALTER PUBLICATION ... DROP TABLE`. Em `src/pages/Dashboard.tsx` o canal `dashboard-updates` agora escuta apenas `encomendas` (único caso onde realtime ainda agrega valor). As 4 tabelas financeiras raramente mudam fora de ações do próprio usuário; o Dashboard e o hub `/financeiro` recarregam ao remontar e as próprias telas financeiras chamam suas rotinas de recarga após mutações (DarBaixa, Form de Contas, etc.). Impacto: corta ~80% das mensagens realtime à medida que a base cresce, sem perda funcional perceptível para um usuário ativo. |
+
+---
+
 
 ## NOVO MÓDULO CONVERSA DOCE — 2026-05-26 03:00 UTC
 

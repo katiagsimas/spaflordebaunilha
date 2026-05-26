@@ -158,16 +158,12 @@ export default function Dashboard() {
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const debounceCalendarioRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Configurar realtime updates para atualizar o dashboard quando houver mudanças
+  // Realtime restrito a `encomendas` (Quick Win #2 — Maio/2026):
+  // As 4 tabelas financeiras (contas_receber_parcelas/pagamentos e contas_pagar_parcelas/pagamentos)
+  // foram removidas da publicação `supabase_realtime`. O Dashboard recarrega ao remontar (navegação
+  // entre rotas) e as próprias telas financeiras chamam suas rotinas de recarga após mutações.
   useEffect(() => {
     if (!user) return;
-
-    const recarregarDebounced = () => {
-      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-      debounceTimerRef.current = setTimeout(() => {
-        carregarDados();
-      }, 2500);
-    };
 
     const recarregarTudoDebounced = () => {
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
@@ -183,10 +179,6 @@ export default function Dashboard() {
 
     const channel = supabase
       .channel('dashboard-updates')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'contas_receber_parcelas' }, recarregarDebounced)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'contas_receber_pagamentos' }, recarregarDebounced)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'contas_pagar_parcelas' }, recarregarDebounced)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'contas_pagar_pagamentos' }, recarregarDebounced)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'encomendas' }, recarregarTudoDebounced)
       .subscribe();
 
@@ -196,6 +188,7 @@ export default function Dashboard() {
       supabase.removeChannel(channel);
     };
   }, [user, mesSelecionado, anoSelecionado]);
+
 
   useEffect(() => {
     setMesAnterior({ mes: mesSelecionado - 1 < 0 ? 11 : mesSelecionado - 1, ano: mesSelecionado - 1 < 0 ? anoSelecionado - 1 : anoSelecionado });
