@@ -910,3 +910,41 @@ Correções aplicadas em `supabase/functions/hotmart-webhook/index.ts` e `src/co
 - 🟡 Página `https://upcaixa.umbrelladoce.com.br` deve estar publicada com os 2 botões (ofertas `6yjlyf2i` e `oytrdfwm`).
 - 🟡 Webhook da Hotmart configurado para as 2 novas ofertas apontando para `hotmart-webhook`.
 - 🟡 Secret `EMAIL_ADMIN_IMERSAO` preenchido em Cloud → Secrets.
+
+---
+
+## 2026-05-26 — Mudanças de plano via Hotmart (upgrade, downgrade agendado, renovação)
+
+Generalização do fluxo de renovação Imersão para cobrir todas as transições de plano via webhook Hotmart.
+
+### Classificação de eventos no `hotmart-webhook`
+
+- `renovacao_imersao` — `aluna_imersao` → `base`/`negocio` (já existia)
+- `upgrade` — `base` → `negocio` (aplica imediato, estende plano_fim a partir do vencimento atual)
+- `downgrade_agendado` — `negocio` → `base` (mantém Business até `plano_fim` atual; grava Lite em `plano_pendente_*`)
+- `renovacao` — mesmo plano enquanto ativo (estende plano_fim sem perder dias)
+- `reativacao` — usuária inativa/vencida (boas-vindas)
+- `downgrade_aplicado` — gerado pelo cron quando o pendente entra em vigor
+
+### Database
+
+- Novas colunas em `profiles`: `plano_pendente_id`, `plano_pendente_tipo`, `plano_pendente_inicio`, `plano_pendente_fim`
+- Índice parcial `idx_profiles_plano_pendente_inicio`
+
+### Edge Function nova
+
+- `aplicar-planos-pendentes` — varre `profiles` com `plano_pendente_inicio <= hoje`, promove o pendente, limpa as colunas e grava `historico_planos` com `tipo_evento = 'downgrade_aplicado'`
+
+### Cron
+
+- `aplicar-planos-pendentes-diario` — 03:15 UTC diariamente, chama a edge function via `pg_net`
+
+### E-mails (Resend)
+
+Aluna e admin recebem em todos os eventos:
+- `enviarEmailMudancaPlanoAluna(tipo, ...)` — copy específica por tipo (upgrade/downgrade_agendado/renovacao)
+- `enviarEmailMudancaPlanoAdmin(tipo, ...)` — resumo com plano antigo, novo, datas e origem Hotmart
+
+### Frontend
+
+- `AuthContext` exibe toast distinto por `tipo_evento` (renovacao_imersao, upgrade, renovacao, downgrade_agendado, downgrade_aplicado), com flag `cda-evento-plano-toast-{id}` para não repetir
