@@ -1,12 +1,15 @@
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { LogOut, ArrowUpCircle, Headphones, Crown, User as UserIcon, Mail, CalendarDays, Store } from "lucide-react";
+import { useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { LogOut, ArrowUpCircle, Headphones, Crown, User as UserIcon, Mail, CalendarDays, Store, Camera, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePlano } from "@/hooks/usePlano";
 import { useGroup } from "@/contexts/GroupContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { toast } from "sonner";
 import {
   Popover,
   PopoverContent,
