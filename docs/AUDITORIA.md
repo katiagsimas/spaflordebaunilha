@@ -1,6 +1,15 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-26T12:40:00Z — Quick Win #2: realtime removido das 4 tabelas financeiras.
+> Última atualização: 2026-05-26T12:45:00Z — Quick Wins #1 (cron de backup) e #4 (índice de backups).
+
+---
+
+## QUICK WINS #1 e #4 — BACKUP CRON + ÍNDICE — 2026-05-26 12:45 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| QW-1 | Cron `executar-backups-agendados` reduzido | ✅ | Schedule alterado via `cron.alter_job(1, '0 3,15 * * *')`. De `*/30 * * * *` (48 execuções/dia) → `0 3,15 * * *` (2 execuções/dia, 03h e 15h UTC). Reduz ~96% das invocações da Edge Function sem perda funcional: a função interna ainda respeita o `horario` cadastrado pelo usuário em `backup_agendamentos` e só dispara quando `now() >= proximo_execucao_em`. |
+| QW-4 | Índice composite em `backups` | ✅ | Criado `idx_backups_usuario_created (usuario_id, created_at DESC)` — cobre o padrão dominante de query (listar backups do usuário do mais recente ao mais antigo). Índice antigo `idx_backups_usuario_id` removido por ficar redundante (prefixo do composite). Tabela hoje com 760 kB / 19 snapshots — ganho marginal agora, mas estrutural conforme a base cresce. |
 
 ---
 
