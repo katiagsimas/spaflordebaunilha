@@ -184,6 +184,25 @@ Deno.serve(async (req) => {
     // === EVENTOS DE ATIVAÇÃO ===
     if (['PURCHASE_APPROVED', 'PURCHASE_COMPLETE'].includes(event)) {
       const offer = (purchase.offer || {}) as Record<string, unknown>
+      const transactionId = (purchase.transaction as string | undefined)?.toString().trim() || null
+
+      // Idempotência: se a transaction Hotmart já foi processada, ignorar reenvios
+      if (transactionId) {
+        const { data: jaProcessada } = await supabaseAdmin
+          .from('historico_planos')
+          .select('id')
+          .ilike('observacao', `%tx:${transactionId}%`)
+          .limit(1)
+          .maybeSingle()
+        if (jaProcessada) {
+          console.log('=== Hotmart Webhook - Transaction já processada, ignorando reenvio ===', transactionId)
+          return new Response(
+            JSON.stringify({ success: true, event, action: 'duplicate_ignored', transaction: transactionId }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+          )
+        }
+      }
+
       // Concatenar todos os campos possíveis para maximizar detecção de palavras-chave
       const planNameParts = [
         plan.name,
@@ -241,7 +260,8 @@ Deno.serve(async (req) => {
           .update({
             ativo: true,
             nome_completo: buyerName || undefined,
-            primeiro_acesso: existingProfile.ativo === false,
+            // Renovação não deve forçar troca de senha; só novo provisionamento
+            primeiro_acesso: ehRenovacaoImersao ? false : (existingProfile.ativo === false),
             ...planoFields,
             updated_at: new Date().toISOString()
           })
@@ -313,7 +333,10 @@ Deno.serve(async (req) => {
         plano_fim: planoFim,
         tipo_evento: ehRenovacaoImersao ? 'renovacao_imersao' : 'criacao',
         origem: 'webhook',
-        observacao: ehRenovacaoImersao ? `Renovação Imersão → ${planoId}` : null,
+        observacao: [
+          ehRenovacaoImersao ? `Renovação Imersão → ${planoId}` : null,
+          transactionId ? `tx:${transactionId}` : null,
+        ].filter(Boolean).join(' | ') || null,
       })
 
       console.log('=== Hotmart Webhook - Usuário provisionado ===')
@@ -627,7 +650,7 @@ async function enviarEmailRenovacaoAdmin(
       body: JSON.stringify({
         from: 'Caixa de Açúcar <noreply@umbrelladoce.com.br>',
         to: [emailAdmin],
-        subject: `Aluna renovou: ${nomeAluna || emailAluna} → ${planoNome}`,
+        subject: `Aluna renovou: ${nomeAluna?.trim() || emailAluna} → ${planoNome}`,
         html,
       }),
     })

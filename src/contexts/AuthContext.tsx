@@ -134,6 +134,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               });
               localStorage.setItem(flagKey, '1');
             }
+            // Limpa flags do modal de expiração da Imersão para não reaparecer
+            try {
+              sessionStorage.removeItem('cda-modal-imersao-shown');
+            } catch {}
           }
         } catch (e) {
           console.warn('[AuthContext] check renovação imersão falhou:', e);
