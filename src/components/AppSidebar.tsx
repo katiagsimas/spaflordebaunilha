@@ -402,7 +402,7 @@ export function AppSidebar() {
                   }
                 } finally {
                   // 4) hard reload com cache-buster e ir para login
-                  window.location.replace(`/auth?cleared=${Date.now()}`);
+                  window.location.replace(`/auth/login?cleared=${Date.now()}`);
                 }
               }}
               variant="ghost"
