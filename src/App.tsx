@@ -144,16 +144,17 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           )}
           
           <header className="sticky top-0 z-10 h-14 border-b border-cda-dourado/30 shadow-sm bg-cda-vinho text-cda-creme">
-            <div className="flex h-full items-center justify-between px-4">
+            <div className="flex h-full items-center justify-between px-4 gap-3">
               <div className="flex items-center gap-3">
                 <SidebarTrigger className="text-cda-creme hover:bg-cda-creme/10 hover:text-cda-creme transition-colors" />
                 <div className="h-6 w-px bg-cda-creme/30" />
+                {ultimoBackupTexto && (
+                  <span className="text-xs font-bold text-cda-creme hidden sm:inline-flex items-center gap-1.5">
+                    💾 Último backup: {ultimoBackupTexto}
+                  </span>
+                )}
               </div>
-              {ultimoBackupTexto && (
-                <span className="text-xs font-bold text-cda-creme hidden sm:inline-flex items-center gap-1.5">
-                  💾 Último backup: {ultimoBackupTexto}
-                </span>
-              )}
+              <UserMenu />
             </div>
           </header>
           <AlertaExpiracaoPlano />
