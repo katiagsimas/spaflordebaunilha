@@ -622,6 +622,7 @@ export function EditarUsuarioDialog({
                         <SelectContent>
                           <SelectItem value="base">Caixa Lite</SelectItem>
                           <SelectItem value="negocio">Caixa Business</SelectItem>
+                          <SelectItem value="aluna_imersao">Aluna da Imersão (30 dias)</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -634,14 +635,21 @@ export function EditarUsuarioDialog({
                   name="planoTipo"
                   render={({ field }) => {
                     const planoIdAtual = form.watch('planoId');
-                    // Força anual quando plano é Lite
+                    // Força tipo correto conforme plano
                     if (planoIdAtual === 'base' && field.value !== 'anual') {
                       field.onChange('anual');
                     }
+                    if (planoIdAtual === 'aluna_imersao' && field.value !== 'imersao') {
+                      field.onChange('imersao');
+                    }
+                    if (planoIdAtual === 'negocio' && field.value !== 'mensal' && field.value !== 'anual') {
+                      field.onChange('anual');
+                    }
+                    const isImersao = planoIdAtual === 'aluna_imersao';
                     return (
                       <FormItem>
                         <FormLabel>Periodicidade</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value} disabled={planoIdAtual === 'base'}>
+                        <Select onValueChange={field.onChange} value={field.value} disabled={planoIdAtual === 'base' || isImersao}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Periodicidade" />
@@ -650,6 +658,7 @@ export function EditarUsuarioDialog({
                           <SelectContent>
                             {planoIdAtual === 'negocio' && <SelectItem value="mensal">Mensal (30 dias)</SelectItem>}
                             {(planoIdAtual === 'base' || planoIdAtual === 'negocio') && <SelectItem value="anual">Anual (365 dias)</SelectItem>}
+                            {isImersao && <SelectItem value="imersao">Imersão ({IMERSAO_DIAS_ACESSO} dias)</SelectItem>}
                           </SelectContent>
                         </Select>
                         <FormMessage />
