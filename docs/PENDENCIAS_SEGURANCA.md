@@ -13,7 +13,7 @@
 | 6 | 🟡 Baixa | Customizar templates de email do Cloud | Admin/Infra | 🔲 Pendente | Emails usam template padrão |
 | 9 | 🟡 Média | Vulnerabilidade xlsx (Prototype Pollution/ReDoS) | Dev | ⚠️ Sem fix | v0.19.3 só disponível no SheetJS Pro (pago); uso apenas para export |
 | 10 | 🟡 Média | Leaked Password Protection desabilitado | Admin | ⏸️ Sem acesso | Lovable Cloud não expõe a toggle no painel; aguardando suporte nativo |
-| 21 | 🟡 Baixa | Backups armazenados como JSONB no banco | Dev | 🔲 Pendente | Pode inflar tamanho do DB; migrar para Storage bucket |
+
 
 
 
