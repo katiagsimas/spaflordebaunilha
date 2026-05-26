@@ -234,47 +234,124 @@ Deno.serve(async (req) => {
 
       const { data: existingProfile } = await supabaseAdmin
         .from('profiles')
-        .select('id, ativo, plano_id')
+        .select('id, ativo, plano_id, plano_tipo, plano_fim')
         .eq('email', email)
         .single()
 
-      const planoFields = {
-        plano_id: planoId,
-        plano_tipo: planoTipo,
-        plano_inicio: planoInicio,
-        plano_fim: planoFim,
-        origem_criacao: 'webhook',
+      const hojeISO = planoInicio
+      const planoAnterior = existingProfile?.plano_id ?? null
+      const planoTipoAnterior = existingProfile?.plano_tipo ?? null
+      const planoFimAnterior = existingProfile?.plano_fim ?? null
+      const ativoAnterior = existingProfile?.ativo ?? false
+      const aindaVigente = !!planoFimAnterior && planoFimAnterior >= hojeISO
+
+      // Classifica o evento para decidir como atualizar o perfil e quais e-mails enviar
+      type TipoEvento =
+        | 'renovacao_imersao'
+        | 'upgrade'
+        | 'downgrade_agendado'
+        | 'renovacao'
+        | 'reativacao'
+        | 'criacao'
+
+      let tipoEvento: TipoEvento = 'criacao'
+      if (existingUser && existingProfile) {
+        if (planoAnterior === 'aluna_imersao' && (planoId === 'base' || planoId === 'negocio')) {
+          tipoEvento = 'renovacao_imersao'
+        } else if (!ativoAnterior || !aindaVigente) {
+          tipoEvento = 'reativacao'
+        } else if (planoAnterior === 'base' && planoId === 'negocio') {
+          tipoEvento = 'upgrade'
+        } else if (planoAnterior === 'negocio' && planoId === 'base') {
+          tipoEvento = 'downgrade_agendado'
+        } else if (planoAnterior === planoId) {
+          tipoEvento = 'renovacao'
+        }
       }
 
+      // Calcula plano_fim efetivo conforme o tipo do evento
+      // - renovação simples / upgrade: estende a partir do plano_fim atual (não perde dias)
+      // - downgrade: NÃO sobrescreve plano atual; só agenda
+      // - demais: hoje + duração
+      let planoFimEfetivo = planoFim
+      if (tipoEvento === 'renovacao' || tipoEvento === 'upgrade') {
+        const base = aindaVigente && planoFimAnterior ? planoFimAnterior : hojeISO
+        planoFimEfetivo = calcularPlanoFim(base, planoTipo)
+      }
+
+      // Datas do plano pendente (apenas para downgrade agendado)
+      const pendenteInicio = aindaVigente && planoFimAnterior
+        ? (() => { const d = new Date(planoFimAnterior + 'T00:00:00'); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0] })()
+        : hojeISO
+      const pendenteFim = calcularPlanoFim(pendenteInicio, planoTipo)
+
       let userId: string
-      // Renovação a partir da Imersão: plano antigo era aluna_imersao e novo é Lite/Business
-      const ehRenovacaoImersao =
-        existingProfile?.plano_id === 'aluna_imersao' &&
-        (planoId === 'base' || planoId === 'negocio')
-      const planoAnterior = existingProfile?.plano_id ?? null
 
       if (existingUser && existingProfile) {
         userId = existingUser.id
-        await supabaseAdmin
-          .from('profiles')
-          .update({
-            ativo: true,
-            nome_completo: buyerName || undefined,
-            // Renovação não deve forçar troca de senha; só novo provisionamento
-            primeiro_acesso: ehRenovacaoImersao ? false : (existingProfile.ativo === false),
-            ...planoFields,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', userId)
 
-        if (ehRenovacaoImersao) {
-          await enviarEmailRenovacaoAluna(email, buyerName, planoId, planoFim)
-          await enviarEmailRenovacaoAdmin(email, buyerName, planoId, planoFim, `${product.id ?? ''}/${offerCode ?? ''}`)
-        } else if (existingProfile.ativo === false) {
-          await enviarEmailBoasVindas(email, buyerName, planoId)
+        if (tipoEvento === 'downgrade_agendado') {
+          // Mantém Business ativo até planoFimAnterior; Lite entra depois via cron
+          await supabaseAdmin
+            .from('profiles')
+            .update({
+              nome_completo: buyerName || undefined,
+              plano_pendente_id: planoId,
+              plano_pendente_tipo: planoTipo,
+              plano_pendente_inicio: pendenteInicio,
+              plano_pendente_fim: pendenteFim,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', userId)
+
+          await enviarEmailMudancaPlanoAluna(email, buyerName, 'downgrade_agendado', {
+            planoAnterior, planoNovo: planoId, planoFimAnterior, pendenteInicio, pendenteFim,
+          })
+          await enviarEmailMudancaPlanoAdmin(email, buyerName, 'downgrade_agendado', {
+            planoAnterior, planoNovo: planoId, planoFimAnterior, pendenteInicio, pendenteFim,
+            origemHotmart: `${product.id ?? ''}/${offerCode ?? ''}`,
+          })
+        } else {
+          // Aplica plano imediatamente
+          await supabaseAdmin
+            .from('profiles')
+            .update({
+              ativo: true,
+              nome_completo: buyerName || undefined,
+              primeiro_acesso: tipoEvento === 'reativacao'
+                ? (existingProfile.ativo === false)
+                : false,
+              plano_id: planoId,
+              plano_tipo: planoTipo,
+              plano_inicio: planoInicio,
+              plano_fim: planoFimEfetivo,
+              origem_criacao: 'webhook',
+              // Limpa qualquer plano pendente anterior (upgrade cancela downgrade agendado)
+              plano_pendente_id: null,
+              plano_pendente_tipo: null,
+              plano_pendente_inicio: null,
+              plano_pendente_fim: null,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', userId)
+
+          if (tipoEvento === 'renovacao_imersao') {
+            await enviarEmailRenovacaoAluna(email, buyerName, planoId, planoFimEfetivo)
+            await enviarEmailRenovacaoAdmin(email, buyerName, planoId, planoFimEfetivo, `${product.id ?? ''}/${offerCode ?? ''}`)
+          } else if (tipoEvento === 'upgrade' || tipoEvento === 'renovacao') {
+            await enviarEmailMudancaPlanoAluna(email, buyerName, tipoEvento, {
+              planoAnterior, planoNovo: planoId, planoFimNovo: planoFimEfetivo,
+            })
+            await enviarEmailMudancaPlanoAdmin(email, buyerName, tipoEvento, {
+              planoAnterior, planoNovo: planoId, planoFimNovo: planoFimEfetivo,
+              origemHotmart: `${product.id ?? ''}/${offerCode ?? ''}`,
+            })
+          } else if (tipoEvento === 'reativacao') {
+            await enviarEmailBoasVindas(email, buyerName, planoId)
+          }
         }
 
-        console.log('Usuário existente atualizado:', userId, ehRenovacaoImersao ? '(RENOVACAO_IMERSAO)' : '')
+        console.log('Usuário existente atualizado:', userId, `(${tipoEvento})`)
       } else if (existingUser && !existingProfile) {
         userId = existingUser.id
         await supabaseAdmin
@@ -324,20 +401,26 @@ Deno.serve(async (req) => {
         .upsert({ user_id: userId, role: 'user' }, { onConflict: 'user_id,role' })
 
       // Record plan history
+      const observacaoBits: string[] = []
+      if (tipoEvento === 'renovacao_imersao') observacaoBits.push(`Renovação Imersão → ${planoId}`)
+      if (tipoEvento === 'downgrade_agendado') observacaoBits.push(`Downgrade agendado para ${pendenteInicio}`)
+      if (tipoEvento === 'upgrade') observacaoBits.push(`Upgrade ${planoAnterior} → ${planoId}`)
+      if (tipoEvento === 'renovacao') observacaoBits.push(`Renovação ${planoId}`)
+      if (transactionId) observacaoBits.push(`tx:${transactionId}`)
+
       await supabaseAdmin.from('historico_planos').insert({
         user_id: userId,
-        plano_anterior: ehRenovacaoImersao ? planoAnterior : null,
+        plano_anterior: planoAnterior,
+        plano_tipo_anterior: planoTipoAnterior,
         plano_novo: planoId,
         plano_tipo_novo: planoTipo,
-        plano_inicio: planoInicio,
-        plano_fim: planoFim,
-        tipo_evento: ehRenovacaoImersao ? 'renovacao_imersao' : 'criacao',
+        plano_inicio: tipoEvento === 'downgrade_agendado' ? pendenteInicio : planoInicio,
+        plano_fim: tipoEvento === 'downgrade_agendado' ? pendenteFim : planoFimEfetivo,
+        tipo_evento: tipoEvento,
         origem: 'webhook',
-        observacao: [
-          ehRenovacaoImersao ? `Renovação Imersão → ${planoId}` : null,
-          transactionId ? `tx:${transactionId}` : null,
-        ].filter(Boolean).join(' | ') || null,
+        observacao: observacaoBits.length ? observacaoBits.join(' | ') : null,
       })
+
 
       console.log('=== Hotmart Webhook - Usuário provisionado ===')
       return new Response(
