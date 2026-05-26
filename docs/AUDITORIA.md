@@ -780,3 +780,13 @@ Substituiu a abordagem com Vault (que exigia `vault.create_secret` manual no SQL
 
 - **P-4 (assinatura definitiva):** A assinatura real de `public.fechar_mes` (`p_fechamento_id uuid, p_observacoes, p_snapshot, p_faturamento, p_custos, p_margem_seguranca, p_pro_labore_saudavel, p_retiradas, p_saldo_restante`) é a forma definitiva — superior à proposta original `(grupo_id, ano, mes)` porque grava o snapshot financeiro atomicamente com `status='fechado'`, eliminando janela de inconsistência entre cálculo do snapshot e fechamento. Spec original descartada; documentação reflete a assinatura real. Status: ✅ DEFINITIVO.
 - **P-8 (rename do componente):** `ContasPagarFormModal.tsx` renomeado para `ContasPagarFormView.tsx`. O nome "Modal" era enganoso — o componente é renderizado como página dedicada (rota `/financeiro/contas-pagar/novo|editar/:id`), não como overlay shadcn `<Dialog>`. Decisão arquitetural: formulário longo (741 linhas, com parcelas e anexos) tem UX melhor como página em viewports estreitos do que como Dialog. O ganho real da P-8 — wrapper de rota fino (24 linhas) + componente de formulário separado — está cumprido. Import em `src/pages/financeiro/ContasPagarForm.tsx` atualizado. Status: ✅ DEFINITIVO.
+
+## 2026-05-26 — Organização Doce: módulo portado + ajustes de layout ✅
+
+- **Organização Doce:** portado do projeto `711eac8d-e6f1-40e2-b038-84b75e878531`. Ritual pessoal e privado por usuário (3 áreas: Diária, Semanal, Mensal), com reset semanal automático, frases motivacionais Ká Simas, exportação PDF (capa + ritual + Pró-Labore) e fonte Lora embutida.
+- **DB:** Migration cria `public.organizacao_doce_state` (state JSONB) com RLS `owner_id = auth.uid()` para SELECT/INSERT/UPDATE/DELETE.
+- **Rota:** `/organizacao-doce` em `App.tsx` envelopada por `PlanoGuard` (acesso: Caixa Business + Mother; Lite redireciona para `/upgrade`).
+- **Sidebar:** item "Organização Doce" adicionado em PLANEJAMENTO (ícone `ListChecks`).
+- **Layout global:**
+  - Rodapé com texto `Umbrella Doce by Ká Simas · CNPJ 65.786.966/0001-41 · Todos os direitos reservados.` adicionado ao `Layout` em `src/App.tsx`.
+  - Botão "Limpar cache e recarregar" movido do rodapé da Sidebar para o cabeçalho (entre `BackupBadge` e `UserMenu`) como ícone colapsável (`ClearCacheButton` em `HeaderControls.tsx`): primeiro clique expande o título, segundo clique executa a limpeza + hard reload.
