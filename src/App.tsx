@@ -26,6 +26,7 @@ import SeusDados from "./pages/cadastros/SeusDados";
 import MaoDeObra from "./pages/configuracoes/precificacao/MaoDeObra";
 
 import CadastrosBase from "./pages/configuracoes/CadastrosBase";
+import CadastrosHub from "./pages/Cadastros";
 import PrecificacaoPage from "./pages/configuracoes/PrecificacaoPage";
 import CadastrosFinanceiroPage from "./pages/configuracoes/FinanceiroPage";
 import Clientes from "./pages/cadastros/Clientes";
@@ -222,6 +223,7 @@ const App = () => (
           <Route path="/precificacao/ficha-tecnica/editar/:id" element={<ProtectedRoute><Layout><ReceitaForm /></Layout></ProtectedRoute>} />
           
           {/* Configurações - Página Container + Sub-rotas */}
+          <Route path="/cadastros" element={<ProtectedRoute><Layout><CadastrosHub /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes" element={<ProtectedRoute><Layout><Configuracoes /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/cadastros-base" element={<ProtectedRoute><Layout><CadastrosBase /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/precificacao" element={<ProtectedRoute><Layout><PrecificacaoPage /></Layout></ProtectedRoute>} />
