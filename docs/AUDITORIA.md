@@ -1063,3 +1063,16 @@ Após P1+P2+P3, a pasta `docs/` está com 13 documentos modulares + `AUDITORIA.m
 - `supabase/functions/validar-token-retorno-doce/index.ts` (aceita payload do Planner além do legado interno)
 - `src/App.tsx` (rota `/sso-retorno`)
 - `src/pages/SSOReturnPage.tsx` (reutilizada)
+
+## 2026-05-26 — Módulos Propostas e Contratos + refactor Meus Dados
+
+✅ **Propostas e Contratos** portados do projeto Planejamento Doce para a seção MEU COMERCIAL (Business + Imersão + Mother).
+- Rotas: `/comercial/propostas`, `/comercial/propostas/nova`, `/comercial/propostas/editar/:id`, `/comercial/propostas/relatorio`, `/comercial/contratos`
+- Itens novos no Sidebar (MEU COMERCIAL): Propostas, Contratos
+- Seed de 3 templates padrão (Bolo de Aniversário, Bolo de Casamento, Mesa de Doces)
+
+✅ **Refactor `/configuracoes/dados-confeitaria`** com layout do "Meus Dados" do Planejamento Doce:
+- Abas: Pessoal · Empresa · Endereço · Bancário · Legal · Assinatura
+- Novos campos em `profiles`: complemento, documento_tipo, inscricao_municipal, certificacoes, email_comercial, telefone_fixo
+- Upload de assinatura no bucket `assinaturas`
+- Dados bancários persistidos em `profiles.dados_bancarios` (JSONB)
