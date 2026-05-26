@@ -56,7 +56,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
     ],
   },
   {
-    label: "OPERAÇÃO",
+    label: "MINHA OPERAÇÃO",
     items: [
       { title: "Minhas Encomendas", url: "/encomendas", icon: ClipboardList, active: true },
       { title: "Meu Cardápio", url: "/precificacao", icon: BookOpen, active: true },
