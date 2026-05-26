@@ -57,6 +57,13 @@ export default function Backup() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [restaurarDialogOpen, setRestaurarDialogOpen] = useState(false);
   const [backupSelecionado, setBackupSelecionado] = useState<string | null>(null);
+  const [restaurarAlvo, setRestaurarAlvo] = useState<RestaurarBackupAlvo | null>(null);
+  const [restaurarPayload, setRestaurarPayload] = useState<
+    | { tipo: "historico"; backup_id: string }
+    | { tipo: "upload"; dados: Record<string, any[]>; nome: string }
+    | null
+  >(null);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
   // Seleção de módulos para backup manual
   const [modulosManual, setModulosManual] = useState<BackupModuloId[]>(DEFAULT_MODULOS);
