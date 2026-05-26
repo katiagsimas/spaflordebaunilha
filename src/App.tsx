@@ -78,6 +78,7 @@ import EstoqueMovimentacoes from "./pages/estoque/EstoqueMovimentacoes";
 import MeuSalario from "./pages/meu-salario/MeuSalario";
 import ConversaDoce from "./pages/conversa-doce/ConversaDoce";
 import ConversaDoceRespostas from "./pages/conversa-doce/ConversaDoceRespostas";
+import OrganizacaoDoce from "./pages/organizacao-doce/OrganizacaoDoce";
 
 
 const queryClient = new QueryClient();
@@ -286,6 +287,10 @@ const App = () => (
           {/* Conversa Doce */}
           <Route path="/conversa-doce" element={<ProtectedRoute><Layout><PlanoGuard><ConversaDoce /></PlanoGuard></Layout></ProtectedRoute>} />
           <Route path="/conversa-doce/respostas" element={<ProtectedRoute><Layout><PlanoGuard><ConversaDoceRespostas /></PlanoGuard></Layout></ProtectedRoute>} />
+
+          {/* Organização Doce */}
+          <Route path="/organizacao-doce" element={<ProtectedRoute><Layout><PlanoGuard><OrganizacaoDoce /></PlanoGuard></Layout></ProtectedRoute>} />
+
 
           {/* Admin - Gestão de Usuários */}
           <Route path="/admin/usuarios" element={<ProtectedRoute><Layout><Usuarios /></Layout></ProtectedRoute>} />
