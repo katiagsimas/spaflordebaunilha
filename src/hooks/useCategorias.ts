@@ -107,9 +107,9 @@ export function useCategorias() {
       return;
     }
 
-    const { count, error: checkError } = await supabase
+    const { data: receitasCount, error: checkError } = await supabase
       .from('receitas')
-      .select('id', { count: 'exact', head: true })
+      .select('id')
       .eq('categoria_id', id);
 
     if (checkError) throw checkError;
