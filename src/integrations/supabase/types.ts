@@ -1073,6 +1073,47 @@ export type Database = {
           },
         ]
       }
+      conversa_doce_favoritos: {
+        Row: {
+          created_at: string
+          id: string
+          mensagem_original: string | null
+          owner_group_id: string
+          rotulo: string | null
+          texto: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mensagem_original?: string | null
+          owner_group_id: string
+          rotulo?: string | null
+          texto: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mensagem_original?: string | null
+          owner_group_id?: string
+          rotulo?: string | null
+          texto?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversa_doce_favoritos_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       custos_fixos: {
         Row: {
           created_at: string
