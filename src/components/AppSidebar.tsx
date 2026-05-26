@@ -50,6 +50,12 @@ interface MenuItem {
 
 const menuSections: { label: string; items: MenuItem[] }[] = [
   {
+    label: "MEU PAINEL",
+    items: [
+      { title: "Meu Painel", url: "/dashboard", icon: LayoutDashboard, active: true },
+    ],
+  },
+  {
     label: "MINHA OPERAÇÃO",
     items: [
       { title: "Cadastros", url: "/cadastros", icon: FileText, active: true },
@@ -70,7 +76,6 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
   {
     label: "MEU NEGÓCIO",
     items: [
-      { title: "Meu Painel", url: "/dashboard", icon: LayoutDashboard, active: true },
       { title: "Meu Dinheiro", url: "/financeiro", icon: Wallet, active: true },
       { title: "Meu Salário", url: "/meu-salario", icon: Sparkles, active: true, adminOnly: true },
       { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false, comingSoonMessage: "Em breve você terá um plano claro para organizar sua produção, suas vendas e crescer com estratégia.", motherOnly: true },
