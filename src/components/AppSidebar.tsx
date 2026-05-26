@@ -82,7 +82,6 @@ export function AppSidebar() {
   const { open } = useSidebar();
   const { user, signOut } = useAuth();
   const { isMother, isGroupAdmin, sessionMode, activeGroup, activeRole } = useGroup();
-  const navigate = useNavigate();
   const { isAdmin } = useIsAdmin();
   const { rotaBloqueada, isLoading: isPlanoLoading } = usePlano();
   const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
