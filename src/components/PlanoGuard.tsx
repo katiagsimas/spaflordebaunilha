@@ -1,29 +1,55 @@
 import { usePlano } from "@/hooks/usePlano";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useLocation, Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { URL_UPGRADE_EXTERNO } from "@/lib/constants";
 
 export function PlanoGuard({ children }: { children: React.ReactNode }) {
-  const { temAcesso, isLoading: isLoadingPlano } = usePlano();
+  const { plano, temAcesso, isLoading: isLoadingPlano } = usePlano();
   const { isAdmin, isLoading: isLoadingAdmin } = useIsAdmin();
   const { pathname } = useLocation();
 
-  // Aguardar carregamento
+  const ehImersao = plano?.id === "aluna_imersao";
+
+  // Bloqueada para Imersão → URL externa (não usa a página /upgrade interna)
+  const rotaBloqueadaImersao =
+    ehImersao &&
+    (pathname.startsWith("/estoque") ||
+      pathname.startsWith("/planejamento") ||
+      pathname.startsWith("/meu-salario") ||
+      !temAcesso(pathname));
+
+  useEffect(() => {
+    if (rotaBloqueadaImersao && pathname !== "/configuracoes") {
+      window.location.href = URL_UPGRADE_EXTERNO;
+    }
+  }, [rotaBloqueadaImersao, pathname]);
+
   if (isLoadingPlano || isLoadingAdmin) return null;
-
-  // Admin tem acesso total independente do plano
   if (isAdmin) return <>{children}</>;
-
-  // Configurações raiz é sempre acessível
   if (pathname === "/configuracoes") return <>{children}</>;
 
-  // Meus Insumos, Meu Planejamento e Meu Salário bloqueados para não-admin
-  // Conversa Doce é liberada para todos os usuários cujo plano permita (validado por temAcesso abaixo)
+  // Imersão: redireciona via useEffect; renderiza null enquanto isso
+  if (ehImersao) {
+    if (
+      pathname.startsWith("/estoque") ||
+      pathname.startsWith("/planejamento") ||
+      pathname.startsWith("/meu-salario")
+    ) {
+      // Imersão TEM acesso a esses módulos (mesmo do Business). Não bloqueia.
+      // Mantém o fall-through normal.
+    } else if (!temAcesso(pathname)) {
+      return null;
+    }
+  }
+
+  // Demais planos: comportamento original
   if (
     pathname.startsWith("/estoque") ||
     pathname.startsWith("/planejamento") ||
     pathname.startsWith("/meu-salario")
   ) {
-    return <Navigate to="/upgrade" replace />;
+    if (!ehImersao) return <Navigate to="/upgrade" replace />;
   }
 
   if (!temAcesso(pathname)) {
