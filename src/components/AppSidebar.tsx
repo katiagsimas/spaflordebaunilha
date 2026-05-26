@@ -41,6 +41,7 @@ interface MenuItem {
   adminOnly?: boolean;
   motherOnly?: boolean;
   ssoDoce?: boolean;
+  conversaDoce?: boolean;
   comingSoonMessage?: string;
 }
 
