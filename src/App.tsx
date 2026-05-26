@@ -72,6 +72,7 @@ import NotFound from "./pages/NotFound";
 import Usuarios from "./pages/admin/Usuarios";
 import LogsAdmin from "./pages/admin/Logs";
 import Governanca from "./pages/admin/Governanca";
+import CofreBackups from "./pages/admin/CofreBackups";
 import GovernancaHub from "./pages/Governanca";
 import Upgrade from "./pages/Upgrade";
 import { PlanoGuard } from "./components/PlanoGuard";
@@ -323,6 +324,7 @@ const App = () => (
           <Route path="/admin/usuarios" element={<ProtectedRoute><Layout><Usuarios /></Layout></ProtectedRoute>} />
           <Route path="/admin/logs" element={<ProtectedRoute><Layout><LogsAdmin /></Layout></ProtectedRoute>} />
           <Route path="/admin/governanca" element={<ProtectedRoute><Layout><Governanca /></Layout></ProtectedRoute>} />
+          <Route path="/admin/cofre-backups" element={<ProtectedRoute><Layout><CofreBackups /></Layout></ProtectedRoute>} />
           <Route path="/governanca" element={<ProtectedRoute><Layout><GovernancaHub /></Layout></ProtectedRoute>} />
           
           {/* Upgrade */}

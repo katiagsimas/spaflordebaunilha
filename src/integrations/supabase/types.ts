@@ -169,6 +169,59 @@ export type Database = {
           },
         ]
       }
+      backups_cofre: {
+        Row: {
+          backup_id_origem: string | null
+          criado_em: string
+          eh_mensal: boolean
+          id: string
+          modulos: string[] | null
+          nome: string
+          origem: string
+          owner_group_id: string | null
+          storage_path: string
+          tamanho: string | null
+          tamanho_bytes: number | null
+          usuario_id_origem: string
+        }
+        Insert: {
+          backup_id_origem?: string | null
+          criado_em?: string
+          eh_mensal?: boolean
+          id?: string
+          modulos?: string[] | null
+          nome: string
+          origem?: string
+          owner_group_id?: string | null
+          storage_path: string
+          tamanho?: string | null
+          tamanho_bytes?: number | null
+          usuario_id_origem: string
+        }
+        Update: {
+          backup_id_origem?: string | null
+          criado_em?: string
+          eh_mensal?: boolean
+          id?: string
+          modulos?: string[] | null
+          nome?: string
+          origem?: string
+          owner_group_id?: string | null
+          storage_path?: string
+          tamanho?: string | null
+          tamanho_bytes?: number | null
+          usuario_id_origem?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "backups_cofre_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bancos: {
         Row: {
           codigo: string

@@ -181,7 +181,8 @@ Deno.serve(async (req) => {
 
         const nome = nomeBackup(profile?.nome_completo || "");
         const json = JSON.stringify(dados);
-        const tamanho = `${(new Blob([json]).size / 1024).toFixed(1)} KB`;
+        const tamanhoBytes = new Blob([json]).size;
+        const tamanho = `${(tamanhoBytes / 1024).toFixed(1)} KB`;
 
         const storagePath = `${ag.usuario_id}/${nome}-${Date.now()}.json`;
         const { error: upErr } = await admin.storage
@@ -192,14 +193,61 @@ Deno.serve(async (req) => {
           });
         if (upErr) throw upErr;
 
-        await admin.from("backups").insert({
+        const { data: novoBackup } = await admin.from("backups").insert({
           usuario_id: ag.usuario_id,
           nome,
           tamanho,
           storage_path: storagePath,
           modulos,
           origem: "agendado",
-        });
+        }).select("id").single();
+
+        // === COFRE: espelhamento automático + retenção (dia 1 do mês + 5 últimos) ===
+        try {
+          if (profile?.owner_group_id) {
+            const cofrePath = `${profile.owner_group_id}/${nome}-${Date.now()}.json`;
+            const ehMensal = new Date().getDate() === 1;
+            const { error: cofreUpErr } = await admin.storage
+              .from("backups-cofre")
+              .upload(cofrePath, new Blob([json], { type: "application/json" }), {
+                contentType: "application/json",
+                upsert: false,
+              });
+            if (!cofreUpErr) {
+              await admin.from("backups_cofre").insert({
+                owner_group_id: profile.owner_group_id,
+                usuario_id_origem: ag.usuario_id,
+                backup_id_origem: novoBackup?.id ?? null,
+                nome,
+                modulos,
+                storage_path: cofrePath,
+                tamanho,
+                tamanho_bytes: tamanhoBytes,
+                origem: "agendado",
+                eh_mensal: ehMensal,
+              });
+
+              // Retenção do cofre: manter eh_mensal + 5 mais recentes do grupo
+              const { data: doGrupo } = await admin
+                .from("backups_cofre")
+                .select("id, storage_path, eh_mensal, criado_em")
+                .eq("owner_group_id", profile.owner_group_id)
+                .order("criado_em", { ascending: false });
+
+              if (doGrupo && doGrupo.length > 0) {
+                const top5Ids = new Set(doGrupo.slice(0, 5).map((r: any) => r.id));
+                const remover = doGrupo.filter((r: any) => !r.eh_mensal && !top5Ids.has(r.id));
+                if (remover.length > 0) {
+                  const paths = remover.map((r: any) => r.storage_path).filter(Boolean);
+                  if (paths.length > 0) await admin.storage.from("backups-cofre").remove(paths);
+                  await admin.from("backups_cofre").delete().in("id", remover.map((r: any) => r.id));
+                }
+              }
+            }
+          }
+        } catch (cofreErr) {
+          console.error("Falha ao espelhar no cofre:", cofreErr);
+        }
 
         // Aplica retenção: limpa backups antigos no banco e seus arquivos no storage
         if (ag.retencao_dias && ag.retencao_dias > 0) {

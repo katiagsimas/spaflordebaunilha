@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Shield, FileText, ChevronRight } from "lucide-react";
+import { Shield, FileText, Archive, ChevronRight } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { PermissionGuard } from "@/components/PermissionGuard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,6 +31,12 @@ export default function Governanca() {
       description: "Histórico de ações realizadas pelos usuários no sistema.",
       icon: FileText,
       url: "/admin/logs",
+    },
+    {
+      title: "Cofre de Backups",
+      description: "Espelho automático de backups de todos os grupos para suporte (dia 1 do mês + 5 últimos).",
+      icon: Archive,
+      url: "/admin/cofre-backups",
     },
   ];
 
