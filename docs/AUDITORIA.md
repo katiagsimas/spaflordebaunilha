@@ -1,8 +1,19 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-26T12:45:00Z — Quick Wins #1 (cron de backup) e #4 (índice de backups).
+> Última atualização: 2026-05-26T12:50:00Z — Findings do scanner Supabase resolvidos (storage policies).
 
 ---
+
+## SCAN SUPABASE — STORAGE POLICIES — 2026-05-26 12:50 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| SEC-1 | Políticas órfãs apontando para bucket inexistente | ✅ | Removidas 3 policies em `storage.objects` ("Users can delete/upload/view own comprovantes") que referenciavam `bucket_id = 'comprovantes-pagamento'` — bucket que nunca existiu. Os buckets reais `comprovantes-pagar` e `comprovantes-receber` já possuem suas próprias policies corretas. Eram código morto, sem efeito funcional, mas geravam ruído no scanner. |
+| SEC-2 | Bucket `pre-preparos` sem policies UPDATE/DELETE para o dono | ✅ | Criadas policies `Users can update own pre-preparo images` e `Users can delete own pre-preparo images` em `storage.objects`, escopadas a `bucket_id = 'pre-preparos' AND (auth.uid())::text = (storage.foldername(name))[1]`. Usuários agora podem substituir e remover suas próprias imagens via Storage API. |
+| SEC-3 | `estoque_movimentacoes` sem policy UPDATE | 🟡 Intencional (ignored) | Tabela é livro-razão imutável (audit trail de movimentações de estoque). Correções são feitas via novas movimentações compensatórias ou DELETE+INSERT pelo dono — nunca por UPDATE in-place. Adicionar policy UPDATE comprometeria integridade do histórico e do cálculo de custo médio. Decisão documentada na security memory para o scanner não reflagar. |
+
+---
+
 
 ## QUICK WINS #1 e #4 — BACKUP CRON + ÍNDICE — 2026-05-26 12:45 UTC
 
