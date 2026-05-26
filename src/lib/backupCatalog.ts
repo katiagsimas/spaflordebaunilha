@@ -51,7 +51,7 @@ export const BACKUP_MODULOS: BackupModuloDef[] = [
   {
     id: "comercial",
     titulo: "Meu Comercial",
-    descricao: "Clientes, fornecedores, propostas, contratos e encomendas",
+    descricao: "Clientes, fornecedores, propostas, contratos, encomendas e tags de encomendas",
     tabelas: [
       "clientes",
       "cliente_familiares",
@@ -64,6 +64,7 @@ export const BACKUP_MODULOS: BackupModuloDef[] = [
       "encomenda_itens",
       "encomendas_tags",
       "tags_encomendas",
+      "tags",
     ],
   },
   {
@@ -101,10 +102,9 @@ export const BACKUP_MODULOS: BackupModuloDef[] = [
   {
     id: "sistema",
     titulo: "Sistema",
-    descricao: "Meus Dados (perfil da confeitaria) e tags do sistema",
+    descricao: "Meus Dados (perfil da confeitaria)",
     tabelas: [
       "profiles",
-      "tags",
     ],
   },
   {
