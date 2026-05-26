@@ -223,6 +223,7 @@ const App = () => (
           <Route path="/precificacao/ficha-tecnica/editar/:id" element={<ProtectedRoute><Layout><ReceitaForm /></Layout></ProtectedRoute>} />
           
           {/* Configurações - Página Container + Sub-rotas */}
+          <Route path="/cadastros" element={<ProtectedRoute><Layout><CadastrosHub /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes" element={<ProtectedRoute><Layout><Configuracoes /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/cadastros-base" element={<ProtectedRoute><Layout><CadastrosBase /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/precificacao" element={<ProtectedRoute><Layout><PrecificacaoPage /></Layout></ProtectedRoute>} />
