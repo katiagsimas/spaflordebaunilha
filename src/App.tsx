@@ -309,6 +309,7 @@ const App = () => (
           <Route path="/admin/usuarios" element={<ProtectedRoute><Layout><Usuarios /></Layout></ProtectedRoute>} />
           <Route path="/admin/logs" element={<ProtectedRoute><Layout><LogsAdmin /></Layout></ProtectedRoute>} />
           <Route path="/admin/governanca" element={<ProtectedRoute><Layout><Governanca /></Layout></ProtectedRoute>} />
+          <Route path="/governanca" element={<ProtectedRoute><Layout><GovernancaHub /></Layout></ProtectedRoute>} />
           
           {/* Upgrade */}
           <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
