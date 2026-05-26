@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LayoutDashboard, LogOut, Users, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles } from "lucide-react";
+import { LayoutDashboard, LogOut, Users, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles, MessageCircle } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
 
 import { NavLink, useNavigate } from "react-router-dom";
@@ -64,6 +64,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
     label: "PLANEJAMENTO",
     items: [
       { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false, comingSoonMessage: "Em breve você terá um plano claro para organizar sua produção, suas vendas e crescer com estratégia.", adminOnly: true },
+      { title: "Conversa Doce", url: "/conversa-doce", icon: MessageCircle, active: true, adminOnly: true },
       { title: "Minha Presença", url: "/presenca", icon: Globe, active: false, comingSoonMessage: "Em breve você terá controle da sua comunicação e presença online para atrair mais clientes e vender todos os dias." },
     ],
   },
