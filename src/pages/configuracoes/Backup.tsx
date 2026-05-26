@@ -409,7 +409,7 @@ export default function Backup() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {BACKUP_MODULOS.map((mod) => {
+            {modulosVisiveis.map((mod) => {
               const checked = modulosManual.includes(mod.id);
               return (
                 <label
