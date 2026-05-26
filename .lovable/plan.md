@@ -1,93 +1,111 @@
-## Plano: Integrar "Imersão A Receita que Faltava" ao Caixa de Açúcar
+## Fluxo de Expiração — Imersão A Receita que Faltava
 
-### Resumo das decisões já alinhadas
-- **Modelo:** novo plano **"Aluna da Imersão"** que libera os mesmos módulos do Caixa Business por **30 dias**.
-- **Conteúdo da imersão** (gravações, Playbook, etc.) fica **fora do app**, na Hotmart Club / Drive — o sistema não hospeda vídeos nem PDFs da imersão.
-- **Provisionamento manual** pela equipe (NÃO passa pelo webhook Hotmart) — formulário no painel admin.
-- **Pós 30 dias:** conta vira **inativa** (sem plano, sem acesso), mas usuário e todos os dados são preservados para reativação futura.
+Objetivo: avisar alunas da Imersão (e a administradora) que o acesso de 30 dias está acabando, e direcioná-las para a página de upgrade externa.
+
+E-mails: **enviados via Resend** (mesma infra já usada em `enviar-recuperacao-senha` e `criar-usuario`), reutilizando a secret `RESEND_API_KEY` já configurada no projeto.
 
 ---
 
-### 1. Banco de dados (migração única)
+### 1. Redirect para página de upgrade externa
 
-**Inserir novo plano na tabela `planos`:**
-- `id = 'aluna_imersao'`
-- `nome = 'Aluna da Imersão'`
-- Mesmas permissões/acessos que `negocio` para fins de RLS.
+Hoje `/upgrade` é uma página interna. Para alunas da Imersão (plano `aluna_imersao`), o sistema deve direcionar para:
 
-**Atualizar função `user_has_financial_access(uuid)`** para incluir `'aluna_imersao'` ao lado de `'negocio'`/`'start'` — assim a aluna acessa Meu Dinheiro, Estoque, Conversa Doce, Organização Doce, etc.
+`https://upcaixa.umbrelladoce.com.br`
 
-**Adicionar coluna opcional em `profiles`:**
-- `imersao_turma TEXT NULL` — para registrar a turma da aluna (ex.: "Turma 01 — Set/2026").
-
-Nenhuma alteração em `historico_planos` (já registra plano_id arbitrário).
-Nenhum novo bucket ou tabela auxiliar.
+Onde aplicar:
+- `PlanoGuard.tsx`: se `plano.id === "aluna_imersao"` e a rota for bloqueada → `window.location.href = URL_EXTERNA` (em vez de `<Navigate to="/upgrade" />`).
+- `AlertaExpiracaoPlano.tsx`: botão "Renovar acesso" → URL externa em nova aba (apenas para Imersão).
+- Novo modal de expiração da Imersão (ver item 3) também aponta para essa URL.
+- A página `/upgrade` interna continua existindo para os demais planos.
 
 ---
 
-### 2. Edge function `criar-usuario`
+### 2. E-mails de aviso (D-7, D-3, D-1) via Resend
 
-A função já aceita `plano_id` e `plano_fim`. Garantir que:
-- Aceita `plano_id = 'aluna_imersao'`.
-- Quando o admin escolhe "Aluna da Imersão", o frontend envia `plano_fim = hoje + 30 dias` e `imersao_turma`.
-- Email de boas-vindas usa template específico mencionando a imersão e os 30 dias.
+**Templates HTML inline** (no próprio edge function, padrão usado em `enviar-recuperacao-senha`):
+- Aluna: assunto dinâmico ("Faltam 7 dias do seu acesso à Imersão", etc.), CTA grande "Renovar agora" → URL externa, branding Vinho/Dourado.
+- Administradora (mãe): resumo diário com lista de alunas expirando (D-7, D-3, D-1 agrupadas).
 
-Nenhuma mudança no webhook Hotmart — Imersão é fluxo paralelo, manual.
+**Edge Function nova:** `notificar-expiracao-imersao` (`verify_jwt = false`, chamada apenas pelo cron).
 
----
+**Lógica:**
+1. Buscar profiles com `plano_id = 'aluna_imersao'`, `ativo = true`, `plano_fim ∈ {hoje+7, hoje+3, hoje+1}`.
+2. Para cada aluna: verificar em `imersao_notificacoes_log` se já foi enviado hoje para esse `(user_id, dias_restantes)`. Se não → enviar via Resend e logar.
+3. E-mail consolidado para a administradora (e-mail definido em secret `EMAIL_ADMIN_IMERSAO`) com todas as alunas da execução.
+4. Idempotência garantida pela tabela de log + unique constraint.
 
-### 3. Painel admin (`/configuracoes` → Gestão de Usuários)
-
-No modal de criação de usuário, adicionar a opção **"Aluna da Imersão"** no seletor de plano. Quando selecionada:
-- Mostra campo "Turma" (texto livre, ex.: "Turma 01 — Out/2026").
-- `plano_fim` é calculado automaticamente como hoje + 30 dias (somente leitura, com aviso).
-- Botão de envio chama `criar-usuario` com `plano_id='aluna_imersao'`, `plano_fim` e `imersao_turma`.
-
-Na listagem de usuários, exibir badge **"Aluna da Imersão"** com contagem de dias restantes (reusa o componente de período de acesso já existente).
-
-Filtro adicional: "Origem = Imersão" (consulta `plano_id='aluna_imersao'` OU histórico).
+**Agendamento:** `pg_cron` diário às 12:00 UTC (09:00 BRT) chamando a edge function via `net.http_post`. Inserido via `supabase--insert` (contém URL/anon key).
 
 ---
 
-### 4. UX da aluna dentro do app
+### 3. Notificação em tela (aluna)
 
-- **Sidebar / UserMenu:** badge "Aluna da Imersão · expira em N dias" (reaproveita lógica de plano_fim).
-- **Modal de boas-vindas (1º acesso):** card explicando que ela tem 30 dias de Business e links externos para as gravações/Playbook (URLs configuráveis em `system_settings` ou hardcoded por enquanto).
-- **Banner discreto** nos últimos 7 dias antes da expiração: "Seu acesso à plataforma encerra em X dias. Quer continuar? Fale com a Ká." (link WhatsApp).
-
-Nenhuma rota nova `/imersao` — gravações ficam fora do app.
+- `AlertaExpiracaoPlano` ganha CTA "Renovar agora" (URL externa) quando plano é Imersão.
+- Novo `ModalExpiracaoImersao`: aparece uma vez por sessão em D-1 e D-0 com mensagem mais forte e CTA destacado.
+- Em `Login.tsx`: se o erro de signIn for "plano expirou" e o e-mail pertencer a uma Imersão, mostrar link "Renovar acesso à Imersão" → URL externa.
 
 ---
 
-### 5. Expiração e reativação
+### 4. Notificação para administradora (in-app)
 
-A lógica atual do `AuthContext` já bloqueia login quando `plano_fim < hoje` — comportamento desejado. Nada a mudar.
-
-Para reativar (renovação ou upgrade), o admin altera manualmente o plano da aluna (fluxo já existente) e ela recupera acesso aos mesmos dados.
-
----
-
-### 6. Documentação
-
-- `docs/AUDITORIA.md`: registrar nova feature.
-- Atualizar memória `mem://integrations/hotmart-provisioning` mencionando que Imersão é **fora do Hotmart webhook** (provisionamento manual).
-- Criar `mem://features/imersao-receita-que-faltava` com o resumo do produto e regras de acesso.
+- Card "Alunas da Imersão expirando" em `/configuracoes/usuarios`:
+  - Lista alunas com `plano_fim` entre hoje e hoje+7.
+  - Colunas: nome, turma, dias restantes, data de expiração.
+- Badge no item de menu admin quando houver ≥1 aluna em D-7 ou menos.
 
 ---
 
-### Fora do escopo (registrar como decisões para depois)
+### 5. Pós-expiração
 
-- Hospedagem de gravações/Playbook no app (decidido: fica no Hotmart Club).
-- Integração automática com Hotmart caso, no futuro, a Imersão passe a ser vendida por lá — basta adicionar uma keyword no `resolverPlano()`.
-- Página pública de captação/checkout da Imersão (escopo da landing externa, não deste app).
-- Métricas de conversão Imersão → Business (pode virar dashboard depois das primeiras turmas).
+Já implementado:
+- `PlanExpirationWatcher` desativa profile e faz signOut.
+- `AuthContext.signIn` bloqueia login com mensagem clara.
+- Dados preservados para reativação manual via admin.
 
 ---
 
-### Detalhes técnicos (referência)
+### Detalhes técnicos
 
-- `planos`: INSERT simples.
-- `user_has_financial_access`: trocar `plano_id IN ('negocio','start')` por `plano_id IN ('negocio','start','aluna_imersao')`.
-- `profiles.imersao_turma`: `ALTER TABLE ADD COLUMN`.
-- Frontend admin: estender `CriarUsuarioModal` (selector + cálculo automático de plano_fim).
-- Lógica de "30 dias" centralizada numa constante `IMERSAO_DIAS_ACESSO = 30` (fácil ajustar depois).
+**Migration:**
+- Tabela `imersao_notificacoes_log`:
+  - `id` uuid PK, `user_id` uuid, `dias_restantes` int, `tipo` text ('aluna'|'admin'), `enviado_em` timestamptz default now()
+  - Unique `(user_id, dias_restantes, date(enviado_em))` — garante idempotência diária
+  - RLS: admin SELECT tudo; service_role ALL; sem acesso para `authenticated` comum
+  - Grants para `authenticated` (SELECT via has_role admin) e `service_role`
+
+**Secrets necessárias (já existentes ou a confirmar):**
+- `RESEND_API_KEY` ✅ (já em uso)
+- `EMAIL_ADMIN_IMERSAO` — e-mail da Ká/admin para receber resumo (a pedir via `add_secret` se ainda não houver)
+
+**Cron job (inserido via supabase--insert, não migration):**
+```sql
+select cron.schedule(
+  'notificar-expiracao-imersao-diario',
+  '0 12 * * *',
+  $$ select net.http_post(
+    url:='https://lypifrxdzjfdgkcacubl.supabase.co/functions/v1/notificar-expiracao-imersao',
+    headers:='{"Content-Type":"application/json","apikey":"<ANON_KEY>"}'::jsonb,
+    body:='{}'::jsonb
+  ); $$
+);
+```
+
+**Arquivos novos:**
+- `supabase/functions/notificar-expiracao-imersao/index.ts` (Resend + templates HTML inline + log)
+- `src/components/ModalExpiracaoImersao.tsx`
+- `src/components/admin/AlunasImersaoExpirando.tsx`
+- `src/lib/constants.ts` (`URL_UPGRADE_EXTERNO = "https://upcaixa.umbrelladoce.com.br"`)
+
+**Arquivos editados:**
+- `src/components/PlanoGuard.tsx`
+- `src/components/AlertaExpiracaoPlano.tsx`
+- `src/pages/auth/Login.tsx`
+- `src/pages/admin/Usuarios.tsx`
+- `supabase/config.toml` (registrar `[functions.notificar-expiracao-imersao] verify_jwt = false`)
+- `docs/AUDITORIA.md`
+- `mem://features/imersao-receita-que-faltava`
+
+**Fora de escopo:**
+- Reativação automática após pagamento (continua manual).
+- Push notifications / WhatsApp.
+- Dashboard de monitoramento de e-mails enviados (logs ficam apenas na tabela `imersao_notificacoes_log` e no Resend).
