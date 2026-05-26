@@ -65,8 +65,8 @@ Verifica profiles.primeiro_acesso === true?
 | Email | ✅ | Email do novo usuário |
 | Nome Completo | ❌ | Nome completo |
 | Nome da Confeitaria | ❌ | Nome da confeitaria |
-| Plano | ✅ | `base` ou `negocio` |
-| Periodicidade | ✅ | `mensal` (30 dias) ou `anual` (365 dias) |
+| Plano | ✅ | `base` (Lite), `negocio` (Business) ou `aluna_imersao` (30 dias Business — provisionamento manual fora do webhook Hotmart) |
+| Periodicidade | ✅ | `mensal` (30 dias) ou `anual` (365 dias). `aluna_imersao` é fixado em 30 dias |
 
 **Fluxo:**
 1. Admin preenche formulário e confirma
