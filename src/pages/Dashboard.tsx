@@ -936,8 +936,10 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Meu Painel</h1>
-          <p className="text-muted-foreground">Visão geral do seu negócio</p>
+          <h1 className="text-3xl font-bold tracking-tight font-display text-cda-vinho-escuro">
+            {saudacaoPorHora().texto}, {getPrimeiroNome(profile?.nome_completo, user?.email)}! {saudacaoPorHora().emoji}
+          </h1>
+          <p className="text-muted-foreground">Aqui está o resumo do seu negócio</p>
         </div>
 
         {/* Filtro Mês/Ano */}
