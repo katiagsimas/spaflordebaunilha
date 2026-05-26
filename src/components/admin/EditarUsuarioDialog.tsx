@@ -113,6 +113,9 @@ export function EditarUsuarioDialog({
   const [emailConfirmacao, setEmailConfirmacao] = useState("");
   const [planoInicio, setPlanoInicio] = useState<Date | undefined>(undefined);
   const [planoFim, setPlanoFim] = useState<Date | undefined>(undefined);
+  const [conversaDoceAtivo, setConversaDoceAtivo] = useState(false);
+  const [conversaDoceInicio, setConversaDoceInicio] = useState<Date | undefined>(undefined);
+  const [conversaDoceFim, setConversaDoceFim] = useState<Date | undefined>(undefined);
   const [itensSelecionados, setItensSelecionados] = useState({
     clientes: true,
     encomendas: true,
