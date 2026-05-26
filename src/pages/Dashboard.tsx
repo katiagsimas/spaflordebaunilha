@@ -31,6 +31,7 @@ import { useOpenPlannerDoce } from "@/hooks/useOpenPlannerDoce";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useNavigate } from "react-router-dom";
 import { saudacaoPorHora } from "@/lib/saudacao";
 import { getPrimeiroNome } from "@/components/UserMenu";
@@ -87,9 +88,10 @@ export default function Dashboard() {
   const [diaSelecionado, setDiaSelecionado] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const { plano } = usePlano();
+  const { isAdmin } = useIsAdmin();
   const { abrir: abrirPlanejamentoDoce, loading: loadingSsoDoce } = useOpenPlannerDoce();
   const podeAcessarPlanejamentoDoce =
-    plano?.id === "negocio" || plano?.id === "aluna_imersao";
+    plano?.id === "negocio" || plano?.id === "aluna_imersao" || isAdmin;
 
   const [alertas, setAlertas] = useState({
     receberAtrasado: { quantidade: 0, valor: 0 },
