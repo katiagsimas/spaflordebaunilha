@@ -706,3 +706,15 @@ Motivo: períodos de teste associados ao plano Start (descontinuado em 2026-05-2
 - Job pg_cron `executar-backups-agendados` reescrito para construir o header `Authorization: Bearer ` concatenando `private.get_anon_key()` em vez do JWT hardcoded.
 - **Ação manual necessária no SQL Editor (uma vez):** `select vault.create_secret('<ANON_KEY>', 'anon_key_cron', '...');`
 - Rotação futura da anon_key: basta atualizar o secret no Vault, sem editar o job.
+
+---
+
+## 2026-05-26 (update) — anon_key migrada para `private.config` ✅
+
+Substituiu a abordagem com Vault (que exigia `vault.create_secret` manual no SQL Editor — indisponível no Lovable Cloud).
+
+- Criada tabela `private.config(key, value, updated_at)` com RLS habilitada e **sem policies** (acesso só via SECURITY DEFINER).
+- Seed: `INSERT INTO private.config VALUES ('anon_key_cron', '<anon_key>')`.
+- `private.get_anon_key()` reescrita para ler de `private.config` (mesmo contrato externo).
+- Job pg_cron `executar-backups-agendados` permanece inalterado (já chamava `private.get_anon_key()`).
+- **Rotação futura:** migration com `UPDATE private.config SET value = '<nova>' WHERE key = 'anon_key_cron';`.
