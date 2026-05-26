@@ -1038,3 +1038,28 @@ Após P1+P2+P3, a pasta `docs/` está com 13 documentos modulares + `AUDITORIA.m
 - Sidebar: itens marcados como `motherOnly: true` (removido `ssoDoce`/`adminOnly` para essa seção).
 - Rotas `/planejamento`, `/planejamento-doce`, `/conversa-doce`, `/conversa-doce/respostas`, `/organizacao-doce` envolvidas com novo `MotherGuard` (`src/components/MotherGuard.tsx`).
 - Planos Business e Aluna da Imersão deixam de visualizar/acessar esses módulos.
+
+---
+
+## SSO de retorno do Planner DOCE — `/sso-retorno` (2026-05-26)
+
+✅ Endpoint público `GET /sso-retorno?token=<JWT>` implementado como rota SPA + edge function.
+
+**Fluxo:**
+1. Planner DOCE redireciona usuária para `https://www.caixadeacucar.com.br/sso-retorno?token=<JWT>`.
+2. Rota SPA `/sso-retorno` (alias de `/sso-return`) carrega `SSOReturnPage`.
+3. Página invoca edge function `validar-token-retorno-doce` com o token.
+4. Edge function valida HS256 com `SSO_SHARED_SECRET`, checa `exp`, `produto === "planejamento"` e anti-replay via `jti` sintético (`planejamento:<sub>:<iat>`) gravado em `sso_token_log`.
+5. Em sucesso, gera magic link via `auth.admin.generateLink` e devolve `action_link` — o navegador é redirecionado e a sessão Supabase é aberta automaticamente.
+
+**Aceitação:**
+- ✅ Token com `produto !== "planejamento"` e sem `fonte: "doce"` → 401
+- ✅ Token expirado → 401
+- ✅ Assinatura adulterada → 401 (verify djwt)
+- ✅ Replay (mesmo `sub`+`iat`) → 403
+- ✅ Usuário inexistente → 404 (não cria conta automaticamente)
+
+**Arquivos:**
+- `supabase/functions/validar-token-retorno-doce/index.ts` (aceita payload do Planner além do legado interno)
+- `src/App.tsx` (rota `/sso-retorno`)
+- `src/pages/SSOReturnPage.tsx` (reutilizada)
