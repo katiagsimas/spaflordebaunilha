@@ -162,6 +162,30 @@ export function EditarUsuarioDialog({
     }
   }, [planoInicio, planoTipoWatch]);
 
+  // Fetch Conversa Doce access fields
+  const { data: conversaDoceProfile } = useQuery({
+    queryKey: ['conversa-doce-profile', userId],
+    queryFn: async () => {
+      if (!userId) return null;
+      const { data } = await supabase
+        .from('profiles')
+        .select('conversa_doce_ativo, conversa_doce_inicio, conversa_doce_fim')
+        .eq('id', userId)
+        .maybeSingle();
+      return data as { conversa_doce_ativo: boolean | null; conversa_doce_inicio: string | null; conversa_doce_fim: string | null } | null;
+    },
+    enabled: !!userId && open,
+  });
+
+  // Auto-link Conversa Doce com o plano Aluna da Imersão (mesmo período)
+  useEffect(() => {
+    if (form.getValues('planoId') === 'aluna_imersao' && planoInicio && planoFim) {
+      setConversaDoceAtivo(true);
+      setConversaDoceInicio(planoInicio);
+      setConversaDoceFim(planoFim);
+    }
+  }, [form.watch('planoId'), planoInicio, planoFim]);
+
   // Fetch plan history
   const { data: historicoPlanos } = useQuery({
     queryKey: ['historico-planos', userId],
