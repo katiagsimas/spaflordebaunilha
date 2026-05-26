@@ -848,3 +848,11 @@ Substituiu a abordagem com Vault (que exigia `vault.create_secret` manual no SQL
 - Criado bucket público `avatars` em storage com policies por pasta `auth.uid()/...` (SELECT público, INSERT/UPDATE/DELETE restritos ao dono).
 - `UserMenu` agora exibe o avatar real (com fallback de iniciais) lendo `profiles.avatar_url`; upload feito direto no popover, persistido no bucket + tabela.
 - `ClearCacheButton` agora dispara a ação no 1º clique e mostra o rótulo "Limpar cache" em telas md+, evitando que pareça ter sumido. Tooltip mantém a explicação detalhada.
+
+## 2026-05-26 — Plano "Aluna da Imersão" (Imersão A Receita que Faltava) ✅
+- Migração: novo plano `aluna_imersao` na tabela `planos`, coluna `profiles.imersao_turma`, função `user_has_financial_access` atualizada para liberar módulos financeiros também para este plano.
+- `usePlano`: `MODULOS_POR_PLANO.aluna_imersao = ["*"]` (acesso total como Business).
+- `CriarUsuarioDialog` / `EditarUsuarioDialog`: nova opção de plano com tipo `imersao` (30 dias auto-calculados) e campo opcional "Turma".
+- Edge function `criar-usuario`: aceita `imersaoTurma`, marca `origem_criacao='imersao'`, email de boas-vindas com bloco específico mencionando Hotmart Club para gravações/Playbook.
+- Lib centralizada `src/lib/planos.ts` (`PLANO_LABELS`, `getPlanoLabel`, `IMERSAO_DIAS_ACESSO`).
+- Provisionamento manual (não passa pelo webhook Hotmart). Após 30 dias `plano_fim` expira e o `AuthContext` bloqueia o login — dados preservados para reativação.
