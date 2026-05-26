@@ -287,6 +287,7 @@ const App = () => (
           
           {/* Planejamento */}
           <Route path="/planejamento" element={<ProtectedRoute><Layout><PlanoGuard><Planejamento /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/planejamento-doce" element={<ProtectedRoute><Layout><PlanejamentoDoce /></Layout></ProtectedRoute>} />
 
           {/* Meu Salário (Renda Doce) */}
           <Route path="/meu-salario" element={<ProtectedRoute><Layout><PlanoGuard><MeuSalario /></PlanoGuard></Layout></ProtectedRoute>} />
