@@ -137,9 +137,23 @@ Deno.serve(async (req) => {
     }
 
     // ===== Magic link =====
+    // Força o redirectTo para o domínio da Caixa de Açúcar, evitando que o
+    // Site URL configurado no Supabase Auth (potencialmente apontando para
+    // doce.umbrelladoce.com.br) seja usado como destino do magic link.
+    const SITE_URL = Deno.env.get('SITE_URL') || ''
+    const origin = req.headers.get('origin') || ''
+    const referer = req.headers.get('referer') || ''
+    let baseRedirect = SITE_URL || origin
+    if (!baseRedirect && referer) {
+      try { baseRedirect = new URL(referer).origin } catch { /* noop */ }
+    }
+    if (!baseRedirect) baseRedirect = 'https://caixadeacucar.lovable.app'
+    const redirectTo = `${baseRedirect.replace(/\/$/, '')}/dashboard`
+
     const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
       type: 'magiclink',
       email,
+      options: { redirectTo },
     })
     if (linkError || !linkData?.properties?.action_link) {
       console.error('[validar-token-retorno-doce] falha generateLink:', linkError?.message)
