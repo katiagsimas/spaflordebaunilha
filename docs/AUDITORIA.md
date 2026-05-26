@@ -1124,3 +1124,8 @@ Após P1+P2+P3, a pasta `docs/` está com 13 documentos modulares + `AUDITORIA.m
 - UI `/configuracoes/backup` totalmente reformulada: cards de seleção por módulo (manual e agendado), seletor de retenção (7d a 1 ano), badges de origem/escopo no histórico.
 - Backup manual agora baixa **e** salva na nuvem simultaneamente (storage "ambos").
 - Edge function `executar-backups-agendados` atualizada: lê `modulos` e `retencao_dias`, tenta filtrar por `owner_group_id` (multi-tenant), com fallback para `usuario_id`/`user_id`, e remove backups expirados do banco + storage após cada execução.
+
+## BACKUP — TAGS DO SISTEMA REALOCADAS — 2026-05-26 20:10 UTC
+- Tabela `tags` movida do módulo **Sistema** para o módulo **Meu Comercial** (tags referem-se a encomendas).
+- Módulo **Sistema** agora cobre apenas `profiles` (Meus Dados).
+- Arquivos: `src/lib/backupCatalog.ts`, `supabase/functions/executar-backups-agendados/index.ts`.
