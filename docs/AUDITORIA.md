@@ -696,3 +696,13 @@ Com RLS habilitado e nenhuma policy, o bucket fica inacessível para qualquer cl
 - `src/components/admin/EditarUsuarioDialog.tsx`
 
 Motivo: períodos de teste associados ao plano Start (descontinuado em 2026-05-25). Banco já não possui perfis usando esses valores. Migrations históricas preservadas.
+
+---
+
+## 2026-05-26 — anon_key movida para Supabase Vault ✅
+
+- Criado schema `private` (sem GRANT para anon/authenticated).
+- Criada função `private.get_anon_key()` (SECURITY DEFINER, STABLE, search_path vazio) que lê `vault.decrypted_secrets` onde `name = 'anon_key_cron'`.
+- Job pg_cron `executar-backups-agendados` reescrito para construir o header `Authorization: Bearer ` concatenando `private.get_anon_key()` em vez do JWT hardcoded.
+- **Ação manual necessária no SQL Editor (uma vez):** `select vault.create_secret('<ANON_KEY>', 'anon_key_cron', '...');`
+- Rotação futura da anon_key: basta atualizar o secret no Vault, sem editar o job.
