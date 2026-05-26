@@ -1,6 +1,14 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-26T15:45:00Z — DOCS_MESTRE.md sincronizado com estado real.
+> Última atualização: 2026-05-26T16:30:00Z — Proteção anti-replay SSO (`sso_token_log`).
+
+## SEGURANÇA — 2026-05-26 16:30 UTC (Anti-replay SSO)
+
+- ✅ Criada tabela `public.sso_token_log` (jti único, email, direction `saida`/`entrada`, used_at, expires_at, ip, user_agent) com índices em `jti` e `expires_at`.
+- ✅ RLS habilitada **sem policies** + `GRANT ALL` apenas para `service_role` (anon/authenticated não têm acesso). Edge functions usam service role para registrar/consultar `jti`.
+- ✅ Função `public.cleanup_expired_sso_tokens()` (SECURITY DEFINER, search_path fixo) remove registros com `expires_at < now() - interval '1 day'`. EXECUTE revogado de PUBLIC/anon/authenticated, mantido apenas para `service_role`.
+- ✅ Job pg_cron `cleanup-expired-sso-tokens` agendado para `0 3 * * *` (03:00 UTC diariamente) executando a função de limpeza.
+- ⏳ Próximo passo: integrar `sso_token_log` nas edge functions de emissão/consumo de tokens SSO (insert do `jti` na emissão; check de unicidade na entrada).
 
 ## DOCS_MESTRE.md SINCRONIZADO — 2026-05-26 15:45 UTC
 
