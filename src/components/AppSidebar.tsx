@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { LayoutDashboard, Users, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles, MessageCircle, Bug, CheckCircle2, EyeOff, Clock, ListChecks } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
+import { useConversaDoceAccess } from "@/hooks/useConversaDoceAccess";
 
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
