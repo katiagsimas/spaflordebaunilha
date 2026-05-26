@@ -730,9 +730,9 @@ export function EditarUsuarioDialog({
 
               {/* Acesso ao módulo Conversa Doce */}
               <Separator className="my-4" />
-              <Card className="border-cda-dourado/30">
+              <Card className="bg-cda-vinho border-cda-dourado shadow-lg shadow-cda-vinho/40">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm flex items-center gap-2">
+                  <CardTitle className="text-sm flex items-center gap-2 text-cda-creme">
                     <Sparkles className="h-4 w-4 text-cda-dourado" />
                     Acesso ao Conversa Doce
                   </CardTitle>
@@ -745,10 +745,10 @@ export function EditarUsuarioDialog({
                       onCheckedChange={(checked) => setConversaDoceAtivo(checked === true)}
                     />
                     <div className="space-y-1">
-                      <label htmlFor="conversa-doce-ativo" className="text-sm font-medium cursor-pointer">
+                      <label htmlFor="conversa-doce-ativo" className="text-sm font-medium cursor-pointer text-cda-branco">
                         Liberar acesso ao Conversa Doce
                       </label>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-cda-creme/70">
                         Para Aluna da Imersão, o acesso é vinculado automaticamente ao período do plano (30 dias).
                         O histórico de favoritos é preservado após a expiração.
                       </p>
@@ -758,19 +758,21 @@ export function EditarUsuarioDialog({
                   {conversaDoceAtivo && (
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label className="text-sm font-medium">Início do acesso</label>
+                        <label className="text-sm font-medium text-cda-creme">Início do acesso</label>
                         <DatePickerField
                           value={conversaDoceInicio}
                           onChange={setConversaDoceInicio}
                           placeholder="Data início..."
+                          className="bg-cda-vinho-escuro text-cda-branco border-cda-dourado/30 hover:bg-cda-vinho-escuro/80 hover:text-cda-branco"
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-medium">Fim do acesso</label>
+                        <label className="text-sm font-medium text-cda-creme">Fim do acesso</label>
                         <DatePickerField
                           value={conversaDoceFim}
                           onChange={setConversaDoceFim}
                           placeholder="Data fim (vazio = sem expiração)..."
+                          className="bg-cda-vinho-escuro text-cda-branco border-cda-dourado/30 hover:bg-cda-vinho-escuro/80 hover:text-cda-branco"
                         />
                       </div>
                     </div>
