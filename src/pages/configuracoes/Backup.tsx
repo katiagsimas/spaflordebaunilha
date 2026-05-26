@@ -279,17 +279,18 @@ export default function Backup() {
   async function restaurarDoHistorico(backupId: string) {
     setRestaurando(true);
     try {
-      const { data, error } = await (supabase
+      const { data: meta } = await (supabase
         .from("backups" as any)
-        .select("dados, nome")
+        .select("nome")
         .eq("id", backupId)
         .single() as any);
 
-      if (error || !data) throw new Error("Erro ao buscar backup.");
+      const dados = await carregarDadosBackup(backupId);
+      if (!dados) throw new Error("Erro ao buscar backup.");
 
-      const tabelasRestauradas = Object.keys(data.dados).length;
+      const tabelasRestauradas = Object.keys(dados).length;
       toast.success(
-        `Backup "${data.nome}" carregado com ${tabelasRestauradas} tabelas. A restauração completa requer suporte técnico para evitar conflitos de dados.`
+        `Backup "${meta?.nome ?? ""}" carregado com ${tabelasRestauradas} tabelas. A restauração completa requer suporte técnico para evitar conflitos de dados.`
       );
     } catch (err: any) {
       toast.error("Erro ao restaurar: " + err.message);
@@ -299,6 +300,7 @@ export default function Backup() {
       setBackupSelecionado(null);
     }
   }
+
 
   function handleRestaurarArquivo() {
     const input = document.createElement("input");
