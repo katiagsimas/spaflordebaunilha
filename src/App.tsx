@@ -294,9 +294,9 @@ const App = () => (
           {/* Meu Salário (Renda Doce) */}
           <Route path="/meu-salario" element={<ProtectedRoute><Layout><PlanoGuard><MeuSalario /></PlanoGuard></Layout></ProtectedRoute>} />
 
-          {/* Conversa Doce — somente usuário MÃE */}
-          <Route path="/conversa-doce" element={<ProtectedRoute><Layout><MotherGuard><ConversaDoce /></MotherGuard></Layout></ProtectedRoute>} />
-          <Route path="/conversa-doce/respostas" element={<ProtectedRoute><Layout><MotherGuard><ConversaDoceRespostas /></MotherGuard></Layout></ProtectedRoute>} />
+          {/* Conversa Doce — admin-mãe + usuárias com acesso liberado */}
+          <Route path="/conversa-doce" element={<ProtectedRoute><Layout><ConversaDoceGuard><ConversaDoce /></ConversaDoceGuard></Layout></ProtectedRoute>} />
+          <Route path="/conversa-doce/respostas" element={<ProtectedRoute><Layout><ConversaDoceGuard><ConversaDoceRespostas /></ConversaDoceGuard></Layout></ProtectedRoute>} />
 
           {/* Organização Doce — somente usuário MÃE */}
           <Route path="/organizacao-doce" element={<ProtectedRoute><Layout><MotherGuard><OrganizacaoDoce /></MotherGuard></Layout></ProtectedRoute>} />
