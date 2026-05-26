@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import ContasPagarFormModal from '@/components/financeiro/ContasPagarFormModal';
+import ContasPagarFormView from '@/components/financeiro/ContasPagarFormView';
 
 export default function ContasPagarForm() {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ export default function ContasPagarForm() {
   if (!open) return null;
 
   return (
-    <ContasPagarFormModal
+    <ContasPagarFormView
       contaId={id}
       onSucesso={handleClose}
       onCancelar={handleClose}
