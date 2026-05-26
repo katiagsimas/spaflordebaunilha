@@ -706,7 +706,14 @@ export default function Usuarios() {
           )}
         </CardContent>
       </Card>
+          </TabsContent>
+
+          <TabsContent value="grupos" className="space-y-6">
+            <Governanca embedded />
+          </TabsContent>
+        </Tabs>
       </div>
+
 
 
       <CriarUsuarioDialog
