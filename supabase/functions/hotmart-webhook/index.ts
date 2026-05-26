@@ -194,7 +194,9 @@ Deno.serve(async (req) => {
       ].filter(Boolean).map(String)
       const planName = planNameParts.join(' | ')
       console.log('planName sources:', planNameParts)
-      const resolved = await resolverPlano(supabaseAdmin, product.id?.toString() || '', planName)
+      const offerCode = (offer.code as string | undefined)?.toString().trim() || null
+      console.log('offer.code:', offerCode)
+      const resolved = await resolverPlano(supabaseAdmin, product.id?.toString() || '', offerCode, planName)
       if (!resolved) {
         console.log('=== Hotmart Webhook - Produto não reconhecido, evento ignorado ===', { productId: product.id, planName })
         return new Response(
