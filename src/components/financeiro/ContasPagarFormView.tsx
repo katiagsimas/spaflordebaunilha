@@ -34,17 +34,17 @@ import { LoadingMascote } from '@/components/LoadingMascote';
 import { Info, Check, ChevronsUpDown, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface ContasPagarFormModalProps {
+interface ContasPagarFormViewProps {
   contaId?: string;
   onSucesso: () => void;
   onCancelar: () => void;
 }
 
-export default function ContasPagarFormModal({
+export default function ContasPagarFormView({
   contaId,
   onSucesso,
   onCancelar,
-}: ContasPagarFormModalProps) {
+}: ContasPagarFormViewProps) {
   const { toast } = useToast();
   const navigate = useNavigate();
   const isEdicao = !!contaId;
