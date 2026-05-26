@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { LayoutDashboard, Users, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles, MessageCircle, Bug, CheckCircle2, EyeOff, Clock, ListChecks } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
+import { useConversaDoceAccess } from "@/hooks/useConversaDoceAccess";
 
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -41,6 +42,7 @@ interface MenuItem {
   adminOnly?: boolean;
   motherOnly?: boolean;
   ssoDoce?: boolean;
+  conversaDoce?: boolean;
   comingSoonMessage?: string;
 }
 
@@ -66,7 +68,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
     label: "PLANEJAMENTO",
     items: [
       { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false, comingSoonMessage: "Em breve você terá um plano claro para organizar sua produção, suas vendas e crescer com estratégia.", motherOnly: true },
-      { title: "Conversa Doce", url: "/conversa-doce", icon: MessageCircle, active: true, motherOnly: true },
+      { title: "Conversa Doce", url: "/conversa-doce", icon: MessageCircle, active: true, conversaDoce: true },
       { title: "Organização Doce", url: "/organizacao-doce", icon: ListChecks, active: true, motherOnly: true },
       { title: "Planejamento Doce", url: "/planejamento-doce", icon: Sparkles, active: true, motherOnly: true },
     ],
@@ -88,6 +90,7 @@ export function AppSidebar() {
   const { isAdmin } = useIsAdmin();
   const { rotaBloqueada, isLoading: isPlanoLoading, plano } = usePlano();
   const podeAcessarSsoDoce = isAdmin || plano?.id === "negocio" || plano?.id === "aluna_imersao";
+  const { temAcesso: podeAcessarConversaDoce } = useConversaDoceAccess();
   const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
   const [comingSoonModal, setComingSoonModal] = useState<{ title: string; message: string } | null>(null);
   const [diagOpen, setDiagOpen] = useState(false);
@@ -196,7 +199,7 @@ export function AppSidebar() {
               <SidebarGroupContent>
                 <SidebarMenu>
                   {section.items
-                    .filter((item) => (!item.adminOnly || isAdmin) && (!item.motherOnly || isMother) && (!item.ssoDoce || podeAcessarSsoDoce))
+                    .filter((item) => (!item.adminOnly || isAdmin) && (!item.motherOnly || isMother) && (!item.ssoDoce || podeAcessarSsoDoce) && (!item.conversaDoce || podeAcessarConversaDoce))
                     .map((item) => {
                       const Icon = item.icon;
                       const bloqueado = !isPlanoLoading && !isAdmin && item.active && rotaBloqueada(item.url);

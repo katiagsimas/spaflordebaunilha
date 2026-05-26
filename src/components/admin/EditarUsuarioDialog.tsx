@@ -53,7 +53,8 @@ import {
   Tag,
   History,
   CalendarDays,
-  Globe
+  Globe,
+  Sparkles
 } from 'lucide-react';
 
 const formSchema = z.object({
@@ -113,6 +114,9 @@ export function EditarUsuarioDialog({
   const [emailConfirmacao, setEmailConfirmacao] = useState("");
   const [planoInicio, setPlanoInicio] = useState<Date | undefined>(undefined);
   const [planoFim, setPlanoFim] = useState<Date | undefined>(undefined);
+  const [conversaDoceAtivo, setConversaDoceAtivo] = useState(false);
+  const [conversaDoceInicio, setConversaDoceInicio] = useState<Date | undefined>(undefined);
+  const [conversaDoceFim, setConversaDoceFim] = useState<Date | undefined>(undefined);
   const [itensSelecionados, setItensSelecionados] = useState({
     clientes: true,
     encomendas: true,
@@ -158,6 +162,30 @@ export function EditarUsuarioDialog({
       setPlanoFim(parseISOToDate(fimISO));
     }
   }, [planoInicio, planoTipoWatch]);
+
+  // Fetch Conversa Doce access fields
+  const { data: conversaDoceProfile } = useQuery({
+    queryKey: ['conversa-doce-profile', userId],
+    queryFn: async () => {
+      if (!userId) return null;
+      const { data } = await supabase
+        .from('profiles')
+        .select('conversa_doce_ativo, conversa_doce_inicio, conversa_doce_fim')
+        .eq('id', userId)
+        .maybeSingle();
+      return data as { conversa_doce_ativo: boolean | null; conversa_doce_inicio: string | null; conversa_doce_fim: string | null } | null;
+    },
+    enabled: !!userId && open,
+  });
+
+  // Auto-link Conversa Doce com o plano Aluna da Imersão (mesmo período)
+  useEffect(() => {
+    if (form.getValues('planoId') === 'aluna_imersao' && planoInicio && planoFim) {
+      setConversaDoceAtivo(true);
+      setConversaDoceInicio(planoInicio);
+      setConversaDoceFim(planoFim);
+    }
+  }, [form.watch('planoId'), planoInicio, planoFim]);
 
   // Fetch plan history
   const { data: historicoPlanos } = useQuery({
@@ -260,6 +288,14 @@ export function EditarUsuarioDialog({
     }
   }, [userData, userRole, open, form]);
 
+  useEffect(() => {
+    if (conversaDoceProfile && open) {
+      setConversaDoceAtivo(!!conversaDoceProfile.conversa_doce_ativo);
+      setConversaDoceInicio(conversaDoceProfile.conversa_doce_inicio ? parseISOToDate(conversaDoceProfile.conversa_doce_inicio) : undefined);
+      setConversaDoceFim(conversaDoceProfile.conversa_doce_fim ? parseISOToDate(conversaDoceProfile.conversa_doce_fim) : undefined);
+    }
+  }, [conversaDoceProfile, open]);
+
   const atualizarUsuarioMutation = useMutation({
     mutationFn: async (data: FormData) => {
       if (!userId) throw new Error('ID do usuário não fornecido');
@@ -287,6 +323,9 @@ export function EditarUsuarioDialog({
           plano_tipo: data.planoTipo,
           plano_inicio: planoInicio ? formatDateToISO(planoInicio) : null,
           plano_fim: planoFim ? formatDateToISO(planoFim) : null,
+          conversa_doce_ativo: conversaDoceAtivo,
+          conversa_doce_inicio: conversaDoceInicio ? formatDateToISO(conversaDoceInicio) : null,
+          conversa_doce_fim: conversaDoceFim ? formatDateToISO(conversaDoceFim) : null,
         } as any)
         .eq('id', userId);
 
@@ -374,6 +413,8 @@ export function EditarUsuarioDialog({
       queryClient.invalidateQueries({ queryKey: ['admin-user-roles'] });
       queryClient.invalidateQueries({ queryKey: ['plano'] });
       queryClient.invalidateQueries({ queryKey: ['historico-planos', userId] });
+      queryClient.invalidateQueries({ queryKey: ['conversa-doce-profile', userId] });
+      queryClient.invalidateQueries({ queryKey: ['conversa-doce-access'] });
       onOpenChange(false);
     },
     onError: (error: any) => {
@@ -686,6 +727,56 @@ export function EditarUsuarioDialog({
                   />
                 </div>
               </div>
+
+              {/* Acesso ao módulo Conversa Doce */}
+              <Separator className="my-4" />
+              <Card className="border-cda-dourado/30">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-cda-dourado" />
+                    Acesso ao Conversa Doce
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-start gap-2">
+                    <Checkbox
+                      id="conversa-doce-ativo"
+                      checked={conversaDoceAtivo}
+                      onCheckedChange={(checked) => setConversaDoceAtivo(checked === true)}
+                    />
+                    <div className="space-y-1">
+                      <label htmlFor="conversa-doce-ativo" className="text-sm font-medium cursor-pointer">
+                        Liberar acesso ao Conversa Doce
+                      </label>
+                      <p className="text-xs text-muted-foreground">
+                        Para Aluna da Imersão, o acesso é vinculado automaticamente ao período do plano (30 dias).
+                        O histórico de favoritos é preservado após a expiração.
+                      </p>
+                    </div>
+                  </div>
+
+                  {conversaDoceAtivo && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Início do acesso</label>
+                        <DatePickerField
+                          value={conversaDoceInicio}
+                          onChange={setConversaDoceInicio}
+                          placeholder="Data início..."
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Fim do acesso</label>
+                        <DatePickerField
+                          value={conversaDoceFim}
+                          onChange={setConversaDoceFim}
+                          placeholder="Data fim (vazio = sem expiração)..."
+                        />
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
               <FormField
                 control={form.control}

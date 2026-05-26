@@ -54,3 +54,18 @@ O system prompt está em `ConversaDoceRespostas.tsx`. Define tom (PT-BR, profiss
 ## Migrations
 
 - `20260526...conversa_doce_favoritos.sql` (criação da tabela + RLS + trigger updated_at)
+
+## Atualização 2026-05-26 — Acesso manual por usuária
+
+Adicionados campos em `profiles`:
+- `conversa_doce_ativo` (bool)
+- `conversa_doce_inicio` (date)
+- `conversa_doce_fim` (date)
+
+Regras:
+- Admin-mãe (MOTHER) sempre tem acesso (bypass).
+- Demais usuárias: acesso liberado apenas se `conversa_doce_ativo = true` e `conversa_doce_fim >= hoje` (ou nulo, sem expiração).
+- Aluna da Imersão: o formulário de edição (admin > usuários) preenche automaticamente o acesso espelhando o período do plano (30 dias).
+- Guard de rota: `src/components/ConversaDoceGuard.tsx` substitui `MotherGuard` em `/conversa-doce*`.
+- Sidebar: item filtrado via `useConversaDoceAccess()`.
+- Histórico (favoritos) é preservado após expiração — sem cascade delete.
