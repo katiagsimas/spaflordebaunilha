@@ -27,6 +27,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useNavigate } from "react-router-dom";
+import { saudacaoPorHora } from "@/lib/saudacao";
+import { getPrimeiroNome } from "@/components/UserMenu";
 import {
   format,
   startOfMonth,
