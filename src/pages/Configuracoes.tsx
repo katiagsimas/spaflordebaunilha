@@ -1,5 +1,5 @@
 import React from "react";
-import { Settings, DollarSign, Package, Info, HardDrive } from "lucide-react";
+import { Settings, Package, Info, HardDrive } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 
