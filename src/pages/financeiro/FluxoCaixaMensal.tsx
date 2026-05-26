@@ -343,7 +343,7 @@ export default function FluxoCaixaMensal() {
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={handleExportar}>
                   <Download className="w-4 h-4 mr-2" />
-                  Exportar para Excel
+                  Exportar .xlsx
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => window.print()}>
                   <Printer className="w-4 h-4 mr-2" />
