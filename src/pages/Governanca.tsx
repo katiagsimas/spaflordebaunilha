@@ -32,6 +32,12 @@ export default function Governanca() {
       icon: FileText,
       url: "/admin/logs",
     },
+    {
+      title: "Cofre de Backups",
+      description: "Espelho automático de backups de todos os grupos para suporte (dia 1 do mês + 5 últimos).",
+      icon: Archive,
+      url: "/admin/cofre-backups",
+    },
   ];
 
   return (
