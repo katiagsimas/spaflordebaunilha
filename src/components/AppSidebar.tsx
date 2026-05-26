@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { LayoutDashboard, LogOut, Users, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles, MessageCircle, Bug, CheckCircle2, EyeOff, Clock, RefreshCw } from "lucide-react";
+import { LayoutDashboard, Users, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles, MessageCircle, Bug, CheckCircle2, EyeOff, Clock, RefreshCw } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
 
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGroup } from "@/contexts/GroupContext";
 import { useQuery } from "@tanstack/react-query";
@@ -80,9 +80,8 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
 
 export function AppSidebar() {
   const { open } = useSidebar();
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const { isMother, isGroupAdmin, sessionMode, activeGroup, activeRole } = useGroup();
-  const navigate = useNavigate();
   const { isAdmin } = useIsAdmin();
   const { rotaBloqueada, isLoading: isPlanoLoading } = usePlano();
   const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
@@ -156,10 +155,6 @@ export function AppSidebar() {
     enabled: !!user,
   });
 
-  const handleLogout = async () => {
-    await signOut();
-    navigate("/auth/login");
-  };
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border" style={{ width: open ? '280px' : undefined }}>
@@ -374,15 +369,6 @@ export function AppSidebar() {
                 )}
               </div>
             )}
-            <Button
-              onClick={handleLogout}
-              variant="ghost"
-              size="sm"
-              className="w-full text-[#FFF9F5]/70 hover:text-cda-coral font-body"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Sair
-            </Button>
             <Button
               onClick={async () => {
                 try {
