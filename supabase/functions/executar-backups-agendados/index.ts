@@ -30,10 +30,6 @@ const MODULO_TABELAS: Record<string, string[]> = {
     "custos_fixos", "configuracoes_juros", "meu_salario_retiradas",
     "fechamentos_mensais", "fechamento_logs", "fechamento_checklist_itens",
   ],
-  planejamento: [
-    "planejamento_metas", "planejamento_tarefas", "planejamento_datas_comemorativas",
-    "planejamento_descanso", "organizacao_doce_state",
-  ],
   sistema: ["tags", "conversa_doce_favoritos"],
 };
 
@@ -108,7 +104,7 @@ Deno.serve(async (req) => {
 
         const modulos: string[] = (ag.modulos && ag.modulos.length > 0)
           ? ag.modulos
-          : ["operacao", "comercial", "negocio", "planejamento", "sistema"];
+          : ["operacao", "comercial", "negocio", "sistema"];
 
         const tabelas = tabelasDosModulos(modulos);
         const dados: Record<string, any[]> = {};
