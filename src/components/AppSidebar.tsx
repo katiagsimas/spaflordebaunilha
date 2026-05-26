@@ -87,6 +87,7 @@ export function AppSidebar() {
   const { rotaBloqueada, isLoading: isPlanoLoading } = usePlano();
   const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
   const [comingSoonModal, setComingSoonModal] = useState<{ title: string; message: string } | null>(null);
+  const [diagOpen, setDiagOpen] = useState(false);
 
   const { data: profile } = useQuery({
     queryKey: ['profile', user?.id],
