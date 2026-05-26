@@ -11,7 +11,7 @@
 |---|-----------|------|-------------|--------|------------|
 | 3 | 🟡 Média | Rate limiting na Edge Function `criar-usuario` | Dev/Infra | ⏸️ Bloqueado | Plataforma ainda não tem primitivas próprias de rate limiting. Implementação ad-hoc possível, mas será refeita quando infra oficial chegar. |
 | 6 | 🟡 Baixa | Customizar templates de email do Cloud | Admin/Infra | 🔲 Pendente | Emails usam template padrão |
-| 10 | 🟡 Média | Leaked Password Protection desabilitado | Admin | ✅ Resolvido | HIBP habilitado via `configure_auth` (password_hibp_enabled: true) em 26/05/2026 |
+
 
 
 
@@ -22,6 +22,7 @@
 ## Pendências Resolvidas (Histórico)
 
 | Data (UTC) | Item | Resolução |
+| 2026-05-26 | #10 — Leaked Password Protection desabilitado | HIBP habilitado via `configure_auth` (`password_hibp_enabled: true`). |
 |------------|------|-----------|
 | 2026-05-26 | #9 — Vulnerabilidade `xlsx` (Prototype Pollution / ReDoS) | Pacote `xlsx` removido. Adicionado `exceljs@4.4.0`. Criado shim em `src/lib/xlsxShim.ts` com a mesma API mínima usada no app (`utils.json_to_sheet`, `utils.aoa_to_sheet`, `utils.book_new`, `utils.book_append_sheet`, `writeFile`). Todos os 18 imports de `xlsx` substituídos por `@/lib/xlsxShim` — comportamento de exportação preservado, sem necessidade de SheetJS Pro. |
 | 2026-05-26 | #21 — Backups armazenados como JSONB no banco | Bucket privado `backups` criado com RLS owner-scoped (`auth.uid()` por pasta). Edge function `executar-backups-agendados` e tela `Backup.tsx` passam a fazer upload do JSON para Storage; `backups.dados` virou opcional para compatibilidade com backups antigos. Download/restore usa `storage.download()` quando há `storage_path`. |

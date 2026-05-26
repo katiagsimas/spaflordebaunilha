@@ -37,7 +37,7 @@ O Caixa de Açúcar é o sistema principal da **Umbrella Doce**, concentrando to
 | Gráficos | Recharts |
 | Formulários | React Hook Form + Zod |
 | PDF | jsPDF + jspdf-autotable |
-| Planilhas | xlsx |
+| Planilhas | exceljs (via shim em `src/lib/xlsxShim.ts`) |
 | Drag & Drop | @dnd-kit |
 | Emails transacionais | Resend (noreply@umbrelladoce.com.br) |
 | Agendamento | pg_cron (backups agendados) |
