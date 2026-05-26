@@ -1,6 +1,14 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-25T22:45:00Z — Limpeza de menções residuais ao Caixa Start em docs e log do webhook (`SWITCH_PLAN`).
+> Última atualização: 2026-05-26T01:30:00Z — P-3 (AI Gateway Cap) implementado preventivamente.
+
+---
+
+## P-3 AI GATEWAY CAP — 2026-05-26 01:30 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| P-3 | Cap de consumo da IA por usuário | ✅ | Infraestrutura preventiva: tabela `ai_usage_quotas` (RLS: usuário vê só o próprio, MOTHER vê tudo, escrita só via service role), RPCs SECURITY DEFINER `check_and_increment_ai_quota(user_id, plano_id)` e `record_ai_tokens(user_id, in, out)` com EXECUTE só para `service_role`. Edge function `ai-proxy` aplica: (1) IP rate limit 30 req/min, (2) JWT via `getClaims()`, (3) bloqueio se `ativo=false`, (4) check + increment atômico de cota mensal (Lite=50, Business=500, MOTHER=ilimitado), (5) whitelist de modelos (`gemini-2.5-flash`/`flash-lite`/`pro`), (6) chamada ao Lovable AI Gateway e (7) gravação de tokens reais. Frontend usa hook `useAi()` (`src/hooks/useAi.ts`) que trata erros 429/402 via toast. Docs completas em `docs/AI_GATEWAY_CAP.md`. |
 
 ---
 

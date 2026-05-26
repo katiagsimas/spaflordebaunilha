@@ -47,6 +47,39 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_usage_quotas: {
+        Row: {
+          created_at: string
+          id: string
+          periodo: string
+          requests_count: number
+          tokens_in: number
+          tokens_out: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          periodo: string
+          requests_count?: number
+          tokens_in?: number
+          tokens_out?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          periodo?: string
+          requests_count?: number
+          tokens_in?: number
+          tokens_out?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       backup_agendamentos: {
         Row: {
           ativo: boolean
@@ -3494,6 +3527,10 @@ export type Database = {
         Args: { p_frequencia: string; p_horario: string; p_referencia?: string }
         Returns: string
       }
+      check_and_increment_ai_quota: {
+        Args: { p_plano_id: string; p_user_id: string }
+        Returns: Json
+      }
       criar_banco_caixa_empresa_padrao: {
         Args: { p_user_id: string }
         Returns: undefined
@@ -3704,6 +3741,10 @@ export type Database = {
           p_valor: number
         }
         Returns: Json
+      }
+      record_ai_tokens: {
+        Args: { p_tokens_in: number; p_tokens_out: number; p_user_id: string }
+        Returns: undefined
       }
       user_belongs_to_group: {
         Args: { _group_id: string; _user_id: string }
