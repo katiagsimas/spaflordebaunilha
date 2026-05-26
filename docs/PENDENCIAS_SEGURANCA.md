@@ -23,6 +23,7 @@
 
 | Data (UTC) | Item | Resolução |
 |------------|------|-----------|
+| 2026-05-26 | #19 — Anon key armazenada em `private.config` | Migrada para `vault.secrets` (`cron_anon_key`); `private.get_anon_key()` agora lê do Vault; tabela `private.config` removida. |
 | 2026-05-26 | #20 — Sem cap de uso para AI Gateway | Implementado P-3: edge function `ai-proxy` + `ai_usage_quotas` + RPCs SECURITY DEFINER. Lite=50/mês, Business=500/mês, MOTHER ilimitado. |
 | 2026-03-08 | Loop infinito no AuthContext (`toast` nas deps) | Removido `toast` do array de dependências do `useEffect` |
 | 2026-03-08 | `signUp` removido do AuthContext | Método removido da interface, implementação e Provider |
