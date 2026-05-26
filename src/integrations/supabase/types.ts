@@ -1073,6 +1073,142 @@ export type Database = {
           },
         ]
       }
+      contratos: {
+        Row: {
+          assinado_em: string | null
+          cliente_documento: string | null
+          cliente_email: string | null
+          cliente_nome: string
+          cliente_telefone: string | null
+          created_at: string
+          created_by: string
+          data_evento: string | null
+          enviado_em: string | null
+          form_data: Json
+          id: string
+          numero: number
+          observacoes: string | null
+          owner_group_id: string
+          pdf_url: string | null
+          proposta_id: string | null
+          status: string
+          template_id: string | null
+          template_nome: string
+          updated_at: string
+          valor_total: number
+        }
+        Insert: {
+          assinado_em?: string | null
+          cliente_documento?: string | null
+          cliente_email?: string | null
+          cliente_nome: string
+          cliente_telefone?: string | null
+          created_at?: string
+          created_by: string
+          data_evento?: string | null
+          enviado_em?: string | null
+          form_data?: Json
+          id?: string
+          numero: number
+          observacoes?: string | null
+          owner_group_id: string
+          pdf_url?: string | null
+          proposta_id?: string | null
+          status?: string
+          template_id?: string | null
+          template_nome: string
+          updated_at?: string
+          valor_total?: number
+        }
+        Update: {
+          assinado_em?: string | null
+          cliente_documento?: string | null
+          cliente_email?: string | null
+          cliente_nome?: string
+          cliente_telefone?: string | null
+          created_at?: string
+          created_by?: string
+          data_evento?: string | null
+          enviado_em?: string | null
+          form_data?: Json
+          id?: string
+          numero?: number
+          observacoes?: string | null
+          owner_group_id?: string
+          pdf_url?: string | null
+          proposta_id?: string | null
+          status?: string
+          template_id?: string | null
+          template_nome?: string
+          updated_at?: string
+          valor_total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contratos_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contratos_proposta_id_fkey"
+            columns: ["proposta_id"]
+            isOneToOne: false
+            referencedRelation: "propostas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contratos_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "contratos_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contratos_templates: {
+        Row: {
+          ativo: boolean
+          campos: Json
+          corpo: string
+          created_at: string
+          descricao: string | null
+          icone: string
+          id: string
+          nome: string
+          ordem: number
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          campos?: Json
+          corpo: string
+          created_at?: string
+          descricao?: string | null
+          icone?: string
+          id?: string
+          nome: string
+          ordem?: number
+          tipo: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          campos?: Json
+          corpo?: string
+          created_at?: string
+          descricao?: string | null
+          icone?: string
+          id?: string
+          nome?: string
+          ordem?: number
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       conversa_doce_favoritos: {
         Row: {
           created_at: string
@@ -2613,6 +2749,7 @@ export type Database = {
       profiles: {
         Row: {
           alerta_cmv: number | null
+          assinatura_url: string | null
           ativo: boolean | null
           avatar_url: string | null
           bairro: string | null
@@ -2624,6 +2761,7 @@ export type Database = {
           cpf: string | null
           created_at: string | null
           custo_fixo_mensal: number | null
+          dados_bancarios: Json
           dias_trabalho_mes: number | null
           email: string
           endereco: string | null
@@ -2659,6 +2797,7 @@ export type Database = {
         }
         Insert: {
           alerta_cmv?: number | null
+          assinatura_url?: string | null
           ativo?: boolean | null
           avatar_url?: string | null
           bairro?: string | null
@@ -2670,6 +2809,7 @@ export type Database = {
           cpf?: string | null
           created_at?: string | null
           custo_fixo_mensal?: number | null
+          dados_bancarios?: Json
           dias_trabalho_mes?: number | null
           email: string
           endereco?: string | null
@@ -2705,6 +2845,7 @@ export type Database = {
         }
         Update: {
           alerta_cmv?: number | null
+          assinatura_url?: string | null
           ativo?: boolean | null
           avatar_url?: string | null
           bairro?: string | null
@@ -2716,6 +2857,7 @@ export type Database = {
           cpf?: string | null
           created_at?: string | null
           custo_fixo_mensal?: number | null
+          dados_bancarios?: Json
           dias_trabalho_mes?: number | null
           email?: string
           endereco?: string | null
@@ -2762,6 +2904,107 @@ export type Database = {
             columns: ["plano_id"]
             isOneToOne: false
             referencedRelation: "planos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      propostas: {
+        Row: {
+          cliente_documento: string | null
+          cliente_email: string | null
+          cliente_endereco_bairro: string | null
+          cliente_endereco_cep: string | null
+          cliente_endereco_cidade: string | null
+          cliente_endereco_complemento: string | null
+          cliente_endereco_estado: string | null
+          cliente_endereco_numero: string | null
+          cliente_endereco_rua: string | null
+          cliente_nome: string
+          cliente_telefone: string | null
+          created_at: string
+          created_by: string
+          data_emissao: string
+          data_entrega: string | null
+          data_validade: string | null
+          desconto: number
+          forma_pagamento: string | null
+          frete: number
+          id: string
+          numero: number
+          observacoes: string | null
+          owner_group_id: string
+          produtos: Json
+          status: string
+          subtotal: number
+          updated_at: string
+          valor_total: number
+        }
+        Insert: {
+          cliente_documento?: string | null
+          cliente_email?: string | null
+          cliente_endereco_bairro?: string | null
+          cliente_endereco_cep?: string | null
+          cliente_endereco_cidade?: string | null
+          cliente_endereco_complemento?: string | null
+          cliente_endereco_estado?: string | null
+          cliente_endereco_numero?: string | null
+          cliente_endereco_rua?: string | null
+          cliente_nome: string
+          cliente_telefone?: string | null
+          created_at?: string
+          created_by: string
+          data_emissao?: string
+          data_entrega?: string | null
+          data_validade?: string | null
+          desconto?: number
+          forma_pagamento?: string | null
+          frete?: number
+          id?: string
+          numero: number
+          observacoes?: string | null
+          owner_group_id: string
+          produtos?: Json
+          status?: string
+          subtotal?: number
+          updated_at?: string
+          valor_total?: number
+        }
+        Update: {
+          cliente_documento?: string | null
+          cliente_email?: string | null
+          cliente_endereco_bairro?: string | null
+          cliente_endereco_cep?: string | null
+          cliente_endereco_cidade?: string | null
+          cliente_endereco_complemento?: string | null
+          cliente_endereco_estado?: string | null
+          cliente_endereco_numero?: string | null
+          cliente_endereco_rua?: string | null
+          cliente_nome?: string
+          cliente_telefone?: string | null
+          created_at?: string
+          created_by?: string
+          data_emissao?: string
+          data_entrega?: string | null
+          data_validade?: string | null
+          desconto?: number
+          forma_pagamento?: string | null
+          frete?: number
+          id?: string
+          numero?: number
+          observacoes?: string | null
+          owner_group_id?: string
+          produtos?: Json
+          status?: string
+          subtotal?: number
+          updated_at?: string
+          valor_total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "propostas_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
             referencedColumns: ["id"]
           },
         ]
@@ -3933,6 +4176,8 @@ export type Database = {
         }
         Returns: undefined
       }
+      proximo_numero_contrato: { Args: { _group_id: string }; Returns: number }
+      proximo_numero_proposta: { Args: { _group_id: string }; Returns: number }
       realizar_transferencia: {
         Args: {
           p_banco_destino_id: string
