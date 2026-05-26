@@ -1,6 +1,6 @@
 # 🏛️ DOCUMENTAÇÃO: Governança e Grupos — Caixa de Açúcar
 
-**Atualizada em:** Maio 2026
+**Atualizada em:** 26/05/2026
 
 ---
 
