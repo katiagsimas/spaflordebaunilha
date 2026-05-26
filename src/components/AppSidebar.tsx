@@ -319,8 +319,8 @@ export function AppSidebar() {
       </SidebarContent>
 
       {open && user && (
-        <SidebarFooter className="border-t border-sidebar-border p-5">
-          <div className="space-y-3">
+        <SidebarFooter className="border-t border-sidebar-border py-3 px-4">
+          <div>
 
             {isMother && (
               <Button
