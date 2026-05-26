@@ -80,7 +80,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
 
 export function AppSidebar() {
   const { open } = useSidebar();
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const { isMother, isGroupAdmin, sessionMode, activeGroup, activeRole } = useGroup();
   const { isAdmin } = useIsAdmin();
   const { rotaBloqueada, isLoading: isPlanoLoading } = usePlano();
