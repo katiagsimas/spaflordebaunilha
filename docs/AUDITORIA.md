@@ -1032,3 +1032,9 @@ Revisados os 3 documentos já considerados completos. Resultado: nenhuma referê
 
 ### Resumo final da reorganização docs/
 Após P1+P2+P3, a pasta `docs/` está com 13 documentos modulares + `AUDITORIA.md` + `PENDENCIAS_SEGURANCA.md`, todos sincronizados com o estado atual do sistema (Vinho Premium v2, plano Start descontinuado, `aluna_imersao`, `plano_pendente_*`, edge function `aplicar-planos-pendentes`, fechamentos mensais com snapshot, transferências entre bancos, módulos Estoque/Planejamento/Conversa Doce/AI Gateway Cap).
+
+## 2026-05-26 — Restrição de acesso ao módulo Planejamento
+- Todos os itens da seção PLANEJAMENTO (Meu Planejamento, Conversa Doce, Organização Doce, Planejamento Doce) agora são exclusivos do usuário MÃE (MOTHER).
+- Sidebar: itens marcados como `motherOnly: true` (removido `ssoDoce`/`adminOnly` para essa seção).
+- Rotas `/planejamento`, `/planejamento-doce`, `/conversa-doce`, `/conversa-doce/respostas`, `/organizacao-doce` envolvidas com novo `MotherGuard` (`src/components/MotherGuard.tsx`).
+- Planos Business e Aluna da Imersão deixam de visualizar/acessar esses módulos.
