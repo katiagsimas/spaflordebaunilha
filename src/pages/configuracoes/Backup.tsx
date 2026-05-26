@@ -299,27 +299,24 @@ export default function Backup() {
     }
   }
 
-  async function restaurarDoHistorico(backupId: string) {
-    setRestaurando(true);
-    try {
-      const { data: meta } = await (supabase
-        .from("backups" as any)
-        .select("nome")
-        .eq("id", backupId)
-        .single() as any);
-      const dados = await carregarDadosBackup(backupId);
-      if (!dados) throw new Error("Erro ao buscar backup.");
-      const tabelasRestauradas = Object.keys(dados).length;
-      toast.success(
-        `Backup "${meta?.nome ?? ""}" carregado com ${tabelasRestauradas} tabelas. A restauração completa requer suporte técnico para evitar conflitos de dados.`
-      );
-    } catch (err: any) {
-      toast.error("Erro ao restaurar: " + err.message);
-    } finally {
-      setRestaurando(false);
-      setRestaurarDialogOpen(false);
-      setBackupSelecionado(null);
+  async function abrirRestauracaoHistorico(backupId: string) {
+    const { data: meta } = await (supabase
+      .from("backups" as any)
+      .select("nome, created_at, modulos")
+      .eq("id", backupId)
+      .single() as any);
+    if (!meta) {
+      toast.error("Backup não encontrado.");
+      return;
     }
+    setRestaurarAlvo({
+      nome: meta.nome,
+      dataCriacao: format(new Date(meta.created_at), "dd/MM/yyyy HH:mm"),
+      modulos: meta.modulos ?? undefined,
+    });
+    setRestaurarPayload({ tipo: "historico", backup_id: backupId });
+    setRestaurarDialogOpen(false);
+    setConfirmDialogOpen(true);
   }
 
   function handleRestaurarArquivo() {
@@ -329,23 +326,56 @@ export default function Backup() {
     input.onchange = async (e: any) => {
       const file = e.target.files?.[0];
       if (!file) return;
-      setRestaurando(true);
       try {
         const dados = JSON.parse(await file.text());
         if (typeof dados !== "object" || Array.isArray(dados)) {
           throw new Error("Arquivo de backup inválido.");
         }
-        toast.success(
-          `Backup "${file.name}" carregado com ${Object.keys(dados).length} tabelas. A restauração completa requer suporte técnico para evitar conflitos de dados.`
-        );
+        const nome = file.name.replace(/\.json$/i, "");
+        setRestaurarAlvo({
+          nome,
+          dataCriacao: undefined,
+          modulos: Object.keys(dados),
+        });
+        setRestaurarPayload({ tipo: "upload", dados, nome });
+        setRestaurarDialogOpen(false);
+        setConfirmDialogOpen(true);
       } catch (err: any) {
         toast.error("Erro ao ler arquivo: " + err.message);
-      } finally {
-        setRestaurando(false);
-        setRestaurarDialogOpen(false);
       }
     };
     input.click();
+  }
+
+  async function executarRestauracao(confirmacao: string) {
+    if (!restaurarPayload) return;
+    setRestaurando(true);
+    try {
+      const body: any = { confirmacao };
+      if (restaurarPayload.tipo === "historico") {
+        body.backup_id = restaurarPayload.backup_id;
+      } else {
+        body.dados = restaurarPayload.dados;
+        body.nome = restaurarPayload.nome;
+      }
+      const { data, error } = await supabase.functions.invoke("restaurar-backup", { body });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      const totalInseridos = Object.values(data?.tabelas ?? {}).reduce(
+        (acc: number, t: any) => acc + (t.inseridos ?? 0), 0
+      );
+      toast.success(`Restauração concluída: ${totalInseridos} registros restaurados.`);
+      setConfirmDialogOpen(false);
+      setRestaurarAlvo(null);
+      setRestaurarPayload(null);
+      // Invalida tudo — dados de várias áreas mudaram
+      await queryClient.invalidateQueries();
+    } catch (err: any) {
+      toast.error("Erro ao restaurar: " + (err.message || err));
+    } finally {
+      setRestaurando(false);
+    }
   }
 
   function toggleModulo(list: BackupModuloId[], setList: (v: BackupModuloId[]) => void, id: BackupModuloId) {
