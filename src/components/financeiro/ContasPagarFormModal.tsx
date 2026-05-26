@@ -385,8 +385,38 @@ export default function ContasPagarFormModal({
     }
   };
 
+  if (loadingConta) {
+    return (
+      <div className="container mx-auto p-6 space-y-6 max-w-4xl">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={onCancelar}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <h1 className="text-3xl font-bold">Contas a Pagar</h1>
+        </div>
+        <div className="flex justify-center py-12">
+          <LoadingMascote size={72} label="Carregando dados..." />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto p-6 space-y-6 max-w-4xl">
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" onClick={onCancelar}>
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div>
+          <h1 className="text-3xl font-bold">
+            {isEdicao ? 'Editar Conta a Pagar' : 'Nova Conta a Pagar'}
+          </h1>
+          <p className="text-muted-foreground">
+            {isEdicao ? 'Edite a conta e as parcelas serão recalculadas' : 'Cadastre uma nova conta a pagar'}
+          </p>
+        </div>
+      </div>
+
       {/* Alert Informativo */}
       <Alert className={isEdicao ? "bg-amber-50 border-amber-200" : "bg-cda-dourado/10 border-cda-dourado/40"}>
         <Info className={isEdicao ? "h-4 w-4 text-amber-600" : "h-4 w-4 text-primary"} />
