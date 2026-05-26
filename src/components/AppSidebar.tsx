@@ -39,6 +39,7 @@ interface MenuItem {
   icon: React.ComponentType<{ className?: string }>;
   active: boolean;
   adminOnly?: boolean;
+  motherOnly?: boolean;
   comingSoonMessage?: string;
 }
 
