@@ -2,7 +2,7 @@ import { useState } from "react";
 import { LayoutDashboard, Users, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles, MessageCircle, Bug, CheckCircle2, EyeOff, Clock, RefreshCw } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
 
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGroup } from "@/contexts/GroupContext";
 import { useQuery } from "@tanstack/react-query";
