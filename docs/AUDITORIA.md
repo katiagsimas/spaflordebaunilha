@@ -1,8 +1,22 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-26T13:40:00Z — Fluxo de notificações da Imersão.
+> Última atualização: 2026-05-26T15:30:00Z — Reorganização da documentação.
 
 ---
+
+## REORGANIZAÇÃO DA DOCUMENTAÇÃO — 2026-05-26 15:30 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| DOC-1 | Consolidação em `docs/` | ✅ | Todos os `.md` de documentação migrados da raiz para `docs/`. Raiz mantém apenas `README.md`. |
+| DOC-2 | Remoção de duplicados | ✅ | Excluído `AUDITORIA.md` da raiz (era stub de 805B duplicando `docs/AUDITORIA.md` de 75KB). |
+| DOC-3 | Remoção de obsoletos | ✅ | Excluído `docs/DOCUMENTACAO_COMPLETA.md` (21KB de prosa que duplicava conteúdo dos DOCS_*.md modulares). `DOCS_MESTRE.md` permanece como índice canônico. |
+| DOC-4 | Movidos para `docs/` | ✅ | DOCS_AUTENTICACAO, DOCS_ENCOMENDAS, DOCS_ESTOQUE, DOCS_FECHAMENTO_MES, DOCS_FINANCEIRO, DOCS_GOVERNANCA, DOCS_MESTRE, DOCS_MEU_SALARIO, DOCS_PLANEJAMENTO, DOCS_PRECIFICACAO. |
+| DOC-5 | Índice atualizado | ✅ | Seção 13 do `DOCS_MESTRE.md` agora lista os 15 documentos ativos com caminho relativo correto (`./*.md`, sem prefixo `docs/`). |
+
+---
+
+
 
 ## FLUXO DE EXPIRAÇÃO — IMERSÃO A RECEITA QUE FALTAVA — 2026-05-26 13:40 UTC
 
