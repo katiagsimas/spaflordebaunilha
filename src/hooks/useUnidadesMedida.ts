@@ -158,17 +158,14 @@ export function useUnidadesMedida() {
   const updateUnidade = async (id: string, updates: Partial<UnidadeMedida>) => {
     if (!user) throw new Error('Usuário não autenticado');
 
-    // Verificar se é uma unidade padrão
     const unidade = unidades.find(u => u.id === id);
-    if (unidade?.e_padrao) {
-      // Permitir apenas atualizar sigla das unidades padrão
-      const { e_padrao, nome, ativo, ...allowedUpdates } = updates;
-      updates = allowedUpdates;
-    }
+    const updatesToApply = unidade?.e_padrao
+      ? (({ e_padrao, nome, ativo, ...rest }) => rest)(updates)
+      : updates;
 
     const { data, error } = await supabase
       .from('unidades_medida')
-      .update(updates)
+      .update(updatesToApply)
       .eq('id', id)
       .eq('usuario_id', user.id)
       .select()
