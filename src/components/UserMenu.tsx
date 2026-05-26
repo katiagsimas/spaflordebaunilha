@@ -72,6 +72,10 @@ export function UserMenu() {
   const primeiroNome = getPrimeiroNome(profile?.nome_completo, user?.email);
   const nomeEmpresa = profile?.nome_confeitaria?.trim() || profile?.nome_completo?.trim();
 
+  const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
   const handleSair = async () => {
     await signOut();
     navigate("/auth/login");
@@ -84,21 +88,67 @@ export function UserMenu() {
     window.open(`https://wa.me/${WHATSAPP_SUPORTE}?text=${msg}`, "_blank");
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Selecione um arquivo de imagem.");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Imagem muito grande (máx 2 MB).");
+      return;
+    }
+    try {
+      setUploading(true);
+      const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("avatars")
+        .upload(path, file, { upsert: true, cacheControl: "3600" });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
+      const publicUrl = pub.publicUrl;
+      const { error: updErr } = await supabase
+        .from("profiles")
+        .update({ avatar_url: publicUrl })
+        .eq("id", user.id);
+      if (updErr) throw updErr;
+      await queryClient.invalidateQueries({ queryKey: ["profile-menu", user.id] });
+      toast.success("Foto atualizada!");
+    } catch (err: any) {
+      toast.error("Falha ao enviar foto: " + (err.message ?? err));
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   if (!user) return null;
 
   const mostraBadges = activeGroup && sessionMode === "group";
   const formataData = (iso?: string | null) =>
     iso ? new Date(iso + "T00:00:00").toLocaleDateString("pt-BR") : "—";
+  const iniciais = (primeiroNome || "U").slice(0, 2).toUpperCase();
 
   return (
     <div className="flex items-center gap-3">
       <Popover>
         <PopoverTrigger asChild>
           <button
-            className="h-9 w-9 rounded-full bg-cda-dourado/15 hover:bg-cda-dourado/25 ring-1 ring-cda-dourado/40 flex items-center justify-center text-cda-dourado transition-colors"
+            className="h-9 w-9 rounded-full bg-cda-dourado/15 hover:bg-cda-dourado/25 ring-1 ring-cda-dourado/40 flex items-center justify-center text-cda-dourado transition-colors overflow-hidden"
             aria-label="Menu do usuário"
           >
-            <UserIcon className="h-4 w-4" />
+            {profile?.avatar_url ? (
+              <Avatar className="h-9 w-9">
+                <AvatarImage src={profile.avatar_url} alt={primeiroNome} />
+                <AvatarFallback className="bg-cda-dourado/20 text-cda-dourado text-xs font-semibold">
+                  {iniciais}
+                </AvatarFallback>
+              </Avatar>
+            ) : (
+              <UserIcon className="h-4 w-4" />
+            )}
           </button>
         </PopoverTrigger>
         <PopoverContent
