@@ -11,7 +11,7 @@
 |---|-----------|------|-------------|--------|------------|
 | 3 | 🟡 Média | Rate limiting na Edge Function `criar-usuario` | Dev/Infra | ⏸️ Bloqueado | Plataforma ainda não tem primitivas próprias de rate limiting. Implementação ad-hoc possível, mas será refeita quando infra oficial chegar. |
 | 6 | 🟡 Baixa | Customizar templates de email do Cloud | Admin/Infra | 🔲 Pendente | Emails usam template padrão |
-| 9 | 🟡 Média | Vulnerabilidade xlsx (Prototype Pollution/ReDoS) | Dev | ⚠️ Sem fix | v0.19.3 só disponível no SheetJS Pro (pago); uso apenas para export |
+| 10 | 🟡 Média | Leaked Password Protection desabilitado | Admin | ⏸️ Sem acesso | Lovable Cloud não expõe a toggle no painel; aguardando suporte nativo |
 | 10 | 🟡 Média | Leaked Password Protection desabilitado | Admin | ⏸️ Sem acesso | Lovable Cloud não expõe a toggle no painel; aguardando suporte nativo |
 
 
