@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck, Package, Upload, X, HandCoins, Tag as TagIcon, FileDown, Calendar, ClipboardList, CheckCircle2, XCircle, AlertCircle, ChevronDown, UserPlus, Printer, FileText, ClipboardCheck } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck, Package, Upload, X, HandCoins, Tag as TagIcon, FileDown, Calendar, ClipboardList, CheckCircle2, XCircle, AlertCircle, ChevronDown, UserPlus, Printer, FileText, ClipboardCheck, Tags } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { gerarPedidoCliente, gerarOrdemProducao } from "@/utils/gerarPedidoPDF";
 import { format, isToday, isTomorrow, isWithinInterval, addDays } from "date-fns";
@@ -1674,6 +1674,29 @@ const Encomendas = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Card de acesso a Tags de Encomendas */}
+      <Card 
+        className="group cursor-pointer hover:shadow-lg hover:scale-[1.01] transition-all duration-200 border-l-2 border-[#C9A14A]/60 bg-[#FDF6EE]/50"
+        onClick={() => navigate('/configuracoes/tags-encomendas')}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <Tags className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Tags de Encomendas</p>
+                <p className="text-xs text-muted-foreground">Gerencie as etiquetas para organizar seus pedidos</p>
+              </div>
+            </div>
+            <Button variant="ghost" size="sm" className="text-[#C9A14A]">
+              Gerenciar
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Calendários de Encomendas (movido do Dashboard) */}
       <CalendariosEncomendas />
