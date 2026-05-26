@@ -835,3 +835,8 @@ Substituiu a abordagem com Vault (que exigia `vault.create_secret` manual no SQL
 - A rota `/admin/governanca` continua registrada no `App.tsx` (acessível por URL direta) — nenhuma RLS, migração SQL ou Edge Function foi alterada.
 
 **Status:** ✅ Concluído
+
+## 2026-05-26 — Avatar de usuário + botão "Limpar cache" no cabeçalho ✅
+- Criado bucket público `avatars` em storage com policies por pasta `auth.uid()/...` (SELECT público, INSERT/UPDATE/DELETE restritos ao dono).
+- `UserMenu` agora exibe o avatar real (com fallback de iniciais) lendo `profiles.avatar_url`; upload feito direto no popover, persistido no bucket + tabela.
+- `ClearCacheButton` agora dispara a ação no 1º clique e mostra o rótulo "Limpar cache" em telas md+, evitando que pareça ter sumido. Tooltip mantém a explicação detalhada.
