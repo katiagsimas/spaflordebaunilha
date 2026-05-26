@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Target, Settings, Lightbulb, DollarSign, TrendingUp, CalendarDays, ListChecks, HeartPulse } from "lucide-react";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Target, Settings, Lightbulb, DollarSign, TrendingUp, CalendarDays, ListChecks, HeartPulse, Sparkles, Lock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,6 +15,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { PlanejamentoCalendario } from "@/pages/planejamento/PlanejamentoCalendario";
 import { PlanejamentoTarefas } from "@/pages/planejamento/PlanejamentoTarefas";
 import { PlanejamentoBemEstar } from "@/pages/planejamento/PlanejamentoBemEstar";
+import { useGroup } from "@/contexts/GroupContext";
 
 const opcoes: any[] = [];
 
@@ -26,6 +27,7 @@ export default function Planejamento() {
   const [insights, setInsights] = useState<Insight[]>([]);
   const [previsaoData, setPrevisaoData] = useState<PrevisaoFaturamento | null>(null);
   const { profile } = useUserProfile();
+  const { isMother } = useGroup();
 
   const temConfiguracao = profile?.meta_faturamento_mensal && profile.meta_faturamento_mensal > 0;
 
@@ -75,6 +77,38 @@ export default function Planejamento() {
   const handleTabChange = (tab: string) => {
     setSearchParams({ tab });
   };
+
+  // ── Guarda Mother: oculta o módulo para todos exceto Mother ──
+  if (!isMother) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center p-6">
+        <div className="max-w-lg w-full text-center space-y-6 bg-gradient-to-br from-cda-vinho to-cda-vinho-escuro text-cda-creme rounded-2xl p-10 border-2 border-cda-dourado/40 shadow-soft">
+          <div className="mx-auto h-16 w-16 rounded-2xl bg-cda-dourado/20 flex items-center justify-center relative">
+            <Sparkles className="h-8 w-8 text-cda-dourado" />
+            <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-cda-vinho-escuro border-2 border-cda-dourado flex items-center justify-center">
+              <Lock className="h-3 w-3 text-cda-dourado" />
+            </div>
+          </div>
+          <div className="space-y-3">
+            <h1 className="text-2xl font-bold font-display">Meu Planejamento</h1>
+            <p className="text-cda-creme/90 text-base font-body leading-relaxed">
+              Estamos preparando algo especial para você!
+            </p>
+            <p className="text-cda-creme/80 text-sm font-body leading-relaxed">
+              Em breve, o <strong className="text-cda-dourado">Meu Planejamento</strong> estará
+              disponível para te ajudar a organizar sua produção, suas vendas e crescer com
+              estratégia. Aguarde — vai valer a pena!
+            </p>
+          </div>
+          <div className="pt-2">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cda-dourado/20 text-cda-dourado text-xs font-body font-semibold uppercase tracking-wider">
+              <Sparkles className="h-3.5 w-3.5" /> Em breve
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
