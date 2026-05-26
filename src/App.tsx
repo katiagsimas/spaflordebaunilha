@@ -74,6 +74,7 @@ import Governanca from "./pages/admin/Governanca";
 import Upgrade from "./pages/Upgrade";
 import { PlanoGuard } from "./components/PlanoGuard";
 import { MotherGuard } from "./components/MotherGuard";
+import { ConversaDoceGuard } from "./components/ConversaDoceGuard";
 import EstoqueDashboard from "./pages/estoque/EstoqueDashboard";
 import EstoqueEntrada from "./pages/estoque/EstoqueEntrada";
 import EstoqueAjuste from "./pages/estoque/EstoqueAjuste";
