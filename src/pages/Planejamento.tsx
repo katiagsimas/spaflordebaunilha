@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Target, Settings, Lightbulb, DollarSign, TrendingUp, CalendarDays, ListChecks, HeartPulse } from "lucide-react";
+import { Target, Settings, Lightbulb, DollarSign, TrendingUp, CalendarDays, ListChecks, HeartPulse, Sparkles, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,6 +15,9 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { PlanejamentoCalendario } from "@/pages/planejamento/PlanejamentoCalendario";
 import { PlanejamentoTarefas } from "@/pages/planejamento/PlanejamentoTarefas";
 import { PlanejamentoBemEstar } from "@/pages/planejamento/PlanejamentoBemEstar";
+import { useOpenPlannerDoce } from "@/hooks/useOpenPlannerDoce";
+import { usePlano } from "@/hooks/usePlano";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 const opcoes: any[] = [];
 
