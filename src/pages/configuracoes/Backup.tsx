@@ -171,15 +171,28 @@ export default function Backup() {
       const jsonStr = JSON.stringify(dados);
       const tamanhoKB = (new Blob([jsonStr]).size / 1024).toFixed(1);
 
-      // Salvar no banco de dados
+      // Upload para Storage (bucket privado, scope por usuário)
+      const storagePath = `${user.id}/${nomeBackup}-${Date.now()}.json`;
+      const { error: upErr } = await supabase.storage
+        .from("backups")
+        .upload(storagePath, new Blob([jsonStr], { type: "application/json" }), {
+          contentType: "application/json",
+          upsert: false,
+        });
+      if (upErr) throw upErr;
+
       const { error } = await (supabase.from("backups" as any).insert({
         usuario_id: user.id,
         nome: nomeBackup,
         tamanho: `${tamanhoKB} KB`,
-        dados: dados,
+        storage_path: storagePath,
       }) as any);
 
-      if (error) throw error;
+      if (error) {
+        // rollback storage
+        await supabase.storage.from("backups").remove([storagePath]);
+        throw error;
+      }
 
       await carregarBackups();
       queryClient.invalidateQueries({ queryKey: ['ultimo-backup'] });
@@ -191,20 +204,33 @@ export default function Backup() {
     }
   }
 
+  async function carregarDadosBackup(backupId: string): Promise<any | null> {
+    const { data, error } = await (supabase
+      .from("backups" as any)
+      .select("dados, storage_path")
+      .eq("id", backupId)
+      .single() as any);
+    if (error || !data) return null;
+
+    if (data.storage_path) {
+      const { data: dl, error: dlErr } = await supabase.storage
+        .from("backups")
+        .download(data.storage_path);
+      if (dlErr || !dl) return null;
+      const text = await dl.text();
+      return JSON.parse(text);
+    }
+    return data.dados ?? null;
+  }
+
   async function downloadBackup(backupId: string, nome: string) {
     try {
-      const { data, error } = await (supabase
-        .from("backups" as any)
-        .select("dados")
-        .eq("id", backupId)
-        .single() as any);
-
-      if (error || !data) {
+      const dados = await carregarDadosBackup(backupId);
+      if (!dados) {
         toast.error("Erro ao baixar backup.");
         return;
       }
-
-      const jsonStr = JSON.stringify(data.dados, null, 2);
+      const jsonStr = JSON.stringify(dados, null, 2);
       const blob = new Blob([jsonStr], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -222,12 +248,24 @@ export default function Backup() {
   async function deletarBackup() {
     if (!deleteId) return;
     try {
+      // Buscar storage_path para remover o arquivo também
+      const { data: row } = await (supabase
+        .from("backups" as any)
+        .select("storage_path")
+        .eq("id", deleteId)
+        .single() as any);
+
       const { error } = await (supabase
         .from("backups" as any)
         .delete()
         .eq("id", deleteId) as any);
 
       if (error) throw error;
+
+      if (row?.storage_path) {
+        await supabase.storage.from("backups").remove([row.storage_path]);
+      }
+
       toast.success("Backup excluído.");
       await carregarBackups();
     } catch {
@@ -236,6 +274,7 @@ export default function Backup() {
       setDeleteId(null);
     }
   }
+
 
   async function restaurarDoHistorico(backupId: string) {
     setRestaurando(true);
