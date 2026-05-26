@@ -974,3 +974,24 @@ Aluna e admin recebem em todos os eventos:
 ### Frontend
 
 - `AuthContext` exibe toast distinto por `tipo_evento` (renovacao_imersao, upgrade, renovacao, downgrade_agendado, downgrade_aplicado), com flag `cda-evento-plano-toast-{id}` para não repetir
+
+---
+
+## 📝 26/05/2026 — Atualização P1 de documentação modular
+
+### DOCS_ESTOQUE.md
+- Removida referência a `Caixa Start` como plano acessível ativo (marcado como descontinuado em 25/05/2026, legados mantidos)
+- Adicionado `aluna_imersao` como plano com acesso completo
+- Nota no `PlanoGuard` ajustada
+
+### DOCS_AUTENTICACAO.md (v4.2)
+- Plano admin agora documenta `aluna_imersao` (provisionamento manual, 30 dias)
+- Adicionada seção 3.3 — Upgrade/Downgrade Agendado (`plano_pendente_*`)
+- Webhook Hotmart: nota explícita de que Start não é mais provisionado e que `aluna_imersao` não passa pelo webhook
+- Lista de edge functions atualizada: `aplicar-planos-pendentes` e `notificar-expiracao-imersao`
+
+### DOCS_FINANCEIRO.md
+- Acesso atualizado (Business / aluna_imersao / Start legado / admin)
+- Adicionada seção 5 — Transferências entre Bancos (`transferencias_bancos`)
+- Adicionada seção 6 — Fechamento de Mês (`fechamentos_mensais`, snapshot, travamento de períodos)
+- Seções subsequentes renumeradas (7–12)
