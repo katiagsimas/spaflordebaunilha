@@ -62,6 +62,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
     items: [
       { title: "Cardápio", url: "/precificacao", icon: BookOpen, active: true },
       { title: "Estoque", url: "/estoque", icon: Package, active: true },
+      { title: "Organização Doce", url: "/organizacao-doce", icon: ListChecks, active: true },
     ],
   },
   {
@@ -76,7 +77,6 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
     items: [
       { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false, comingSoonMessage: "Em breve você terá um plano claro para organizar sua produção, suas vendas e crescer com estratégia.", motherOnly: true },
       { title: "Conversa Doce", url: "/conversa-doce", icon: MessageCircle, active: true, conversaDoce: true },
-      { title: "Organização Doce", url: "/organizacao-doce", icon: ListChecks, active: true, motherOnly: true },
       { title: "Planejamento Doce", url: "/planejamento-doce", icon: Sparkles, active: false, motherUnlock: true, comingSoonMessage: "Estamos preparando algo especial para você! Em breve, o Planejamento Doce estará disponível para te ajudar a organizar seu ano com campanhas, metas e estratégias para crescer com doçura." },
     ],
   },

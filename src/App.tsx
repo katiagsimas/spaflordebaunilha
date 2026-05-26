@@ -300,8 +300,8 @@ const App = () => (
           <Route path="/conversa-doce" element={<ProtectedRoute><Layout><ConversaDoceGuard><ConversaDoce /></ConversaDoceGuard></Layout></ProtectedRoute>} />
           <Route path="/conversa-doce/respostas" element={<ProtectedRoute><Layout><ConversaDoceGuard><ConversaDoceRespostas /></ConversaDoceGuard></Layout></ProtectedRoute>} />
 
-          {/* Organização Doce — somente usuário MÃE */}
-          <Route path="/organizacao-doce" element={<ProtectedRoute><Layout><MotherGuard><OrganizacaoDoce /></MotherGuard></Layout></ProtectedRoute>} />
+          {/* Organização Doce — acesso livre para todos os usuários */}
+          <Route path="/organizacao-doce" element={<ProtectedRoute><Layout><OrganizacaoDoce /></Layout></ProtectedRoute>} />
 
 
 
