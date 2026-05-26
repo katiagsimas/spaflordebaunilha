@@ -171,7 +171,7 @@ Deno.serve(async (req) => {
       ].filter(Boolean).map(String)
       const planName = planNameParts.join(' | ')
       console.log('planName sources:', planNameParts)
-      const resolved = resolverPlano(product.id?.toString() || '', planName)
+      const resolved = await resolverPlano(supabaseAdmin, product.id?.toString() || '', planName)
       if (!resolved) {
         console.log('=== Hotmart Webhook - Plano descontinuado (Start), evento ignorado ===')
         return new Response(
