@@ -1,8 +1,17 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-26T01:55:00Z — P-1 estendido: matching por (productId + offerCode) e cadastro do Caixa Business.
+> Última atualização: 2026-05-26T03:00:00Z — Novo módulo Conversa Doce portado do app standalone.
 
 ---
+
+## NOVO MÓDULO CONVERSA DOCE — 2026-05-26 03:00 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| CD-1 | Módulo Conversa Doce portado | ✅ | Assistente IA de respostas WhatsApp. Reutiliza `ai-proxy` (Gemini 2.5 Flash). Tabela `conversa_doce_favoritos` com RLS multi-tenant (compartilhado por grupo via `user_group_roles`). Rotas `/conversa-doce` e `/conversa-doce/respostas`. Gating: plano Business + role admin/MOTHER (Lite redireciona para /upgrade via `PlanoGuard`). Sidebar item adicionado na seção PLANEJAMENTO com `adminOnly: true`. Detalhes em `docs/MODULO_CONVERSA_DOCE.md`. |
+
+---
+
 
 ## P-1 HOTMART MATCHING POR (PRODUCT + OFFER) — 2026-05-26 01:55 UTC
 
