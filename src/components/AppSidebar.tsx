@@ -41,10 +41,12 @@ interface MenuItem {
   active: boolean;
   adminOnly?: boolean;
   motherOnly?: boolean;
+  motherUnlock?: boolean;
   ssoDoce?: boolean;
   conversaDoce?: boolean;
   comingSoonMessage?: string;
 }
+
 
 const menuSections: { label: string; items: MenuItem[] }[] = [
   {
@@ -70,7 +72,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
       { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false, comingSoonMessage: "Em breve você terá um plano claro para organizar sua produção, suas vendas e crescer com estratégia.", motherOnly: true },
       { title: "Conversa Doce", url: "/conversa-doce", icon: MessageCircle, active: true, conversaDoce: true },
       { title: "Organização Doce", url: "/organizacao-doce", icon: ListChecks, active: true, motherOnly: true },
-      { title: "Planejamento Doce", url: "/planejamento-doce", icon: Sparkles, active: true, motherOnly: true },
+      { title: "Planejamento Doce", url: "/planejamento-doce", icon: Sparkles, active: false, motherUnlock: true, comingSoonMessage: "Estamos preparando algo especial para você! Em breve, o Planejamento Doce estará disponível para te ajudar a organizar seu ano com campanhas, metas e estratégias para crescer com doçura." },
     ],
   },
   {
@@ -207,8 +209,9 @@ export function AppSidebar() {
 
                       // Se o usuário é admin e o item é adminOnly+inactive, ele pode acessar
                       const adminUnlocked = item.adminOnly && isAdmin;
+                      const motherUnlocked = item.motherUnlock && isMother;
 
-                      if (isComingSoon && !adminUnlocked) {
+                      if (isComingSoon && !adminUnlocked && !motherUnlocked) {
                         return (
                           <SidebarMenuItem key={item.title}>
                             <SidebarMenuButton asChild isActive={false} disabled>
