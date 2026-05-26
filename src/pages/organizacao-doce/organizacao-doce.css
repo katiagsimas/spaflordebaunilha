@@ -133,7 +133,7 @@
 .od-setup-card { background: hsl(var(--cda-branco)); border-radius: 12px; padding: 30px 26px; text-align: center; box-shadow: 0 1px 0 var(--od-cream-dark), 0 8px 32px hsl(var(--cda-vinho) / 0.08); }
 .od-setup-icon { font-size: 22px; color: var(--od-gold); margin-bottom: 12px; }
 .od-setup-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: var(--od-wine); margin-bottom: 8px; }
-.od-setup-sub { font-size: 13px; color: var(--od-gray); font-weight: 300; line-height: 1.6; margin-bottom: 20px; }
+.od-setup-sub { font-size: 13px; color: hsl(var(--cda-preto) / 0.85); font-weight: 400; line-height: 1.6; margin-bottom: 20px; }
 .od-date-input { width: 100%; padding: 12px 16px; border: 1.5px solid var(--od-cream-dark); border-radius: 8px; font-family: 'Jost', sans-serif; font-size: 14px; color: var(--od-ink); background: var(--od-cream); outline: none; transition: border-color .2s; margin-bottom: 14px; cursor: pointer; text-align: center; }
 .od-date-input:focus { border-color: var(--od-wine); }
 .od-confirm-btn { width: 100%; padding: 13px; background: var(--od-wine); color: var(--od-cream); font-family: 'Jost', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: .5px; border: none; border-radius: 8px; cursor: pointer; transition: background .2s; margin-bottom: 8px; }
