@@ -89,9 +89,6 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const { plano } = usePlano();
   const { isAdmin } = useIsAdmin();
-  const { abrir: abrirPlanejamentoDoce, loading: loadingSsoDoce } = useOpenPlannerDoce();
-  const podeAcessarPlanejamentoDoce =
-    plano?.id === "negocio" || plano?.id === "aluna_imersao" || isAdmin;
 
   const [alertas, setAlertas] = useState({
     receberAtrasado: { quantidade: 0, valor: 0 },
