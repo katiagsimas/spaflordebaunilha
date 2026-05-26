@@ -797,6 +797,22 @@ export default function Backup() {
         onConfirm={deletarBackup}
         confirmLabel="Excluir"
       />
+
+      <RestaurarBackupDialog
+        open={confirmDialogOpen}
+        onOpenChange={(v) => {
+          if (!restaurando) {
+            setConfirmDialogOpen(v);
+            if (!v) {
+              setRestaurarAlvo(null);
+              setRestaurarPayload(null);
+            }
+          }
+        }}
+        alvo={restaurarAlvo}
+        onConfirm={executarRestauracao}
+        restaurando={restaurando}
+      />
     </div>
   );
 }
