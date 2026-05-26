@@ -650,7 +650,7 @@ async function enviarEmailRenovacaoAdmin(
       body: JSON.stringify({
         from: 'Caixa de Açúcar <noreply@umbrelladoce.com.br>',
         to: [emailAdmin],
-        subject: `Aluna renovou: ${nomeAluna || emailAluna} → ${planoNome}`,
+        subject: `Aluna renovou: ${nomeAluna?.trim() || emailAluna} → ${planoNome}`,
         html,
       }),
     })
