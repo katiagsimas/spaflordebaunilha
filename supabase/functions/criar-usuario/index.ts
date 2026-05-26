@@ -2,7 +2,13 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.0'
 import { corsHeaders } from '../_shared/cors.ts'
 import { escapeHtml } from '../_shared/escapeHtml.ts'
 
+// Rate limit por IP (em memória).
+// IMPORTANTE: o contador NÃO é persistente — reseta a cada restart da Edge Function.
+// Esta é apenas uma proteção contra burst simples vindo do mesmo IP,
+// NÃO protege contra ataques distribuídos (múltiplos IPs coordenados).
 const rateMap = new Map<string, { count: number; resetAt: number }>()
+const RATE_LIMIT_MAX = 10
+const RATE_LIMIT_WINDOW_MS = 60_000
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -10,22 +16,28 @@ Deno.serve(async (req) => {
   }
 
   // === RATE LIMITING POR IP ===
-  const ip = req.headers.get('x-forwarded-for') || 'unknown'
+  const ip = (req.headers.get('x-forwarded-for')?.split(',')[0].trim()) || 'unknown'
   const now = Date.now()
-  const entry = rateMap.get(ip)
 
+  // Limpa entradas expiradas
+  for (const [key, value] of rateMap) {
+    if (now >= value.resetAt) rateMap.delete(key)
+  }
+
+  const entry = rateMap.get(ip)
   if (!entry || now >= entry.resetAt) {
-    rateMap.set(ip, { count: 1, resetAt: now + 60_000 })
-  } else if (entry.count >= 10 && now < entry.resetAt) {
+    rateMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS })
+  } else if (entry.count >= RATE_LIMIT_MAX) {
     const retryAfter = Math.ceil((entry.resetAt - now) / 1000)
     return new Response(
-      JSON.stringify({ error: 'rate_limit_exceeded', retry_after_seconds: retryAfter }),
+      JSON.stringify({ error: 'rate_limit_exceeded', retry_after: retryAfter }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(retryAfter) }, status: 429 }
     )
   } else {
     entry.count += 1
     rateMap.set(ip, entry)
   }
+
 
   console.log('=== Criar Usuário - Início ===')
 
