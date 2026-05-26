@@ -90,6 +90,7 @@ export function AppSidebar() {
   const { isAdmin } = useIsAdmin();
   const { rotaBloqueada, isLoading: isPlanoLoading, plano } = usePlano();
   const podeAcessarSsoDoce = isAdmin || plano?.id === "negocio" || plano?.id === "aluna_imersao";
+  const { temAcesso: podeAcessarConversaDoce } = useConversaDoceAccess();
   const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
   const [comingSoonModal, setComingSoonModal] = useState<{ title: string; message: string } | null>(null);
   const [diagOpen, setDiagOpen] = useState(false);
