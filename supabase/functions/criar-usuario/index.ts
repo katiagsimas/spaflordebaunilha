@@ -297,19 +297,30 @@ async function enviarEmailBoasVindas(
 
   const nomeDisplay = escapeHtml(nome || 'Confeiteira')
   const emailSafe = escapeHtml(email)
-  const planoNome = planoId === 'negocio' ? 'Caixa Business' : 'Caixa Lite'
+  const planoNome =
+    planoId === 'negocio' ? 'Caixa Business'
+    : planoId === 'aluna_imersao' ? 'Aluna da Imersão (30 dias de acesso completo)'
+    : 'Caixa Lite'
+
+  const blocoImersao = planoId === 'aluna_imersao' ? `
+      <div style="margin: 16px 0; padding: 12px 16px; background: #FBF1DE; border-left: 4px solid #C9A14A; border-radius: 4px;">
+        <p style="margin: 0 0 8px 0;"><strong>🎓 Imersão A Receita que Faltava</strong></p>
+        <p style="margin: 0; font-size: 14px;">Você tem <strong>30 dias</strong> de acesso completo ao Caixa Business. As gravações da imersão e o Playbook da Confeiteira Empresária ficam disponíveis na área de membros da Hotmart.</p>
+      </div>
+  ` : ''
 
   const html = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.6;">
       <p>Olá, ${nomeDisplay}!</p>
       <p>Sua conta foi criada. Veja como acessar a plataforma agora:</p>
       <ol>
-        <li>Acesse <a href="https://caixa.umbrelladoce.com.br" style="color: #D89B8C;">caixa.umbrelladoce.com.br</a></li>
+        <li>Acesse <a href="https://caixadeacucar.lovable.app" style="color: #5B1A2B;">caixadeacucar.lovable.app</a></li>
         <li>Clique em <strong>"Esqueci minha senha"</strong></li>
         <li>Digite o email <strong>${emailSafe}</strong> para receber o link de acesso</li>
       </ol>
       <p><strong>Seu plano:</strong> ${planoNome}</p>
-      <p>Qualquer dúvida, responda este email ou acesse o suporte através do e-mail <a href="mailto:ola@umbrelladoce.com.br" style="color: #D89B8C;">ola@umbrelladoce.com.br</a></p>
+      ${blocoImersao}
+      <p>Qualquer dúvida, responda este email ou acesse o suporte através do e-mail <a href="mailto:ola@umbrelladoce.com.br" style="color: #5B1A2B;">ola@umbrelladoce.com.br</a></p>
       <br/>
       <p>Umbrella Doce</p>
     </div>
