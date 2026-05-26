@@ -329,17 +329,7 @@ export function useFecharMes() {
     mutationFn: async (input: { id: string; observacoes?: string }) => {
       if (!user || !activeGroupId) throw new Error("Sem contexto");
 
-      const { data: pendentes, error: errPendentes } = await (supabase.from("fechamento_checklist_itens" as any) as any)
-        .select("id")
-        .eq("fechamento_id", input.id)
-        .eq("concluido", false);
-
-      if (errPendentes) throw errPendentes;
-      const qtdPendentes = (pendentes ?? []).length;
-      if (qtdPendentes > 0) {
-        throw new Error(`${qtdPendentes} item(s) do checklist estão pendentes. Conclua todos antes de fechar o mês.`);
-      }
-
+      // Snapshot continua sendo montado no cliente (regra preservada)
       const { data: f } = await (supabase.from("fechamentos_mensais" as any) as any)
         .select("mes_referencia")
         .eq("id", input.id)
@@ -347,27 +337,23 @@ export function useFecharMes() {
       const valores = await calcularValores(activeGroupId, f.mes_referencia);
       const linhasDre = await calcularLinhasDreMes(user.id, f.mes_referencia);
       const snapshot = { ...valores, linhas_dre: linhasDre, gerado_em: new Date().toISOString() };
-      const { error } = await (supabase.from("fechamentos_mensais" as any) as any)
-        .update({
-          status: "fechado",
-          fechado_em: new Date().toISOString(),
-          fechado_por: user.id,
-          observacoes: input.observacoes ?? null,
-          snapshot,
-          ...valores,
-        })
-        .eq("id", input.id);
-      if (error) throw error;
 
-      await (supabase.from("fechamento_logs" as any) as any).insert({
-        fechamento_id: input.id,
-        owner_group_id: activeGroupId,
-        acao: "fechado",
-        motivo: input.observacoes ?? null,
-        snapshot,
-        usuario_id: user.id,
+      // Fechamento + validação de checklist agora 100% no banco via RPC SECURITY DEFINER.
+      // Códigos de erro: P0001 acesso negado, P0002 checklist pendente, P0003 não encontrado, P0004 já fechado.
+      const { error } = await (supabase.rpc as any)("fechar_mes", {
+        p_fechamento_id: input.id,
+        p_observacoes: input.observacoes ?? null,
+        p_snapshot: snapshot,
+        p_faturamento: valores.faturamento ?? 0,
+        p_custos: valores.custos ?? 0,
+        p_margem_seguranca: valores.margem_seguranca ?? 0,
+        p_pro_labore_saudavel: valores.pro_labore_saudavel ?? 0,
+        p_retiradas: valores.retiradas ?? 0,
+        p_saldo_restante: valores.saldo_restante ?? 0,
       });
+      if (error) throw new Error(error.message);
     },
+
     onSuccess: () => {
       toast.success("Mês fechado com sucesso");
       qc.invalidateQueries({ queryKey: ["fechamento"] });
