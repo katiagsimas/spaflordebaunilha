@@ -2,9 +2,29 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.0'
 import { corsHeaders } from '../_shared/cors.ts'
 import { escapeHtml } from '../_shared/escapeHtml.ts'
 
+const rateMap = new Map<string, { count: number; resetAt: number }>()
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
+  }
+
+  // === RATE LIMITING POR IP ===
+  const ip = req.headers.get('x-forwarded-for') || 'unknown'
+  const now = Date.now()
+  const entry = rateMap.get(ip)
+
+  if (!entry || now >= entry.resetAt) {
+    rateMap.set(ip, { count: 1, resetAt: now + 60_000 })
+  } else if (entry.count >= 10 && now < entry.resetAt) {
+    const retryAfter = Math.ceil((entry.resetAt - now) / 1000)
+    return new Response(
+      JSON.stringify({ error: 'rate_limit_exceeded', retry_after_seconds: retryAfter }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(retryAfter) }, status: 429 }
+    )
+  } else {
+    entry.count += 1
+    rateMap.set(ip, entry)
   }
 
   console.log('=== Criar Usuário - Início ===')
