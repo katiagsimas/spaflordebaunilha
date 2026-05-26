@@ -263,7 +263,7 @@ export function AppSidebar() {
                                       {bloqueado && (
                                         <Lock className="h-3.5 w-3.5 text-[#FFF9F5]/40" />
                                       )}
-                                      {item.title === "Minhas Encomendas" && temEncomendasHoje && !bloqueado && (
+                                      {item.title === "Pedidos e Encomendas" && temEncomendasHoje && !bloqueado && (
                                         <Badge className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-body font-bold animate-pulse ml-1">
                                           {encomendasHojeQtd} HOJE
                                         </Badge>
