@@ -73,6 +73,7 @@ import LogsAdmin from "./pages/admin/Logs";
 import Governanca from "./pages/admin/Governanca";
 import Upgrade from "./pages/Upgrade";
 import { PlanoGuard } from "./components/PlanoGuard";
+import { MotherGuard } from "./components/MotherGuard";
 import EstoqueDashboard from "./pages/estoque/EstoqueDashboard";
 import EstoqueEntrada from "./pages/estoque/EstoqueEntrada";
 import EstoqueAjuste from "./pages/estoque/EstoqueAjuste";
@@ -285,19 +286,20 @@ const App = () => (
           <Route path="/estoque/ajuste" element={<ProtectedRoute><Layout><PlanoGuard><EstoqueAjuste /></PlanoGuard></Layout></ProtectedRoute>} />
           <Route path="/estoque/movimentacoes" element={<ProtectedRoute><Layout><PlanoGuard><EstoqueMovimentacoes /></PlanoGuard></Layout></ProtectedRoute>} />
           
-          {/* Planejamento */}
-          <Route path="/planejamento" element={<ProtectedRoute><Layout><PlanoGuard><Planejamento /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/planejamento-doce" element={<ProtectedRoute><Layout><PlanejamentoDoce /></Layout></ProtectedRoute>} />
+          {/* Planejamento — somente usuário MÃE (admin global) */}
+          <Route path="/planejamento" element={<ProtectedRoute><Layout><MotherGuard><Planejamento /></MotherGuard></Layout></ProtectedRoute>} />
+          <Route path="/planejamento-doce" element={<ProtectedRoute><Layout><MotherGuard><PlanejamentoDoce /></MotherGuard></Layout></ProtectedRoute>} />
 
           {/* Meu Salário (Renda Doce) */}
           <Route path="/meu-salario" element={<ProtectedRoute><Layout><PlanoGuard><MeuSalario /></PlanoGuard></Layout></ProtectedRoute>} />
 
-          {/* Conversa Doce */}
-          <Route path="/conversa-doce" element={<ProtectedRoute><Layout><PlanoGuard><ConversaDoce /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/conversa-doce/respostas" element={<ProtectedRoute><Layout><PlanoGuard><ConversaDoceRespostas /></PlanoGuard></Layout></ProtectedRoute>} />
+          {/* Conversa Doce — somente usuário MÃE */}
+          <Route path="/conversa-doce" element={<ProtectedRoute><Layout><MotherGuard><ConversaDoce /></MotherGuard></Layout></ProtectedRoute>} />
+          <Route path="/conversa-doce/respostas" element={<ProtectedRoute><Layout><MotherGuard><ConversaDoceRespostas /></MotherGuard></Layout></ProtectedRoute>} />
 
-          {/* Organização Doce */}
-          <Route path="/organizacao-doce" element={<ProtectedRoute><Layout><PlanoGuard><OrganizacaoDoce /></PlanoGuard></Layout></ProtectedRoute>} />
+          {/* Organização Doce — somente usuário MÃE */}
+          <Route path="/organizacao-doce" element={<ProtectedRoute><Layout><MotherGuard><OrganizacaoDoce /></MotherGuard></Layout></ProtectedRoute>} />
+
 
 
           {/* Admin - Gestão de Usuários */}
