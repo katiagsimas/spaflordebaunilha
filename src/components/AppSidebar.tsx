@@ -79,8 +79,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
     label: "SISTEMA",
     items: [
       { title: "Configurações", url: "/configuracoes", icon: Settings, active: true },
-      { title: "Usuários", url: "/admin/usuarios", icon: Shield, active: true, motherOnly: true },
-      { title: "Log de Ações", url: "/admin/logs", icon: FileText, active: true, motherOnly: true },
+      { title: "Governança", url: "/governanca", icon: Building2, active: true, motherOnly: true },
     ],
   },
 ];
