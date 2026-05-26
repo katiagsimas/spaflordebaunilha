@@ -25,7 +25,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { Info, Search, Download, Plus, Edit, Trash2, Loader2 } from 'lucide-react';
-import * as XLSX from 'xlsx';
+import * as XLSX from '@/lib/xlsxShim';
 import { BackButton } from '@/components/BackButton';
 import {
   Select,

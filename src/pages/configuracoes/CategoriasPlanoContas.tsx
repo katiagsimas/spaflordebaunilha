@@ -25,7 +25,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Info, Search, Download, Filter } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { BackButton } from '@/components/BackButton';
-import * as XLSX from 'xlsx';
+import * as XLSX from '@/lib/xlsxShim';
 
 interface Categoria {
   id: string;

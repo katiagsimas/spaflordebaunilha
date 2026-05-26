@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { useCategorias } from "@/hooks/useCategorias";
 import { Tag, Search, Filter, Download } from "lucide-react";
 import { toast } from "sonner";
-import * as XLSX from 'xlsx';
+import * as XLSX from '@/lib/xlsxShim';
 import { useGlobalLoading } from "@/contexts/GlobalLoadingContext";
 
 export default function Categorias() {

@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import * as XLSX from 'xlsx';
+import * as XLSX from '@/lib/xlsxShim';
 
 interface AdminLog {
   id: string;
