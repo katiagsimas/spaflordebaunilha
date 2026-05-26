@@ -1,12 +1,12 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-26T20:45:00Z — Módulo Governança no backup (MOTHER only).
+> Última atualização: 2026-05-26T21:00:00Z — Removido `admin_logs` do backup de Governança.
 
-## BACKUP — MÓDULO GOVERNANÇA (MOTHER ONLY) — 2026-05-26 20:45 UTC
+## BACKUP — MÓDULO GOVERNANÇA (MOTHER ONLY) — 2026-05-26 21:00 UTC
 
 | # | Item | Status | Descrição |
 |---|------|--------|-----------|
-| BK-G1 | `src/lib/backupCatalog.ts` | ✅ | Novo módulo `governanca` com flag `motherOnly: true`. Tabelas: `groups`, `user_global_roles`, `user_group_roles`, `user_roles`, `profiles`, `admin_logs`, `historico_planos`. Novo helper `modulosDisponiveis(isMother)` e `DEFAULT_MODULOS` ajustado para não incluir módulos `motherOnly`. |
+| BK-G1 | `src/lib/backupCatalog.ts` | ✅ | Novo módulo `governanca` com flag `motherOnly: true`. Tabelas: `groups`, `user_global_roles`, `user_group_roles`, `user_roles`, `profiles`, `historico_planos`. ~~`admin_logs`~~ removido (logs administrativos não precisam de backup). Novo helper `modulosDisponiveis(isMother)` e `DEFAULT_MODULOS` ajustado para não incluir módulos `motherOnly`. |
 | BK-G2 | `src/pages/configuracoes/Backup.tsx` | ✅ | UI passa a renderizar somente os módulos retornados por `modulosDisponiveis(isMother)`. Usuários não-MOTHER não veem checkbox/chip de Governança. |
 | BK-G3 | Edge Function `executar-backups-agendados` | ✅ | Verifica `user_global_roles.role_global = 'MOTHER'`. Remove módulos `motherOnly` para não-MOTHER. Tabelas de governança são lidas sem filtro de tenant (snapshot global). `profiles` vira snapshot global quando MOTHER inclui Governança. Deploy realizado. |
 
