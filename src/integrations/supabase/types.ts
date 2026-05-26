@@ -1825,6 +1825,7 @@ export type Database = {
           ativo: boolean
           created_at: string
           descricao: string | null
+          offer_code: string | null
           plano_id: string
           plano_tipo: string
           product_id: string
@@ -1834,6 +1835,7 @@ export type Database = {
           ativo?: boolean
           created_at?: string
           descricao?: string | null
+          offer_code?: string | null
           plano_id: string
           plano_tipo: string
           product_id: string
@@ -1843,6 +1845,7 @@ export type Database = {
           ativo?: boolean
           created_at?: string
           descricao?: string | null
+          offer_code?: string | null
           plano_id?: string
           plano_tipo?: string
           product_id?: string
