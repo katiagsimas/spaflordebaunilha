@@ -1076,3 +1076,16 @@ Após P1+P2+P3, a pasta `docs/` está com 13 documentos modulares + `AUDITORIA.m
 - Novos campos em `profiles`: complemento, documento_tipo, inscricao_municipal, certificacoes, email_comercial, telefone_fixo
 - Upload de assinatura no bucket `assinaturas`
 - Dados bancários persistidos em `profiles.dados_bancarios` (JSONB)
+
+---
+
+## 2026-05-26 — Módulo Backup repensado
+
+✅ **Backup por módulos + retenção configurável**:
+- Novo catálogo `src/lib/backupCatalog.ts` agrupa 60+ tabelas em 5 módulos: Operação, Comercial, Negócio, Planejamento, Sistema (inclui novas tabelas: propostas, contratos, contratos_templates, estoque, planejamento_*, conversa_doce_favoritos, fechamentos_mensais etc.).
+- `backup_agendamentos`: novas colunas `retencao_dias` (default 30) e `modulos` (text[]).
+- `backups`: novas colunas `modulos` (text[]) e `origem` ('manual'|'agendado').
+- Função `public.limpar_backups_antigos(usuario_id, dias)` SECURITY DEFINER para limpeza automática.
+- UI `/configuracoes/backup` totalmente reformulada: cards de seleção por módulo (manual e agendado), seletor de retenção (7d a 1 ano), badges de origem/escopo no histórico.
+- Backup manual agora baixa **e** salva na nuvem simultaneamente (storage "ambos").
+- Edge function `executar-backups-agendados` atualizada: lê `modulos` e `retencao_dias`, tenta filtrar por `owner_group_id` (multi-tenant), com fallback para `usuario_id`/`user_id`, e remove backups expirados do banco + storage após cada execução.
