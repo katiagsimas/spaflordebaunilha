@@ -239,6 +239,13 @@ Deno.serve(async (req) => {
         .single()
 
       const hojeISO = planoInicio
+      const planoFields = {
+        plano_id: planoId,
+        plano_tipo: planoTipo,
+        plano_inicio: planoInicio,
+        plano_fim: planoFim,
+        origem_criacao: 'webhook',
+      }
       const planoAnterior = existingProfile?.plano_id ?? null
       const planoTipoAnterior = existingProfile?.plano_tipo ?? null
       const planoFimAnterior = existingProfile?.plano_fim ?? null
