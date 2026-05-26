@@ -78,7 +78,6 @@ export function useUnidadesMedida() {
     if (!user) return;
     
     try {
-      // Verifica primeiro se já existem unidades para evitar duplicação
       const { data: existentes } = await supabase
         .from('unidades_medida')
         .select('id')
@@ -86,8 +85,13 @@ export function useUnidadesMedida() {
         .limit(1);
       
       if (existentes && existentes.length > 0) {
-        // Já existem unidades, apenas busca e retorna
-        await fetchUnidades();
+        const { data } = await supabase
+          .from('unidades_medida')
+          .select('*')
+          .eq('usuario_id', user.id)
+          .order('nome', { ascending: true });
+
+        setUnidades(data || []);
         return;
       }
 
@@ -108,8 +112,6 @@ export function useUnidadesMedida() {
       setUnidades(data || []);
     } catch (err: any) {
       console.error('Erro ao criar unidades padrão:', err);
-      // Se der erro, tenta buscar as unidades existentes
-      await fetchUnidades();
     }
   };
 
