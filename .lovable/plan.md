@@ -1,76 +1,65 @@
-## Renovação automática das alunas da Imersão
+# Plano: Tabela `sso_token_log` anti-replay
 
-Aluna compra Caixa Lite ou Caixa Business pelos links de renovação da Hotmart. O webhook detecta, converte o plano e mantém todos os dados.
+## Objetivo
+Impedir reprodução (replay) de tokens SSO registrando cada `jti` consumido, com expiração e limpeza automática.
 
-### Ofertas Hotmart (já cadastradas)
+## Migração SQL (1 arquivo)
 
-| Plano destino   | productId | offerCode  |
-|-----------------|-----------|------------|
-| Caixa Lite anual    | 7449074   | `6yjlyf2i` |
-| Caixa Business anual| 7448785   | `oytrdfwm` |
+```sql
+-- 1. Tabela
+CREATE TABLE public.sso_token_log (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  jti text NOT NULL UNIQUE,
+  email text,
+  direction text CHECK (direction IN ('saida', 'entrada')),
+  used_at timestamptz NOT NULL DEFAULT now(),
+  expires_at timestamptz NOT NULL,
+  ip text,
+  user_agent text
+);
 
-Já inseridas em `hotmart_produtos` — o webhook resolve via match `(product_id + offer_code)`.
+-- 2. Índices
+CREATE INDEX idx_sso_token_log_jti ON public.sso_token_log (jti);
+CREATE INDEX idx_sso_token_log_expires_at ON public.sso_token_log (expires_at);
 
----
+-- 3. GRANTs (somente service_role — sem anon/authenticated)
+GRANT ALL ON public.sso_token_log TO service_role;
 
-### O que já funciona
+-- 4. RLS habilitado, sem policies (bloqueia todos exceto service_role/bypass)
+ALTER TABLE public.sso_token_log ENABLE ROW LEVEL SECURITY;
 
-O `hotmart-webhook` em `PURCHASE_APPROVED` para usuária existente:
-- Identifica pelo e-mail
-- Atualiza `profiles`: `plano_id`, `plano_tipo`, `plano_inicio = hoje`, `plano_fim = hoje+365`, `ativo = true`
-- Preserva `id`, grupo, cadastros, histórico
-- Registra em `historico_planos` com `tipo_evento = 'criacao'`
+-- 5. Função de limpeza
+CREATE OR REPLACE FUNCTION public.cleanup_expired_sso_tokens()
+RETURNS void
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  DELETE FROM public.sso_token_log
+  WHERE expires_at < now() - interval '1 day';
+$$;
 
-Logo, qualquer aluna da Imersão que comprar via essas duas ofertas já é renovada automaticamente.
+-- 6. Extensão pg_cron (no schema 'extensions' do Supabase)
+CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA extensions;
 
----
+-- 7. Agendamento diário 03:00 UTC
+SELECT cron.schedule(
+  'cleanup-expired-sso-tokens',
+  '0 3 * * *',
+  $$ SELECT public.cleanup_expired_sso_tokens(); $$
+);
+```
 
-### O que vamos adicionar
+## Notas técnicas
+- `direction` aceita apenas `'saida'` / `'entrada'` (sem acento, evita problemas de encoding em JWTs).
+- RLS ON sem policies = nenhum acesso para `anon`/`authenticated`. `service_role` faz bypass de RLS e tem GRANT ALL para inserir/consultar via edge functions.
+- A função é `SECURITY DEFINER` com `search_path` fixo para rodar via pg_cron sem depender do role do job.
+- O cron chama a função SQL diretamente (não usa `net.http_post`), por isso é seguro versionar no migration (não contém secrets nem URL específica do projeto).
 
-#### 1. Detectar "renovação a partir de Imersão" no webhook
-Em `supabase/functions/hotmart-webhook/index.ts`, no bloco `existingProfile`:
-- Antes do `UPDATE`, ler `plano_id` atual
-- Se atual = `aluna_imersao` e novo ∈ {`base`, `negocio`}:
-  - Gravar `historico_planos` com `tipo_evento = 'renovacao_imersao'` e observação `Renovação Imersão → {novoPlano}`
-  - Disparar e-mail dedicado para a aluna (`enviarEmailRenovacaoAluna`)
-  - Disparar e-mail consolidado para a admin (`enviarEmailRenovacaoAdmin`)
-- Caso contrário: comportamento atual
+## Documentação
+Após aplicar:
+- `docs/AUDITORIA.md`: registrar criação da proteção anti-replay SSO.
+- `docs/PENDENCIAS_SEGURANCA.md`: remover pendência correspondente, se houver.
 
-#### 2. E-mail para a aluna (Resend, HTML inline)
-Função `enviarEmailRenovacaoAluna(email, nome, planoNovo, planoFim)`:
-- Assunto: "🎉 Sua renovação foi confirmada — Bem-vinda ao Caixa {Lite|Business}!"
-- Conteúdo: parabéns, plano contratado, validade até `plano_fim` formatado, garantia de que dados foram preservados
-- CTA "Entrar no Caixa de Açúcar" → `https://caixa.umbrelladoce.com.br`
-- Visual Vinho/Dourado (mesmo padrão de `enviar-recuperacao-senha`)
-
-#### 3. E-mail para a admin
-Função `enviarEmailRenovacaoAdmin(emailAluna, nome, planoNovo, planoFim, source)`:
-- Destinatário: secret `EMAIL_ADMIN_IMERSAO`
-- Assunto: "Aluna renovou: {nome} → Caixa {Lite|Business}"
-- Conteúdo: nome, e-mail, plano antigo (Imersão), plano novo, nova validade, fonte (productId + offerCode)
-
-#### 4. Toast in-app de boas-vindas
-Em `AuthContext.signIn`, após validar perfil:
-- Consultar último `historico_planos` do usuário (últimas 24h, `tipo_evento = 'renovacao_imersao'`)
-- Se encontrar e flag `cda-renovacao-toast-{historico_id}` não estiver em `localStorage` → exibir toast "🎉 Renovação confirmada! Bem-vinda ao Caixa {plano}." e marcar a flag
-
----
-
-### Arquivos
-
-**Editar:**
-- `supabase/functions/hotmart-webhook/index.ts` — detecção `aluna_imersao → base/negocio`, helpers de e-mail Resend, `tipo_evento = 'renovacao_imersao'`
-- `src/contexts/AuthContext.tsx` — toast pós-renovação
-- `docs/AUDITORIA.md` — registrar a lógica e as ofertas cadastradas
-- `mem://features/imersao-receita-que-faltava` — atualizar com fluxo de renovação + offer codes
-
-**Secrets:**
-- `RESEND_API_KEY` ✅ já existente
-- `EMAIL_ADMIN_IMERSAO` — já solicitada no fluxo anterior
-
----
-
-### Fora de escopo
-- Pró-rata pelos dias restantes (nova vigência sempre 365 dias a partir da compra)
-- Notificação WhatsApp/push (apenas e-mail + toast)
-- Tela visual de histórico de renovações (já consultável em `historico_planos`)
+## Próximo passo (fora deste plano)
+Integrar `sso_token_log` nas edge functions que emitem/consomem tokens SSO (insert do `jti` na emissão e check de unicidade na entrada). Isso será feito em uma etapa separada quando você indicar quais funções devem ser ajustadas.

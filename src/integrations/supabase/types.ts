@@ -3097,6 +3097,39 @@ export type Database = {
           },
         ]
       }
+      sso_token_log: {
+        Row: {
+          direction: string | null
+          email: string | null
+          expires_at: string
+          id: string
+          ip: string | null
+          jti: string
+          used_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          direction?: string | null
+          email?: string | null
+          expires_at: string
+          id?: string
+          ip?: string | null
+          jti: string
+          used_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          direction?: string | null
+          email?: string | null
+          expires_at?: string
+          id?: string
+          ip?: string | null
+          jti?: string
+          used_at?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       tags: {
         Row: {
           ativo: boolean
@@ -3688,6 +3721,7 @@ export type Database = {
         Args: { p_plano_id: string; p_user_id: string }
         Returns: Json
       }
+      cleanup_expired_sso_tokens: { Args: never; Returns: undefined }
       criar_banco_caixa_empresa_padrao: {
         Args: { p_user_id: string }
         Returns: undefined
