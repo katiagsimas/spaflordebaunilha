@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { getTodayISO, addMonthsToDate, addDaysToDate } from '@/lib/dateUtils';
 import { Button } from '@/components/ui/button';
@@ -29,58 +30,37 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { FornecedorAutocomplete } from '@/components/FornecedorAutocomplete';
-import { Info, Check, ChevronsUpDown } from 'lucide-react';
+import { LoadingMascote } from '@/components/LoadingMascote';
+import { Info, Check, ChevronsUpDown, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ContasPagarFormModalProps {
   contaId?: string;
-  isEdicao: boolean;
-  dataEmissaoInicial: string;
-  fornecedorIdInicial: string;
-  fornecedorNomeInicial: string;
-  tipoDocumentoIdInicial: string;
-  planoContasIdInicial: string;
-  bancoIdInicial: string;
-  descricaoInicial: string;
-  valorTotalInicial: string;
-  numeroParcelasInicial: string;
-  tipoLancamentoInicial: string;
-  primeiroVencimentoInicial: string;
   onSucesso: () => void;
   onCancelar: () => void;
 }
 
 export default function ContasPagarFormModal({
   contaId,
-  isEdicao,
-  dataEmissaoInicial,
-  fornecedorIdInicial,
-  fornecedorNomeInicial,
-  tipoDocumentoIdInicial,
-  planoContasIdInicial,
-  bancoIdInicial,
-  descricaoInicial,
-  valorTotalInicial,
-  numeroParcelasInicial,
-  tipoLancamentoInicial,
-  primeiroVencimentoInicial,
   onSucesso,
   onCancelar,
 }: ContasPagarFormModalProps) {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const isEdicao = !!contaId;
 
   // Estados do formulário
-  const [dataEmissao, setDataEmissao] = useState(dataEmissaoInicial || getTodayISO());
-  const [fornecedorId, setFornecedorId] = useState(fornecedorIdInicial);
-  const [fornecedorNome, setFornecedorNome] = useState(fornecedorNomeInicial);
-  const [tipoDocumentoId, setTipoDocumentoId] = useState(tipoDocumentoIdInicial);
-  const [planoContasId, setPlanoContasId] = useState(planoContasIdInicial);
-  const [bancoId, setBancoId] = useState(bancoIdInicial);
-  const [descricao, setDescricao] = useState(descricaoInicial);
-  const [valorTotal, setValorTotal] = useState(valorTotalInicial);
-  const [numeroParcelas, setNumeroParcelas] = useState(numeroParcelasInicial);
-  const [primeiroVencimento, setPrimeiroVencimento] = useState(primeiroVencimentoInicial);
-  const [tipoLancamento, setTipoLancamento] = useState(tipoLancamentoInicial);
+  const [dataEmissao, setDataEmissao] = useState(getTodayISO());
+  const [fornecedorId, setFornecedorId] = useState('');
+  const [fornecedorNome, setFornecedorNome] = useState('');
+  const [tipoDocumentoId, setTipoDocumentoId] = useState('');
+  const [planoContasId, setPlanoContasId] = useState('');
+  const [bancoId, setBancoId] = useState('');
+  const [descricao, setDescricao] = useState('');
+  const [valorTotal, setValorTotal] = useState('');
+  const [numeroParcelas, setNumeroParcelas] = useState('1');
+  const [primeiroVencimento, setPrimeiroVencimento] = useState('');
+  const [tipoLancamento, setTipoLancamento] = useState('unico');
 
   // Dados para picklists
   const [tiposDocumento, setTiposDocumento] = useState<any[]>([]);
@@ -92,12 +72,60 @@ export default function ContasPagarFormModal({
   const [searchPlanoContas, setSearchPlanoContas] = useState('');
 
   const [loading, setLoading] = useState(false);
+  const [loadingConta, setLoadingConta] = useState(isEdicao);
   const [parcelasGeradas, setParcelasGeradas] = useState<any[]>([]);
   const [parcelasEditadas, setParcelasEditadas] = useState(false);
 
   useEffect(() => {
     fetchDados();
   }, []);
+
+  useEffect(() => {
+    if (isEdicao && contaId) {
+      fetchConta(contaId);
+    }
+  }, [contaId, isEdicao]);
+
+  const fetchConta = async (id: string) => {
+    try {
+      setLoadingConta(true);
+      const { data, error } = await supabase
+        .from('contas_pagar' as any)
+        .select(`
+          *,
+          fornecedor:fornecedores ( nome ),
+          parcelas:contas_pagar_parcelas ( data_vencimento )
+        `)
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      const c = data as any;
+      setDataEmissao(c?.data_emissao || getTodayISO());
+      setFornecedorId(c?.fornecedor_id || '');
+      setFornecedorNome(c?.fornecedor?.nome || '');
+      setTipoDocumentoId(c?.tipo_documento_id || '');
+      setPlanoContasId(c?.plano_contas_id || '');
+      setBancoId(c?.banco_id || '');
+      setDescricao(c?.descricao || '');
+      setValorTotal(c?.valor_total ? Number(c.valor_total).toFixed(2).replace('.', ',') : '');
+      setNumeroParcelas(c?.numero_parcelas ? String(c.numero_parcelas) : '1');
+      setTipoLancamento(c?.tipo_lancamento || 'unico');
+      setPrimeiroVencimento(
+        c?.parcelas && c.parcelas.length > 0 ? c.parcelas[0].data_vencimento : ''
+      );
+    } catch (error) {
+      console.error('Erro ao buscar conta:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível carregar os dados da conta.',
+        variant: 'destructive',
+      });
+      navigate('/financeiro/contas-pagar');
+    } finally {
+      setLoadingConta(false);
+    }
+  };
 
   const fetchDados = async () => {
     try {
