@@ -97,8 +97,12 @@ export function AppSidebar() {
   const { user } = useAuth();
   const { isMother, isGroupAdmin, sessionMode, activeGroup, activeRole } = useGroup();
   const { isAdmin } = useIsAdmin();
+  const { enabled: motherEnabled, view: motherView } = useMotherView();
+  const simulating = motherEnabled && !!motherView;
+  const effectiveIsMother = isMother && !simulating;
+  const effectiveIsAdmin = isAdmin && !simulating;
   const { rotaBloqueada, isLoading: isPlanoLoading, plano } = usePlano();
-  const podeAcessarSsoDoce = isAdmin || plano?.id === "negocio" || plano?.id === "aluna_imersao";
+  const podeAcessarSsoDoce = effectiveIsAdmin || plano?.id === "negocio" || plano?.id === "aluna_imersao";
   const { temAcesso: podeAcessarConversaDoce } = useConversaDoceAccess();
   const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
   const [comingSoonModal, setComingSoonModal] = useState<{ title: string; message: string } | null>(null);
