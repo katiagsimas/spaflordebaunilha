@@ -384,17 +384,49 @@ export function AppSidebar() {
               Sair
             </Button>
             <Button
-              onClick={() => {
-                console.log('[Sidebar Diag]', { isAdmin, isMother, isPlanoLoading, userEmail: user?.email });
-                setDiagOpen(true);
+              onClick={async () => {
+                try {
+                  // 1) signOut local para invalidar tokens em memória
+                  await supabase.auth.signOut().catch(() => {});
+                  // 2) limpar storages
+                  try { localStorage.clear(); } catch {}
+                  try { sessionStorage.clear(); } catch {}
+                  // 3) limpar caches do Service Worker, se houver
+                  if ('caches' in window) {
+                    const keys = await caches.keys();
+                    await Promise.all(keys.map((k) => caches.delete(k)));
+                  }
+                  if ('serviceWorker' in navigator) {
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(regs.map((r) => r.unregister()));
+                  }
+                } finally {
+                  // 4) hard reload com cache-buster e ir para login
+                  window.location.replace(`/auth?cleared=${Date.now()}`);
+                }
               }}
               variant="ghost"
               size="sm"
-              className="w-full text-[#FFF9F5]/50 hover:text-cda-dourado font-body text-xs border border-cda-dourado/30"
+              className="w-full text-[#FFF9F5]/70 hover:text-cda-dourado font-body text-xs border border-cda-dourado/30"
+              title="Faz logout, limpa o cache do navegador e recarrega o app. Útil quando o menu ou permissões parecem desatualizados."
             >
-              <Bug className="h-3.5 w-3.5 mr-2" />
-              Diagnóstico do Menu
+              <RefreshCw className="h-3.5 w-3.5 mr-2" />
+              Limpar cache e recarregar
             </Button>
+            {isMother && (
+              <Button
+                onClick={() => {
+                  console.log('[Sidebar Diag]', { isAdmin, isMother, isPlanoLoading, userEmail: user?.email });
+                  setDiagOpen(true);
+                }}
+                variant="ghost"
+                size="sm"
+                className="w-full text-[#FFF9F5]/50 hover:text-cda-dourado font-body text-xs border border-cda-dourado/30"
+              >
+                <Bug className="h-3.5 w-3.5 mr-2" />
+                Diagnóstico do Menu
+              </Button>
+            )}
           </div>
         </SidebarFooter>
       )}
