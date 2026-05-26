@@ -645,7 +645,7 @@ export default function Backup() {
               )}
             </Button>
             <p className="text-xs text-muted-foreground">
-              A restauração de tabelas relacionadas é feita pelo suporte técnico para evitar conflitos de dados.
+              A restauração é definitiva e exige dupla confirmação para evitar perda acidental de dados.
             </p>
           </CardContent>
         </Card>
