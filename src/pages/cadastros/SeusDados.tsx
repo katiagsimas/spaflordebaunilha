@@ -267,10 +267,10 @@ export default function SeusDados() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={profile?.primeiro_acesso ? "Bem-vinda! Complete seus dados" : "Dados da Sua Confeitaria"}
-        description={profile?.primeiro_acesso ? "Por favor, complete as informações da sua confeitaria para começar" : "Informações da sua empresa"}
-        backButton={!profile?.primeiro_acesso ? <BackButton to="/configuracoes/cadastros-base" /> : undefined}
+        title={profile?.primeiro_acesso ? "Bem-vinda! Complete seus dados" : "Dados da Confeitaria"}
+        description={profile?.primeiro_acesso ? "Por favor, complete as informações da sua confeitaria para começar" : "Cadastre as informações do seu negócio para que sejam usadas em toda a plataforma"}
       />
+
 
 
       <Card>
