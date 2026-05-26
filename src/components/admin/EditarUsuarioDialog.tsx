@@ -53,7 +53,8 @@ import {
   Tag,
   History,
   CalendarDays,
-  Globe
+  Globe,
+  Sparkles
 } from 'lucide-react';
 
 const formSchema = z.object({
