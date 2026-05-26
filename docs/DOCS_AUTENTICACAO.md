@@ -224,3 +224,5 @@ Implementada em `src/lib/validacaoSenha.ts`:
 | `supabase/functions/criar-usuario/index.ts` | Edge Function criação (admin) — inclui rate limit por IP |
 | `supabase/functions/enviar-recuperacao-senha/index.ts` | Edge Function de recuperação de senha (Resend) |
 | `supabase/functions/hotmart-webhook/index.ts` | Edge Function webhook Hotmart |
+| `supabase/functions/aplicar-planos-pendentes/index.ts` | Cron diário que efetiva upgrades/downgrades agendados (`plano_pendente_*`) |
+| `supabase/functions/notificar-expiracao-imersao/index.ts` | Notificações de fim de acesso para `aluna_imersao` |
