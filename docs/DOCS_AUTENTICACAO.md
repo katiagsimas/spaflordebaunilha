@@ -1,7 +1,7 @@
 # 🔐 DOCUMENTAÇÃO: Autenticação — Caixa de Açúcar
 
-**Atualizada em:** Maio 2026  
-**Versão:** 4.1
+**Atualizada em:** 26/05/2026  
+**Versão:** 4.2
 
 ---
 
