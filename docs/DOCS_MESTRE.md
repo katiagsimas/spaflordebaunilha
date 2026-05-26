@@ -383,12 +383,22 @@ Verifica autenticação. Redireciona para `/auth/login` se não autenticado.
 
 ## 13. DOCUMENTOS RELACIONADOS
 
+> Todos os documentos do projeto vivem em `docs/`. A raiz mantém apenas o `README.md`.
+
 | Documento | Escopo |
 |-----------|--------|
 | [DOCS_AUTENTICACAO.md](./DOCS_AUTENTICACAO.md) | Login, convites via Resend, primeiro acesso, senhas, Hotmart webhook |
 | [DOCS_GOVERNANCA.md](./DOCS_GOVERNANCA.md) | Grupos, roles, RLS, permission_flags |
-| [DOCS_FINANCEIRO.md](./DOCS_FINANCEIRO.md) | Contas pagar/receber, DRE, fluxo caixa |
+| [DOCS_PLANOS.md](./DOCS_PLANOS.md) | Catálogo de planos, vínculo Hotmart, expiração, upgrade/downgrade |
+| [DOCS_FINANCEIRO.md](./DOCS_FINANCEIRO.md) | Contas pagar/receber, DRE, fluxo caixa, bancos |
+| [DOCS_FECHAMENTO_MES.md](./DOCS_FECHAMENTO_MES.md) | Snapshot mensal e bloqueio retroativo |
 | [DOCS_PRECIFICACAO.md](./DOCS_PRECIFICACAO.md) | Ingredientes, embalagens, receitas, cálculos, mão de obra |
 | [DOCS_ENCOMENDAS.md](./DOCS_ENCOMENDAS.md) | Pedidos, itens, tags, vinculação financeira |
-| [docs/AUDITORIA.md](./docs/AUDITORIA.md) | Registro de auditorias e otimizações |
-| [docs/PENDENCIAS_SEGURANCA.md](./docs/PENDENCIAS_SEGURANCA.md) | Pendências de segurança |
+| [DOCS_ESTOQUE.md](./DOCS_ESTOQUE.md) | Controle de estoque, custo médio, movimentações |
+| [DOCS_PLANEJAMENTO.md](./DOCS_PLANEJAMENTO.md) | Calendário, metas, tarefas, bem-estar |
+| [DOCS_MEU_SALARIO.md](./DOCS_MEU_SALARIO.md) | Método Renda Doce, pró-labore saudável |
+| [DOCS_MEU_PAINEL_E_MEU_DINHEIRO.md](./DOCS_MEU_PAINEL_E_MEU_DINHEIRO.md) | Dashboard e visão financeira consolidada |
+| [MODULO_CONVERSA_DOCE.md](./MODULO_CONVERSA_DOCE.md) | Assistente IA WhatsApp |
+| [AI_GATEWAY_CAP.md](./AI_GATEWAY_CAP.md) | Controle de consumo de IA (cap, quota, allowlist) |
+| [AUDITORIA.md](./AUDITORIA.md) | Registro de auditorias, correções e otimizações |
+| [PENDENCIAS_SEGURANCA.md](./PENDENCIAS_SEGURANCA.md) | Pendências de segurança que dependem de ação externa |
