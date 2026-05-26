@@ -1,7 +1,7 @@
 # 🔒 PENDÊNCIAS DE SEGURANÇA — CAIXA DE AÇÚCAR
 
 > Itens que dependem de ação externa ou decisão do time para serem resolvidos.
-> Última atualização: 2026-05-26T02:05:00Z
+> Última atualização: 2026-05-26T03:00:00Z
 
 ---
 
@@ -9,7 +9,6 @@
 
 | # | Severidade | Item | Responsável | Status | Observação |
 |---|-----------|------|-------------|--------|------------|
-| 3 | 🟡 Média | Rate limiting na Edge Function `criar-usuario` | Dev/Infra | ⏸️ Bloqueado | Plataforma ainda não tem primitivas próprias de rate limiting. Implementação ad-hoc possível, mas será refeita quando infra oficial chegar. |
 | 6 | 🟡 Baixa | Customizar templates de email do Cloud | Admin/Infra | 🔲 Pendente | Emails usam template padrão |
 
 
@@ -22,8 +21,8 @@
 ## Pendências Resolvidas (Histórico)
 
 | Data (UTC) | Item | Resolução |
+| 2026-05-26 | #3 — Rate limiting na Edge Function `criar-usuario` | Implementado rate limiting em memória: Map por IP, 10 req/60s, status 429 com `Retry-After` e body `{ error: 'rate_limit_exceeded', retry_after }`. Proteção contra burst simples (não persistente entre restarts). |
 | 2026-05-26 | Limpeza — assets órfãos em `src/assets/` | Removidos `auth-background.png`, `donnas-box-logo.png`, `donnas-logo.png`, `doces-background.jpg`, `caixa-acucar-logo.png` e o duplicado `cda-logo-dourado.png` (mantido apenas em `public/`). |
-| 2026-05-26 | #10 — Leaked Password Protection desabilitado | HIBP habilitado via `configure_auth` (`password_hibp_enabled: true`). |
 |------------|------|-----------|
 | 2026-05-26 | #9 — Vulnerabilidade `xlsx` (Prototype Pollution / ReDoS) | Pacote `xlsx` removido. Adicionado `exceljs@4.4.0`. Criado shim em `src/lib/xlsxShim.ts` com a mesma API mínima usada no app (`utils.json_to_sheet`, `utils.aoa_to_sheet`, `utils.book_new`, `utils.book_append_sheet`, `writeFile`). Todos os 18 imports de `xlsx` substituídos por `@/lib/xlsxShim` — comportamento de exportação preservado, sem necessidade de SheetJS Pro. |
 | 2026-05-26 | #21 — Backups armazenados como JSONB no banco | Bucket privado `backups` criado com RLS owner-scoped (`auth.uid()` por pasta). Edge function `executar-backups-agendados` e tela `Backup.tsx` passam a fazer upload do JSON para Storage; `backups.dados` virou opcional para compatibilidade com backups antigos. Download/restore usa `storage.download()` quando há `storage_path`. |
