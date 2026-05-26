@@ -59,9 +59,30 @@ export function useCategorias() {
     }
   };
 
+  const createCategoria = async (nome: string) => {
+    if (!user) throw new Error('Usuário não autenticado');
+
+    const { data, error } = await supabase
+      .from('categorias')
+      .insert({ nome, usuario_id: user.id, ativo: true, padrao_sistema: false })
+      .select()
+      .single();
+
+    if (error) throw error;
+    setCategorias(prev => [...prev, data].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')));
+    toast.success('Categoria criada!');
+    return data;
+  };
 
   const updateCategoria = async (id: string, updates: Partial<Categoria>) => {
     if (!user) throw new Error('Usuário não autenticado');
+
+    const categoria = categorias.find(c => c.id === id);
+    if (categoria?.padrao_sistema) {
+      // Categorias padrão só permitem alteração de ativo
+      const { nome, padrao_sistema, ...allowedUpdates } = updates;
+      updates = allowedUpdates;
+    }
 
     const { data, error } = await supabase
       .from('categorias')
@@ -77,6 +98,37 @@ export function useCategorias() {
     return data;
   };
 
+  const deleteCategoria = async (id: string) => {
+    if (!user) throw new Error('Usuário não autenticado');
+
+    const categoria = categorias.find(c => c.id === id);
+    if (categoria?.padrao_sistema) {
+      toast.error('Categorias padrão do sistema não podem ser removidas.');
+      return;
+    }
+
+    const { data: receitasCount, error: checkError } = await (supabase as any)
+      .from('receitas')
+      .select('id')
+      .eq('categoria_id', id);
+
+    if (checkError) throw checkError;
+
+    if (receitasCount && receitasCount.length > 0) {
+      toast.error(`Esta categoria está vinculada a ${receitasCount.length} receita(s). Remova o vínculo antes de excluir.`);
+      return;
+    }
+
+    const { error } = await supabase
+      .from('categorias')
+      .delete()
+      .eq('id', id)
+      .eq('usuario_id', user.id);
+
+    if (error) throw error;
+    setCategorias(prev => prev.filter(c => c.id !== id));
+    toast.success('Categoria removida!');
+  };
 
   useEffect(() => {
     if (user) fetchCategorias();
@@ -86,6 +138,8 @@ export function useCategorias() {
     categorias,
     loading,
     updateCategoria,
+    createCategoria,
+    deleteCategoria,
     refetch: fetchCategorias,
     fetchCategoriasAtivas,
   };
