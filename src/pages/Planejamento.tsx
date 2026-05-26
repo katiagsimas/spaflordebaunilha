@@ -15,9 +15,6 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { PlanejamentoCalendario } from "@/pages/planejamento/PlanejamentoCalendario";
 import { PlanejamentoTarefas } from "@/pages/planejamento/PlanejamentoTarefas";
 import { PlanejamentoBemEstar } from "@/pages/planejamento/PlanejamentoBemEstar";
-import { useOpenPlannerDoce } from "@/hooks/useOpenPlannerDoce";
-import { usePlano } from "@/hooks/usePlano";
-import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 const opcoes: any[] = [];
 
