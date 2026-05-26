@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-quer
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { SidebarToggleLabeled, BackupBadge } from "@/components/HeaderControls";
+import { SidebarToggleLabeled, BackupBadge, ClearCacheButton } from "@/components/HeaderControls";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { GroupProvider } from "@/contexts/GroupContext";
@@ -153,6 +153,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               </div>
               <div className="flex items-center gap-2">
                 <BackupBadge texto={ultimoBackupTexto} />
+                <ClearCacheButton />
                 <UserMenu />
               </div>
             </div>
@@ -163,6 +164,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <FirstAccessRedirect />
             {children}
           </main>
+          <footer className="border-t border-cda-dourado/20 bg-cda-vinho-escuro text-cda-creme/70 py-3 px-4 text-center text-[11px] font-body">
+            Umbrella Doce by Ká Simas · CNPJ 65.786.966/0001-41 · Todos os direitos reservados.
+          </footer>
         </div>
       </div>
     </SidebarProvider>
