@@ -1,14 +1,15 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-26T01:40:00Z — P-1 (matching Hotmart por productId) implementado.
+> Última atualização: 2026-05-26T01:55:00Z — P-1 estendido: matching por (productId + offerCode) e cadastro do Caixa Business.
 
 ---
 
-## P-1 HOTMART MATCHING POR PRODUCTID — 2026-05-26 01:40 UTC
+## P-1 HOTMART MATCHING POR (PRODUCT + OFFER) — 2026-05-26 01:55 UTC
 
 | # | Item | Status | Descrição |
 |---|------|--------|-----------|
-| P-1 | Webhook Hotmart resolve plano pelo `productId` exato | ✅ | Nova tabela `hotmart_produtos` (PK = `product_id`, FK para `planos.id`, `plano_tipo` mensal/anual, `ativo`, `descricao`). RLS: leitura para `authenticated`, escrita só para MOTHER. Função `resolverPlano()` em `supabase/functions/hotmart-webhook/index.ts` virou `async` e consulta `hotmart_produtos` antes do matching por palavras-chave. Quando o productId está cadastrado e ativo → resolve por ID (fonte de verdade). Quando não está cadastrado → fallback de palavras-chave **passou a exigir match explícito** com `"business"` ou `"caixa lite"` (rejeita produtos genéricos como Imersão R$97 que antes caíam em Lite por default). Quando `ativo=false` → rejeita. Seed inicial: `product_id='7449074'` → `base`/`anual` (Caixa Lite Anual). Log de rejeição passou a registrar `productId` e `planName` para facilitar cadastro de novos produtos. Próximos produtos (Business Mensal, Business Anual, Imersão, etc.) devem ser cadastrados via INSERT na tabela. |
+| P-1.b | Suporte a múltiplas ofertas por produto (Caixa Business) | ✅ | Tabela `hotmart_produtos` ganhou coluna `offer_code` (text, nullable). PK antiga (`product_id`) substituída por índice único `(product_id, COALESCE(offer_code, ''))` — permite uma linha NULL por produto (oferta única, ex.: Lite) e várias linhas por produto quando há múltiplas ofertas. `resolverPlano()` agora aceita `offerCode` e segue a ordem: (1) match exato `(product_id, offer_code)`, (2) match `(product_id, offer_code IS NULL)`, (3) fallback por palavras-chave. Webhook lê `purchase.offer.code` do payload Hotmart e passa para `resolverPlano()` nos eventos `PURCHASE_APPROVED/COMPLETE` e `SWITCH_PLAN`. Seeds: `7448785/n20dvd6j` → `negocio/mensal` (Caixa Business Mensal), `7448785/mto997mw` → `negocio/anual` (Caixa Business Anual). Caixa Lite (`7449074`, offer_code NULL) continua funcionando via passo 2. |
+| P-1 | Webhook Hotmart resolve plano pelo `productId` exato | ✅ | Nova tabela `hotmart_produtos` (FK para `planos.id`, `plano_tipo` mensal/anual, `ativo`, `descricao`). RLS: leitura para `authenticated`, escrita só para MOTHER. Quando productId+offer está cadastrado e ativo → resolve por ID (fonte de verdade). Quando não está cadastrado → fallback de palavras-chave **passou a exigir match explícito** com `"business"` ou `"caixa lite"` (rejeita produtos genéricos como Imersão R$97 que antes caíam em Lite por default). Quando `ativo=false` → rejeita. Log de rejeição registra `productId` e `planName` para facilitar cadastro de novos produtos. |
 
 ---
 
