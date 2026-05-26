@@ -1,6 +1,14 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-26T12:50:00Z — Findings do scanner Supabase resolvidos (storage policies).
+> Última atualização: 2026-05-26T13:00:00Z — Padronização de cores do rodapé.
+
+---
+
+## PADRONIZAÇÃO VISUAL — RODAPÉ — 2026-05-26 13:00 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| UI-1 | Cor do rodapé padronizada com header e sidebar | ✅ | Footer alterado em `src/App.tsx`: `bg-cda-vinho-escuro` → `bg-cda-vinho` e `border-cda-dourado/20` → `border-cda-dourado/30`. Agora o rodapé, o cabeçalho (`bg-cda-vinho`) e o sidebar (`--sidebar-background: 345 55% 23%`, mesmo vinho) compartilham a mesma cor de fundo, criando consistência visual no shell do app.
 
 ---
 
