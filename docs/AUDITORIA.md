@@ -887,3 +887,26 @@ Substituiu a abordagem com Vault (que exigia `vault.create_secret` manual no SQL
 - Caixa Business anual — productId `7448785`, offerCode `oytrdfwm`
 
 **Dados preservados:** id do usuário, grupo, cadastros e histórico. Apenas `plano_id`, `plano_tipo`, `plano_inicio`, `plano_fim` e `ativo` são atualizados.
+
+---
+
+## 2026-05-26 — Hardening do fluxo de renovação automática (Imersão → Lite/Business)
+
+Correções aplicadas em `supabase/functions/hotmart-webhook/index.ts` e `src/contexts/AuthContext.tsx`:
+
+- ✅ **Idempotência por transaction Hotmart**: antes de provisionar, o webhook consulta `historico_planos` por `tx:{transactionId}` e ignora reenvios (resposta `duplicate_ignored`). Evita duplicar registros e e-mails em caso de retry da Hotmart.
+- ✅ **`primeiro_acesso` não é mais ativado em renovações**: aluna que renova da Imersão para Lite/Business não é forçada a trocar senha no próximo login (`primeiro_acesso = false` quando `ehRenovacaoImersao`).
+- ✅ **Fallback de nome no e-mail admin**: `subject` usa `email` quando `buyer.name` vem vazio/whitespace.
+- ✅ **`observacao` do histórico inclui `tx:{transactionId}`**: chave usada pela checagem de idempotência.
+- ✅ **AuthContext limpa `sessionStorage.cda-modal-imersao-shown`** ao detectar `renovacao_imersao` recente — o `ModalExpiracaoImersao` não reaparece após a renovação.
+
+### Itens de atenção (não bloqueantes)
+
+- ⚠️ **Renovação antecipada encurta acesso**: `plano_fim = hoje + 365`. Se a aluna renova antes do fim da Imersão, perde os dias restantes. Decisão de produto pendente (somar saldo?).
+- ⚠️ **Upgrade Lite ↔ Business (não-Imersão)** não dispara e-mail dedicado nem evento próprio — cai no fluxo genérico `criacao`.
+
+### Pendências operacionais
+
+- 🟡 Página `https://upcaixa.umbrelladoce.com.br` deve estar publicada com os 2 botões (ofertas `6yjlyf2i` e `oytrdfwm`).
+- 🟡 Webhook da Hotmart configurado para as 2 novas ofertas apontando para `hotmart-webhook`.
+- 🟡 Secret `EMAIL_ADMIN_IMERSAO` preenchido em Cloud → Secrets.
