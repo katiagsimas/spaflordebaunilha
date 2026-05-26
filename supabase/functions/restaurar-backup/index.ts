@@ -273,9 +273,9 @@ Deno.serve(async (req) => {
   try {
     await admin.from("admin_logs").insert({
       admin_id: userId,
-      action: origemLog === "cofre" ? "restaurar_backup_cofre" : "restaurar_backup",
-      module: "backup",
-      details: {
+      admin_email: userRes.user.email ?? "",
+      acao: origemLog === "cofre" ? "restaurar_backup_cofre" : "restaurar_backup",
+      detalhes: {
         backup_id: backupIdLog,
         nome: nomeBackup,
         owner_group_id: ownerGroupAlvo,
@@ -285,7 +285,7 @@ Deno.serve(async (req) => {
         tabelas_ignoradas: tabelasIgnoradas,
       },
     });
-  } catch { /* tabela admin_logs pode ter schema diferente; ignora */ }
+  } catch { /* best-effort */ }
 
   return new Response(JSON.stringify({
     ok: true,
