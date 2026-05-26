@@ -149,12 +149,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               <div className="flex items-center gap-3">
                 <SidebarToggleLabeled />
                 <div className="h-6 w-px bg-cda-creme/30 hidden sm:block" />
-                <BackupBadge texto={ultimoBackupTexto} />
+                <UserGreeting />
               </div>
               <div className="flex items-center gap-2">
+                <BackupBadge texto={ultimoBackupTexto} />
                 <UserMenu />
               </div>
             </div>
+
           </header>
           <AlertaExpiracaoPlano />
           <main className="flex-1 p-6 md:p-8 bg-app">
