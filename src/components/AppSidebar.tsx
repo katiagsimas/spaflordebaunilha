@@ -68,6 +68,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
       { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false, comingSoonMessage: "Em breve você terá um plano claro para organizar sua produção, suas vendas e crescer com estratégia.", adminOnly: true },
       { title: "Conversa Doce", url: "/conversa-doce", icon: MessageCircle, active: true },
       { title: "Organização Doce", url: "/organizacao-doce", icon: ListChecks, active: true },
+      { title: "Planejamento Doce", url: "/planejamento-doce", icon: Sparkles, active: true, ssoDoce: true },
     ],
   },
   {
