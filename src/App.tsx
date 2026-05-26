@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-quer
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { SidebarToggleLabeled, BackupBadge, SairButton } from "@/components/HeaderControls";
+import { SidebarToggleLabeled, BackupBadge } from "@/components/HeaderControls";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { GroupProvider } from "@/contexts/GroupContext";
@@ -153,7 +153,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               </div>
               <div className="flex items-center gap-2">
                 <UserMenu />
-                <SairButton />
               </div>
             </div>
           </header>
