@@ -51,19 +51,31 @@ export function ClearCacheButton() {
 
 export function SidebarToggleLabeled() {
   const { state, toggleSidebar, isMobile, openMobile } = useSidebar();
+  const [expanded, setExpanded] = useState(false);
   const open = isMobile ? openMobile : state === "expanded";
   const Icon = open ? PanelLeftClose : PanelLeftOpen;
+  const label = open ? "Fechar Menu" : "Abrir Menu";
   return (
     <button
-      onClick={toggleSidebar}
-      className="flex items-center gap-2 h-9 px-3 rounded-full bg-cda-creme/10 hover:bg-cda-creme/20 text-cda-creme ring-1 ring-cda-creme/20 transition-colors font-body text-xs"
-      aria-label={open ? "Fechar menu" : "Abrir menu"}
+      onClick={() => {
+        if (expanded) {
+          toggleSidebar();
+          setExpanded(false);
+        } else {
+          setExpanded(true);
+        }
+      }}
+      onBlur={() => setExpanded(false)}
+      className={`flex items-center gap-2 h-9 rounded-full bg-cda-creme/10 hover:bg-cda-creme/20 text-cda-creme ring-1 ring-cda-creme/20 transition-all font-body text-xs ${expanded ? 'px-3' : 'px-2'}`}
+      aria-label={label}
+      title={label}
     >
       <Icon className="h-4 w-4" />
-      <span className="hidden sm:inline">{open ? "Fechar Menu" : "Abrir Menu"}</span>
+      {expanded && <span className="whitespace-nowrap">{label}</span>}
     </button>
   );
 }
+
 
 export function BackupBadge({ texto }: { texto: string | null }) {
   if (!texto) return null;
