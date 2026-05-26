@@ -107,10 +107,10 @@ export function useCategorias() {
       return;
     }
 
-    const { data: receitasCount, error: checkError } = await supabase
+    const { data: receitasCount, error: checkError } = await (supabase as any)
       .from('receitas')
       .select('id')
-      .eq('categoria_id' as any, id);
+      .eq('categoria_id', id);
 
     if (checkError) throw checkError;
 
