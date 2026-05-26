@@ -87,7 +87,9 @@ export type Database = {
           frequencia: string
           horario: string
           id: string
+          modulos: string[]
           proximo_execucao_em: string | null
+          retencao_dias: number
           ultimo_executado_em: string | null
           updated_at: string
           usuario_id: string
@@ -98,7 +100,9 @@ export type Database = {
           frequencia?: string
           horario?: string
           id?: string
+          modulos?: string[]
           proximo_execucao_em?: string | null
+          retencao_dias?: number
           ultimo_executado_em?: string | null
           updated_at?: string
           usuario_id: string
@@ -109,7 +113,9 @@ export type Database = {
           frequencia?: string
           horario?: string
           id?: string
+          modulos?: string[]
           proximo_execucao_em?: string | null
+          retencao_dias?: number
           ultimo_executado_em?: string | null
           updated_at?: string
           usuario_id?: string
@@ -121,7 +127,9 @@ export type Database = {
           created_at: string
           dados: Json | null
           id: string
+          modulos: string[] | null
           nome: string
+          origem: string
           owner_group_id: string | null
           storage_path: string | null
           tamanho: string | null
@@ -131,7 +139,9 @@ export type Database = {
           created_at?: string
           dados?: Json | null
           id?: string
+          modulos?: string[] | null
           nome: string
+          origem?: string
           owner_group_id?: string | null
           storage_path?: string | null
           tamanho?: string | null
@@ -141,7 +151,9 @@ export type Database = {
           created_at?: string
           dados?: Json | null
           id?: string
+          modulos?: string[] | null
           nome?: string
+          origem?: string
           owner_group_id?: string | null
           storage_path?: string | null
           tamanho?: string | null
@@ -4184,6 +4196,10 @@ export type Database = {
         Returns: boolean
       }
       is_mother: { Args: { _user_id: string }; Returns: boolean }
+      limpar_backups_antigos: {
+        Args: { p_retencao_dias: number; p_usuario_id: string }
+        Returns: number
+      }
       log_admin_action: {
         Args: {
           p_action: string
