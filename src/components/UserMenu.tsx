@@ -126,7 +126,7 @@ export function UserMenu() {
 
   if (!user) return null;
 
-  const mostraBadges = activeGroup && sessionMode === "group";
+  const mostraBadges = (activeGroup && sessionMode === "group") || isMother;
   const formataData = (iso?: string | null) =>
     iso ? new Date(iso + "T00:00:00").toLocaleDateString("pt-BR") : "—";
   const iniciais = (primeiroNome || "U").slice(0, 2).toUpperCase();
@@ -193,13 +193,15 @@ export function UserMenu() {
             </div>
             {mostraBadges && (
               <div className="flex items-center gap-2 flex-wrap pt-1">
-                <Badge variant="outline" className="text-[10px] border-cda-creme/30 text-cda-creme/80 font-body">
-                  {activeRole === "ADMIN" ? "Admin" : "Usuário"}
-                </Badge>
+                {activeGroup && sessionMode === "group" && (
+                  <Badge variant="outline" className="text-[10px] border-cda-creme/30 text-cda-creme/80 font-body">
+                    {activeRole === "ADMIN" ? "Admin" : "Usuário"}
+                  </Badge>
+                )}
                 {isMother && (
                   <Badge variant="outline" className="text-[10px] border-cda-dourado text-cda-dourado font-body">
                     <Crown className="h-3 w-3 mr-1" />
-                    MOTHER
+                    MOTHER · Acesso total ao sistema
                   </Badge>
                 )}
               </div>
@@ -228,33 +230,46 @@ export function UserMenu() {
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-body flex items-center gap-1">
                 <Crown className="h-3 w-3 text-cda-dourado" /> Plano
               </p>
-              <p className="text-sm font-semibold text-cda-vinho-escuro">
-                {plano?.nome ?? "Carregando..."}
-                {profile?.plano_tipo && (
-                  <span className="ml-1 font-normal text-muted-foreground">
-                    ({profile.plano_tipo === "anual" ? "Anual" : "Mensal"})
+              {isMother ? (
+                <p className="text-sm font-semibold text-cda-vinho-escuro">
+                  Acesso total ao sistema
+                  <span className="block text-[11px] font-normal text-muted-foreground mt-0.5">
+                    Use o seletor no topo para visualizar como Lite, Business ou Aluna da Imersão.
                   </span>
-                )}
-              </p>
-              {(profile?.plano_inicio || profile?.plano_fim) && (
-                <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
-                  <CalendarDays className="h-3 w-3" />
-                  {formataData(profile?.plano_inicio)} → {formataData(profile?.plano_fim)}
                 </p>
+              ) : (
+                <>
+                  <p className="text-sm font-semibold text-cda-vinho-escuro">
+                    {plano?.nome ?? "Carregando..."}
+                    {profile?.plano_tipo && (
+                      <span className="ml-1 font-normal text-muted-foreground">
+                        ({profile.plano_tipo === "anual" ? "Anual" : "Mensal"})
+                      </span>
+                    )}
+                  </p>
+                  {(profile?.plano_inicio || profile?.plano_fim) && (
+                    <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
+                      <CalendarDays className="h-3 w-3" />
+                      {formataData(profile?.plano_inicio)} → {formataData(profile?.plano_fim)}
+                    </p>
+                  )}
+                </>
               )}
             </div>
           </div>
 
           {/* Ações */}
           <div className="p-2 space-y-1">
-            <Button
-              variant="ghost"
-              className="w-full justify-start font-body text-sm"
-              onClick={() => navigate("/upgrade")}
-            >
-              <ArrowUpCircle className="h-4 w-4 mr-2 text-cda-dourado" />
-              Atualizar plano
-            </Button>
+            {!isMother && (
+              <Button
+                variant="ghost"
+                className="w-full justify-start font-body text-sm"
+                onClick={() => navigate("/upgrade")}
+              >
+                <ArrowUpCircle className="h-4 w-4 mr-2 text-cda-dourado" />
+                Atualizar plano
+              </Button>
+            )}
             <Button
               variant="ghost"
               className="w-full justify-start font-body text-sm"

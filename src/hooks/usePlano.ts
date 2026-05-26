@@ -1,6 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useMotherView } from "./useMotherView";
 
 const MODULOS_POR_PLANO: Record<string, string[]> = {
   base: [
@@ -19,7 +20,7 @@ const MODULOS_POR_PLANO: Record<string, string[]> = {
     "/configuracoes/tags-encomendas",
     // Estoque NÃO incluso no Lite
   ],
-  
+
   negocio: ["*"], // acesso total
   aluna_imersao: ["*"], // mesmos módulos do Business durante 30 dias
   controle: [],   // em breve
@@ -35,10 +36,30 @@ export interface Plano {
 
 export function usePlano() {
   const { user } = useAuth();
+  const { enabled: motherEnabled, view: motherView } = useMotherView();
 
   const { data: planoData, isLoading } = useQuery({
-    queryKey: ["plano", user?.id],
+    queryKey: ["plano", user?.id, motherEnabled, motherView],
     queryFn: async () => {
+      // MOTHER: tem acesso total por padrão; pode visualizar como um plano específico
+      if (motherEnabled) {
+        if (motherView) {
+          const { data: plano } = await supabase
+            .from("planos")
+            .select("*")
+            .eq("id", motherView)
+            .maybeSingle();
+          if (plano) return plano as Plano;
+        }
+        return {
+          id: "negocio",
+          nome: "MOTHER · Acesso total",
+          descricao: null,
+          ativo: true,
+          em_breve: false,
+        } as Plano;
+      }
+
       const { data } = await supabase
         .from("profiles")
         .select("plano_id")
@@ -82,5 +103,5 @@ export function usePlano() {
     return !rotaPermitida(rota, modulos);
   };
 
-  return { plano, temAcesso, rotaBloqueada, isLoading };
+  return { plano, temAcesso, rotaBloqueada, isLoading, isMotherMode: motherEnabled };
 }
