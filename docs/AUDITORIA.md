@@ -718,3 +718,17 @@ Substituiu a abordagem com Vault (que exigia `vault.create_secret` manual no SQL
 - `private.get_anon_key()` reescrita para ler de `private.config` (mesmo contrato externo).
 - Job pg_cron `executar-backups-agendados` permanece inalterado (já chamava `private.get_anon_key()`).
 - **Rotação futura:** migration com `UPDATE private.config SET value = '<nova>' WHERE key = 'anon_key_cron';`.
+
+---
+
+## 2026-05-26 — Fechamento de mês: validação movida do cliente para o banco ✅
+
+- Criada RPC `public.fechar_mes(p_fechamento_id, p_observacoes, p_snapshot, p_faturamento, p_custos, p_margem_seguranca, p_pro_labore_saudavel, p_retiradas, p_saldo_restante)` SECURITY DEFINER, `search_path=''`.
+- Regras aplicadas no banco (impossíveis de burlar via PostgREST direto):
+  - Autorização: `user_belongs_to_group(auth.uid(), owner_group_id)` → `P0001` se falhar.
+  - Existência do fechamento → `P0003`.
+  - Idempotência: já fechado → `P0004`.
+  - **Checklist pendente** (`fechamento_checklist_itens.concluido = false`) → `P0002`.
+- Atualiza status, `fechado_em`, `fechado_por`, observações, snapshot e os 6 agregados; insere `fechamento_logs`.
+- `EXECUTE` apenas para `authenticated`; revogado de PUBLIC/anon.
+- `useFecharMes` (src/hooks/useFechamentoMes.ts) agora chama `supabase.rpc('fechar_mes', ...)`. Removido o guard cliente-side de contagem de pendentes e o UPDATE direto na tabela. Montagem do snapshot/DRE permanece no cliente (não alterada).
