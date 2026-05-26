@@ -1,6 +1,18 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-26T01:30:00Z — P-3 (AI Gateway Cap) implementado preventivamente.
+> Última atualização: 2026-05-26T01:40:00Z — P-1 (matching Hotmart por productId) implementado.
+
+---
+
+## P-1 HOTMART MATCHING POR PRODUCTID — 2026-05-26 01:40 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| P-1 | Webhook Hotmart resolve plano pelo `productId` exato | ✅ | Nova tabela `hotmart_produtos` (PK = `product_id`, FK para `planos.id`, `plano_tipo` mensal/anual, `ativo`, `descricao`). RLS: leitura para `authenticated`, escrita só para MOTHER. Função `resolverPlano()` em `supabase/functions/hotmart-webhook/index.ts` virou `async` e consulta `hotmart_produtos` antes do matching por palavras-chave. Quando o productId está cadastrado e ativo → resolve por ID (fonte de verdade). Quando não está cadastrado → fallback de palavras-chave **passou a exigir match explícito** com `"business"` ou `"caixa lite"` (rejeita produtos genéricos como Imersão R$97 que antes caíam em Lite por default). Quando `ativo=false` → rejeita. Seed inicial: `product_id='7449074'` → `base`/`anual` (Caixa Lite Anual). Log de rejeição passou a registrar `productId` e `planName` para facilitar cadastro de novos produtos. Próximos produtos (Business Mensal, Business Anual, Imersão, etc.) devem ser cadastrados via INSERT na tabela. |
+
+---
+
+
 
 ---
 

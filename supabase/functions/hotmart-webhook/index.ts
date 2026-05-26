@@ -12,22 +12,65 @@ import { escapeHtml } from '../_shared/escapeHtml.ts'
  *   - SWITCH_PLAN → atualiza plano
  */
 
-function resolverPlano(productId: string, planName: string | null): { planoId: string; planoTipo: string } | null {
+/**
+ * Resolve o plano a partir do productId Hotmart.
+ *
+ * Ordem de matching:
+ *   1. Consulta `hotmart_produtos` por product_id exato (fonte de verdade).
+ *   2. Fallback: matching por palavras-chave no nome (compatibilidade legada).
+ *
+ * Retorna null se o produto não casar com nenhuma regra — o webhook deve
+ * ignorar o evento para evitar provisionar acesso indevido (ex: Imersão R$97).
+ */
+async function resolverPlano(
+  supabaseAdmin: ReturnType<typeof createClient>,
+  productId: string,
+  planName: string | null
+): Promise<{ planoId: string; planoTipo: string; source: 'productId' | 'fallback' } | null> {
   const nome = (planName || '').toLowerCase()
   console.log('resolverPlano - input:', { productId, planName, nomeLower: nome })
 
+  // 1) Matching por productId exato
+  if (productId) {
+    const { data: produto, error } = await supabaseAdmin
+      .from('hotmart_produtos')
+      .select('plano_id, plano_tipo, ativo')
+      .eq('product_id', productId)
+      .maybeSingle()
+
+    if (error) {
+      console.error('Erro ao consultar hotmart_produtos:', error)
+    } else if (produto && produto.ativo) {
+      console.log('resolverPlano - match por productId:', productId, '→', produto.plano_id, produto.plano_tipo)
+      return { planoId: produto.plano_id, planoTipo: produto.plano_tipo, source: 'productId' }
+    } else if (produto && !produto.ativo) {
+      console.log('resolverPlano - productId encontrado mas inativo:', productId)
+      return null
+    }
+  }
+
+  // 2) Fallback: palavras-chave no nome (apenas para produtos não cadastrados)
+  console.log('resolverPlano - productId não cadastrado, usando fallback por nome')
   const isNegocio = nome.includes('business') || nome.includes('negocio') || nome.includes('negócio') || nome.includes('caixa business')
+  const isLiteFallback = nome.includes('caixa lite') || nome.includes('caixa de açúcar lite') || nome.includes('caixa de acucar lite')
+
+  if (!isNegocio && !isLiteFallback) {
+    // Não bate nem com Business nem com Lite explícito → rejeita
+    console.log('resolverPlano - nome não reconhecido, rejeitando para evitar provisionamento indevido')
+    return null
+  }
+
   const planoId = isNegocio ? 'negocio' : 'base'
 
   // Caixa Lite é sempre anual; Business pode ser mensal ou anual
   if (planoId === 'base') {
-    return { planoId, planoTipo: 'anual' }
+    return { planoId, planoTipo: 'anual', source: 'fallback' }
   }
 
   const isAnual = nome.includes('anual') || nome.includes('annual') || nome.includes('yearly')
   const planoTipo = isAnual ? 'anual' : 'mensal'
 
-  return { planoId, planoTipo }
+  return { planoId, planoTipo, source: 'fallback' }
 }
 
 function calcularPlanoFim(planoInicio: string, planoTipo: string): string {
@@ -128,11 +171,11 @@ Deno.serve(async (req) => {
       ].filter(Boolean).map(String)
       const planName = planNameParts.join(' | ')
       console.log('planName sources:', planNameParts)
-      const resolved = resolverPlano(product.id?.toString() || '', planName)
+      const resolved = await resolverPlano(supabaseAdmin, product.id?.toString() || '', planName)
       if (!resolved) {
-        console.log('=== Hotmart Webhook - Plano descontinuado (Start), evento ignorado ===')
+        console.log('=== Hotmart Webhook - Produto não reconhecido, evento ignorado ===', { productId: product.id, planName })
         return new Response(
-          JSON.stringify({ success: true, event, action: 'ignored_discontinued_plan' }),
+          JSON.stringify({ success: true, event, action: 'ignored_unknown_product', productId: product.id }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
         )
       }
@@ -311,7 +354,7 @@ Deno.serve(async (req) => {
       const switchPlanName = switchPlanNameParts.join(' | ')
       console.log('SWITCH_PLAN planName sources:', switchPlanNameParts)
       const switchProduct = (data.subscription as Record<string, unknown>)?.product as Record<string, unknown> || product
-      const resolvedSwitch = resolverPlano(switchProduct?.id?.toString() || '', switchPlanName)
+      const resolvedSwitch = await resolverPlano(supabaseAdmin, switchProduct?.id?.toString() || '', switchPlanName)
       if (!resolvedSwitch) {
         console.log('SWITCH_PLAN ignorado — plano não reconhecido:', switchPlanName)
         return new Response(
