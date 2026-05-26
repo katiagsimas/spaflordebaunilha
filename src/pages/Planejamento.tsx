@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Target, Settings, Lightbulb, DollarSign, TrendingUp, CalendarDays, ListChecks, HeartPulse } from "lucide-react";
+import { Target, Settings, Lightbulb, DollarSign, TrendingUp, CalendarDays, ListChecks, HeartPulse, Sparkles, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,6 +15,9 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { PlanejamentoCalendario } from "@/pages/planejamento/PlanejamentoCalendario";
 import { PlanejamentoTarefas } from "@/pages/planejamento/PlanejamentoTarefas";
 import { PlanejamentoBemEstar } from "@/pages/planejamento/PlanejamentoBemEstar";
+import { useOpenPlannerDoce } from "@/hooks/useOpenPlannerDoce";
+import { usePlano } from "@/hooks/usePlano";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 const opcoes: any[] = [];
 
@@ -26,6 +29,11 @@ export default function Planejamento() {
   const [insights, setInsights] = useState<Insight[]>([]);
   const [previsaoData, setPrevisaoData] = useState<PrevisaoFaturamento | null>(null);
   const { profile } = useUserProfile();
+  const { plano } = usePlano();
+  const { isAdmin } = useIsAdmin();
+  const { abrir: abrirPlannerDoce, loading: loadingSsoDoce } = useOpenPlannerDoce();
+  const podeAcessarPlanejamentoDoce =
+    plano?.id === "negocio" || plano?.id === "aluna_imersao" || isAdmin;
 
   const temConfiguracao = profile?.meta_faturamento_mensal && profile.meta_faturamento_mensal > 0;
 
@@ -90,6 +98,42 @@ export default function Planejamento() {
           </p>
         </div>
       </div>
+
+      {/* Planejamento DOCE (SSO) */}
+      {podeAcessarPlanejamentoDoce && (
+        <Card className="mb-6 border-2 border-cda-dourado/40 bg-gradient-to-br from-cda-vinho to-cda-vinho-escuro text-cda-creme shadow-soft overflow-hidden animate-fade-in">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 md:p-6">
+            <div className="flex items-start gap-4">
+              <div className="rounded-xl bg-cda-dourado/20 p-3 flex items-center justify-center">
+                <Sparkles className="h-6 w-6 text-cda-dourado" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="text-lg md:text-xl font-bold text-cda-creme">Planejamento DOCE</h2>
+                  <Badge className="bg-cda-dourado text-cda-preto hover:bg-cda-dourado/90 border-0">Estratégia</Badge>
+                </div>
+                <p className="text-sm text-cda-creme/80 max-w-xl">
+                  Acesse seu planejamento anual e campanhas estratégicas.
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={abrirPlannerDoce}
+              disabled={loadingSsoDoce}
+              aria-label="Abrir Planejamento DOCE"
+              aria-busy={loadingSsoDoce}
+              className="bg-cda-dourado hover:bg-cda-dourado/90 text-cda-preto font-semibold shrink-0"
+            >
+              {loadingSsoDoce ? "Abrindo..." : (
+                <>
+                  Abrir Planejamento DOCE
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </>
+              )}
+            </Button>
+          </div>
+        </Card>
+      )}
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
