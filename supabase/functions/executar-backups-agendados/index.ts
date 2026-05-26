@@ -25,7 +25,7 @@ const MODULO_TABELAS: Record<string, string[]> = {
     "clientes", "cliente_familiares",
     "fornecedores", "fornecedor_contatos",
     "propostas", "contratos", "contratos_templates",
-    "encomendas", "encomenda_itens", "encomendas_tags", "tags_encomendas",
+    "encomendas", "encomenda_itens", "encomendas_tags", "tags_encomendas", "tags",
   ],
   negocio: [
     // Meu Dinheiro
@@ -41,8 +41,8 @@ const MODULO_TABELAS: Record<string, string[]> = {
     // Conversa Doce
     "conversa_doce_favoritos",
   ],
-  // Sistema: Meus Dados (profiles) e tags do sistema
-  sistema: ["profiles", "tags"],
+  // Sistema: Meus Dados (profiles)
+  sistema: ["profiles"],
   // Governança: APENAS MOTHER. Tabelas globais, snapshot sem filtro de tenant.
   governanca: [
     "groups", "user_global_roles", "user_group_roles", "user_roles",
