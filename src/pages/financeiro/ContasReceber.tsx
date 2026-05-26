@@ -1058,7 +1058,7 @@ export default function ContasReceber() {
 
           <Button variant="outline" size="sm" onClick={exportarParaExcel}>
             <Download className="mr-2 h-4 w-4" />
-            Exportar para Excel
+            Exportar .xlsx
           </Button>
           
         </div>
