@@ -86,6 +86,10 @@ import ConversaDoce from "./pages/conversa-doce/ConversaDoce";
 import ConversaDoceRespostas from "./pages/conversa-doce/ConversaDoceRespostas";
 import OrganizacaoDoce from "./pages/organizacao-doce/OrganizacaoDoce";
 import SSOReturnPage from "./pages/SSOReturnPage";
+import Propostas from "./pages/comercial/Propostas";
+import NovaProposta from "./pages/comercial/NovaProposta";
+import RelatorioPropostas from "./pages/comercial/RelatorioPropostas";
+import Contratos from "./pages/comercial/Contratos";
 
 
 const queryClient = new QueryClient();
@@ -304,6 +308,14 @@ const App = () => (
 
           {/* Organização Doce — acesso livre para todos os usuários */}
           <Route path="/organizacao-doce" element={<ProtectedRoute><Layout><OrganizacaoDoce /></Layout></ProtectedRoute>} />
+
+          {/* Comercial — Propostas e Contratos (Business + Imersão + Mother) */}
+          <Route path="/comercial/propostas" element={<ProtectedRoute><Layout><PlanoGuard><Propostas /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/comercial/propostas/nova" element={<ProtectedRoute><Layout><PlanoGuard><NovaProposta /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/comercial/propostas/editar/:id" element={<ProtectedRoute><Layout><PlanoGuard><NovaProposta /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/comercial/propostas/relatorio" element={<ProtectedRoute><Layout><PlanoGuard><RelatorioPropostas /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/comercial/contratos" element={<ProtectedRoute><Layout><PlanoGuard><Contratos /></PlanoGuard></Layout></ProtectedRoute>} />
+
 
 
 

@@ -2754,7 +2754,9 @@ export type Database = {
           avatar_url: string | null
           bairro: string | null
           cep: string | null
+          certificacoes: string | null
           cidade: string | null
+          complemento: string | null
           conversa_doce_ativo: boolean
           conversa_doce_fim: string | null
           conversa_doce_inicio: string | null
@@ -2763,13 +2765,16 @@ export type Database = {
           custo_fixo_mensal: number | null
           dados_bancarios: Json
           dias_trabalho_mes: number | null
+          documento_tipo: string | null
           email: string
+          email_comercial: string | null
           endereco: string | null
           estado: string | null
           horas_diaria_trabalho: number | null
           id: string
           imersao_turma: string | null
           inscricao_estadual: string | null
+          inscricao_municipal: string | null
           instagram: string | null
           last_login: string | null
           logo_url: string | null
@@ -2792,6 +2797,7 @@ export type Database = {
           primeiro_acesso: boolean | null
           razao_social: string | null
           telefone: string | null
+          telefone_fixo: string | null
           updated_at: string | null
           whatsapp: string | null
         }
@@ -2802,7 +2808,9 @@ export type Database = {
           avatar_url?: string | null
           bairro?: string | null
           cep?: string | null
+          certificacoes?: string | null
           cidade?: string | null
+          complemento?: string | null
           conversa_doce_ativo?: boolean
           conversa_doce_fim?: string | null
           conversa_doce_inicio?: string | null
@@ -2811,13 +2819,16 @@ export type Database = {
           custo_fixo_mensal?: number | null
           dados_bancarios?: Json
           dias_trabalho_mes?: number | null
+          documento_tipo?: string | null
           email: string
+          email_comercial?: string | null
           endereco?: string | null
           estado?: string | null
           horas_diaria_trabalho?: number | null
           id: string
           imersao_turma?: string | null
           inscricao_estadual?: string | null
+          inscricao_municipal?: string | null
           instagram?: string | null
           last_login?: string | null
           logo_url?: string | null
@@ -2840,6 +2851,7 @@ export type Database = {
           primeiro_acesso?: boolean | null
           razao_social?: string | null
           telefone?: string | null
+          telefone_fixo?: string | null
           updated_at?: string | null
           whatsapp?: string | null
         }
@@ -2850,7 +2862,9 @@ export type Database = {
           avatar_url?: string | null
           bairro?: string | null
           cep?: string | null
+          certificacoes?: string | null
           cidade?: string | null
+          complemento?: string | null
           conversa_doce_ativo?: boolean
           conversa_doce_fim?: string | null
           conversa_doce_inicio?: string | null
@@ -2859,13 +2873,16 @@ export type Database = {
           custo_fixo_mensal?: number | null
           dados_bancarios?: Json
           dias_trabalho_mes?: number | null
+          documento_tipo?: string | null
           email?: string
+          email_comercial?: string | null
           endereco?: string | null
           estado?: string | null
           horas_diaria_trabalho?: number | null
           id?: string
           imersao_turma?: string | null
           inscricao_estadual?: string | null
+          inscricao_municipal?: string | null
           instagram?: string | null
           last_login?: string | null
           logo_url?: string | null
@@ -2888,6 +2905,7 @@ export type Database = {
           primeiro_acesso?: boolean | null
           razao_social?: string | null
           telefone?: string | null
+          telefone_fixo?: string | null
           updated_at?: string | null
           whatsapp?: string | null
         }

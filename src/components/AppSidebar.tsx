@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LayoutDashboard, Users, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles, MessageCircle, Bug, CheckCircle2, EyeOff, Clock, ListChecks, HardDrive } from "lucide-react";
+import { LayoutDashboard, Users, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles, MessageCircle, Bug, CheckCircle2, EyeOff, Clock, ListChecks, HardDrive, FileSignature, ScrollText } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
 import { useConversaDoceAccess } from "@/hooks/useConversaDoceAccess";
 
@@ -74,6 +74,8 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
     items: [
       { title: "Pedidos e Encomendas", url: "/encomendas", icon: ClipboardList, active: true },
       { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: Users, active: true },
+      { title: "Propostas", url: "/comercial/propostas", icon: FileSignature, active: true },
+      { title: "Contratos", url: "/comercial/contratos", icon: ScrollText, active: true },
     ],
   },
   {
