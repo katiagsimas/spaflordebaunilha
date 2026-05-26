@@ -5,6 +5,12 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function ClearCacheButton() {
   const [expanded, setExpanded] = useState(false);
@@ -56,25 +62,34 @@ export function SidebarToggleLabeled() {
   const Icon = open ? PanelLeftClose : PanelLeftOpen;
   const label = open ? "Fechar Menu" : "Abrir Menu";
   return (
-    <button
-      onClick={() => {
-        if (expanded) {
-          toggleSidebar();
-          setExpanded(false);
-        } else {
-          setExpanded(true);
-        }
-      }}
-      onBlur={() => setExpanded(false)}
-      className={`flex items-center gap-2 h-9 rounded-full bg-cda-creme/10 hover:bg-cda-creme/20 text-cda-creme ring-1 ring-cda-creme/20 transition-all font-body text-xs ${expanded ? 'px-3' : 'px-2'}`}
-      aria-label={label}
-      title={label}
-    >
-      <Icon className="h-4 w-4" />
-      {expanded && <span className="whitespace-nowrap">{label}</span>}
-    </button>
+    <TooltipProvider delayDuration={200}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            onClick={() => {
+              if (expanded) {
+                toggleSidebar();
+                setExpanded(false);
+              } else {
+                setExpanded(true);
+              }
+            }}
+            onBlur={() => setExpanded(false)}
+            className={`flex items-center gap-2 h-9 rounded-full bg-cda-creme/10 hover:bg-cda-creme/20 text-cda-creme ring-1 ring-cda-creme/20 transition-all font-body text-xs ${expanded ? 'px-3' : 'px-2'}`}
+            aria-label={label}
+          >
+            <Icon className="h-4 w-4" />
+            {expanded && <span className="whitespace-nowrap">{label}</span>}
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom" className="bg-cda-preto text-cda-creme border-cda-dourado/40">
+          <span className="font-body text-xs">{label}</span>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
+
 
 
 export function BackupBadge({ texto }: { texto: string | null }) {
