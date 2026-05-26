@@ -523,7 +523,7 @@ export default function Backup() {
             <div className="space-y-2 pt-2 border-t">
               <Label className="text-xs text-muted-foreground">Módulos incluídos automaticamente</Label>
               <div className="flex flex-wrap gap-1.5">
-                {BACKUP_MODULOS.map((m) => {
+                {modulosVisiveis.map((m) => {
                   const ativo = modulosAgendamento.includes(m.id);
                   return (
                     <button
