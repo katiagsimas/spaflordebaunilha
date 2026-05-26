@@ -635,6 +635,7 @@ async function enviarEmailBoasVindas(
     }
   } catch (err) {
     console.error('Erro ao enviar email de boas-vindas:', err)
+  }
 }
 
 function formatarDataBR(iso: string): string {
