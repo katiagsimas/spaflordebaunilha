@@ -5,13 +5,16 @@ export type BackupModuloId =
   | "operacao"
   | "comercial"
   | "negocio"
-  | "sistema";
+  | "sistema"
+  | "governanca";
 
 export interface BackupModuloDef {
   id: BackupModuloId;
   titulo: string;
   descricao: string;
   tabelas: string[];
+  /** Visível e executável apenas para o usuário MOTHER. */
+  motherOnly?: boolean;
 }
 
 export const BACKUP_MODULOS: BackupModuloDef[] = [
