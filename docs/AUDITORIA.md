@@ -1,6 +1,18 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-26T15:30:00Z — Reorganização da documentação.
+> Última atualização: 2026-05-26T15:45:00Z — DOCS_MESTRE.md sincronizado com estado real.
+
+## DOCS_MESTRE.md SINCRONIZADO — 2026-05-26 15:45 UTC
+
+- ✅ Paleta atualizada para Vinho Premium v2 (removidas menções a Pistache/Cloud)
+- ✅ Rotas reais espelhadas: incluídos `/meu-salario`, `/planejamento`, `/estoque`, `/conversa-doce`, `/organizacao-doce`, `/financeiro/fechamento-mes`, `/financeiro/cadastros/*`
+- ✅ Modelo de dados expandido com tabelas reais: `estoque`, `estoque_movimentacoes`, `fechamentos_mensais`, `fechamento_checklist_itens`, `fechamento_logs`, `planejamento_*`, `meu_salario_retiradas`, `conversa_doce_favoritos`, `organizacao_doce_state`, `imersao_notificacoes_log`, `ai_usage_quotas`, `hotmart_produtos`, `transferencias_bancos`, colunas `plano_pendente_*`
+- ✅ Edge functions completas: `ai-proxy`, `aplicar-planos-pendentes`, `notificar-expiracao-imersao` (antes só 4 listadas)
+- ✅ Plano Start removido (descontinuado 2026-05-25); adicionado plano `aluna_imersao`
+- ✅ Eventos de `historico_planos.tipo_evento` documentados (criacao/renovacao/upgrade/downgrade_agendado/reativacao/renovacao_imersao)
+- ✅ Nova seção 12 (AI Gateway Cap) e 14 (Convenções Obrigatórias)
+- ✅ Performance Maio/2026 adicionada
+
 
 ---
 
