@@ -132,21 +132,11 @@ export default function ReceitaForm() {
   const { user } = useAuth();
   const [ingredientesCadastrados, setIngredientesCadastrados] = useState<any[]>([]);
   const [embalagensCadastradas, setEmbalagensCadastradas] = useState<any[]>([]);
-  const { categorias, fetchCategoriasAtivas } = useCategorias();
+  const { categorias, categoriasAtivas } = useCategorias();
   const { unidades } = useUnidadesMedida();
   const { salvarMaosObra } = useReceitasMaoObra(id);
   const { profile } = useUserProfile();
   const { perfis } = useMaoObraPerfis();
-  const [categoriasAtivas, setCategoriasAtivas] = useState<any[]>([]);
-
-  // Carregar apenas categorias ativas para o formulário
-  useEffect(() => {
-    const carregarCategoriasAtivas = async () => {
-      const ativas = await fetchCategoriasAtivas();
-      setCategoriasAtivas(ativas);
-    };
-    carregarCategoriasAtivas();
-  }, []);
 
   // Buscar ingredientes e embalagens do Supabase
   useEffect(() => {
