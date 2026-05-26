@@ -1011,3 +1011,16 @@ Aluna e admin recebem em todos os eventos:
 ### DOCS_MEU_SALARIO.md
 - Reescrito do esqueleto para doc completo (9 seções)
 - Acrescentadas: hooks expostos detalhados, lógica financeira formalizada com regras de cenário (±5%), integração explícita com Fechamento de Mês (snapshot vs recálculo), modelo de dados completo de `meu_salario_retiradas`, tokens visuais escopados, conteúdo da aba Educativa, convenções
+
+---
+
+## 📝 26/05/2026 — Revisão P3 (leve) de documentação modular
+
+Revisados os 3 documentos já considerados completos. Resultado: nenhuma referência obsoleta encontrada (sem menções a `Pistache`, `SugarBox`, `cda-cloud`, tabelas `grupos`/`grupo_membros` ou plano Start como ativo). Atualizado apenas o cabeçalho de data:
+
+- `docs/DOCS_GOVERNANCA.md` — timestamp 26/05/2026
+- `docs/DOCS_PRECIFICACAO.md` — timestamp 26/05/2026
+- `docs/DOCS_ENCOMENDAS.md` — timestamp 26/05/2026
+
+### Resumo final da reorganização docs/
+Após P1+P2+P3, a pasta `docs/` está com 13 documentos modulares + `AUDITORIA.md` + `PENDENCIAS_SEGURANCA.md`, todos sincronizados com o estado atual do sistema (Vinho Premium v2, plano Start descontinuado, `aluna_imersao`, `plano_pendente_*`, edge function `aplicar-planos-pendentes`, fechamentos mensais com snapshot, transferências entre bancos, módulos Estoque/Planejamento/Conversa Doce/AI Gateway Cap).
