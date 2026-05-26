@@ -122,6 +122,12 @@ Deno.serve(async (req) => {
         const dados: Record<string, any[]> = {};
 
         for (const t of tabelas) {
+          // profiles é filtrado pelo próprio id do usuário (1 linha).
+          if (t === "profiles") {
+            const res = await admin.from("profiles").select("*").eq("id", ag.usuario_id);
+            if (!res.error && res.data) dados[t] = res.data;
+            continue;
+          }
           // Tenta filtrar por owner_group_id quando disponível, senão por usuario_id, senão por user_id.
           let rows: any[] | null = null;
           if (profile?.owner_group_id) {
