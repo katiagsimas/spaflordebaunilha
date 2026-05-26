@@ -31,7 +31,7 @@ export function useContratos() {
   });
 
   const create = useMutation({
-    mutationFn: (input: Parameters<typeof contratoService.create>[0]) =>
+    mutationFn: (input: Omit<Parameters<typeof contratoService.create>[0], "owner_group_id" | "created_by">) =>
       contratoService.create({ ...input, owner_group_id: groupId!, created_by: user!.id }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["contratos", groupId] });
