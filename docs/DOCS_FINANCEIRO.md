@@ -1,18 +1,20 @@
 # 💰 DOCUMENTAÇÃO: Módulo Financeiro — Caixa de Açúcar
 
-**Atualizada em:** Maio 2026
+**Atualizada em:** 26/05/2026
 
 ---
 
 ## 1. VISÃO GERAL
 
-Módulo completo de gestão financeira. **Requer Caixa Business** (ou role admin para bypass).
+Módulo completo de gestão financeira. **Requer Caixa Business**, `aluna_imersao` ou usuários legados de `Caixa Start` (descontinuado em 25/05/2026). Admin sempre bypass.
 
 ### Submódulos
 - Dashboard Financeiro
 - Contas a Receber (títulos, parcelas, pagamentos, comprovantes)
 - Contas a Pagar (mesma estrutura)
 - Fluxo de Caixa (diário e mensal)
+- Transferências entre Bancos
+- Fechamento de Mês (consolidação mensal travada)
 - DRE (Demonstrativo de Resultados)
 
 ---
