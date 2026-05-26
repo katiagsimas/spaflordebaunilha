@@ -995,3 +995,19 @@ Aluna e admin recebem em todos os eventos:
 - Adicionada seção 5 — Transferências entre Bancos (`transferencias_bancos`)
 - Adicionada seção 6 — Fechamento de Mês (`fechamentos_mensais`, snapshot, travamento de períodos)
 - Seções subsequentes renumeradas (7–12)
+
+---
+
+## 📝 26/05/2026 — Atualização P2 de documentação modular (reescrita completa)
+
+### DOCS_FECHAMENTO_MES.md
+- Reescrito do esqueleto para doc completo (10 seções)
+- Acrescentadas: arquitetura por camada, modelo de dados detalhado de `fechamentos_mensais` e `fechamento_checklist_itens`, RLS, função `is_mes_fechado` + lista completa de triggers, fluxo passo a passo, regras de reabertura, integração com snapshot do Meu Salário, convenções
+
+### DOCS_PLANEJAMENTO.md
+- Reescrito do esqueleto para doc completo (9 seções)
+- Adicionadas: tabela de arquivos, modelo de dados detalhado das 4 tabelas, descrição completa de cada aba, regras de drag-and-drop por tipo de evento, eventos recorrentes virtuais (🔁), integrações com encomendas
+
+### DOCS_MEU_SALARIO.md
+- Reescrito do esqueleto para doc completo (9 seções)
+- Acrescentadas: hooks expostos detalhados, lógica financeira formalizada com regras de cenário (±5%), integração explícita com Fechamento de Mês (snapshot vs recálculo), modelo de dados completo de `meu_salario_retiradas`, tokens visuais escopados, conteúdo da aba Educativa, convenções
