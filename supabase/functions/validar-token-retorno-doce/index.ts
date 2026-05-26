@@ -55,15 +55,27 @@ Deno.serve(async (req) => {
       return jsonResponse(GENERIC_INVALID, 401)
     }
 
-    const fonte = payload.fonte
+    const fonte = typeof payload.fonte === 'string' ? payload.fonte : ''
+    const produto = typeof payload.produto === 'string' ? payload.produto : ''
     const email = typeof payload.email === 'string' ? payload.email.toLowerCase() : ''
-    const jti = typeof payload.jti === 'string' ? payload.jti : ''
+    const sub = typeof payload.sub === 'string' ? payload.sub : ''
+    const iat = typeof payload.iat === 'number' ? payload.iat : 0
     const exp = typeof payload.exp === 'number' ? payload.exp : 0
     const nowSec = Math.floor(Date.now() / 1000)
 
-    if (fonte !== 'doce' || !jti || !email || !exp || exp <= nowSec) {
+    // Aceita dois formatos de retorno:
+    //  1) Legado interno: { fonte: 'doce', jti, email, exp }
+    //  2) Spec Planner DOCE: { produto: 'planejamento', email, sub, iat, exp }
+    let jti = typeof payload.jti === 'string' ? payload.jti : ''
+    const isPlannerSpec = produto === 'planejamento'
+    if (isPlannerSpec && !jti && sub && iat) {
+      jti = `planejamento:${sub}:${iat}`
+    }
+
+    const fonteValida = fonte === 'doce' || isPlannerSpec
+    if (!fonteValida || !jti || !email || !exp || exp <= nowSec) {
       console.warn('[validar-token-retorno-doce] claims inválidos', {
-        fonte, hasJti: !!jti, hasEmail: !!email, exp, nowSec,
+        fonte, produto, hasJti: !!jti, hasEmail: !!email, exp, nowSec,
       })
       return jsonResponse(GENERIC_INVALID, 401)
     }

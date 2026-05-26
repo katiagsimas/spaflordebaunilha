@@ -200,6 +200,7 @@ const App = () => (
 
             {/* SSO público — retorno do Planejamento D.O.C.E. */}
             <Route path="/sso-return" element={<SSOReturnPage />} />
+            <Route path="/sso-retorno" element={<SSOReturnPage />} />
           {/* Redirecionar raiz para Dashboard */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           
