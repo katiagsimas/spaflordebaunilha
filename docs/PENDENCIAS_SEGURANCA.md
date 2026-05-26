@@ -1,7 +1,7 @@
 # 🔒 PENDÊNCIAS DE SEGURANÇA — CAIXA DE AÇÚCAR
 
 > Itens que dependem de ação externa ou decisão do time para serem resolvidos.
-> Última atualização: 2026-05-03T00:00:00Z
+> Última atualização: 2026-05-26T02:05:00Z
 
 ---
 
@@ -9,13 +9,13 @@
 
 | # | Severidade | Item | Responsável | Status | Observação |
 |---|-----------|------|-------------|--------|------------|
-| 3 | 🟡 Média | Adicionar rate limiting na Edge Function `criar-usuario` | Dev/Infra | 🔲 Pendente | Sem throttle atual |
+| 3 | 🟡 Média | Rate limiting na Edge Function `criar-usuario` | Dev/Infra | ⏸️ Bloqueado | Plataforma ainda não tem primitivas próprias de rate limiting. Implementação ad-hoc possível, mas será refeita quando infra oficial chegar. |
 | 6 | 🟡 Baixa | Customizar templates de email do Cloud | Admin/Infra | 🔲 Pendente | Emails usam template padrão |
 | 9 | 🟡 Média | Vulnerabilidade xlsx (Prototype Pollution/ReDoS) | Dev | ⚠️ Sem fix | v0.19.3 só disponível no SheetJS Pro (pago); uso apenas para export |
-| 10 | 🟡 Média | Leaked Password Protection desabilitado | Admin | 🔲 Pendente | Requer configuração manual no backend: Auth → Settings → Enable HaveIBeenPwned |
-| 19 | 🟡 Baixa | Anon key hardcoded no pg_cron job | Dev | 🔲 Pendente | `cron.job` contém `anon_key` inline; considerar uso de vault ou secret |
-| 20 | 🟡 Média | Sem cap de uso para AI Gateway | Dev | 🔲 Pendente | AI habilitado sem limites por usuário |
+| 10 | 🟡 Média | Leaked Password Protection desabilitado | Admin | 🔲 Pendente | Manual: backend → Auth → Settings → Enable HaveIBeenPwned |
+| 19 | 🟡 Baixa | Anon key hardcoded no pg_cron job | Dev | 🔲 Pendente | `cron.job` contém `anon_key` inline; migrar para Vault ou GUC |
 | 21 | 🟡 Baixa | Backups armazenados como JSONB no banco | Dev | 🔲 Pendente | Pode inflar tamanho do DB; migrar para Storage bucket |
+
 
 ---
 
@@ -23,6 +23,7 @@
 
 | Data (UTC) | Item | Resolução |
 |------------|------|-----------|
+| 2026-05-26 | #20 — Sem cap de uso para AI Gateway | Implementado P-3: edge function `ai-proxy` + `ai_usage_quotas` + RPCs SECURITY DEFINER. Lite=50/mês, Business=500/mês, MOTHER ilimitado. |
 | 2026-03-08 | Loop infinito no AuthContext (`toast` nas deps) | Removido `toast` do array de dependências do `useEffect` |
 | 2026-03-08 | `signUp` removido do AuthContext | Método removido da interface, implementação e Provider |
 | 2026-03-09 | Rota `/auth/reset-password` inexistente | Criado `ResetPassword.tsx` com validação de token + formulário + redirect |
