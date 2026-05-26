@@ -31,7 +31,7 @@ O Caixa de Açúcar é o sistema principal da **Umbrella Doce**, concentrando to
 | Roteamento | React Router DOM v6 |
 | Backend | Lovable Cloud (Supabase) |
 | Banco de dados | PostgreSQL |
-| Autenticação | Supabase Auth (email/senha + Magic Link para convites) |
+| Autenticação | Supabase Auth (email/senha; convites/recuperação por Resend, sem Magic Link nativo) |
 | Storage | Supabase Storage |
 | Edge Functions | Deno (Supabase Edge Functions) |
 | Gráficos | Recharts |
@@ -385,7 +385,7 @@ Verifica autenticação. Redireciona para `/auth/login` se não autenticado.
 
 | Documento | Escopo |
 |-----------|--------|
-| [DOCS_AUTENTICACAO.md](./DOCS_AUTENTICACAO.md) | Login, Magic Link, primeiro acesso, senhas, Hotmart webhook |
+| [DOCS_AUTENTICACAO.md](./DOCS_AUTENTICACAO.md) | Login, convites via Resend, primeiro acesso, senhas, Hotmart webhook |
 | [DOCS_GOVERNANCA.md](./DOCS_GOVERNANCA.md) | Grupos, roles, RLS, permission_flags |
 | [DOCS_FINANCEIRO.md](./DOCS_FINANCEIRO.md) | Contas pagar/receber, DRE, fluxo caixa |
 | [DOCS_PRECIFICACAO.md](./DOCS_PRECIFICACAO.md) | Ingredientes, embalagens, receitas, cálculos, mão de obra |
