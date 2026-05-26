@@ -1129,3 +1129,29 @@ Após P1+P2+P3, a pasta `docs/` está com 13 documentos modulares + `AUDITORIA.m
 - Tabela `tags` movida do módulo **Sistema** para o módulo **Meu Comercial** (tags referem-se a encomendas).
 - Módulo **Sistema** agora cobre apenas `profiles` (Meus Dados).
 - Arquivos: `src/lib/backupCatalog.ts`, `supabase/functions/executar-backups-agendados/index.ts`.
+
+## 2026-05-26 — Restauração real + Cofre de Backups
+
+✅ **Restauração real com dupla confirmação** (substitui stub anterior):
+- Nova Edge Function `restaurar-backup` (DELETE+INSERT em ordem de FK, batch de 500, valida palavra-chave `RESTAURAR {nome}` server-side).
+- Componente `RestaurarBackupDialog` em duas etapas (impacto + palavra-chave).
+- Tabelas protegidas: `profiles` (UPDATE only), `groups`, `user_group_roles`, `admin_logs`, schema `auth.*`.
+- Restauração disponível para qualquer usuário em seus próprios backups (sem exigência de MOTHER).
+- Toda execução registrada em `admin_logs` (`acao='backup_restaurado'`).
+
+✅ **Cofre de Backups (MOTHER-only)**:
+- Tabela `backups_cofre` + bucket privado `backups-cofre` (RLS: SELECT/DELETE só MOTHER; INSERT só service_role).
+- `executar-backups-agendados` espelha cada backup bem-sucedido para o Cofre.
+- Retenção do Cofre: backup do **dia 1 de cada mês** (`eh_mensal=true`) + **5 backups mais recentes** (rolling).
+- Página `/admin/cofre-backups` (MOTHER) para download/restauração de qualquer grupo, registrada em `admin_logs` com `observacao='Restauração via suporte MOTHER'`.
+
+**Arquivos:**
+- `supabase/functions/restaurar-backup/index.ts` (novo)
+- `supabase/functions/executar-backups-agendados/index.ts` (hook do Cofre + retenção)
+- `src/components/backup/RestaurarBackupDialog.tsx` (novo)
+- `src/pages/admin/CofreBackups.tsx` (novo)
+- `src/pages/configuracoes/Backup.tsx` (integra dialog + edge real)
+- `src/pages/Governanca.tsx`, `src/App.tsx` (rota + card)
+- Migration: `backups_cofre`, bucket `backups-cofre`, RLS MOTHER-only
+
+Documentação completa: `docs/DOCS_BACKUP_RESTORE.md`.
