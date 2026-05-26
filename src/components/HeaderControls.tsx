@@ -1,8 +1,53 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { PanelLeftClose, PanelLeftOpen, Database, LogOut } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, Database, LogOut, RefreshCw } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+
+export function ClearCacheButton() {
+  const [expanded, setExpanded] = useState(false);
+
+  const handleClear = async () => {
+    try {
+      await supabase.auth.signOut().catch(() => {});
+      try { localStorage.clear(); } catch {}
+      try { sessionStorage.clear(); } catch {}
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => caches.delete(k)));
+      }
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map((r) => r.unregister()));
+      }
+    } finally {
+      window.location.replace(`/auth/login?cleared=${Date.now()}`);
+    }
+  };
+
+  return (
+    <div className="flex items-center">
+      <button
+        onClick={() => {
+          if (expanded) {
+            handleClear();
+          } else {
+            setExpanded(true);
+          }
+        }}
+        onBlur={() => setExpanded(false)}
+        className={`flex items-center gap-2 h-9 rounded-full bg-cda-creme/10 hover:bg-cda-creme/20 text-cda-creme ring-1 ring-cda-dourado/30 transition-all font-body text-xs ${expanded ? 'px-3' : 'px-2'}`}
+        title="Faz logout, limpa o cache do navegador e recarrega o app. Útil quando o menu ou permissões parecem desatualizados."
+        aria-label="Limpar cache e recarregar"
+      >
+        <RefreshCw className="h-4 w-4" />
+        {expanded && <span className="whitespace-nowrap">Limpar cache e recarregar</span>}
+      </button>
+    </div>
+  );
+}
 
 export function SidebarToggleLabeled() {
   const { state, toggleSidebar, isMobile, openMobile } = useSidebar();
