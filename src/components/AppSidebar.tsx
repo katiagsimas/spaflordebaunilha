@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LayoutDashboard, LogOut, Users, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles, MessageCircle } from "lucide-react";
+import { LayoutDashboard, LogOut, Users, Cake, BookOpen, Settings, Shield, FileText, Building2, Crown, Lock, CalendarDays, Package, Wallet, ClipboardList, CalendarCheck, Globe, Sparkles, MessageCircle, Bug, CheckCircle2, EyeOff, Clock } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
 
 import { NavLink, useNavigate } from "react-router-dom";
@@ -87,6 +87,7 @@ export function AppSidebar() {
   const { rotaBloqueada, isLoading: isPlanoLoading } = usePlano();
   const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
   const [comingSoonModal, setComingSoonModal] = useState<{ title: string; message: string } | null>(null);
+  const [diagOpen, setDiagOpen] = useState(false);
 
   const { data: profile } = useQuery({
     queryKey: ['profile', user?.id],
@@ -382,6 +383,17 @@ export function AppSidebar() {
               <LogOut className="h-4 w-4 mr-2" />
               Sair
             </Button>
+            {isMother && (
+              <Button
+                onClick={() => setDiagOpen(true)}
+                variant="ghost"
+                size="sm"
+                className="w-full text-[#FFF9F5]/50 hover:text-cda-dourado font-body text-xs"
+              >
+                <Bug className="h-3.5 w-3.5 mr-2" />
+                Diagnóstico do Menu
+              </Button>
+            )}
           </div>
         </SidebarFooter>
       )}
@@ -396,6 +408,78 @@ export function AppSidebar() {
               {comingSoonModal?.message}
             </DialogDescription>
           </DialogHeader>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Diagnóstico do Menu (MOTHER only) */}
+      <Dialog open={diagOpen} onOpenChange={setDiagOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 font-display text-xl">
+              <Bug className="h-5 w-5 text-cda-dourado" /> Diagnóstico do Menu
+            </DialogTitle>
+            <DialogDescription className="font-body">
+              Estado de cada item do sidebar para o usuário atual.
+              <span className="block mt-1 text-xs">
+                <strong>isAdmin:</strong> {String(isAdmin)} · <strong>isMother:</strong> {String(isMother)} · <strong>plano carregando:</strong> {String(isPlanoLoading)}
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-3">
+            {menuSections.map((section) => (
+              <div key={section.label}>
+                <div className="text-[11px] uppercase tracking-widest font-body text-muted-foreground mb-2">
+                  {section.label}
+                </div>
+                <div className="space-y-1.5">
+                  {section.items.map((item) => {
+                    const hiddenByAdmin = !!item.adminOnly && !isAdmin;
+                    const bloqueado = !isPlanoLoading && !isAdmin && item.active && rotaBloqueada(item.url);
+                    const comingSoon = !item.active && !(item.adminOnly && isAdmin);
+                    const visible = !hiddenByAdmin;
+                    return (
+                      <div
+                        key={item.title}
+                        className="flex items-center justify-between gap-2 rounded-md border border-border/50 px-3 py-2 text-sm font-body"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          {visible ? (
+                            <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                          ) : (
+                            <EyeOff className="h-4 w-4 text-destructive shrink-0" />
+                          )}
+                          <span className="truncate font-medium">{item.title}</span>
+                          <span className="text-xs text-muted-foreground truncate">{item.url}</span>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-1 justify-end">
+                          {item.adminOnly && (
+                            <Badge variant="outline" className="text-[10px]">adminOnly</Badge>
+                          )}
+                          {!item.active && (
+                            <Badge variant="outline" className="text-[10px]">
+                              <Clock className="h-3 w-3 mr-0.5" /> inactive
+                            </Badge>
+                          )}
+                          {hiddenByAdmin && (
+                            <Badge variant="destructive" className="text-[10px]">oculto: não é admin</Badge>
+                          )}
+                          {bloqueado && (
+                            <Badge variant="destructive" className="text-[10px]">bloqueado: plano</Badge>
+                          )}
+                          {comingSoon && !hiddenByAdmin && (
+                            <Badge variant="outline" className="text-[10px]">em breve</Badge>
+                          )}
+                          {visible && !bloqueado && !comingSoon && (
+                            <Badge className="text-[10px] bg-emerald-600/90 hover:bg-emerald-600">visível</Badge>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
         </DialogContent>
       </Dialog>
     </Sidebar>
