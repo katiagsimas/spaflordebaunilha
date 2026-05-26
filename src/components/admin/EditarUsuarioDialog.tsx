@@ -287,6 +287,14 @@ export function EditarUsuarioDialog({
     }
   }, [userData, userRole, open, form]);
 
+  useEffect(() => {
+    if (conversaDoceProfile && open) {
+      setConversaDoceAtivo(!!conversaDoceProfile.conversa_doce_ativo);
+      setConversaDoceInicio(conversaDoceProfile.conversa_doce_inicio ? parseISOToDate(conversaDoceProfile.conversa_doce_inicio) : undefined);
+      setConversaDoceFim(conversaDoceProfile.conversa_doce_fim ? parseISOToDate(conversaDoceProfile.conversa_doce_fim) : undefined);
+    }
+  }, [conversaDoceProfile, open]);
+
   const atualizarUsuarioMutation = useMutation({
     mutationFn: async (data: FormData) => {
       if (!userId) throw new Error('ID do usuário não fornecido');
