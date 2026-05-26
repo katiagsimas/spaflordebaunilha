@@ -86,7 +86,7 @@ Na saída: custo médio não muda, apenas quantidade diminui.
 | `/estoque/ajuste` | Formulário de ajuste manual (perda/doação/correção) |
 | `/estoque/movimentacoes` | Histórico de movimentações |
 
-Todas protegidas por `PlanoGuard` (requer Business/Start).
+Todas protegidas por `PlanoGuard` (requer Business, `aluna_imersao` ou Start legado).
 
 ---
 
