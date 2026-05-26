@@ -2,29 +2,46 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
+export interface DadosBancarios {
+  banco?: string;
+  agencia?: string;
+  conta?: string;
+  tipo_conta?: "corrente" | "poupanca" | string;
+  titular?: string;
+  pix?: string;
+}
+
 export interface BusinessProfile {
   nome_confeitaria: string | null;
   razao_social: string | null;
   cpf: string | null;
+  documento_tipo: string | null;
   telefone: string | null;
+  telefone_fixo: string | null;
   whatsapp: string | null;
   email: string | null;
+  email_comercial: string | null;
   endereco: string | null;
   numero: string | null;
+  complemento: string | null;
   bairro: string | null;
   cidade: string | null;
   estado: string | null;
   cep: string | null;
   instagram: string | null;
   logo_url: string | null;
+  avatar_url: string | null;
+  inscricao_estadual: string | null;
+  inscricao_municipal: string | null;
+  certificacoes: string | null;
   assinatura_url: string | null;
-  dados_bancarios: Record<string, unknown> | null;
+  dados_bancarios: DadosBancarios | null;
 }
 
 /** Monta uma linha de endereço legível a partir das colunas separadas. */
 export function montarEnderecoCompleto(p: Partial<BusinessProfile> | null | undefined): string {
   if (!p) return "";
-  const linha1 = [p.endereco, p.numero].filter(Boolean).join(", ");
+  const linha1 = [p.endereco, p.numero, p.complemento].filter(Boolean).join(", ");
   const linha2 = [p.bairro, p.cidade, p.estado].filter(Boolean).join(" · ");
   return [linha1, linha2].filter(Boolean).join(" — ");
 }
@@ -37,7 +54,7 @@ export function useBusinessProfile() {
       if (!user) return null;
       const { data, error } = await supabase
         .from("profiles")
-        .select("nome_confeitaria, razao_social, cpf, telefone, whatsapp, email, endereco, numero, bairro, cidade, estado, cep, instagram, logo_url, assinatura_url, dados_bancarios")
+        .select("nome_confeitaria, razao_social, cpf, documento_tipo, telefone, telefone_fixo, whatsapp, email, email_comercial, endereco, numero, complemento, bairro, cidade, estado, cep, instagram, logo_url, avatar_url, inscricao_estadual, inscricao_municipal, certificacoes, assinatura_url, dados_bancarios")
         .eq("id", user.id)
         .maybeSingle();
       if (error) throw error;
