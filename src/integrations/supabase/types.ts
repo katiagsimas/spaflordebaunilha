@@ -3893,6 +3893,7 @@ export type Database = {
         Args: { _group_id: string; _user_id: string }
         Returns: Database["public"]["Enums"]["role_group"]
       }
+      get_user_id_by_email: { Args: { _email: string }; Returns: string }
       hard_delete_user_data: {
         Args: { p_admin_id: string; p_user_id: string }
         Returns: Json
