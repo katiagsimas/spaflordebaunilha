@@ -1675,6 +1675,29 @@ const Encomendas = () => {
         </Card>
       </div>
 
+      {/* Card de acesso a Tags de Encomendas */}
+      <Card 
+        className="group cursor-pointer hover:shadow-lg hover:scale-[1.01] transition-all duration-200 border-l-2 border-[#C9A14A]/60 bg-[#FDF6EE]/50"
+        onClick={() => navigate('/configuracoes/tags-encomendas')}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <Tags className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Tags de Encomendas</p>
+                <p className="text-xs text-muted-foreground">Gerencie as etiquetas para organizar seus pedidos</p>
+              </div>
+            </div>
+            <Button variant="ghost" size="sm" className="text-[#C9A14A]">
+              Gerenciar
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Calendários de Encomendas (movido do Dashboard) */}
       <CalendariosEncomendas />
 
