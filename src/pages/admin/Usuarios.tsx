@@ -28,6 +28,7 @@ import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState';
 
 import { EditarUsuarioDialog } from '@/components/admin/EditarUsuarioDialog';
+import { getPlanoLabel } from '@/lib/planos';
 import { CriarUsuarioDialog } from '@/components/admin/CriarUsuarioDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { toast } from '@/hooks/use-toast';
