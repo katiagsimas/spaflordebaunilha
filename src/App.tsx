@@ -26,6 +26,7 @@ import SeusDados from "./pages/cadastros/SeusDados";
 import MaoDeObra from "./pages/configuracoes/precificacao/MaoDeObra";
 
 import CadastrosBase from "./pages/configuracoes/CadastrosBase";
+import CadastrosHub from "./pages/Cadastros";
 import PrecificacaoPage from "./pages/configuracoes/PrecificacaoPage";
 import CadastrosFinanceiroPage from "./pages/configuracoes/FinanceiroPage";
 import Clientes from "./pages/cadastros/Clientes";
