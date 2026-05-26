@@ -40,13 +40,11 @@ export function useUnidadesMedida() {
 
       if (error) throw error;
       
-      // Se não houver unidades, criar as padrão
       if (!data || data.length === 0) {
         await createUnidadesPadrao();
-        return;
+      } else {
+        setUnidades(data);
       }
-      
-      setUnidades(data);
     } catch (err: any) {
       console.error('Erro ao buscar unidades:', err);
       toast.error('Erro ao carregar unidades: ' + err.message);
@@ -80,7 +78,6 @@ export function useUnidadesMedida() {
     if (!user) return;
     
     try {
-      // Verifica primeiro se já existem unidades para evitar duplicação
       const { data: existentes } = await supabase
         .from('unidades_medida')
         .select('id')
@@ -88,8 +85,13 @@ export function useUnidadesMedida() {
         .limit(1);
       
       if (existentes && existentes.length > 0) {
-        // Já existem unidades, apenas busca e retorna
-        await fetchUnidades();
+        const { data } = await supabase
+          .from('unidades_medida')
+          .select('*')
+          .eq('usuario_id', user.id)
+          .order('nome', { ascending: true });
+
+        setUnidades(data || []);
         return;
       }
 
@@ -110,8 +112,6 @@ export function useUnidadesMedida() {
       setUnidades(data || []);
     } catch (err: any) {
       console.error('Erro ao criar unidades padrão:', err);
-      // Se der erro, tenta buscar as unidades existentes
-      await fetchUnidades();
     }
   };
 
@@ -158,17 +158,14 @@ export function useUnidadesMedida() {
   const updateUnidade = async (id: string, updates: Partial<UnidadeMedida>) => {
     if (!user) throw new Error('Usuário não autenticado');
 
-    // Verificar se é uma unidade padrão
     const unidade = unidades.find(u => u.id === id);
-    if (unidade?.e_padrao) {
-      // Permitir apenas atualizar sigla das unidades padrão
-      const { e_padrao, nome, ativo, ...allowedUpdates } = updates;
-      updates = allowedUpdates;
-    }
+    const updatesToApply = unidade?.e_padrao
+      ? (({ e_padrao, nome, ativo, ...rest }) => rest)(updates)
+      : updates;
 
     const { data, error } = await supabase
       .from('unidades_medida')
-      .update(updates)
+      .update(updatesToApply)
       .eq('id', id)
       .eq('usuario_id', user.id)
       .select()
