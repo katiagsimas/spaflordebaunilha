@@ -72,6 +72,7 @@ import NotFound from "./pages/NotFound";
 import Usuarios from "./pages/admin/Usuarios";
 import LogsAdmin from "./pages/admin/Logs";
 import Governanca from "./pages/admin/Governanca";
+import CofreBackups from "./pages/admin/CofreBackups";
 import GovernancaHub from "./pages/Governanca";
 import Upgrade from "./pages/Upgrade";
 import { PlanoGuard } from "./components/PlanoGuard";
