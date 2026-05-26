@@ -11,8 +11,8 @@
 |---|-----------|------|-------------|--------|------------|
 | 3 | 🟡 Média | Rate limiting na Edge Function `criar-usuario` | Dev/Infra | ⏸️ Bloqueado | Plataforma ainda não tem primitivas próprias de rate limiting. Implementação ad-hoc possível, mas será refeita quando infra oficial chegar. |
 | 6 | 🟡 Baixa | Customizar templates de email do Cloud | Admin/Infra | 🔲 Pendente | Emails usam template padrão |
-| 10 | 🟡 Média | Leaked Password Protection desabilitado | Admin | ⏸️ Sem acesso | Lovable Cloud não expõe a toggle no painel; aguardando suporte nativo |
-| 10 | 🟡 Média | Leaked Password Protection desabilitado | Admin | ⏸️ Sem acesso | Lovable Cloud não expõe a toggle no painel; aguardando suporte nativo |
+| 10 | 🟡 Média | Leaked Password Protection desabilitado | Admin | ✅ Resolvido | HIBP habilitado via `configure_auth` (password_hibp_enabled: true) em 26/05/2026 |
+
 
 
 
