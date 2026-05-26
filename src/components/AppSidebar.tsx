@@ -60,9 +60,9 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
   {
     label: "MINHA OPERAÇÃO",
     items: [
-      { title: "Minhas Encomendas", url: "/encomendas", icon: ClipboardList, active: true },
-      { title: "Meu Cardápio", url: "/precificacao", icon: BookOpen, active: true },
-      { title: "Meus Insumos", url: "/estoque", icon: Package, active: true },
+      { title: "Pedidos e Encomendas", url: "/encomendas", icon: ClipboardList, active: true },
+      { title: "Cardápio", url: "/precificacao", icon: BookOpen, active: true },
+      { title: "Estoque", url: "/estoque", icon: Package, active: true },
       { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: Users, active: true },
     ],
   },
@@ -254,7 +254,7 @@ export function AppSidebar() {
                               {({ isActive }) => (
                                 <>
                                   <Icon className={`h-5 w-5 ${isActive && !bloqueado ? 'text-cda-dourado' : 'text-[#FFF9F5]/80'}`} />
-                                  {item.title === "Minhas Encomendas" && temEncomendasHoje && !bloqueado && !open && (
+                                  {item.title === "Pedidos e Encomendas" && temEncomendasHoje && !bloqueado && !open && (
                                     <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-red-500 animate-ping" />
                                   )}
                                   {open && (
@@ -263,7 +263,7 @@ export function AppSidebar() {
                                       {bloqueado && (
                                         <Lock className="h-3.5 w-3.5 text-[#FFF9F5]/40" />
                                       )}
-                                      {item.title === "Minhas Encomendas" && temEncomendasHoje && !bloqueado && (
+                                      {item.title === "Pedidos e Encomendas" && temEncomendasHoje && !bloqueado && (
                                         <Badge className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-body font-bold animate-pulse ml-1">
                                           {encomendasHojeQtd} HOJE
                                         </Badge>

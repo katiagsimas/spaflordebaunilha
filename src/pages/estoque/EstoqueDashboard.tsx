@@ -32,7 +32,7 @@ export default function EstoqueDashboard() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Meus Insumos"
+        title="Estoque"
         description="Controle o estoque de ingredientes e embalagens da sua confeitaria"
       />
 

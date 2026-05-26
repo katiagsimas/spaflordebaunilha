@@ -70,7 +70,7 @@ export default function Precificacao() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Meu Cardápio"
+        title="Cardápio"
         description="Gerencie seus Produtos"
       />
 
