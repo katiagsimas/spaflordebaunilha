@@ -333,7 +333,10 @@ Deno.serve(async (req) => {
         plano_fim: planoFim,
         tipo_evento: ehRenovacaoImersao ? 'renovacao_imersao' : 'criacao',
         origem: 'webhook',
-        observacao: ehRenovacaoImersao ? `Renovação Imersão → ${planoId}` : null,
+        observacao: [
+          ehRenovacaoImersao ? `Renovação Imersão → ${planoId}` : null,
+          transactionId ? `tx:${transactionId}` : null,
+        ].filter(Boolean).join(' | ') || null,
       })
 
       console.log('=== Hotmart Webhook - Usuário provisionado ===')
