@@ -1632,99 +1632,63 @@ const Encomendas = () => {
         </div>
       </div>
 
-      {/* Cards de Visão Geral */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        {/* Total */}
-        <Card className="border border-[#C9A14A]/25">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total</p>
-                <p className="text-2xl font-bold">{indicadores.total}</p>
+      {/* ===== KPI CARDS ===== */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        {[
+          { label: "Total", value: indicadores.total, Icon: ClipboardList, bg: "bg-[#5B1A2B]/10", color: "text-[#5B1A2B]" },
+          { label: "Pendentes", value: indicadores.pendentes, Icon: Clock, bg: "bg-[#C9A14A]/15", color: "text-[#C9A14A]" },
+          { label: "Confirmadas", value: indicadores.confirmadas, Icon: CheckCircle2, bg: "bg-emerald-100", color: "text-emerald-700" },
+          { label: "Entregues", value: indicadores.entregues, Icon: Truck, bg: "bg-sky-100", color: "text-sky-700" },
+          { label: "Canceladas", value: indicadores.canceladas, Icon: XCircle, bg: "bg-[#F28C82]/20", color: "text-[#F28C82]" },
+        ].map(({ label, value, Icon, bg, color }) => (
+          <div
+            key={label}
+            className="rounded-xl border border-[#5B1A2B]/10 bg-white p-4 shadow-[0_2px_12px_-8px_rgba(91,26,43,0.10)]"
+          >
+            <div className="flex items-center gap-3">
+              <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${bg}`}>
+                <Icon className={`h-5 w-5 ${color}`} strokeWidth={2} />
               </div>
-              <ClipboardList className="h-8 w-8 text-[#5B1A2B]/60" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Pendentes */}
-        <Card className="border border-[#C9A14A]/25">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Pendentes</p>
-                <p className="text-2xl font-bold">{indicadores.pendentes}</p>
+              <div className="min-w-0">
+                <p className="text-[11px] uppercase tracking-wide text-foreground/55">{label}</p>
+                <p className="font-display text-[28px] font-normal leading-none text-[#3D0F1C]">{value}</p>
               </div>
-              <Clock className="h-8 w-8 text-[#5B1A2B]/60" />
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Confirmadas */}
-        <Card className="border border-[#C9A14A]/25">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Confirmadas</p>
-                <p className="text-2xl font-bold">{indicadores.confirmadas}</p>
-              </div>
-              <CheckCircle2 className="h-8 w-8 text-[#5B1A2B]/60" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Entregues */}
-        <Card className="border border-[#C9A14A]/25">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Entregues</p>
-                <p className="text-2xl font-bold">{indicadores.entregues}</p>
-              </div>
-              <CheckCircle2 className="h-8 w-8 text-[#5B1A2B]/60" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Canceladas */}
-        <Card className="border border-[#C9A14A]/25">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Canceladas</p>
-                <p className="text-2xl font-bold">{indicadores.canceladas}</p>
-              </div>
-              <XCircle className="h-8 w-8 text-[#F28C82]" />
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        ))}
       </div>
 
-      {/* Card de acesso a Tags de Encomendas */}
-      <Card 
-        className="group cursor-pointer hover:shadow-lg hover:scale-[1.01] transition-all duration-200 border-l-2 border-[#C9A14A]/60 bg-[#FDF6EE]/50"
+      {/* ===== BANNER TAGS DE ENCOMENDAS ===== */}
+      <button
+        type="button"
         onClick={() => navigate('/configuracoes/tags-encomendas')}
+        className="group block w-full rounded-xl border border-[#5B1A2B]/10 bg-[#FDF6EE] px-5 py-4 text-left transition hover:border-[#C9A14A]/40 hover:shadow-[0_4px_16px_-12px_rgba(91,26,43,0.25)]"
       >
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                <Tags className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Tags de Encomendas</p>
-                <p className="text-xs text-muted-foreground">Gerencie as etiquetas para organizar seus pedidos</p>
-              </div>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-[#5B1A2B]">
+              <TagIcon className="h-5 w-5" />
             </div>
-            <Button variant="ghost" size="sm" className="text-[#C9A14A]">
-              Gerenciar
-            </Button>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-[#3D0F1C]">Tags de Encomendas</p>
+              <p className="text-xs text-foreground/60">Gerencie as etiquetas para organizar seus pedidos</p>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+          <span className="inline-flex items-center gap-1 text-sm font-medium text-[#C9A14A] transition group-hover:translate-x-0.5">
+            Gerenciar <span aria-hidden="true">→</span>
+          </span>
+        </div>
+      </button>
 
-      {/* Calendários de Encomendas (movido do Dashboard) */}
-      <CalendariosEncomendas />
+      {/* ===== CALENDÁRIOS DE ENCOMENDAS ===== */}
+      <section className="space-y-3">
+        <div className="flex items-center gap-2">
+          <CalendarDays className="h-5 w-5 text-[#5B1A2B]" />
+          <h2 className="font-display text-2xl font-normal text-[#3D0F1C]">Calendários de Encomendas</h2>
+        </div>
+        <p className="text-sm text-foreground/60">Visualize suas encomendas em 3 meses consecutivos</p>
+        <CalendariosEncomendas />
+      </section>
 
       {/* Filtros (logo acima da Lista de Encomendas) */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-2">
