@@ -253,19 +253,18 @@ export default function Fornecedores() {
 
   return (
     <div className="space-y-6">
-      <BackButton to="/clientes-fornecedores" />
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight">Fornecedores</h1>
-        <Badge variant="secondary" className="text-sm px-3 py-1">
-          {fornecedores.length} {fornecedores.length === 1 ? 'fornecedor cadastrado' : 'fornecedores cadastrados'}
-        </Badge>
-      </div>
+      <PageHeader
+        title="Fornecedores"
+        description={`${fornecedores.length} ${fornecedores.length === 1 ? "fornecedor cadastrado" : "fornecedores cadastrados"}`}
+        backButton={<BackButton to="/clientes-fornecedores" />}
+      />
 
       {/* Aniversariantes do Mês */}
-      <AlertaAniversariantesContatos 
-        contatos={contatosAniversariantes} 
+      <AlertaAniversariantesContatos
+        contatos={contatosAniversariantes}
         onContatoClick={(fornecedorId) => setEditingId(fornecedorId)}
       />
+
 
       <Card>
         <CardHeader>
