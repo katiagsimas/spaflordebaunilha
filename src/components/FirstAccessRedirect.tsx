@@ -56,8 +56,27 @@ export function FirstAccessRedirect() {
       return;
     }
 
-    // Etapa 1: Dados da Confeitaria incompletos
-    const dadosIncompletos = profile.primeiro_acesso || !profile.nome_confeitaria;
+    // Etapa 1: Meus Dados (Dados da Confeitaria) — obrigatório para TODOS os usuários,
+    // independentemente do plano. Considera incompleto se faltar qualquer campo
+    // essencial de identificação, contato ou endereço — mesmo para usuários
+    // antigos onde `primeiro_acesso` já foi marcado como false.
+    const camposObrigatoriosMeusDados = [
+      'nome_completo',
+      'nome_confeitaria',
+      'cpf',
+      'whatsapp',
+      'cep',
+      'endereco',
+      'cidade',
+      'estado',
+    ] as const;
+    const dadosIncompletos =
+      profile.primeiro_acesso ||
+      camposObrigatoriosMeusDados.some((campo) => {
+        const valor = (profile as any)[campo];
+        return !valor || String(valor).trim() === '';
+      });
+
     if (dadosIncompletos) {
       if (location.pathname !== '/configuracoes/dados-confeitaria') {
         navigate('/configuracoes/dados-confeitaria', { replace: true });

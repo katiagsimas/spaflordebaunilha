@@ -1155,3 +1155,18 @@ Após P1+P2+P3, a pasta `docs/` está com 13 documentos modulares + `AUDITORIA.m
 - Migration: `backups_cofre`, bucket `backups-cofre`, RLS MOTHER-only
 
 Documentação completa: `docs/DOCS_BACKUP_RESTORE.md`.
+
+---
+
+## Onboarding de Primeiro Acesso — Meus Dados obrigatório (2026-05-27)
+
+✅ **Refinamento**: O fluxo de onboarding agora exige `Meus Dados` (Dados da Confeitaria) como **etapa 1 obrigatória para TODOS os usuários**, independentemente do plano e inclusive para usuários antigos.
+
+Sequência completa:
+1. `/configuracoes/dados-confeitaria` — Meus Dados (nome, CPF/CNPJ, WhatsApp, endereço completo)
+2. `/configuracoes/precificacao/mao-de-obra` — Valores de Mão de Obra
+3. `/configuracoes/backup` — Backup inicial
+
+Arquivos alterados:
+- `src/components/FirstAccessRedirect.tsx` — gate baseado em campos essenciais do profile (`nome_completo`, `nome_confeitaria`, `cpf`, `whatsapp`, `cep`, `endereco`, `cidade`, `estado`), não mais apenas em `primeiro_acesso`.
+- `src/pages/cadastros/SeusDados.tsx` — validação obrigatória dos mesmos campos + invalidação correta do cache do React Query (`["profile", user?.id]`) para que o redirect avance para a próxima etapa após salvar.
