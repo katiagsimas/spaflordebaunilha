@@ -314,7 +314,7 @@ async function enviarEmailBoasVindas(
       <p>Olá, ${nomeDisplay}!</p>
       <p>Sua conta foi criada. Veja como acessar a plataforma agora:</p>
       <ol>
-        <li>Acesse <a href="https://caixadeacucar.lovable.app" style="color: #5B1A2B;">caixadeacucar.lovable.app</a></li>
+        <li>Acesse <a href="https://www.caixadeacucar.com.br" style="color: #5B1A2B;">www.caixadeacucar.com.br</a></li>
         <li>Clique em <strong>"Esqueci minha senha"</strong></li>
         <li>Digite o email <strong>${emailSafe}</strong> para receber o link de acesso</li>
       </ol>
