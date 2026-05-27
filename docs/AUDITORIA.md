@@ -1,6 +1,6 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
-> Última atualização: 2026-05-26T21:00:00Z — Removido `admin_logs` do backup de Governança.
+> Última atualização: 2026-05-27T12:30:00Z — Removido botão "Tour pelo Caixa de Açúcar" do onboarding de conclusão.
 
 ## BACKUP — MÓDULO GOVERNANÇA (MOTHER ONLY) — 2026-05-26 21:00 UTC
 
