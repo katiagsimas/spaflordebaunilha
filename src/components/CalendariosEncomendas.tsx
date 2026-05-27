@@ -101,6 +101,7 @@ export function CalendariosEncomendas({ onNovaEncomenda }: { onNovaEncomenda?: (
   const [dadosSeguinte, setDadosSeguinte] = useState<DadosDia[]>([]);
   const [diaSelecionado, setDiaSelecionado] = useState<Date>(hoje);
   const [encomendasDia, setEncomendasDia] = useState<Encomenda[]>([]);
+  const [buscaDia, setBuscaDia] = useState("");
 
   const recarregarTudo = async () => {
     if (!user) return;
