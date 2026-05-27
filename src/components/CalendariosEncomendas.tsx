@@ -81,7 +81,7 @@ async function carregarMes(userId: string, ano: number, mes: number): Promise<Da
   });
 }
 
-export function CalendariosEncomendas() {
+export function CalendariosEncomendas({ onNovaEncomenda }: { onNovaEncomenda?: () => void } = {}) {
   const { user } = useAuth();
   const navigate = useNavigate();
 
