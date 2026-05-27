@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PanelLeftClose, PanelLeftOpen, Database, LogOut, RefreshCw } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -13,7 +12,6 @@ import {
 } from "@/components/ui/tooltip";
 
 export function ClearCacheButton() {
-  const [expanded, setExpanded] = useState(false);
   const handleClear = async () => {
     try {
       await supabase.auth.signOut().catch(() => {});
@@ -37,24 +35,16 @@ export function ClearCacheButton() {
       <Tooltip>
         <TooltipTrigger asChild>
           <button
-            onClick={() => {
-              if (expanded) {
-                handleClear();
-              } else {
-                setExpanded(true);
-              }
-            }}
-            onBlur={() => setExpanded(false)}
-            className={`flex items-center gap-2 h-9 rounded-full bg-cda-creme/10 hover:bg-cda-creme/20 text-cda-creme ring-1 ring-cda-creme/20 transition-all font-body text-xs ${expanded ? 'px-3' : 'px-2'}`}
+            onClick={handleClear}
+            className="flex items-center gap-2 h-9 rounded-full px-2 bg-cda-creme/10 hover:bg-cda-creme/20 text-cda-creme ring-1 ring-cda-creme/20 transition-all font-body text-xs"
             aria-label="Limpar cache e recarregar"
           >
             <RefreshCw className="h-4 w-4" />
-            {expanded && <span className="whitespace-nowrap">Limpar cache</span>}
           </button>
         </TooltipTrigger>
         <TooltipContent side="bottom" className="bg-cda-preto text-cda-creme border-cda-dourado/40 max-w-[240px]">
           <span className="font-body text-xs">
-            Faz logout, limpa o cache do navegador e recarrega o app. Clique novamente para confirmar.
+            Faz logout, limpa o cache do navegador e recarrega o app.
           </span>
         </TooltipContent>
       </Tooltip>
@@ -65,7 +55,6 @@ export function ClearCacheButton() {
 
 export function SidebarToggleLabeled() {
   const { state, toggleSidebar, isMobile, openMobile } = useSidebar();
-  const [expanded, setExpanded] = useState(false);
   const open = isMobile ? openMobile : state === "expanded";
   const Icon = open ? PanelLeftClose : PanelLeftOpen;
   const label = open ? "Fechar Menu" : "Abrir Menu";
@@ -74,20 +63,11 @@ export function SidebarToggleLabeled() {
       <Tooltip>
         <TooltipTrigger asChild>
           <button
-            onClick={() => {
-              if (expanded) {
-                toggleSidebar();
-                setExpanded(false);
-              } else {
-                setExpanded(true);
-              }
-            }}
-            onBlur={() => setExpanded(false)}
-            className={`flex items-center gap-2 h-9 rounded-full bg-cda-creme/10 hover:bg-cda-creme/20 text-cda-creme ring-1 ring-cda-creme/20 transition-all font-body text-xs ${expanded ? 'px-3' : 'px-2'}`}
+            onClick={toggleSidebar}
+            className="flex items-center gap-2 h-9 rounded-full px-2 bg-cda-creme/10 hover:bg-cda-creme/20 text-cda-creme ring-1 ring-cda-creme/20 transition-all font-body text-xs"
             aria-label={label}
           >
             <Icon className="h-4 w-4" />
-            {expanded && <span className="whitespace-nowrap">{label}</span>}
           </button>
         </TooltipTrigger>
         <TooltipContent side="bottom" className="bg-cda-preto text-cda-creme border-cda-dourado/40">
