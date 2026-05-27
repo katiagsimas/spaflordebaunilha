@@ -38,7 +38,7 @@ import { ptBR } from 'date-fns/locale';
 import * as XLSX from '@/lib/xlsxShim';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Building2 } from 'lucide-react';
-import Governanca from './Governanca';
+import GruposManager from '@/components/admin/GruposManager';
 
 interface UserProfile {
   id: string;
@@ -715,7 +715,7 @@ export default function Usuarios() {
           </TabsContent>
 
           <TabsContent value="grupos" className="space-y-6">
-            <Governanca embedded />
+            <GruposManager />
           </TabsContent>
         </Tabs>
       </div>
