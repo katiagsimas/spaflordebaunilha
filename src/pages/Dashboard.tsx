@@ -32,6 +32,8 @@ import {
 import { usePlano } from "@/hooks/usePlano";
 import { useModuleHelp } from "@/hooks/useModuleHelp";
 import { HelpButton } from "@/components/help/HelpButton";
+import { ModuleHelpDrawer } from "@/components/help/ModuleHelpDrawer";
+import { dashboardHelp } from "@/components/help/contents/dashboardHelp";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -94,7 +96,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const { plano } = usePlano();
   const { isAdmin } = useIsAdmin();
-  const { isHelpOpen, toggleHelp } = useModuleHelp();
+  const { isHelpOpen, toggleHelp, closeHelp } = useModuleHelp();
 
   const [alertas, setAlertas] = useState({
     receberAtrasado: { quantidade: 0, valor: 0 },
@@ -964,7 +966,8 @@ export default function Dashboard() {
       .join("");
 
   return (
-    <div className="space-y-6">
+    <div className="flex h-full">
+      <div className="flex-1 min-w-0 space-y-6">
       {/* ===== HEADER ===== */}
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="flex items-center gap-4">
@@ -1425,6 +1428,8 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+    </div>
+      <ModuleHelpDrawer content={dashboardHelp} isOpen={isHelpOpen} onClose={closeHelp} />
     </div>
   );
 }
