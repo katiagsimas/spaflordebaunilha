@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck, Package, Upload, X, HandCoins, Tag as TagIcon, FileDown, Calendar, ClipboardList, CheckCircle2, XCircle, AlertCircle, ChevronDown, UserPlus, Printer, FileText, ClipboardCheck, Tags } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ShoppingBag, DollarSign, Clock, CalendarCheck, Package, Upload, X, HandCoins, Tag as TagIcon, FileDown, Calendar, ClipboardList, CheckCircle2, XCircle, AlertCircle, ChevronDown, UserPlus, Printer, FileText, ClipboardCheck, Tags, CalendarDays, Truck, ArrowUp, ArrowLeft } from "lucide-react";
+import agendaHeroImg from "@/assets/encomendas-header-agenda.png";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { gerarPedidoCliente, gerarOrdemProducao } from "@/utils/gerarPedidoPDF";
 import { format, isToday, isTomorrow, isWithinInterval, addDays } from "date-fns";
@@ -975,16 +976,33 @@ const Encomendas = () => {
         </Alert>
       )}
 
-      <PageHeader
-        title="Pedidos e Encomendas"
-        description="Do pedido à entrega, tudo sob controle"
-        actions={
+      {/* ===== HEADER PREMIUM ===== */}
+      <div className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 bg-[#FFF9F5] px-6 py-6 sm:px-8 sm:py-7 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]">
+        <img
+          src={agendaHeroImg}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute right-48 top-1/2 hidden h-[130px] -translate-y-1/2 object-contain lg:block"
+        />
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="font-display text-3xl font-normal leading-tight text-[#3D0F1C] sm:text-[36px]">
+              Pedidos e Encomendas
+            </h1>
+            <div className="mt-2 flex items-center gap-3">
+              <span className="h-px w-10 bg-[#C9A14A]" />
+              <p className="text-sm italic text-[#C9A14A]">
+                Do pedido à entrega, tudo sob controle
+              </p>
+            </div>
+          </div>
+
           <Dialog open={dialogOpen} onOpenChange={(open) => {
             setDialogOpen(open);
             if (!open) resetForm();
           }}>
             <DialogTrigger asChild>
-              <Button>
+              <Button className="shrink-0 rounded-lg bg-[#3D0F1C] text-white hover:bg-[#3D0F1C]/90">
                 <Plus className="h-4 w-4 mr-2" />
                 Nova Encomenda
               </Button>
@@ -1560,155 +1578,117 @@ const Encomendas = () => {
               </form>
             </DialogContent>
           </Dialog>
-        }
-      />
+        </div>
+      </div>
 
 
       {/* DASHBOARD DE ENCOMENDAS */}
       
       {/* Filtro Mês/Ano - Horizontal */}
-      <Card className="shadow-soft">
-        <CardContent className="py-4">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-primary" />
-              <span className="font-semibold text-foreground">Período:</span>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Label className="text-sm text-muted-foreground">Ano</Label>
-              <Select
-                value={anoSelecionado.toString()}
-                onValueChange={(value) => setAnoSelecionado(parseInt(value))}
-              >
-                <SelectTrigger className="bg-popover h-9 w-28">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-popover z-50">
-                  {Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i).map((year) => (
-                    <SelectItem key={year} value={year.toString()}>
-                      {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Label className="text-sm text-muted-foreground">Mês</Label>
-              <Select
-                value={mesSelecionado.toString()}
-                onValueChange={(value) => setMesSelecionado(parseInt(value))}
-              >
-                <SelectTrigger className="bg-popover h-9 w-36">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-popover z-50">
-                  {meses.map((mes, index) => (
-                    <SelectItem key={index} value={index.toString()}>
-                      {mes}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+      <div className="rounded-2xl border border-[#5B1A2B]/10 bg-white px-5 py-4 shadow-[0_2px_12px_-8px_rgba(91,26,43,0.12)]">
+        <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+          <div className="flex items-center gap-2 text-[#3D0F1C]">
+            <CalendarDays className="h-5 w-5 text-[#5B1A2B]" />
+            <span className="font-semibold">Período:</span>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Cards de Visão Geral */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        {/* Total */}
-        <Card className="border border-[#C9A14A]/25">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total</p>
-                <p className="text-2xl font-bold">{indicadores.total}</p>
-              </div>
-              <ClipboardList className="h-8 w-8 text-[#5B1A2B]/60" />
-            </div>
-          </CardContent>
-        </Card>
+          <div className="flex items-center gap-2">
+            <Label className="text-sm text-foreground/60">Ano</Label>
+            <Select
+              value={anoSelecionado.toString()}
+              onValueChange={(value) => setAnoSelecionado(parseInt(value))}
+            >
+              <SelectTrigger className="h-9 w-28 rounded-md border-[#5B1A2B]/20 bg-white text-[#3D0F1C]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                {Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i).map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-        {/* Pendentes */}
-        <Card className="border border-[#C9A14A]/25">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Pendentes</p>
-                <p className="text-2xl font-bold">{indicadores.pendentes}</p>
-              </div>
-              <Clock className="h-8 w-8 text-[#5B1A2B]/60" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Confirmadas */}
-        <Card className="border border-[#C9A14A]/25">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Confirmadas</p>
-                <p className="text-2xl font-bold">{indicadores.confirmadas}</p>
-              </div>
-              <CheckCircle2 className="h-8 w-8 text-[#5B1A2B]/60" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Entregues */}
-        <Card className="border border-[#C9A14A]/25">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Entregues</p>
-                <p className="text-2xl font-bold">{indicadores.entregues}</p>
-              </div>
-              <CheckCircle2 className="h-8 w-8 text-[#5B1A2B]/60" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Canceladas */}
-        <Card className="border border-[#C9A14A]/25">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Canceladas</p>
-                <p className="text-2xl font-bold">{indicadores.canceladas}</p>
-              </div>
-              <XCircle className="h-8 w-8 text-[#F28C82]" />
-            </div>
-          </CardContent>
-        </Card>
+          <div className="flex items-center gap-2">
+            <Label className="text-sm text-foreground/60">Mês</Label>
+            <Select
+              value={mesSelecionado.toString()}
+              onValueChange={(value) => setMesSelecionado(parseInt(value))}
+            >
+              <SelectTrigger className="h-9 w-36 rounded-md border-[#5B1A2B]/20 bg-white text-[#3D0F1C]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                {meses.map((mes, index) => (
+                  <SelectItem key={index} value={index.toString()}>
+                    {mes}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </div>
 
-      {/* Card de acesso a Tags de Encomendas */}
-      <Card 
-        className="group cursor-pointer hover:shadow-lg hover:scale-[1.01] transition-all duration-200 border-l-2 border-[#C9A14A]/60 bg-[#FDF6EE]/50"
-        onClick={() => navigate('/configuracoes/tags-encomendas')}
-      >
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
+      {/* ===== KPI CARDS ===== */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        {[
+          { label: "Total", value: indicadores.total, Icon: ClipboardList, bg: "bg-[#5B1A2B]/10", color: "text-[#5B1A2B]" },
+          { label: "Pendentes", value: indicadores.pendentes, Icon: Clock, bg: "bg-[#C9A14A]/15", color: "text-[#C9A14A]" },
+          { label: "Confirmadas", value: indicadores.confirmadas, Icon: CheckCircle2, bg: "bg-emerald-100", color: "text-emerald-700" },
+          { label: "Entregues", value: indicadores.entregues, Icon: Truck, bg: "bg-sky-100", color: "text-sky-700" },
+          { label: "Canceladas", value: indicadores.canceladas, Icon: XCircle, bg: "bg-[#F28C82]/20", color: "text-[#F28C82]" },
+        ].map(({ label, value, Icon, bg, color }) => (
+          <div
+            key={label}
+            className="rounded-xl border border-[#5B1A2B]/10 bg-white p-4 shadow-[0_2px_12px_-8px_rgba(91,26,43,0.10)]"
+          >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                <Tags className="h-5 w-5" />
+              <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${bg}`}>
+                <Icon className={`h-5 w-5 ${color}`} strokeWidth={2} />
               </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Tags de Encomendas</p>
-                <p className="text-xs text-muted-foreground">Gerencie as etiquetas para organizar seus pedidos</p>
+              <div className="min-w-0">
+                <p className="text-[11px] uppercase tracking-wide text-foreground/55">{label}</p>
+                <p className="font-display text-[28px] font-normal leading-none text-[#3D0F1C]">{value}</p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" className="text-[#C9A14A]">
-              Gerenciar
-            </Button>
           </div>
-        </CardContent>
-      </Card>
+        ))}
+      </div>
 
-      {/* Calendários de Encomendas (movido do Dashboard) */}
-      <CalendariosEncomendas />
+      {/* ===== BANNER TAGS DE ENCOMENDAS ===== */}
+      <button
+        type="button"
+        onClick={() => navigate('/configuracoes/tags-encomendas')}
+        className="group block w-full rounded-xl border border-[#5B1A2B]/10 bg-[#FDF6EE] px-5 py-4 text-left transition hover:border-[#C9A14A]/40 hover:shadow-[0_4px_16px_-12px_rgba(91,26,43,0.25)]"
+      >
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-[#5B1A2B]">
+              <TagIcon className="h-5 w-5" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-[#3D0F1C]">Tags de Encomendas</p>
+              <p className="text-xs text-foreground/60">Gerencie as etiquetas para organizar seus pedidos</p>
+            </div>
+          </div>
+          <span className="inline-flex items-center gap-1 text-sm font-medium text-[#C9A14A] transition group-hover:translate-x-0.5">
+            Gerenciar <span aria-hidden="true">→</span>
+          </span>
+        </div>
+      </button>
+
+      {/* ===== CALENDÁRIOS DE ENCOMENDAS ===== */}
+      <section className="space-y-3">
+        <div className="flex items-center gap-2">
+          <CalendarDays className="h-5 w-5 text-[#5B1A2B]" />
+          <h2 className="font-display text-2xl font-normal text-[#3D0F1C]">Calendários de Encomendas</h2>
+        </div>
+        <p className="text-sm text-foreground/60">Visualize suas encomendas em 3 meses consecutivos</p>
+        <CalendariosEncomendas />
+      </section>
 
       {/* Filtros (logo acima da Lista de Encomendas) */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-2">
@@ -2030,6 +2010,26 @@ const Encomendas = () => {
       </Card>
       </div>
       <ModuleHelpDrawer content={encomendaHelp} isOpen={isHelpOpen} onClose={closeHelp} />
+
+      {/* ===== BOTÕES FLUTUANTES ===== */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          aria-label="Voltar ao topo"
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-[#C9A14A] text-white shadow-lg transition hover:bg-[#b58c39]"
+        >
+          <ArrowUp className="h-5 w-5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          aria-label="Voltar"
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-[#5B1A2B] text-white shadow-lg transition hover:bg-[#3D0F1C]"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+      </div>
     </div>
   );
 };
