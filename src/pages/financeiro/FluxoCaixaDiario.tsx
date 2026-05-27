@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { PageHeader } from "@/components/PageHeader";
 import * as XLSX from "@/lib/xlsxShim";
 import { LoadingMascote } from "@/components/LoadingMascote";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
