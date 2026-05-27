@@ -30,6 +30,8 @@ import {
   ArrowRight
 } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
+import { useModuleHelp } from "@/hooks/useModuleHelp";
+import { HelpButton } from "@/components/help/HelpButton";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -92,6 +94,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const { plano } = usePlano();
   const { isAdmin } = useIsAdmin();
+  const { isHelpOpen, toggleHelp } = useModuleHelp();
 
   const [alertas, setAlertas] = useState({
     receberAtrasado: { quantidade: 0, valor: 0 },
@@ -1010,6 +1013,8 @@ export default function Dashboard() {
               ))}
             </SelectContent>
           </Select>
+
+          <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} className="ml-1" />
         </div>
       </div>
 
