@@ -95,7 +95,7 @@ export function AniversariantesPremiumCard({
 
 
       {/* Conteúdo */}
-      <div className="grid gap-6 px-6 py-6 sm:px-8 lg:grid-cols-[1fr_240px]">
+      <div className="px-6 py-6 sm:px-8">
         {/* Lista */}
         <ul className="divide-y divide-cda-dourado/15">
           {visiveis.map((item) => (
@@ -133,24 +133,6 @@ export function AniversariantesPremiumCard({
             </li>
           ))}
         </ul>
-
-        {/* Contador lateral */}
-        <aside className="flex flex-col items-center justify-center rounded-2xl border border-cda-dourado/25 bg-cda-pink/25 px-5 py-6 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cda-branco/80 ring-1 ring-cda-dourado/30">
-            <Gift className="h-5 w-5 text-cda-vinho" />
-          </div>
-          <p className="mt-3 font-display text-4xl text-cda-vinho-escuro">
-            {total}
-          </p>
-          <p className="mt-1 max-w-[10rem] font-body text-sm text-cda-vinho/70 leading-snug">
-            {total === 1 ? "aniversariante este mês" : "aniversariantes este mês"}
-          </p>
-          <div className="mt-4 flex items-center gap-2">
-            <span className="h-px w-10 bg-cda-dourado/60" />
-            <Heart className="h-3.5 w-3.5 text-cda-dourado" fill="currentColor" />
-            <span className="h-px w-10 bg-cda-dourado/60" />
-          </div>
-        </aside>
       </div>
 
       {/* Rodapé */}
