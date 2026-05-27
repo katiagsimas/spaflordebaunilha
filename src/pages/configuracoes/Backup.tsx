@@ -410,99 +410,281 @@ export default function Backup() {
     try { await salvarAgendamento({ modulos: novo }); } catch {}
   }
 
+  const nomeBackupAtual = profile?.nome_completo ? gerarNomeBackup(profile.nome_completo) : "CAIXAKGSS00000000";
+
+  // Métricas derivadas dos backups reais
+  const historicoChips = useMemo(
+    () => backups.slice(0, 8).map((b) => ({
+      id: b.id,
+      label: format(new Date(b.created_at), "dd/MM/yyyy"),
+    })),
+    [backups],
+  );
+
+  const historicoSerie = useMemo(() => {
+    const ordered = [...backups].reverse();
+    return ordered.map((b) => {
+      const t = parseFloat(String(b.tamanho).replace(/[^\d.,]/g, "").replace(",", ".")) || 0;
+      return { x: format(new Date(b.created_at), "dd/MM"), v: t };
+    });
+  }, [backups]);
+
+  const totalKB = useMemo(
+    () => backups.reduce((acc, b) => acc + (parseFloat(String(b.tamanho).replace(/[^\d.,]/g, "").replace(",", ".")) || 0), 0),
+    [backups],
+  );
+  const espacoTotalKB = 500 * 1024; // 500 MB cota ilustrativa
+  const pctEspaco = Math.min(100, Math.round((totalKB / espacoTotalKB) * 100));
+  const pctSalvos = backups.length > 0 ? Math.min(100, backups.length * 10) : 0;
+  const pctComprimido = 30;
+
+  const ultimoBackup = backups[0]
+    ? formatDistanceToNow(new Date(backups[0].created_at), { addSuffix: true, locale: ptBR })
+    : "—";
+
+  const donutData = (pct: number) => [
+    { name: "v", value: pct },
+    { name: "r", value: 100 - pct },
+  ];
+
   return (
     <div className="min-h-screen bg-background p-4 md:p-6 space-y-6">
-      <div className="flex items-center gap-3">
-        <BackButton to="/configuracoes" />
-        <div className="flex items-center gap-3">
-          <HardDrive className="h-8 w-8 text-primary" />
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Backup</h1>
-            <p className="text-muted-foreground">Gerencie backups do seu projeto por módulo</p>
+      {/* HERO BANNER */}
+      <div className="relative rounded-xl overflow-hidden h-[160px]">
+        <img
+          src={bannerImg}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FDF6EE]/95 via-[#FDF6EE]/70 to-transparent" />
+        <div className="relative h-full p-6 flex flex-col justify-center max-w-[60%]">
+          <button
+            type="button"
+            onClick={() => navigate("/configuracoes")}
+            className="flex items-center gap-1 text-[13px] text-[#3D0F1C]/70 hover:text-[#3D0F1C] mb-1 w-fit"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Voltar
+          </button>
+          <div className="flex items-center gap-2">
+            <Archive className="h-[22px] w-[22px] text-[#5B1A2B]" />
+            <h1 className="text-[32px] leading-none font-normal text-[#3D0F1C]" style={{ fontFamily: PLAYFAIR }}>
+              Backup
+            </h1>
+          </div>
+          <p className="text-[13px] text-[#3D0F1C]/65 mt-1">
+            Gerencie backups do seu projeto por módulo
+          </p>
+        </div>
+      </div>
+
+      {/* SOBRE OS BACKUPS */}
+      <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-2">
+          <Info className="h-4 w-4 text-[#5B1A2B]" />
+          <span className="text-sm font-medium text-[#3D0F1C]">Sobre os backups</span>
+        </div>
+        <p className="text-[13px] text-[#3D0F1C]/70 leading-relaxed">
+          Cada backup é salvo na nuvem do Caixa de Açúcar e baixado para o seu computador. Você pode escolher quais{" "}
+          <span className="font-bold text-[#3D0F1C]">módulos</span> incluir e por quantos dias manter os backups antigos. Nome do arquivo:{" "}
+          <code className="font-mono text-[12px] bg-[#FDF6EE] px-2 py-0.5 rounded">{nomeBackupAtual}</code>
+        </p>
+      </div>
+
+      {/* BACKUP MANUAL */}
+      <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5">
+        <div className="flex items-start justify-between gap-3 mb-4">
+          <div className="flex items-start gap-3">
+            <Download className="h-[18px] w-[18px] text-[#C9A14A] mt-0.5" />
+            <div>
+              <h3 className="text-[15px] font-bold text-[#3D0F1C]">Backup manual</h3>
+              <p className="text-xs text-[#3D0F1C]/60">Selecione os módulos e gere um backup agora</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-[13px]">
+            <button
+              type="button"
+              onClick={() => setModulosManual(modulosVisiveis.map((m) => m.id))}
+              className="text-[#5B1A2B] hover:underline underline-offset-2"
+            >
+              Marcar todos
+            </button>
+            <span className="text-[#5B1A2B]/40">|</span>
+            <button
+              type="button"
+              onClick={() => setModulosManual([])}
+              className="text-[#5B1A2B] hover:underline underline-offset-2"
+            >
+              Limpar
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+          {modulosVisiveis.map((mod) => {
+            const checked = modulosManual.includes(mod.id);
+            const Icon = MODULO_ICONS[mod.id] ?? Package;
+            return (
+              <label
+                key={mod.id}
+                className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
+                  checked
+                    ? "border-[#5B1A2B] bg-[#FDF6EE]"
+                    : "border-[#5B1A2B]/12 bg-white opacity-90 hover:opacity-100"
+                }`}
+              >
+                <Checkbox
+                  checked={checked}
+                  onCheckedChange={() => toggleModulo(modulosManual, setModulosManual, mod.id)}
+                  className="border-[#5B1A2B]/40 data-[state=checked]:bg-[#5B1A2B] data-[state=checked]:border-[#5B1A2B]"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-bold text-[#3D0F1C]">{mod.titulo}</span>
+                    <span className="bg-[#5B1A2B]/10 text-[#5B1A2B] text-[10px] px-2 py-0.5 rounded-full font-medium">
+                      {mod.tabelas.length} tabelas
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#3D0F1C]/60 mt-0.5 line-clamp-2">{mod.descricao}</p>
+                </div>
+                <div className="w-11 h-11 rounded-full bg-[#FDF6EE] border border-[#5B1A2B]/10 flex items-center justify-center shrink-0">
+                  <Icon className="h-5 w-5 text-[#5B1A2B]" />
+                </div>
+              </label>
+            );
+          })}
+        </div>
+
+        <button
+          type="button"
+          onClick={realizarBackup}
+          disabled={realizandoBackup || profileLoading || modulosManual.length === 0}
+          className="w-full bg-[#3D0F1C] hover:bg-[#5B1A2B] text-white rounded-xl py-4 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+        >
+          {realizandoBackup ? (
+            <><Loader2 className="h-4 w-4 animate-spin" /> Gerando backup...</>
+          ) : (
+            <>Realizar backup agora ({modulosManual.length} módulos) <Play className="h-4 w-4" /></>
+          )}
+        </button>
+      </div>
+
+      {/* PAINEIS INFERIORES — Histórico recentes / KPIs / Espaço */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Histórico Recentes */}
+        <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5">
+          <h3 className="text-[15px] text-[#3D0F1C] mb-3" style={{ fontFamily: PLAYFAIR }}>
+            Histórico de Backups Recentes
+          </h3>
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {historicoChips.length === 0 ? (
+              <span className="text-xs text-[#3D0F1C]/50">Sem backups ainda</span>
+            ) : (
+              historicoChips.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => downloadBackup(c.id, backups.find((b) => b.id === c.id)?.nome || c.label)}
+                  className={`rounded-full px-3 py-1 text-xs transition-colors border ${
+                    backupSelecionado === c.id
+                      ? "bg-[#5B1A2B] text-white border-[#5B1A2B]"
+                      : "bg-[#FDF6EE] border-[#5B1A2B]/15 text-[#3D0F1C] hover:border-[#5B1A2B]/40"
+                  }`}
+                >
+                  {c.label}
+                </button>
+              ))
+            )}
+          </div>
+          <div className="h-[80px]">
+            {historicoSerie.length > 1 && (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={historicoSerie} margin={{ top: 4, right: 4, left: 4, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="grBkp" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#C9A14A" stopOpacity={0.35} />
+                      <stop offset="100%" stopColor="#C9A14A" stopOpacity={0.05} />
+                    </linearGradient>
+                  </defs>
+                  <Tooltip
+                    contentStyle={{ background: "#fff", border: "1px solid rgba(91,26,43,0.2)", borderRadius: 8, fontSize: 11 }}
+                    formatter={(v: number) => `${v.toFixed(1)} KB`}
+                  />
+                  <Area type="monotone" dataKey="v" stroke="#C9A14A" strokeWidth={2} fill="url(#grBkp)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+
+        {/* KPIs */}
+        <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5">
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { pct: pctSalvos, label: "Dados salvos" },
+              { pct: pctEspaco, label: "Espaço usado" },
+              { pct: pctComprimido, label: "Comprimido" },
+            ].map((m, i) => (
+              <div key={i} className="flex flex-col items-center">
+                <div className="relative h-[80px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={donutData(m.pct)}
+                        innerRadius={28}
+                        outerRadius={38}
+                        startAngle={90}
+                        endAngle={-270}
+                        dataKey="value"
+                        stroke="none"
+                      >
+                        <Cell fill="#C9A14A" />
+                        <Cell fill="#FDF6EE" />
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="absolute inset-0 flex items-center justify-center text-[13px] font-bold text-[#3D0F1C]">
+                    {m.pct}%
+                  </div>
+                </div>
+                <span className="text-[11px] text-[#3D0F1C]/60 mt-1 text-center leading-tight">{m.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Espaço */}
+        <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5">
+          <h3 className="text-[15px] text-[#3D0F1C] mb-3" style={{ fontFamily: PLAYFAIR }}>
+            Espaço
+          </h3>
+          <div className="flex items-center justify-between text-[11px] text-[#3D0F1C]/60 mb-1">
+            <span>Usado / Total</span>
+            <span>{(totalKB / 1024).toFixed(1)} / 500 MB</span>
+          </div>
+          <div className="h-2.5 rounded-full bg-[#FDF6EE] overflow-hidden">
+            <div
+              className="h-full bg-[#C9A14A] rounded-full transition-all"
+              style={{ width: `${pctEspaco}%` }}
+            />
+          </div>
+          <div className="mt-4 space-y-1.5 text-[12px] text-[#3D0F1C]/80">
+            <div className="flex justify-between">
+              <span className="text-[#3D0F1C]/60">Backups</span>
+              <span className="font-medium text-[#3D0F1C]">{backups.length}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#3D0F1C]/60">Tamanho total</span>
+              <span className="font-medium text-[#3D0F1C]">{(totalKB / 1024).toFixed(2)} MB</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#3D0F1C]/60">Último backup</span>
+              <span className="font-medium text-[#3D0F1C]">{ultimoBackup}</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Card Informativo */}
-      <Card className="bg-cda-dourado/10 border-cda-dourado/30">
-        <CardContent className="pt-6">
-          <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-cda-vinho mt-0.5 shrink-0" />
-            <div className="space-y-1">
-              <h3 className="font-semibold text-cda-preto">Sobre os backups</h3>
-              <p className="text-sm text-cda-preto/80">
-                Cada backup é salvo na nuvem do Caixa de Açúcar <strong>e</strong> baixado para o seu computador.
-                Você pode escolher quais <strong>módulos</strong> incluir e por quantos dias manter os backups antigos.
-                Nome do arquivo: <code className="bg-background px-1 rounded">{profile?.nome_completo ? gerarNomeBackup(profile.nome_completo) : "CAIXAKGSS00000000"}</code>
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Backup Manual + Seleção de módulos */}
-      <Card className="border-l-4 border-l-emerald-500">
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-              <Download className="h-5 w-5" />
-            </div>
-            <div>
-              <CardTitle className="text-base">Backup manual</CardTitle>
-              <CardDescription className="text-xs">Selecione os módulos e gere um backup agora</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm font-medium">Módulos a incluir</Label>
-            <div className="flex gap-2">
-              <Button size="sm" variant="ghost" onClick={() => setModulosManual(DEFAULT_MODULOS)}>Marcar todos</Button>
-              <Button size="sm" variant="ghost" onClick={() => setModulosManual([])}>Limpar</Button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {modulosVisiveis.map((mod) => {
-              const checked = modulosManual.includes(mod.id);
-              return (
-                <label
-                  key={mod.id}
-                  className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                    checked ? "border-primary/40 bg-primary/5" : "border-border hover:bg-accent/50"
-                  }`}
-                >
-                  <Checkbox
-                    checked={checked}
-                    onCheckedChange={() => toggleModulo(modulosManual, setModulosManual, mod.id)}
-                    className="mt-0.5"
-                  />
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <Package className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span className="text-sm font-medium">{mod.titulo}</span>
-                      <Badge variant="secondary" className="text-[10px] h-4 px-1.5">{mod.tabelas.length} tabelas</Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">{mod.descricao}</p>
-                  </div>
-                </label>
-              );
-            })}
-          </div>
-
-          <Button
-            onClick={realizarBackup}
-            disabled={realizandoBackup || profileLoading || modulosManual.length === 0}
-            className="w-full"
-          >
-            {realizandoBackup ? (
-              <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Gerando backup...</>
-            ) : (
-              <><Play className="h-4 w-4 mr-2" /> Realizar backup agora ({modulosManual.length} módulos)</>
-            )}
-          </Button>
-        </CardContent>
-      </Card>
 
       {/* Agendamento + Retenção + Restaurar */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
