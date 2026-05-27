@@ -1175,3 +1175,15 @@ Arquivos alterados:
 - ✅ Adicionado componente `FloatingNavigation` (botões flutuantes "Voltar" e "Voltar ao topo") no Layout principal.
 - "Voltar" usa `navigate(-1)` (histórico do navegador), corrigindo rotas incorretas em páginas como Backup → Configurações.
 - Ocultos em rotas de autenticação e SSO; "Voltar" oculto no Dashboard.
+
+## 2026-05-27 — Onboarding de Primeiro Acesso com cartões de boas-vindas e conclusão ✅
+
+- Adicionadas colunas `onboarding_iniciado` e `onboarding_concluido` em `public.profiles` (default false).
+- Migration marca usuários antigos com dados completos como concluídos para não reabrir o fluxo.
+- Novas páginas:
+  - `/onboarding/bem-vinda` — cartão elegante com saudação personalizada + botão "Iniciar Onboarding".
+  - `/onboarding/concluido` — cartão de conclusão com frase motivacional + botões "Tour pelo Caixa de Açúcar" e "Iniciar Minha Jornada".
+- `FirstAccessRedirect` reorganizado para o fluxo: Boas-vindas → Meus Dados → Mão de Obra → Backup → Conclusão.
+- Fluxo se aplica a TODOS os planos. Apenas usuário MOTHER e admins legados são dispensados.
+- Estado de progresso persistido no banco; sobrevive a logout/login e troca de dispositivo.
+- URL do Tour Visual ainda será informada (constante `TOUR_URL` em `src/pages/onboarding/Concluido.tsx`).
