@@ -48,18 +48,6 @@ export default function OnboardingConcluido() {
     return true;
   };
 
-  const handleTour = async () => {
-    const ok = await marcarConcluido();
-    if (!ok) return;
-    if (TOUR_URL) {
-      window.open(TOUR_URL, "_blank", "noopener,noreferrer");
-      navigate("/dashboard", { replace: true });
-    } else {
-      toast.info("O tour estará disponível em breve. Vamos para o seu painel!");
-      navigate("/dashboard", { replace: true });
-    }
-  };
-
   const handleJornada = async () => {
     const ok = await marcarConcluido();
     if (!ok) return;
@@ -109,21 +97,8 @@ export default function OnboardingConcluido() {
               Escolha como quer continuar:
             </p>
 
-            {/* Botões finais */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={handleTour}
-                className="border-cda-vinho text-cda-vinho hover:bg-cda-vinho hover:text-cda-creme h-auto py-5 flex-col gap-1"
-              >
-                <div className="flex items-center gap-2">
-                  <Compass className="h-5 w-5" />
-                  <span className="font-semibold">Tour pelo Caixa de Açúcar</span>
-                </div>
-                <span className="text-xs font-normal opacity-80">Conheça cada módulo antes de começar</span>
-              </Button>
-
+            {/* Botão final — centralizado */}
+            <div className="flex justify-center w-full">
               <Button
                 size="lg"
                 onClick={handleJornada}
