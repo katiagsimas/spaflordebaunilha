@@ -1681,7 +1681,7 @@ const Encomendas = () => {
           <h2 className="font-display text-2xl font-normal text-[#3D0F1C]">Calendários de Encomendas</h2>
         </div>
         <p className="text-sm text-foreground/60">Visualize suas encomendas em 3 meses consecutivos</p>
-        <CalendariosEncomendas />
+        <CalendariosEncomendas onNovaEncomenda={() => setDialogOpen(true)} />
       </section>
 
       {/* Filtros (logo acima da Lista de Encomendas) */}
