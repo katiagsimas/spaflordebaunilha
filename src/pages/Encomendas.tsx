@@ -1582,6 +1582,15 @@ const Encomendas = () => {
               </form>
             </DialogContent>
           </Dialog>
+          {/* Card minimalista Tags de Encomendas */}
+          <button
+            type="button"
+            onClick={() => navigate('/encomendas/tags')}
+            className="ml-auto flex items-center gap-2 rounded-lg bg-[#3D0F1C] px-4 py-2.5 text-white transition hover:bg-[#3D0F1C]/90 shrink-0"
+          >
+            <TagIcon className="h-4 w-4" />
+            <span className="text-sm font-medium">Tags de Encomendas</span>
+          </button>
       </div>
 
 
@@ -1664,27 +1673,6 @@ const Encomendas = () => {
         ))}
       </div>
 
-      {/* ===== BANNER TAGS DE ENCOMENDAS ===== */}
-      <button
-        type="button"
-        onClick={() => navigate('/encomendas/tags')}
-        className="group block w-full rounded-xl border border-[#5B1A2B]/10 bg-[#FDF6EE] px-5 py-4 text-left transition hover:border-[#C9A14A]/40 hover:shadow-[0_4px_16px_-12px_rgba(91,26,43,0.25)]"
-      >
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-[#5B1A2B]">
-              <TagIcon className="h-5 w-5" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-[#3D0F1C]">Tags de Encomendas</p>
-              <p className="text-xs text-foreground/60">Gerencie as etiquetas para organizar seus pedidos</p>
-            </div>
-          </div>
-          <span className="inline-flex items-center gap-1 text-sm font-medium text-[#C9A14A] transition group-hover:translate-x-0.5">
-            Gerenciar <span aria-hidden="true">→</span>
-          </span>
-        </div>
-      </button>
 
       {/* ===== CALENDÁRIOS DE ENCOMENDAS ===== */}
       <section className="space-y-3">
