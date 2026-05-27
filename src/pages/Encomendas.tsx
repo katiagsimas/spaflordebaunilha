@@ -1658,29 +1658,30 @@ const Encomendas = () => {
         </div>
       </div>
 
-      {/* ===== KPI CARDS ===== */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      {/* ===== KPI CARDS EXPANSÍVEIS COM LISTAS ===== */}
+      <div className="space-y-3">
         {[
-          { label: "Total", value: indicadores.total, Icon: ClipboardList, bg: "bg-[#5B1A2B]/10", color: "text-[#5B1A2B]" },
-          { label: "Pendentes", value: indicadores.pendentes, Icon: Clock, bg: "bg-[#C9A14A]/15", color: "text-[#C9A14A]" },
-          { label: "Confirmadas", value: indicadores.confirmadas, Icon: CheckCircle2, bg: "bg-emerald-100", color: "text-emerald-700" },
-          { label: "Entregues", value: indicadores.entregues, Icon: Truck, bg: "bg-sky-100", color: "text-sky-700" },
-          { label: "Canceladas", value: indicadores.canceladas, Icon: XCircle, bg: "bg-[#F28C82]/20", color: "text-[#F28C82]" },
-        ].map(({ label, value, Icon, bg, color }) => (
-          <div
-            key={label}
-            className="rounded-xl border border-[#5B1A2B]/10 bg-white p-4 shadow-[0_2px_12px_-8px_rgba(91,26,43,0.10)]"
-          >
-            <div className="flex items-center gap-3">
-              <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${bg}`}>
-                <Icon className={`h-5 w-5 ${color}`} strokeWidth={2} />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[11px] uppercase tracking-wide text-foreground/55">{label}</p>
-                <p className="font-display text-[28px] font-normal leading-none text-[#3D0F1C]">{value}</p>
-              </div>
-            </div>
-          </div>
+          { label: "Total", value: indicadores.total, Icon: ClipboardList, bg: "bg-[#5B1A2B]/10", color: "text-[#5B1A2B]", statusKey: null as string | null },
+          { label: "Pendentes", value: indicadores.pendentes, Icon: Clock, bg: "bg-[#C9A14A]/15", color: "text-[#C9A14A]", statusKey: "pendente" },
+          { label: "Confirmadas", value: indicadores.confirmadas, Icon: CheckCircle2, bg: "bg-emerald-100", color: "text-emerald-700", statusKey: "confirmado" },
+          { label: "Entregues", value: indicadores.entregues, Icon: Truck, bg: "bg-sky-100", color: "text-sky-700", statusKey: "entregue" },
+          { label: "Canceladas", value: indicadores.canceladas, Icon: XCircle, bg: "bg-[#F28C82]/20", color: "text-[#F28C82]", statusKey: "cancelado" },
+        ].map((card) => (
+          <EncomendaStatusCard
+            key={card.label}
+            label={card.label}
+            value={card.value}
+            Icon={card.Icon}
+            bg={card.bg}
+            color={card.color}
+            statusKey={card.statusKey}
+            encomendas={encomendasMes}
+            clientesComEncomendas={clientesComEncomendas}
+            tagsDisponiveis={tagsDisponiveis}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onDarBaixa={handleDarBaixa}
+          />
         ))}
       </div>
 
