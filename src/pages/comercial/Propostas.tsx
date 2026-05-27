@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { FileText, Plus, Edit, Trash2, Download, BarChart3, FileSpreadsheet } from "lucide-react";
+import { FileText, Plus, Edit, Trash2, Download, BarChart3, FileSpreadsheet, Send, CheckCircle2, Coins, LayoutList } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
