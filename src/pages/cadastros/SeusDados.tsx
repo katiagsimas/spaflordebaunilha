@@ -19,13 +19,17 @@ import {
   Upload,
   X,
   Search,
-  User as UserIcon,
+  UserRound,
   Building2,
   MapPin,
   Landmark,
-  BadgeCheck,
-  FileSignature,
+  ShieldCheck,
+  PenLine,
+  CalendarDays,
+  Clock,
+  ChevronLeft,
 } from "lucide-react";
+import bannerImg from "@/assets/meus-dados-banner.jpg";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
@@ -348,35 +352,56 @@ export default function SeusDados() {
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title={profile?.primeiro_acesso ? "Bem-vinda! Complete seus dados" : "Meus Dados"}
-        description="Gerencie seu perfil e os dados empresariais que serão usados em propostas, contratos, relatórios e em toda a plataforma."
-      />
+    <div className="space-y-6 relative">
+      {/* Header */}
+      <header>
+        <h1
+          className="text-[36px] leading-tight font-normal text-[#3D0F1C]"
+          style={{ fontFamily: "'Playfair Display', serif" }}
+        >
+          {profile?.primeiro_acesso ? "Bem-vinda! Complete seus dados" : "Meus Dados"}
+        </h1>
+        <div className="flex items-center gap-3 mt-1">
+          <span className="block w-10 h-[1.5px] bg-[#C9A14A] shrink-0" />
+          <p className="text-[13px] text-[#3D0F1C]/65 italic">
+            Gerencie seu perfil e os dados empresariais que serão usados em propostas, contratos, relatórios e em toda a plataforma.
+          </p>
+        </div>
+      </header>
+
+      {/* Banner decorativo */}
+      <div className="rounded-xl overflow-hidden h-[110px]">
+        <img
+          src={bannerImg}
+          alt=""
+          loading="lazy"
+          className="w-full h-full object-cover"
+        />
+      </div>
+
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <Card>
           <CardContent className="pt-6">
             <Tabs defaultValue="pessoal" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1 h-auto p-1 mb-6">
-                <TabsTrigger value="pessoal" className="text-xs sm:text-sm">
-                  <UserIcon className="h-3.5 w-3.5 mr-1 hidden sm:inline" /> Pessoal
-                </TabsTrigger>
-                <TabsTrigger value="empresa" className="text-xs sm:text-sm">
-                  <Building2 className="h-3.5 w-3.5 mr-1 hidden sm:inline" /> Empresa
-                </TabsTrigger>
-                <TabsTrigger value="endereco" className="text-xs sm:text-sm">
-                  <MapPin className="h-3.5 w-3.5 mr-1 hidden sm:inline" /> Endereço
-                </TabsTrigger>
-                <TabsTrigger value="bancario" className="text-xs sm:text-sm">
-                  <Landmark className="h-3.5 w-3.5 mr-1 hidden sm:inline" /> Bancário
-                </TabsTrigger>
-                <TabsTrigger value="legal" className="text-xs sm:text-sm">
-                  <BadgeCheck className="h-3.5 w-3.5 mr-1 hidden sm:inline" /> Legal
-                </TabsTrigger>
-                <TabsTrigger value="assinatura" className="text-xs sm:text-sm">
-                  <FileSignature className="h-3.5 w-3.5 mr-1 hidden sm:inline" /> Assinatura
-                </TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1 h-auto p-0 mb-6 bg-transparent">
+                {[
+                  { v: "pessoal", l: "Pessoal", Icon: UserRound },
+                  { v: "empresa", l: "Empresa", Icon: Building2 },
+                  { v: "endereco", l: "Endereço", Icon: MapPin },
+                  { v: "bancario", l: "Bancário", Icon: Landmark },
+                  { v: "legal", l: "Legal", Icon: ShieldCheck },
+                  { v: "assinatura", l: "Assinatura", Icon: PenLine },
+                ].map(({ v, l, Icon }) => (
+                  <TabsTrigger
+                    key={v}
+                    value={v}
+                    className="rounded-lg px-4 py-2 text-sm bg-white border border-[#5B1A2B]/15 text-[#3D0F1C]/60 hover:border-[#C9A14A]/50 data-[state=active]:bg-[#C9A14A] data-[state=active]:text-[#3D0F1C] data-[state=active]:font-bold data-[state=active]:border-[#C9A14A] data-[state=active]:shadow-none"
+                  >
+                    <Icon className="h-3.5 w-3.5 mr-1.5" />
+                    <span className="hidden sm:inline">{l}</span>
+                  </TabsTrigger>
+                ))}
               </TabsList>
 
               {/* PESSOAL */}
@@ -683,17 +708,114 @@ export default function SeusDados() {
           </CardContent>
         </Card>
 
-        <div className="flex justify-end">
-          <Button type="submit" disabled={updateProfileMutation.isPending} className="min-w-[200px]">
-            <Save className="h-4 w-4 mr-2" />
-            {updateProfileMutation.isPending
-              ? "Salvando..."
-              : profile?.primeiro_acesso
-              ? "Salvar e Continuar"
-              : "Salvar Dados"}
-          </Button>
-        </div>
+        {/* Resumo do Perfil */}
+        {(() => {
+          const p: any = profile || {};
+          const bancarios = p.dados_bancarios || {};
+          const secoes = [
+            { label: "Pessoal", ok: !!(p.nome_completo && p.email), cor: "#C9A14A" },
+            { label: "Empresa", ok: !!(p.nome_confeitaria && p.cpf), cor: "#C9A14A" },
+            { label: "Contatos", ok: !!(p.whatsapp || p.telefone), cor: "#5B1A2B" },
+            { label: "Endereço", ok: !!(p.cep && p.endereco && p.cidade && p.estado), cor: "#5B1A2B" },
+            { label: "Completo", ok: !!(bancarios.banco || bancarios.pix), cor: "#FDF6EE", border: true },
+          ];
+          const preenchidas = secoes.filter((s) => s.ok).length;
+          const pct = Math.round((preenchidas / secoes.length) * 100);
+
+          const lastSignIn = (user as any)?.last_sign_in_at as string | undefined;
+          const ultimoAcesso = lastSignIn
+            ? new Date(lastSignIn).toLocaleString("pt-BR", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                timeZone: "UTC",
+              }) + " UTC"
+            : "—";
+
+          return (
+            <section>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2 text-[#3D0F1C]">
+                  <CalendarDays className="h-5 w-5 text-[#5B1A2B]" />
+                  <h2 className="text-[18px]" style={{ fontFamily: "'Playfair Display', serif" }}>
+                    Resumo do Perfil
+                  </h2>
+                </div>
+                <Button
+                  type="submit"
+                  disabled={updateProfileMutation.isPending}
+                  className="rounded-lg px-5 py-2.5 text-sm bg-[#3D0F1C] hover:bg-[#5B1A2B] text-white"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  {updateProfileMutation.isPending
+                    ? "Salvando..."
+                    : profile?.primeiro_acesso
+                    ? "Salvar e Continuar"
+                    : "Salvar Dados"}
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Completude */}
+                <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5 flex gap-4 items-start">
+                  <div className="w-13 h-13 rounded-full bg-[#FDF6EE] flex items-center justify-center shrink-0" style={{ width: 52, height: 52 }}>
+                    <ShieldCheck className="h-6 w-6 text-[#C9A14A]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-[15px] text-[#3D0F1C] mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                      Completude do Perfil
+                    </h3>
+                    <div className="h-3 rounded-full bg-[#FDF6EE] overflow-hidden">
+                      <div
+                        className="h-full bg-[#C9A14A] rounded-full transition-all"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <div className="flex flex-wrap gap-x-3 gap-y-1.5 mt-3">
+                      {secoes.map((s) => (
+                        <div key={s.label} className="flex items-center gap-1.5 text-[11px] text-[#3D0F1C]/80">
+                          <span
+                            className={`inline-block w-2.5 h-2.5 rounded-sm ${s.border ? "border border-[#5B1A2B]/20" : ""}`}
+                            style={{ backgroundColor: s.cor }}
+                          />
+                          {s.label}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Último Acesso */}
+                <div
+                  className="border border-[#5B1A2B]/10 rounded-xl p-5 flex gap-4 items-center"
+                  style={{ background: "linear-gradient(135deg, #FDF6EE 0%, #FFFFFF 100%)" }}
+                >
+                  <div className="rounded-full bg-white flex items-center justify-center shrink-0 border border-[#5B1A2B]/10" style={{ width: 52, height: 52 }}>
+                    <Clock className="h-6 w-6 text-[#5B1A2B]" />
+                  </div>
+                  <div>
+                    <h3 className="text-[15px] text-[#3D0F1C]" style={{ fontFamily: "'Playfair Display', serif" }}>
+                      Último Acesso
+                    </h3>
+                    <p className="text-sm text-[#3D0F1C] mt-1">{ultimoAcesso}</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          );
+        })()}
       </form>
+
+      <button
+        type="button"
+        onClick={() => navigate(-1)}
+        aria-label="Voltar"
+        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-[#5B1A2B] hover:bg-[#3D0F1C] text-white shadow-lg flex items-center justify-center transition"
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </button>
     </div>
   );
 }
