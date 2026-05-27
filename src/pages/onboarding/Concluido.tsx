@@ -94,7 +94,7 @@ export default function OnboardingConcluido() {
             </div>
 
             <p className="text-sm text-cda-preto/70 font-body">
-              Escolha como quer continuar:
+              Pronta para começar?
             </p>
 
             {/* Botão final — centralizado */}
