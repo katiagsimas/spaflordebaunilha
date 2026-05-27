@@ -274,29 +274,6 @@ export default function Clientes() {
         backButton={<BackButton to="/clientes-fornecedores" />}
       />
 
-      {aniversariantesDoMes.length > 0 && (
-        <AniversariantesPremiumCard
-          itens={aniversariantesDoMes.map((item: any) => ({
-            id: item.id,
-            nome: item.nome,
-            data_aniversario: item.data_aniversario,
-            telefone: item.telefone,
-            legenda:
-              "tipo_aniversariante" in item && item.tipo_aniversariante === "familiar"
-                ? `${item.parentesco ?? "Familiar"} de ${item.cliente_nome ?? ""}`.trim()
-                : undefined,
-            onClick: () => {
-              if ("tipo_aniversariante" in item && item.tipo_aniversariante === "cliente") {
-                const cliente = clientes.find((c: any) => c.id === item.id);
-                if (cliente) setEditingCliente(cliente);
-              } else if ("cliente_id" in item) {
-                const cliente = clientes.find((c: any) => c.id === item.cliente_id);
-                if (cliente) setEditingCliente(cliente);
-              }
-            },
-          }))}
-        />
-      )}
 
 
       <Card>
