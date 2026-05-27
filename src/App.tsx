@@ -93,6 +93,10 @@ import Propostas from "./pages/comercial/Propostas";
 import NovaProposta from "./pages/comercial/NovaProposta";
 import RelatorioPropostas from "./pages/comercial/RelatorioPropostas";
 import Contratos from "./pages/comercial/Contratos";
+import OnboardingBemVinda from "./pages/onboarding/BemVinda";
+import OnboardingConcluido from "./pages/onboarding/Concluido";
+
+
 
 
 const queryClient = new QueryClient();
@@ -216,7 +220,11 @@ const App = () => (
             <Route path="/sso-retorno" element={<SSOReturnPage />} />
           {/* Redirecionar raiz para Dashboard */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          
+
+          {/* Onboarding de primeiro acesso */}
+          <Route path="/onboarding/bem-vinda" element={<ProtectedRoute><Layout><OnboardingBemVinda /></Layout></ProtectedRoute>} />
+          <Route path="/onboarding/concluido" element={<ProtectedRoute><Layout><OnboardingConcluido /></Layout></ProtectedRoute>} />
+
           {/* Dashboard Principal */}
           <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
           

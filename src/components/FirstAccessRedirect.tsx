@@ -4,12 +4,20 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
+import { useGroup } from '@/contexts/GroupContext';
+
+const ROTA_BEM_VINDA = '/onboarding/bem-vinda';
+const ROTA_CONCLUIDO = '/onboarding/concluido';
+const ROTA_DADOS = '/configuracoes/dados-confeitaria';
+const ROTA_MAO_OBRA = '/configuracoes/precificacao/mao-de-obra';
+const ROTA_BACKUP = '/configuracoes/backup';
 
 export function FirstAccessRedirect() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { isAdmin, isLoading: loadingAdmin } = useIsAdmin();
+  const { isMother } = useGroup();
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ['profile', user?.id],
@@ -25,7 +33,7 @@ export function FirstAccessRedirect() {
     enabled: !!user,
   });
 
-  // Verifica se existe perfil de mão de obra (ou valor_hora no profile) e backup
+  // Verifica se existe perfil de mão de obra e backup
   const { data: onboardingStatus, isLoading: loadingOnboarding } = useQuery({
     queryKey: ['onboarding-status', user?.id],
     queryFn: async () => {
@@ -39,14 +47,14 @@ export function FirstAccessRedirect() {
         temBackup: (bkpCount ?? 0) > 0,
       };
     },
-    enabled: !!user && !!profile && profile.ativo !== false && !!profile.nome_confeitaria && !profile.primeiro_acesso && !isAdmin,
+    enabled: !!user && !!profile && profile.ativo !== false && !isAdmin && !isMother && !(profile as any).onboarding_concluido,
   });
 
   useEffect(() => {
     if (isLoading || !profile || loadingAdmin) return;
 
-    // Admins têm acesso total — sem restrições de onboarding
-    if (isAdmin) return;
+    // Admins (legacy) e MOTHER têm acesso total — sem onboarding obrigatório
+    if (isAdmin || isMother) return;
 
     // Usuário inativo → logout
     if (profile.ativo === false) {
@@ -56,10 +64,22 @@ export function FirstAccessRedirect() {
       return;
     }
 
-    // Etapa 1: Meus Dados (Dados da Confeitaria) — obrigatório para TODOS os usuários,
-    // independentemente do plano. Considera incompleto se faltar qualquer campo
-    // essencial de identificação, contato ou endereço — mesmo para usuários
-    // antigos onde `primeiro_acesso` já foi marcado como false.
+    const p: any = profile;
+    const onboardingConcluido = p.onboarding_concluido === true;
+    const onboardingIniciado = p.onboarding_iniciado === true;
+
+    // Se já concluiu, nada a fazer
+    if (onboardingConcluido) return;
+
+    // Etapa 0: Boas-vindas — antes de qualquer cadastro
+    if (!onboardingIniciado) {
+      if (location.pathname !== ROTA_BEM_VINDA) {
+        navigate(ROTA_BEM_VINDA, { replace: true });
+      }
+      return;
+    }
+
+    // Etapa 1: Meus Dados (Dados da Confeitaria) — obrigatório para TODOS
     const camposObrigatoriosMeusDados = [
       'nome_completo',
       'nome_confeitaria',
@@ -78,42 +98,42 @@ export function FirstAccessRedirect() {
       });
 
     if (dadosIncompletos) {
-      if (location.pathname !== '/configuracoes/dados-confeitaria') {
-        navigate('/configuracoes/dados-confeitaria', { replace: true });
+      if (location.pathname !== ROTA_DADOS) {
+        navigate(ROTA_DADOS, { replace: true });
       }
       return;
     }
 
-    // Etapa 2: Mão de Obra e Backup obrigatórios
+    // Etapas 2 e 3 dependem de consultas adicionais
     if (loadingOnboarding || !onboardingStatus) return;
     const { temMaoObra, temBackup } = onboardingStatus;
 
-    // Etapa 2a: Falta valor de mão de obra
+    // Etapa 2: Mão de Obra
     if (!temMaoObra) {
-      const rotasPermitidas = [
-        '/configuracoes/precificacao/mao-de-obra',
-        '/configuracoes/dados-confeitaria',
-      ];
+      const rotasPermitidas = [ROTA_MAO_OBRA, ROTA_DADOS];
       const emRotaPermitida = rotasPermitidas.some((r) => location.pathname.startsWith(r));
       if (!emRotaPermitida) {
-        navigate('/configuracoes/precificacao/mao-de-obra', { replace: true });
+        navigate(ROTA_MAO_OBRA, { replace: true });
       }
       return;
     }
 
-    // Etapa 2b: Falta backup inicial
+    // Etapa 3: Backup
     if (!temBackup) {
-      const rotasPermitidas = [
-        '/configuracoes/backup',
-        '/configuracoes/precificacao/mao-de-obra',
-        '/configuracoes/dados-confeitaria',
-      ];
+      const rotasPermitidas = [ROTA_BACKUP, ROTA_MAO_OBRA, ROTA_DADOS];
       const emRotaPermitida = rotasPermitidas.some((r) => location.pathname.startsWith(r));
       if (!emRotaPermitida) {
-        navigate('/configuracoes/backup', { replace: true });
+        navigate(ROTA_BACKUP, { replace: true });
       }
+      return;
     }
-  }, [profile, isLoading, onboardingStatus, loadingOnboarding, location.pathname, navigate, isAdmin, loadingAdmin]);
+
+    // Etapa 4: Tudo preenchido, mas ainda não marcou onboarding_concluido
+    // → exibe o cartão de conclusão
+    if (location.pathname !== ROTA_CONCLUIDO) {
+      navigate(ROTA_CONCLUIDO, { replace: true });
+    }
+  }, [profile, isLoading, onboardingStatus, loadingOnboarding, location.pathname, navigate, isAdmin, isMother, loadingAdmin]);
 
   return null;
 }
