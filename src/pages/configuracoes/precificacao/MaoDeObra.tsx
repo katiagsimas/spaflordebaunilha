@@ -178,7 +178,7 @@ export default function MaoDeObra() {
       <PageHeader
         title="Mão de Obra"
         description="Configure os perfis de mão de obra utilizados nas fichas técnicas"
-        backButton={<BackButton to="/configuracoes/precificacao" />}
+        backButton={<BackButton to="/cadastros" />}
       />
 
       <div className="p-4 md:p-6 space-y-6">

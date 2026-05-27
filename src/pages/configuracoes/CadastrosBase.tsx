@@ -13,7 +13,7 @@ export default function CadastrosBase() {
       <PageHeader
         title="Cadastros Base"
         description="Gerencie categorias e dados da confeitaria"
-        backButton={<BackButton to="/configuracoes" />}
+        backButton={<BackButton to="/cadastros" />}
       />
       
       <div className="p-4 md:p-6">
