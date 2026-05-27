@@ -2010,6 +2010,26 @@ const Encomendas = () => {
       </Card>
       </div>
       <ModuleHelpDrawer content={encomendaHelp} isOpen={isHelpOpen} onClose={closeHelp} />
+
+      {/* ===== BOTÕES FLUTUANTES ===== */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          aria-label="Voltar ao topo"
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-[#C9A14A] text-white shadow-lg transition hover:bg-[#b58c39]"
+        >
+          <ArrowUp className="h-5 w-5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          aria-label="Voltar"
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-[#5B1A2B] text-white shadow-lg transition hover:bg-[#3D0F1C]"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+      </div>
     </div>
   );
 };
