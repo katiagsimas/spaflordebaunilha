@@ -965,9 +965,18 @@ export default function Dashboard() {
       {/* ===== HEADER ===== */}
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="font-display text-3xl tracking-tight text-cda-vinho-escuro sm:text-4xl">
-            {saudacaoPorHora().texto}, {getPrimeiroNome(profile?.nome_completo, user?.email)}! {saudacaoPorHora().emoji}
-          </h1>
+          <div className="flex items-center gap-3 sm:gap-4">
+            <h1 className="font-display text-3xl tracking-tight text-cda-vinho-escuro sm:text-4xl">
+              {saudacaoPorHora().texto}, {getPrimeiroNome(profile?.nome_completo, user?.email)}!
+            </h1>
+            <img
+              src={saudacaoPorHora().imagem}
+              alt={saudacaoPorHora().texto}
+              className="h-12 w-12 shrink-0 object-contain sm:h-16 sm:w-16 md:h-20 md:w-20"
+              loading="eager"
+              decoding="async"
+            />
+          </div>
           <div className="mt-2 flex items-center gap-3">
             <span className="h-px w-12 bg-cda-dourado" />
             <p className="text-sm font-body italic text-cda-vinho/70">
