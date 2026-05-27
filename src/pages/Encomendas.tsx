@@ -964,50 +964,19 @@ const Encomendas = () => {
   return (
     <div className="flex h-full overflow-hidden">
       <div className="flex-1 min-w-0 overflow-auto space-y-8">
-      <div className="flex justify-end">
+      <div className="flex items-center justify-end gap-3">
         <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} />
-      </div>
-      {temEncomendasHoje && (
-        <Alert className="border-2 border-cda-dourado bg-cda-dourado/15 animate-pulse">
-          <AlertCircle className="h-5 w-5 text-cda-dourado" />
-          <AlertDescription className="font-semibold text-foreground ml-2">
-            🔔 Você tem {encomendasHojeQtd} encomenda{encomendasHojeQtd > 1 ? "s" : ""} para entregar HOJE!
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* ===== HEADER PREMIUM ===== */}
-      <div className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 bg-[#FFF9F5] px-6 py-6 sm:px-8 sm:py-7 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]">
-        <img
-          src={agendaHeroImg}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute right-48 top-1/2 hidden h-[130px] -translate-y-1/2 object-contain lg:block"
-        />
-        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0">
-            <h1 className="font-display text-3xl font-normal leading-tight text-[#3D0F1C] sm:text-[36px]">
-              Pedidos e Encomendas
-            </h1>
-            <div className="mt-2 flex items-center gap-3">
-              <span className="h-px w-10 bg-[#C9A14A]" />
-              <p className="text-sm italic text-[#C9A14A]">
-                Do pedido à entrega, tudo sob controle
-              </p>
-            </div>
-          </div>
-
-          <Dialog open={dialogOpen} onOpenChange={(open) => {
-            setDialogOpen(open);
-            if (!open) resetForm();
-          }}>
-            <DialogTrigger asChild>
-              <Button className="shrink-0 rounded-lg bg-[#3D0F1C] text-white hover:bg-[#3D0F1C]/90">
-                <Plus className="h-4 w-4 mr-2" />
-                Nova Encomenda
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <Dialog open={dialogOpen} onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) resetForm();
+        }}>
+          <DialogTrigger asChild>
+            <Button className="shrink-0 rounded-lg bg-[#3D0F1C] text-white hover:bg-[#3D0F1C]/90">
+              <Plus className="h-4 w-4 mr-2" />
+              Nova Encomenda
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
                   {editingOrder ? "Editar Encomenda" : "Nova Encomenda"}
@@ -1578,8 +1547,47 @@ const Encomendas = () => {
               </form>
             </DialogContent>
           </Dialog>
+      </div>
+
+      {temEncomendasHoje && (
+        <Alert className="border-2 border-cda-dourado bg-cda-dourado/15 animate-pulse">
+          <AlertCircle className="h-5 w-5 text-cda-dourado" />
+          <AlertDescription className="font-semibold text-foreground ml-2">
+            🔔 Você tem {encomendasHojeQtd} encomenda{encomendasHojeQtd > 1 ? "s" : ""} para entregar HOJE!
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* ===== HEADER PREMIUM ===== */}
+      <div
+        className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
+        style={{
+          background:
+            "linear-gradient(110deg, #FDECEC 0%, #FBE0DC 45%, #F8D5CF 75%, #F4C8C2 100%)",
+        }}
+      >
+        <div className="flex items-center">
+          <div className="flex-1 min-w-0 px-6 py-6 sm:px-8 sm:py-7">
+            <h1 className="font-display text-3xl font-normal leading-tight text-[#3D0F1C] sm:text-[36px]">
+              Pedidos e Encomendas
+            </h1>
+            <div className="mt-2 flex items-center gap-3">
+              <span className="h-px w-10 bg-[#C9A14A]" />
+              <p className="text-sm italic text-[#C9A14A]">
+                Do pedido à entrega, tudo sob controle
+              </p>
+            </div>
+          </div>
+          <img
+            src={agendaHeroImg}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none hidden lg:block h-[150px] w-auto object-contain object-right shrink-0"
+          />
         </div>
       </div>
+
+
 
 
       {/* DASHBOARD DE ENCOMENDAS */}
