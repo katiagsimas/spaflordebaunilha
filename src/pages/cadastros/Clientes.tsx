@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
+import { AniversariantesPremiumCard } from "@/components/AniversariantesPremiumCard";
 import { BackButton } from "@/components/BackButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -267,68 +268,36 @@ export default function Clientes() {
 
   return (
     <div className="space-y-6">
-      <BackButton to="/clientes-fornecedores" />
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight">Clientes</h1>
-        <Badge variant="secondary" className="text-sm px-3 py-1">
-          {clientes.length} {clientes.length === 1 ? 'cliente cadastrado' : 'clientes cadastrados'}
-        </Badge>
-      </div>
+      <PageHeader
+        title="Clientes"
+        description={`${clientes.length} ${clientes.length === 1 ? "cliente cadastrado" : "clientes cadastrados"}`}
+        backButton={<BackButton to="/clientes-fornecedores" />}
+      />
 
       {aniversariantesDoMes.length > 0 && (
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <Cake className="h-5 w-5 animate-bounce" />
-            🎉 Aniversariantes do Mês
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {aniversariantesDoMes.map((item) => (
-              <Card 
-                key={item.id}
-                className="bg-gradient-to-r from-blue-500/10 via-cyan-500/10 to-teal-500/10 dark:from-blue-500/20 dark:via-cyan-500/20 dark:to-teal-500/20 border-2 border-blue-300/50 dark:border-blue-500/50 hover:shadow-lg transition-all duration-300 cursor-pointer"
-                onClick={() => {
-                  if ('tipo_aniversariante' in item && item.tipo_aniversariante === 'cliente') {
-                    const cliente = clientes.find(c => c.id === item.id);
-                    if (cliente) setEditingCliente(cliente);
-                  } else if ('cliente_id' in item) {
-                    // Se é familiar, abre o cliente
-                    const cliente = clientes.find(c => c.id === item.cliente_id);
-                    if (cliente) setEditingCliente(cliente);
-                  }
-                }}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                        <Cake className="h-6 w-6 text-white animate-bounce" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm truncate">
-                        {item.nome}
-                      </p>
-                      {'tipo_aniversariante' in item && item.tipo_aniversariante === 'familiar' && (
-                        <p className="text-xs text-blue-600 dark:text-blue-400">
-                          {item.parentesco} de {item.cliente_nome}
-                        </p>
-                      )}
-                      <p className="text-xs text-muted-foreground">
-                        {parseISOToDate(item.data_aniversario)?.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }) ?? ''}
-                      </p>
-                      {item.telefone && (
-                        <p className="text-xs text-muted-foreground truncate">
-                          {item.telefone}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
+        <AniversariantesPremiumCard
+          itens={aniversariantesDoMes.map((item: any) => ({
+            id: item.id,
+            nome: item.nome,
+            data_aniversario: item.data_aniversario,
+            telefone: item.telefone,
+            legenda:
+              "tipo_aniversariante" in item && item.tipo_aniversariante === "familiar"
+                ? `${item.parentesco ?? "Familiar"} de ${item.cliente_nome ?? ""}`.trim()
+                : undefined,
+            onClick: () => {
+              if ("tipo_aniversariante" in item && item.tipo_aniversariante === "cliente") {
+                const cliente = clientes.find((c: any) => c.id === item.id);
+                if (cliente) setEditingCliente(cliente);
+              } else if ("cliente_id" in item) {
+                const cliente = clientes.find((c: any) => c.id === item.cliente_id);
+                if (cliente) setEditingCliente(cliente);
+              }
+            },
+          }))}
+        />
       )}
+
 
       <Card>
         <CardHeader>
