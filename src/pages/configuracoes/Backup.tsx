@@ -606,7 +606,7 @@ export default function Backup() {
                       await queryClient.refetchQueries({ queryKey: ["onboarding-status"], type: "active" });
                       if (eraOnboarding) {
                         toast.success("Configuração concluída! Bem-vindo(a) ao Caixa de Açúcar 🎉");
-                        navigate("/", { replace: true });
+                        setTimeout(() => navigate("/onboarding/concluido", { replace: true }), 50);
                       }
                     }
                   } catch {

@@ -298,11 +298,20 @@ export default function SeusDados() {
       const { error } = await supabase.from("profiles").update(payload).eq("id", user.id);
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["profile", user?.id, activeGroup?.id] });
-      queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
-      queryClient.invalidateQueries({ queryKey: ["business-profile", user?.id] });
+    onSuccess: async () => {
+      const eraOnboarding =
+        profile?.primeiro_acesso === true || (profile as any)?.onboarding_concluido !== true;
+      await queryClient.invalidateQueries({ queryKey: ["profile", user?.id, activeGroup?.id] });
+      await queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
+      await queryClient.invalidateQueries({ queryKey: ["business-profile", user?.id] });
+      await queryClient.refetchQueries({ queryKey: ["profile", user?.id], type: "active" });
       toast.success("✅ Dados salvos com sucesso!");
+      if (eraOnboarding) {
+        setTimeout(
+          () => navigate("/configuracoes/precificacao/mao-de-obra", { replace: true }),
+          50
+        );
+      }
     },
     onError: (error: any) => {
       toast.error(error?.message ? `Erro: ${error.message}` : "Erro ao salvar dados.");
