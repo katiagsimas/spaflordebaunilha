@@ -165,3 +165,20 @@ Sem RLS explícita (herda da encomenda via JOIN)
 ## 9. SCHEMA ZOD
 
 Definido em `src/schemas/encomendaSchema.ts` para validação do formulário de encomendas.
+
+---
+
+## 10. TAGS DE ENCOMENDAS (atualização 2026-05-27)
+
+As tags de encomendas foram convertidas em **tags padrão do sistema**, compartilhadas por todos os usuários.
+
+### Estrutura
+- Tabela `tags_encomendas` com `user_id = NULL` e `padrao_sistema = true` representa as tags do sistema, visíveis para todos via RLS.
+- Tags com `user_id` preenchido continuam sendo personalizadas por usuário.
+- Função `criar_tags_padrao_encomendas(uuid)` foi neutralizada (no-op): novos usuários já enxergam as tags do sistema automaticamente.
+
+### Tags padrão (10)
+Aniversário, Bodas, Casamento, Corporativo, Delivery, Infantil, Mesversário, Personalizado, Retirada, Urgente.
+
+### Rota
+`/encomendas/tags` (antiga `/configuracoes/tags-encomendas` mantém redirect).
