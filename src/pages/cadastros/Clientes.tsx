@@ -191,45 +191,6 @@ export default function Clientes() {
     }
   };
 
-  // Filtrar aniversariantes do mês (clientes e familiares)
-  const aniversariantesDoMes = useMemo(() => {
-    const mesAtual = new Date().getMonth();
-    
-    const clientesAniversariantes = clientes.filter(cliente => {
-      if (!cliente.data_aniversario) return false;
-      const dataAniversario = parseISOToDate(cliente.data_aniversario);
-      return dataAniversario.getMonth() === mesAtual;
-    }).map(cliente => ({
-      ...cliente,
-      tipo_aniversariante: 'cliente' as const,
-    }));
-
-    const familiaresAniversariantes = allFamiliares.filter(familiar => {
-      if (!familiar.data_nascimento) return false;
-      const dataAniversario = parseISOToDate(familiar.data_nascimento);
-      return dataAniversario.getMonth() === mesAtual;
-    }).map(familiar => {
-      const cliente = clientes.find(c => c.id === familiar.cliente_id);
-      return {
-        id: familiar.id,
-        nome: familiar.nome,
-        data_aniversario: familiar.data_nascimento,
-        telefone: cliente?.telefone,
-        tipo_aniversariante: 'familiar' as const,
-        parentesco: familiar.parentesco,
-        cliente_nome: cliente?.nome,
-        cliente_id: familiar.cliente_id,
-      };
-    });
-
-    const todos = [...clientesAniversariantes, ...familiaresAniversariantes];
-    
-    return todos.sort((a, b) => {
-      const dataA = parseISOToDate(a.data_aniversario)?.getDate() ?? 0;
-      const dataB = parseISOToDate(b.data_aniversario)?.getDate() ?? 0;
-      return dataA - dataB;
-    });
-  }, [clientes, allFamiliares]);
 
   // Filtrar clientes por busca
   const clientesFiltrados = clientes.filter(cliente =>
