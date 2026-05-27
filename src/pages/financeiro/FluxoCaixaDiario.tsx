@@ -224,18 +224,13 @@ export default function FluxoCaixaDiario() {
   const anos = Array.from({ length: anoAtual - 2024 + 5 }, (_, i) => 2025 + i);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <BackButton to="/financeiro/fluxo-caixa" />
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <DollarSign className="w-7 h-7 text-primary" />
-            Fluxo de Caixa Diário
-          </h1>
-          <p className="text-muted-foreground">Movimentações do mês dia a dia</p>
-        </div>
-      </div>
+    <div className="container mx-auto p-6 space-y-6">
+      <PageHeader
+        title="Fluxo de Caixa Diário"
+        description="Movimentações do mês dia a dia."
+        backButton={<BackButton to="/financeiro/fluxo-caixa" />}
+      />
+
 
       {/* Filtro de Ano e Mês */}
       <Card>

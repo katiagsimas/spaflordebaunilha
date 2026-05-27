@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -46,28 +47,23 @@ export default function DashboardFinanceiro() {
     return <LoadingStateFullScreen message="Carregando Dashboard Financeiro" submessage="Calculando indicadores financeiros..." />;
   }
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/financeiro")}
-          >
+    <div className="container mx-auto p-6 space-y-6">
+      <PageHeader
+        title="Dashboard Financeiro"
+        description="Visão completa da saúde financeira do seu negócio."
+        backButton={
+          <Button variant="ghost" size="icon" onClick={() => navigate("/financeiro")}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Dashboard Financeiro</h1>
-            <p className="text-muted-foreground">Visão completa da saúde financeira</p>
-          </div>
-        </div>
-        <Button onClick={() => setTransferenciaOpen(true)} variant="outline" className="gap-2">
-          <ArrowLeftRight className="h-4 w-4" />
-          Transferência entre Bancos
-        </Button>
-      </div>
+        }
+        actions={
+          <Button onClick={() => setTransferenciaOpen(true)} variant="outline" className="gap-2 border-cda-dourado/40 text-cda-vinho hover:bg-cda-dourado/10">
+            <ArrowLeftRight className="h-4 w-4" />
+            Transferência entre Bancos
+          </Button>
+        }
+      />
+
 
       <TransferenciaBancosModal
         open={transferenciaOpen}

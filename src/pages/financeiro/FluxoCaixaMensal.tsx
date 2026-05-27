@@ -302,18 +302,13 @@ export default function FluxoCaixaMensal() {
   if (fluxo === null) return null;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <BackButton to="/financeiro/fluxo-caixa" />
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <DollarSign className="w-7 h-7 text-primary" />
-            Fluxo de Caixa Mensal
-          </h1>
-          <p className="text-muted-foreground">Visão comparativa mensal completa</p>
-        </div>
-      </div>
+    <div className="container mx-auto p-6 space-y-6">
+      <PageHeader
+        title="Fluxo de Caixa Mensal"
+        description="Visão comparativa mensal completa."
+        backButton={<BackButton to="/financeiro/fluxo-caixa" />}
+      />
+
 
       {/* Filtro de Ano */}
       <Card>
