@@ -83,6 +83,7 @@ import { HelpButton } from '@/components/help/HelpButton';
 import { ModuleHelpDrawer } from '@/components/help/ModuleHelpDrawer';
 import { financeiroHelp } from '@/components/help/contents/financeiroHelp';
 import dinheiroHero from '@/assets/dinheiro-hero-banner.jpg';
+import { HeroBanner } from '@/components/HeroBanner';
 
 export default function Financeiro() {
   const navigate = useNavigate();
@@ -369,25 +370,13 @@ export default function Financeiro() {
             <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} />
           </div>
 
-          {/* HERO BANNER */}
-          <div className="relative rounded-xl overflow-hidden border border-[#5B1A2B]/10 shadow-sm h-[200px]">
-            <img
-              src={dinheiroHero}
-              alt="Meu Dinheiro"
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-            <div className="absolute bottom-0 left-0 p-6">
-              <h1 className="font-display text-[40px] leading-none font-normal text-[#3D0F1C]">
-                Meu Dinheiro
-              </h1>
-              <div className="flex items-center gap-3 mt-2">
-                <span className="block w-10 h-[1.5px] bg-[#C9A14A]" />
-                <p className="italic text-[#C9A14A] text-sm">
-                  Controle total do que entra, sai e vira lucro.
-                </p>
-              </div>
-            </div>
-          </div>
+          {/* HERO BANNER padronizado */}
+          <HeroBanner
+            image={dinheiroHero}
+            title="Meu Dinheiro"
+            subtitle="Controle total do que entra, sai e vira lucro."
+            imageAlt="Meu Dinheiro"
+          />
 
           {/* CARDS DE NAVEGAÇÃO 2x3 */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">

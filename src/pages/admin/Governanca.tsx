@@ -25,6 +25,7 @@ import {
   LabelList,
 } from 'recharts';
 import heroBanner from '@/assets/governanca-hero-banner.jpg';
+import { HeroBanner } from '@/components/HeroBanner';
 
 interface BackupRow {
   id: string;
@@ -165,49 +166,12 @@ export default function Governanca() {
   return (
     <div className="min-h-screen bg-[#FDF6EE]">
       <div className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="font-display text-[36px] font-normal text-[#3D0F1C] leading-tight">
-              Governança
-            </h1>
-            <div className="flex items-center gap-3 mt-1">
-              <span
-                aria-hidden
-                className="inline-block"
-                style={{ width: 40, height: 1.5, background: '#C9A14A' }}
-              />
-              <p className="font-body text-[13px] italic text-[#3D0F1C]/65">
-                Administração e auditoria do sistema.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-label="Calendário"
-              className="rounded-full w-9 h-9 bg-white/70 border border-[#5B1A2B]/15 flex items-center justify-center text-[#5B1A2B] hover:bg-white transition"
-            >
-              <CalendarDays className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              aria-label="Configurações"
-              className="rounded-full w-9 h-9 bg-white/70 border border-[#5B1A2B]/15 flex items-center justify-center text-[#5B1A2B] hover:bg-white transition"
-            >
-              <Settings2 className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Hero banner */}
-        <div className="rounded-xl overflow-hidden relative" style={{ height: 140 }}>
-          <img
-            src={heroBanner}
-            alt=""
-            className="object-cover w-full h-full"
-          />
-        </div>
+        {/* HERO BANNER padronizado */}
+        <HeroBanner
+          image={heroBanner}
+          title="Governança"
+          subtitle="Administração e auditoria do sistema."
+        />
 
         {/* Nav cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

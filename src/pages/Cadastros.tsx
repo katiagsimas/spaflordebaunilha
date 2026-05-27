@@ -21,6 +21,7 @@ import {
   LabelList,
 } from "recharts";
 import cadastrosHero from "@/assets/cadastros-hero-banner.jpg";
+import { HeroBanner } from "@/components/HeroBanner";
 import { useMaoObraPerfis } from "@/hooks/useMaoObraPerfis";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { useCategorias } from "@/hooks/useCategorias";
@@ -120,19 +121,13 @@ export default function Cadastros() {
   return (
     <div className="min-h-screen bg-[#FFF9F5] pb-24">
       <div className="container mx-auto p-6 space-y-6">
-        {/* HERO BANNER */}
-        <div className="relative rounded-xl overflow-hidden border border-[#5B1A2B]/10 shadow-sm h-[160px]">
-          <img
-            src={cadastrosHero}
-            alt="Cadastros"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 flex items-center justify-end p-6">
-            <h1 className="font-display text-[28px] leading-none font-normal text-[#3D0F1C]">
-              Categorias de Receitas
-            </h1>
-          </div>
-        </div>
+        {/* HERO BANNER padronizado */}
+        <HeroBanner
+          image={cadastrosHero}
+          title="Categorias de Receitas"
+          subtitle="Organize seu cardápio em categorias"
+          imageAlt="Cadastros"
+        />
 
         {/* CARDS DE NAVEGAÇÃO */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

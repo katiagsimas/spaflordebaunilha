@@ -27,6 +27,7 @@ import { useGroup } from "@/contexts/GroupContext";
 import { RestaurarBackupDialog, type RestaurarBackupAlvo } from "@/components/backup/RestaurarBackupDialog";
 import { ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell, Tooltip } from "recharts";
 import bannerImg from "@/assets/backup-hero-banner.jpg";
+import { HeroBanner } from "@/components/HeroBanner";
 
 const MODULO_ICONS: Record<BackupModuloId, React.ComponentType<{ className?: string }>> = {
   operacao: UtensilsCrossed,
@@ -449,34 +450,8 @@ export default function Backup() {
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6 space-y-6">
-      {/* HERO BANNER */}
-      <div className="relative rounded-xl overflow-hidden h-[160px]">
-        <img
-          src={bannerImg}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#FDF6EE]/95 via-[#FDF6EE]/70 to-transparent" />
-        <div className="relative h-full p-6 flex flex-col justify-center max-w-[60%]">
-          <button
-            type="button"
-            onClick={() => navigate("/configuracoes")}
-            className="flex items-center gap-1 text-[13px] text-[#3D0F1C]/70 hover:text-[#3D0F1C] mb-1 w-fit"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Voltar
-          </button>
-          <div className="flex items-center gap-2">
-            <Archive className="h-[22px] w-[22px] text-[#5B1A2B]" />
-            <h1 className="text-[32px] leading-none font-normal text-[#3D0F1C]" style={{ fontFamily: PLAYFAIR }}>
-              Backup
-            </h1>
-          </div>
-          <p className="text-[13px] text-[#3D0F1C]/65 mt-1">
-            Gerencie backups do seu projeto por módulo
-          </p>
-        </div>
-      </div>
+      {/* HERO BANNER padronizado */}
+      <HeroBanner image={bannerImg} title="Backup" subtitle="Gerencie backups do seu projeto por módulo" />
 
       {/* SOBRE OS BACKUPS */}
       <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5">

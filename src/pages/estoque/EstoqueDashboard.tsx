@@ -8,6 +8,7 @@ import { useEstoque } from '@/hooks/useEstoque';
 import { LoadingState } from '@/components/LoadingState';
 import { Package, AlertTriangle, Plus, SlidersHorizontal, Search, CalendarDays, Coins, PackageOpen } from 'lucide-react';
 import heroBanner from '@/assets/estoque-hero-banner.jpg';
+import { HeroBanner } from '@/components/HeroBanner';
 import emptyPrateleira from '@/assets/estoque-empty-prateleira.png';
 
 export default function EstoqueDashboard() {
@@ -64,51 +65,35 @@ export default function EstoqueDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* HEADER */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-        <div className="space-y-2">
-          <h1 className="font-display text-[36px] font-normal leading-none text-[#3D0F1C]">Estoque</h1>
-          <div className="flex items-center gap-3">
-            <span className="block h-[2px] w-10 rounded-full bg-[#C9A14A]" aria-hidden />
-            <p className="font-body italic text-[#C9A14A]">
-              Controle o estoque de ingredientes e embalagens da sua confeitaria
-            </p>
-          </div>
-        </div>
+      {/* HERO BANNER padronizado */}
+      <HeroBanner
+        image={heroBanner}
+        title="Estoque"
+        subtitle="Controle o estoque de ingredientes e embalagens da sua confeitaria"
+      />
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            onClick={() => navigate('/estoque/entrada')}
-            className="gap-2 rounded-lg bg-[#3D0F1C] text-white hover:bg-[#5B1A2B]"
-          >
-            <Plus className="h-4 w-4" /> Nova Entrada
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => navigate('/estoque/ajuste')}
-            className="gap-2 rounded-lg border-[#5B1A2B]/30 bg-white text-[#3D0F1C] hover:border-[#5B1A2B] hover:bg-[#FDF6EE]"
-          >
-            <SlidersHorizontal className="h-4 w-4" /> Ajuste Manual
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => navigate('/estoque/movimentacoes')}
-            className="gap-2 rounded-lg border-[#5B1A2B]/30 bg-white text-[#3D0F1C] hover:border-[#5B1A2B] hover:bg-[#FDF6EE]"
-          >
-            <Search className="h-4 w-4" /> Movimentações
-          </Button>
-        </div>
-      </div>
-
-      {/* BANNER HERO */}
-      <div className="relative h-[130px] w-full overflow-hidden rounded-xl bg-[#FDF6EE] ring-1 ring-[#C9A14A]/20">
-        <img
-          src={heroBanner}
-          alt=""
-          className="h-full w-full object-cover"
-          width={1920}
-          height={512}
-        />
+      {/* AÇÕES */}
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <Button
+          onClick={() => navigate('/estoque/entrada')}
+          className="gap-2 rounded-lg bg-[#3D0F1C] text-white hover:bg-[#5B1A2B]"
+        >
+          <Plus className="h-4 w-4" /> Nova Entrada
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => navigate('/estoque/ajuste')}
+          className="gap-2 rounded-lg border-[#5B1A2B]/30 bg-white text-[#3D0F1C] hover:border-[#5B1A2B] hover:bg-[#FDF6EE]"
+        >
+          <SlidersHorizontal className="h-4 w-4" /> Ajuste Manual
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => navigate('/estoque/movimentacoes')}
+          className="gap-2 rounded-lg border-[#5B1A2B]/30 bg-white text-[#3D0F1C] hover:border-[#5B1A2B] hover:bg-[#FDF6EE]"
+        >
+          <Search className="h-4 w-4" /> Movimentações
+        </Button>
       </div>
 
       {/* KPIs */}

@@ -5,6 +5,7 @@ import { Retiradas } from "./Retiradas";
 import { Educativo } from "./Educativo";
 import { Sparkles, CalendarDays, Settings2, ChevronLeft } from "lucide-react";
 import heroImg from "@/assets/meu-salario-hero.png";
+import { HeroBanner } from "@/components/HeroBanner";
 
 export default function MeuSalario() {
   const [tab, setTab] = useState("visao");
@@ -29,33 +30,14 @@ export default function MeuSalario() {
         </button>
       </div>
 
-      {/* Header com imagem decorativa */}
-      <header className="grid grid-cols-1 md:grid-cols-[55%_45%] gap-6 items-center mb-6 pr-24">
-        <div>
-          <div className="flex items-center gap-2 text-[#C9A14A]">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span className="text-[11px] uppercase tracking-widest font-medium">Método Renda Doce</span>
-          </div>
-          <h1
-            className="text-[38px] leading-tight font-normal text-[#3D0F1C] mt-1"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            Meu Salário
-          </h1>
-          <p className="text-sm text-[#3D0F1C]/70 mt-2 leading-relaxed max-w-[520px]">
-            Um espaço para você entender, com calma e clareza, quanto sua confeitaria pode te
-            pagar sem sufocar — e construir uma relação saudável com o dinheiro do seu negócio.
-          </p>
-        </div>
-        <div className="hidden md:flex justify-end">
-          <img
-            src={heroImg}
-            alt=""
-            loading="lazy"
-            className="h-[180px] w-auto object-contain"
-          />
-        </div>
-      </header>
+      {/* HERO BANNER padronizado */}
+      <div className="mb-6 pr-24">
+        <HeroBanner
+          image={heroImg}
+          title="Meu Salário"
+          subtitle="Método Renda Doce — quanto sua confeitaria pode te pagar sem sufocar."
+        />
+      </div>
 
       <Tabs value={tab} onValueChange={setTab} className="w-full">
         <TabsList className="bg-transparent p-0 h-auto gap-1 border-0">
