@@ -1187,3 +1187,8 @@ Arquivos alterados:
 - Fluxo se aplica a TODOS os planos. Apenas usuário MOTHER e admins legados são dispensados.
 - Estado de progresso persistido no banco; sobrevive a logout/login e troca de dispositivo.
 - **2026-05-27**: Removido botão "Tour pelo Caixa de Açúcar". Constante `TOUR_URL` e função `handleTour` removidas de `Concluido.tsx`. Apenas botão "Iniciar Minha Jornada" permanece.
+
+## 2026-05-27 — Onboarding: navegação automática entre etapas
+- ✅ `SeusDados.tsx`: após "Salvar Dados" durante onboarding, navega automaticamente para Mão de Obra.
+- ✅ `Backup.tsx`: após ativar agendamento + primeiro backup no onboarding, navega para `/onboarding/concluido`.
+- Mão de Obra → Backup já estava implementado. Fluxo: Meus Dados → Mão de Obra → Backup → Concluído, válido para todos os planos.
