@@ -999,7 +999,7 @@ const Encomendas = () => {
         </div>
       </div>
 
-      <div className="flex items-center justify-end gap-3">
+      <div className="flex items-center justify-start gap-3">
         <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} />
         <Dialog open={dialogOpen} onOpenChange={(open) => {
           setDialogOpen(open);
