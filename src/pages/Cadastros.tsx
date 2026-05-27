@@ -21,6 +21,7 @@ import {
   LabelList,
 } from "recharts";
 import cadastrosHero from "@/assets/cadastros-hero-banner.jpg";
+import { HeroBanner } from "@/components/HeroBanner";
 import { useMaoObraPerfis } from "@/hooks/useMaoObraPerfis";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import { useCategorias } from "@/hooks/useCategorias";
