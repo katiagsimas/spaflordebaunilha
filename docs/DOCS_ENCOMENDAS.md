@@ -182,3 +182,16 @@ Aniversário, Bodas, Casamento, Corporativo, Delivery, Infantil, Mesversário, P
 
 ### Rota
 `/encomendas/tags` (antiga `/configuracoes/tags-encomendas` mantém redirect).
+
+---
+
+## 📌 Atualização 2026-05-27 — Entrega 3 (Lista de Encomendas)
+
+- **Tags padrão do sistema (Origem & Evento)**: nova migração insere tags `padrao_sistema=true, user_id=NULL` cobrindo todos os filtros:
+  - Origem: Instagram, WhatsApp, Indicação, Google Maps, Fidelização Interna, Parceria Local.
+  - Evento: Aniversário Infantil, Aniversário Adulto, Mesversário, Batizado, Casamento, Noivado, Chá de Bebê, Chá de Fraldas, Empresarial.
+  - Bloqueio de edição/exclusão garantido pelas RLS já existentes (`tags_encomendas` — tags com `user_id IS NULL` não pertencem ao usuário).
+- **Filtros rápidos** no `EncomendaStatusCard`: chips "Todas / Em aberto / Hoje / Entregues" + seletor de ordenação (criação, entrega asc/desc, maior valor).
+- **Timeline visual** por encomenda: 5 etapas (Pedido → Confirmado → Produção → Pronto → Entregue), com destaque do passo atual e estado vermelho quando cancelada.
+- **Persistência** dos filtros + ordenação em `localStorage` (chave `cda:enclista:{status}`), reaplicados após reload.
+- **Sincronia do card "Encomendas do dia"** com o filtro de período (`mês/ano`) da página principal de Encomendas — os 3 mini-calendários e a seleção do dia acompanham o mês escolhido.
