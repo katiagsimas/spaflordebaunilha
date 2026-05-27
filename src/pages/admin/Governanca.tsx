@@ -25,6 +25,7 @@ import {
   LabelList,
 } from 'recharts';
 import heroBanner from '@/assets/governanca-hero-banner.jpg';
+import { HeroBanner } from '@/components/HeroBanner';
 
 interface BackupRow {
   id: string;
