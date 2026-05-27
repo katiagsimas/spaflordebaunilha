@@ -965,13 +965,6 @@ export default function Dashboard() {
       {/* ===== HEADER ===== */}
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="flex flex-col items-start">
-          <img
-            src={saudacaoPorHora().imagem}
-            alt={saudacaoPorHora().texto}
-            className="mb-2 h-14 w-14 shrink-0 object-contain sm:h-18 sm:w-18 md:h-22 md:w-22"
-            loading="eager"
-            decoding="async"
-          />
           <h1 className="font-display text-3xl tracking-tight text-cda-vinho-escuro sm:text-4xl">
             {saudacaoPorHora().texto}, {getPrimeiroNome(profile?.nome_completo, user?.email)}!
           </h1>
@@ -981,7 +974,15 @@ export default function Dashboard() {
               Aqui está o resumo do seu negócio.
             </p>
           </div>
+          <img
+            src={saudacaoPorHora().imagem}
+            alt={saudacaoPorHora().texto}
+            className="mt-3 h-28 w-28 shrink-0 object-contain sm:h-36 sm:w-36 md:h-44 md:w-44"
+            loading="eager"
+            decoding="async"
+          />
         </div>
+
 
         <div className="flex items-center gap-2">
           <Label className="text-xs font-body uppercase tracking-widest text-cda-vinho/60">Período</Label>
