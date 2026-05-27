@@ -13,7 +13,8 @@ import { Lock, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { validarSenhaForte } from '@/lib/validacaoSenha';
-import { AuthLayout } from '@/components/auth/AuthLayout';
+import caixaAcucarIcon from '@/assets/caixa-acucar-logo-full.png';
+import authBrandImage from '@/assets/auth-brand-image.png';
 
 const resetPasswordSchema = z.object({
   password: z.string().min(6, 'A senha deve ter no mínimo 6 caracteres'),
@@ -154,7 +155,15 @@ export default function ResetPassword() {
   const renderContent = () => {
     if (verifying || !hasToken) {
       return (
-        <div className="space-y-3">
+        <div className="w-full max-w-md relative z-10 space-y-8">
+          <div className="text-center">
+            <img
+              src={caixaAcucarIcon}
+              alt="Caixa de Açúcar — by Umbrella Doce"
+              className="mx-auto w-full max-w-sm h-auto"
+            />
+          </div>
+
           <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">
             <CardContent className="flex flex-col items-center justify-center py-8">
               <LoadingMascote size={64} label="Verificando link..." />
@@ -165,9 +174,18 @@ export default function ResetPassword() {
     }
 
     return (
-      <div className="space-y-3">
+      <div className="w-full max-w-md relative z-10 space-y-8">
+        {/* Brand header */}
+        <div className="text-center">
+          <img
+            src={caixaAcucarIcon}
+            alt="Caixa de Açúcar — by Umbrella Doce"
+            className="mx-auto w-full max-w-sm h-auto"
+          />
+        </div>
+
         <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">
-          <CardHeader className="pb-2 pt-5">
+          <CardHeader className="pb-2 pt-8">
             <h2 className="text-xl font-display font-semibold text-cda-preto text-center">
               Redefinir Senha
             </h2>
@@ -265,13 +283,37 @@ export default function ResetPassword() {
           </Form>
         </Card>
 
-        <p className="text-center text-xs font-body text-cda-creme/70 drop-shadow">
+        <p className="text-center text-xs font-body text-cda-creme/40">
           Sistema de gestão para confeitarias
         </p>
       </div>
     );
   };
 
-  return <AuthLayout>{renderContent()}</AuthLayout>;
-}
+  return (
+    <div className="min-h-screen flex bg-cda-preto">
+      {/* Lado esquerdo — Imagem de marca */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        <img
+          src={authBrandImage}
+          alt="Caixa de Açúcar — Gestão para Confeitarias"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      </div>
 
+      {/* Lado direito — Formulário */}
+      <div
+        className="flex-1 flex items-center justify-center p-6 relative"
+        style={{
+          background: 'linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(345 55% 9%) 40%, hsl(0 0% 5%) 100%)',
+        }}
+      >
+        <div className="absolute inset-0 opacity-[0.04]" style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
+          backgroundSize: '40px 40px'
+        }} />
+        {renderContent()}
+      </div>
+    </div>
+  );
+}

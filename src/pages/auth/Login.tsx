@@ -8,11 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Loader2, Mail, Lock, Eye, EyeOff, ExternalLink } from 'lucide-react';
-import { AuthLayout } from '@/components/auth/AuthLayout';
-
+import caixaAcucarLogoFull from '@/assets/caixa-acucar-logo-full.png';
 
 import { z } from 'zod';
 import { toast } from 'sonner';
+import authBrandImage from '@/assets/auth-brand-image.png';
 import { URL_UPGRADE_EXTERNO } from '@/lib/constants';
 
 const loginSchema = z.object({
@@ -92,11 +92,42 @@ export default function Login() {
     <>
       <AlterarSenhaObrigatoria open={mostrarAlterarSenha} />
 
-      <AuthLayout>
-        <div className="space-y-3">
-          {/* Login card */}
-          <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">
-              <CardHeader className="pb-2 pt-5">
+      <div className="min-h-screen flex bg-cda-preto">
+        {/* Lado esquerdo — Imagem de marca */}
+        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+          <img
+            src={authBrandImage}
+            alt="Caixa de Açúcar — Gestão para Confeitarias"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        </div>
+
+        {/* Lado direito — Formulário */}
+        <div
+          className="flex-1 flex items-center justify-center p-6 relative"
+          style={{
+            background: 'linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(345 55% 9%) 40%, hsl(0 0% 5%) 100%)',
+          }}
+        >
+          {/* Subtle pattern overlay */}
+          <div className="absolute inset-0 opacity-[0.04]" style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }} />
+
+          <div className="w-full max-w-md relative z-10 space-y-8">
+            {/* Brand header */}
+            <div className="text-center">
+              <img
+                src={caixaAcucarLogoFull}
+                alt="Caixa de Açúcar — by Umbrella Doce"
+                className="mx-auto w-full max-w-sm h-auto"
+              />
+            </div>
+
+            {/* Login card */}
+            <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">
+              <CardHeader className="pb-2 pt-8">
                 <h2 className="text-xl font-display font-semibold text-cda-preto text-center">
                   Bem-vinda de volta
                 </h2>
@@ -189,13 +220,14 @@ export default function Login() {
                   )}
                 </CardFooter>
               </form>
-          </Card>
+            </Card>
 
-          <p className="text-center text-xs font-body text-cda-creme/70 drop-shadow">
-            Sistema de gestão para confeitarias
-          </p>
+            <p className="text-center text-xs font-body text-cda-creme/40">
+              Sistema de gestão para confeitarias
+            </p>
+          </div>
         </div>
-      </AuthLayout>
+      </div>
     </>
   );
 }

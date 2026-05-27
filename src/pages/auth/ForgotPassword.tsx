@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -7,8 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Loader2, Mail } from 'lucide-react';
+import caixaAcucarIcon from '@/assets/caixa-acucar-logo-full.png';
+import authBrandImage from '@/assets/auth-brand-image.png';
 import { BackButton } from '@/components/BackButton';
-import { AuthLayout } from '@/components/auth/AuthLayout';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -41,12 +43,21 @@ export default function ForgotPassword() {
     }
   };
 
-  return (
-    <AuthLayout>
-      <div className="space-y-3">
-        {sent ? (
+  const renderContent = () => {
+    if (sent) {
+      return (
+        <div className="w-full max-w-md relative z-10 space-y-8">
+          {/* Brand header */}
+          <div className="text-center">
+            <img
+              src={caixaAcucarIcon}
+              alt="Caixa de Açúcar — by Umbrella Doce"
+              className="mx-auto w-full max-w-sm h-auto"
+            />
+          </div>
+
           <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">
-            <CardHeader className="pb-2 pt-5">
+            <CardHeader className="pb-2 pt-8">
               <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-2">
                 <Mail className="w-8 h-8 text-green-600" />
               </div>
@@ -69,61 +80,110 @@ export default function ForgotPassword() {
               <BackButton to="/auth/login" label="Voltar para o login" />
             </CardFooter>
           </Card>
-        ) : (
-          <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">
-            <CardHeader className="pb-2 pt-5">
-              <h2 className="text-xl font-display font-semibold text-cda-preto text-center">
-                Esqueceu sua senha?
-              </h2>
-              <p className="text-sm font-body text-muted-foreground text-center">
-                Digite seu email para receber um link de recuperação
-              </p>
-            </CardHeader>
 
-            <form onSubmit={handleSubmit}>
-              <CardContent className="space-y-4 px-8">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="font-body text-sm font-medium text-cda-preto">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="seu@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10"
-                      required
-                      disabled={loading}
-                    />
-                  </div>
+          <p className="text-center text-xs font-body text-cda-creme/40">
+            Sistema de gestão para confeitarias
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="w-full max-w-md relative z-10 space-y-8">
+        {/* Brand header */}
+        <div className="text-center">
+          <img
+            src={caixaAcucarIcon}
+            alt="Caixa de Açúcar — by Umbrella Doce"
+            className="mx-auto w-full max-w-sm h-auto"
+          />
+        </div>
+
+        <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">
+          <CardHeader className="pb-2 pt-8">
+            <h2 className="text-xl font-display font-semibold text-cda-preto text-center">
+              Esqueceu sua senha?
+            </h2>
+            <p className="text-sm font-body text-muted-foreground text-center">
+              Digite seu email para receber um link de recuperação
+            </p>
+          </CardHeader>
+
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-4 px-8">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="font-body text-sm font-medium text-cda-preto">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="seu@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10"
+                    required
+                    disabled={loading}
+                  />
                 </div>
-              </CardContent>
+              </div>
+            </CardContent>
 
-              <CardFooter className="flex flex-col space-y-4 px-8 pb-8">
-                <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Enviando...
-                    </>
-                  ) : (
-                    'Enviar Link de Recuperação'
-                  )}
-                </Button>
+            <CardFooter className="flex flex-col space-y-4 px-8 pb-8">
+              <Button
+                type="submit"
+                className="w-full"
+                size="lg"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Enviando...
+                  </>
+                ) : (
+                  'Enviar Link de Recuperação'
+                )}
+              </Button>
 
-                <div className="w-full flex justify-center">
-                  <BackButton to="/auth/login" label="Voltar para o login" />
-                </div>
-              </CardFooter>
-            </form>
-          </Card>
-        )}
+              <div className="w-full flex justify-center">
+                <BackButton to="/auth/login" label="Voltar para o login" />
+              </div>
+            </CardFooter>
+          </form>
+        </Card>
 
-        <p className="text-center text-xs font-body text-cda-creme/70 drop-shadow">
+        <p className="text-center text-xs font-body text-cda-creme/40">
           Sistema de gestão para confeitarias
         </p>
       </div>
-    </AuthLayout>
+    );
+  };
+
+  return (
+    <div className="min-h-screen flex bg-cda-preto">
+      {/* Lado esquerdo — Imagem de marca */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        <img
+          src={authBrandImage}
+          alt="Caixa de Açúcar — Gestão para Confeitarias"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      </div>
+
+      {/* Lado direito — Formulário */}
+      <div
+        className="flex-1 flex items-center justify-center p-6 relative"
+        style={{
+          background: 'linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(345 55% 9%) 40%, hsl(0 0% 5%) 100%)',
+        }}
+      >
+        <div className="absolute inset-0 opacity-[0.04]" style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
+          backgroundSize: '40px 40px'
+        }} />
+        {renderContent()}
+      </div>
+    </div>
   );
 }
