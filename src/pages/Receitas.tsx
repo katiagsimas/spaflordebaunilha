@@ -89,25 +89,48 @@ export default function Receitas() {
   if (isLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
   return (
-    <div className="min-h-screen bg-background">
-      <PageHeader title="Fichas Técnicas" description="Gerencie suas receitas e fichas técnicas" backButton={<BackButton to="/precificacao" />} />
-      
-      <div className="p-4 md:p-6 space-y-6">
-        
-        
-        <div className="flex flex-wrap gap-2">
-          <Button variant={filtroAtivo === "todos" ? "default" : "outline"} size="sm" onClick={() => setFiltroAtivo("todos")}>Todos ({resumos.length})</Button>
-          <Button variant={filtroAtivo === "ativos" ? "default" : "outline"} size="sm" onClick={() => setFiltroAtivo("ativos")}>Ativos ({resumos.filter(r => r.cardapio === "ativo").length})</Button>
-          <Button variant={filtroAtivo === "fora" ? "default" : "outline"} size="sm" onClick={() => setFiltroAtivo("fora")}>Fora do Cardápio ({resumos.filter(r => r.cardapio === "fora").length})</Button>
-        </div>
-        <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Minhas Fichas Técnicas</h2>
-          <Button onClick={() => navigate("/precificacao/ficha-tecnica/nova")}><Plus className="mr-2 h-4 w-4" />Nova Ficha Técnica</Button>
-        </div>
-        {resumosOrdenados.length === 0 ? (
-          <EmptyState icon={CookingPot} title="Nenhuma ficha técnica cadastrada" description="Crie sua primeira ficha técnica" actionLabel="Nova Ficha Técnica" onAction={() => navigate("/precificacao/ficha-tecnica/nova")} />
-        ) : (
-          <div className="rounded-md border overflow-x-auto">
+    <div className="space-y-6">
+      <PageHeader
+        title="Fichas Técnicas"
+        description="Gerencie suas receitas e fichas técnicas"
+        backButton={<BackButton to="/precificacao" />}
+        actions={
+          <Button
+            onClick={() => navigate("/precificacao/ficha-tecnica/nova")}
+            className="bg-cda-vinho text-cda-creme hover:bg-cda-vinho-escuro"
+          >
+            <Plus className="mr-2 h-4 w-4" />Nova Ficha Técnica
+          </Button>
+        }
+      />
+
+      <div className="flex flex-wrap gap-2">
+        <Button
+          variant={filtroAtivo === "todos" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setFiltroAtivo("todos")}
+          className={filtroAtivo === "todos" ? "bg-cda-vinho text-cda-creme hover:bg-cda-vinho-escuro" : "border-cda-dourado/40 text-cda-vinho hover:border-cda-dourado hover:bg-cda-creme"}
+        >Todos ({resumos.length})</Button>
+        <Button
+          variant={filtroAtivo === "ativos" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setFiltroAtivo("ativos")}
+          className={filtroAtivo === "ativos" ? "bg-cda-vinho text-cda-creme hover:bg-cda-vinho-escuro" : "border-cda-dourado/40 text-cda-vinho hover:border-cda-dourado hover:bg-cda-creme"}
+        >Ativos ({resumos.filter(r => r.cardapio === "ativo").length})</Button>
+        <Button
+          variant={filtroAtivo === "fora" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setFiltroAtivo("fora")}
+          className={filtroAtivo === "fora" ? "bg-cda-vinho text-cda-creme hover:bg-cda-vinho-escuro" : "border-cda-dourado/40 text-cda-vinho hover:border-cda-dourado hover:bg-cda-creme"}
+        >Fora do Cardápio ({resumos.filter(r => r.cardapio === "fora").length})</Button>
+      </div>
+
+      {resumosOrdenados.length === 0 ? (
+        <EmptyState icon={CookingPot} title="Nenhuma ficha técnica cadastrada" description="Crie sua primeira ficha técnica" actionLabel="Nova Ficha Técnica" onAction={() => navigate("/precificacao/ficha-tecnica/nova")} />
+      ) : (
+        <div className="overflow-hidden rounded-2xl border border-cda-dourado/20 bg-cda-branco shadow-[0_4px_24px_-12px_rgba(91,26,43,0.15)]">
+          <div className="overflow-x-auto">
+
             <Table>
               <TableHeader>
                 <TableRow>
