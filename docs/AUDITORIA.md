@@ -1182,8 +1182,8 @@ Arquivos alterados:
 - Migration marca usuários antigos com dados completos como concluídos para não reabrir o fluxo.
 - Novas páginas:
   - `/onboarding/bem-vinda` — cartão elegante com saudação personalizada + botão "Iniciar Onboarding".
-  - `/onboarding/concluido` — cartão de conclusão com frase motivacional + botões "Tour pelo Caixa de Açúcar" e "Iniciar Minha Jornada".
+  - `/onboarding/concluido` — cartão de conclusão com frase motivacional + botão "Iniciar Minha Jornada".
 - `FirstAccessRedirect` reorganizado para o fluxo: Boas-vindas → Meus Dados → Mão de Obra → Backup → Conclusão.
 - Fluxo se aplica a TODOS os planos. Apenas usuário MOTHER e admins legados são dispensados.
 - Estado de progresso persistido no banco; sobrevive a logout/login e troca de dispositivo.
-- URL do Tour Visual ainda será informada (constante `TOUR_URL` em `src/pages/onboarding/Concluido.tsx`).
+- **2026-05-27**: Removido botão "Tour pelo Caixa de Açúcar". Constante `TOUR_URL` e função `handleTour` removidas de `Concluido.tsx`. Apenas botão "Iniciar Minha Jornada" permanece.
