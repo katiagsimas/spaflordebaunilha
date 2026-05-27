@@ -266,48 +266,121 @@ export function CalendariosEncomendas({ onNovaEncomenda }: { onNovaEncomenda?: (
         )}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            Encomendas - {format(diaSelecionado, "dd 'de' MMMM", { locale: ptBR })}
-            {isToday(diaSelecionado) && (
-              <Badge variant="default" className="bg-cda-dourado text-cda-preto">
-                HOJE
-              </Badge>
-            )}
-          </CardTitle>
+      <Card className="border-cda-dourado/30 bg-cda-creme/40 shadow-soft overflow-hidden">
+        <CardHeader className="pb-4">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <CardTitle className="flex items-center gap-2 text-cda-vinho">
+              <CalendarDays className="h-5 w-5 text-cda-vinho" />
+              <span className="font-serif text-xl">
+                Encomendas – {format(diaSelecionado, "dd 'de' MMMM", { locale: ptBR })}
+              </span>
+              {isToday(diaSelecionado) && (
+                <Badge className="bg-cda-dourado text-cda-preto hover:bg-cda-dourado">HOJE</Badge>
+              )}
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              {encomendasDia.length > 0 && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 border-cda-vinho/20 text-cda-vinho hover:bg-cda-vinho/5"
+                    onClick={() => {
+                      const linhas = [
+                        ["Cliente", "Horário", "Valor", "Status"],
+                        ...encomendasDia.map((e) => [
+                          e.cliente,
+                          e.hora_entrega || "",
+                          e.valor.toFixed(2).replace(".", ","),
+                          e.status,
+                        ]),
+                      ];
+                      const csv = linhas.map((l) => l.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(";")).join("\n");
+                      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = `encomendas-${format(diaSelecionado, "yyyy-MM-dd")}.csv`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}
+                  >
+                    <FileDown className="h-4 w-4" />
+                    Exportar para Excel
+                  </Button>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      value={buscaDia}
+                      onChange={(e) => setBuscaDia(e.target.value)}
+                      placeholder="Buscar por nome, cliente, evento..."
+                      className="pl-9 h-9 w-64 bg-background"
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {encomendasDia.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">Nenhuma encomenda para este dia</p>
+            <div className="flex flex-col items-center gap-4 py-8 md:flex-row md:items-center md:justify-center md:gap-10">
+              <img
+                src={calendarioMacaron}
+                alt=""
+                aria-hidden="true"
+                className="h-32 w-auto object-contain shrink-0 select-none pointer-events-none"
+              />
+              <div className="flex flex-col items-center text-center md:items-start md:text-left">
+                <p className="text-lg font-semibold text-cda-vinho">Nenhuma encomenda para este dia</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Você ainda não possui encomendas cadastradas para {isToday(diaSelecionado) ? "hoje" : "esta data"}.
+                </p>
+                {onNovaEncomenda && (
+                  <Button
+                    onClick={onNovaEncomenda}
+                    className="mt-4 rounded-lg bg-[#3D0F1C] text-white hover:bg-[#3D0F1C]/90"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nova Encomenda
+                  </Button>
+                )}
+              </div>
+            </div>
           ) : (
             <div className="space-y-2">
-              {encomendasDia.map((encomenda) => (
-                <Card key={encomenda.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-semibold">{encomenda.cliente}</p>
-                          <Badge variant="outline" className="text-xs">
-                            {encomenda.hora_entrega || "Sem horário"}
-                          </Badge>
+              {encomendasDia
+                .filter((e) =>
+                  buscaDia.trim() === ""
+                    ? true
+                    : e.cliente.toLowerCase().includes(buscaDia.toLowerCase()),
+                )
+                .map((encomenda) => (
+                  <Card key={encomenda.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold">{encomenda.cliente}</p>
+                            <Badge variant="outline" className="text-xs">
+                              {encomenda.hora_entrega || "Sem horário"}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            R$ {encomenda.valor.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                          </p>
                         </div>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          R$ {encomenda.valor.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                        </p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(`/encomendas?id=${encomenda.id}`)}
+                        >
+                          Ver Detalhes
+                        </Button>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigate(`/encomendas?id=${encomenda.id}`)}
-                      >
-                        Ver Detalhes
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))}
             </div>
           )}
         </CardContent>
