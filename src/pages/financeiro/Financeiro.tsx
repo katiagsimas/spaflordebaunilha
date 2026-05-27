@@ -695,7 +695,6 @@ export default function Financeiro() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      </div>
       <ModuleHelpDrawer content={financeiroHelp} isOpen={isHelpOpen} onClose={closeHelp} />
     </div>
 
