@@ -133,7 +133,7 @@ export default function EncomendasLista() {
           <ArrowLeft className="h-4 w-4 mr-1.5" />
           Voltar
         </Button>
-        <PageHeader title={`Encomendas - ${cfg.label}`} subtitle={`${total} encomenda(s) no período`} />
+        <PageHeader title={`Encomendas - ${cfg.label}`} />
       </div>
 
       {/* Filtro Mês/Ano */}
