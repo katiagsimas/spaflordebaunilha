@@ -13,7 +13,7 @@ export default function PrecificacaoPage() {
       <PageHeader
         title="Precificação"
         description="Configure mão de obra, unidades de medida e categorias de receitas"
-        backButton={<BackButton to="/configuracoes" />}
+        backButton={<BackButton to="/cadastros" />}
       />
       
       <div className="p-4 md:p-6">

@@ -119,7 +119,7 @@ export default function Categorias() {
       <PageHeader
         title="Categorias de Receitas"
         description="Gerencie as categorias de receitas"
-        backButton={<BackButton to="/configuracoes/precificacao" />}
+        backButton={<BackButton to="/cadastros" />}
       />
 
       <Card>

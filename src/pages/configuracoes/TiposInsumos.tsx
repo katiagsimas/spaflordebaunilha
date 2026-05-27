@@ -42,7 +42,7 @@ export default function TiposInsumos() {
       toast.error('Acesso restrito', {
         description: 'Esta área é de uso interno do sistema.',
       });
-      navigate('/configuracoes/cadastros-base', { replace: true });
+      navigate('/cadastros', { replace: true });
       return;
     }
 
@@ -58,7 +58,7 @@ export default function TiposInsumos() {
       <PageHeader
         title="Insumos e Embalagens"
         description="Área interna do sistema — gerenciamento dos tipos base"
-        backButton={<BackButton to="/configuracoes/cadastros-base" />}
+        backButton={<BackButton to="/cadastros" />}
       />
 
       <Tabs defaultValue="ingredientes" className="w-full">
