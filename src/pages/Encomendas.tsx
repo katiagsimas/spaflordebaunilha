@@ -31,6 +31,10 @@ import { EncomendaImagePreview } from "@/components/EncomendaImagePreview";
 import { CalendariosEncomendas } from "@/components/CalendariosEncomendas";
 import { useEncomendasHoje } from "@/hooks/useEncomendasHoje";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useModuleHelp } from "@/hooks/useModuleHelp";
+import { HelpButton } from "@/components/help/HelpButton";
+import { ModuleHelpDrawer } from "@/components/help/ModuleHelpDrawer";
+import { encomendaHelp } from "@/components/help/contents/encomendaHelp";
 
 
 import { supabase } from "@/integrations/supabase/client";
@@ -954,9 +958,14 @@ const Encomendas = () => {
   const clientesComEncomendas = Array.from(new Set(encomendas.map(e => e.cliente).filter(c => c && c.trim() !== ""))).sort();
 
   const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
+  const { isHelpOpen, toggleHelp, closeHelp } = useModuleHelp();
 
   return (
-    <div className="space-y-8">
+    <div className="flex h-full overflow-hidden">
+      <div className="flex-1 min-w-0 overflow-auto space-y-8">
+      <div className="flex justify-end">
+        <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} />
+      </div>
       {temEncomendasHoje && (
         <Alert className="border-2 border-cda-dourado bg-cda-dourado/15 animate-pulse">
           <AlertCircle className="h-5 w-5 text-cda-dourado" />
@@ -2019,6 +2028,8 @@ const Encomendas = () => {
           )}
         </CardContent>
       </Card>
+      </div>
+      <ModuleHelpDrawer content={encomendaHelp} isOpen={isHelpOpen} onClose={closeHelp} />
     </div>
   );
 };
