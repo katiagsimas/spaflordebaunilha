@@ -964,24 +964,27 @@ export default function Dashboard() {
     <div className="space-y-6">
       {/* ===== HEADER ===== */}
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div className="flex flex-col items-start">
-          <h1 className="font-display text-3xl tracking-tight text-cda-vinho-escuro sm:text-4xl">
-            {saudacaoPorHora().texto}, {getPrimeiroNome(profile?.nome_completo, user?.email)}!
-          </h1>
-          <div className="mt-2 flex items-center gap-3">
-            <span className="h-px w-12 bg-cda-dourado" />
-            <p className="text-sm font-body italic text-cda-vinho/70">
-              Aqui está o resumo do seu negócio.
-            </p>
-          </div>
+        <div className="flex items-center gap-4">
           <img
             src={saudacaoPorHora().imagem}
             alt={saudacaoPorHora().texto}
-            className="mt-3 h-28 w-28 shrink-0 object-contain sm:h-36 sm:w-36 md:h-44 md:w-44"
+            className="h-20 w-20 shrink-0 object-contain sm:h-24 sm:w-24 md:h-28 md:w-28"
             loading="eager"
             decoding="async"
           />
+          <div className="flex flex-col items-start">
+            <h1 className="font-display text-3xl tracking-tight text-cda-vinho-escuro sm:text-4xl">
+              {saudacaoPorHora().texto}, {getPrimeiroNome(profile?.nome_completo, user?.email)}!
+            </h1>
+            <div className="mt-2 flex items-center gap-3">
+              <span className="h-px w-12 bg-cda-dourado" />
+              <p className="text-sm font-body italic text-cda-vinho/70">
+                Aqui está o resumo do seu negócio.
+              </p>
+            </div>
+          </div>
         </div>
+
 
 
         <div className="flex items-center gap-2">
