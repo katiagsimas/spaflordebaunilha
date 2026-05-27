@@ -935,605 +935,438 @@ export default function Dashboard() {
   const diasVaziosInicio = Array(primeiroDia).fill(null);
   const diasCalendario = [...diasVaziosInicio, ...calendarioDados];
 
+  const hojeStr = format(new Date(), "MM-dd");
+  const hojeDate = new Date();
+  hojeDate.setHours(0, 0, 0, 0);
+  const limite = addDays(hojeDate, 7);
+  const proximas = calendarioDados
+    .filter(d => d.dia >= hojeDate && d.dia <= limite && d.encomendas.length > 0)
+    .sort((a, b) => a.dia.getTime() - b.dia.getTime())
+    .flatMap(d => d.encomendas.map(e => ({ ...e, _dia: d.dia })))
+    .slice(0, 5);
+
+  const statusBadge = (status: string) => {
+    if (status === "confirmado") return "bg-cda-dourado/20 text-cda-vinho";
+    if (status === "em_producao") return "bg-blue-100 text-blue-700";
+    if (status === "pronto") return "bg-green-100 text-green-700";
+    return "bg-cda-creme text-cda-vinho/70";
+  };
+
+  const initials = (nome: string) =>
+    nome
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map(p => p.charAt(0).toUpperCase())
+      .join("");
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      {/* ===== HEADER ===== */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight font-display text-cda-vinho-escuro">
+          <h1 className="font-display text-3xl tracking-tight text-cda-vinho-escuro sm:text-4xl">
             {saudacaoPorHora().texto}, {getPrimeiroNome(profile?.nome_completo, user?.email)}! {saudacaoPorHora().emoji}
           </h1>
-          <p className="text-muted-foreground">Aqui está o resumo do seu negócio</p>
+          <div className="mt-2 flex items-center gap-3">
+            <span className="h-px w-12 bg-cda-dourado" />
+            <p className="text-sm font-body italic text-cda-vinho/70">
+              Aqui está o resumo do seu negócio.
+            </p>
+          </div>
         </div>
 
-        {/* Filtro Mês/Ano */}
         <div className="flex items-center gap-2">
-          <Label className="text-sm font-medium">Período:</Label>
-          <Select
-            value={anoSelecionado.toString()}
-            onValueChange={(value) => setAnoSelecionado(parseInt(value))}
-          >
-            <SelectTrigger className="w-[100px] border-[#C9A14A]/40 hover:border-[#C9A14A]">
+          <Label className="text-xs font-body uppercase tracking-widest text-cda-vinho/60">Período</Label>
+          <Select value={anoSelecionado.toString()} onValueChange={(v) => setAnoSelecionado(parseInt(v))}>
+            <SelectTrigger className="w-[100px] border-cda-dourado/40 bg-cda-creme text-cda-vinho hover:border-cda-dourado">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i).map((year) => (
-                <SelectItem key={year} value={year.toString()}>
-                  {year}
-                </SelectItem>
+                <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Select
-            value={mesSelecionado.toString()}
-            onValueChange={(value) => setMesSelecionado(parseInt(value))}
-          >
-            <SelectTrigger className="w-[130px] border-[#C9A14A]/40 hover:border-[#C9A14A]">
+          <Select value={mesSelecionado.toString()} onValueChange={(v) => setMesSelecionado(parseInt(v))}>
+            <SelectTrigger className="w-[130px] border-cda-dourado/40 bg-cda-creme text-cda-vinho hover:border-cda-dourado">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {meses.map((mes, index) => (
-                <SelectItem key={index} value={index.toString()}>
-                  {mes}
-                </SelectItem>
+                <SelectItem key={index} value={index.toString()}>{mes}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
       </div>
 
-      {/* CONTADOR TOPO: Encomendas Confirmadas */}
-      <div className="grid gap-2 grid-cols-1 md:grid-cols-1">
-        <Card
-          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-primary group"
-          onClick={() => navigate("/encomendas")}
-        >
-          <CardHeader className="p-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 shrink-0 rounded-md bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <ShoppingBag className="h-5 w-5 text-primary" />
+      {/* ===== RESUMO DO MÊS ===== */}
+      <PremiumCard
+        icon={Sparkles}
+        title="Resumo do mês"
+        subtitle={`${meses[mesSelecionado]} de ${anoSelecionado} — operação e caixa em uma só olhada`}
+      >
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            {
+              label: "Encomendas confirmadas",
+              value: contadores.encomendasConfirmadas.toString(),
+              hint: "Vendas no período",
+              Icon: ShoppingBag,
+              onClick: () => navigate("/encomendas"),
+              accent: "text-cda-vinho",
+            },
+            {
+              label: "Saldo atual",
+              value: `R$ ${financeiro.saldoAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+              hint: "Bancos cadastrados",
+              Icon: DollarSign,
+              onClick: () => navigate("/financeiro/dashboard"),
+              accent: financeiro.saldoAtual >= 0 ? "text-cda-vinho" : "text-cda-coral",
+            },
+            {
+              label: "A receber",
+              value: `R$ ${financeiro.receberAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+              hint: alertas.receberAtrasado.valor > 0
+                ? `⚠ R$ ${alertas.receberAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} em atraso`
+                : "Aberto neste mês",
+              Icon: TrendingUp,
+              onClick: () => navigate("/financeiro/contas-receber"),
+              accent: "text-cda-vinho",
+            },
+            {
+              label: "A pagar",
+              value: `R$ ${financeiro.pagarAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+              hint: alertas.pagarAtrasado.valor > 0
+                ? `⚠ R$ ${alertas.pagarAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} em atraso`
+                : "Aberto neste mês",
+              Icon: TrendingDown,
+              onClick: () => navigate("/financeiro/contas-pagar"),
+              accent: "text-cda-coral",
+            },
+          ].map(({ label, value, hint, Icon, onClick, accent }) => (
+            <button
+              key={label}
+              type="button"
+              onClick={onClick}
+              className="group flex flex-col items-start gap-2 rounded-xl border border-cda-dourado/20 bg-cda-branco p-4 text-left transition hover:-translate-y-0.5 hover:border-cda-dourado/60 hover:shadow-md"
+            >
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-cda-vinho/10 ring-1 ring-cda-dourado/40 transition group-hover:bg-cda-vinho/15">
+                <Icon className="h-4 w-4 text-cda-vinho" />
               </div>
-              <div className="min-w-0 flex-1">
-                <CardTitle className="text-xs leading-tight mb-0.5 text-muted-foreground">
-                  Encomendas Confirmadas <span className="font-normal">· {meses[mesSelecionado].slice(0, 3)}</span>
-                </CardTitle>
-                <p className="text-2xl font-bold leading-tight text-primary">
-                  {contadores.encomendasConfirmadas}
-                </p>
-                <p className="text-[10px] text-muted-foreground leading-tight">
-                  Quantidade de vendas feitas no período
-                </p>
-      </div>
+              <span className="text-[11px] font-body uppercase tracking-widest text-cda-vinho/60">{label}</span>
+              <span className={`font-display text-xl ${accent}`}>{value}</span>
+              <span className="text-[11px] font-body text-cda-vinho/60">{hint}</span>
+            </button>
+          ))}
+        </div>
+      </PremiumCard>
 
-            </div>
-          </CardHeader>
-        </Card>
-      </div>
-
-      {/* FINANCEIRO: Saldo Atual | A Receber | A Pagar */}
-      <div className="grid gap-2 grid-cols-1 md:grid-cols-3">
-        {/* Saldo Atual */}
-        <Card
-          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#5B1A2B] group bg-white"
-          onClick={() => navigate("/financeiro/dashboard")}
-        >
-          <CardHeader className="p-2.5">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 shrink-0 rounded-md bg-[#5B1A2B]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <DollarSign className="h-3.5 w-3.5 text-[#5B1A2B]" />
-              </div>
-              <div className="min-w-0">
-                <CardTitle className="text-[11px] leading-tight mb-0.5">Saldo Atual</CardTitle>
-                <p className={`text-sm font-bold leading-tight truncate ${financeiro.saldoAtual >= 0 ? "text-foreground" : "text-red-600"}`}>
-                  R$ {financeiro.saldoAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </p>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
-
-        {/* A Receber */}
-        <Card
-          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#C9A14A] group"
-          onClick={() => navigate("/financeiro/contas-receber")}
-        >
-          <CardHeader className="p-2.5">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 shrink-0 rounded-md bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <TrendingUp className="h-3.5 w-3.5 text-[#C9A14A]" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <CardTitle className="text-[11px] leading-tight mb-0.5">
-                  A Receber <span className="font-normal text-muted-foreground">· {meses[mesSelecionado].slice(0, 3)}</span>
-                </CardTitle>
-                <p className="text-sm font-bold leading-tight truncate text-green-600 dark:text-green-400">
-                  R$ {financeiro.receberAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </p>
-                {alertas.receberAtrasado.valor > 0 && (
-                  <p className="text-orange-600 text-[10px] leading-tight mt-0.5">
-                    ⚠ R$ {alertas.receberAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} em atraso
-                  </p>
-                )}
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
-
-        {/* A Pagar */}
-        <Card
-          className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#F28C82] group"
-          onClick={() => navigate("/financeiro/contas-pagar")}
-        >
-          <CardHeader className="p-2.5">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 shrink-0 rounded-md bg-[#F28C82]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <TrendingDown className="h-3.5 w-3.5 text-[#F28C82]" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <CardTitle className="text-[11px] leading-tight mb-0.5">
-                  A Pagar <span className="font-normal text-muted-foreground">· {meses[mesSelecionado].slice(0, 3)}</span>
-                </CardTitle>
-                <p className="text-sm font-bold leading-tight truncate text-red-600 dark:text-red-400">
-                  R$ {financeiro.pagarAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </p>
-                {alertas.pagarAtrasado.valor > 0 && (
-                  <p className="text-orange-600 text-[10px] leading-tight mt-0.5">
-                    ⚠ R$ {alertas.pagarAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} em atraso
-                  </p>
-                )}
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
-      </div>
-
-      {/* PRÓXIMAS ENTREGAS */}
-      {(() => {
-        const hojeDate = new Date();
-        hojeDate.setHours(0, 0, 0, 0);
-        const limite = addDays(hojeDate, 7);
-        const proximas = calendarioDados
-          .filter(d => d.dia >= hojeDate && d.dia <= limite && d.encomendas.length > 0)
-          .sort((a, b) => a.dia.getTime() - b.dia.getTime())
-          .flatMap(d => d.encomendas.map(e => ({ ...e, _dia: d.dia })))
-          .slice(0, 5);
-
-        const statusBadge = (status: string) => {
-          if (status === "confirmado") return "bg-[#C9A14A]/20 text-[#5B1A2B]";
-          if (status === "em_producao") return "bg-blue-100 text-blue-700";
-          if (status === "pronto") return "bg-green-100 text-green-700";
-          return "bg-muted text-muted-foreground";
-        };
-
-        return (
-          <Card>
-            <CardHeader className="pb-2 flex flex-row items-center justify-between">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <CalendarIcon className="h-4 w-4 text-[#5B1A2B]" />
-                Próximas Entregas
-              </CardTitle>
-              <Button
-                variant="link"
-                size="sm"
-                className="text-[#5B1A2B] h-auto p-0"
+      {/* ===== PRÓXIMAS ENTREGAS ===== */}
+      <PremiumCard
+        icon={CalendarIcon}
+        title="Próximas entregas"
+        subtitle="Os próximos 7 dias do seu calendário"
+        headerOrnament={illuCalendarioRosa}
+        footerCta={{ label: "Ver todas", onClick: () => navigate("/encomendas") }}
+        footerNote="Cada entrega é uma promessa cumprida."
+        footerNoteIcon={<Sparkles className="h-4 w-4 text-cda-dourado" />}
+      >
+        {proximas.length === 0 ? (
+          <p className="py-6 text-center text-sm font-body italic text-cda-vinho/60">
+            Nenhuma entrega nos próximos 7 dias.
+          </p>
+        ) : (
+          <ul className="divide-y divide-dashed divide-cda-dourado/30">
+            {proximas.map((enc) => (
+              <li
+                key={enc.id}
                 onClick={() => navigate("/encomendas")}
+                className="flex cursor-pointer items-center gap-3 py-3 transition hover:bg-cda-pink/10"
               >
-                Ver todas
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {proximas.length === 0 ? (
-                <p className="text-muted-foreground text-sm">Nenhuma entrega nos próximos 7 dias</p>
-              ) : (
-                <div className="space-y-2">
-                  {proximas.map((enc) => (
-                    <div
-                      key={enc.id}
-                      className="flex items-center justify-between gap-3 p-2 rounded-md hover:bg-muted/40 transition-colors cursor-pointer"
-                      onClick={() => navigate("/encomendas")}
-                    >
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs text-muted-foreground">
-                          {format(enc._dia, "EEE, dd/MM", { locale: ptBR })}
-                          {enc.hora_entrega ? ` · ${enc.hora_entrega}` : ""}
-                        </p>
-                        <p className="text-sm font-medium truncate">{enc.cliente}</p>
-                      </div>
-                      <p className="text-sm font-bold text-primary whitespace-nowrap">
-                        R$ {enc.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </p>
-                      <Badge className={`${statusBadge(enc.status)} border-transparent`}>
-                        {enc.status}
-                      </Badge>
-                    </div>
-                  ))}
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-cda-vinho text-xs font-semibold text-cda-dourado ring-1 ring-cda-dourado/60">
+                  {initials(enc.cliente)}
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        );
-      })()}
-
-      {/* ANIVERSARIANTES DO MÊS */}
-      {(() => {
-        const hojeStr = format(new Date(), "MM-dd");
-        return (
-          <Card>
-            <CardHeader className="pb-2 flex flex-row items-center justify-between">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Cake className="h-4 w-4 text-[#C9A14A]" />
-                Aniversariantes este mês
-              </CardTitle>
-              <Button
-                variant="link"
-                size="sm"
-                className="text-[#5B1A2B] h-auto p-0"
-                onClick={() => navigate("/cadastros/clientes")}
-              >
-                Ver clientes
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {aniversariantes.length === 0 ? (
-                <p className="text-muted-foreground text-sm">Nenhum aniversariante este mês.</p>
-              ) : (
-                <div className="space-y-2">
-                  {aniversariantes.map((c: any) => {
-                    const partes = (c.data_aniversario || "").split("-");
-                    const dia = parseInt(partes[2] || "0");
-                    const ehHoje = `${partes[1]}-${partes[2]}` === hojeStr;
-                    return (
-                      <div
-                        key={c.id}
-                        className="flex items-center justify-between gap-3 p-2 rounded-md hover:bg-muted/40 transition-colors"
-                      >
-                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                          <span className="text-lg">🎂</span>
-                          <p className="text-sm font-medium truncate">{c.nome}</p>
-                        </div>
-                        <p className="text-xs text-muted-foreground whitespace-nowrap">dia {dia}</p>
-                        {ehHoje && (
-                          <Badge className="bg-[#C9A14A]/20 text-[#5B1A2B] border-transparent">
-                            Hoje! 🎉
-                          </Badge>
-                        )}
-                      </div>
-                    );
-                  })}
+                <div className="min-w-0 flex-1">
+                  <p className="font-display text-base text-cda-vinho">{enc.cliente}</p>
+                  <p className="text-xs font-body text-cda-vinho/60">
+                    {format(enc._dia, "EEE, dd 'de' MMMM", { locale: ptBR })}
+                    {enc.hora_entrega ? ` · ${enc.hora_entrega}` : ""}
+                  </p>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        );
-      })()}
+                <p className="hidden font-display text-base text-cda-vinho sm:block">
+                  R$ {enc.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </p>
+                <Badge className={`${statusBadge(enc.status)} border-transparent capitalize`}>
+                  {enc.status.replace("_", " ")}
+                </Badge>
+              </li>
+            ))}
+          </ul>
+        )}
+      </PremiumCard>
 
-
-      {/* VISÃO ECONÔMICA */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-xl">Visão Econômica</CardTitle>
-            <div className="flex gap-2">
-              <Button
-                variant={tabEconomica === "mensal" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setTabEconomica("mensal")}
-                className={tabEconomica === "mensal" ? "bg-[#5B1A2B] text-[#FFF9F5]" : "border border-[#C9A14A]/50 text-[#5B1A2B] bg-transparent hover:border-[#C9A14A] hover:text-[#5B1A2B]"}
-              >
-                Mensal
-              </Button>
-              <Button
-                variant={tabEconomica === "anual" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setTabEconomica("anual")}
-                className={tabEconomica === "anual" ? "bg-[#5B1A2B] text-[#FFF9F5]" : "border border-[#C9A14A]/50 text-[#5B1A2B] bg-transparent hover:border-[#C9A14A] hover:text-[#5B1A2B]"}
-              >
-                Anual
-              </Button>
+      {/* ===== ANIVERSARIANTES DO MÊS ===== */}
+      <PremiumCard
+        icon={Cake}
+        title="Aniversariantes do mês"
+        subtitle="Celebre, presenteie e fortaleça conexões."
+        headerOrnament={illuPresenteVinho}
+        footerCta={{ label: "Ver todos", onClick: () => navigate("/cadastros/clientes") }}
+        footerNote="Pequenos gestos criam grandes lembranças."
+        footerNoteIcon={<span aria-hidden="true">🎉</span>}
+        asideRight={
+          <div className="flex h-full flex-col items-center justify-center rounded-xl bg-cda-pink/15 p-5 text-center ring-1 ring-cda-dourado/20">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cda-pink/30 ring-1 ring-cda-dourado/40">
+              <Cake className="h-6 w-6 text-cda-vinho" />
+            </div>
+            <p className="mt-3 font-display text-4xl text-cda-vinho">{aniversariantes.length}</p>
+            <p className="text-xs font-body text-cda-vinho/70">aniversariantes<br/>este mês</p>
+            <div className="mt-3 flex w-full items-center justify-center gap-2">
+              <span className="h-px flex-1 bg-cda-dourado/50" />
+              <span aria-hidden="true" className="text-cda-dourado">♥</span>
+              <span className="h-px flex-1 bg-cda-dourado/50" />
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
-          {tabEconomica === "mensal" ? (
-            <div className="grid gap-3 grid-cols-2 md:grid-cols-5">
-              {/* Faturamento */}
-              <Card 
-                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#C9A14A] group"
-                onClick={() => navigate("/financeiro/dashboard")}
+        }
+      >
+        {aniversariantes.length === 0 ? (
+          <p className="py-6 text-center text-sm font-body italic text-cda-vinho/60">
+            Nenhum aniversariante este mês.
+          </p>
+        ) : (
+          <ul className="divide-y divide-dashed divide-cda-dourado/30">
+            {aniversariantes.slice(0, 5).map((c: any) => {
+              const partes = (c.data_aniversario || "").split("-");
+              const dia = parseInt(partes[2] || "0");
+              const mesNum = parseInt(partes[1] || "0");
+              const ehHoje = `${partes[1]}-${partes[2]}` === hojeStr;
+              return (
+                <li key={c.id} className="flex items-center gap-4 py-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-cda-vinho text-xs font-semibold text-cda-dourado ring-1 ring-cda-dourado/60">
+                    {initials(c.nome)}
+                  </div>
+                  <p className="flex-1 font-display text-base text-cda-vinho">{c.nome}</p>
+                  <div className="flex items-center gap-1.5 text-sm font-body text-cda-vinho/80">
+                    <CalendarIcon className="h-4 w-4 text-cda-vinho" />
+                    {String(dia).padStart(2, "0")} de {(meses[mesNum - 1] || "").toLowerCase()}
+                  </div>
+                  {ehHoje && (
+                    <Badge className="bg-cda-dourado/20 text-cda-vinho border-transparent">Hoje! 🎉</Badge>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </PremiumCard>
+
+      {/* ===== VISÃO ECONÔMICA ===== */}
+      <PremiumCard
+        icon={TrendingUp}
+        title="Visão econômica"
+        subtitle="Faturamento, custos e lucro do período"
+        headerRight={
+          <div className="inline-flex rounded-full bg-cda-vinho-escuro/40 p-1 ring-1 ring-cda-dourado/40">
+            {(["mensal", "anual"] as const).map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setTabEconomica(tab)}
+                className={`rounded-full px-4 py-1 text-xs font-body uppercase tracking-widest transition ${
+                  tabEconomica === tab
+                    ? "bg-cda-dourado text-cda-vinho-escuro shadow"
+                    : "text-cda-creme/80 hover:text-cda-creme"
+                }`}
               >
-                <CardHeader className="p-2.5">
-                  <div className="flex flex-col items-center gap-1.5 text-center">
-                    <div className="w-7 h-7 rounded-lg bg-[#C9A14A]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <TrendingUp className="h-3.5 w-3.5 text-[#C9A14A]" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-[11px] mb-0.5">Faturamento</CardTitle>
-                      <CardDescription className="text-[10px] mb-0.5">{meses[mesSelecionado]}</CardDescription>
-                      <p className="text-sm font-bold text-green-600 dark:text-green-400">
-                        R$ {visaoEconomica.mensal.receitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </p>
-                    </div>
-                  </div>
-                </CardHeader>
-              </Card>
+                {tab}
+              </button>
+            ))}
+          </div>
+        }
+      >
+        {tabEconomica === "mensal" ? (
+          <div className="grid gap-3 grid-cols-2 md:grid-cols-5">
+            {[
+              { label: "Faturamento", value: visaoEconomica.mensal.receitas, Icon: TrendingUp, accent: "text-cda-vinho" },
+              { label: "Custos Totais", value: visaoEconomica.mensal.custos, Icon: TrendingDown, accent: "text-cda-coral" },
+              {
+                label: "Lucro Líquido",
+                value: visaoEconomica.mensal.lucro,
+                Icon: DollarSign,
+                accent: visaoEconomica.mensal.lucro >= 0 ? "text-cda-vinho" : "text-cda-coral",
+                extra: `Margem: ${visaoEconomica.mensal.receitas > 0 ? ((visaoEconomica.mensal.lucro / visaoEconomica.mensal.receitas) * 100).toFixed(1) : 0}%`,
+              },
+              {
+                label: "Ticket Médio",
+                value: ticketMedio.mensal,
+                Icon: DollarSign,
+                accent: "text-cda-vinho",
+                extra: `Anual: R$ ${ticketMedio.anual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+              },
+            ].map(({ label, value, Icon, accent, extra }) => (
+              <div key={label} className="rounded-xl border border-cda-dourado/20 bg-cda-branco p-3 text-center">
+                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-cda-vinho/10 ring-1 ring-cda-dourado/40">
+                  <Icon className="h-4 w-4 text-cda-vinho" />
+                </div>
+                <p className="mt-2 text-[10px] font-body uppercase tracking-widest text-cda-vinho/60">{label}</p>
+                <p className={`mt-1 font-display text-lg ${accent}`}>
+                  R$ {value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </p>
+                {extra && <p className="mt-0.5 text-[10px] font-body text-cda-vinho/60">{extra}</p>}
+              </div>
+            ))}
 
-              {/* Custos */}
-              <Card 
-                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#F28C82] group"
-                onClick={() => navigate("/financeiro/dashboard")}
-              >
-                <CardHeader className="p-2.5">
-                  <div className="flex flex-col items-center gap-1.5 text-center">
-                    <div className="w-7 h-7 rounded-lg bg-[#F28C82]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <TrendingDown className="h-3.5 w-3.5 text-[#F28C82]" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-[11px] mb-0.5">Custos Totais</CardTitle>
-                      <CardDescription className="text-[10px] mb-0.5">{meses[mesSelecionado]}</CardDescription>
-                      <p className="text-sm font-bold text-red-600 dark:text-red-400">
-                        R$ {visaoEconomica.mensal.custos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </p>
-                    </div>
+            {/* Meta do Mês */}
+            {(() => {
+              const meta = profile?.meta_faturamento_mensal || 0;
+              const atual = visaoEconomica.mensal.receitas;
+              const pct = meta > 0 ? Math.min((atual / meta) * 100, 100) : 0;
+              const corBarra = pct >= 80 ? "bg-green-500" : pct >= 50 ? "bg-cda-dourado" : "bg-cda-coral";
+              return (
+                <button
+                  type="button"
+                  onClick={() => navigate("/planejamento")}
+                  className="rounded-xl border border-cda-dourado/20 bg-cda-branco p-3 text-center transition hover:-translate-y-0.5 hover:border-cda-dourado/60 hover:shadow-md"
+                >
+                  <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-cda-vinho/10 ring-1 ring-cda-dourado/40">
+                    <TrendingUp className="h-4 w-4 text-cda-vinho" />
                   </div>
-                </CardHeader>
-              </Card>
-
-              {/* Lucro */}
-              <Card 
-                className={`cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 group ${visaoEconomica.mensal.lucro >= 0 ? "border-l-[#5B1A2B]" : "border-l-[#F28C82]"}`}
-                onClick={() => navigate("/financeiro/dashboard")}
-              >
-                <CardHeader className="p-2.5">
-                  <div className="flex flex-col items-center gap-1.5 text-center">
-                    <div className="w-7 h-7 rounded-lg bg-[#5B1A2B]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <DollarSign className="h-3.5 w-3.5 text-[#5B1A2B]" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-[11px] mb-0.5">
-                        Lucro Líquido
-                      </CardTitle>
-                      <CardDescription className="text-[10px] mb-0.5">{meses[mesSelecionado]}</CardDescription>
-                      <p className={`text-sm font-bold ${
-                        visaoEconomica.mensal.lucro >= 0 ? "text-green-600 dark:text-green-400" : "text-red-700 dark:text-red-400"
-                      }`}>
-                        R$ {visaoEconomica.mensal.lucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">
-                        Margem: {visaoEconomica.mensal.receitas > 0
-                          ? ((visaoEconomica.mensal.lucro / visaoEconomica.mensal.receitas) * 100).toFixed(1)
-                          : 0}%
-                      </p>
-                    </div>
-                  </div>
-                </CardHeader>
-              </Card>
-
-              {/* Ticket Médio */}
-              <Card className="border-l-4 border-l-[#C9A14A]/50 bg-white">
-                <CardHeader className="p-2.5">
-                  <div className="flex flex-col items-center gap-1.5 text-center">
-                    <div className="w-7 h-7 rounded-lg bg-[#C9A14A]/10 flex items-center justify-center">
-                      <DollarSign className="h-3.5 w-3.5 text-[#C9A14A]/60" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-[11px] mb-0.5">Ticket Médio</CardTitle>
-                      <CardDescription className="text-[10px] mb-0.5">{meses[mesSelecionado]}</CardDescription>
-                      <p className="text-sm font-bold text-foreground">
-                        R$ {ticketMedio.mensal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">
-                        Anual: R$ {ticketMedio.anual.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </p>
-                    </div>
-                  </div>
-                </CardHeader>
-              </Card>
-
-              {/* Meta do Mês */}
-              {(() => {
-                const meta = profile?.meta_faturamento_mensal || 0;
-                const atual = visaoEconomica.mensal.receitas;
-                const pct = meta > 0 ? Math.min((atual / meta) * 100, 100) : 0;
-                const corBarra = pct >= 80 ? "bg-green-500" : pct >= 50 ? "bg-[#C9A14A]" : "bg-[#F28C82]";
-                return (
-                  <Card
-                    className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-l-4 border-l-[#5B1A2B] group"
-                    onClick={() => navigate("/planejamento")}
-                  >
-                    <CardHeader className="p-2.5">
-                      <div className="flex flex-col items-center gap-1.5 text-center">
-                        <div className="w-7 h-7 rounded-lg bg-[#5B1A2B]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                          <TrendingUp className="h-3.5 w-3.5 text-[#5B1A2B]" />
-                        </div>
-                        <div className="w-full">
-                          <CardTitle className="text-[11px] mb-0.5">Meta do Mês</CardTitle>
-                          <CardDescription className="text-[10px] mb-0.5">{meses[mesSelecionado]}</CardDescription>
-                          {meta > 0 ? (
-                            <>
-                              <p className="text-sm font-bold text-foreground">
-                                {pct.toFixed(0)}%
-                              </p>
-                              <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mt-1">
-                                <div
-                                  className={`h-full ${corBarra} transition-all`}
-                                  style={{ width: `${pct}%` }}
-                                />
-                              </div>
-                              <p className="text-[10px] text-muted-foreground mt-0.5">
-                                R$ {atual.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} / R$ {meta.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                              </p>
-                            </>
-                          ) : (
-                            <>
-                              <p className="text-xs text-muted-foreground">Meta não definida</p>
-                              <p className="text-[10px] text-[#5B1A2B] underline mt-1">Definir meta</p>
-                            </>
-                          )}
-                        </div>
+                  <p className="mt-2 text-[10px] font-body uppercase tracking-widest text-cda-vinho/60">Meta do mês</p>
+                  {meta > 0 ? (
+                    <>
+                      <p className="mt-1 font-display text-lg text-cda-vinho">{pct.toFixed(0)}%</p>
+                      <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-cda-dourado/15">
+                        <div className={`h-full ${corBarra} transition-all`} style={{ width: `${pct}%` }} />
                       </div>
-                    </CardHeader>
-                  </Card>
-                );
-              })()}
-            </div>
-          ) : (
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={visaoEconomica.anual}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="mes" />
-                  <YAxis />
-                  <Tooltip
-                    formatter={(value: number) =>
-                      `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-                    }
-                  />
-                  <Legend />
-                  <Line type="monotone" dataKey="receitas" stroke="#C9A14A" name="Receitas" strokeWidth={2} />
-                  <Line type="monotone" dataKey="custos" stroke="#F28C82" name="Custos" strokeWidth={2} />
-                  <Line type="monotone" dataKey="lucro" stroke="#5B1A2B" name="Lucro" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                      <p className="mt-1 text-[10px] font-body text-cda-vinho/60">
+                        R$ {atual.toLocaleString('pt-BR', { maximumFractionDigits: 0 })} / R$ {meta.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="mt-1 text-xs font-body text-cda-vinho/60">Meta não definida</p>
+                      <p className="mt-1 text-[10px] font-body text-cda-vinho underline">Definir meta</p>
+                    </>
+                  )}
+                </button>
+              );
+            })()}
+          </div>
+        ) : (
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={visaoEconomica.anual}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#C9A14A33" />
+                <XAxis dataKey="mes" stroke="#5B1A2B" />
+                <YAxis stroke="#5B1A2B" />
+                <Tooltip formatter={(v: number) => `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} />
+                <Legend />
+                <Line type="monotone" dataKey="receitas" stroke="#C9A14A" name="Receitas" strokeWidth={2} />
+                <Line type="monotone" dataKey="custos" stroke="#F28C82" name="Custos" strokeWidth={2} />
+                <Line type="monotone" dataKey="lucro" stroke="#5B1A2B" name="Lucro" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </PremiumCard>
 
-      {/* VENDAS POR MÊS + FLUXO DE CAIXA + TOP 5 (somente quando houver dados) */}
+      {/* ===== VENDAS / FLUXO / TOP 5 ===== */}
       {(vendasPorMes.some(v => v.total > 0) || fluxoCaixa.some(f => f.saldo !== 0) || produtos.length > 0) && (
         <div className="grid gap-4 md:grid-cols-2">
-          {/* Vendas por mês */}
           {vendasPorMes.some(v => v.total > 0) && (
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Vendas por mês</CardTitle>
-                <CardDescription>Últimos 6 meses</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[220px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={vendasPorMes}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis dataKey="mes" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                      <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "hsl(var(--card))",
-                          border: "1px solid hsl(var(--border))",
-                          borderRadius: "0.5rem"
-                        }}
-                        formatter={(value: number) =>
-                          [`R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, "Vendas"]
-                        }
-                      />
-                      <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
+            <PremiumCard
+              icon={TrendingUp}
+              title="Vendas por mês"
+              subtitle="Últimos 6 meses"
+            >
+              <div className="h-[220px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={vendasPorMes}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#C9A14A33" />
+                    <XAxis dataKey="mes" stroke="#5B1A2B" fontSize={12} />
+                    <YAxis stroke="#5B1A2B" fontSize={12} />
+                    <Tooltip formatter={(v: number) => [`R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, "Vendas"]} />
+                    <Bar dataKey="total" fill="#5B1A2B" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </PremiumCard>
           )}
 
-          {/* Fluxo de caixa + Top 5 (lado direito) */}
           <div className="space-y-4">
             {fluxoCaixa.some(f => f.saldo !== 0) && (
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Fluxo de caixa</CardTitle>
-                  <CardDescription>Últimos 6 meses</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-[160px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={fluxoCaixa}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                        <XAxis dataKey="mes" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                        <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                        <Tooltip
-                          contentStyle={{
-                            backgroundColor: "hsl(var(--card))",
-                            border: "1px solid hsl(var(--border))",
-                            borderRadius: "0.5rem"
-                          }}
-                          formatter={(value: number) =>
-                            [`R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, "Saldo"]
-                          }
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey="saldo"
-                          stroke="hsl(var(--primary))"
-                          strokeWidth={2.5}
-                          dot={{ fill: "hsl(var(--primary))", r: 4 }}
-                          activeDot={{ r: 6 }}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
+              <PremiumCard
+                icon={DollarSign}
+                title="Fluxo de caixa"
+                subtitle="Últimos 6 meses"
+              >
+                <div className="h-[160px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={fluxoCaixa}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#C9A14A33" />
+                      <XAxis dataKey="mes" stroke="#5B1A2B" fontSize={12} />
+                      <YAxis stroke="#5B1A2B" fontSize={12} />
+                      <Tooltip formatter={(v: number) => [`R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, "Saldo"]} />
+                      <Line
+                        type="monotone"
+                        dataKey="saldo"
+                        stroke="#C9A14A"
+                        strokeWidth={2.5}
+                        dot={{ fill: "#5B1A2B", r: 4 }}
+                        activeDot={{ r: 6 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </PremiumCard>
             )}
 
             {produtos.length > 0 && (
-              <Card>
-                <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle className="text-lg">Top 5 Produtos</CardTitle>
-                    <CardDescription>
-                      {modoVisualizacao === 'mensal'
-                        ? `${meses[mesSelecionado]} de ${anoSelecionado}`
-                        : `Ano ${anoSelecionado}`}
-                    </CardDescription>
+              <PremiumCard
+                icon={Sparkles}
+                title="Top 5 produtos"
+                subtitle={modoVisualizacao === 'mensal' ? `${meses[mesSelecionado]} de ${anoSelecionado}` : `Ano ${anoSelecionado}`}
+                headerRight={
+                  <div className="inline-flex rounded-full bg-cda-vinho-escuro/40 p-1 ring-1 ring-cda-dourado/40">
+                    {(["mensal", "anual"] as const).map((tab) => (
+                      <button
+                        key={tab}
+                        type="button"
+                        onClick={() => setModoVisualizacao(tab)}
+                        className={`rounded-full px-3 py-1 text-[10px] font-body uppercase tracking-widest transition ${
+                          modoVisualizacao === tab
+                            ? "bg-cda-dourado text-cda-vinho-escuro shadow"
+                            : "text-cda-creme/80 hover:text-cda-creme"
+                        }`}
+                      >
+                        {tab}
+                      </button>
+                    ))}
                   </div>
-                  <div className="flex gap-1">
-                    <Button
-                      variant={modoVisualizacao === 'mensal' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setModoVisualizacao('mensal')}
-                      className={modoVisualizacao === 'mensal' ? "bg-[#5B1A2B] text-[#FFF9F5]" : "border border-[#C9A14A]/50 text-[#5B1A2B] bg-transparent hover:border-[#C9A14A] hover:text-[#5B1A2B]"}
-                    >
-                      Mensal
-                    </Button>
-                    <Button
-                      variant={modoVisualizacao === 'anual' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setModoVisualizacao('anual')}
-                      className={modoVisualizacao === 'anual' ? "bg-[#5B1A2B] text-[#FFF9F5]" : "border border-[#C9A14A]/50 text-[#5B1A2B] bg-transparent hover:border-[#C9A14A] hover:text-[#5B1A2B]"}
-                    >
-                      Anual
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-hidden rounded-md border border-border">
-                    <table className="w-full text-sm">
-                      <thead className="bg-muted/50">
-                        <tr>
-                          <th className="px-3 py-2 text-left font-medium text-muted-foreground">Items</th>
-                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">Preço</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {produtos.map((produto, index) => (
-                          <tr key={produto.id} className="border-t border-border hover:bg-muted/30 transition-colors">
-                            <td className="px-3 py-2 text-foreground">
-                              <span className="font-semibold text-muted-foreground mr-2">{index + 1}º</span>
-                              {produto.nome}
-                              <span className="ml-2 text-xs text-muted-foreground">
-                                ({produto.quantidade} {produto.quantidade === 1 ? 'venda' : 'vendas'})
-                              </span>
-                            </td>
-                            <td className="px-3 py-2 text-right font-medium text-primary">
-                              R$ {produto.receita.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
+                }
+              >
+                <ul className="divide-y divide-dashed divide-cda-dourado/30">
+                  {produtos.map((produto, index) => (
+                    <li key={produto.id} className="flex items-center gap-3 py-2.5">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cda-vinho font-display text-sm text-cda-dourado ring-1 ring-cda-dourado/60">
+                        {index + 1}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-display text-base text-cda-vinho">{produto.nome}</p>
+                        <p className="text-[11px] font-body text-cda-vinho/60">
+                          {produto.quantidade} {produto.quantidade === 1 ? 'venda' : 'vendas'}
+                        </p>
+                      </div>
+                      <p className="font-display text-base text-cda-vinho">
+                        R$ {produto.receita.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </PremiumCard>
             )}
           </div>
         </div>
