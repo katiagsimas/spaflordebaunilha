@@ -1667,7 +1667,7 @@ const Encomendas = () => {
       {/* ===== BANNER TAGS DE ENCOMENDAS ===== */}
       <button
         type="button"
-        onClick={() => navigate('/configuracoes/tags-encomendas')}
+        onClick={() => navigate('/encomendas/tags')}
         className="group block w-full rounded-xl border border-[#5B1A2B]/10 bg-[#FDF6EE] px-5 py-4 text-left transition hover:border-[#C9A14A]/40 hover:shadow-[0_4px_16px_-12px_rgba(91,26,43,0.25)]"
       >
         <div className="flex items-center justify-between gap-4">

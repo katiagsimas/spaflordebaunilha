@@ -255,7 +255,8 @@ const App = () => (
           <Route path="/configuracoes/bancos" element={<ProtectedRoute><Layout><PlanoGuard><Navigate to="/financeiro/cadastros/bancos" replace /></PlanoGuard></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/tipos-documentos" element={<ProtectedRoute><Layout><PlanoGuard><Navigate to="/financeiro/cadastros/tipos-documentos" replace /></PlanoGuard></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/juros" element={<ProtectedRoute><Layout><PlanoGuard><Navigate to="/financeiro/cadastros/juros" replace /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/tags-encomendas" element={<ProtectedRoute><Layout><TagsEncomendasPage /></Layout></ProtectedRoute>} />
+          <Route path="/encomendas/tags" element={<ProtectedRoute><Layout><TagsEncomendasPage /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/tags-encomendas" element={<Navigate to="/encomendas/tags" replace />} />
           <Route path="/configuracoes/backup" element={<ProtectedRoute><Layout><BackupPage /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/dados-confeitaria" element={<ProtectedRoute><Layout><SeusDados /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/categorias-receitas" element={<ProtectedRoute><Layout><Categorias /></Layout></ProtectedRoute>} />
