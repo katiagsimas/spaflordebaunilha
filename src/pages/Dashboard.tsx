@@ -975,7 +975,6 @@ export default function Dashboard() {
           <h1 className="font-display text-3xl tracking-tight text-cda-vinho-escuro sm:text-4xl">
             {saudacaoPorHora().texto}, {getPrimeiroNome(profile?.nome_completo, user?.email)}!
           </h1>
-        </div>
           <div className="mt-2 flex items-center gap-3">
             <span className="h-px w-12 bg-cda-dourado" />
             <p className="text-sm font-body italic text-cda-vinho/70">
