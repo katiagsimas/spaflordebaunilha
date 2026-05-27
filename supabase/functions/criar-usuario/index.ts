@@ -217,7 +217,7 @@ Deno.serve(async (req) => {
         type: 'magiclink',
         email,
         options: {
-          redirectTo: `${Deno.env.get('SITE_URL') || supabaseUrl}/dashboard`
+          redirectTo: `${(Deno.env.get('SITE_URL') || 'https://www.caixadeacucar.com.br').replace(/\/+$/, '')}/dashboard`
         }
       })
 
