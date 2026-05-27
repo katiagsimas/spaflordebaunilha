@@ -13,7 +13,7 @@ import { Lock, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { validarSenhaForte } from '@/lib/validacaoSenha';
-import caixaAcucarIcon from '@/assets/caixa-acucar-icon.png';
+import caixaAcucarIcon from '@/assets/caixa-acucar-logo-full.png';
 import authBrandImage from '@/assets/auth-brand-image.png';
 
 const resetPasswordSchema = z.object({
