@@ -182,7 +182,7 @@ export function EncomendaTagsSection({
             <TagIcon className="h-12 w-12 mx-auto mb-3 opacity-20" />
             <p className="text-sm">Nenhuma tag disponível</p>
             <p className="text-xs mt-1">
-              Configure tags em Configurações → Cadastros Base → Tags de Encomendas
+              Configure tags em Pedidos e Encomendas → Tags
             </p>
           </div>
         )}
