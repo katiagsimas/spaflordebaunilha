@@ -81,7 +81,7 @@ const EVENTO_NOMES = [
 export interface EncomendaStatusCardProps {
   label: string;
   value: number;
-  Icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  Icon: React.ComponentType<any>;
   bg: string;
   color: string;
   /** Status que define quais encomendas entram (null = todas) */
