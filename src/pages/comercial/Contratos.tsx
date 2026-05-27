@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ScrollText, Plus, Trash2, Download, FileText, ArrowLeft } from "lucide-react";
+import { ScrollText, Plus, Trash2, Download, FileText, ArrowLeft, Send, CheckCircle2, Coins, LayoutList } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -222,22 +222,34 @@ export default function Contratos() {
       <div className="p-6 space-y-6">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {[
-            { label: "Total", value: s?.total ?? 0 },
-            { label: "Rascunhos", value: s?.rascunhos ?? 0 },
-            { label: "Enviados", value: s?.enviados ?? 0 },
-            { label: "Assinados", value: s?.assinados ?? 0 },
-            { label: "Valor total", value: brl(s?.valor_total ?? 0) },
-          ].map((kpi) => (
-            <Card key={kpi.label} className="border-cda-dourado/30">
-              <CardContent className="p-4">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">{kpi.label}</p>
-                <p className="text-2xl font-bold text-cda-vinho mt-1">{kpi.value}</p>
-              </CardContent>
-            </Card>
-          ))}
+            { label: "Total", value: s?.total ?? 0, icon: LayoutList, tone: "vinho" as const },
+            { label: "Rascunhos", value: s?.rascunhos ?? 0, icon: FileText, tone: "dourado" as const },
+            { label: "Enviados", value: s?.enviados ?? 0, icon: Send, tone: "vinho" as const },
+            { label: "Assinados", value: s?.assinados ?? 0, icon: CheckCircle2, tone: "dourado" as const },
+            { label: "Valor total", value: brl(s?.valor_total ?? 0), icon: Coins, tone: "vinho" as const },
+          ].map((kpi) => {
+            const Icon = kpi.icon;
+            const ring = kpi.tone === "vinho" ? "bg-cda-vinho/10 text-cda-vinho" : "bg-cda-dourado/20 text-cda-vinho";
+            return (
+              <Card
+                key={kpi.label}
+                className="rounded-2xl border border-cda-dourado/20 bg-cda-branco shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)]"
+              >
+                <CardContent className="p-4 flex items-start gap-3">
+                  <div className={`h-10 w-10 shrink-0 rounded-full flex items-center justify-center ring-1 ring-cda-dourado/40 ${ring}`}>
+                    <Icon className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] uppercase tracking-wide font-body text-cda-vinho/60">{kpi.label}</p>
+                    <p className="font-display text-xl text-cda-vinho-escuro mt-0.5 truncate">{kpi.value}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
-        <Card>
+        <Card className="rounded-2xl border border-cda-dourado/20 bg-cda-branco shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)] overflow-hidden">
           <CardContent className="p-0">
             {lista.length === 0 ? (
               <div className="text-center py-16 px-6">
