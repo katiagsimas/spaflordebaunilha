@@ -199,9 +199,10 @@ export default function Receitas() {
               </TableBody>
             </Table>
           </div>
-        )}
-      </div>
+        </div>
+      )}
       <ConfirmDialog open={dialogAberto} onOpenChange={setDialogAberto} onConfirm={handleDeletar} title="Deletar Receita" description="Tem certeza que deseja deletar esta receita?" />
     </div>
+
   );
 }
