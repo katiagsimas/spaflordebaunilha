@@ -92,6 +92,7 @@ export interface EncomendaStatusCardProps {
   onEdit: (encomenda: any) => void;
   onDelete: (id: string) => void;
   onDarBaixa: (encomenda: any) => void;
+  defaultExpanded?: boolean;
 }
 
 export function EncomendaStatusCard({
@@ -107,8 +108,10 @@ export function EncomendaStatusCard({
   onEdit,
   onDelete,
   onDarBaixa,
+  defaultExpanded = false,
 }: EncomendaStatusCardProps) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(defaultExpanded);
+
   const [clienteFilter, setClienteFilter] = useState("Todos");
   const [origemFilter, setOrigemFilter] = useState("todos");
   const [eventoFilter, setEventoFilter] = useState("todos");

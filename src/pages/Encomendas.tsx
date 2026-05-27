@@ -1667,32 +1667,33 @@ const Encomendas = () => {
         </div>
       </div>
 
-      {/* ===== KPI CARDS EXPANSÍVEIS COM LISTAS ===== */}
-      <div className="space-y-3">
+      {/* ===== KPI CARDS COMPACTOS CLICÁVEIS ===== */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
         {[
-          { label: "Total", value: indicadores.total, Icon: ClipboardList, bg: "bg-[#5B1A2B]/10", color: "text-[#5B1A2B]", statusKey: null as string | null },
-          { label: "Pendentes", value: indicadores.pendentes, Icon: Clock, bg: "bg-[#C9A14A]/15", color: "text-[#C9A14A]", statusKey: "pendente" },
-          { label: "Confirmadas", value: indicadores.confirmadas, Icon: CheckCircle2, bg: "bg-emerald-100", color: "text-emerald-700", statusKey: "confirmado" },
-          { label: "Entregues", value: indicadores.entregues, Icon: Truck, bg: "bg-sky-100", color: "text-sky-700", statusKey: "entregue" },
-          { label: "Canceladas", value: indicadores.canceladas, Icon: XCircle, bg: "bg-[#F28C82]/20", color: "text-[#F28C82]", statusKey: "cancelado" },
+          { label: "Total", value: indicadores.total, Icon: ClipboardList, bg: "bg-[#5B1A2B]/10", color: "text-[#5B1A2B]", slug: "total" },
+          { label: "Pendentes", value: indicadores.pendentes, Icon: Clock, bg: "bg-[#C9A14A]/15", color: "text-[#C9A14A]", slug: "pendentes" },
+          { label: "Confirmadas", value: indicadores.confirmadas, Icon: CheckCircle2, bg: "bg-emerald-100", color: "text-emerald-700", slug: "confirmadas" },
+          { label: "Entregues", value: indicadores.entregues, Icon: Truck, bg: "bg-sky-100", color: "text-sky-700", slug: "entregues" },
+          { label: "Canceladas", value: indicadores.canceladas, Icon: XCircle, bg: "bg-[#F28C82]/20", color: "text-[#F28C82]", slug: "canceladas" },
         ].map((card) => (
-          <EncomendaStatusCard
+          <button
             key={card.label}
-            label={card.label}
-            value={card.value}
-            Icon={card.Icon}
-            bg={card.bg}
-            color={card.color}
-            statusKey={card.statusKey}
-            encomendas={encomendasMes}
-            clientesComEncomendas={clientesComEncomendas}
-            tagsDisponiveis={tagsDisponiveis}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onDarBaixa={handleDarBaixa}
-          />
+            type="button"
+            onClick={() => navigate(`/encomendas/lista/${card.slug}`)}
+            className="group rounded-xl border border-[#5B1A2B]/10 bg-white px-3 py-3 shadow-[0_2px_12px_-8px_rgba(91,26,43,0.10)] hover:shadow-[0_4px_18px_-8px_rgba(91,26,43,0.25)] hover:border-[#5B1A2B]/25 transition-all text-left flex flex-col items-start gap-2"
+            aria-label={`Ver lista de encomendas ${card.label}`}
+          >
+            <div className={`flex h-9 w-9 items-center justify-center rounded-full ${card.bg}`}>
+              <card.Icon className={`h-4 w-4 ${card.color}`} strokeWidth={2} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] uppercase tracking-wide text-foreground/55 truncate">{card.label}</p>
+              <p className="font-display text-2xl font-normal leading-none text-[#3D0F1C]">{card.value}</p>
+            </div>
+          </button>
         ))}
       </div>
+
 
 
       </div>

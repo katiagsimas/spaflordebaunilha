@@ -21,6 +21,8 @@ import { UserMenu, UserGreeting } from "@/components/UserMenu";
 import { MotherPlanSelector } from "@/components/MotherPlanSelector";
 import Dashboard from "./pages/Dashboard";
 import Encomendas from "./pages/Encomendas";
+import EncomendasLista from "./pages/EncomendasLista";
+
 import Precificacao from "./pages/Precificacao";
 import Planejamento from "./pages/Planejamento";
 import PlanejamentoDoce from "./pages/PlanejamentoDoce";
@@ -230,6 +232,8 @@ const App = () => (
           
           {/* Páginas Diretas */}
           <Route path="/encomendas" element={<ProtectedRoute><Layout><Encomendas /></Layout></ProtectedRoute>} />
+          <Route path="/encomendas/lista/:status" element={<ProtectedRoute><Layout><EncomendasLista /></Layout></ProtectedRoute>} />
+
           <Route path="/clientes-fornecedores" element={<ProtectedRoute><Layout><ClientesFornecedores /></Layout></ProtectedRoute>} />
           <Route path="/clientes" element={<ProtectedRoute><Layout><Clientes /></Layout></ProtectedRoute>} />
           <Route path="/fornecedores" element={<ProtectedRoute><Layout><Fornecedores /></Layout></ProtectedRoute>} />
