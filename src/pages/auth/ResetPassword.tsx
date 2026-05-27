@@ -13,8 +13,7 @@ import { Lock, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { validarSenhaForte } from '@/lib/validacaoSenha';
-import caixaAcucarIcon from '@/assets/caixa-acucar-logo-full.png';
-import authBrandImage from '@/assets/auth-brand-image.png';
+import { AuthLayout } from '@/components/auth/AuthLayout';
 
 const resetPasswordSchema = z.object({
   password: z.string().min(6, 'A senha deve ter no mínimo 6 caracteres'),
