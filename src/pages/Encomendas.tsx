@@ -1587,43 +1587,6 @@ const Encomendas = () => {
           </Dialog>
       </div>
 
-      {temEncomendasHoje && (
-        <Alert className="border-2 border-cda-dourado bg-cda-dourado/15 animate-pulse">
-          <AlertCircle className="h-5 w-5 text-cda-dourado" />
-          <AlertDescription className="font-semibold text-foreground ml-2">
-            🔔 Você tem {encomendasHojeQtd} encomenda{encomendasHojeQtd > 1 ? "s" : ""} para entregar HOJE!
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* ===== HEADER PREMIUM ===== */}
-      <div
-        className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
-        style={{
-          background:
-            "linear-gradient(110deg, #FDECEC 0%, #FBE0DC 45%, #F8D5CF 75%, #F4C8C2 100%)",
-        }}
-      >
-        <div className="flex items-center">
-          <div className="flex-1 min-w-0 px-6 py-6 sm:px-8 sm:py-7">
-            <h1 className="font-display text-3xl font-normal leading-tight text-[#3D0F1C] sm:text-[36px]">
-              Pedidos e Encomendas
-            </h1>
-            <div className="mt-2 flex items-center gap-3">
-              <span className="h-px w-10 bg-[#C9A14A]" />
-              <p className="text-sm italic text-[#C9A14A]">
-                Do pedido à entrega, tudo sob controle
-              </p>
-            </div>
-          </div>
-          <img
-            src={agendaHeroImg}
-            alt=""
-            aria-hidden="true"
-            className="pointer-events-none hidden lg:block h-[150px] w-auto object-contain object-right shrink-0"
-          />
-        </div>
-      </div>
 
 
 
