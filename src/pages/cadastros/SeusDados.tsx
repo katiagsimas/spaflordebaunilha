@@ -353,31 +353,12 @@ export default function SeusDados() {
 
   return (
     <div className="space-y-6 relative">
-      {/* Header */}
-      <header>
-        <h1
-          className="text-[36px] leading-tight font-normal text-[#3D0F1C]"
-          style={{ fontFamily: "'Playfair Display', serif" }}
-        >
-          {profile?.primeiro_acesso ? "Bem-vinda! Complete seus dados" : "Meus Dados"}
-        </h1>
-        <div className="flex items-center gap-3 mt-1">
-          <span className="block w-10 h-[1.5px] bg-[#C9A14A] shrink-0" />
-          <p className="text-[13px] text-[#3D0F1C]/65 italic">
-            Gerencie seu perfil e os dados empresariais que serão usados em propostas, contratos, relatórios e em toda a plataforma.
-          </p>
-        </div>
-      </header>
-
-      {/* Banner decorativo */}
-      <div className="rounded-xl overflow-hidden h-[110px]">
-        <img
-          src={bannerImg}
-          alt=""
-          loading="lazy"
-          className="w-full h-full object-cover"
-        />
-      </div>
+      {/* HERO BANNER padronizado */}
+      <HeroBanner
+        image={bannerImg}
+        title={profile?.primeiro_acesso ? "Bem-vinda! Complete seus dados" : "Meus Dados"}
+        subtitle="Gerencie seu perfil e os dados empresariais usados em toda a plataforma."
+      />
 
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
