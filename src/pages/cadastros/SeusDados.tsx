@@ -761,7 +761,7 @@ export default function SeusDados() {
                 {/* Completude */}
                 <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5 flex gap-4 items-start">
                   <div className="w-13 h-13 rounded-full bg-[#FDF6EE] flex items-center justify-center shrink-0" style={{ width: 52, height: 52 }}>
-                    <BadgeIcon />
+                    <ShieldCheck className="h-6 w-6 text-[#C9A14A]" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-[15px] text-[#3D0F1C] mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
