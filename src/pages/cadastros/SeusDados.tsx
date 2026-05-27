@@ -300,6 +300,7 @@ export default function SeusDados() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id, activeGroup?.id] });
+      queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["business-profile", user?.id] });
       toast.success("✅ Dados salvos com sucesso!");
     },
@@ -309,13 +310,22 @@ export default function SeusDados() {
   });
 
   const onSubmit = (data: SeusDadosForm) => {
-    if (!data.nomeFantasia?.trim()) {
-      toast.error("Nome Fantasia é obrigatório");
-      return;
-    }
-    if (!data.telefone?.trim()) {
-      toast.error("WhatsApp é obrigatório");
-      return;
+    const obrigatorios: Array<{ campo: keyof SeusDadosForm; label: string }> = [
+      { campo: "nomeResponsavel", label: "Nome do responsável" },
+      { campo: "nomeFantasia", label: "Nome Fantasia" },
+      { campo: "cnpjCpf", label: "CPF/CNPJ" },
+      { campo: "telefone", label: "WhatsApp" },
+      { campo: "cep", label: "CEP" },
+      { campo: "endereco", label: "Endereço" },
+      { campo: "cidade", label: "Cidade" },
+      { campo: "estado", label: "Estado" },
+    ];
+    for (const { campo, label } of obrigatorios) {
+      const valor = data[campo];
+      if (!valor || String(valor).trim() === "") {
+        toast.error(`${label} é obrigatório`);
+        return;
+      }
     }
     updateProfileMutation.mutate(data);
   };
