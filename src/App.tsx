@@ -13,6 +13,7 @@ import { GroupProvider } from "@/contexts/GroupContext";
 import { GlobalLoadingProvider, useGlobalLoading } from "@/contexts/GlobalLoadingContext";
 import { LoadingMascote } from "@/components/LoadingMascote";
 import { FirstAccessRedirect } from "@/components/FirstAccessRedirect";
+import { FloatingNavigation } from "@/components/FloatingNavigation";
 import { AlertaExpiracaoPlano } from "@/components/AlertaExpiracaoPlano";
 import { PlanExpirationWatcher } from "@/components/PlanExpirationWatcher";
 import { ModalExpiracaoImersao } from "@/components/ModalExpiracaoImersao";
@@ -182,6 +183,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <FirstAccessRedirect />
             {children}
           </main>
+          <FloatingNavigation />
           <footer className="border-t border-cda-dourado/30 bg-cda-vinho text-cda-creme/70 py-3 px-4 text-center text-[11px] font-body">
             Umbrella Doce by Ká Simas · CNPJ 65.786.966/0001-41 · Todos os direitos reservados.
           </footer>

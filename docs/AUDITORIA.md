@@ -1170,3 +1170,8 @@ Sequência completa:
 Arquivos alterados:
 - `src/components/FirstAccessRedirect.tsx` — gate baseado em campos essenciais do profile (`nome_completo`, `nome_confeitaria`, `cpf`, `whatsapp`, `cep`, `endereco`, `cidade`, `estado`), não mais apenas em `primeiro_acesso`.
 - `src/pages/cadastros/SeusDados.tsx` — validação obrigatória dos mesmos campos + invalidação correta do cache do React Query (`["profile", user?.id]`) para que o redirect avance para a próxima etapa após salvar.
+
+## 2026-05-27 — Navegação global
+- ✅ Adicionado componente `FloatingNavigation` (botões flutuantes "Voltar" e "Voltar ao topo") no Layout principal.
+- "Voltar" usa `navigate(-1)` (histórico do navegador), corrigindo rotas incorretas em páginas como Backup → Configurações.
+- Ocultos em rotas de autenticação e SSO; "Voltar" oculto no Dashboard.
