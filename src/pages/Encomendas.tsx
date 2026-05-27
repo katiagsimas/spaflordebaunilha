@@ -976,10 +976,7 @@ const Encomendas = () => {
       {/* ===== HEADER PREMIUM ===== */}
       <div
         className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
-        style={{
-          background:
-            "linear-gradient(110deg, #FDECEC 0%, #FBE0DC 45%, #F8D5CF 75%, #F4C8C2 100%)",
-        }}
+        style={{ background: "#FAEFEB" }}
       >
         <div className="flex items-center">
           <div className="flex-1 min-w-0 px-6 py-6 sm:px-8 sm:py-7">
