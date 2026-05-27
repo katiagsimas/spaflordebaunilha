@@ -21,6 +21,8 @@ import { UserMenu, UserGreeting } from "@/components/UserMenu";
 import { MotherPlanSelector } from "@/components/MotherPlanSelector";
 import Dashboard from "./pages/Dashboard";
 import Encomendas from "./pages/Encomendas";
+import EncomendasLista from "./pages/EncomendasLista";
+
 import Precificacao from "./pages/Precificacao";
 import Planejamento from "./pages/Planejamento";
 import PlanejamentoDoce from "./pages/PlanejamentoDoce";
