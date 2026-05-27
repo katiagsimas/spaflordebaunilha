@@ -306,7 +306,10 @@ export default function ResetPassword() {
       <div
         className="flex-1 flex items-center justify-center p-6 relative"
         style={{
-          background: 'linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(345 55% 9%) 40%, hsl(0 0% 5%) 100%)',
+          backgroundImage: `url(${authRightBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
         }}
       >
         <div className="absolute inset-0 opacity-[0.04]" style={{
