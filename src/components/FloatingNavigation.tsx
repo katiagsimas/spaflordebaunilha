@@ -22,12 +22,18 @@ export function FloatingNavigation() {
   const isDashboard = location.pathname === "/" || location.pathname === "/dashboard";
 
   useEffect(() => {
-    const onScroll = () => {
-      // Considera tanto scroll da janela quanto de <main> (o layout rola no main)
+    const getScrolled = () => {
       const mainEl = document.querySelector("main");
-      const scrolled = window.scrollY > 300 || (mainEl && mainEl.scrollTop > 300);
-      setShowTop(Boolean(scrolled));
+      const docEl = document.documentElement;
+      return (
+        window.scrollY > 300 ||
+        docEl.scrollTop > 300 ||
+        document.body.scrollTop > 300 ||
+        (mainEl && mainEl.scrollTop > 300)
+      );
     };
+
+    const onScroll = () => setShowTop(Boolean(getScrolled()));
 
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -57,7 +63,7 @@ export function FloatingNavigation() {
   if (isAuthRoute) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-2 print:hidden">
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 print:hidden">
       {!isDashboard && (
         <Button
           onClick={handleBack}
