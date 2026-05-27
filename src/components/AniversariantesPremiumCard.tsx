@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Cake, Calendar, Gift, PartyPopper, ArrowRight, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import decorImg from "@/assets/aniversariantes-decor.png";
 
 export interface AniversarianteItem {
   id: string;
