@@ -179,15 +179,15 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border" style={{ width: open ? '280px' : undefined }}>
-      <SidebarHeader className="h-14 border-b border-sidebar-border px-4 py-0 flex items-center justify-center">
+      <SidebarHeader className="h-14 border-b border-cda-dourado/30 px-4 py-0 flex items-center justify-center bg-gradient-to-r from-cda-vinho-escuro via-cda-vinho to-cda-vinho-escuro">
         {open && (
-          <div className="flex items-center gap-2">
-            <img src="/cda-logo-dourado.png" alt="Caixa de Açúcar" className="h-7 w-7" />
+          <div className="flex items-center gap-2.5">
+            <img src="/cda-logo-dourado.png" alt="Caixa de Açúcar" className="h-7 w-7 drop-shadow" />
             <div className="flex flex-col leading-tight">
-              <span className="text-sm font-semibold font-body text-sidebar-foreground tracking-wide uppercase">
+              <span className="font-display text-base text-cda-creme tracking-wide">
                 Caixa de Açúcar
               </span>
-              <span className="text-[9px] font-light font-body text-cda-creme/70 tracking-wider">
+              <span className="text-[9px] font-body font-light text-cda-dourado/80 tracking-[0.2em] uppercase">
                 by Umbrella Doce
               </span>
             </div>
@@ -198,16 +198,14 @@ export function AppSidebar() {
       <SidebarContent>
         {open && <GroupSelector />}
 
-
-
         {menuSections.map((section, sectionIndex) => (
           <div key={section.label}>
             {sectionIndex > 0 && (
               /* Separador dourado entre seções */
-              <div className="mx-4 h-px bg-cda-dourado/30" />
+              <div className="mx-4 my-2 h-px bg-gradient-to-r from-transparent via-cda-dourado/40 to-transparent" />
             )}
             <SidebarGroup>
-              <SidebarGroupLabel className="text-[#FFF9F5]/40 text-[10px] uppercase tracking-widest font-body">
+              <SidebarGroupLabel className="text-cda-dourado/70 text-[10px] uppercase tracking-[0.22em] font-display">
                 {section.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -230,17 +228,17 @@ export function AppSidebar() {
                               <NavLink
                                 to={item.url}
                                 end
-                                className="flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm opacity-40 cursor-not-allowed text-[#FFF9F5]"
+                                className="flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm opacity-40 cursor-not-allowed text-cda-creme"
                                 onClick={(e) => {
                                   e.preventDefault();
                                   setComingSoonModal({ title: item.title, message: item.comingSoonMessage || '' });
                                 }}
                               >
-                                <Icon className="h-5 w-5 text-[#FFF9F5]/80" />
+                                <Icon className="h-5 w-5 text-cda-creme/80" />
                                 {open && (
                                   <>
                                     <span className="flex-1">{item.title}</span>
-                                    <Lock className="h-3.5 w-3.5 text-[#FFF9F5]/40" />
+                                    <Lock className="h-3.5 w-3.5 text-cda-creme/40" />
                                   </>
                                 )}
                               </NavLink>
@@ -262,32 +260,32 @@ export function AppSidebar() {
                                 }
                               }}
                               className={({ isActive }) =>
-                                `flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
+                                `relative flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                                   isActive && !bloqueado
-                                    ? "bg-[#FFF9F5]/[0.08] border-l-2 border-[#C9A14A] text-[#C9A14A] font-semibold"
-                                    : "text-[#FFF9F5]/80 hover:bg-[#FFF9F5]/10 hover:text-[#FFF9F5]"
+                                    ? "bg-gradient-to-r from-cda-dourado/15 via-cda-dourado/5 to-transparent border-l-2 border-cda-dourado text-cda-dourado font-semibold"
+                                    : "text-cda-creme/80 hover:bg-cda-dourado/10 hover:text-cda-creme"
                                 } ${bloqueado ? "opacity-60" : ""}`
                               }
                             >
                               {({ isActive }) => (
                                 <>
-                                  <Icon className={`h-5 w-5 ${isActive && !bloqueado ? 'text-cda-dourado' : 'text-[#FFF9F5]/80'}`} />
+                                  <Icon className={`h-5 w-5 transition-colors ${isActive && !bloqueado ? 'text-cda-dourado' : 'text-cda-creme/70 group-hover:text-cda-dourado'}`} />
                                   {item.title === "Pedidos e Encomendas" && temEncomendasHoje && !bloqueado && !open && (
-                                    <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-red-500 animate-ping" />
+                                    <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-cda-dourado animate-ping" />
                                   )}
                                   {open && (
                                     <>
                                       <span className="flex-1">{item.title}</span>
                                       {bloqueado && (
-                                        <Lock className="h-3.5 w-3.5 text-[#FFF9F5]/40" />
+                                        <Lock className="h-3.5 w-3.5 text-cda-creme/40" />
                                       )}
                                       {item.title === "Pedidos e Encomendas" && temEncomendasHoje && !bloqueado && (
-                                        <Badge className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-body font-bold animate-pulse ml-1">
+                                        <Badge className="bg-cda-dourado text-cda-vinho-escuro text-[10px] px-2 py-0.5 rounded-full font-body font-bold animate-pulse ml-1">
                                           {encomendasHojeQtd} HOJE
                                         </Badge>
                                       )}
                                       {item.title === "Clientes e Fornecedores" && aniversariantesClientes.length > 0 && !bloqueado && (
-                                        <div className="w-5 h-5 rounded-full bg-cda-dourado flex items-center justify-center animate-bounce ml-1">
+                                        <div className="w-5 h-5 rounded-full bg-cda-dourado flex items-center justify-center animate-bounce ml-1 ring-1 ring-cda-creme/20">
                                           <Cake className="h-3 w-3 text-cda-vinho" />
                                         </div>
                                       )}
@@ -310,6 +308,7 @@ export function AppSidebar() {
 
 
       </SidebarContent>
+
 
       {/* Modal "Em Breve" */}
       <Dialog open={!!comingSoonModal} onOpenChange={() => setComingSoonModal(null)}>
