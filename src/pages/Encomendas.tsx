@@ -965,6 +965,7 @@ const Encomendas = () => {
     <div className="flex h-full overflow-hidden">
       <div className="flex-1 min-w-0 overflow-auto space-y-8">
       <div className="flex items-center justify-end gap-3">
+        <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} />
         <Dialog open={dialogOpen} onOpenChange={(open) => {
           setDialogOpen(open);
           if (!open) resetForm();
