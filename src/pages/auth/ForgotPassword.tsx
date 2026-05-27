@@ -172,8 +172,13 @@ export default function ForgotPassword() {
       </div>
 
       {/* Lado direito — Formulário */}
-      <div className="flex-1 flex items-center justify-center p-6 relative">
-        <div className="absolute inset-0 opacity-[0.03]" style={{
+      <div
+        className="flex-1 flex items-center justify-center p-6 relative"
+        style={{
+          background: 'linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(345 55% 9%) 40%, hsl(0 0% 5%) 100%)',
+        }}
+      >
+        <div className="absolute inset-0 opacity-[0.04]" style={{
           backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
           backgroundSize: '40px 40px'
         }} />
