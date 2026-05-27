@@ -1607,6 +1607,15 @@ const Encomendas = () => {
 
 
 
+      {/* ===== CALENDÁRIOS DE ENCOMENDAS ===== */}
+      <section className="space-y-3">
+        <div className="flex items-center gap-2">
+          <CalendarDays className="h-5 w-5 text-[#5B1A2B]" />
+          <h2 className="font-display text-2xl font-normal text-[#3D0F1C]">Calendários de Encomendas</h2>
+        </div>
+        <p className="text-sm text-foreground/60">Visualize suas encomendas em 3 meses consecutivos</p>
+        <CalendariosEncomendas onNovaEncomenda={() => setDialogOpen(true)} />
+      </section>
 
       {/* DASHBOARD DE ENCOMENDAS */}
       
@@ -1685,16 +1694,6 @@ const Encomendas = () => {
         ))}
       </div>
 
-
-      {/* ===== CALENDÁRIOS DE ENCOMENDAS ===== */}
-      <section className="space-y-3">
-        <div className="flex items-center gap-2">
-          <CalendarDays className="h-5 w-5 text-[#5B1A2B]" />
-          <h2 className="font-display text-2xl font-normal text-[#3D0F1C]">Calendários de Encomendas</h2>
-        </div>
-        <p className="text-sm text-foreground/60">Visualize suas encomendas em 3 meses consecutivos</p>
-        <CalendariosEncomendas onNovaEncomenda={() => setDialogOpen(true)} />
-      </section>
 
       </div>
       <ModuleHelpDrawer content={encomendaHelp} isOpen={isHelpOpen} onClose={closeHelp} />
