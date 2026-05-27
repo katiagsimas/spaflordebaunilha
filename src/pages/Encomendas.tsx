@@ -989,14 +989,14 @@ const Encomendas = () => {
         className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
         style={{ background: "#FAEFEB" }}
       >
-        <div className="flex items-center">
-          <div className="flex-1 min-w-0 px-6 py-6 sm:px-8 sm:py-7">
-            <h1 className="font-display text-3xl font-normal leading-tight text-[#3D0F1C] sm:text-[36px]">
+        <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
+          <div className="flex-1 min-w-0">
+            <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
               Pedidos e Encomendas
             </h1>
             <div className="mt-2 flex items-center gap-3">
-              <span className="h-px w-10 bg-[#C9A14A]" />
-              <p className="text-sm italic text-[#C9A14A]">
+              <span className="h-px w-8 bg-[#C9A14A] sm:w-10" />
+              <p className="text-xs italic text-[#C9A14A] sm:text-sm">
                 Do pedido à entrega, tudo sob controle
               </p>
             </div>
@@ -1005,7 +1005,7 @@ const Encomendas = () => {
             src={agendaHeroImg}
             alt=""
             aria-hidden="true"
-            className="pointer-events-none hidden lg:block h-[150px] w-auto object-contain object-right shrink-0"
+            className="pointer-events-none h-20 w-auto shrink-0 object-contain object-right sm:h-28 lg:h-[150px]"
           />
         </div>
       </div>
@@ -1700,22 +1700,24 @@ const Encomendas = () => {
       <ModuleHelpDrawer content={encomendaHelp} isOpen={isHelpOpen} onClose={closeHelp} />
 
       {/* ===== BOTÕES FLUTUANTES ===== */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 sm:bottom-6 sm:right-6">
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           aria-label="Voltar ao topo"
-          className="flex h-11 w-11 items-center justify-center rounded-full bg-[#C9A14A] text-white shadow-lg transition hover:bg-[#b58c39]"
+          title="Voltar ao topo"
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-cda-dourado text-cda-preto shadow-[0_8px_24px_-8px_rgba(201,161,74,0.6)] ring-1 ring-cda-dourado/60 transition hover:scale-105 hover:bg-[#b58c39] active:scale-95"
         >
-          <ArrowUp className="h-5 w-5" />
+          <ArrowUp className="h-5 w-5" strokeWidth={2.5} />
         </button>
         <button
           type="button"
           onClick={() => navigate(-1)}
           aria-label="Voltar"
-          className="flex h-11 w-11 items-center justify-center rounded-full bg-[#5B1A2B] text-white shadow-lg transition hover:bg-[#3D0F1C]"
+          title="Voltar"
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-cda-vinho text-cda-creme shadow-[0_8px_24px_-8px_rgba(91,26,43,0.6)] ring-1 ring-cda-vinho-escuro/60 transition hover:scale-105 hover:bg-cda-vinho-escuro active:scale-95"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="h-5 w-5" strokeWidth={2.5} />
         </button>
       </div>
     </div>
