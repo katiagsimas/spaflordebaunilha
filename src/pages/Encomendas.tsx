@@ -976,16 +976,33 @@ const Encomendas = () => {
         </Alert>
       )}
 
-      <PageHeader
-        title="Pedidos e Encomendas"
-        description="Do pedido à entrega, tudo sob controle"
-        actions={
+      {/* ===== HEADER PREMIUM ===== */}
+      <div className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 bg-[#FFF9F5] px-6 py-6 sm:px-8 sm:py-7 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]">
+        <img
+          src={agendaHeroImg}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute right-48 top-1/2 hidden h-[130px] -translate-y-1/2 object-contain lg:block"
+        />
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="font-display text-3xl font-normal leading-tight text-[#3D0F1C] sm:text-[36px]">
+              Pedidos e Encomendas
+            </h1>
+            <div className="mt-2 flex items-center gap-3">
+              <span className="h-px w-10 bg-[#C9A14A]" />
+              <p className="text-sm italic text-[#C9A14A]">
+                Do pedido à entrega, tudo sob controle
+              </p>
+            </div>
+          </div>
+
           <Dialog open={dialogOpen} onOpenChange={(open) => {
             setDialogOpen(open);
             if (!open) resetForm();
           }}>
             <DialogTrigger asChild>
-              <Button>
+              <Button className="shrink-0 rounded-lg bg-[#3D0F1C] text-white hover:bg-[#3D0F1C]/90">
                 <Plus className="h-4 w-4 mr-2" />
                 Nova Encomenda
               </Button>
@@ -1561,8 +1578,8 @@ const Encomendas = () => {
               </form>
             </DialogContent>
           </Dialog>
-        }
-      />
+        </div>
+      </div>
 
 
       {/* DASHBOARD DE ENCOMENDAS */}
