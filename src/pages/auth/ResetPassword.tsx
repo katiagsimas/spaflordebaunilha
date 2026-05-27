@@ -155,12 +155,12 @@ export default function ResetPassword() {
   const renderContent = () => {
     if (verifying || !hasToken) {
       return (
-        <div className="w-full max-w-md relative z-10 space-y-8">
+        <div className="w-full max-w-md relative z-10 space-y-3">
           <div className="text-center">
             <img
               src={caixaAcucarIcon}
               alt="Caixa de Açúcar — by Umbrella Doce"
-              className="mx-auto w-full max-w-sm h-auto"
+              className="mx-auto w-full max-w-xs h-auto"
             />
           </div>
 
@@ -174,18 +174,18 @@ export default function ResetPassword() {
     }
 
     return (
-      <div className="w-full max-w-md relative z-10 space-y-8">
+      <div className="w-full max-w-md relative z-10 space-y-3">
         {/* Brand header */}
         <div className="text-center">
           <img
             src={caixaAcucarIcon}
             alt="Caixa de Açúcar — by Umbrella Doce"
-            className="mx-auto w-full max-w-sm h-auto"
+            className="mx-auto w-full max-w-xs h-auto"
           />
         </div>
 
         <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">
-          <CardHeader className="pb-2 pt-8">
+          <CardHeader className="pb-2 pt-5">
             <h2 className="text-xl font-display font-semibold text-cda-preto text-center">
               Redefinir Senha
             </h2>
@@ -303,7 +303,7 @@ export default function ResetPassword() {
 
       {/* Lado direito — Formulário */}
       <div
-        className="flex-1 flex items-start justify-center p-6 pt-10 relative"
+        className="flex-1 flex items-start justify-center p-4 pt-4 relative"
         style={{
           background: 'linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(345 55% 9%) 40%, hsl(0 0% 5%) 100%)',
         }}
