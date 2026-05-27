@@ -184,6 +184,16 @@ const Encomendas = () => {
     }
   }, [encomendas, editingOrder]);
 
+  // Encomendas do mês selecionado (filtradas por data_entrega)
+  const encomendasMes = useMemo(() => {
+    if (!encomendas) return [] as any[];
+    return encomendas.filter((enc: any) => {
+      if (!enc.data_entrega) return false;
+      const d = parseISOToDate(enc.data_entrega);
+      return d.getMonth() === mesSelecionado && d.getFullYear() === anoSelecionado;
+    });
+  }, [encomendas, mesSelecionado, anoSelecionado]);
+
   // Calcular indicadores do dashboard
   useEffect(() => {
     calcularIndicadores();
