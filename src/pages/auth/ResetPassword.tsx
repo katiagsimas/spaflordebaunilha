@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { validarSenhaForte } from '@/lib/validacaoSenha';
 import caixaAcucarIcon from '@/assets/caixa-acucar-logo-full.png';
 import authBrandImage from '@/assets/auth-brand-image.png';
+import authRightBg from '@/assets/auth-right-bg.png';
 
 const resetPasswordSchema = z.object({
   password: z.string().min(6, 'A senha deve ter no mínimo 6 caracteres'),
