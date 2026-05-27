@@ -352,230 +352,207 @@ export default function Financeiro() {
 
   const maxSaldo = Math.max(...bancosSaldos.map(b => b.saldo_atual || 0), 1);
 
+  const navCards = [
+    { icon: Settings2, title: 'Cadastros', desc: 'Bancos, plano de contas e categorias.', to: '/financeiro/cadastros' },
+    { icon: TrendingUp, title: 'Contas a Receber', desc: 'O que entra na sua confeitaria.', to: '/financeiro/contas-receber' },
+    { icon: TrendingDown, title: 'Contas a Pagar', desc: 'O que sai e precisa do seu cuidado.', to: '/financeiro/contas-pagar' },
+    { icon: BookOpen, title: 'Fluxo de Caixa', desc: 'Movimentações diárias e mensais.', to: '/financeiro/fluxo-caixa' },
+    { icon: PieChart, title: 'DRE', desc: 'Resultado do mês em uma visão clara.', to: '/financeiro/dre' },
+    { icon: CalendarCheck, title: 'Fechamento de Mês', desc: 'Encerre o ciclo com tranquilidade.', to: '/financeiro/fechamento-mes' },
+  ];
+
   return (
-    <div className="flex h-full overflow-hidden">
-      <div className="flex-1 min-w-0 overflow-auto container mx-auto p-6 space-y-6">
-      <div className="flex justify-end">
-        <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} />
-      </div>
-      <PageHeader
-        title="Meu Dinheiro"
-        description="Controle total do que entra, sai e vira lucro."
-      />
+    <div className="flex h-full overflow-hidden bg-[#FFF9F5]">
+      <div className="flex-1 min-w-0 overflow-auto">
+        <div className="container mx-auto p-6 space-y-6 pb-24">
+          <div className="flex justify-end">
+            <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} />
+          </div>
 
-
-      {/* Cards de Navegação — linguagem TileCard */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <TileCard
-          icon={Settings}
-          title="Cadastros"
-          description="Bancos, plano de contas e categorias."
-          tone="dourado"
-          onClick={() => navigate('/financeiro/cadastros')}
-        />
-        <TileCard
-          icon={TrendingUp}
-          title="Contas a Receber"
-          description="O que entra na sua confeitaria."
-          tone="vinho"
-          onClick={() => navigate('/financeiro/contas-receber')}
-        />
-        <TileCard
-          icon={TrendingDown}
-          title="Contas a Pagar"
-          description="O que sai e precisa do seu cuidado."
-          tone="vinho"
-          onClick={() => navigate('/financeiro/contas-pagar')}
-        />
-        <TileCard
-          icon={Wallet}
-          title="Fluxo de Caixa"
-          description="Movimentações diárias e mensais."
-          tone="dourado"
-          onClick={() => navigate('/financeiro/fluxo-caixa')}
-        />
-        <TileCard
-          icon={PieChart}
-          title="DRE"
-          description="Resultado do mês em uma visão clara."
-          tone="vinho"
-          onClick={() => navigate('/financeiro/dre')}
-        />
-        <TileCard
-          icon={CalendarDaysIcon}
-          title="Fechamento de Mês"
-          description="Encerre o ciclo com tranquilidade."
-          tone="dourado"
-          onClick={() => navigate('/financeiro/fechamento-mes')}
-        />
-      </div>
-
-
-      {/* Banner de Saldos */}
-      <Card className="border-2">
-        <CardHeader className="pb-3">
-          <div className="flex justify-between items-start gap-4">
-            <div className="flex-1">
-              <CardTitle className="text-xl md:text-2xl font-bold uppercase flex items-center gap-2 mb-4">
-                <Wallet className="h-6 w-6 text-primary" />
-                Resumo Financeiro
-              </CardTitle>
-              
-              {/* Seletores de Mês e Ano */}
-              <div className="flex gap-3 items-center">
-                <div className="flex-1">
-                  <Label className="text-xs text-muted-foreground mb-1">Mês</Label>
-                  <Select value={mesSelecionado.toString()} onValueChange={(v) => setMesSelecionado(parseInt(v))}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((mes) => (
-                        <SelectItem key={mes} value={mes.toString()}>
-                          {getMesNome(mes)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="flex-1">
-                  <Label className="text-xs text-muted-foreground mb-1">Ano</Label>
-                  <Select value={anoSelecionado.toString()} onValueChange={(v) => setAnoSelecionado(parseInt(v))}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {gerarOpcoesAnos().map((ano) => (
-                        <SelectItem key={ano} value={ano.toString()}>
-                          {ano}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+          {/* HERO BANNER */}
+          <div className="relative rounded-xl overflow-hidden border border-[#5B1A2B]/10 shadow-sm h-[200px]">
+            <img
+              src={dinheiroHero}
+              alt="Meu Dinheiro"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute bottom-0 left-0 p-6">
+              <h1 className="font-display text-[40px] leading-none font-normal text-[#3D0F1C]">
+                Meu Dinheiro
+              </h1>
+              <div className="flex items-center gap-3 mt-2">
+                <span className="block w-10 h-[1.5px] bg-[#C9A14A]" />
+                <p className="italic text-[#C9A14A] text-sm">
+                  Controle total do que entra, sai e vira lucro.
+                </p>
               </div>
             </div>
-            
-            <Button 
-              variant="outline" 
-              onClick={handleAbrirConfig}
-              className={`font-bold bg-primary text-primary-foreground hover:bg-primary/90 ${bancosSaldos.length === 0 ? 'animate-pulse' : ''}`}
-            >
-              <Settings className="mr-2 h-4 w-4" />
-              Configure Saldos Iniciais
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Cards de Resumo de Saldos */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Saldo Anterior</p>
-                    <p className="text-2xl font-bold">
-                      {formatarValor(saldoAnterior)}
-                    </p>
-                  </div>
-                  <CalendarDaysIcon className="h-8 w-8 text-muted-foreground" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Entradas</p>
-                    <p className="text-2xl font-bold text-success">
-                      {formatarValor(entradas)}
-                    </p>
-                  </div>
-                  <ArrowUpCircle className="h-8 w-8 text-success" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Saídas</p>
-                    <p className="text-2xl font-bold text-cda-coral">
-                      {formatarValor(saidas)}
-                    </p>
-                  </div>
-                  <ArrowDownCircle className="h-8 w-8 text-cda-coral" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border border-cda-dourado/40">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Saldo Atual</p>
-                    <p className="text-2xl font-bold text-foreground">
-                      {formatarValor(saldoAtual)}
-                    </p>
-                  </div>
-                  <DollarSign className="h-8 w-8 text-cda-dourado" />
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
-          {/* Distribuição por Banco */}
-          {bancosSaldos.filter(b => b.saldo_atual !== 0).length > 0 && (
-            <>
-              <Separator />
-              <div>
-                <h3 className="font-semibold mb-4 flex items-center gap-2">
-                  <Building2 className="h-5 w-5" />
-                  Distribuição por Banco
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {bancosSaldos.filter(b => b.saldo_atual !== 0).map((banco, index) => {
-                    const cor = getCorBanco(index);
-                    return (
-                      <Card key={banco.banco_id} className={`border-l-4 ${cor.border}`}>
-                        <CardContent className="pt-6">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs text-muted-foreground truncate font-semibold">
-                                {banco.banco_codigo} - {banco.banco_nome}
-                              </p>
-                              <p className={`text-xl font-bold mt-1 ${cor.text}`}>
-                                {formatarValor(banco.saldo_atual)}
-                              </p>
-                            </div>
-                            <div className={`w-10 h-10 rounded-lg ${cor.bg} flex items-center justify-center`}>
-                              <Wallet className={`h-5 w-5 ${cor.text}`} />
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
+          {/* CARDS DE NAVEGAÇÃO 2x3 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {navCards.map((c) => {
+              const Icon = c.icon;
+              return (
+                <button
+                  key={c.title}
+                  onClick={() => navigate(c.to)}
+                  className="group flex items-center gap-4 bg-white border border-[#5B1A2B]/10 rounded-xl p-5 text-left transition-all duration-200 hover:border-[#C9A14A]/50 hover:shadow-md"
+                >
+                  <div className="w-11 h-11 rounded-full bg-[#FDF6EE] flex items-center justify-center shrink-0">
+                    <Icon className="h-5 w-5 text-[#5B1A2B]" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-display text-[15px] font-semibold text-[#3D0F1C] leading-tight">
+                      {c.title}
+                    </p>
+                    <p className="text-[12px] text-muted-foreground mt-0.5">
+                      {c.desc}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* RESUMO FINANCEIRO */}
+          <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-6 space-y-5">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <BookOpen className="h-5 w-5 text-[#5B1A2B]" />
+                <h2 className="font-display text-[18px] uppercase tracking-wide text-[#3D0F1C]">
+                  Resumo Financeiro
+                </h2>
               </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+              <Button
+                onClick={handleAbrirConfig}
+                className={`bg-[#3D0F1C] hover:bg-[#5B1A2B] text-white rounded-lg px-4 py-2 text-sm ${bancosSaldos.length === 0 ? 'animate-pulse' : ''}`}
+              >
+                <Settings2 className="mr-2 h-4 w-4" />
+                Configure Saldos Iniciais
+              </Button>
+            </div>
 
-      {/* Dashboard Financeiro */}
-      <div className="space-y-6">
+            {/* Filtros */}
+            <div className="grid grid-cols-2 gap-3 max-w-2xl">
+              <div>
+                <Label className="text-[11px] text-muted-foreground mb-1">Mês</Label>
+                <Select value={mesSelecionado.toString()} onValueChange={(v) => setMesSelecionado(parseInt(v))}>
+                  <SelectTrigger className="w-full border-[#5B1A2B]/20 rounded-lg bg-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1,2,3,4,5,6,7,8,9,10,11,12].map((mes) => (
+                      <SelectItem key={mes} value={mes.toString()}>{getMesNome(mes)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-[11px] text-muted-foreground mb-1">Ano</Label>
+                <Select value={anoSelecionado.toString()} onValueChange={(v) => setAnoSelecionado(parseInt(v))}>
+                  <SelectTrigger className="w-full border-[#5B1A2B]/20 rounded-lg bg-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {gerarOpcoesAnos().map((ano) => (
+                      <SelectItem key={ano} value={ano.toString()}>{ano}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5 flex items-center justify-between">
+                <div>
+                  <p className="text-[12px] text-muted-foreground">Saldo Anterior</p>
+                  <p className="text-2xl font-bold text-[#3D0F1C] mt-1">{formatarValor(saldoAnterior)}</p>
+                </div>
+                <CalendarDays className="h-7 w-7 text-muted-foreground" />
+              </div>
+              <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5 flex items-center justify-between">
+                <div>
+                  <p className="text-[12px] text-muted-foreground">Entradas</p>
+                  <p className="text-2xl font-bold mt-1" style={{ color: '#2e7d32' }}>{formatarValor(entradas)}</p>
+                </div>
+                <ArrowUp className="h-7 w-7" style={{ color: '#2e7d32' }} />
+              </div>
+              <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5 flex items-center justify-between">
+                <div>
+                  <p className="text-[12px] text-muted-foreground">Saídas</p>
+                  <p className="text-2xl font-bold text-[#F28C82] mt-1">{formatarValor(saidas)}</p>
+                </div>
+                <ArrowDown className="h-7 w-7 text-[#F28C82]" />
+              </div>
+              <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5 flex items-center justify-between">
+                <div>
+                  <p className="text-[12px] text-muted-foreground">Saldo Atual</p>
+                  <p className="text-2xl font-bold text-[#3D0F1C] mt-1">{formatarValor(saldoAtual)}</p>
+                </div>
+                <DollarSign className="h-7 w-7 text-[#C9A14A]" />
+              </div>
+            </div>
 
-        {/* INADIMPLÊNCIA */}
-        <div className="grid gap-4 md:grid-cols-2">
-          <TabelaInadimplencia tipo="clientes" itens={inadimplenciaClientes} />
-          <TabelaInadimplencia tipo="fornecedores" itens={inadimplenciaFornecedores} />
+            {/* Distribuição por Banco */}
+            {bancosSaldos.filter(b => b.saldo_atual !== 0).length > 0 && (
+              <>
+                <Separator />
+                <div>
+                  <h3 className="font-display text-[15px] uppercase tracking-wide text-[#3D0F1C] mb-4 flex items-center gap-2">
+                    <Building2 className="h-5 w-5 text-[#5B1A2B]" />
+                    Distribuição por Banco
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                    {bancosSaldos.filter(b => b.saldo_atual !== 0).map((banco) => (
+                      <div key={banco.banco_id} className="bg-white border border-[#5B1A2B]/10 rounded-xl p-4 flex items-center justify-between">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-muted-foreground truncate font-semibold">
+                            {banco.banco_codigo} - {banco.banco_nome}
+                          </p>
+                          <p className="text-lg font-bold mt-1 text-[#3D0F1C]">
+                            {formatarValor(banco.saldo_atual)}
+                          </p>
+                        </div>
+                        <div className="w-10 h-10 rounded-lg bg-[#FDF6EE] flex items-center justify-center">
+                          <Wallet className="h-5 w-5 text-[#C9A14A]" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* INADIMPLÊNCIA */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <TabelaInadimplencia tipo="clientes" itens={inadimplenciaClientes} />
+            <TabelaInadimplencia tipo="fornecedores" itens={inadimplenciaFornecedores} />
+          </div>
+        </div>
+
+        {/* Botões flutuantes */}
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2">
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="w-11 h-11 rounded-full bg-[#C9A14A] text-white flex items-center justify-center shadow-lg hover:opacity-90 transition"
+            aria-label="Topo"
+          >
+            <ArrowUp className="h-5 w-5" />
+          </button>
+          <button
+            onClick={() => navigate(-1)}
+            className="w-11 h-11 rounded-full bg-[#5B1A2B] text-white flex items-center justify-center shadow-lg hover:opacity-90 transition"
+            aria-label="Voltar"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
         </div>
       </div>
+
+
 
       {/* Modal de Configuração */}
       <Dialog open={modalConfigAberto} onOpenChange={setModalConfigAberto}>
