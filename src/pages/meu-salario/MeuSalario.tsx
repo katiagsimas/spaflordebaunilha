@@ -5,6 +5,7 @@ import { Retiradas } from "./Retiradas";
 import { Educativo } from "./Educativo";
 import { Sparkles, CalendarDays, Settings2, ChevronLeft } from "lucide-react";
 import heroImg from "@/assets/meu-salario-hero.png";
+import { HeroBanner } from "@/components/HeroBanner";
 
 export default function MeuSalario() {
   const [tab, setTab] = useState("visao");
