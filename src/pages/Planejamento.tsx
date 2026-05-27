@@ -16,6 +16,7 @@ import { PlanejamentoCalendario } from "@/pages/planejamento/PlanejamentoCalenda
 import { PlanejamentoTarefas } from "@/pages/planejamento/PlanejamentoTarefas";
 import { PlanejamentoBemEstar } from "@/pages/planejamento/PlanejamentoBemEstar";
 import { useGroup } from "@/contexts/GroupContext";
+import { PageHeader } from "@/components/PageHeader";
 
 const opcoes: any[] = [];
 
@@ -112,18 +113,12 @@ export default function Planejamento() {
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Target className="h-6 w-6 text-cda-dourado" />
-            <h1 className="text-3xl font-bold text-foreground">Meu Planejamento</h1>
-          </div>
-          <p className="text-base text-muted-foreground">
-            Organize sua confeitaria com estratégia e equilíbrio
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Meu Planejamento"
+        description="Organize sua confeitaria com estratégia e equilíbrio."
+      />
+      <div className="mt-6" />
+
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">

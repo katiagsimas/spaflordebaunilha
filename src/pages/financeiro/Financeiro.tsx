@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/PageHeader';
+import { TileCard } from '@/components/TileCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -339,120 +341,57 @@ export default function Financeiro() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* Título da Página */}
-      <div className="mb-6">
-        <h1 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2 whitespace-nowrap">
-          <DollarSign className="w-6 h-6 md:w-7 md:h-7 text-primary flex-shrink-0" />
-          MEU DINHEIRO
-        </h1>
-        <p className="text-sm text-muted-foreground font-body mt-1">Controle total do que entra, sai e vira lucro</p>
-      </div>
+      <PageHeader
+        title="Meu Dinheiro"
+        description="Controle total do que entra, sai e vira lucro."
+      />
 
-      {/* Cards de Navegação */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-
-        {/* Card Cadastros */}
-        <Card 
-          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-2 border-cda-dourado/60"
+      {/* Cards de Navegação — linguagem TileCard */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <TileCard
+          icon={Settings}
+          title="Cadastros"
+          description="Bancos, plano de contas e categorias."
+          tone="dourado"
           onClick={() => navigate('/financeiro/cadastros')}
-        >
-          <CardHeader className="p-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-cda-creme text-cda-dourado flex items-center justify-center shrink-0">
-                <Settings className="h-4 w-4" />
-              </div>
-              <CardTitle className="text-sm font-semibold">
-                Cadastros
-              </CardTitle>
-            </div>
-          </CardHeader>
-        </Card>
-
-        {/* Card Contas a Receber */}
-        <Card 
-          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-2 border-cda-dourado/60"
+        />
+        <TileCard
+          icon={TrendingUp}
+          title="Contas a Receber"
+          description="O que entra na sua confeitaria."
+          tone="vinho"
           onClick={() => navigate('/financeiro/contas-receber')}
-        >
-          <CardHeader className="p-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-cda-creme text-cda-dourado flex items-center justify-center shrink-0">
-                <TrendingUp className="h-4 w-4" />
-              </div>
-              <CardTitle className="text-sm font-semibold">
-                Contas a Receber
-              </CardTitle>
-            </div>
-          </CardHeader>
-        </Card>
-
-        {/* Card Contas a Pagar */}
-        <Card 
-          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-2 border-cda-dourado/60"
+        />
+        <TileCard
+          icon={TrendingDown}
+          title="Contas a Pagar"
+          description="O que sai e precisa do seu cuidado."
+          tone="vinho"
           onClick={() => navigate('/financeiro/contas-pagar')}
-        >
-          <CardHeader className="p-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-cda-creme text-cda-dourado flex items-center justify-center shrink-0">
-                <TrendingDown className="h-4 w-4" />
-              </div>
-              <CardTitle className="text-sm font-semibold">
-                Contas a Pagar
-              </CardTitle>
-            </div>
-          </CardHeader>
-        </Card>
-
-        {/* Card Fluxo de Caixa */}
-        <Card 
-          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-2 border-cda-dourado/60"
+        />
+        <TileCard
+          icon={Wallet}
+          title="Fluxo de Caixa"
+          description="Movimentações diárias e mensais."
+          tone="dourado"
           onClick={() => navigate('/financeiro/fluxo-caixa')}
-        >
-          <CardHeader className="p-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-cda-creme text-cda-dourado flex items-center justify-center shrink-0">
-                <Wallet className="h-4 w-4" />
-              </div>
-              <CardTitle className="text-sm font-semibold">
-                Fluxo de Caixa
-              </CardTitle>
-            </div>
-          </CardHeader>
-        </Card>
-
-        {/* Card DRE */}
-        <Card 
-          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-2 border-cda-dourado/60"
+        />
+        <TileCard
+          icon={PieChart}
+          title="DRE"
+          description="Resultado do mês em uma visão clara."
+          tone="vinho"
           onClick={() => navigate('/financeiro/dre')}
-        >
-          <CardHeader className="p-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-cda-creme text-cda-dourado flex items-center justify-center shrink-0">
-                <PieChart className="h-4 w-4" />
-              </div>
-              <CardTitle className="text-sm font-semibold">
-                DRE
-              </CardTitle>
-            </div>
-          </CardHeader>
-        </Card>
-
-        {/* Card Fechamento de Mês */}
-        <Card
-          className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-cda-dourado"
+        />
+        <TileCard
+          icon={CalendarDaysIcon}
+          title="Fechamento de Mês"
+          description="Encerre o ciclo com tranquilidade."
+          tone="dourado"
           onClick={() => navigate('/financeiro/fechamento-mes')}
-        >
-          <CardHeader className="p-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-cda-dourado/15 text-cda-dourado flex items-center justify-center shrink-0">
-                <CalendarDaysIcon className="h-4 w-4" />
-              </div>
-              <CardTitle className="text-sm font-semibold">
-                Fechamento de Mês
-              </CardTitle>
-            </div>
-          </CardHeader>
-        </Card>
+        />
       </div>
+
 
       {/* Banner de Saldos */}
       <Card className="border-2">
