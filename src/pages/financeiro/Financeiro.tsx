@@ -42,21 +42,28 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import {
-  TrendingUp, 
-  TrendingDown, 
+  TrendingUp,
+  TrendingDown,
   DollarSign,
   Calendar as CalendarDaysIcon,
   PieChart,
   Settings,
+  Settings2,
   Plus,
   Trash2,
   Wallet,
+  ArrowUp,
+  ArrowDown,
   ArrowUpCircle,
   ArrowDownCircle,
   Building2,
   LayoutDashboard,
   AlertCircle,
-  Users
+  Users,
+  BookOpen,
+  CalendarCheck,
+  CalendarDays,
+  ChevronLeft,
 } from 'lucide-react';
 import {
   BarChart,
@@ -75,6 +82,7 @@ import { useModuleHelp } from '@/hooks/useModuleHelp';
 import { HelpButton } from '@/components/help/HelpButton';
 import { ModuleHelpDrawer } from '@/components/help/ModuleHelpDrawer';
 import { financeiroHelp } from '@/components/help/contents/financeiroHelp';
+import dinheiroHero from '@/assets/dinheiro-hero-banner.jpg';
 
 export default function Financeiro() {
   const navigate = useNavigate();
