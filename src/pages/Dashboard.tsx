@@ -1002,166 +1002,204 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ===== RESUMO DO MÊS ===== */}
-      <PremiumCard
-        icon={Sparkles}
-        title="Resumo do mês"
-        subtitle={`${meses[mesSelecionado]} de ${anoSelecionado} — operação e caixa em uma só olhada`}
+      {/* ===== ENCOMENDAS CONFIRMADAS (card largo) ===== */}
+      <button
+        type="button"
+        onClick={() => navigate("/encomendas")}
+        className="group relative block w-full overflow-hidden rounded-2xl border-l-[6px] border-cda-vinho bg-cda-branco text-left shadow-[0_4px_24px_-12px_rgba(91,26,43,0.18)] ring-1 ring-cda-dourado/20 transition hover:shadow-[0_8px_30px_-12px_rgba(91,26,43,0.28)]"
       >
-        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            {
-              label: "Encomendas confirmadas",
-              value: contadores.encomendasConfirmadas.toString(),
-              hint: "Vendas no período",
-              Icon: ShoppingBag,
-              onClick: () => navigate("/encomendas"),
-              accent: "text-cda-vinho",
-            },
-            {
-              label: "Saldo atual",
-              value: `R$ ${financeiro.saldoAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
-              hint: "Bancos cadastrados",
-              Icon: DollarSign,
-              onClick: () => navigate("/financeiro/dashboard"),
-              accent: financeiro.saldoAtual >= 0 ? "text-cda-vinho" : "text-cda-coral",
-            },
-            {
-              label: "A receber",
-              value: `R$ ${financeiro.receberAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
-              hint: alertas.receberAtrasado.valor > 0
-                ? `⚠ R$ ${alertas.receberAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} em atraso`
-                : "Aberto neste mês",
-              Icon: TrendingUp,
-              onClick: () => navigate("/financeiro/contas-receber"),
-              accent: "text-cda-vinho",
-            },
-            {
-              label: "A pagar",
-              value: `R$ ${financeiro.pagarAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
-              hint: alertas.pagarAtrasado.valor > 0
-                ? `⚠ R$ ${alertas.pagarAtrasado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} em atraso`
-                : "Aberto neste mês",
-              Icon: TrendingDown,
-              onClick: () => navigate("/financeiro/contas-pagar"),
-              accent: "text-cda-coral",
-            },
-          ].map(({ label, value, hint, Icon, onClick, accent }) => (
-            <button
-              key={label}
-              type="button"
-              onClick={onClick}
-              className="group flex flex-col items-start gap-2 rounded-xl border border-cda-dourado/20 bg-cda-branco p-4 text-left transition hover:-translate-y-0.5 hover:border-cda-dourado/60 hover:shadow-md"
-            >
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-cda-vinho/10 ring-1 ring-cda-dourado/40 transition group-hover:bg-cda-vinho/15">
-                <Icon className="h-4 w-4 text-cda-vinho" />
-              </div>
-              <span className="text-[11px] font-body uppercase tracking-widest text-cda-vinho/60">{label}</span>
-              <span className={`font-display text-xl ${accent}`}>{value}</span>
-              <span className="text-[11px] font-body text-cda-vinho/60">{hint}</span>
-            </button>
-          ))}
-        </div>
-      </PremiumCard>
-
-      {/* ===== PRÓXIMAS ENTREGAS ===== */}
-      <PremiumCard
-        icon={CalendarIcon}
-        title="Próximas entregas"
-        subtitle="Os próximos 7 dias do seu calendário"
-        headerOrnament={illuCalendarioRosa}
-        footerCta={{ label: "Ver todas", onClick: () => navigate("/encomendas") }}
-        footerNote="Cada entrega é uma promessa cumprida."
-        footerNoteIcon={<Sparkles className="h-4 w-4 text-cda-dourado" />}
-      >
-        {proximas.length === 0 ? (
-          <p className="py-6 text-center text-sm font-body italic text-cda-vinho/60">
-            Nenhuma entrega nos próximos 7 dias.
-          </p>
-        ) : (
-          <ul className="divide-y divide-dashed divide-cda-dourado/30">
-            {proximas.map((enc) => (
-              <li
-                key={enc.id}
-                onClick={() => navigate("/encomendas")}
-                className="flex cursor-pointer items-center gap-3 py-3 transition hover:bg-cda-pink/10"
-              >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-cda-vinho text-xs font-semibold text-cda-dourado ring-1 ring-cda-dourado/60">
-                  {initials(enc.cliente)}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-display text-base text-cda-vinho">{enc.cliente}</p>
-                  <p className="text-xs font-body text-cda-vinho/60">
-                    {format(enc._dia, "EEE, dd 'de' MMMM", { locale: ptBR })}
-                    {enc.hora_entrega ? ` · ${enc.hora_entrega}` : ""}
-                  </p>
-                </div>
-                <p className="hidden font-display text-base text-cda-vinho sm:block">
-                  R$ {enc.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </p>
-                <Badge className={`${statusBadge(enc.status)} border-transparent capitalize`}>
-                  {enc.status.replace("_", " ")}
-                </Badge>
-              </li>
-            ))}
-          </ul>
-        )}
-      </PremiumCard>
-
-      {/* ===== ANIVERSARIANTES DO MÊS ===== */}
-      <PremiumCard
-        icon={Cake}
-        title="Aniversariantes do mês"
-        subtitle="Celebre, presenteie e fortaleça conexões."
-        headerOrnament={illuPresenteVinho}
-        footerCta={{ label: "Ver todos", onClick: () => navigate("/cadastros/clientes") }}
-        footerNote="Pequenos gestos criam grandes lembranças."
-        footerNoteIcon={<span aria-hidden="true">🎉</span>}
-        asideRight={
-          <div className="flex h-full flex-col items-center justify-center rounded-xl bg-cda-pink/15 p-5 text-center ring-1 ring-cda-dourado/20">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cda-pink/30 ring-1 ring-cda-dourado/40">
-              <Cake className="h-6 w-6 text-cda-vinho" />
-            </div>
-            <p className="mt-3 font-display text-4xl text-cda-vinho">{aniversariantes.length}</p>
-            <p className="text-xs font-body text-cda-vinho/70">aniversariantes<br/>este mês</p>
-            <div className="mt-3 flex w-full items-center justify-center gap-2">
-              <span className="h-px flex-1 bg-cda-dourado/50" />
-              <span aria-hidden="true" className="text-cda-dourado">♥</span>
-              <span className="h-px flex-1 bg-cda-dourado/50" />
-            </div>
+        <img
+          src={illuCalendarioRosa}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute right-0 top-0 h-full w-auto max-w-[40%] object-contain object-right opacity-40"
+        />
+        <div className="relative flex items-center gap-5 px-6 py-6">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-cda-vinho/10 ring-1 ring-cda-dourado/40">
+            <CalendarIcon className="h-7 w-7 text-cda-vinho" />
           </div>
-        }
-      >
-        {aniversariantes.length === 0 ? (
-          <p className="py-6 text-center text-sm font-body italic text-cda-vinho/60">
-            Nenhum aniversariante este mês.
-          </p>
-        ) : (
-          <ul className="divide-y divide-dashed divide-cda-dourado/30">
-            {aniversariantes.slice(0, 5).map((c: any) => {
-              const partes = (c.data_aniversario || "").split("-");
-              const dia = parseInt(partes[2] || "0");
-              const mesNum = parseInt(partes[1] || "0");
-              const ehHoje = `${partes[1]}-${partes[2]}` === hojeStr;
-              return (
-                <li key={c.id} className="flex items-center gap-4 py-3">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-cda-vinho text-xs font-semibold text-cda-dourado ring-1 ring-cda-dourado/60">
-                    {initials(c.nome)}
-                  </div>
-                  <p className="flex-1 font-display text-base text-cda-vinho">{c.nome}</p>
-                  <div className="flex items-center gap-1.5 text-sm font-body text-cda-vinho/80">
-                    <CalendarIcon className="h-4 w-4 text-cda-vinho" />
-                    {String(dia).padStart(2, "0")} de {(meses[mesNum - 1] || "").toLowerCase()}
-                  </div>
-                  {ehHoje && (
-                    <Badge className="bg-cda-dourado/20 text-cda-vinho border-transparent">Hoje! 🎉</Badge>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </PremiumCard>
+          <div className="min-w-0 flex-1">
+            <p className="font-display text-base text-cda-vinho-escuro sm:text-lg">
+              Encomendas Confirmadas <span className="text-cda-vinho/60">·</span> <span className="text-cda-vinho/70">{meses[mesSelecionado].slice(0, 3)}</span>
+            </p>
+            <p className="mt-1 font-display text-4xl leading-none text-cda-vinho sm:text-5xl">
+              {contadores.encomendasConfirmadas}
+            </p>
+            <p className="mt-2 text-xs font-body text-cda-vinho/60 sm:text-sm">
+              Quantidade de vendas feitas no período
+            </p>
+          </div>
+        </div>
+      </button>
+
+      {/* ===== 3 CARDS: SALDO / A RECEBER / A PAGAR ===== */}
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+        {[
+          {
+            label: "Saldo Atual",
+            sufixo: null,
+            value: financeiro.saldoAtual,
+            Icon: DollarSign,
+            iconBg: "bg-cda-vinho/10",
+            iconColor: "text-cda-vinho",
+            accent: financeiro.saldoAtual >= 0 ? "text-cda-vinho" : "text-cda-coral",
+            onClick: () => navigate("/financeiro/dashboard"),
+          },
+          {
+            label: "A Receber",
+            sufixo: meses[mesSelecionado].slice(0, 3),
+            value: financeiro.receberAberto,
+            Icon: TrendingUp,
+            iconBg: "bg-cda-dourado/15",
+            iconColor: "text-cda-vinho",
+            accent: "text-green-700",
+            onClick: () => navigate("/financeiro/contas-receber"),
+          },
+          {
+            label: "A Pagar",
+            sufixo: meses[mesSelecionado].slice(0, 3),
+            value: financeiro.pagarAberto,
+            Icon: TrendingDown,
+            iconBg: "bg-cda-pink/30",
+            iconColor: "text-cda-coral",
+            accent: "text-cda-coral",
+            onClick: () => navigate("/financeiro/contas-pagar"),
+          },
+        ].map(({ label, sufixo, value, Icon, iconBg, iconColor, accent, onClick }) => (
+          <button
+            key={label}
+            type="button"
+            onClick={onClick}
+            className="group flex items-center gap-4 rounded-2xl border border-cda-dourado/20 bg-cda-branco px-5 py-4 text-left shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)] transition hover:-translate-y-0.5 hover:border-cda-dourado/60 hover:shadow-[0_8px_24px_-12px_rgba(91,26,43,0.25)]"
+          >
+            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${iconBg} ring-1 ring-cda-dourado/40`}>
+              <Icon className={`h-5 w-5 ${iconColor}`} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-display text-sm text-cda-vinho-escuro">
+                {label}
+                {sufixo && <span className="font-body text-cda-vinho/60"> · {sufixo}</span>}
+              </p>
+              <p className={`mt-0.5 font-display text-xl ${accent}`}>
+                R$ {value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* ===== PRÓXIMAS ENTREGAS + ANIVERSARIANTES (lado a lado) ===== */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {/* Próximas Entregas — fundo creme/pink */}
+        <div className="relative overflow-hidden rounded-2xl bg-cda-pink/15 shadow-[0_4px_24px_-12px_rgba(91,26,43,0.15)] ring-1 ring-cda-dourado/20">
+          <img
+            src={illuCalendarioRosa}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute bottom-0 right-0 h-[80%] w-auto max-w-[45%] object-contain object-bottom-right opacity-90"
+          />
+          <div className="relative flex items-start justify-between px-6 pt-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cda-vinho/10 ring-1 ring-cda-dourado/40">
+                <CalendarIcon className="h-5 w-5 text-cda-vinho" />
+              </div>
+              <h3 className="font-display text-xl text-cda-vinho-escuro sm:text-2xl">
+                Próximas Entregas
+              </h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate("/encomendas")}
+              className="text-xs font-body italic text-cda-vinho underline-offset-4 hover:underline"
+            >
+              Ver todas
+            </button>
+          </div>
+          <div className="relative px-6 pb-6 pt-4 min-h-[140px]">
+            {proximas.length === 0 ? (
+              <p className="pt-2 text-sm font-body text-cda-vinho/70">
+                Nenhuma entrega nos próximos 7 dias
+              </p>
+            ) : (
+              <ul className="divide-y divide-dashed divide-cda-dourado/30 pr-[40%]">
+                {proximas.slice(0, 3).map((enc) => (
+                  <li
+                    key={enc.id}
+                    onClick={() => navigate("/encomendas")}
+                    className="flex cursor-pointer items-center gap-3 py-2"
+                  >
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cda-vinho text-[10px] font-semibold text-cda-dourado ring-1 ring-cda-dourado/60">
+                      {initials(enc.cliente)}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-display text-sm text-cda-vinho">{enc.cliente}</p>
+                      <p className="text-[11px] font-body text-cda-vinho/60">
+                        {format(enc._dia, "EEE, dd/MM", { locale: ptBR })}
+                        {enc.hora_entrega ? ` · ${enc.hora_entrega}` : ""}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+
+        {/* Aniversariantes — fundo vinho */}
+        <div className="relative overflow-hidden rounded-2xl bg-cda-vinho text-cda-creme shadow-[0_4px_24px_-12px_rgba(91,26,43,0.35)]">
+          <img
+            src={illuPresenteVinho}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute bottom-0 right-0 h-[90%] w-auto max-w-[42%] object-contain object-bottom-right"
+          />
+          <div className="relative flex items-start justify-between px-6 pt-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full ring-1 ring-cda-dourado/60">
+                <Cake className="h-5 w-5 text-cda-dourado" />
+              </div>
+              <h3 className="font-display text-xl text-cda-creme sm:text-2xl">
+                Aniversariantes este mês
+              </h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate("/cadastros/clientes")}
+              className="text-xs font-body italic text-cda-dourado underline-offset-4 hover:underline"
+            >
+              Ver clientes
+            </button>
+          </div>
+          <div className="relative px-6 pb-6 pt-4 min-h-[140px]">
+            {aniversariantes.length === 0 ? (
+              <p className="pt-2 text-sm font-body italic text-cda-creme/70">
+                Nenhum aniversariante este mês.
+              </p>
+            ) : (
+              <ul className="divide-y divide-dashed divide-cda-dourado/20 pr-[40%]">
+                {aniversariantes.slice(0, 3).map((c: any) => {
+                  const partes = (c.data_aniversario || "").split("-");
+                  const dia = parseInt(partes[2] || "0");
+                  return (
+                    <li key={c.id} className="flex items-center gap-3 py-2">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cda-vinho-escuro ring-1 ring-cda-dourado/60">
+                        <Cake className="h-4 w-4 text-cda-dourado" />
+                      </div>
+                      <p className="min-w-0 flex-1 truncate font-display text-base text-cda-creme">
+                        {c.nome}
+                      </p>
+                      <span className="text-xs font-body italic text-cda-dourado/90">
+                        dia {String(dia).padStart(2, "0")}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        </div>
+      </div>
+
 
       {/* ===== VISÃO ECONÔMICA ===== */}
       <PremiumCard
