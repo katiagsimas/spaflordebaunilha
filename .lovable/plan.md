@@ -1,107 +1,78 @@
 ## Objetivo
 
-1. Transformar **Restaurar Backup** numa operação real (hoje é stub), com **dupla confirmação por digitação** no estilo Vercel/GitHub.
-2. Criar um **Cofre de Backups** paralelo ao histórico do usuário, fora da rotina de exclusão por retenção do usuário, acessível apenas ao MOTHER para suporte.
+Aplicar o padrão visual da imagem de referência (header vinho com texto creme + serifa, corpo creme com acentos dourado, ilustrações decorativas, CTA vinho com seta dourada) em **todo o Dashboard (`/dashboard`)** e refinar a **Sidebar** mantendo a paleta `--cda-*` já existente (Vinho `#5B1A2B`, Vinho Escuro `#3D0F1C`, Dourado `#C9A14A`, Creme `#FDF6EE`, Branco `#FFF9F5`).
 
----
+Nenhuma lógica de negócio, query Supabase, hook ou cálculo será alterado — só estrutura visual / classes Tailwind / wrappers.
 
-## Parte 1 — Restauração real com dupla confirmação
+## 1. Assets
 
-### UI (tela `/configuracoes/backup`)
+- Copiar `user-uploads://Imagens_e_Ícones_Caixa_de_Açúcar_1.png` → `src/assets/cda-illu-presente-vinho.png` (caixa de presente vinho com flores — usada como ornamento no canto superior direito do card de Aniversariantes).
+- Copiar `user-uploads://Imagens_e_Ícones_Caixa_de_Açúcar-2.png` → `src/assets/cda-illu-calendario-rosa.png` (calendário rosa com macaron — usada como ornamento nos calendários de encomendas).
 
-Substituir o stub atual por um modal de duas etapas (reutilizável tanto para restauração via histórico quanto via upload de arquivo `.json`):
+## 2. Padrão de card "Vinho Premium" (criar componente reusável)
 
-**Etapa 1 — Aviso de impacto**
-- Mostra: data do snapshot, módulos incluídos, lista do que será sobrescrito.
-- Aviso destacado em coral: *"Todos os dados criados ou alterados após [data] serão perdidos e não poderão ser recuperados."*
-- Checkbox obrigatório: *"Entendo que esta ação é irreversível."*
-- Botão "Continuar" só habilita após marcar o checkbox.
+Criar `src/components/dashboard/PremiumCard.tsx` com a estrutura espelhada da imagem:
 
-**Etapa 2 — Digitação da palavra-chave**
-- Campo de texto pedindo para digitar exatamente: `RESTAURAR [nome-do-backup]`
-- Botão "Restaurar definitivamente" (coral) só habilita quando o texto bate 100%.
-- Loader durante execução com aviso *"Restaurando… não feche esta janela."*
+```text
+┌─────────────────────────────────────────────────┐
+│  [icon]  Título serifa creme       [illustration]│  ← header vinho (--cda-vinho)
+│          subtítulo dourado                       │
+├─────────────────────────────────────────────────┤
+│                                                  │
+│  conteúdo em fundo creme (--cda-creme)           │
+│                                                  │
+│  [ilustração opcional emoji/lucide]   [CTA vinho]│  ← footer com CTA opcional
+└─────────────────────────────────────────────────┘
+```
 
-### Backend — nova Edge Function `restaurar-backup`
+Props: `icon`, `title`, `subtitle`, `headerOrnament?` (img src), `footerNote?`, `footerCta?` ({label, onClick}), `children`. Bordas `rounded-2xl`, sombra suave, sem borda dura. Header: `bg-cda-vinho text-cda-creme`, título em `font-display` (serifa já no projeto), subtítulo em `text-cda-dourado/80 text-sm`.
 
-- Recebe: `{ backup_id }` (do histórico) **ou** `{ dados }` (upload) + `{ confirmacao }` (a palavra digitada).
-- Valida JWT do chamador e **revalida** a palavra-chave server-side (defesa em profundidade).
-- Resolve `owner_group_id` do usuário autenticado.
-- Carrega o JSON (Storage ou body).
-- Para cada tabela presente no snapshot, na ordem correta de FKs:
-  1. `DELETE FROM <tabela> WHERE owner_group_id = $1`
-  2. `INSERT` em lotes do snapshot, ignorando linhas de outros grupos por segurança.
-- **Restrições**:
-  - `profiles`: nunca apaga, apenas `UPDATE` campo a campo (não pode quebrar o auth).
-  - `user_group_roles`, `groups`, `user_global_roles`: **bloqueadas** da restauração (risco de o usuário se trancar fora).
-  - `admin_logs` e schema `auth.*`: nunca tocadas.
-  - Só restaura tabelas que aparecem no `backupCatalog` dos módulos do snapshot.
-- Loga em `admin_logs`: ator, backup_id, módulos, contagem por tabela, duração.
-- Retorna resumo (tabelas restauradas, registros por tabela, avisos).
+## 3. Aplicação nos blocos do Dashboard
 
----
+Substituir cada `<Card>` shadcn atual por `<PremiumCard>` mantendo o conteúdo:
 
-## Parte 2 — Cofre de Backups (suporte MOTHER)
+| Bloco atual | Vira |
+|---|---|
+| Saudação + contadores topo | Header próprio fora do PremiumCard (faixa simples) |
+| Alertas Financeiros (3 cards) | 1 `PremiumCard` "Alertas Financeiros" com 3 linhas internas (avatar circular vinho/dourado por tipo, mesmo padrão das linhas de aniversariantes da ref) |
+| Calendários (3 meses) | `PremiumCard` "Calendário de Encomendas" com `cda-illu-calendario-rosa.png` no canto superior direito; conteúdo (3 mini-calendários) intacto, só ajustar cores das células para vinho/dourado |
+| Aniversariantes | `PremiumCard` **espelho exato da imagem**: ornamento `cda-illu-presente-vinho.png`, avatares circulares vinho com iniciais douradas, dividers tracejados, contador lateral "X aniversariantes este mês", footer com 🎉 + "Pequenos gestos criam grandes lembranças." + CTA "VER TODOS →" |
+| Visão Econômica (tabs mensal/anual) | `PremiumCard` "Visão Econômica" — tabs em pill dourado, gráficos com cores `--cda-vinho`/`--cda-dourado` |
+| Top 5 Produtos + Ticket Médio | `PremiumCard` "Top Produtos" — ranking com badges circulares vinho/dourado |
+| Vendas por mês (linha) | `PremiumCard` "Vendas por Mês" — linha em `--cda-vinho`, grid em `--cda-dourado/20` |
+| Fluxo de caixa (linha) | `PremiumCard` "Fluxo de Caixa" — linha em `--cda-dourado` |
 
-### Política de retenção (confirmada)
+Grid mantido (responsivo, 2 colunas em desktop quando aplicável).
 
-Para cada `owner_group_id`:
-- **Sempre manter** o backup do **dia 1 de cada mês** (snapshot mensal permanente).
-- **Sempre manter** os **5 backups mais recentes** (rolling, atualizados diariamente).
-- Tudo o que não cair em uma dessas duas regras é apagado do cofre.
+## 4. Refino da Sidebar
 
-### Implementação
+Mantém estrutura/menus atuais, só refina:
 
-1. **Bucket de Storage `backups-cofre`** — privado, acessível apenas via service_role.
+- `SidebarGroupLabel`: trocar para `font-display` (serifa), `tracking-[0.2em]`, dourado `text-cda-dourado/70`.
+- Item ativo: já usa borda esquerda dourada — adicionar leve `bg-gradient-to-r from-cda-dourado/10 to-transparent`.
+- Hover: `hover:bg-cda-dourado/5` (mais sutil) + transição de cor dourada no ícone.
+- Separadores entre seções: já existem em dourado; manter mas aumentar margem vertical (`my-2`).
+- Header da sidebar: trocar o texto "CAIXA DE AÇÚCAR" para `font-display` em creme, "by Umbrella Doce" em dourado claro.
+- Badge "HOJE" das encomendas: trocar do vermelho para `bg-cda-dourado text-cda-vinho` (mantém alerta visual mas dentro da paleta).
 
-2. **Tabela `backups_cofre`** — espelho de `backups`:
-   - Campos: `owner_group_id`, `usuario_id_origem`, `nome`, `modulos`, `storage_path`, `tamanho_bytes`, `criado_em`, `origem` (manual/agendado), `backup_id_origem`, `eh_mensal` (boolean: true se foi gerado no dia 1).
-   - RLS: **apenas MOTHER lê**. Nenhum usuário comum acessa, nem o criador.
+## 5. Arquivos a alterar
 
-3. **Hook automático** em `executar-backups-agendados` (e no fluxo manual de backup):
-   - Após gerar com sucesso, **copia** o arquivo para `backups-cofre` e insere registro em `backups_cofre` (marca `eh_mensal = true` se for dia 1 do mês).
-   - Aplica a política do cofre: apaga do cofre tudo do mesmo grupo que **não** seja `eh_mensal = true` **e** não esteja entre os 5 `criado_em` mais recentes.
+- **criar**: `src/assets/cda-illu-presente-vinho.png`, `src/assets/cda-illu-calendario-rosa.png`, `src/components/dashboard/PremiumCard.tsx`
+- **editar**: `src/pages/Dashboard.tsx` (substituições visuais nos blocos; zero mudança nas funções de carregamento), `src/components/AppSidebar.tsx` (refino de classes Tailwind)
 
-4. **Tela "Cofre de Backups"** dentro de Governança (`/admin/cofre-backups`, só MOTHER):
-   - Adicionar card "Cofre de Backups" em `src/pages/admin/Governanca.tsx`.
-   - Listagem de todos os backups, filtros por grupo, usuário, data, módulo, mensal/recente.
-   - Ações: **baixar JSON** e **restaurar para o grupo de origem** (reusa a Edge Function `restaurar-backup`, executada com identidade MOTHER apontando para o `owner_group_id` do snapshot).
-   - Restaurações via cofre passam pelo **mesmo modal de dupla confirmação** e ficam registradas em `admin_logs` com nota "restauração via suporte MOTHER".
+## 6. Restrições / não-objetivos
 
----
+- Nada de mudar SQL, RLS, hooks, Edge Functions, lógica financeira ou queries.
+- Nada de mexer em outras rotas/módulos (Financeiro, Estoque, Encomendas etc.) — só `/dashboard` e a Sidebar global.
+- Não introduzir cores fora dos tokens `cda-*`.
+- Não alterar `src/index.css` (tokens já existem).
+- Não alterar tipografia global; apenas usar as fontes já carregadas (`font-display` para serifa, `font-body` para sans).
 
-## Detalhes técnicos
+## 7. QA
 
-### Arquivos a criar
-- `supabase/functions/restaurar-backup/index.ts`
-- `src/components/backup/RestaurarBackupDialog.tsx` (modal duas etapas, reutilizável)
-- `src/pages/admin/CofreBackups.tsx`
+Após implementar, abrir o preview em `/dashboard` e validar:
 
-### Arquivos a editar
-- `src/pages/configuracoes/Backup.tsx` — substituir `restaurarDoHistorico` e `handleRestaurarArquivo` pela chamada à Edge Function via novo dialog; remover toast "requer suporte técnico".
-- `supabase/functions/executar-backups-agendados/index.ts` — após upload do backup, espelhar no cofre + aplicar retenção do cofre.
-- `src/pages/admin/Governanca.tsx` — adicionar card "Cofre de Backups".
-- `src/App.tsx` — registrar rota `/admin/cofre-backups` (MOTHER only).
-- `src/components/AppSidebar.tsx` — opcional: link rápido em Governança (só MOTHER).
-
-### Migrações SQL
-- `CREATE TABLE public.backups_cofre (...)` + GRANTs + RLS (somente MOTHER lê/escreve via service_role).
-- `INSERT INTO storage.buckets (id, name, public) VALUES ('backups-cofre', 'backups-cofre', false)` + políticas restritas a service_role.
-- Índices em `(owner_group_id, criado_em DESC)` e `(owner_group_id, eh_mensal)` para a lógica de retenção.
-
-### Documentação (`docs/`)
-- `AUDITORIA.md`: registrar restauração real, cofre, RLS, novo bucket.
-- Criar `docs/DOCS_BACKUP_RESTORE.md` com: fluxo de restauração, ordem de tabelas, regras de segurança, política do cofre.
-
----
-
-## Pontos de atenção
-
-- **Ordem de FKs**: levantar a ordem real a partir do schema antes de codificar (errar quebra a restauração). Tabelas pais primeiro no INSERT, filhos primeiro no DELETE.
-- **Tamanho/tempo**: backups grandes podem estourar o tempo da Edge Function. Mitigação: processar em lotes de 500 linhas por INSERT e retornar progresso.
-- **Custo de Storage**: o cofre cresce ~5 + 12/ano por grupo (linear e controlado pela política).
-- **Acesso à restauração**: continua disponível a **qualquer usuário** sobre **seus próprios backups** (você confirmou). O cofre é só para suporte MOTHER.
-
----
-
-Posso seguir com a implementação nessa ordem: (1) migração SQL do cofre, (2) Edge Function `restaurar-backup`, (3) hook do cofre no `executar-backups-agendados`, (4) UI (modal + tela do cofre), (5) docs?
+1. Header da sidebar e itens ativos com refino dourado.
+2. Card de Aniversariantes idêntico à imagem (ornamento, avatares, contador lateral, CTA).
+3. Demais cards com header vinho + corpo creme consistentes.
+4. Layout responsivo não quebra em 1020px (viewport atual do usuário).
