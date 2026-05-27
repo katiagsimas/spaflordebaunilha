@@ -21,6 +21,10 @@
 ## Pendências Resolvidas (Histórico)
 
 | Data (UTC) | Item | Resolução |
+|------------|------|-----------|
+| 2026-05-27 | RLS — `historico_planos` sem acesso do próprio usuário | Adicionada policy `Users can view own plan history` (`user_id = auth.uid()`) para SELECT. Admin policy mantida; service_role segue inserindo via webhook. |
+| 2026-05-27 | RLS — `imersao_notificacoes_log` lia emails de destinatários para qualquer admin | Policy de SELECT trocada de `has_role(...,'admin')` para `is_mother(auth.uid())`. Apenas operadores MOTHER da plataforma leem o log. |
+| 2026-05-27 | RLS — `sso_token_log` sem políticas explícitas (linter 0008) | Adicionadas policies de negação explícita (`USING (false)`) para `authenticated` e `anon`. Acesso real continua apenas via `service_role` (bypass RLS) usado pelas edge functions de SSO. |
 | 2026-05-26 | #3 — Rate limiting na Edge Function `criar-usuario` | Implementado rate limiting em memória: Map por IP, 10 req/60s, status 429 com `Retry-After` e body `{ error: 'rate_limit_exceeded', retry_after }`. Proteção contra burst simples (não persistente entre restarts). |
 | 2026-05-26 | Limpeza — assets órfãos em `src/assets/` | Removidos `auth-background.png`, `donnas-box-logo.png`, `donnas-logo.png`, `doces-background.jpg`, `caixa-acucar-logo.png` e o duplicado `cda-logo-dourado.png` (mantido apenas em `public/`). |
 |------------|------|-----------|
