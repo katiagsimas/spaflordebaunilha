@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { HardDrive, Download, Upload, Clock, Play, Loader2, FileDown, Info, Trash2, RotateCcw, Database, Package } from "lucide-react";
+import {
+  HardDrive, Download, Upload, Clock, Play, Loader2, FileDown, Info, Trash2, RotateCcw, Database, Package,
+  ChevronLeft, Archive, UtensilsCrossed, ShoppingBag, Briefcase, Settings2, Shield,
+} from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -16,11 +19,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { BACKUP_MODULOS, DEFAULT_MODULOS, tabelasDosModulos, modulosDisponiveis, type BackupModuloId } from "@/lib/backupCatalog";
 import { useGroup } from "@/contexts/GroupContext";
 import { RestaurarBackupDialog, type RestaurarBackupAlvo } from "@/components/backup/RestaurarBackupDialog";
+import { ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell, Tooltip } from "recharts";
+import bannerImg from "@/assets/backup-hero-banner.jpg";
+
+const MODULO_ICONS: Record<BackupModuloId, React.ComponentType<{ className?: string }>> = {
+  operacao: UtensilsCrossed,
+  comercial: ShoppingBag,
+  negocio: Briefcase,
+  sistema: Settings2,
+  governanca: Shield,
+};
+
+const PLAYFAIR = "'Playfair Display', serif";
 
 interface BackupRecord {
   id: string;
