@@ -100,7 +100,16 @@ async function carregarMes(userId: string, ano: number, mes: number): Promise<Da
   });
 }
 
-export function CalendariosEncomendas({ onNovaEncomenda }: { onNovaEncomenda?: () => void } = {}) {
+export function CalendariosEncomendas({
+  onNovaEncomenda,
+  mesSelecionado,
+  anoSelecionado,
+}: {
+  onNovaEncomenda?: () => void;
+  /** Mês 0-11 — quando informado, o calendário central acompanha o filtro de período da página */
+  mesSelecionado?: number;
+  anoSelecionado?: number;
+} = {}) {
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -114,6 +123,27 @@ export function CalendariosEncomendas({ onNovaEncomenda }: { onNovaEncomenda?: (
     const m = hoje.getMonth() + 1;
     return m > 11 ? { mes: 0, ano: hoje.getFullYear() + 1 } : { mes: m, ano: hoje.getFullYear() };
   });
+
+  // Sincroniza com o filtro de período da página (Total/Pendentes/Confirmadas/Entregues/Canceladas)
+  useEffect(() => {
+    if (mesSelecionado == null || anoSelecionado == null) return;
+    setMesAtual({ mes: mesSelecionado, ano: anoSelecionado });
+    const prev = mesSelecionado === 0
+      ? { mes: 11, ano: anoSelecionado - 1 }
+      : { mes: mesSelecionado - 1, ano: anoSelecionado };
+    const next = mesSelecionado === 11
+      ? { mes: 0, ano: anoSelecionado + 1 }
+      : { mes: mesSelecionado + 1, ano: anoSelecionado };
+    setMesAnterior(prev);
+    setMesSeguinte(next);
+    // Seleciona o dia 1 do mês escolhido (ou hoje se for o mês atual)
+    const novaData =
+      mesSelecionado === hoje.getMonth() && anoSelecionado === hoje.getFullYear()
+        ? hoje
+        : new Date(anoSelecionado, mesSelecionado, 1);
+    setDiaSelecionado(novaData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mesSelecionado, anoSelecionado]);
 
   const [dadosAtual, setDadosAtual] = useState<DadosDia[]>([]);
   const [dadosAnterior, setDadosAnterior] = useState<DadosDia[]>([]);
