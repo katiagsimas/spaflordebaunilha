@@ -1,15 +1,13 @@
 import { useMemo, useState } from "react";
-import { Cake, Calendar, Gift, PartyPopper, ArrowRight, Heart } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import decorImg from "@/assets/aniversariantes-decor.png";
 
 export interface AniversarianteItem {
   id: string;
   nome: string;
   /** ISO YYYY-MM-DD */
   data_aniversario: string;
-  legenda?: string; // ex: "Filha de Maria", "Cargo - Fornecedor"
+  legenda?: string;
   telefone?: string;
   onClick?: () => void;
 }
@@ -41,9 +39,15 @@ function formatarDia(iso: string) {
   return `${String(dia).padStart(2, "0")} de ${MESES[(mes ?? 1) - 1]}`;
 }
 
+function isHoje(iso: string) {
+  const hoje = new Date();
+  const [, mes, dia] = iso.split("-").map(Number);
+  return hoje.getDate() === dia && hoje.getMonth() + 1 === mes;
+}
+
 export function AniversariantesPremiumCard({
-  titulo = "Aniversariantes do mês",
-  subtitulo = "Celebre, presenteie e fortaleça conexões.",
+  titulo = "Aniversariantes",
+  subtitulo = "Este Mês",
   itens,
   limite = 5,
 }: AniversariantesPremiumCardProps) {
@@ -63,113 +67,91 @@ export function AniversariantesPremiumCard({
   if (total === 0) return null;
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-cda-dourado/30 bg-cda-branco shadow-[0_10px_40px_-20px_rgba(91,26,43,0.35)]">
-      {/* Faixa vinho — cabeçalho */}
-      <div className="relative bg-gradient-to-br from-cda-vinho-escuro via-cda-vinho to-cda-vinho-escuro px-6 py-6 pr-40 sm:px-8 sm:py-7 sm:pr-56">
-        <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cda-dourado/15 ring-1 ring-cda-dourado/40">
-            <Cake className="h-6 w-6 text-cda-dourado" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h2 className="font-display text-2xl tracking-tight text-cda-creme sm:text-3xl">
-              {titulo}
-            </h2>
-            <p className="mt-1 font-body text-sm italic text-cda-dourado/90">
-              {subtitulo}
-            </p>
-          </div>
+    <div className="relative overflow-hidden rounded-2xl border border-cda-vinho/10 bg-cda-branco shadow-[0_4px_24px_-12px_rgba(91,26,43,0.10)]">
+      {/* Header minimalista */}
+      <div className="flex items-baseline justify-between px-6 pt-6 sm:px-7">
+        <div>
+          <h2 className="font-display text-xl tracking-tight text-cda-vinho-escuro sm:text-2xl">
+            {titulo}
+          </h2>
+          <p className="mt-0.5 font-body text-[11px] uppercase tracking-[0.2em] text-cda-vinho/50">
+            {subtitulo}
+          </p>
         </div>
-        {/* Detalhe decorativo dourado canto direito */}
-        <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-cda-dourado/10 blur-2xl" />
-        {/* Ilustração decorativa — caixa de presente + macaron + flores */}
-        <img
-          src={decorImg}
-          alt=""
-          aria-hidden="true"
-          loading="lazy"
-          width={1024}
-          height={1024}
-          className="pointer-events-none absolute -right-2 -top-2 z-10 h-40 w-auto select-none sm:-right-4 sm:h-52 lg:h-56"
-        />
+        <span className="rounded-full border border-cda-dourado/30 bg-cda-dourado/5 px-3 py-1 font-body text-[11px] font-medium tracking-wider text-cda-dourado">
+          {String(total).padStart(2, "0")}
+        </span>
       </div>
 
+      {/* Fio dourado */}
+      <div className="mx-6 mt-3 h-px w-10 bg-cda-dourado/60 sm:mx-7" />
 
-      {/* Conteúdo */}
-      <div className="grid gap-6 px-6 py-6 sm:px-8 lg:grid-cols-[1fr_240px]">
-        {/* Lista */}
-        <ul className="divide-y divide-cda-dourado/15">
-          {visiveis.map((item) => (
+      {/* Lista */}
+      <ul className="px-3 py-3 sm:px-4">
+        {visiveis.map((item) => {
+          const hoje = isHoje(item.data_aniversario);
+          return (
             <li
               key={item.id}
               className={cn(
-                "flex items-center gap-4 py-3.5",
+                "flex items-center gap-4 rounded-xl px-3 py-3 transition-colors",
                 item.onClick &&
-                  "cursor-pointer rounded-xl px-2 -mx-2 transition hover:bg-cda-creme/60",
+                  "cursor-pointer hover:bg-cda-creme/60"
               )}
               onClick={item.onClick}
             >
-              {/* Avatar com iniciais */}
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-cda-vinho text-[0.7rem] font-bold tracking-wider text-cda-dourado ring-2 ring-cda-dourado/60">
-                {iniciais(item.nome)}
+              {/* Avatar minimalista */}
+              <div className="relative shrink-0">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-cda-vinho/15 bg-cda-creme">
+                  <span className="font-display text-sm text-cda-vinho">
+                    {iniciais(item.nome)}
+                  </span>
+                </div>
+                {hoje && (
+                  <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-cda-branco bg-cda-dourado" />
+                )}
               </div>
 
               <div className="min-w-0 flex-1">
-                <p className="font-display text-base text-cda-vinho-escuro sm:text-lg truncate">
+                <p className="font-body text-sm font-medium text-cda-preto truncate">
                   {item.nome}
                 </p>
                 {item.legenda && (
-                  <p className="font-body text-xs text-cda-vinho/60 truncate">
+                  <p className="font-body text-xs text-cda-vinho/55 truncate">
                     {item.legenda}
                   </p>
                 )}
               </div>
 
-              <div className="flex shrink-0 items-center gap-2 text-cda-vinho">
-                <Calendar className="h-4 w-4 text-cda-vinho/70" />
-                <span className="font-body text-sm">
-                  {formatarDia(item.data_aniversario)}
-                </span>
+              <div className="shrink-0 text-right">
+                {hoje ? (
+                  <span className="font-body text-[10px] font-semibold uppercase tracking-[0.18em] text-cda-dourado">
+                    Hoje
+                  </span>
+                ) : (
+                  <span className="font-body text-xs text-cda-vinho/60">
+                    {formatarDia(item.data_aniversario)}
+                  </span>
+                )}
               </div>
             </li>
-          ))}
-        </ul>
+          );
+        })}
+      </ul>
 
-        {/* Contador lateral */}
-        <aside className="flex flex-col items-center justify-center rounded-2xl border border-cda-dourado/25 bg-cda-pink/25 px-5 py-6 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cda-branco/80 ring-1 ring-cda-dourado/30">
-            <Gift className="h-5 w-5 text-cda-vinho" />
-          </div>
-          <p className="mt-3 font-display text-4xl text-cda-vinho-escuro">
-            {total}
-          </p>
-          <p className="mt-1 max-w-[10rem] font-body text-sm text-cda-vinho/70 leading-snug">
-            {total === 1 ? "aniversariante este mês" : "aniversariantes este mês"}
-          </p>
-          <div className="mt-4 flex items-center gap-2">
-            <span className="h-px w-10 bg-cda-dourado/60" />
-            <Heart className="h-3.5 w-3.5 text-cda-dourado" fill="currentColor" />
-            <span className="h-px w-10 bg-cda-dourado/60" />
-          </div>
-        </aside>
-      </div>
-
-      {/* Rodapé */}
-      <div className="flex flex-col gap-3 border-t border-cda-dourado/20 bg-cda-pink/15 px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
-        <div className="flex items-center gap-2 font-body text-sm italic text-cda-vinho/80">
-          <PartyPopper className="h-4 w-4 text-cda-vinho" />
-          Pequenos gestos criam grandes lembranças.
-        </div>
-        {total > limite && (
-          <Button
-            size="sm"
+      {/* Footer */}
+      {total > limite && (
+        <div className="flex items-center justify-center border-t border-cda-vinho/5 px-6 py-3 sm:px-7">
+          <button
+            type="button"
             onClick={() => setExpandido((v) => !v)}
-            className="gap-2 bg-cda-vinho text-cda-creme hover:bg-cda-vinho-escuro tracking-[0.18em] text-xs uppercase"
+            className="group inline-flex items-center gap-2 font-body text-[11px] font-semibold uppercase tracking-[0.2em] text-cda-vinho transition hover:text-cda-dourado"
           >
             {expandido ? "Ver menos" : "Ver todos"}
-            <ArrowRight className="h-4 w-4" />
-          </Button>
-        )}
-      </div>
+            <ArrowRight className="h-3.5 w-3.5 text-cda-dourado transition-transform group-hover:translate-x-0.5" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
