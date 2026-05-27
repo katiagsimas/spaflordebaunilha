@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false }
     })
 
-    const siteUrl = Deno.env.get('SITE_URL') || 'https://caixa.umbrelladoce.com.br'
+    const siteUrl = (Deno.env.get('SITE_URL') || 'https://www.caixadeacucar.com.br').replace(/\/+$/, '')
 
     // Gerar link de recuperação
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
