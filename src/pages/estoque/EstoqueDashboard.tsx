@@ -8,6 +8,7 @@ import { useEstoque } from '@/hooks/useEstoque';
 import { LoadingState } from '@/components/LoadingState';
 import { Package, AlertTriangle, Plus, SlidersHorizontal, Search, CalendarDays, Coins, PackageOpen } from 'lucide-react';
 import heroBanner from '@/assets/estoque-hero-banner.jpg';
+import { HeroBanner } from '@/components/HeroBanner';
 import emptyPrateleira from '@/assets/estoque-empty-prateleira.png';
 
 export default function EstoqueDashboard() {
