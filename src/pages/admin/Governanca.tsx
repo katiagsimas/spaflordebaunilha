@@ -1,300 +1,138 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useGroup } from '@/contexts/GroupContext';
 import { supabase } from '@/integrations/supabase/client';
 import { PageHeader } from '@/components/PageHeader';
 import { PermissionGuard } from '@/components/PermissionGuard';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
-import { toast } from 'sonner';
-import { Building2, Plus, Users, Shield, Edit, Trash2, UserPlus } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import {
+  CalendarDays,
+  Settings2,
+  UserCog,
+  ScrollText,
+  CloudUpload,
+  ChevronLeft,
+} from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  LabelList,
+} from 'recharts';
+import heroBanner from '@/assets/governanca-hero-banner.jpg';
 
-interface Group {
+interface BackupRow {
   id: string;
-  name: string;
-  is_active: boolean;
-  created_at: string;
-  created_by_user_id: string | null;
+  tipo: string | null;
+  created_at: string | null;
 }
 
-interface UserWithRoles {
+interface AdminLogRow {
   id: string;
-  email: string;
-  nome_completo: string | null;
-  is_mother: boolean;
-  groups: {
-    group_id: string;
-    group_name: string;
-    role_group: string;
-    is_active: boolean;
-  }[];
+  admin_email: string;
+  acao: string;
+  created_at: string | null;
 }
 
-interface GovernancaProps {
-  embedded?: boolean;
-}
+const PALETTE = ['#3D0F1C', '#5B1A2B', '#8B4513', '#C9A14A'];
 
-export default function Governanca({ embedded = false }: GovernancaProps = {}) {
-  const { isMother, refreshGroups } = useGroup();
-  const { user } = useAuth();
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [users, setUsers] = useState<UserWithRoles[]>([]);
+export default function Governanca() {
+  const { isMother } = useGroup();
+  const navigate = useNavigate();
+
+  const [backups, setBackups] = useState<BackupRow[]>([]);
+  const [logs, setLogs] = useState<AdminLogRow[]>([]);
+  const [roleDistribution, setRoleDistribution] = useState<{ name: string; value: number; color: string }[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // Dialog states
-  const [showNewGroupDialog, setShowNewGroupDialog] = useState(false);
-  const [showAddUserToGroupDialog, setShowAddUserToGroupDialog] = useState(false);
-  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
-  
-  // Form states
-  const [newGroupName, setNewGroupName] = useState('');
-  const [selectedUserId, setSelectedUserId] = useState('');
-  const [selectedRole, setSelectedRole] = useState<'ADMIN' | 'USER'>('USER');
 
   useEffect(() => {
-    if (isMother) {
-      loadData();
-    }
+    if (!isMother) return;
+    (async () => {
+      setLoading(true);
+      try {
+        const [{ data: bk }, { data: lg }, { data: rd }] = await Promise.all([
+          supabase
+            .from('backups')
+            .select('id, tipo, created_at')
+            .order('created_at', { ascending: false })
+            .limit(5),
+          supabase
+            .from('admin_logs')
+            .select('id, admin_email, acao, created_at')
+            .order('created_at', { ascending: false })
+            .limit(100),
+          supabase.from('user_group_roles').select('role_group').eq('is_active', true),
+        ]);
+
+        setBackups((bk as any) || []);
+        setLogs((lg as any) || []);
+
+        const counts: Record<string, number> = {};
+        (rd as any[] | null)?.forEach((r) => {
+          const k = (r.role_group || 'USER').toString();
+          counts[k] = (counts[k] || 0) + 1;
+        });
+        const total = Object.values(counts).reduce((s, n) => s + n, 0) || 1;
+        const mapColor: Record<string, string> = {
+          ADMIN: '#3D0F1C',
+          MOTHER: '#3D0F1C',
+          EDITOR: '#5B1A2B',
+          BUSINESS: '#5B1A2B',
+          USER: '#C9A14A',
+          VIEWER: '#C9A14A',
+          BASE: '#C9A14A',
+        };
+        setRoleDistribution(
+          Object.entries(counts).map(([k, v]) => ({
+            name: k,
+            value: Math.round((v / total) * 100),
+            color: mapColor[k] || '#8B4513',
+          })),
+        );
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [isMother]);
 
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      // Carregar todos os grupos
-      const { data: groupsData, error: groupsError } = await supabase
-        .from('groups')
-        .select('*')
-        .order('name');
-      
-      if (groupsError) throw groupsError;
-      setGroups(groupsData || []);
+  const actionsByUser = useMemo(() => {
+    const m: Record<string, number> = {};
+    logs.forEach((l) => {
+      const k = (l.admin_email || '—').split('@')[0].slice(0, 8);
+      m[k] = (m[k] || 0) + 1;
+    });
+    return Object.entries(m)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 6);
+  }, [logs]);
 
-      // Carregar todos os usuários com seus papéis
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, email, nome_completo');
-      
-      if (profilesError) throw profilesError;
-
-      // Carregar papéis globais
-      const { data: globalRoles } = await supabase
-        .from('user_global_roles')
-        .select('user_id')
-        .eq('is_active', true);
-
-      // Carregar papéis de grupo
-      const { data: groupRoles } = await supabase
-        .from('user_group_roles')
-        .select(`
-          user_id,
-          group_id,
-          role_group,
-          is_active,
-          group:groups(name)
-        `);
-
-      // Mapear usuários com seus papéis
-      const usersWithRoles: UserWithRoles[] = (profilesData || []).map(profile => {
-        const userGlobalRole = globalRoles?.find(r => r.user_id === profile.id);
-        const userGroupRoles = groupRoles?.filter(r => r.user_id === profile.id) || [];
-        
-        return {
-          id: profile.id,
-          email: profile.email,
-          nome_completo: profile.nome_completo,
-          is_mother: !!userGlobalRole,
-          groups: userGroupRoles.map(r => ({
-            group_id: r.group_id,
-            group_name: (r.group as any)?.name || 'Desconhecido',
-            role_group: r.role_group,
-            is_active: r.is_active,
-          })),
-        };
-      });
-
-      setUsers(usersWithRoles);
-    } catch (error) {
-      console.error('Erro ao carregar dados:', error);
-      toast.error('Erro ao carregar dados');
-    } finally {
-      setLoading(false);
+  const actionsByDay = useMemo(() => {
+    const m: Record<string, number> = {};
+    const now = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const k = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      m[k] = 0;
     }
-  };
-
-  const handleCreateGroup = async () => {
-    if (!newGroupName.trim()) {
-      toast.error('Nome do grupo é obrigatório');
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('groups')
-        .insert({
-          name: newGroupName.trim(),
-          created_by_user_id: user?.id,
-        });
-
-      if (error) throw error;
-
-      toast.success('Grupo criado com sucesso!');
-      setNewGroupName('');
-      setShowNewGroupDialog(false);
-      loadData();
-      refreshGroups();
-    } catch (error: any) {
-      console.error('Erro ao criar grupo:', error);
-      toast.error('Erro ao criar grupo: ' + error.message);
-    }
-  };
-
-  const handleToggleGroupActive = async (group: Group) => {
-    try {
-      const { error } = await supabase
-        .from('groups')
-        .update({ is_active: !group.is_active })
-        .eq('id', group.id);
-
-      if (error) throw error;
-
-      toast.success(group.is_active ? 'Grupo desativado' : 'Grupo ativado');
-      loadData();
-      refreshGroups();
-    } catch (error: any) {
-      console.error('Erro ao atualizar grupo:', error);
-      toast.error('Erro ao atualizar grupo');
-    }
-  };
-
-  const handleAddUserToGroup = async () => {
-    if (!selectedGroup || !selectedUserId) {
-      toast.error('Selecione um usuário');
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('user_group_roles')
-        .upsert({
-          user_id: selectedUserId,
-          group_id: selectedGroup.id,
-          role_group: selectedRole,
-          is_active: true,
-          permission_flags: selectedRole === 'ADMIN' ? {
-            financeiro_view: true,
-            financeiro_edit: true,
-            metas_view: true,
-            metas_edit: true,
-            tarefas_view: true,
-            tarefas_edit: true,
-            cadastros_view: true,
-            cadastros_edit: true,
-            receitas_view: true,
-            receitas_edit: true,
-            encomendas_view: true,
-            encomendas_edit: true,
-            precificacao_view: true,
-            precificacao_edit: true,
-            admin_users_manage: true,
-          } : {
-            financeiro_view: true,
-            financeiro_edit: false,
-            metas_view: true,
-            metas_edit: false,
-            tarefas_view: true,
-            tarefas_edit: false,
-            cadastros_view: true,
-            cadastros_edit: false,
-            receitas_view: true,
-            receitas_edit: false,
-            encomendas_view: true,
-            encomendas_edit: false,
-            precificacao_view: true,
-            precificacao_edit: false,
-            admin_users_manage: false,
-          },
-        }, { onConflict: 'user_id,group_id' });
-
-      if (error) throw error;
-
-      toast.success('Usuário adicionado ao grupo!');
-      setShowAddUserToGroupDialog(false);
-      setSelectedUserId('');
-      setSelectedRole('USER');
-      loadData();
-    } catch (error: any) {
-      console.error('Erro ao adicionar usuário:', error);
-      toast.error('Erro ao adicionar usuário: ' + error.message);
-    }
-  };
-
-  const handleRemoveUserFromGroup = async (userId: string, groupId: string) => {
-    try {
-      const { error } = await supabase
-        .from('user_group_roles')
-        .delete()
-        .eq('user_id', userId)
-        .eq('group_id', groupId);
-
-      if (error) throw error;
-
-      toast.success('Usuário removido do grupo');
-      loadData();
-    } catch (error: any) {
-      console.error('Erro ao remover usuário:', error);
-      toast.error('Erro ao remover usuário');
-    }
-  };
-
-  const handleSetMother = async (userId: string, isMother: boolean) => {
-    try {
-      if (isMother) {
-        // Remover papel de MOTHER
-        const { error } = await supabase
-          .from('user_global_roles')
-          .delete()
-          .eq('user_id', userId);
-        
-        if (error) throw error;
-        toast.success('Papel de administrador do sistema removido');
-      } else {
-        // Adicionar papel de MOTHER
-        const { error } = await supabase
-          .from('user_global_roles')
-          .insert({
-            user_id: userId,
-            role_global: 'MOTHER',
-            is_active: true,
-          });
-        
-        if (error) throw error;
-        toast.success('Usuário definido como administrador do sistema');
-      }
-      loadData();
-    } catch (error: any) {
-      console.error('Erro ao atualizar papel global:', error);
-      toast.error('Erro ao atualizar papel: ' + error.message);
-    }
-  };
+    logs.forEach((l) => {
+      if (!l.created_at) return;
+      const d = new Date(l.created_at);
+      const k = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      if (k in m) m[k] += 1;
+    });
+    return Object.entries(m).map(([name, value]) => ({ name, value }));
+  }, [logs]);
 
   if (!isMother) {
-    if (embedded) {
-      return (
-        <div className="p-6">
-          <PermissionGuard requireMother />
-        </div>
-      );
-    }
     return (
-      <div className="flex flex-col min-h-screen bg-background">
+      <div className="flex flex-col min-h-screen bg-[#FDF6EE]">
         <PageHeader title="Governança" description="Acesso restrito" />
         <div className="flex-1 p-6">
           <PermissionGuard requireMother />
@@ -303,374 +141,316 @@ export default function Governanca({ embedded = false }: GovernancaProps = {}) {
     );
   }
 
-  // Conteúdo principal — quando embarcado em outra página, suprime PageHeader,
-  // wrapper de tela inteira e as abas internas (mostra apenas a gestão de Grupos).
-  if (embedded) {
-    return (
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
+  const navCards = [
+    {
+      title: 'Usuários',
+      icon: UserCog,
+      desc: 'Gestão de usuários, grupos e permissões do sistema.',
+      url: '/admin/usuarios',
+    },
+    {
+      title: 'Log de Ações',
+      icon: ScrollText,
+      desc: 'Histórico de ações realizadas pelos usuários no sistema.',
+      url: '/admin/logs',
+    },
+    {
+      title: 'Cofre de Backups',
+      icon: CloudUpload,
+      desc: 'Espelho automático de backups de todos os grupos (dia 1 + 5 últimos).',
+      url: '/configuracoes/backup',
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#FDF6EE]">
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        {/* Header */}
+        <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-lg font-semibold">Grupos do Sistema</h2>
-            <p className="text-sm text-muted-foreground">
-              Grupos organizam acessos internos. Cada usuário pertence a um grupo com um papel (ADMIN ou USER).
-            </p>
+            <h1 className="font-display text-[36px] font-normal text-[#3D0F1C] leading-tight">
+              Governança
+            </h1>
+            <div className="flex items-center gap-3 mt-1">
+              <span
+                aria-hidden
+                className="inline-block"
+                style={{ width: 40, height: 1.5, background: '#C9A14A' }}
+              />
+              <p className="font-body text-[13px] italic text-[#3D0F1C]/65">
+                Administração e auditoria do sistema.
+              </p>
+            </div>
           </div>
-          <Dialog open={showNewGroupDialog} onOpenChange={setShowNewGroupDialog}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Novo Grupo
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Criar Novo Grupo</DialogTitle>
-                <DialogDescription>
-                  Crie um novo grupo para organizar usuários e dados.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="groupName">Nome do Grupo</Label>
-                  <Input
-                    id="groupName"
-                    value={newGroupName}
-                    onChange={(e) => setNewGroupName(e.target.value)}
-                    placeholder="Ex: Minha Confeitaria"
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setShowNewGroupDialog(false)}>
-                  Cancelar
-                </Button>
-                <Button onClick={handleCreateGroup}>
-                  Criar Grupo
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              aria-label="Calendário"
+              className="rounded-full w-9 h-9 bg-white/70 border border-[#5B1A2B]/15 flex items-center justify-center text-[#5B1A2B] hover:bg-white transition"
+            >
+              <CalendarDays className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              aria-label="Configurações"
+              className="rounded-full w-9 h-9 bg-white/70 border border-[#5B1A2B]/15 flex items-center justify-center text-[#5B1A2B] hover:bg-white transition"
+            >
+              <Settings2 className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {groups.map((group) => (
-            <Card key={group.id} className={!group.is_active ? 'opacity-60' : ''}>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Building2 className="h-4 w-4" />
-                    {group.name}
-                  </CardTitle>
-                  <Badge variant={group.is_active ? 'default' : 'secondary'}>
-                    {group.is_active ? 'Ativo' : 'Inativo'}
-                  </Badge>
-                </div>
-                <CardDescription className="text-xs">
-                  Criado em {new Date(group.created_at).toLocaleDateString('pt-BR')}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Status</span>
-                  <Switch
-                    checked={group.is_active}
-                    onCheckedChange={() => handleToggleGroupActive(group)}
-                  />
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => {
-                    setSelectedGroup(group);
-                    setShowAddUserToGroupDialog(true);
-                  }}
+        {/* Hero banner */}
+        <div className="rounded-xl overflow-hidden relative" style={{ height: 140 }}>
+          <img
+            src={heroBanner}
+            alt=""
+            className="object-cover w-full h-full"
+          />
+        </div>
+
+        {/* Nav cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {navCards.map(({ title, icon: Icon, desc, url }) => (
+            <button
+              key={url}
+              type="button"
+              onClick={() => navigate(url)}
+              className="text-left bg-white border border-[#5B1A2B]/10 rounded-xl p-5 cursor-pointer transition-all duration-200 hover:border-[#C9A14A]/50 hover:shadow-md"
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="rounded-full flex items-center justify-center shrink-0"
+                  style={{ width: 52, height: 52, background: '#FDF6EE' }}
                 >
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Adicionar Usuário
-                </Button>
-              </CardContent>
-            </Card>
+                  <Icon className="w-6 h-6 text-[#5B1A2B]" />
+                </div>
+                <h3 className="font-bold text-[18px] text-[#3D0F1C]">{title}</h3>
+              </div>
+
+              <div
+                className="my-4 rounded-lg overflow-hidden flex items-center justify-center"
+                style={{ height: 120, background: '#FDF6EE' }}
+              >
+                <img
+                  src={heroBanner}
+                  alt=""
+                  loading="lazy"
+                  className="object-cover w-full h-full"
+                  style={{
+                    objectPosition:
+                      title === 'Usuários'
+                        ? '15% center'
+                        : title === 'Log de Ações'
+                          ? '50% center'
+                          : '85% center',
+                  }}
+                />
+              </div>
+
+              <p className="text-[13px] text-[#3D0F1C]/65 font-body">{desc}</p>
+
+              {title === 'Cofre de Backups' && (
+                <div className="mt-3 border-t border-[#5B1A2B]/10 pt-2">
+                  <div className="grid grid-cols-2 text-[11px] font-semibold text-[#3D0F1C] mb-1">
+                    <span>Backup</span>
+                    <span>Data</span>
+                  </div>
+                  {(backups.slice(0, 3)).map((b) => (
+                    <div
+                      key={b.id}
+                      className="grid grid-cols-2 text-[11px] text-[#3D0F1C]/70 py-0.5"
+                    >
+                      <span className="truncate">{b.tipo || 'Backup'}</span>
+                      <span>
+                        {b.created_at
+                          ? new Date(b.created_at).toLocaleDateString('pt-BR', {
+                              day: '2-digit',
+                              month: 'short',
+                            })
+                          : '—'}
+                      </span>
+                    </div>
+                  ))}
+                  {backups.length === 0 && (
+                    <div className="text-[11px] text-[#3D0F1C]/40 py-1">
+                      {loading ? 'Carregando…' : 'Sem backups ainda.'}
+                    </div>
+                  )}
+                </div>
+              )}
+            </button>
           ))}
         </div>
 
-        {/* Dialog para adicionar usuário ao grupo */}
-        <Dialog open={showAddUserToGroupDialog} onOpenChange={setShowAddUserToGroupDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Adicionar Usuário ao Grupo</DialogTitle>
-              <DialogDescription>
-                Adicione um usuário ao grupo "{selectedGroup?.name}"
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label>Usuário</Label>
-                <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione um usuário" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {users
-                      .filter(u => !u.groups.some(g => g.group_id === selectedGroup?.id))
-                      .map((u) => (
-                        <SelectItem key={u.id} value={u.id}>
-                          {u.nome_completo || u.email}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+        {/* Visão Geral da Auditoria */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Painel esquerdo */}
+          <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5">
+            <h2 className="font-display text-[18px] text-[#3D0F1C] mb-4">
+              Visão Geral da Auditoria
+            </h2>
+            <div className="flex items-center gap-3">
+              <div
+                className="rounded-lg overflow-hidden shrink-0 hidden sm:block"
+                style={{ width: 120, height: 160, background: '#FDF6EE' }}
+              >
+                <img
+                  src={heroBanner}
+                  alt=""
+                  loading="lazy"
+                  className="object-cover w-full h-full"
+                />
               </div>
-              <div className="space-y-2">
-                <Label>Papel no Grupo</Label>
-                <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as 'ADMIN' | 'USER')}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ADMIN">Administrador</SelectItem>
-                    <SelectItem value="USER">Usuário</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowAddUserToGroupDialog(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={handleAddUserToGroup}>
-                Adicionar
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <PageHeader 
-        title="Governança do Sistema" 
-        description="Administração de grupos e usuários"
-      />
-
-      <div className="flex-1 p-6">
-        <Tabs defaultValue="groups" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="groups" className="gap-2">
-              <Building2 className="h-4 w-4" />
-              Grupos
-            </TabsTrigger>
-            <TabsTrigger value="users" className="gap-2">
-              <Users className="h-4 w-4" />
-              Usuários
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Aba de Grupos */}
-          <TabsContent value="groups" className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-semibold">Grupos do Sistema</h2>
-              <Dialog open={showNewGroupDialog} onOpenChange={setShowNewGroupDialog}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Novo Grupo
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Criar Novo Grupo</DialogTitle>
-                    <DialogDescription>
-                      Crie um novo grupo para organizar usuários e dados.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="groupName">Nome do Grupo</Label>
-                      <Input
-                        id="groupName"
-                        value={newGroupName}
-                        onChange={(e) => setNewGroupName(e.target.value)}
-                        placeholder="Ex: Minha Confeitaria"
-                      />
-                    </div>
+              <div className="flex-1" style={{ height: 160 }}>
+                {actionsByUser.length === 0 ? (
+                  <div className="h-full flex items-center justify-center text-[12px] text-[#3D0F1C]/50">
+                    {loading ? 'Carregando…' : 'Sem ações registradas ainda.'}
                   </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setShowNewGroupDialog(false)}>
-                      Cancelar
-                    </Button>
-                    <Button onClick={handleCreateGroup}>
-                      Criar Grupo
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {groups.map((group) => (
-                <Card key={group.id} className={!group.is_active ? 'opacity-60' : ''}>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <Building2 className="h-4 w-4" />
-                        {group.name}
-                      </CardTitle>
-                      <Badge variant={group.is_active ? 'default' : 'secondary'}>
-                        {group.is_active ? 'Ativo' : 'Inativo'}
-                      </Badge>
-                    </div>
-                    <CardDescription className="text-xs">
-                      Criado em {new Date(group.created_at).toLocaleDateString('pt-BR')}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Status</span>
-                      <Switch
-                        checked={group.is_active}
-                        onCheckedChange={() => handleToggleGroupActive(group)}
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={actionsByUser} margin={{ top: 16, right: 4, left: -20, bottom: 0 }}>
+                      <XAxis
+                        dataKey="name"
+                        tick={{ fontSize: 10, fill: '#3D0F1C' }}
+                        axisLine={false}
+                        tickLine={false}
                       />
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => {
-                        setSelectedGroup(group);
-                        setShowAddUserToGroupDialog(true);
-                      }}
-                    >
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      Adicionar Usuário
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                      <YAxis hide />
+                      <Tooltip
+                        cursor={{ fill: '#FDF6EE' }}
+                        contentStyle={{
+                          background: '#FFF9F5',
+                          border: '1px solid #5B1A2B22',
+                          borderRadius: 8,
+                          fontSize: 12,
+                        }}
+                      />
+                      <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                        {actionsByUser.map((_, i) => (
+                          <Cell key={i} fill={PALETTE[i % PALETTE.length]} />
+                        ))}
+                        <LabelList
+                          dataKey="value"
+                          position="top"
+                          style={{ fontSize: 11, fill: '#3D0F1C' }}
+                        />
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
             </div>
-          </TabsContent>
+          </div>
 
-          {/* Aba de Usuários */}
-          <TabsContent value="users" className="space-y-4">
-            <h2 className="text-lg font-semibold">Usuários do Sistema</h2>
+          {/* Painel direito */}
+          <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5">
+            <h2 className="font-display text-[18px] text-[#3D0F1C] mb-4">
+              Visão Geral da Auditoria
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Ações Recentes por Usuário */}
+              <div>
+                <p className="font-body text-[12px] font-bold text-[#3D0F1C] mb-2">
+                  Ações Recentes por Usuário
+                </p>
+                <div style={{ height: 140 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={actionsByDay} margin={{ top: 16, right: 4, left: -25, bottom: 0 }}>
+                      <XAxis
+                        dataKey="name"
+                        tick={{ fontSize: 10, fill: '#3D0F1C' }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <YAxis hide />
+                      <Tooltip
+                        cursor={{ fill: '#FDF6EE' }}
+                        contentStyle={{
+                          background: '#FFF9F5',
+                          border: '1px solid #5B1A2B22',
+                          borderRadius: 8,
+                          fontSize: 12,
+                        }}
+                      />
+                      <Bar dataKey="value" radius={[3, 3, 0, 0]}>
+                        {actionsByDay.map((_, i) => (
+                          <Cell key={i} fill={i % 2 === 0 ? '#3D0F1C' : '#8B4513'} />
+                        ))}
+                        <LabelList
+                          dataKey="value"
+                          position="top"
+                          style={{ fontSize: 10, fill: '#3D0F1C' }}
+                        />
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
 
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Usuário</TableHead>
-                    <TableHead>Papel Global</TableHead>
-                    <TableHead>Grupos</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users.map((u) => (
-                    <TableRow key={u.id}>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{u.nome_completo || 'Sem nome'}</p>
-                          <p className="text-sm text-muted-foreground">{u.email}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {u.is_mother ? (
-                          <Badge variant="default" className="gap-1">
-                            <Shield className="h-3 w-3" />
-                            MOTHER
-                          </Badge>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {u.groups.length === 0 ? (
-                            <span className="text-muted-foreground text-sm">Nenhum grupo</span>
-                          ) : (
-                            u.groups.map((g, idx) => (
-                              <Badge 
-                                key={idx} 
-                                variant={g.role_group === 'ADMIN' ? 'default' : 'secondary'}
-                                className="text-xs"
-                              >
-                                {g.group_name} ({g.role_group})
-                              </Badge>
-                            ))
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleSetMother(u.id, u.is_mother)}
-                          disabled={u.id === user?.id}
+              {/* Distribuição de Permissões */}
+              <div>
+                <p className="font-body text-[12px] font-bold text-[#3D0F1C] mb-2">
+                  Distribuição de Permissões
+                </p>
+                <div className="flex items-center gap-2" style={{ height: 140 }}>
+                  <div className="flex-1 h-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={
+                            roleDistribution.length > 0
+                              ? roleDistribution
+                              : [{ name: '—', value: 1, color: '#FDF6EE' }]
+                          }
+                          dataKey="value"
+                          innerRadius={45}
+                          outerRadius={70}
+                          stroke="none"
                         >
-                          {u.is_mother ? 'Remover MOTHER' : 'Definir MOTHER'}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
-          </TabsContent>
-        </Tabs>
-
-        {/* Dialog para adicionar usuário ao grupo */}
-        <Dialog open={showAddUserToGroupDialog} onOpenChange={setShowAddUserToGroupDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Adicionar Usuário ao Grupo</DialogTitle>
-              <DialogDescription>
-                Adicione um usuário ao grupo "{selectedGroup?.name}"
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label>Usuário</Label>
-                <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione um usuário" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {users
-                      .filter(u => !u.groups.some(g => g.group_id === selectedGroup?.id))
-                      .map((u) => (
-                        <SelectItem key={u.id} value={u.id}>
-                          {u.nome_completo || u.email}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Papel no Grupo</Label>
-                <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as 'ADMIN' | 'USER')}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ADMIN">Administrador</SelectItem>
-                    <SelectItem value="USER">Usuário</SelectItem>
-                  </SelectContent>
-                </Select>
+                          {(roleDistribution.length > 0
+                            ? roleDistribution
+                            : [{ name: '—', value: 1, color: '#FDF6EE' }]
+                          ).map((d, i) => (
+                            <Cell key={i} fill={d.color} />
+                          ))}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <ul className="space-y-1 text-[12px] text-[#3D0F1C]">
+                    {roleDistribution.length === 0 ? (
+                      <li className="text-[#3D0F1C]/40">—</li>
+                    ) : (
+                      roleDistribution.map((d) => (
+                        <li key={d.name} className="flex items-center gap-2">
+                          <span
+                            className="inline-block"
+                            style={{ width: 10, height: 10, background: d.color, borderRadius: 2 }}
+                          />
+                          <span className="capitalize">{d.name.toLowerCase()}</span>
+                          <span className="ml-1 text-[#3D0F1C]/70">{d.value}%</span>
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                </div>
               </div>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowAddUserToGroupDialog(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={handleAddUserToGroup}>
-                Adicionar
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+          </div>
+        </div>
       </div>
+
+      {/* Floating back button */}
+      <button
+        type="button"
+        onClick={() => navigate(-1)}
+        aria-label="Voltar"
+        className="fixed bottom-6 right-6 z-50 rounded-full w-11 h-11 flex items-center justify-center shadow-lg text-white hover:opacity-90 transition"
+        style={{ background: '#5B1A2B' }}
+      >
+        <ChevronLeft className="w-5 h-5" />
+      </button>
     </div>
   );
 }
