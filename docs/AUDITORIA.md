@@ -1,5 +1,17 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
+> Última atualização: 2026-05-27T14:15:00Z — Fundo gradiente preto elegante aplicado nas telas de autenticação.
+
+## UI/UX — FUNDO GRADIENTE NA TELA DE AUTENTICAÇÃO — 2026-05-27 14:15 UTC
+
+| # | Item | Status | Descrição |
+|---|------|--------|-----------|
+| AU-1 | `src/pages/auth/Login.tsx` | ✅ | Lado direito (formulário) agora usa gradiente `linear-gradient(135deg, hsl(0 0% 10%), hsl(345 55% 9%), hsl(0 0% 5%))` em vez de `bg-cda-preto` plano. Opacidade do pattern overlay aumentada de 0.03 para 0.04. |
+| AU-2 | `src/pages/auth/ForgotPassword.tsx` | ✅ | Mesmo gradiente e ajuste de pattern overlay aplicados no lado direito da tela. |
+| AU-3 | `src/pages/auth/ResetPassword.tsx` | ✅ | Mesmo gradiente e ajuste de pattern overlay aplicados no lado direito da tela. |
+
+---
+
 > Última atualização: 2026-05-27T12:30:00Z — Removido botão "Tour pelo Caixa de Açúcar" do onboarding de conclusão.
 
 ## BACKUP — MÓDULO GOVERNANÇA (MOTHER ONLY) — 2026-05-26 21:00 UTC
