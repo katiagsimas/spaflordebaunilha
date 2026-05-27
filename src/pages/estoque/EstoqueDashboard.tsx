@@ -177,8 +177,8 @@ export default function EstoqueDashboard() {
                 })}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
+        </div>
+
       )}
     </div>
   );
