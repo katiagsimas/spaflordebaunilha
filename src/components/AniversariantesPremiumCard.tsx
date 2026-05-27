@@ -65,7 +65,7 @@ export function AniversariantesPremiumCard({
   return (
     <div className="relative overflow-hidden rounded-3xl border border-cda-dourado/30 bg-cda-branco shadow-[0_10px_40px_-20px_rgba(91,26,43,0.35)]">
       {/* Faixa vinho — cabeçalho */}
-      <div className="relative bg-gradient-to-br from-cda-vinho-escuro via-cda-vinho to-cda-vinho-escuro px-6 py-6 sm:px-8 sm:py-7">
+      <div className="relative bg-gradient-to-br from-cda-vinho-escuro via-cda-vinho to-cda-vinho-escuro px-6 py-6 pr-40 sm:px-8 sm:py-7 sm:pr-56">
         <div className="flex items-start gap-4">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cda-dourado/15 ring-1 ring-cda-dourado/40">
             <Cake className="h-6 w-6 text-cda-dourado" />
@@ -81,10 +81,18 @@ export function AniversariantesPremiumCard({
         </div>
         {/* Detalhe decorativo dourado canto direito */}
         <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-cda-dourado/10 blur-2xl" />
-        <div className="pointer-events-none absolute right-6 top-3 hidden text-cda-dourado/30 sm:block">
-          <Gift className="h-16 w-16" strokeWidth={1.2} />
-        </div>
+        {/* Ilustração decorativa — caixa de presente + macaron + flores */}
+        <img
+          src={decorImg}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          width={1024}
+          height={1024}
+          className="pointer-events-none absolute -right-2 -top-2 z-10 h-40 w-auto select-none sm:-right-4 sm:h-52 lg:h-56"
+        />
       </div>
+
 
       {/* Conteúdo */}
       <div className="grid gap-6 px-6 py-6 sm:px-8 lg:grid-cols-[1fr_240px]">
