@@ -36,6 +36,7 @@ import { useModuleHelp } from "@/hooks/useModuleHelp";
 import { HelpButton } from "@/components/help/HelpButton";
 import { ModuleHelpDrawer } from "@/components/help/ModuleHelpDrawer";
 import { encomendaHelp } from "@/components/help/contents/encomendaHelp";
+import { EncomendaStatusCard } from "@/components/encomendas/EncomendaStatusCard";
 
 
 import { supabase } from "@/integrations/supabase/client";
