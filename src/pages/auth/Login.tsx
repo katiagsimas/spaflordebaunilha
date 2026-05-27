@@ -114,7 +114,7 @@ export default function Login() {
             {/* Brand header */}
             <div className="text-center">
               <img
-                src="/src/assets/caixa-acucar-logo-full.png"
+                src={caixaAcucarLogoFull}
                 alt="Caixa de Açúcar — by Umbrella Doce"
                 className="mx-auto w-full max-w-sm h-auto"
               />
