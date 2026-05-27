@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PanelLeftClose, PanelLeftOpen, Database, LogOut, RefreshCw } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
