@@ -807,6 +807,15 @@ export default function SeusDados() {
           );
         })()}
       </form>
+
+      <button
+        type="button"
+        onClick={() => navigate(-1)}
+        aria-label="Voltar"
+        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-[#5B1A2B] hover:bg-[#3D0F1C] text-white shadow-lg flex items-center justify-center transition"
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </button>
     </div>
   );
 }
