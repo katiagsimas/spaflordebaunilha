@@ -1,48 +1,40 @@
 import { ReactNode } from "react";
-import { useUserProfile } from "@/hooks/useUserProfile";
 
 interface PageHeaderProps {
   title: string;
   description?: string;
   actions?: ReactNode;
+  /** mantido por compatibilidade — não é mais utilizado visualmente */
   showGreeting?: boolean;
   backButton?: ReactNode;
 }
 
-export function PageHeader({ title, description, actions, showGreeting = false, backButton }: PageHeaderProps) {
-  const { profile } = useUserProfile();
-  const nomeNegocio = profile?.nome_confeitaria || "";
-  
-  const getCurrentDate = () => {
-    const options: Intl.DateTimeFormatOptions = { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    };
-    return new Date().toLocaleDateString('pt-BR', options);
-  };
-
+/**
+ * Header padrão do sistema, seguindo a linguagem do Dashboard:
+ * - Título em font-display, cor cda-vinho-escuro
+ * - Fio dourado decorativo + subtítulo italic em cda-vinho/70
+ * - Slot opcional para ações à direita
+ */
+export function PageHeader({ title, description, actions, backButton }: PageHeaderProps) {
   return (
-    <div className="bg-card border-b border-border shadow-soft px-8 py-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex-1">
-          {showGreeting && nomeNegocio && (
-            <div className="mb-2">
-              <h2 className="text-lg font-semibold text-foreground">Olá, {nomeNegocio}! 👋</h2>
-              <p className="text-sm text-muted-foreground">{getCurrentDate()}</p>
+    <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <div className="flex items-start gap-3">
+        {backButton}
+        <div className="flex flex-col items-start">
+          <h1 className="font-display text-3xl tracking-tight text-cda-vinho-escuro sm:text-4xl">
+            {title}
+          </h1>
+          {description && (
+            <div className="mt-2 flex items-center gap-3">
+              <span className="h-px w-12 bg-cda-dourado" />
+              <p className="text-sm font-body italic text-cda-vinho/70">
+                {description}
+              </p>
             </div>
           )}
-          <div className="flex items-center gap-3">
-            {backButton}
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">{title}</h1>
-              {description && <p className="text-muted-foreground mt-1">{description}</p>}
-            </div>
-          </div>
         </div>
-        {actions && <div className="flex gap-2">{actions}</div>}
       </div>
+      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>
   );
 }
