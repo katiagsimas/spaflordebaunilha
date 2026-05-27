@@ -1,16 +1,12 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Trophy, Rocket, Compass, Heart } from "lucide-react";
+import { Trophy, Rocket, Heart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-
-// URL do tour visual — será fornecida posteriormente pela usuária administradora.
-// Quando vazia, o botão exibe um aviso amigável.
-const TOUR_URL = "";
 
 export default function OnboardingConcluido() {
   const { user } = useAuth();
@@ -50,18 +46,6 @@ export default function OnboardingConcluido() {
     }
     await queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
     return true;
-  };
-
-  const handleTour = async () => {
-    const ok = await marcarConcluido();
-    if (!ok) return;
-    if (TOUR_URL) {
-      window.open(TOUR_URL, "_blank", "noopener,noreferrer");
-      navigate("/dashboard", { replace: true });
-    } else {
-      toast.info("O tour estará disponível em breve. Vamos para o seu painel!");
-      navigate("/dashboard", { replace: true });
-    }
   };
 
   const handleJornada = async () => {
@@ -110,24 +94,11 @@ export default function OnboardingConcluido() {
             </div>
 
             <p className="text-sm text-cda-preto/70 font-body">
-              Escolha como quer continuar:
+              Pronta para começar?
             </p>
 
-            {/* Botões finais */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={handleTour}
-                className="border-cda-vinho text-cda-vinho hover:bg-cda-vinho hover:text-cda-creme h-auto py-5 flex-col gap-1"
-              >
-                <div className="flex items-center gap-2">
-                  <Compass className="h-5 w-5" />
-                  <span className="font-semibold">Tour pelo Caixa de Açúcar</span>
-                </div>
-                <span className="text-xs font-normal opacity-80">Conheça cada módulo antes de começar</span>
-              </Button>
-
+            {/* Botão final — centralizado */}
+            <div className="flex justify-center w-full">
               <Button
                 size="lg"
                 onClick={handleJornada}
