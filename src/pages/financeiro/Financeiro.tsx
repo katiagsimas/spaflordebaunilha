@@ -698,5 +698,6 @@ export default function Financeiro() {
       </div>
       <ModuleHelpDrawer content={financeiroHelp} isOpen={isHelpOpen} onClose={closeHelp} />
     </div>
+
   );
 }
