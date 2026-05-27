@@ -13,7 +13,7 @@ import { Lock, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { validarSenhaForte } from '@/lib/validacaoSenha';
-import caixaAcucarIcon from '@/assets/caixa-acucar-icon.png';
+import caixaAcucarIcon from '@/assets/caixa-acucar-logo-full.png';
 import authBrandImage from '@/assets/auth-brand-image.png';
 
 const resetPasswordSchema = z.object({
@@ -156,16 +156,12 @@ export default function ResetPassword() {
     if (verifying || !hasToken) {
       return (
         <div className="w-full max-w-md relative z-10 space-y-8">
-          <div className="text-center space-y-3">
-            <div className="flex items-center justify-center gap-3">
-              <img src={caixaAcucarIcon} alt="Caixa de Açúcar" className="h-20 w-20" />
-              <h1 className="text-3xl font-display font-bold text-cda-creme tracking-tight">
-                Caixa de Açúcar
-              </h1>
-            </div>
-            <p className="text-sm font-body italic text-cda-dourado tracking-wider">
-              by Umbrella Doce
-            </p>
+          <div className="text-center">
+            <img
+              src={caixaAcucarIcon}
+              alt="Caixa de Açúcar — by Umbrella Doce"
+              className="mx-auto w-full max-w-sm h-auto"
+            />
           </div>
 
           <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">
@@ -180,16 +176,12 @@ export default function ResetPassword() {
     return (
       <div className="w-full max-w-md relative z-10 space-y-8">
         {/* Brand header */}
-        <div className="text-center space-y-3">
-          <div className="flex items-center justify-center gap-3">
-            <img src={caixaAcucarIcon} alt="Caixa de Açúcar" className="h-20 w-20" />
-            <h1 className="text-3xl font-display font-bold text-cda-creme tracking-tight">
-              Caixa de Açúcar
-            </h1>
-          </div>
-          <p className="text-sm font-body italic text-cda-dourado tracking-wider">
-            by Umbrella Doce
-          </p>
+        <div className="text-center">
+          <img
+            src={caixaAcucarIcon}
+            alt="Caixa de Açúcar — by Umbrella Doce"
+            className="mx-auto w-full max-w-sm h-auto"
+          />
         </div>
 
         <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">

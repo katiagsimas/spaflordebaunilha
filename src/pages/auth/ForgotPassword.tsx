@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Loader2, Mail } from 'lucide-react';
-import caixaAcucarIcon from '@/assets/caixa-acucar-icon.png';
+import caixaAcucarIcon from '@/assets/caixa-acucar-logo-full.png';
 import authBrandImage from '@/assets/auth-brand-image.png';
 import { BackButton } from '@/components/BackButton';
 
@@ -48,16 +48,12 @@ export default function ForgotPassword() {
       return (
         <div className="w-full max-w-md relative z-10 space-y-8">
           {/* Brand header */}
-          <div className="text-center space-y-3">
-            <div className="flex items-center justify-center gap-3">
-              <img src={caixaAcucarIcon} alt="Caixa de Açúcar" className="h-20 w-20" />
-              <h1 className="text-3xl font-display font-bold text-cda-creme tracking-tight">
-                Caixa de Açúcar
-              </h1>
-            </div>
-            <p className="text-sm font-body italic text-cda-dourado tracking-wider">
-              by Umbrella Doce
-            </p>
+          <div className="text-center">
+            <img
+              src={caixaAcucarIcon}
+              alt="Caixa de Açúcar — by Umbrella Doce"
+              className="mx-auto w-full max-w-sm h-auto"
+            />
           </div>
 
           <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">
@@ -95,16 +91,12 @@ export default function ForgotPassword() {
     return (
       <div className="w-full max-w-md relative z-10 space-y-8">
         {/* Brand header */}
-        <div className="text-center space-y-3">
-          <div className="flex items-center justify-center gap-3">
-            <img src={caixaAcucarIcon} alt="Caixa de Açúcar" className="h-20 w-20" />
-            <h1 className="text-3xl font-display font-bold text-cda-creme tracking-tight">
-              Caixa de Açúcar
-            </h1>
-          </div>
-          <p className="text-sm font-body italic text-cda-dourado tracking-wider">
-            by Umbrella Doce
-          </p>
+        <div className="text-center">
+          <img
+            src={caixaAcucarIcon}
+            alt="Caixa de Açúcar — by Umbrella Doce"
+            className="mx-auto w-full max-w-sm h-auto"
+          />
         </div>
 
         <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Loader2, Mail, Lock, Eye, EyeOff, ExternalLink } from 'lucide-react';
+import caixaAcucarLogoFull from '@/assets/caixa-acucar-logo-full.png';
 
 import { z } from 'zod';
 import { toast } from 'sonner';
@@ -111,16 +112,12 @@ export default function Login() {
 
           <div className="w-full max-w-md relative z-10 space-y-8">
             {/* Brand header */}
-            <div className="text-center space-y-3">
-              <div className="flex items-center justify-center gap-3">
-              <img src="/cda-logo-dourado.png" alt="Caixa de Açúcar" className="h-20 w-20" />
-                <h1 className="text-3xl font-display font-bold text-cda-creme tracking-tight">
-                  Caixa de Açúcar
-                </h1>
-              </div>
-              <p className="text-sm font-body italic text-cda-dourado tracking-wider">
-                by Umbrella Doce
-              </p>
+            <div className="text-center">
+              <img
+                src={caixaAcucarLogoFull}
+                alt="Caixa de Açúcar — by Umbrella Doce"
+                className="mx-auto w-full max-w-sm h-auto"
+              />
             </div>
 
             {/* Login card */}
