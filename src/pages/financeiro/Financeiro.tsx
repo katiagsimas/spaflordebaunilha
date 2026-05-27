@@ -71,6 +71,10 @@ import {
 
 import { useResumoDashboard } from '@/hooks/useResumoDashboard';
 import { TabelaInadimplencia } from '@/components/financeiro/TabelaInadimplencia';
+import { useModuleHelp } from '@/hooks/useModuleHelp';
+import { HelpButton } from '@/components/help/HelpButton';
+import { ModuleHelpDrawer } from '@/components/help/ModuleHelpDrawer';
+import { financeiroHelp } from '@/components/help/contents/financeiroHelp';
 
 export default function Financeiro() {
   const navigate = useNavigate();
@@ -103,6 +107,7 @@ export default function Financeiro() {
 
   // Estados do dashboard
   const { inadimplenciaClientes, inadimplenciaFornecedores } = useResumoDashboard();
+  const { isHelpOpen, toggleHelp, closeHelp } = useModuleHelp();
 
   useEffect(() => {
     fetchResumo();
@@ -340,11 +345,16 @@ export default function Financeiro() {
   const maxSaldo = Math.max(...bancosSaldos.map(b => b.saldo_atual || 0), 1);
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="flex h-full overflow-hidden">
+      <div className="flex-1 min-w-0 overflow-auto container mx-auto p-6 space-y-6">
+      <div className="flex justify-end">
+        <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} />
+      </div>
       <PageHeader
         title="Meu Dinheiro"
         description="Controle total do que entra, sai e vira lucro."
       />
+
 
       {/* Cards de Navegação — linguagem TileCard */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -700,6 +710,8 @@ export default function Financeiro() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
+      <ModuleHelpDrawer content={financeiroHelp} isOpen={isHelpOpen} onClose={closeHelp} />
     </div>
   );
 }
