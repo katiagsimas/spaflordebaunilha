@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { formatDateToISO } from "@/lib/dateUtils";
+import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -469,39 +470,26 @@ export default function DRE() {
 
   return (
     <div className="container mx-auto p-6 space-y-6 no-print">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/financeiro")}
-          >
+      <PageHeader
+        title="Demonstrativo de Resultado"
+        description="DRE — análise completa do exercício."
+        backButton={
+          <Button variant="ghost" size="icon" onClick={() => navigate("/financeiro")}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          
-          <div>
-            <div className="flex items-center gap-2">
-              <FileText className="h-6 w-6 text-primary" />
-              <h1 className="text-3xl font-bold">Demonstrativo de Resultado</h1>
-            </div>
-            <p className="text-muted-foreground mt-1">
-              DRE - Análise completa do exercício
-            </p>
+        }
+        actions={
+          <div className="flex gap-2">
+            <Button onClick={imprimir} variant="outline">
+              <Printer className="mr-2 h-4 w-4" /> Imprimir
+            </Button>
+            <Button onClick={exportarExcel} className="bg-cda-vinho hover:bg-cda-vinho-escuro text-white">
+              <Download className="mr-2 h-4 w-4" /> Exportar
+            </Button>
           </div>
-        </div>
+        }
+      />
 
-        <div className="flex gap-2">
-          <Button onClick={imprimir} variant="outline">
-            <Printer className="mr-2 h-4 w-4" />
-            Imprimir
-          </Button>
-          <Button onClick={exportarExcel}>
-            <Download className="mr-2 h-4 w-4" />
-            Exportar
-          </Button>
-        </div>
-      </div>
 
       {/* Filtro de Ano */}
       <Card>
