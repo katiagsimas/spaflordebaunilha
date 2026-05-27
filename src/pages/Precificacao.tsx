@@ -21,6 +21,7 @@ import {
 } from "recharts";
 
 import heroBanner from "@/assets/cardapio-hero-banner.jpg";
+import { HeroBanner } from "@/components/HeroBanner";
 import iconIngredientes from "@/assets/cardapio-icon-ingredientes.png";
 import iconEmbalagens from "@/assets/cardapio-icon-embalagens.png";
 import iconPrePreparos from "@/assets/cardapio-icon-prepreparos.png";
