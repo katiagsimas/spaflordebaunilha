@@ -1700,22 +1700,24 @@ const Encomendas = () => {
       <ModuleHelpDrawer content={encomendaHelp} isOpen={isHelpOpen} onClose={closeHelp} />
 
       {/* ===== BOTÕES FLUTUANTES ===== */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 sm:bottom-6 sm:right-6">
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           aria-label="Voltar ao topo"
-          className="flex h-11 w-11 items-center justify-center rounded-full bg-[#C9A14A] text-white shadow-lg transition hover:bg-[#b58c39]"
+          title="Voltar ao topo"
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-cda-dourado text-cda-preto shadow-[0_8px_24px_-8px_rgba(201,161,74,0.6)] ring-1 ring-cda-dourado/60 transition hover:scale-105 hover:bg-[#b58c39] active:scale-95"
         >
-          <ArrowUp className="h-5 w-5" />
+          <ArrowUp className="h-5 w-5" strokeWidth={2.5} />
         </button>
         <button
           type="button"
           onClick={() => navigate(-1)}
           aria-label="Voltar"
-          className="flex h-11 w-11 items-center justify-center rounded-full bg-[#5B1A2B] text-white shadow-lg transition hover:bg-[#3D0F1C]"
+          title="Voltar"
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-cda-vinho text-cda-creme shadow-[0_8px_24px_-8px_rgba(91,26,43,0.6)] ring-1 ring-cda-vinho-escuro/60 transition hover:scale-105 hover:bg-cda-vinho-escuro active:scale-95"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="h-5 w-5" strokeWidth={2.5} />
         </button>
       </div>
     </div>
