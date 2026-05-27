@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Loader2, Mail, Lock, Eye, EyeOff, ExternalLink } from 'lucide-react';
+import caixaAcucarLogoFull from '@/assets/caixa-acucar-logo-full.png';
 
 import { z } from 'zod';
 import { toast } from 'sonner';
