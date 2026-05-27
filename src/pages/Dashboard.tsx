@@ -1021,35 +1021,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ===== ENCOMENDAS CONFIRMADAS (card largo) ===== */}
-      <button
-        type="button"
-        onClick={() => navigate("/encomendas")}
-        className="group relative block w-full overflow-hidden rounded-2xl border-l-[6px] border-cda-vinho bg-cda-branco text-left shadow-[0_4px_24px_-12px_rgba(91,26,43,0.18)] ring-1 ring-cda-dourado/20 transition hover:shadow-[0_8px_30px_-12px_rgba(91,26,43,0.28)]"
-      >
-        <img
-          src={illuCalendarioRosa}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute right-0 top-0 h-full w-auto max-w-[40%] object-contain object-right opacity-40"
-        />
-        <div className="relative flex items-center gap-5 px-6 py-6">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-cda-vinho/10 ring-1 ring-cda-dourado/40">
-            <CalendarIcon className="h-7 w-7 text-cda-vinho" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="font-display text-base text-cda-vinho-escuro sm:text-lg">
-              Encomendas Confirmadas <span className="text-cda-vinho/60">·</span> <span className="text-cda-vinho/70">{meses[mesSelecionado].slice(0, 3)}</span>
-            </p>
-            <p className="mt-1 font-display text-4xl leading-none text-cda-vinho sm:text-5xl">
-              {contadores.encomendasConfirmadas}
-            </p>
-            <p className="mt-2 text-xs font-body text-cda-vinho/60 sm:text-sm">
-              Quantidade de vendas feitas no período
-            </p>
-          </div>
-        </div>
-      </button>
 
       {/* ===== 3 CARDS: SALDO / A RECEBER / A PAGAR ===== */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
