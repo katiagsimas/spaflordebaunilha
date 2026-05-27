@@ -189,14 +189,13 @@ export default function Login() {
                   )}
                 </CardFooter>
               </form>
-            </Card>
+          </Card>
 
-            <p className="text-center text-xs font-body text-cda-creme/40">
-              Sistema de gestão para confeitarias
-            </p>
-          </div>
+          <p className="text-center text-xs font-body text-cda-creme/70 drop-shadow">
+            Sistema de gestão para confeitarias
+          </p>
         </div>
-      </div>
+      </AuthLayout>
     </>
   );
 }
