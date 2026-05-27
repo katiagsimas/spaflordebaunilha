@@ -122,31 +122,12 @@ export default function Precificacao() {
 
   return (
     <div className="space-y-6 pb-20">
-      {/* Header */}
-      <div>
-        <h1
-          className="text-[36px] leading-tight font-normal text-[#3D0F1C]"
-          style={{ fontFamily: '"Playfair Display", serif' }}
-        >
-          Cardápio
-        </h1>
-        <div className="flex items-center gap-3 mt-1">
-          <span className="inline-block w-10 h-[1.5px] bg-[#C9A14A]" />
-          <span className="italic text-[15px] text-[#C9A14A]">Gerencie seus Produtos</span>
-        </div>
-      </div>
-
-      {/* Hero banner */}
-      <div
-        className="w-full rounded-xl overflow-hidden bg-[#FDF6EE]"
-        style={{ height: 130 }}
-      >
-        <img
-          src={heroBanner}
-          alt="Cardápio"
-          className="w-full h-full object-cover"
-        />
-      </div>
+      {/* Hero banner padronizado */}
+      <HeroBanner
+        image={heroBanner}
+        title="Cardápio"
+        subtitle="Gerencie seus Produtos"
+      />
 
       {/* Cards de navegação */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
