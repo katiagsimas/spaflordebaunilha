@@ -56,7 +56,6 @@ export function ClearCacheButton() {
 
 export function SidebarToggleLabeled() {
   const { state, toggleSidebar, isMobile, openMobile } = useSidebar();
-  const [expanded, setExpanded] = useState(false);
   const open = isMobile ? openMobile : state === "expanded";
   const Icon = open ? PanelLeftClose : PanelLeftOpen;
   const label = open ? "Fechar Menu" : "Abrir Menu";
@@ -65,20 +64,11 @@ export function SidebarToggleLabeled() {
       <Tooltip>
         <TooltipTrigger asChild>
           <button
-            onClick={() => {
-              if (expanded) {
-                toggleSidebar();
-                setExpanded(false);
-              } else {
-                setExpanded(true);
-              }
-            }}
-            onBlur={() => setExpanded(false)}
-            className={`flex items-center gap-2 h-9 rounded-full bg-cda-creme/10 hover:bg-cda-creme/20 text-cda-creme ring-1 ring-cda-creme/20 transition-all font-body text-xs ${expanded ? 'px-3' : 'px-2'}`}
+            onClick={toggleSidebar}
+            className="flex items-center gap-2 h-9 rounded-full px-2 bg-cda-creme/10 hover:bg-cda-creme/20 text-cda-creme ring-1 ring-cda-creme/20 transition-all font-body text-xs"
             aria-label={label}
           >
             <Icon className="h-4 w-4" />
-            {expanded && <span className="whitespace-nowrap">{label}</span>}
           </button>
         </TooltipTrigger>
         <TooltipContent side="bottom" className="bg-cda-preto text-cda-creme border-cda-dourado/40">
