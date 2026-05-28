@@ -634,15 +634,15 @@ export default function Embalagens() {
             className="pl-10"
           />
         </div>
-        <Button variant="outline" onClick={handleExportarExcel}>
-          <Download className="mr-2 h-4 w-4" />
-          Exportar Excel
-        </Button>
       </div>
-      <div className="flex justify-start">
+      <div className="flex justify-between">
         <Button onClick={() => handleAbrirModal()}>
           <Plus className="mr-2 h-4 w-4" />
           Nova Embalagem
+        </Button>
+        <Button variant="outline" onClick={handleExportarExcel}>
+          <Download className="mr-2 h-4 w-4" />
+          Exportar Excel
         </Button>
       </div>
 
