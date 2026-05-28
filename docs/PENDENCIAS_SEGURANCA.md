@@ -1,7 +1,7 @@
 # 🔒 PENDÊNCIAS DE SEGURANÇA — CAIXA DE AÇÚCAR
 
 > Itens que dependem de ação externa ou decisão do time para serem resolvidos.
-> Última atualização: 2026-05-26T03:00:00Z
+> Última atualização: 2026-05-28T23:20:00Z
 
 ---
 
