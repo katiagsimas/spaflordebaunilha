@@ -23,7 +23,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Info, Search, Download, Filter } from 'lucide-react';
+import { Info, Search, Download, Filter, ArrowRight } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { BackButton } from '@/components/BackButton';
 import * as XLSX from '@/lib/xlsxShim';
@@ -40,6 +40,7 @@ interface Categoria {
 }
 
 export default function CategoriasPlanoContas() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
