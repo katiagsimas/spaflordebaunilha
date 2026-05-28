@@ -1232,6 +1232,8 @@ export default function Dashboard() {
         icon={TrendingUp}
         title="Visão econômica"
         subtitle="Faturamento, custos e lucro do período"
+        hideIcon
+        centerTitle
         headerRight={
           <div className="inline-flex rounded-full bg-cda-vinho-escuro/40 p-1 ring-1 ring-cda-dourado/40">
             {(["mensal", "anual"] as const).map((tab) => (
