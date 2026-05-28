@@ -692,9 +692,9 @@ export default function Bancos() {
 
             {/* Alerta de banco não oficial */}
             {mostrarAlertaCustomizado && !codigoOficialEncontrado && (
-              <Alert className="bg-yellow-50 border-yellow-200 dark:bg-yellow-950">
-                <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-                <AlertDescription className="text-yellow-800 dark:text-yellow-200">
+              <Alert className="bg-cda-creme border-2 border-cda-dourado">
+                <AlertCircle className="h-4 w-4 text-cda-coral" />
+                <AlertDescription className="text-cda-preto">
                   <strong>Banco Inexistente:</strong> Este banco não consta na lista oficial BACEN.
                   Deseja cadastrar mesmo assim? Um código customizado será gerado automaticamente.
                 </AlertDescription>
