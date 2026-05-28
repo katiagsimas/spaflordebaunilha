@@ -68,6 +68,22 @@ export default function ClientesFornecedores() {
           imageAlt="Parceiros"
         />
 
+        {aniversariantesDoMes.length > 0 && (
+          <AniversariantesPremiumCard
+            itens={aniversariantesDoMes.map((item: any) => ({
+              id: item.id,
+              nome: item.nome,
+              data_aniversario: item.data_aniversario,
+              telefone: item.telefone,
+              legenda:
+                "tipo_aniversariante" in item && item.tipo_aniversariante === "familiar"
+                  ? `${item.parentesco ?? "Familiar"} de ${item.cliente_nome ?? ""}`.trim()
+                  : undefined,
+              onClick: () => navigate("/clientes"),
+            }))}
+          />
+        )}
+
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <TileCard
             icon={Users}
@@ -84,22 +100,6 @@ export default function ClientesFornecedores() {
             onClick={() => navigate("/fornecedores")}
           />
         </div>
-
-        {aniversariantesDoMes.length > 0 && (
-          <AniversariantesPremiumCard
-            itens={aniversariantesDoMes.map((item: any) => ({
-              id: item.id,
-              nome: item.nome,
-              data_aniversario: item.data_aniversario,
-              telefone: item.telefone,
-              legenda:
-                "tipo_aniversariante" in item && item.tipo_aniversariante === "familiar"
-                  ? `${item.parentesco ?? "Familiar"} de ${item.cliente_nome ?? ""}`.trim()
-                  : undefined,
-              onClick: () => navigate("/clientes"),
-            }))}
-          />
-        )}
       </div>
     </div>
   );
