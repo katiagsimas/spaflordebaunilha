@@ -481,7 +481,7 @@ export default function PlanoContas() {
             onClick={() => navigate('/financeiro/cadastros/categorias-plano-contas')}
             className="gap-2 text-muted-foreground hover:text-foreground font-body"
           >
-            <ArrowRight className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4" />
             Categorias Planos de Contas
           </Button>
           <Button
