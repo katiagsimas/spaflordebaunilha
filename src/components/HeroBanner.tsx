@@ -1,10 +1,11 @@
 interface HeroBannerProps {
-  /** Imported image asset (top decorative). */
-  image: string;
+  /** Imported image asset (top decorative). Pass undefined to hide image. */
+  image?: string;
   title: string;
   subtitle?: string;
   imageAlt?: string;
 }
+
 
 /**
  * Hero banner padronizado — layout vertical com imagem no topo.
@@ -33,12 +34,15 @@ export function HeroBanner({ image, title, subtitle, imageAlt = "" }: HeroBanner
             </div>
           )}
         </div>
-        <img
-          src={image}
-          alt={imageAlt}
-          aria-hidden={imageAlt ? undefined : "true"}
-          className="pointer-events-none mt-4 h-24 w-auto self-center object-contain sm:mt-5 sm:h-32 lg:h-40"
-        />
+        {image && (
+          <img
+            src={image}
+            alt={imageAlt}
+            aria-hidden={imageAlt ? undefined : "true"}
+            className="pointer-events-none mt-4 h-24 w-auto self-center object-contain sm:mt-5 sm:h-32 lg:h-40"
+          />
+        )}
+
       </div>
 
     </div>
