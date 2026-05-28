@@ -137,7 +137,7 @@ export default function Precificacao() {
           <button
             key={card.url}
             onClick={() => navigate(card.url)}
-            className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5 text-left cursor-pointer transition-all duration-200 hover:border-[#C9A14A]/50 hover:shadow-md flex items-center gap-3"
+            className="bg-white border-2 border-[#C9A14A]/60 rounded-xl p-5 text-left cursor-pointer transition-all duration-200 hover:border-[#C9A14A] hover:shadow-md flex items-center gap-3"
           >
             <img
               src={card.icon}
