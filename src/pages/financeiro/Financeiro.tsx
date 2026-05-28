@@ -82,7 +82,7 @@ import { useModuleHelp } from '@/hooks/useModuleHelp';
 import { HelpButton } from '@/components/help/HelpButton';
 import { ModuleHelpDrawer } from '@/components/help/ModuleHelpDrawer';
 import { financeiroHelp } from '@/components/help/contents/financeiroHelp';
-import dinheiroHero from '@/assets/dinheiro-hero-banner.jpg';
+import dinheiroHero from '@/assets/dinheiro-hero-banner.png';
 import { HeroBanner } from '@/components/HeroBanner';
 
 export default function Financeiro() {
@@ -366,14 +366,32 @@ export default function Financeiro() {
     <div className="flex h-full overflow-hidden bg-[#FFF9F5]">
       <div className="flex-1 min-w-0 overflow-auto">
         <div className="container mx-auto p-6 space-y-6 pb-24">
-          {/* HERO BANNER padronizado */}
-          <HeroBanner
-            image={dinheiroHero}
-            title="Meu Dinheiro"
-            subtitle="Controle total do que entra, sai e vira lucro."
-            imageAlt="Meu Dinheiro"
-            bgColor="#F0E8E0"
-          />
+          {/* ===== HEADER PREMIUM ===== */}
+          <div
+            className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
+            style={{ background: "#F0E8E0" }}
+          >
+            <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
+              <div className="flex-1 min-w-0">
+                <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
+                  Meu Dinheiro
+                </h1>
+                <div className="mt-2 flex items-center gap-3">
+                  <span className="h-px w-8 bg-[#C9A14A] sm:w-10" />
+                  <p className="text-xs italic text-[#C9A14A] sm:text-sm">
+                    Controle total do que entra, sai e vira lucro.
+                  </p>
+                </div>
+              </div>
+              <img
+                src={dinheiroHero}
+                alt=""
+                aria-hidden="true"
+                className="pointer-events-none h-20 w-auto shrink-0 object-contain object-right sm:h-28 lg:h-[150px]"
+              />
+            </div>
+          </div>
+
 
           {/* Botão de ajuda padronizado: canto esquerdo, abaixo do header */}
           <div className="flex justify-start">
