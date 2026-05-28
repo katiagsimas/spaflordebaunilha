@@ -1120,12 +1120,14 @@ export default function Dashboard() {
         <div className="relative overflow-hidden rounded-2xl bg-cda-pink/15 shadow-[0_4px_24px_-12px_rgba(91,26,43,0.15)] ring-1 ring-cda-dourado/20">
           <div className="relative flex items-start justify-between px-6 pt-5">
             <div className="flex items-center gap-3">
-              <img
-                src={iconCalendarioEntregas}
-                alt=""
-                aria-hidden="true"
-                className="h-12 w-12 object-contain"
-              />
+              <div className="relative h-12 w-12 shrink-0">
+                <img
+                  src={iconCalendarioEntregas}
+                  alt=""
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-1/2 top-1/2 h-[4.5rem] w-[4.5rem] -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_4px_8px_rgba(91,26,43,0.18)]"
+                />
+              </div>
               <h3 className="font-display text-xl text-cda-vinho-escuro sm:text-2xl">
                 Próximas Entregas
               </h3>
