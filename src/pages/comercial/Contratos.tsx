@@ -222,7 +222,7 @@ export default function Contratos() {
         }
       />
 
-      <div className="px-6 pb-2">
+      <div className="px-6 pb-2 pt-4">
         <Button className="bg-cda-vinho hover:bg-cda-vinho-escuro text-white" onClick={() => setView("select-template")}>
           <Plus className="h-4 w-4 mr-2" /> Novo contrato
         </Button>
