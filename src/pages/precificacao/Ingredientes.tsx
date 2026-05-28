@@ -575,6 +575,9 @@ export default function Ingredientes() {
               <Download className="mr-2 h-4 w-4" />
               Exportar Excel
             </Button>
+            <Button variant="outline" onClick={() => navigate('/precificacao/embalagens')}>
+              Embalagens
+            </Button>
             <Button onClick={() => handleAbrirModal()}>
               <Plus className="mr-2 h-4 w-4" />
               Novo Ingrediente
