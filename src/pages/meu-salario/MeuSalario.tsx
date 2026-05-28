@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VisaoGeral } from "./VisaoGeral";
 import { Retiradas } from "./Retiradas";
 import { Educativo } from "./Educativo";
-import { Sparkles, CalendarDays, Settings2, ChevronLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import heroSide from "@/assets/meu-salario-hero-side.png";
 
 export default function MeuSalario() {
