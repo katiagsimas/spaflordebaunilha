@@ -2,7 +2,7 @@ import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, Copy, AlertTriangle, Loader2, CookingPot, FileDown, ArrowRight } from "lucide-react";
+import { Plus, Pencil, Trash2, Copy, AlertTriangle, Loader2, CookingPot, FileDown, ArrowLeft } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -100,8 +100,8 @@ export default function Receitas() {
             onClick={() => navigate("/precificacao/pre-preparos")}
             className="gap-2 text-muted-foreground hover:text-foreground font-body"
           >
+            <ArrowLeft className="h-4 w-4" />
             Pré-Preparos
-            <ArrowRight className="h-4 w-4" />
           </Button>
         }
       />
