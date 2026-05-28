@@ -84,22 +84,23 @@ export default function ClientesFornecedores() {
           />
         )}
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <TileCard
-            icon={Users}
-            title="Clientes"
-            description="Cadastro completo, contatos e familiares de quem encomenda com você."
-            tone="vinho"
-            onClick={() => navigate("/clientes")}
-          />
-          <TileCard
-            icon={Truck}
-            title="Fornecedores"
-            description="Parcerias de insumos, embalagens e serviços que abastecem o seu ateliê."
-            tone="dourado"
-            onClick={() => navigate("/fornecedores")}
-          />
+        <div className="grid w-full grid-cols-1 sm:grid-cols-2 gap-3">
+          {[
+            { l: "Clientes", Icon: Users, path: "/clientes" },
+            { l: "Fornecedores", Icon: Truck, path: "/fornecedores" },
+          ].map(({ l, Icon, path }) => (
+            <button
+              key={l}
+              type="button"
+              onClick={() => navigate(path)}
+              className="flex items-center justify-center rounded-lg px-4 py-3 text-sm bg-white border border-[#5B1A2B]/15 text-[#3D0F1C]/70 hover:border-[#C9A14A] hover:bg-[#C9A14A] hover:text-[#3D0F1C] hover:font-bold transition-all"
+            >
+              <Icon className="h-4 w-4 mr-2" />
+              <span>{l}</span>
+            </button>
+          ))}
         </div>
+
       </div>
     </div>
   );
