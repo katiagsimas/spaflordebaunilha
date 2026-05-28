@@ -219,30 +219,32 @@ export default function CategoriasPlanoContas() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      {/* Navegação superior */}
+      <div className="flex items-center justify-between">
+        <BackButton to="/financeiro/cadastros" />
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/financeiro/cadastros/tipos-documentos')}
+            className="gap-2 text-muted-foreground hover:text-foreground font-body"
+          >
+            <ArrowRight className="h-4 w-4" />
+            Tipos de Documentos
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/financeiro/cadastros/plano-contas')}
+            className="gap-2 text-muted-foreground hover:text-foreground font-body"
+          >
+            Plano de Contas
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
       <PageHeader
         title="Categorias do Plano de Contas"
         description="Categorias para classificação de receitas e despesas no DRE"
-        backButton={<BackButton to="/financeiro/cadastros" />}
-        actions={
-          <>
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/financeiro/cadastros/tipos-documentos')}
-              className="gap-2 text-muted-foreground hover:text-foreground font-body"
-            >
-              <ArrowRight className="h-4 w-4" />
-              Tipos de Documentos
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/financeiro/cadastros/plano-contas')}
-              className="gap-2 text-muted-foreground hover:text-foreground font-body"
-            >
-              Plano de Contas
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </>
-        }
       />
 
       {/* Alertas */}
