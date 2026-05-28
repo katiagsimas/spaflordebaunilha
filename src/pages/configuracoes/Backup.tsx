@@ -516,7 +516,7 @@ export default function Backup() {
       </div>
 
       {/* LOCAL DE SALVAMENTO */}
-      <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5">
+      <div className="bg-white border border-cda-dourado/30 rounded-xl p-5">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div className="flex items-start gap-3 min-w-0">
             {pastaSalvamento ? (
@@ -569,7 +569,7 @@ export default function Backup() {
 
 
       {/* BACKUP MANUAL */}
-      <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5">
+      <div className="bg-white border border-cda-dourado/30 rounded-xl p-5">
         <div className="flex items-start justify-between gap-3 mb-4">
           <div className="flex items-start gap-3">
             <Download className="h-[18px] w-[18px] text-[#C9A14A] mt-0.5" />
@@ -649,7 +649,7 @@ export default function Backup() {
       {/* PAINEIS INFERIORES — Histórico recentes / KPIs / Espaço */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Histórico Recentes */}
-        <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5">
+        <div className="bg-white border border-cda-dourado/30 rounded-xl p-5">
           <h3 className="text-[15px] text-[#3D0F1C] mb-3" style={{ fontFamily: PLAYFAIR }}>
             Histórico de Backups Recentes
           </h3>
@@ -695,7 +695,7 @@ export default function Backup() {
         </div>
 
         {/* KPIs */}
-        <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5">
+        <div className="bg-white border border-cda-dourado/30 rounded-xl p-5">
           <div className="grid grid-cols-3 gap-2">
             {[
               { pct: pctSalvos, label: "Dados salvos" },
@@ -731,7 +731,7 @@ export default function Backup() {
         </div>
 
         {/* Espaço */}
-        <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5">
+        <div className="bg-white border border-cda-dourado/30 rounded-xl p-5">
           <h3 className="text-[15px] text-[#3D0F1C] mb-3" style={{ fontFamily: PLAYFAIR }}>
             Espaço
           </h3>
