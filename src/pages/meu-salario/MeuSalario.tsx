@@ -18,7 +18,7 @@ export default function MeuSalario() {
           className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
           style={{ background: "#F8F0E0" }}
         >
-          <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
+          <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6 pr-[150px] sm:pr-[200px] lg:pr-[260px] min-h-[130px] sm:min-h-[150px] lg:min-h-[170px]">
             <div className="flex-1 min-w-0">
               <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
                 Meu Salário
@@ -30,15 +30,14 @@ export default function MeuSalario() {
                 </p>
               </div>
             </div>
-            <img
-              src={heroSide}
-              alt=""
-              aria-hidden="true"
-              className="pointer-events-none h-20 w-auto shrink-0 object-contain object-right sm:h-28 lg:h-[150px]"
-            />
           </div>
+          <img
+            src={heroSide}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute bottom-0 right-0 h-[140px] w-auto object-contain object-bottom sm:h-[180px] lg:h-[220px]"
+          />
         </div>
-      </div>
 
       <Tabs value={tab} onValueChange={setTab} className="w-full">
         <TabsList className="bg-transparent p-0 h-auto gap-1 border-0">
