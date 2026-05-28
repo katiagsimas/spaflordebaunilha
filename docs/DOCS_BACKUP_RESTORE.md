@@ -169,3 +169,23 @@ mantém_no_cofre = (eh_mensal = true) OR (rank por criado_em desc <= 5)
 | Edge retorna `forbidden` em fluxo Cofre | Usuário não é MOTHER | Verificar `user_group_roles` |
 | Restauração parcial | Erro no meio do batch | Checar `admin_logs` + logs da Edge; rodar nova restauração |
 | Cofre vazio para um grupo | Nenhum backup bem-sucedido ainda foi espelhado | Rodar backup manual; verificar logs de `executar-backups-agendados` |
+
+---
+
+## Local de salvamento dos arquivos (2026-05-28)
+
+Implementado o seletor de **pasta local** para os arquivos `.json` de backup.
+
+- **UI:** `src/pages/configuracoes/Backup.tsx` — novo card "Local de salvamento" entre "Sobre os backups" e "Backup manual".
+- **Utilitário:** `src/lib/backupLocation.ts` — usa a **File System Access API**
+  (`window.showDirectoryPicker`) e persiste o `FileSystemDirectoryHandle` em
+  IndexedDB (`cda-backup-prefs/handles/backupFolder`). Nome amigável da pasta
+  fica em `localStorage` (`cda:backup:folderName`).
+- **Comportamento:**
+  - Se a usuária escolheu uma pasta → grava o arquivo direto nela via
+    `getFileHandle({ create: true })` + `createWritable()`.
+  - Caso a permissão tenha sido revogada, requisita novamente.
+  - Sem pasta configurada **ou** navegador sem suporte (Firefox/Safari) →
+    fallback para download tradicional (pasta Downloads do navegador).
+- **Aplicado em:** `realizarBackup()` e `downloadBackup()` (histórico).
+- **Sem impacto em RLS, Edge Functions ou SQL** — alteração 100% client-side.

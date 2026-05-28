@@ -28,6 +28,8 @@ import { RestaurarBackupDialog, type RestaurarBackupAlvo } from "@/components/ba
 import { ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell, Tooltip } from "recharts";
 import { PageHeader } from "@/components/PageHeader";
 import backupHeroImg from "@/assets/backup-hero-banner.png";
+import { backupLocation } from "@/lib/backupLocation";
+import { FolderOpen, FolderCheck } from "lucide-react";
 
 const MODULO_ICONS: Record<BackupModuloId, React.ComponentType<{ className?: string }>> = {
   operacao: UtensilsCrossed,
@@ -85,6 +87,11 @@ export default function Backup() {
   // Seleção de módulos para backup manual
   const [modulosManual, setModulosManual] = useState<BackupModuloId[]>(DEFAULT_MODULOS);
 
+  // Local de salvamento (pasta do computador) — opcional
+  const fsApiSupported = backupLocation.isSupported();
+  const [pastaSalvamento, setPastaSalvamento] = useState<string | null>(null);
+  const [escolhendoPasta, setEscolhendoPasta] = useState(false);
+
   // Agendamento persistido no banco
   const [agendamentoAtivo, setAgendamentoAtivo] = useState(false);
   const [frequencia, setFrequencia] = useState("semanal");
@@ -96,8 +103,34 @@ export default function Backup() {
   useEffect(() => {
     carregarBackups();
     carregarAgendamento();
+    setPastaSalvamento(backupLocation.getSavedFolderName());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  async function escolherPasta() {
+    if (!fsApiSupported) {
+      toast.info("Seu navegador não permite escolher pasta. Tente Chrome, Edge ou Brave.");
+      return;
+    }
+    setEscolhendoPasta(true);
+    try {
+      const res = await backupLocation.pickFolder();
+      if (res) {
+        setPastaSalvamento(res.name);
+        toast.success(`Backups serão salvos em "${res.name}"`);
+      }
+    } catch (err: any) {
+      toast.error("Não foi possível selecionar a pasta: " + (err?.message || ""));
+    } finally {
+      setEscolhendoPasta(false);
+    }
+  }
+
+  async function limparPasta() {
+    await backupLocation.clearFolder();
+    setPastaSalvamento(null);
+    toast.success("Backups voltarão para a pasta Downloads do navegador.");
+  }
 
   async function carregarAgendamento() {
     if (!user) return;
@@ -230,20 +263,16 @@ export default function Backup() {
         throw error;
       }
 
-      // Download imediato (o usuário pediu storage = "ambos")
+      // Salva localmente (na pasta escolhida ou em Downloads do navegador)
       const blob = new Blob([JSON.stringify(dados, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${nomeBackup}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const destino = await backupLocation.saveFile(`${nomeBackup}.json`, blob);
 
       await carregarBackups();
       queryClient.invalidateQueries({ queryKey: ['ultimo-backup'] });
-      toast.success(`Backup "${nomeBackup}" gerado, salvo na nuvem e baixado!`);
+      const ondeMsg = destino === "folder"
+        ? `salvo em "${backupLocation.getSavedFolderName()}"`
+        : "baixado para sua pasta de Downloads";
+      toast.success(`Backup "${nomeBackup}" gerado, na nuvem e ${ondeMsg}!`);
     } catch (err: any) {
       toast.error("Erro ao realizar backup: " + err.message);
     } finally {
@@ -276,14 +305,10 @@ export default function Backup() {
         return;
       }
       const blob = new Blob([JSON.stringify(dados, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${nome}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const destino = await backupLocation.saveFile(`${nome}.json`, blob);
+      if (destino === "folder") {
+        toast.success(`Backup salvo em "${backupLocation.getSavedFolderName()}"`);
+      }
     } catch {
       toast.error("Erro ao baixar backup.");
     }
@@ -490,6 +515,59 @@ export default function Backup() {
           <code className="font-mono text-[12px] bg-[#FDF6EE] px-2 py-0.5 rounded">{nomeBackupAtual}</code>
         </p>
       </div>
+
+      {/* LOCAL DE SALVAMENTO */}
+      <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5">
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <div className="flex items-start gap-3 min-w-0">
+            {pastaSalvamento ? (
+              <FolderCheck className="h-[18px] w-[18px] text-[#C9A14A] mt-0.5 shrink-0" />
+            ) : (
+              <FolderOpen className="h-[18px] w-[18px] text-[#C9A14A] mt-0.5 shrink-0" />
+            )}
+            <div className="min-w-0">
+              <h3 className="text-[15px] font-bold text-[#3D0F1C]">Local de salvamento</h3>
+              <p className="text-xs text-[#3D0F1C]/60 mt-0.5">
+                {pastaSalvamento ? (
+                  <>Os arquivos de backup serão salvos em{" "}
+                    <code className="font-mono text-[12px] bg-[#FDF6EE] px-2 py-0.5 rounded text-[#3D0F1C]">
+                      {pastaSalvamento}
+                    </code>
+                  </>
+                ) : fsApiSupported ? (
+                  <>Nenhuma pasta personalizada. Por padrão, os arquivos vão para a pasta <strong>Downloads</strong> do seu navegador.</>
+                ) : (
+                  <>Seu navegador não permite escolher pasta. Os arquivos vão para a pasta <strong>Downloads</strong> do navegador. Use Chrome, Edge ou Brave para escolher um local.</>
+                )}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {pastaSalvamento && (
+              <button
+                type="button"
+                onClick={limparPasta}
+                className="text-xs text-[#5B1A2B] hover:underline underline-offset-2 px-2 py-1"
+              >
+                Usar padrão
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={escolherPasta}
+              disabled={!fsApiSupported || escolhendoPasta}
+              className="inline-flex items-center gap-2 bg-[#5B1A2B] hover:bg-[#3D0F1C] disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-medium rounded-lg px-3 py-2 transition-colors"
+            >
+              {escolhendoPasta ? (
+                <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Abrindo...</>
+              ) : (
+                <><FolderOpen className="h-3.5 w-3.5" /> {pastaSalvamento ? "Alterar pasta" : "Escolher pasta"}</>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
 
       {/* BACKUP MANUAL */}
       <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5">
