@@ -92,7 +92,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
 ];
 
 export function AppSidebar() {
-  const { open } = useSidebar();
+  const { open, isMobile, setOpenMobile } = useSidebar();
   const { user } = useAuth();
   const { isMother, isGroupAdmin, sessionMode, activeGroup, activeRole } = useGroup();
   const { isAdmin } = useIsAdmin();
