@@ -376,6 +376,7 @@ export default function Financeiro() {
             title="Meu Dinheiro"
             subtitle="Controle total do que entra, sai e vira lucro."
             imageAlt="Meu Dinheiro"
+            bgColor="#F0E8E0"
           />
 
           {/* CARDS DE NAVEGAÇÃO 2x3 */}
