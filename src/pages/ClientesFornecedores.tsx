@@ -6,7 +6,8 @@ import { AniversariantesPremiumCard } from "@/components/AniversariantesPremiumC
 import { useClientes } from "@/hooks/useClientes";
 import { useFamiliares } from "@/hooks/useFamiliares";
 import { parseISOToDate } from "@/lib/dateUtils";
-import clientesFornecedoresHero from "@/assets/clientes-fornecedores-hero-banner.jpg";
+import clientesFornecedoresHero from "@/assets/clientes-fornecedores-hero-banner.png";
+import { HeroBanner } from "@/components/HeroBanner";
 
 export default function ClientesFornecedores() {
   const navigate = useNavigate();
@@ -59,30 +60,13 @@ export default function ClientesFornecedores() {
   return (
     <div className="min-h-screen bg-[#FFF9F5] pb-24">
       <div className="container mx-auto p-6 space-y-6">
-      <div
-        className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
-        style={{ background: "#F4E5D3" }}
-      >
-        <div className="flex flex-col items-start px-4 pt-4 pb-4 sm:px-6 sm:pt-6 sm:pb-6 lg:px-8 lg:pt-7 lg:pb-7">
-          <div className="text-left">
-            <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
-              Parceiros
-            </h1>
-            <div className="mt-2 flex items-center gap-3">
-              <span className="h-px w-8 bg-[#C9A14A] sm:w-10" />
-              <p className="text-xs italic text-[#C9A14A] sm:text-sm">
-                Cuide das pessoas que sustentam a sua confeitaria.
-              </p>
-            </div>
-          </div>
-          <img
-            src={clientesFornecedoresHero}
-            alt="Clientes e Fornecedores"
-            aria-hidden="true"
-            className="pointer-events-none mt-4 h-24 w-auto self-center object-contain sm:mt-5 sm:h-32 lg:h-40"
-          />
-        </div>
-      </div>
+        {/* HERO BANNER padronizado */}
+        <HeroBanner
+          image={clientesFornecedoresHero}
+          title="Parceiros"
+          subtitle="Cuide das pessoas que sustentam a sua confeitaria."
+          imageAlt="Parceiros"
+        />
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <TileCard
