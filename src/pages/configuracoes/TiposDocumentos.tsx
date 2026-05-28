@@ -330,33 +330,37 @@ export default function TiposDocumentos() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      {/* Navegação superior */}
+      <div className="flex items-center justify-between">
+        <BackButton to="/financeiro/cadastros" />
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/financeiro/cadastros/bancos')}
+            className="gap-2 text-muted-foreground hover:text-foreground font-body"
+          >
+            <ArrowRight className="h-4 w-4" />
+            Bancos
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/financeiro/cadastros/categorias-plano-contas')}
+            className="gap-2 text-muted-foreground hover:text-foreground font-body"
+          >
+            Categorias Planos de Contas
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
       <PageHeader
         title="Tipos de Documentos"
         description="Tipos de documentos para lançamentos financeiros"
-        backButton={<BackButton to="/financeiro/cadastros" />}
         actions={
-          <>
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/financeiro/cadastros/bancos')}
-              className="gap-2 text-muted-foreground hover:text-foreground font-body"
-            >
-              <ArrowRight className="h-4 w-4" />
-              Bancos
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/financeiro/cadastros/categorias-plano-contas')}
-              className="gap-2 text-muted-foreground hover:text-foreground font-body"
-            >
-              Categorias Planos de Contas
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-            <Button onClick={() => handleAbrirModal()}>
-              <Plus className="mr-2 h-4 w-4" />
-              Criar Novo Tipo
-            </Button>
-          </>
+          <Button onClick={() => handleAbrirModal()}>
+            <Plus className="mr-2 h-4 w-4" />
+            Criar Novo Tipo
+          </Button>
         }
       />
 
