@@ -472,30 +472,32 @@ export default function PlanoContas() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      {/* Navegação superior */}
+      <div className="flex items-center justify-between">
+        <BackButton to="/financeiro/cadastros" />
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/financeiro/cadastros/categorias-plano-contas')}
+            className="gap-2 text-muted-foreground hover:text-foreground font-body"
+          >
+            <ArrowRight className="h-4 w-4" />
+            Categorias Planos de Contas
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/financeiro/cadastros/juros')}
+            className="gap-2 text-muted-foreground hover:text-foreground font-body"
+          >
+            Juros
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
       <PageHeader
         title="Plano de Contas"
         description="Contas detalhadas para classificação de lançamentos financeiros"
-        backButton={<BackButton to="/financeiro/cadastros" />}
-        actions={
-          <>
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/financeiro/cadastros/categorias-plano-contas')}
-              className="gap-2 text-muted-foreground hover:text-foreground font-body"
-            >
-              <ArrowRight className="h-4 w-4" />
-              Categorias Planos de Contas
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/financeiro/cadastros/juros')}
-              className="gap-2 text-muted-foreground hover:text-foreground font-body"
-            >
-              Juros
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </>
-        }
       />
 
       {/* Alert */}
