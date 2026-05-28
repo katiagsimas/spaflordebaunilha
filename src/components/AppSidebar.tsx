@@ -258,6 +258,7 @@ export function AppSidebar() {
                                   e.preventDefault();
                                   setUpgradeModal({ title: item.title });
                                 }
+                                if (isMobile) setOpenMobile(false);
                               }}
                               className={({ isActive }) =>
                                 `relative flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
