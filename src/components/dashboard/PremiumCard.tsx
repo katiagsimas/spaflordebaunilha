@@ -8,6 +8,8 @@ interface PremiumCardProps {
   subtitle?: string;
   /** Imagem decorativa exibida no canto superior direito do header (PNG transparente). */
   headerOrnament?: string;
+  /** Imagem decorativa exibida no canto superior esquerdo do header (PNG transparente). */
+  headerOrnamentLeft?: string;
   /** Conteúdo principal renderizado no corpo creme. */
   children: ReactNode;
   /** Texto de nota no rodapé (ex.: "Pequenos gestos criam grandes lembranças."). */
@@ -33,6 +35,7 @@ export function PremiumCard({
   title,
   subtitle,
   headerOrnament,
+  headerOrnamentLeft,
   children,
   footerNote,
   footerNoteIcon,
@@ -59,6 +62,14 @@ export function PremiumCard({
             alt=""
             aria-hidden="true"
             className="pointer-events-none absolute right-0 top-0 h-full w-auto max-w-[45%] object-contain object-right opacity-95"
+          />
+        )}
+        {headerOrnamentLeft && (
+          <img
+            src={headerOrnamentLeft}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute left-0 top-0 h-full w-auto max-w-[22%] object-contain object-left opacity-95"
           />
         )}
         <div className={cn(
