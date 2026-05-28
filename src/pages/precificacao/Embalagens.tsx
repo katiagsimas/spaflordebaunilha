@@ -638,6 +638,12 @@ export default function Embalagens() {
           />
         </div>
       </div>
+      <div className="flex justify-start">
+        <Button onClick={() => handleAbrirModal()}>
+          <Plus className="mr-2 h-4 w-4" />
+          Nova Embalagem
+        </Button>
+      </div>
 
       {/* Tabela */}
       <div className="border rounded-lg">
