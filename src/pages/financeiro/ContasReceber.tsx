@@ -1037,16 +1037,7 @@ export default function ContasReceber() {
 
       {/* Card de Controles */}
       <div className="border rounded-lg p-4 space-y-4">
-        {/* Primeira linha: Botão Adicionar e Busca */}
-        <div className="flex items-center justify-between gap-4">
-          {/* Botão Adicionar */}
-          <Button onClick={() => navigate('/financeiro/contas-receber/nova')}>
-            <Plus className="mr-2 h-4 w-4" />
-            Adicionar Conta a Receber
-          </Button>
-        </div>
-
-        {/* Segunda linha: Contador e Cards de Visualização */}
+        {/* Controles */}
         <div className="flex items-center gap-4">
           {/* Resultados por Página - Esquerda */}
           <div className="flex items-center gap-2">
