@@ -131,17 +131,17 @@ export default function Login() {
 
             {/* Login card */}
             <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">
-              <CardHeader className="pb-2 pt-8">
-                <h2 className="text-xl font-display font-semibold text-cda-preto text-center">
-                  Bem-vinda de volta
-                </h2>
-                <p className="text-sm font-body text-muted-foreground text-center">
-                  Acesse sua conta para continuar
-                </p>
-              </CardHeader>
-
               <form onSubmit={handleSubmit}>
-                <CardContent className="space-y-4 px-8">
+                <CardHeader className="pb-2 pt-5">
+                  <h2 className="text-xl font-display font-semibold text-cda-preto text-center">
+                    Bem-vinda de volta
+                  </h2>
+                  <p className="text-sm font-body text-muted-foreground text-center">
+                    Acesse sua conta para continuar
+                  </p>
+                </CardHeader>
+
+                <CardContent className="space-y-3 px-8">
                   <div className="space-y-2">
                     <Label htmlFor="email" className="font-body text-sm font-medium text-cda-preto">Email</Label>
                     <div className="relative">
@@ -194,7 +194,7 @@ export default function Login() {
                   </div>
                 </CardContent>
 
-                <CardFooter className="flex flex-col space-y-4 px-8 pb-8">
+                <CardFooter className="flex flex-col space-y-3 px-8 pb-5">
                   <Button
                     type="submit"
                     className="w-full"
@@ -235,3 +235,4 @@ export default function Login() {
     </>
   );
 }
+
