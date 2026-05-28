@@ -366,10 +366,6 @@ export default function Financeiro() {
     <div className="flex h-full overflow-hidden bg-[#FFF9F5]">
       <div className="flex-1 min-w-0 overflow-auto">
         <div className="container mx-auto p-6 space-y-6 pb-24">
-          <div className="flex justify-end">
-            <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} />
-          </div>
-
           {/* HERO BANNER padronizado */}
           <HeroBanner
             image={dinheiroHero}
@@ -378,6 +374,12 @@ export default function Financeiro() {
             imageAlt="Meu Dinheiro"
             bgColor="#F0E8E0"
           />
+
+          {/* Botão de ajuda padronizado: canto esquerdo, abaixo do header */}
+          <div className="flex justify-start">
+            <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} />
+          </div>
+
 
           {/* CARDS DE NAVEGAÇÃO 2x3 */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
