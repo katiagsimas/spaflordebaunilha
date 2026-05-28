@@ -570,19 +570,42 @@ export default function Ingredientes() {
   const qtdDesatualizados = ingredientes.filter((i: any) => verificarDesatualizado(i.data_atualizacao)).length;
   if (loading) return <LoadingState message="Carregando Ingredientes" submessage="Buscando ingredientes cadastrados..." />;
   return <div className="space-y-6">
-      <PageHeader title="Ingredientes" description="Cadastre ingredientes com marca e preço para usar em receitas" backButton={<BackButton to="/precificacao" />} actions={<div className="flex gap-2">
-            <Button variant="outline" onClick={handleExportarExcel}>
-              <Download className="mr-2 h-4 w-4" />
-              Exportar Excel
-            </Button>
-            <Button variant="outline" onClick={() => navigate('/precificacao/embalagens')}>
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div className="flex items-start gap-3">
+          <BackButton to="/precificacao" />
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col items-start">
+              <h1 className="font-display text-3xl tracking-tight text-cda-vinho-escuro sm:text-4xl">
+                Ingredientes
+              </h1>
+              <div className="mt-2 flex items-center gap-3">
+                <span className="h-px w-12 bg-cda-dourado" />
+                <p className="text-sm font-body italic text-cda-vinho/70">
+                  Cadastre ingredientes com marca e preço para usar em receitas
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/precificacao/embalagens')}
+              className="gap-2 text-muted-foreground hover:text-foreground font-body"
+            >
               Embalagens
+              <ArrowRight className="h-4 w-4" />
             </Button>
-            <Button onClick={() => handleAbrirModal()}>
-              <Plus className="mr-2 h-4 w-4" />
-              Novo Ingrediente
-            </Button>
-          </div>} />
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" onClick={handleExportarExcel}>
+            <Download className="mr-2 h-4 w-4" />
+            Exportar Excel
+          </Button>
+          <Button onClick={() => handleAbrirModal()}>
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Ingrediente
+          </Button>
+        </div>
+      </div>
 
       {/* Alertas */}
       <div className="grid gap-4 md:grid-cols-2">
