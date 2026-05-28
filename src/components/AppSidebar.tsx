@@ -67,8 +67,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
     label: "MEU COMERCIAL",
     items: [
       { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: Users, active: true },
-      { title: "Propostas", url: "/comercial/propostas", icon: FileSignature, active: true },
-      { title: "Contratos", url: "/comercial/contratos", icon: ScrollText, active: true },
+      { title: "Negociações", url: "/comercial/negociacoes", icon: FileSignature, active: true },
       { title: "Pedidos e Encomendas", url: "/encomendas", icon: ClipboardList, active: true },
     ],
   },
