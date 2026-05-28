@@ -387,7 +387,7 @@ export default function Financeiro() {
                 src={dinheiroHero}
                 alt=""
                 aria-hidden="true"
-                className="pointer-events-none h-20 w-auto shrink-0 object-contain object-right sm:h-28 lg:h-[150px]"
+                className="pointer-events-none h-[136px] w-auto shrink-0 object-contain object-right sm:h-[190px] lg:h-[255px]"
               />
             </div>
           </div>
