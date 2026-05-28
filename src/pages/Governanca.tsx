@@ -59,7 +59,7 @@ export default function Governanca() {
         <div className="grid gap-4 sm:grid-cols-2 max-w-4xl">
           {cards.map(({ title, description, icon: Icon, url }) => (
             <Link key={url} to={url} className="group">
-              <Card className="h-full transition-all duration-200 hover:shadow-lg hover:border-cda-dourado/60 cursor-pointer">
+              <Card className="h-full transition-all duration-200 hover:shadow-lg border-cda-dourado/40 hover:border-cda-dourado/60 cursor-pointer">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
