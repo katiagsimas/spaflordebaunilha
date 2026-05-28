@@ -356,12 +356,6 @@ export default function TiposDocumentos() {
       <PageHeader
         title="Tipos de Documentos"
         description="Tipos de documentos para lançamentos financeiros"
-        actions={
-          <Button onClick={() => handleAbrirModal()}>
-            <Plus className="mr-2 h-4 w-4" />
-            Criar Novo Tipo
-          </Button>
-        }
       />
 
       {/* Alert */}
