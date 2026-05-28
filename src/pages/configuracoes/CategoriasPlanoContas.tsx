@@ -23,7 +23,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Info, Search, Download, Filter, ArrowRight } from 'lucide-react';
+import { Info, Search, Download, Filter, ArrowRight, ArrowLeft } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { BackButton } from '@/components/BackButton';
 import * as XLSX from '@/lib/xlsxShim';
@@ -228,7 +228,7 @@ export default function CategoriasPlanoContas() {
             onClick={() => navigate('/financeiro/cadastros/tipos-documentos')}
             className="gap-2 text-muted-foreground hover:text-foreground font-body"
           >
-            <ArrowRight className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4" />
             Tipos de Documentos
           </Button>
           <Button
