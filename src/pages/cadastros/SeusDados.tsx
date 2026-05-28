@@ -29,7 +29,7 @@ import {
   Clock,
   ChevronLeft,
 } from "lucide-react";
-import meusDadosFooter from "@/assets/meus-dados-footer.png";
+import meusDadosFooter from "@/assets/meus-dados-hero-banner.png";
 import { HeroBanner } from "@/components/HeroBanner";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
