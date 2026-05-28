@@ -1608,27 +1608,47 @@ const Encomendas = () => {
       </div>
 
 
-      {/* ===== ACESSO: CALENDÁRIOS DE ENCOMENDAS ===== */}
-      <section className="flex justify-center">
-        <button
-          type="button"
-          onClick={() => navigate('/encomendas/calendarios')}
-          aria-label="Abrir Calendários de Encomendas"
-          className="group flex flex-col items-center gap-2 rounded-2xl bg-transparent p-3 transition hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5B1A2B]/40"
-        >
-          <img
-            src={calendarioEncomendasIcon}
-            alt="Calendários de Encomendas"
-            className="h-40 w-40 object-contain drop-shadow-sm md:h-48 md:w-48"
-          />
-          <span className="text-sm font-semibold text-[#3D0F1C] group-hover:text-[#5B1A2B]">
-            Calendários de Encomendas
-          </span>
-        </button>
-      </section>
+      {/* ===== CARDS LADO A LADO: ENCOMENDAS DO DIA + CALENDÁRIOS ===== */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        {/* Encomendas do Dia - Esquerda */}
+        <EncomendasDoDia onNovaEncomenda={() => setDialogOpen(true)} />
 
-      {/* ===== ENCOMENDAS DO DIA ===== */}
-      <EncomendasDoDia onNovaEncomenda={() => setDialogOpen(true)} />
+        {/* Calendários de Encomendas - Direita */}
+        <Card className="overflow-hidden border-cda-dourado/30 bg-cda-creme/40 shadow-[0_8px_30px_-18px_rgba(91,26,43,0.3)]">
+          <CardHeader className="border-b border-cda-dourado/15 bg-cda-branco/60 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cda-vinho text-cda-dourado ring-1 ring-cda-dourado/40">
+                <CalendarDays className="h-5 w-5" />
+              </div>
+              <div>
+                <CardTitle className="font-display text-xl tracking-tight text-cda-vinho-escuro sm:text-2xl">
+                  Calendários de Encomendas
+                </CardTitle>
+                <CardDescription className="mt-0.5 font-body text-sm text-cda-vinho/80">
+                  Visualize e organize suas encomendas por mês
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="flex flex-1 items-center justify-center p-6">
+            <button
+              type="button"
+              onClick={() => navigate('/encomendas/calendarios')}
+              aria-label="Abrir Calendários de Encomendas"
+              className="group flex flex-col items-center gap-3 transition hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5B1A2B]/40 rounded-xl p-4"
+            >
+              <img
+                src={calendarioEncomendasIcon}
+                alt="Calendários de Encomendas"
+                className="h-32 w-32 object-contain drop-shadow-sm md:h-40 md:w-40"
+              />
+              <span className="rounded-lg bg-cda-vinho px-4 py-2 text-sm font-semibold text-cda-creme shadow-md transition group-hover:bg-cda-vinho-escuro">
+                Abrir Calendários
+              </span>
+            </button>
+          </CardContent>
+        </Card>
+      </div>
 
 
 
