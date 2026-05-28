@@ -87,6 +87,11 @@ export default function Backup() {
   // Seleção de módulos para backup manual
   const [modulosManual, setModulosManual] = useState<BackupModuloId[]>(DEFAULT_MODULOS);
 
+  // Local de salvamento (pasta do computador) — opcional
+  const fsApiSupported = backupLocation.isSupported();
+  const [pastaSalvamento, setPastaSalvamento] = useState<string | null>(null);
+  const [escolhendoPasta, setEscolhendoPasta] = useState(false);
+
   // Agendamento persistido no banco
   const [agendamentoAtivo, setAgendamentoAtivo] = useState(false);
   const [frequencia, setFrequencia] = useState("semanal");
