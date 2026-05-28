@@ -59,6 +59,7 @@ export default function EstoqueDashboard() {
       label: 'Abaixo do Mínimo',
       value: itensAbaixoMinimo.length.toString(),
       Icon: AlertTriangle,
+      image: abaixoMinimoImg,
       tone: itensAbaixoMinimo.length > 0 ? 'text-[#F28C82]' : 'text-[#3D0F1C]',
       iconWrap:
         itensAbaixoMinimo.length > 0
