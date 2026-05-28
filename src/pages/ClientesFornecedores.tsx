@@ -66,7 +66,7 @@ export default function ClientesFornecedores() {
         <div className="flex flex-col items-start px-4 pt-4 pb-4 sm:px-6 sm:pt-6 sm:pb-6 lg:px-8 lg:pt-7 lg:pb-7">
           <div className="text-left">
             <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
-              Clientes e Fornecedores
+              Parceiros
             </h1>
             <div className="mt-2 flex items-center gap-3">
               <span className="h-px w-8 bg-[#C9A14A] sm:w-10" />
