@@ -311,24 +311,36 @@ export default function FluxoCaixaMensal() {
       />
 
 
-      {/* Filtro de Ano */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            <div className="w-32">
-              <Label htmlFor="ano">Ano</Label>
-              <Input
-                id="ano"
-                type="number"
-                value={ano}
-                onChange={(e) => setAno(parseInt(e.target.value))}
-                min="2020"
-                max="2030"
-              />
+      {/* Filtro de Ano + atalho cruzado */}
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <Card className="w-fit">
+          <CardContent className="py-3 px-4">
+            <div className="flex items-end gap-3">
+              <div className="flex flex-col gap-1 w-28">
+                <Label htmlFor="ano" className="text-xs font-medium text-cda-vinho/70">Ano</Label>
+                <Input
+                  id="ano"
+                  type="number"
+                  value={ano}
+                  onChange={(e) => setAno(parseInt(e.target.value))}
+                  min="2020"
+                  max="2030"
+                  className="h-9"
+                />
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate("/financeiro/fluxo-caixa/diario")}
+          className="h-9 rounded-full border-cda-dourado/50 bg-cda-creme/60 text-cda-vinho hover:bg-cda-dourado/15 hover:text-cda-vinho-escuro"
+        >
+          Ver Fluxo de Caixa Diário
+        </Button>
+      </div>
 
       {/* Tabela de Fluxo Mensal */}
       <Card>
