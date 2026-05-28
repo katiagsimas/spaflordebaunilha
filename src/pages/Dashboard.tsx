@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { PremiumCard } from "@/components/dashboard/PremiumCard";
 import { HeroBanner } from "@/components/HeroBanner";
-import illuPresenteVinho from "@/assets/cda-illu-presente-vinho.png";
+import illuPresenteVinho from "@/assets/bolo-aniversariantes.png";
 import illuCalendarioRosa from "@/assets/cda-illu-calendario-rosa.png";
 import illuCalendarioProximas from "@/assets/calendario-proximas-entregas.png";
 import { getTodayISO, formatDateToISO } from "@/lib/dateUtils";
