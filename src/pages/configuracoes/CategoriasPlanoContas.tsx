@@ -223,6 +223,16 @@ export default function CategoriasPlanoContas() {
         title="Categorias do Plano de Contas"
         description="Categorias para classificação de receitas e despesas no DRE"
         backButton={<BackButton to="/financeiro/cadastros" />}
+        actions={
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/financeiro/cadastros/plano-contas')}
+            className="gap-2 text-muted-foreground hover:text-foreground font-body"
+          >
+            Plano de Contas
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        }
       />
 
       {/* Alertas */}
