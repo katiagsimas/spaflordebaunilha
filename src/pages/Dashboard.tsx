@@ -998,6 +998,17 @@ export default function Dashboard() {
   return (
     <div className="flex h-full">
       <div className="flex-1 min-w-0 space-y-6">
+      {/* ===== CARD QUADRADO DA SAUDAÇÃO (transparente, sem fundo/borda) ===== */}
+      <div className="flex justify-center md:justify-start">
+        <div className="aspect-square w-32 sm:w-40 md:w-48 bg-transparent border-0 shadow-none flex items-center justify-center">
+          <img
+            src={saudacaoPorHora().imagem}
+            alt={saudacaoPorHora().texto}
+            className="w-full h-full object-contain"
+          />
+        </div>
+      </div>
+
       {/* ===== HERO BANNER padronizado ===== */}
       <HeroBanner
         image={saudacaoPorHora().imagem}
@@ -1005,6 +1016,7 @@ export default function Dashboard() {
         title={`${saudacaoPorHora().texto}, ${getPrimeiroNome(profile?.nome_completo, user?.email)}!`}
         subtitle="Aqui está o resumo do seu negócio."
       />
+
 
       {/* ===== FILTROS DE PERÍODO ===== */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
