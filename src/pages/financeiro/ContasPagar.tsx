@@ -857,243 +857,278 @@ export default function ContasPagar() {
         </Button>
       </div>
 
-      {/* Filtros Rápidos */}
-      <div className="flex flex-wrap justify-between items-center gap-2">
-        <div className="flex flex-wrap gap-2">
-          {[
-            { value: 'todos', label: 'Todos' },
-            { value: 'aberto', label: 'Em Aberto' },
-            { value: 'vencido', label: 'Vencido' },
-            { value: 'pago', label: 'Pago' },
-          ].map(filtro => (
-            <Button
-              key={filtro.value}
-              variant={filtroStatus === filtro.value ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setFiltroStatus(filtro.value)}
-            >
-              {filtro.label}
-            </Button>
-          ))}
+      {/* Filtros de Data */}
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Data de Emissão */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 mb-3">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <Label className="text-sm">Data de Emissão</Label>
+            </div>
+            <div className="flex gap-2">
+              <DatePickerField
+                value={dataEmissaoInicio}
+                onChange={setDataEmissaoInicio}
+                placeholder="Inicial"
+                className="flex-1"
+              />
+              <DatePickerField
+                value={dataEmissaoFim}
+                onChange={setDataEmissaoFim}
+                placeholder="Final"
+                className="flex-1"
+              />
+            </div>
+          </div>
+
+          {/* Data de Pagamento */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 mb-3">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <Label className="text-sm">Data de Pagamento</Label>
+            </div>
+            <div className="flex gap-2">
+              <DatePickerField
+                value={dataPagamentoInicio}
+                onChange={setDataPagamentoInicio}
+                placeholder="Inicial"
+                className="flex-1"
+              />
+              <DatePickerField
+                value={dataPagamentoFim}
+                onChange={setDataPagamentoFim}
+                placeholder="Final"
+                className="flex-1"
+              />
+            </div>
+          </div>
+
+          {/* Data de Vencimento */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 mb-3">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <Label className="text-sm">Data de Vencimento</Label>
+            </div>
+            <div className="flex gap-2">
+              <DatePickerField
+                value={dataVencimentoInicio}
+                onChange={setDataVencimentoInicio}
+                placeholder="Inicial"
+                className="flex-1"
+              />
+              <DatePickerField
+                value={dataVencimentoFim}
+                onChange={setDataVencimentoFim}
+                placeholder="Final"
+                className="flex-1"
+              />
+            </div>
+          </div>
         </div>
-        <div className="flex gap-2">
+      </div>
+
+      {/* Filtros de Status + Mais Opções de Busca + Limpar */}
+      <Collapsible open={mostrarFiltrosAvancados} onOpenChange={setMostrarFiltrosAvancados} className="w-full space-y-4">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Filtros de Status */}
           <Button
-            variant="outline"
+            variant={filtroStatus === 'todos' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setMostrarFiltrosAvancados(!mostrarFiltrosAvancados)}
+            onClick={() => setFiltroStatus('todos')}
           >
-            Mais Opções de Busca
-            <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${mostrarFiltrosAvancados ? 'rotate-180' : ''}`} />
+            Todos
           </Button>
-          <Button variant="outline" size="sm" onClick={limparFiltros}>
+
+          <Button
+            variant={filtroStatus === 'aberto' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFiltroStatus('aberto')}
+          >
+            Em Aberto
+          </Button>
+
+          <Button
+            variant={filtroStatus === 'pago' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFiltroStatus('pago')}
+          >
+            Pago
+          </Button>
+
+          <Button
+            variant={filtroStatus === 'vencido' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFiltroStatus('vencido')}
+          >
+            Vencido
+          </Button>
+
+          {/* Separador visual */}
+          <div className="h-8 w-px bg-border mx-1" />
+
+          {/* Mais Opções de Busca */}
+          <CollapsibleTrigger asChild>
+            <Button
+              variant={mostrarFiltrosAvancados ? 'default' : 'outline'}
+              size="sm"
+            >
+              <Filter className="mr-2 h-4 w-4" />
+              Mais opções de Busca
+              <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${mostrarFiltrosAvancados ? 'rotate-180' : ''}`} />
+            </Button>
+          </CollapsibleTrigger>
+
+          <Button variant="default" size="sm" onClick={limparFiltros}>
+            <X className="mr-2 h-4 w-4" />
             Limpar Filtros
           </Button>
         </div>
-      </div>
 
-      {/* Filtros Avançados - Datas */}
-      <div className="grid grid-cols-3 gap-4">
-        {/* Data de Emissão */}
-        <div className="space-y-2">
-          <Label className="text-xs text-muted-foreground">Data de Emissão</Label>
-          <div className="grid grid-cols-2 gap-2">
-            <DatePickerField
-              value={dataEmissaoInicio}
-              onChange={setDataEmissaoInicio}
-              placeholder="Inicial"
-              className="flex-1"
-            />
-            <DatePickerField
-              value={dataEmissaoFim}
-              onChange={setDataEmissaoFim}
-              placeholder="Final"
-              className="flex-1"
-            />
-          </div>
-        </div>
+        <CollapsibleContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 p-4 border rounded-lg bg-muted/30">
+            {/* Fornecedor */}
+            <div className="space-y-2">
+              <Label className="text-sm">Fornecedor</Label>
+              <Popover open={openFornecedor} onOpenChange={setOpenFornecedor}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={openFornecedor}
+                    className="w-full justify-between"
+                  >
+                    {fornecedorFiltro && fornecedorFiltro !== 'todos'
+                      ? fornecedores.find((f: any) => f.id === fornecedorFiltro)?.nome || 'Selecione...'
+                      : fornecedorFiltro === 'todos'
+                      ? 'Todos'
+                      : 'Selecione...'}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0 bg-background" align="start">
+                  <Command>
+                    <CommandInput
+                      placeholder="Digite para buscar..."
+                      value={searchFornecedor}
+                      onValueChange={setSearchFornecedor}
+                    />
+                    <CommandEmpty>Nenhum fornecedor encontrado.</CommandEmpty>
+                    <CommandGroup className="max-h-64 overflow-auto">
+                      <CommandItem
+                        value="todos"
+                        onSelect={() => {
+                          setFornecedorFiltro('todos');
+                          setOpenFornecedor(false);
+                          setSearchFornecedor('');
+                        }}
+                      >
+                        <Check
+                          className={`mr-2 h-4 w-4 ${fornecedorFiltro === 'todos' ? 'opacity-100' : 'opacity-0'}`}
+                        />
+                        Todos
+                      </CommandItem>
+                      {fornecedores
+                        .filter((f: any) =>
+                          f.nome.toLowerCase().includes(searchFornecedor.toLowerCase())
+                        )
+                        .map((f: any) => (
+                          <CommandItem
+                            key={f.id}
+                            value={f.nome}
+                            onSelect={() => {
+                              setFornecedorFiltro(f.id);
+                              setOpenFornecedor(false);
+                              setSearchFornecedor('');
+                            }}
+                          >
+                            <Check
+                              className={`mr-2 h-4 w-4 ${fornecedorFiltro === f.id ? 'opacity-100' : 'opacity-0'}`}
+                            />
+                            {f.nome}
+                          </CommandItem>
+                        ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
 
-        {/* Data de Pagamento */}
-        <div className="space-y-2">
-          <Label className="text-xs text-muted-foreground">Data de Pagamento</Label>
-          <div className="grid grid-cols-2 gap-2">
-            <DatePickerField
-              value={dataPagamentoInicio}
-              onChange={setDataPagamentoInicio}
-              placeholder="Inicial"
-              className="flex-1"
-            />
-            <DatePickerField
-              value={dataPagamentoFim}
-              onChange={setDataPagamentoFim}
-              placeholder="Final"
-              className="flex-1"
-            />
-          </div>
-        </div>
+            {/* Plano de Contas */}
+            <div className="space-y-2">
+              <Label className="text-sm">Plano de Contas</Label>
+              <Select value={planoContasFiltro} onValueChange={setPlanoContasFiltro}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {planosContas.map((p: any) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.codigo_estruturado} - {p.descricao}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-        {/* Data de Vencimento */}
-        <div className="space-y-2">
-          <Label className="text-xs text-muted-foreground">Data de Vencimento</Label>
-          <div className="grid grid-cols-2 gap-2">
-            <DatePickerField
-              value={dataVencimentoInicio}
-              onChange={setDataVencimentoInicio}
-              placeholder="Inicial"
-              className="flex-1"
-            />
-            <DatePickerField
-              value={dataVencimentoFim}
-              onChange={setDataVencimentoFim}
-              placeholder="Final"
-              className="flex-1"
-            />
-          </div>
-        </div>
-      </div>
+            {/* Categoria do Plano de Contas */}
+            <div className="space-y-2">
+              <Label className="text-sm">Categoria do Plano de Contas</Label>
+              <Select value={categoriaFiltro} onValueChange={setCategoriaFiltro}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {categorias.map((c: any) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.descricao}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-      {/* Filtros Avançados Recolhíveis */}
-      {mostrarFiltrosAvancados && (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 border rounded-lg bg-muted/50">
-          {/* Fornecedor */}
-          <div className="space-y-2">
-            <Label>Fornecedor</Label>
-            <Popover open={openFornecedor} onOpenChange={setOpenFornecedor}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={openFornecedor}
-                  className="w-full justify-between bg-popover"
-                >
-                  {fornecedorFiltro && fornecedorFiltro !== 'todos'
-                    ? fornecedores.find((f: any) => f.id === fornecedorFiltro)?.nome || 'Selecione...'
-                    : 'Todos'}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0 bg-popover z-50" align="start">
-                <Command className="bg-popover">
-                  <CommandInput
-                    placeholder="Buscar fornecedor..."
-                    value={searchFornecedor}
-                    onValueChange={setSearchFornecedor}
-                  />
-                  <CommandEmpty>
-                    Nenhum fornecedor encontrado.
-                  </CommandEmpty>
-                  <CommandGroup className="max-h-64 overflow-auto">
-                    <CommandItem
-                      value="todos"
-                      onSelect={() => {
-                        setFornecedorFiltro('todos');
-                        setOpenFornecedor(false);
-                        setSearchFornecedor('');
-                      }}
-                    >
-                      <Check
-                        className={`mr-2 h-4 w-4 ${fornecedorFiltro === 'todos' ? 'opacity-100' : 'opacity-0'}`}
-                      />
-                      Todos
-                    </CommandItem>
-                    {fornecedores
-                      .filter((f: any) =>
-                        f.nome.toLowerCase().includes(searchFornecedor.toLowerCase())
-                      )
-                      .map((f: any) => (
-                        <CommandItem
-                          key={f.id}
-                          value={f.nome}
-                          onSelect={() => {
-                            setFornecedorFiltro(f.id);
-                            setOpenFornecedor(false);
-                            setSearchFornecedor('');
-                          }}
-                        >
-                          <Check
-                            className={`mr-2 h-4 w-4 ${fornecedorFiltro === f.id ? 'opacity-100' : 'opacity-0'}`}
-                          />
-                          {f.nome}
-                        </CommandItem>
-                      ))}
-                  </CommandGroup>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
+            {/* Tipo de Documento */}
+            <div className="space-y-2">
+              <Label className="text-sm">Tipo de Documento</Label>
+              <Select value={tipoDocumentoFiltro} onValueChange={setTipoDocumentoFiltro}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {tiposDocumento.map((t: any) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.descricao}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          {/* Plano de Contas */}
-          <div className="space-y-2">
-            <Label>Plano de Contas</Label>
-            <Select value={planoContasFiltro} onValueChange={setPlanoContasFiltro}>
-              <SelectTrigger>
-                <SelectValue placeholder="Todos" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos</SelectItem>
-                {planosContas.map((p: any) => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {p.codigo_estruturado} - {p.descricao}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {/* Banco */}
+            <div className="space-y-2">
+              <Label className="text-sm">Banco</Label>
+              <Select value={bancoFiltro} onValueChange={setBancoFiltro}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {bancos.map((b: any) => (
+                    <SelectItem key={b.id} value={b.id}>
+                      {b.codigo} - {b.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+        </CollapsibleContent>
+      </Collapsible>
 
-          {/* Categoria Plano de Contas */}
-          <div className="space-y-2">
-            <Label>Categoria Plano de Contas</Label>
-            <Select value={categoriaFiltro} onValueChange={setCategoriaFiltro}>
-              <SelectTrigger>
-                <SelectValue placeholder="Todas" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todas</SelectItem>
-                {categorias.map((c: any) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.descricao}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Tipo de Documento */}
-          <div className="space-y-2">
-            <Label>Tipo de Documento</Label>
-            <Select value={tipoDocumentoFiltro} onValueChange={setTipoDocumentoFiltro}>
-              <SelectTrigger>
-                <SelectValue placeholder="Todos" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos</SelectItem>
-                {tiposDocumento.map((t: any) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    {t.descricao}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Banco */}
-          <div className="space-y-2">
-            <Label>Banco</Label>
-            <Select value={bancoFiltro} onValueChange={setBancoFiltro}>
-              <SelectTrigger>
-                <SelectValue placeholder="Todos" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos</SelectItem>
-                {bancos.map((b: any) => (
-                  <SelectItem key={b.id} value={b.id}>
-                    {b.codigo} - {b.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      )}
 
       {/* Card de Controles */}
       <div className="border rounded-lg p-4 space-y-4">
