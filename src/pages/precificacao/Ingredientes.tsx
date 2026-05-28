@@ -617,14 +617,8 @@ export default function Ingredientes() {
           </Alert>}
       </div>
 
-      {/* Busca */}
-      <div className="flex gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar por ingrediente ou marca..." value={termoBusca} onChange={e => setTermoBusca(e.target.value)} className="pl-10" />
-        </div>
-      </div>
-      <div className="flex justify-between gap-2">
+      {/* Ações */}
+      <div className="flex justify-between items-center gap-2">
         <Button onClick={() => handleAbrirModal()}>
           <Plus className="mr-2 h-4 w-4" />
           Novo Ingrediente
@@ -633,6 +627,14 @@ export default function Ingredientes() {
           <Download className="mr-2 h-4 w-4" />
           Exportar Excel
         </Button>
+      </div>
+
+      {/* Busca */}
+      <div className="flex gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Buscar por ingrediente ou marca..." value={termoBusca} onChange={e => setTermoBusca(e.target.value)} className="pl-10" />
+        </div>
       </div>
 
       {/* Tabela */}
