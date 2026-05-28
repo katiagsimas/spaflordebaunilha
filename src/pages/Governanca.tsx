@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { PermissionGuard } from "@/components/PermissionGuard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGroup } from "@/contexts/GroupContext";
+import governancaHero from "@/assets/governanca-hero-banner.png";
 
 export default function Governanca() {
   const { isMother } = useGroup();
