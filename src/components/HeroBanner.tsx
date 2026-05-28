@@ -42,11 +42,6 @@ export function HeroBanner({ image, title, subtitle, imageAlt = "", bgColor = "#
 
       </div>
 
-          />
-        )}
-
-      </div>
-
     </div>
   );
 }
