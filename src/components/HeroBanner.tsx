@@ -41,7 +41,7 @@ export function HeroBanner({ image, title, subtitle, imageAlt = "", bgColor = "#
           <img
             src={image}
             alt={imageAlt}
-            aria-hidden={imageAlt ? undefined : "true"}
+            className="pointer-events-none mt-1 h-28 w-auto self-center object-contain object-bottom sm:mt-1.5 sm:h-36 lg:h-44"
             className="pointer-events-none mt-1 h-16 w-auto self-center object-contain object-bottom sm:mt-1.5 sm:h-20 lg:h-24"
           />
         )}
