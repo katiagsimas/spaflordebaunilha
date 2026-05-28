@@ -42,11 +42,32 @@ export default function Governanca() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <PageHeader
-        title="Governança"
-        description="Administração e auditoria do sistema"
-      />
-      <div className="flex-1 p-6">
+      <div className="p-6">
+        {/* ===== HEADER PREMIUM (mesmo padrão do módulo Encomendas) ===== */}
+        <div
+          className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
+          style={{ background: "#FAEFEB" }}
+        >
+          <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
+            <div className="flex-1 min-w-0">
+              <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
+                Governança
+              </h1>
+              <div className="mt-2 flex items-center gap-3">
+                <span className="h-px w-8 bg-[#C9A14A] sm:w-10" />
+                <p className="text-xs italic text-[#C9A14A] sm:text-sm">
+                  Administração e auditoria do sistema
+                </p>
+              </div>
+            </div>
+            <div className="hidden sm:flex h-14 w-14 lg:h-16 lg:w-16 shrink-0 items-center justify-center rounded-full bg-[#5B1A2B]/10">
+              <Shield className="h-6 w-6 lg:h-7 lg:w-7 text-[#5B1A2B]" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex-1 px-6 pb-6">
+
         <div className="grid gap-4 sm:grid-cols-2 max-w-4xl">
           {cards.map(({ title, description, icon: Icon, url }) => (
             <Link key={url} to={url} className="group">
