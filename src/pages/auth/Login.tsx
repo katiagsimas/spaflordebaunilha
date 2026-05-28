@@ -131,7 +131,7 @@ export default function Login() {
 
             {/* Login card */}
             <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">
-              <CardHeader className="pb-2 pt-8">
+              <CardHeader className="pb-2 pt-5">
                 <h2 className="text-xl font-display font-semibold text-cda-preto text-center">
                   Bem-vinda de volta
                 </h2>
