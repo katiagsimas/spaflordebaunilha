@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,7 +31,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2, MoreVertical } from 'lucide-react';
+import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2, MoreVertical, ArrowRight } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,6 +45,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { CategoriaPlanoContasAutocomplete } from '@/components/CategoriaPlanoContasAutocomplete';
 
 export default function PlanoContas() {
+  const navigate = useNavigate();
   const [planos, setPlanos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -474,6 +476,16 @@ export default function PlanoContas() {
         title="Plano de Contas"
         description="Contas detalhadas para classificação de lançamentos financeiros"
         backButton={<BackButton to="/financeiro/cadastros" />}
+        actions={
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/financeiro/cadastros/juros')}
+            className="gap-2 text-muted-foreground hover:text-foreground font-body"
+          >
+            Juros
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        }
       />
 
       {/* Alert */}

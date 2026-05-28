@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,7 +25,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Info, Search, Plus, Edit, Trash2, Filter } from 'lucide-react';
+import { Info, Search, Plus, Edit, Trash2, Filter, ArrowRight } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -49,6 +50,7 @@ interface TipoDocumento {
 }
 
 export default function TiposDocumentos() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
   const [tipos, setTipos] = useState<TipoDocumento[]>([]);
@@ -333,10 +335,20 @@ export default function TiposDocumentos() {
         description="Tipos de documentos para lançamentos financeiros"
         backButton={<BackButton to="/financeiro/cadastros" />}
         actions={
-          <Button onClick={() => handleAbrirModal()}>
-            <Plus className="mr-2 h-4 w-4" />
-            Criar Novo Tipo
-          </Button>
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/financeiro/cadastros/categorias-plano-contas')}
+              className="gap-2 text-muted-foreground hover:text-foreground font-body"
+            >
+              Categorias Planos de Contas
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+            <Button onClick={() => handleAbrirModal()}>
+              <Plus className="mr-2 h-4 w-4" />
+              Criar Novo Tipo
+            </Button>
+          </>
         }
       />
 
