@@ -4,6 +4,7 @@ import { PremiumCard } from "@/components/dashboard/PremiumCard";
 import { HeroBanner } from "@/components/HeroBanner";
 import illuPresenteVinho from "@/assets/cda-illu-presente-vinho.png";
 import illuCalendarioRosa from "@/assets/cda-illu-calendario-rosa.png";
+import illuCalendarioProximas from "@/assets/calendario-proximas-entregas.png";
 import { getTodayISO, formatDateToISO } from "@/lib/dateUtils";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -1134,7 +1135,13 @@ export default function Dashboard() {
               Ver todas
             </button>
           </div>
-          <div className="relative px-6 pb-6 pt-4 min-h-[140px]">
+          <div className="relative px-6 pb-6 pt-4 min-h-[140px] pl-[120px]">
+            <img
+              src={illuCalendarioProximas}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none absolute bottom-0 left-2 w-[110px] select-none"
+            />
             {proximas.length === 0 ? (
               <p className="pt-2 text-sm font-body text-cda-vinho/70">
                 Nenhuma entrega nos próximos 7 dias
