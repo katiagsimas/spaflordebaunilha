@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VisaoGeral } from "./VisaoGeral";
 import { Retiradas } from "./Retiradas";
 import { Educativo } from "./Educativo";
-import { Sparkles, CalendarDays, Settings2, ChevronLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import heroSide from "@/assets/meu-salario-hero-side.png";
 
 export default function MeuSalario() {
@@ -11,26 +11,9 @@ export default function MeuSalario() {
 
   return (
     <div className="renda-doce-scope -m-6 md:-m-8 min-h-[calc(100vh-3.5rem)] relative p-6 md:p-8">
-      {/* Botões superiores direita */}
-      <div className="absolute top-6 right-6 md:top-8 md:right-8 flex items-center gap-2 z-10">
-        <button
-          type="button"
-          aria-label="Calendário"
-          className="w-9 h-9 rounded-full bg-white/70 backdrop-blur border border-[#5B1A2B]/15 flex items-center justify-center text-[#5B1A2B] hover:bg-white transition"
-        >
-          <CalendarDays className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          aria-label="Configurações"
-          className="w-9 h-9 rounded-full bg-white/70 backdrop-blur border border-[#5B1A2B]/15 flex items-center justify-center text-[#5B1A2B] hover:bg-white transition"
-        >
-          <Settings2 className="h-4 w-4" />
-        </button>
-      </div>
-
       {/* ===== HEADER PREMIUM (mesmo padrão do módulo Encomendas) ===== */}
-      <div className="mb-6 pr-24">
+      <div className="mb-6">
+
         <div
           className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
           style={{ background: "#FAEFEB" }}
