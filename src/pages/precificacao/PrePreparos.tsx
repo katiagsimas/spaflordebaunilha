@@ -280,10 +280,7 @@ export default function PrePreparos() {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Button onClick={() => navigate('/precificacao/pre-preparos/novo')}>
-              <Plus className="mr-2 h-4 w-4" />
-              Criar Novo Pré-Preparo
-            </Button>
+            {/* ações removidas para baixo do alerta */}
           </div>
         </div>
       </div>
@@ -295,6 +292,13 @@ export default function PrePreparos() {
           Editações aqui atualizam automaticamente em Ingredientes.
         </AlertDescription>
       </Alert>
+
+      <div className="flex justify-start">
+        <Button onClick={() => navigate('/precificacao/pre-preparos/novo')}>
+          <Plus className="mr-2 h-4 w-4" />
+          Criar Novo Pré-Preparo
+        </Button>
+      </div>
 
       {preparos.length === 0 ? (
         <EmptyState
