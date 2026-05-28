@@ -24,14 +24,14 @@ export function HeroBanner({ image, title, subtitle, imageAlt = "", bgColor = "#
       className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
       style={{ background: bgColor }}
     >
-      <div className="flex flex-col items-start px-4 pt-4 pb-0 sm:px-6 sm:pt-5 lg:px-8 lg:pt-6">
+      <div className="flex flex-col items-start px-4 pt-3 pb-0 sm:px-6 sm:pt-4 lg:px-8 lg:pt-5">
 
         <div className="text-left">
           <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
             {title}
           </h1>
           {subtitle && (
-            <div className="mt-2 flex items-center gap-3">
+            <div className="mt-1 flex items-center gap-3">
               <span className="h-px w-8 bg-[#C9A14A] sm:w-10" />
               <p className="text-xs italic text-[#C9A14A] sm:text-sm">{subtitle}</p>
             </div>
@@ -41,7 +41,7 @@ export function HeroBanner({ image, title, subtitle, imageAlt = "", bgColor = "#
           <img
             src={image}
             alt={imageAlt}
-            className="pointer-events-none mt-1 h-28 w-auto self-center object-contain object-bottom sm:mt-1.5 sm:h-36 lg:h-44"
+            className="pointer-events-none mt-0 h-28 w-auto self-center object-contain object-bottom sm:h-36 lg:h-44"
             aria-hidden={imageAlt ? undefined : "true"}
           />
         )}
@@ -51,4 +51,3 @@ export function HeroBanner({ image, title, subtitle, imageAlt = "", bgColor = "#
     </div>
   );
 }
-
