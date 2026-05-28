@@ -407,7 +407,7 @@ export default function Financeiro() {
                 <button
                   key={c.title}
                   onClick={() => navigate(c.to)}
-                  className="group flex items-center gap-4 bg-white border border-[#5B1A2B]/10 rounded-xl p-5 text-left transition-all duration-200 hover:border-[#C9A14A]/50 hover:shadow-md"
+                  className="group flex items-center gap-4 bg-white border-2 border-[#C9A14A]/60 rounded-xl p-5 text-left transition-all duration-200 hover:border-[#C9A14A] hover:shadow-md"
                 >
                   <div className="w-11 h-11 rounded-full bg-[#FDF6EE] flex items-center justify-center shrink-0">
                     <Icon className="h-5 w-5 text-[#5B1A2B]" />
