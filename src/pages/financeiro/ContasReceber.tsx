@@ -49,6 +49,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '
 import { cn } from '@/lib/utils';
 import * as XLSX from '@/lib/xlsxShim';
 import { BackButton } from '@/components/BackButton';
+import { FinanceiroNav } from '@/components/financeiro/FinanceiroNav';
 import { PageHeader } from '@/components/PageHeader';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -694,7 +695,12 @@ export default function ContasReceber() {
       <PageHeader
         title="Contas a Receber"
         description="Gerencie seus recebimentos aqui"
-        backButton={<BackButton to="/financeiro" />}
+        backButton={
+          <div className="flex flex-wrap items-center gap-2">
+            <BackButton to="/financeiro" />
+            <FinanceiroNav current="/financeiro/contas-receber" />
+          </div>
+        }
       />
 
       {/* Dashboard */}
