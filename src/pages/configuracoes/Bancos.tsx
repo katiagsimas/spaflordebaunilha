@@ -499,7 +499,17 @@ export default function Bancos() {
         <p className="text-muted-foreground">Cadastre os bancos que você utiliza</p>
       </div>
 
-      <div className="flex justify-end gap-2">
+      {/* Alert */}
+      <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-950">
+        <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        <AlertDescription className="text-blue-800 dark:text-blue-200">
+          <strong>Dica:</strong> Habilite apenas os bancos que você utiliza para melhor organização.
+          Os bancos desabilitados não aparecerão nas listagens de seleção.
+        </AlertDescription>
+      </Alert>
+
+      {/* Ações */}
+      <div className="flex justify-between items-center gap-2">
         <Button onClick={() => handleAbrirModal()} variant="default">
           <Plus className="mr-2 h-4 w-4" />
           Adicionar Novo Banco
@@ -509,15 +519,6 @@ export default function Bancos() {
           Exportar Excel
         </Button>
       </div>
-
-      {/* Alert */}
-      <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-950">
-        <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-        <AlertDescription className="text-blue-800 dark:text-blue-200">
-          <strong>Dica:</strong> Habilite apenas os bancos que você utiliza para melhor organização.
-          Os bancos desabilitados não aparecerão nas listagens de seleção.
-        </AlertDescription>
-      </Alert>
 
       {/* Busca e Filtros */}
       <div className="flex gap-4">
