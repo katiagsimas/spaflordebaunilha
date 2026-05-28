@@ -157,9 +157,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full">
+      <div className="flex min-h-screen w-full max-w-[100vw] overflow-x-hidden md:overflow-x-visible md:max-w-none">
         <AppSidebar />
-        <div className="flex-1 flex flex-col relative">
+        <div className="flex-1 min-w-0 flex flex-col relative">
+
           {/* Loading Global Overlay */}
           {isLoading && (
             <div className="absolute inset-0 z-50 flex items-center justify-center bg-app/90 backdrop-blur-sm">
