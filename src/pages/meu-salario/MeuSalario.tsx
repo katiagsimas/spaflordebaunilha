@@ -16,7 +16,7 @@ export default function MeuSalario() {
 
         <div
           className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
-          style={{ background: "#F8F0E0" }}
+          style={{ background: "#FAEFEB" }}
         >
           <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6 pr-[150px] sm:pr-[200px] lg:pr-[260px] min-h-[130px] sm:min-h-[150px] lg:min-h-[170px]">
             <div className="flex-1 min-w-0">
