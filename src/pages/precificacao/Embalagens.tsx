@@ -603,10 +603,6 @@ export default function Embalagens() {
               <Download className="mr-2 h-4 w-4" />
               Exportar Excel
             </Button>
-            <Button onClick={() => handleAbrirModal()}>
-              <Plus className="mr-2 h-4 w-4" />
-              Nova Embalagem
-            </Button>
           </div>
         </div>
       </div>
