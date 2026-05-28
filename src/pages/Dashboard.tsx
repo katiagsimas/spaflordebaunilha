@@ -91,8 +91,22 @@ export default function Dashboard() {
   const { user } = useAuth();
   const { profile } = useUserProfile();
   const navigate = useNavigate();
-  const [mesSelecionado, setMesSelecionado] = useState(new Date().getMonth());
-  const [anoSelecionado, setAnoSelecionado] = useState(new Date().getFullYear());
+  const [mesSelecionado, setMesSelecionado] = useState(() => {
+    const saved = localStorage.getItem('cda_dashboard_periodo');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (typeof parsed.mes === 'number') return parsed.mes;
+    }
+    return new Date().getMonth();
+  });
+  const [anoSelecionado, setAnoSelecionado] = useState(() => {
+    const saved = localStorage.getItem('cda_dashboard_periodo');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (typeof parsed.ano === 'number') return parsed.ano;
+    }
+    return new Date().getFullYear();
+  });
   const [diaSelecionado, setDiaSelecionado] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const { plano } = usePlano();
