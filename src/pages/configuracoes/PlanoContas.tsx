@@ -45,6 +45,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { CategoriaPlanoContasAutocomplete } from '@/components/CategoriaPlanoContasAutocomplete';
 
 export default function PlanoContas() {
+  const navigate = useNavigate();
   const [planos, setPlanos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);

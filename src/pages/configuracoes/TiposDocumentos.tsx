@@ -50,6 +50,7 @@ interface TipoDocumento {
 }
 
 export default function TiposDocumentos() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
   const [tipos, setTipos] = useState<TipoDocumento[]>([]);
