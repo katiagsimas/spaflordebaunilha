@@ -66,7 +66,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
   {
     label: "MEU COMERCIAL",
     items: [
-      { title: "Clientes e Fornecedores", url: "/clientes-fornecedores", icon: Users, active: true },
+      { title: "Parceiros", url: "/clientes-fornecedores", icon: Users, active: true },
       { title: "Negociações", url: "/comercial/negociacoes", icon: FileSignature, active: true },
       { title: "Pedidos e Encomendas", url: "/encomendas", icon: ClipboardList, active: true },
     ],
@@ -283,7 +283,7 @@ export function AppSidebar() {
                                           {encomendasHojeQtd} HOJE
                                         </Badge>
                                       )}
-                                      {item.title === "Clientes e Fornecedores" && aniversariantesClientes.length > 0 && !bloqueado && (
+                                      {item.title === "Parceiros" && aniversariantesClientes.length > 0 && !bloqueado && (
                                         <div className="w-5 h-5 rounded-full bg-cda-dourado flex items-center justify-center animate-bounce ml-1 ring-1 ring-cda-creme/20">
                                           <Cake className="h-3 w-3 text-cda-vinho" />
                                         </div>
