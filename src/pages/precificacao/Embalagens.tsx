@@ -633,6 +633,18 @@ export default function Embalagens() {
         )}
       </div>
 
+      {/* Ações */}
+      <div className="flex justify-between items-center gap-2">
+        <Button onClick={() => handleAbrirModal()}>
+          <Plus className="mr-2 h-4 w-4" />
+          Nova Embalagem
+        </Button>
+        <Button variant="outline" onClick={handleExportarExcel}>
+          <Download className="mr-2 h-4 w-4" />
+          Exportar Excel
+        </Button>
+      </div>
+
       {/* Busca */}
       <div className="flex gap-4">
         <div className="relative flex-1">
@@ -644,16 +656,6 @@ export default function Embalagens() {
             className="pl-10"
           />
         </div>
-      </div>
-      <div className="flex justify-between">
-        <Button onClick={() => handleAbrirModal()}>
-          <Plus className="mr-2 h-4 w-4" />
-          Nova Embalagem
-        </Button>
-        <Button variant="outline" onClick={handleExportarExcel}>
-          <Download className="mr-2 h-4 w-4" />
-          Exportar Excel
-        </Button>
       </div>
 
       {/* Tabela */}
