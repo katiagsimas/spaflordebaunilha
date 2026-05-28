@@ -332,14 +332,17 @@ export default function FluxoCaixaMensal() {
           </CardContent>
         </Card>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => navigate("/financeiro/fluxo-caixa/diario")}
-          className="h-9 rounded-full border-cda-dourado/50 bg-cda-creme/60 text-cda-vinho hover:bg-cda-dourado/15 hover:text-cda-vinho-escuro"
-        >
-          Ver Fluxo de Caixa Diário
-        </Button>
+        <Card className="w-fit border-2 border-cda-dourado bg-cda-vinho">
+          <CardContent className="py-3 px-4">
+            <button
+              type="button"
+              onClick={() => navigate("/financeiro/fluxo-caixa/diario")}
+              className="h-9 px-2 text-sm font-medium text-white hover:text-cda-dourado transition-colors"
+            >
+              ← Ver Fluxo Diário
+            </button>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Tabela de Fluxo Mensal */}
