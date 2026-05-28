@@ -1095,7 +1095,7 @@ export default function Dashboard() {
             key={label}
             type="button"
             onClick={onClick}
-            className="group flex items-center gap-4 rounded-2xl border border-cda-dourado/20 bg-cda-branco px-5 py-4 text-left shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)] transition hover:-translate-y-0.5 hover:border-cda-dourado/60 hover:shadow-[0_8px_24px_-12px_rgba(91,26,43,0.25)]"
+            className="group flex items-center gap-4 rounded-2xl border border-cda-dourado/50 bg-cda-branco px-5 py-4 text-left shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)] transition hover:-translate-y-0.5 hover:border-cda-dourado hover:shadow-[0_8px_24px_-12px_rgba(91,26,43,0.25)]"
           >
             <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${iconBg} ring-1 ring-cda-dourado/40`}>
               <Icon className={`h-5 w-5 ${iconColor}`} />
