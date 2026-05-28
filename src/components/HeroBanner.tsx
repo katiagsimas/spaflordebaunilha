@@ -37,7 +37,6 @@ export function HeroBanner({ image, title, subtitle, imageAlt = "", bgColor = "#
             </div>
           )}
         </div>
-        </div>
         {image && (
           <img
             src={image}
@@ -51,4 +50,5 @@ export function HeroBanner({ image, title, subtitle, imageAlt = "", bgColor = "#
 
     </div>
   );
+}
 }
