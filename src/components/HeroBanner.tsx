@@ -4,6 +4,8 @@ interface HeroBannerProps {
   title: string;
   subtitle?: string;
   imageAlt?: string;
+  /** Custom card background color. Defaults to #FAEFEB. */
+  bgColor?: string;
 }
 
 
@@ -11,16 +13,16 @@ interface HeroBannerProps {
  * Hero banner padronizado — layout vertical com imagem no topo.
  * Use em todas as páginas principais para harmonia visual.
  *
- * - Fundo rosado #FAEFEB, rounded-2xl, borda vinho/10, sombra suave
+ * - Fundo rosado #FAEFEB (customizável via bgColor), rounded-2xl, borda vinho/10, sombra suave
  * - Imagem decorativa no topo (h-24 sm:h-32 lg:h-40)
  * - Título Playfair Display em vinho escuro (#3D0F1C)
  * - Fio dourado + subtítulo itálico dourado (#C9A14A)
  */
-export function HeroBanner({ image, title, subtitle, imageAlt = "" }: HeroBannerProps) {
+export function HeroBanner({ image, title, subtitle, imageAlt = "", bgColor = "#FAEFEB" }: HeroBannerProps) {
   return (
     <div
       className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
-      style={{ background: "#FAEFEB" }}
+      style={{ background: bgColor }}
     >
       <div className="flex flex-col items-start px-4 pt-4 pb-4 sm:px-6 sm:pt-6 sm:pb-6 lg:px-8 lg:pt-7 lg:pb-7">
         <div className="text-left">
