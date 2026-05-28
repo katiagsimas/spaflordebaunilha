@@ -94,7 +94,7 @@ export function EncomendasDoDia({ onNovaEncomenda }: { onNovaEncomenda?: () => v
   );
 
   return (
-    <Card className="overflow-hidden border-cda-dourado/30 bg-cda-creme/40 shadow-[0_8px_30px_-18px_rgba(91,26,43,0.3)]">
+    <Card className="overflow-hidden rounded-2xl border-2 border-[#C9A14A]/60 bg-cda-creme/40 shadow-[0_8px_30px_-18px_rgba(91,26,43,0.3)]">
       <CardHeader className="border-b border-cda-dourado/15 bg-cda-branco/60 pb-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">

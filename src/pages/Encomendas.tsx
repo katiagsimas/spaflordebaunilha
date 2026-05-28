@@ -1686,7 +1686,7 @@ const Encomendas = () => {
         <EncomendasDoDia onNovaEncomenda={() => setDialogOpen(true)} />
 
         {/* Calendários de Encomendas - Direita */}
-        <Card className="overflow-hidden border-cda-dourado/30 bg-cda-creme/40 shadow-[0_8px_30px_-18px_rgba(91,26,43,0.3)]">
+        <Card className="overflow-hidden rounded-2xl border-2 border-[#C9A14A]/60 bg-cda-creme/40 shadow-[0_8px_30px_-18px_rgba(91,26,43,0.3)]">
           <CardHeader className="border-b border-cda-dourado/15 bg-cda-branco/60 pb-4">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cda-vinho text-cda-dourado ring-1 ring-cda-dourado/40">
