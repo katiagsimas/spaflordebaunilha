@@ -39,9 +39,9 @@ export function TileCard({
       type="button"
       onClick={onClick}
       className={cn(
-        "group flex w-full items-start gap-4 rounded-2xl border border-cda-dourado/20 bg-cda-branco px-5 py-4 text-left",
+        "group flex w-full items-start gap-4 rounded-2xl border-2 border-cda-dourado/50 bg-cda-branco px-5 py-4 text-left",
         "shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)] transition",
-        "hover:-translate-y-0.5 hover:border-cda-dourado/60 hover:shadow-[0_8px_24px_-12px_rgba(91,26,43,0.25)]",
+        "hover:-translate-y-0.5 hover:border-cda-dourado hover:shadow-[0_8px_24px_-12px_rgba(91,26,43,0.25)]",
         className,
       )}
     >
