@@ -165,7 +165,7 @@ export default function Governanca() {
 
   return (
     <div className="min-h-screen bg-[#FDF6EE]">
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
+      <div className="max-w-7xl mx-auto px-6 pt-1 pb-6 space-y-6">
         {/* HERO BANNER padronizado */}
         <HeroBanner
           image={heroBanner}

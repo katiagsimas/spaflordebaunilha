@@ -329,7 +329,7 @@ export default function TiposDocumentos() {
   if (loading) return <LoadingState message="Carregando Tipos de Documentos" submessage="Buscando seus documentos..." />;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
       {/* Navegação superior */}
       <div className="flex items-center justify-between">
         <BackButton to="/financeiro/cadastros" />

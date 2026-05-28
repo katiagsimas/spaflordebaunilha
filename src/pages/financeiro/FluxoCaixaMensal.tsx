@@ -303,7 +303,7 @@ export default function FluxoCaixaMensal() {
   if (fluxo === null) return null;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
       <PageHeader
         title="Fluxo de Caixa Mensal"
         description="Visão comparativa mensal completa."

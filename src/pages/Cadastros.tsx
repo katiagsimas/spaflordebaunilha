@@ -8,7 +8,7 @@ export default function Cadastros() {
 
   return (
     <div className="min-h-screen bg-[#FFF9F5] pb-24">
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
         {/* HERO BANNER padronizado */}
         <HeroBanner
           image={cadastrosHero}

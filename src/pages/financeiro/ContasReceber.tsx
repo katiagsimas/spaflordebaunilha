@@ -691,7 +691,7 @@ export default function ContasReceber() {
   if (loading) return <LoadingState message="Carregando Contas a Receber" submessage="Buscando suas receitas..." />;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
       <PageHeader
         title="Contas a Receber"
         description="Gerencie seus recebimentos aqui"

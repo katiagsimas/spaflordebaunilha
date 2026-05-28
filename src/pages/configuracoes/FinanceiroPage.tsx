@@ -10,7 +10,7 @@ export default function CadastrosFinanceiroPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-6 space-y-6">
+    <div className="min-h-screen bg-background px-4 md:px-6 pt-1 pb-4 md:pb-6 space-y-6">
       <PageHeader
         title="Cadastros"
         description="Gerencie bancos, documentos e plano de contas do Financeiro"

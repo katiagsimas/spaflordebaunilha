@@ -69,7 +69,7 @@ export default function ContasReceberForm() {
   // Se está em modo de edição e ainda está carregando, mostrar loading
   if (isEditMode && loading) {
     return (
-      <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pt-1 pb-4 md:pb-6 space-y-6">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
@@ -93,7 +93,7 @@ export default function ContasReceberForm() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+    <div className="max-w-7xl mx-auto px-4 md:px-6 pt-1 pb-4 md:pb-6 space-y-6">
       <div className="flex items-center gap-4">
         <Button
           variant="ghost"

@@ -470,7 +470,7 @@ export default function DRE() {
   } : null;
 
   return (
-    <div className="container mx-auto p-6 space-y-6 no-print">
+    <div className="container mx-auto px-6 pt-1 pb-6 space-y-6 no-print">
       <PageHeader
         title="Demonstrativo de Resultado"
         description="DRE — análise completa do exercício."

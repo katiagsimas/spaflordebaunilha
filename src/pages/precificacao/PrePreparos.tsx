@@ -254,7 +254,7 @@ export default function PrePreparos() {
   if (loading) return <LoadingState message="Carregando Pré-Preparos" submessage="Listando pré-preparos..." />;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between gap-3">
           <BackButton to="/precificacao" />
