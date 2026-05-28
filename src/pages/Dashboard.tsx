@@ -227,6 +227,14 @@ export default function Dashboard() {
     };
   }, [user, mesSelecionado, anoSelecionado]);
 
+  // Persistir período selecionado no localStorage
+  useEffect(() => {
+    localStorage.setItem('cda_dashboard_periodo', JSON.stringify({
+      mes: mesSelecionado,
+      ano: anoSelecionado,
+      modo: modoVisualizacao
+    }));
+  }, [mesSelecionado, anoSelecionado, modoVisualizacao]);
 
   useEffect(() => {
     setMesAnterior({ mes: mesSelecionado - 1 < 0 ? 11 : mesSelecionado - 1, ano: mesSelecionado - 1 < 0 ? anoSelecionado - 1 : anoSelecionado });
