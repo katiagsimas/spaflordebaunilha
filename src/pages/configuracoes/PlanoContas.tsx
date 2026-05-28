@@ -31,7 +31,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2, MoreVertical, ArrowRight } from 'lucide-react';
+import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2, MoreVertical, ArrowRight, ArrowLeft } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -481,7 +481,7 @@ export default function PlanoContas() {
             onClick={() => navigate('/financeiro/cadastros/categorias-plano-contas')}
             className="gap-2 text-muted-foreground hover:text-foreground font-body"
           >
-            <ArrowRight className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4" />
             Categorias Planos de Contas
           </Button>
           <Button
