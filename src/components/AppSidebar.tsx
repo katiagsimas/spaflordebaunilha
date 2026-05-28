@@ -92,7 +92,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
 ];
 
 export function AppSidebar() {
-  const { open } = useSidebar();
+  const { open, isMobile, setOpenMobile } = useSidebar();
   const { user } = useAuth();
   const { isMother, isGroupAdmin, sessionMode, activeGroup, activeRole } = useGroup();
   const { isAdmin } = useIsAdmin();
@@ -230,6 +230,7 @@ export function AppSidebar() {
                                 className="flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm opacity-40 cursor-not-allowed text-cda-creme"
                                 onClick={(e) => {
                                   e.preventDefault();
+                                  if (isMobile) setOpenMobile(false);
                                   setComingSoonModal({ title: item.title, message: item.comingSoonMessage || '' });
                                 }}
                               >
@@ -257,6 +258,7 @@ export function AppSidebar() {
                                   e.preventDefault();
                                   setUpgradeModal({ title: item.title });
                                 }
+                                if (isMobile) setOpenMobile(false);
                               }}
                               className={({ isActive }) =>
                                 `relative flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
