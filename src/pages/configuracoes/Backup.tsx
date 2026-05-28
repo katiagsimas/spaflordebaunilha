@@ -28,6 +28,8 @@ import { RestaurarBackupDialog, type RestaurarBackupAlvo } from "@/components/ba
 import { ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell, Tooltip } from "recharts";
 import { PageHeader } from "@/components/PageHeader";
 import backupHeroImg from "@/assets/backup-hero-banner.png";
+import { backupLocation } from "@/lib/backupLocation";
+import { FolderOpen, FolderCheck } from "lucide-react";
 
 const MODULO_ICONS: Record<BackupModuloId, React.ComponentType<{ className?: string }>> = {
   operacao: UtensilsCrossed,
