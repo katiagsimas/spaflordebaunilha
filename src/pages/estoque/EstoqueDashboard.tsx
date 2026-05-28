@@ -100,14 +100,22 @@ export default function EstoqueDashboard() {
 
       {/* KPIs */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {kpis.map(({ label, value, Icon, tone, iconWrap, iconColor }) => (
+        {kpis.map(({ label, value, Icon, image, tone, iconWrap, iconColor }) => (
           <div
             key={label}
             className="flex items-center gap-4 rounded-xl border border-[#5B1A2B]/10 bg-white p-5"
           >
-            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ring-1 ${iconWrap}`}>
-              <Icon className={`h-6 w-6 ${iconColor}`} />
-            </div>
+            {image ? (
+              <img
+                src={image}
+                alt={label}
+                className="h-12 w-12 shrink-0 object-contain"
+              />
+            ) : (
+              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ring-1 ${iconWrap}`}>
+                <Icon className={`h-6 w-6 ${iconColor}`} />
+              </div>
+            )}
             <div className="min-w-0">
               <p className="font-body text-xs uppercase tracking-wide text-[#5B1A2B]/60">{label}</p>
               <p className={`mt-1 font-display text-[28px] font-semibold leading-none ${tone}`}>{value}</p>
