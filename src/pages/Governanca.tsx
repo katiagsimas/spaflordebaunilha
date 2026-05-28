@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { PermissionGuard } from "@/components/PermissionGuard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGroup } from "@/contexts/GroupContext";
+import governancaHero from "@/assets/governanca-hero-banner.png";
 
 export default function Governanca() {
   const { isMother } = useGroup();
@@ -60,9 +61,13 @@ export default function Governanca() {
                 </p>
               </div>
             </div>
-            <div className="hidden sm:flex h-14 w-14 lg:h-16 lg:w-16 shrink-0 items-center justify-center rounded-full bg-[#5B1A2B]/10">
-              <Shield className="h-6 w-6 lg:h-7 lg:w-7 text-[#5B1A2B]" />
-            </div>
+            <img
+              src={governancaHero}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none h-10 w-auto shrink-0 object-contain object-right sm:h-14 lg:h-16"
+            />
+
           </div>
         </div>
       </div>
