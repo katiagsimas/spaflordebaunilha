@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { Users, Truck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { HeroBanner } from "@/components/HeroBanner";
 import { TileCard } from "@/components/TileCard";
 import { AniversariantesPremiumCard } from "@/components/AniversariantesPremiumCard";
 import { useClientes } from "@/hooks/useClientes";
