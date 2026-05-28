@@ -2,7 +2,7 @@ import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, Copy, AlertTriangle, Loader2, CookingPot, FileDown } from "lucide-react";
+import { Plus, Pencil, Trash2, Copy, AlertTriangle, Loader2, CookingPot, FileDown, ArrowRight } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -94,6 +94,16 @@ export default function Receitas() {
         title="Fichas Técnicas"
         description="Gerencie suas receitas e fichas técnicas"
         backButton={<BackButton to="/precificacao" />}
+        actions={
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/precificacao/pre-preparos")}
+            className="gap-2 text-muted-foreground hover:text-foreground font-body"
+          >
+            Pré-Preparos
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        }
       />
 
       <div className="flex justify-start">
