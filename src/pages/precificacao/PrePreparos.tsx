@@ -12,13 +12,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Clock, Scale, Info, MoreVertical, Trash2, FileDown } from 'lucide-react';
+import { Plus, Edit, Clock, Scale, Info, MoreVertical, Trash2, FileDown, ArrowRight } from 'lucide-react';
 import { exportarPrePreparoPDF } from '@/utils/exportarPrePreparoPDF';
 import { EmptyState } from '@/components/EmptyState';
 import { ChefHat } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { BackButton } from '@/components/BackButton';
-import { PageHeader } from '@/components/PageHeader';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -256,17 +255,38 @@ export default function PrePreparos() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <PageHeader
-        title="Pré-Preparos"
-        description="Cadastre preparos intermediários para usar em receitas"
-        backButton={<BackButton to="/precificacao" />}
-        actions={
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div className="flex items-start gap-3">
+          <BackButton to="/precificacao" />
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col items-start">
+              <h1 className="font-display text-3xl tracking-tight text-cda-vinho-escuro sm:text-4xl">
+                Pré-Preparos
+              </h1>
+              <div className="mt-2 flex items-center gap-3">
+                <span className="h-px w-12 bg-cda-dourado" />
+                <p className="text-sm font-body italic text-cda-vinho/70">
+                  Cadastre preparos intermediários para usar em receitas
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/precificacao/receitas')}
+              className="gap-2 text-muted-foreground hover:text-foreground font-body"
+            >
+              Ficha Técnica
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
           <Button onClick={() => navigate('/precificacao/pre-preparos/novo')}>
             <Plus className="mr-2 h-4 w-4" />
             Criar Novo Pré-Preparo
           </Button>
-        }
-      />
+        </div>
+      </div>
 
       <Alert className="bg-purple-50 border-purple-200 dark:bg-purple-950 dark:border-purple-800">
         <Info className="h-4 w-4 text-purple-600 dark:text-purple-400" />

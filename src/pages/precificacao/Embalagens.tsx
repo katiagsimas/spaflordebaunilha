@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,7 +43,7 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Check, ChevronsUpDown, Info, Download, Search, AlertTriangle, Package, MoreVertical, Trash2 } from 'lucide-react';
+import { Plus, Edit, Check, ChevronsUpDown, Info, Download, Search, AlertTriangle, Package, MoreVertical, Trash2, ArrowRight } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
@@ -63,9 +64,9 @@ import {
 import { cn } from '@/lib/utils';
 import * as XLSX from '@/lib/xlsxShim';
 import { BackButton } from '@/components/BackButton';
-import { PageHeader } from '@/components/PageHeader';
 
 export default function Embalagens() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [embalagens, setEmbalagens] = useState<any[]>([]);
   const [tiposDisponiveis, setTiposDisponiveis] = useState<any[]>([]);
@@ -573,23 +574,42 @@ export default function Embalagens() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Embalagens"
-        description="Cadastre embalagens com marca e preço para usar em receitas"
-        backButton={<BackButton to="/precificacao" />}
-        actions={
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={handleExportarExcel}>
-              <Download className="mr-2 h-4 w-4" />
-              Exportar Excel
-            </Button>
-            <Button onClick={() => handleAbrirModal()}>
-              <Plus className="mr-2 h-4 w-4" />
-              Nova Embalagem
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div className="flex items-start gap-3">
+          <BackButton to="/precificacao" />
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col items-start">
+              <h1 className="font-display text-3xl tracking-tight text-cda-vinho-escuro sm:text-4xl">
+                Embalagens
+              </h1>
+              <div className="mt-2 flex items-center gap-3">
+                <span className="h-px w-12 bg-cda-dourado" />
+                <p className="text-sm font-body italic text-cda-vinho/70">
+                  Cadastre embalagens com marca e preço para usar em receitas
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/precificacao/pre-preparos')}
+              className="gap-2 text-muted-foreground hover:text-foreground font-body"
+            >
+              Pré-Preparos
+              <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
-        }
-      />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" onClick={handleExportarExcel}>
+            <Download className="mr-2 h-4 w-4" />
+            Exportar Excel
+          </Button>
+          <Button onClick={() => handleAbrirModal()}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nova Embalagem
+          </Button>
+        </div>
+      </div>
 
       {/* Alertas */}
       <div className="grid gap-4 md:grid-cols-2">
