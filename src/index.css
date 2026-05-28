@@ -149,6 +149,34 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
+  /* Mobile-only: prevent horizontal scroll across the entire app.
+     Desktop (>=768px) layout is intentionally untouched. */
+  @media (max-width: 767px) {
+    html, body, #root {
+      max-width: 100vw;
+      overflow-x: hidden;
+    }
+
+    /* Common overflow culprits: wide tables, pre/code blocks, images */
+    img, video, canvas, svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Allow tables and other intentionally-wide blocks to scroll
+       inside their own container instead of pushing the page */
+    .table-responsive,
+    [data-radix-scroll-area-viewport],
+    .overflow-x-auto {
+      max-width: 100%;
+    }
+
+    table {
+      max-width: 100%;
+    }
+  }
+
+
   h1, h2, h3 {
     font-family: var(--font-display);
     @apply font-semibold tracking-tight;
