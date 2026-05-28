@@ -4,8 +4,7 @@ import { VisaoGeral } from "./VisaoGeral";
 import { Retiradas } from "./Retiradas";
 import { Educativo } from "./Educativo";
 import { Sparkles, CalendarDays, Settings2, ChevronLeft } from "lucide-react";
-import { HeroBanner } from "@/components/HeroBanner";
-import heroTop from "@/assets/meu-salario-hero-top.png";
+import heroSide from "@/assets/meu-salario-hero-side.png";
 
 export default function MeuSalario() {
   const [tab, setTab] = useState("visao");
@@ -30,23 +29,30 @@ export default function MeuSalario() {
         </button>
       </div>
 
-      {/* HERO BANNER padronizado */}
+      {/* ===== HEADER PREMIUM (mesmo padrão do módulo Encomendas) ===== */}
       <div className="mb-6 pr-24">
-        <div className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]" style={{ background: "#FAEFEB" }}>
-          <img
-            src={heroTop}
-            alt=""
-            aria-hidden="true"
-            className="pointer-events-none block w-full h-auto select-none"
-          />
-          <div className="px-4 pt-4 pb-4 sm:px-6 sm:pt-6 sm:pb-6 lg:px-8 lg:pt-7 lg:pb-7 text-left">
-            <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
-              Meu Salário
-            </h1>
-            <div className="mt-2 flex items-center gap-3">
-              <span className="h-px w-8 bg-[#C9A14A] sm:w-10" />
-              <p className="text-xs italic text-[#C9A14A] sm:text-sm">Método Renda Doce — quanto sua confeitaria pode te pagar sem sufocar.</p>
+        <div
+          className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
+          style={{ background: "#FAEFEB" }}
+        >
+          <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
+            <div className="flex-1 min-w-0">
+              <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
+                Meu Salário
+              </h1>
+              <div className="mt-2 flex items-center gap-3">
+                <span className="h-px w-8 bg-[#C9A14A] sm:w-10" />
+                <p className="text-xs italic text-[#C9A14A] sm:text-sm">
+                  Método Renda Doce — quanto sua confeitaria pode te pagar sem sufocar.
+                </p>
+              </div>
             </div>
+            <img
+              src={heroSide}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none h-20 w-auto shrink-0 object-contain object-right sm:h-28 lg:h-[150px]"
+            />
           </div>
         </div>
       </div>
