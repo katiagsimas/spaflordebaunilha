@@ -1605,14 +1605,25 @@ const Encomendas = () => {
       </div>
 
 
-      {/* ===== CALENDÁRIOS DE ENCOMENDAS ===== */}
-      <section>
-        <CalendariosEncomendas
-          onNovaEncomenda={() => setDialogOpen(true)}
-          mesSelecionado={mesSelecionado}
-          anoSelecionado={anoSelecionado}
-        />
+      {/* ===== ACESSO: CALENDÁRIOS DE ENCOMENDAS ===== */}
+      <section className="flex justify-center">
+        <button
+          type="button"
+          onClick={() => navigate('/encomendas/calendarios')}
+          aria-label="Abrir Calendários de Encomendas"
+          className="group flex flex-col items-center gap-2 rounded-2xl bg-transparent p-3 transition hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5B1A2B]/40"
+        >
+          <img
+            src={calendarioEncomendasIcon}
+            alt="Calendários de Encomendas"
+            className="h-40 w-40 object-contain drop-shadow-sm md:h-48 md:w-48"
+          />
+          <span className="text-sm font-semibold text-[#3D0F1C] group-hover:text-[#5B1A2B]">
+            Calendários de Encomendas
+          </span>
+        </button>
       </section>
+
 
       {/* DASHBOARD DE ENCOMENDAS */}
       
