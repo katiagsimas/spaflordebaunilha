@@ -35,6 +35,7 @@ export function PremiumCard({
   title,
   subtitle,
   headerOrnament,
+  headerOrnamentLeft,
   children,
   footerNote,
   footerNoteIcon,
@@ -61,6 +62,14 @@ export function PremiumCard({
             alt=""
             aria-hidden="true"
             className="pointer-events-none absolute right-0 top-0 h-full w-auto max-w-[45%] object-contain object-right opacity-95"
+          />
+        )}
+        {headerOrnamentLeft && (
+          <img
+            src={headerOrnamentLeft}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute left-0 top-0 h-full w-auto max-w-[22%] object-contain object-left opacity-95"
           />
         )}
         <div className={cn(
