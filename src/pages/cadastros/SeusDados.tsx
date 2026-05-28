@@ -682,7 +682,7 @@ export default function SeusDados() {
                   {assinatura ? (
                     <div className="relative inline-block">
                       <img
-                        src={assinatura}
+                        src={assinaturaPreview || assinatura}
                         alt="Assinatura"
                         className="max-w-xs max-h-32 rounded-lg border-2 border-border object-contain bg-muted p-4"
                       />
