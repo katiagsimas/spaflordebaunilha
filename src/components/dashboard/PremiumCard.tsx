@@ -8,6 +8,8 @@ interface PremiumCardProps {
   subtitle?: string;
   /** Imagem decorativa exibida no canto superior direito do header (PNG transparente). */
   headerOrnament?: string;
+  /** Imagem decorativa exibida no canto superior esquerdo do header (PNG transparente). */
+  headerOrnamentLeft?: string;
   /** Conteúdo principal renderizado no corpo creme. */
   children: ReactNode;
   /** Texto de nota no rodapé (ex.: "Pequenos gestos criam grandes lembranças."). */
