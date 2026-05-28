@@ -38,6 +38,8 @@ export default function MeuSalario() {
             className="pointer-events-none absolute bottom-0 right-0 h-[140px] w-auto object-contain object-bottom sm:h-[180px] lg:h-[220px]"
           />
         </div>
+      </div>
+
 
       <Tabs value={tab} onValueChange={setTab} className="w-full">
         <TabsList className="bg-transparent p-0 h-auto gap-1 border-0">
