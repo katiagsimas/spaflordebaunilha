@@ -25,7 +25,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Info, Search, Plus, Edit, Trash2, Filter, ArrowRight } from 'lucide-react';
+import { Info, Search, Plus, Edit, Trash2, Filter, ArrowRight, ArrowLeft } from 'lucide-react';
 import {
   Select,
   SelectContent,
