@@ -356,22 +356,24 @@ export default function TiposDocumentos() {
       <PageHeader
         title="Tipos de Documentos"
         description="Tipos de documentos para lançamentos financeiros"
-        actions={
-          <Button onClick={() => handleAbrirModal()}>
-            <Plus className="mr-2 h-4 w-4" />
-            Criar Novo Tipo
-          </Button>
-        }
       />
 
       {/* Alert */}
-      <Alert className="bg-blue-50 border-blue-200">
-        <Info className="h-4 w-4 text-blue-600" />
-        <AlertDescription>
-          O sistema já cadastrou 14 tipos de documentos mais comuns. 
+      <Alert className="bg-cda-creme border-2 border-cda-dourado">
+        <Info className="h-4 w-4 text-cda-vinho" />
+        <AlertDescription className="text-cda-preto">
+          O sistema já cadastrou 14 tipos de documentos mais comuns.
           Você pode criar tipos personalizados conforme sua necessidade.
         </AlertDescription>
       </Alert>
+
+      {/* Botão Novo Tipo */}
+      <div className="flex justify-start">
+        <Button onClick={() => handleAbrirModal()}>
+          <Plus className="mr-2 h-4 w-4" />
+          Criar Novo Tipo
+        </Button>
+      </div>
 
       {/* Busca e Filtros */}
       <div className="flex gap-4">
