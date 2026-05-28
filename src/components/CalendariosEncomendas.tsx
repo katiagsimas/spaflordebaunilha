@@ -475,6 +475,12 @@ export function CalendariosEncomendas({
           )}
         </CardContent>
       </Card>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        {renderCalendario(dadosAnterior, mesAnterior, "anterior")}
+        {renderCalendario(dadosAtual, mesAtual, "atual", true)}
+        {renderCalendario(dadosSeguinte, mesSeguinte, "seguinte")}
+      </div>
     </div>
   );
 }
