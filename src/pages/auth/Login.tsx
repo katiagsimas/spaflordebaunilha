@@ -140,8 +140,7 @@ export default function Login() {
                 </p>
               </CardHeader>
 
-              <form onSubmit={handleSubmit}>
-                <CardContent className="space-y-4 px-8">
+                <CardContent className="space-y-3 px-8">
                   <div className="space-y-2">
                     <Label htmlFor="email" className="font-body text-sm font-medium text-cda-preto">Email</Label>
                     <div className="relative">
@@ -193,6 +192,36 @@ export default function Login() {
                     </Link>
                   </div>
                 </CardContent>
+
+                <CardFooter className="flex flex-col space-y-3 px-8 pb-5">
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    size="lg"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Entrando...
+                      </>
+                    ) : (
+                      'Entrar'
+                    )}
+                  </Button>
+
+                  {planoExpirado && (
+                    <a
+                      href={URL_UPGRADE_EXTERNO}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full inline-flex items-center justify-center gap-2 bg-cda-coral text-cda-branco font-body font-semibold py-2.5 rounded-md hover:bg-cda-coral/90 transition-colors text-sm"
+                    >
+                      Renovar acesso à Imersão
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  )}
+                </CardFooter>
 
                 <CardFooter className="flex flex-col space-y-4 px-8 pb-8">
                   <Button
