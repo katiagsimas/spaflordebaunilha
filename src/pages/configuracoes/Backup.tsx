@@ -263,20 +263,16 @@ export default function Backup() {
         throw error;
       }
 
-      // Download imediato (o usuário pediu storage = "ambos")
+      // Salva localmente (na pasta escolhida ou em Downloads do navegador)
       const blob = new Blob([JSON.stringify(dados, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${nomeBackup}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const destino = await backupLocation.saveFile(`${nomeBackup}.json`, blob);
 
       await carregarBackups();
       queryClient.invalidateQueries({ queryKey: ['ultimo-backup'] });
-      toast.success(`Backup "${nomeBackup}" gerado, salvo na nuvem e baixado!`);
+      const ondeMsg = destino === "folder"
+        ? `salvo em "${backupLocation.getSavedFolderName()}"`
+        : "baixado para sua pasta de Downloads";
+      toast.success(`Backup "${nomeBackup}" gerado, na nuvem e ${ondeMsg}!`);
     } catch (err: any) {
       toast.error("Erro ao realizar backup: " + err.message);
     } finally {
