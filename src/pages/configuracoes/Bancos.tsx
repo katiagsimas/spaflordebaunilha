@@ -489,9 +489,13 @@ export default function Bancos() {
             <p className="text-muted-foreground">Cadastre os bancos que você utiliza</p>
           </div>
         </div>
-        <Button onClick={() => navigate('/financeiro/cadastros/tipos-documentos')} variant="outline">
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/financeiro/cadastros/tipos-documentos')}
+          className="gap-2 text-muted-foreground hover:text-foreground font-body"
+        >
           Tipos de Documentos
-          <ArrowRight className="ml-2 h-4 w-4" />
+          <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
 
