@@ -260,7 +260,7 @@ export default function PrePreparos() {
           <BackButton to="/precificacao" />
           <Button
             variant="ghost"
-            onClick={() => navigate('/precificacao/receitas')}
+            onClick={() => navigate('/precificacao/ficha-tecnica')}
             className="gap-2 text-muted-foreground hover:text-foreground font-body"
           >
             Ficha Técnica
