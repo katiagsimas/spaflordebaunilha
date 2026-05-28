@@ -82,11 +82,10 @@ export function PremiumCard({
             </div>
           )}
           <div className={cn(
-            "min-w-0 flex-1",
+            "relative z-10 min-w-0 flex-1",
             !centerTitle && "pr-[40%] sm:pr-0",
             centerTitle && "flex flex-col items-center"
           )}>
-            <h3 className="font-display text-xl leading-tight text-cda-creme sm:text-2xl">
               {title}
             </h3>
             {subtitle && (
