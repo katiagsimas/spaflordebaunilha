@@ -235,15 +235,4 @@ export default function Login() {
     </>
   );
 }
-              </form>
-            </Card>
 
-            <p className="text-center text-xs font-body text-cda-creme/40">
-              Sistema de gestão para confeitarias
-            </p>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
