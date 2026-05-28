@@ -98,6 +98,7 @@ const BANCOS_OFICIAIS: Record<string, string> = {
 };
 
 export default function Bancos() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [bancos, setBancos] = useState<Banco[]>([]);
   const [loading, setLoading] = useState(true);
