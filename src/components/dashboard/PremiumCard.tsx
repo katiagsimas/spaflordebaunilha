@@ -73,19 +73,18 @@ export function PremiumCard({
           />
         )}
         <div className={cn(
-          "relative px-5 py-4 sm:px-6 sm:py-5",
-          !centerTitle && "flex items-start gap-3",
-          centerTitle && "flex items-center justify-center min-h-[88px]"
+          "relative flex items-start gap-3 px-5 py-4 sm:px-6 sm:py-5",
+          centerTitle && "flex-col items-center text-center"
         )}>
-          {Icon && !hideIcon && !centerTitle && (
+          {Icon && !hideIcon && (
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full ring-1 ring-cda-dourado/60">
               <Icon className="h-5 w-5 text-cda-dourado" />
             </div>
           )}
           <div className={cn(
-            "relative z-10 min-w-0",
-            !centerTitle && "flex-1 pr-[40%] sm:pr-0",
-            centerTitle && "flex flex-col items-center text-center"
+            "relative z-10 min-w-0 flex-1",
+            !centerTitle && "pr-[40%] sm:pr-0",
+            centerTitle && "flex flex-col items-center"
           )}>
             <h3 className="font-display text-xl leading-tight text-cda-creme sm:text-2xl">
               {title}
@@ -97,15 +96,9 @@ export function PremiumCard({
             )}
           </div>
           {headerRight && (
-            <div className={cn(
-              "relative shrink-0 z-10",
-              centerTitle
-                ? "absolute right-5 top-1/2 -translate-y-1/2 sm:right-6"
-                : "ml-auto"
-            )}>{headerRight}</div>
+            <div className="relative ml-auto shrink-0">{headerRight}</div>
           )}
         </div>
-
       </div>
 
       {/* BODY CREME */}
