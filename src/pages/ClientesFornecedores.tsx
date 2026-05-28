@@ -63,8 +63,14 @@ export default function ClientesFornecedores() {
         className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
         style={{ background: "#FAEFEB" }}
       >
-        <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
-          <div className="flex-1 min-w-0">
+        <div className="flex flex-col items-start px-4 pt-4 pb-4 sm:px-6 sm:pt-6 sm:pb-6 lg:px-8 lg:pt-7 lg:pb-7">
+          <img
+            src={clientesFornecedoresHero}
+            alt="Clientes e Fornecedores"
+            aria-hidden="true"
+            className="pointer-events-none h-24 w-auto self-center object-contain sm:h-32 lg:h-40"
+          />
+          <div className="mt-4 text-left sm:mt-5">
             <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
               Clientes e Fornecedores
             </h1>
@@ -75,12 +81,6 @@ export default function ClientesFornecedores() {
               </p>
             </div>
           </div>
-          <img
-            src={clientesFornecedoresHero}
-            alt="Clientes e Fornecedores"
-            aria-hidden="true"
-            className="pointer-events-none h-20 w-auto shrink-0 object-contain object-right sm:h-28 lg:h-[150px]"
-          />
         </div>
       </div>
 
