@@ -1237,13 +1237,13 @@ export default function Dashboard() {
         hideIcon
         centerTitle
         headerRight={
-          <div className="inline-flex rounded-full bg-cda-vinho-escuro/40 p-1 ring-1 ring-cda-dourado/40">
+          <div className="inline-flex rounded-full bg-cda-vinho-escuro/40 p-0.5 ring-1 ring-cda-dourado/40 scale-75 origin-right">
             {(["mensal", "anual"] as const).map((tab) => (
               <button
                 key={tab}
                 type="button"
                 onClick={() => setTabEconomica(tab)}
-                className={`rounded-full px-4 py-1 text-xs font-body uppercase tracking-widest transition ${
+                className={`rounded-full px-2 py-0.5 text-[10px] font-body uppercase tracking-wider transition ${
                   tabEconomica === tab
                     ? "bg-cda-dourado text-cda-vinho-escuro shadow"
                     : "text-cda-creme/80 hover:text-cda-creme"
@@ -1253,6 +1253,7 @@ export default function Dashboard() {
               </button>
             ))}
           </div>
+
         }
       >
         {tabEconomica === "mensal" ? (
