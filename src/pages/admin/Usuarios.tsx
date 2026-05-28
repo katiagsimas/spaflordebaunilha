@@ -461,10 +461,6 @@ export default function Usuarios() {
             description="Gerencie todos os usuários cadastrados, suas permissões e a estrutura de grupos"
             backButton={<BackButton to="/governanca" />}
           />
-          <Button onClick={() => setShowCriarDialog(true)}>
-            <UserPlus className="mr-2 h-4 w-4" />
-            Criar Usuário
-          </Button>
         </div>
 
         <Tabs defaultValue="usuarios" className="space-y-6">
@@ -515,6 +511,14 @@ export default function Usuarios() {
               </CardHeader>
             </Card>
           ))}
+        </div>
+
+        {/* Criar Usuário */}
+        <div className="flex justify-start">
+          <Button onClick={() => setShowCriarDialog(true)}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Criar Usuário
+          </Button>
         </div>
 
         {/* Busca e Filtros */}
