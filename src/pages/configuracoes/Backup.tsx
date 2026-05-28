@@ -305,14 +305,10 @@ export default function Backup() {
         return;
       }
       const blob = new Blob([JSON.stringify(dados, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${nome}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const destino = await backupLocation.saveFile(`${nome}.json`, blob);
+      if (destino === "folder") {
+        toast.success(`Backup salvo em "${backupLocation.getSavedFolderName()}"`);
+      }
     } catch {
       toast.error("Erro ao baixar backup.");
     }
