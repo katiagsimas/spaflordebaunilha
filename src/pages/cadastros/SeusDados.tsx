@@ -261,6 +261,7 @@ export default function SeusDados() {
         await supabase.storage.from("assinaturas").remove(files.map((f) => `${user.id}/${f.name}`));
       }
       setAssinatura("");
+      setAssinaturaPreview("");
       await supabase.from("profiles").update({ assinatura_url: null } as any).eq("id", user.id);
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id, activeGroup?.id] });
       queryClient.invalidateQueries({ queryKey: ["business-profile", user?.id] });
