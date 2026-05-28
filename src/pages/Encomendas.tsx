@@ -1625,6 +1625,10 @@ const Encomendas = () => {
         </button>
       </section>
 
+      {/* ===== ENCOMENDAS DO DIA ===== */}
+      <EncomendasDoDia onNovaEncomenda={() => setDialogOpen(true)} />
+
+
 
       {/* DASHBOARD DE ENCOMENDAS */}
       
