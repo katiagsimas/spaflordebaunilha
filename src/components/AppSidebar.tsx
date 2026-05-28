@@ -223,25 +223,17 @@ export function AppSidebar() {
                       if (isComingSoon && !adminUnlocked && !motherUnlocked) {
                         return (
                           <SidebarMenuItem key={item.title}>
-                            <SidebarMenuButton asChild isActive={false} disabled>
-                              <NavLink
-                                to={item.url}
-                                end
-                                className="flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm opacity-40 cursor-not-allowed text-cda-creme"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  setComingSoonModal({ title: item.title, message: item.comingSoonMessage || '' });
-                                }}
-                              >
-                                <Icon className="h-5 w-5 text-cda-creme/80" />
-                                {open && (
-                                  <>
-                                    <span className="flex-1">{item.title}</span>
-                                    <Lock className="h-3.5 w-3.5 text-cda-creme/40" />
-                                  </>
-                                )}
-                              </NavLink>
-                            </SidebarMenuButton>
+                          <SidebarMenuButton asChild isActive={false} disabled>
+                            <NavLink
+                              to={item.url}
+                              end
+                              className="flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm opacity-40 cursor-not-allowed text-cda-creme"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                if (isMobile) setOpenMobile(false);
+                                setComingSoonModal({ title: item.title, message: item.comingSoonMessage || '' });
+                              }}
+                            >
                           </SidebarMenuItem>
                         );
                       }
