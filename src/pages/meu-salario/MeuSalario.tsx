@@ -35,7 +35,7 @@ export default function MeuSalario() {
             src={heroSide}
             alt=""
             aria-hidden="true"
-            className="pointer-events-none absolute right-0 top-1/2 h-[140px] w-auto -translate-y-1/2 object-contain sm:h-[180px] lg:h-[220px]"
+            className="pointer-events-none absolute right-0 inset-y-0 my-auto h-[140px] w-auto object-contain sm:h-[180px] lg:h-[220px]"
           />
 
         </div>
