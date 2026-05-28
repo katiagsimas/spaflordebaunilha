@@ -513,6 +513,14 @@ export default function Usuarios() {
           ))}
         </div>
 
+        {/* Criar Usuário */}
+        <div className="flex justify-start">
+          <Button onClick={() => setShowCriarDialog(true)}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Criar Usuário
+          </Button>
+        </div>
+
         {/* Busca e Filtros */}
         <Card>
           <CardContent className="pt-6">
