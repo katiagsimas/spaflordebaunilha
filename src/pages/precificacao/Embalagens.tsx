@@ -43,7 +43,7 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Check, ChevronsUpDown, Info, Download, Search, AlertTriangle, Package, MoreVertical, Trash2, ArrowRight } from 'lucide-react';
+import { Plus, Edit, Check, ChevronsUpDown, Info, Download, Search, AlertTriangle, Package, MoreVertical, Trash2, ArrowLeft } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
@@ -582,16 +582,16 @@ export default function Embalagens() {
             onClick={() => navigate('/precificacao/ingredientes')}
             className="gap-2 text-muted-foreground hover:text-foreground font-body"
           >
+            <ArrowLeft className="h-4 w-4" />
             Ingredientes
-            <ArrowRight className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
             onClick={() => navigate('/precificacao/pre-preparos')}
             className="gap-2 text-muted-foreground hover:text-foreground font-body"
           >
+            <ArrowLeft className="h-4 w-4" />
             Pré-Preparos
-            <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
