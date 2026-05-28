@@ -27,7 +27,7 @@ import { useGroup } from "@/contexts/GroupContext";
 import { RestaurarBackupDialog, type RestaurarBackupAlvo } from "@/components/backup/RestaurarBackupDialog";
 import { ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell, Tooltip } from "recharts";
 import { PageHeader } from "@/components/PageHeader";
-import backupHeroImg from "@/assets/backup-hero-banner.jpg";
+import backupHeroImg from "@/assets/backup-hero-banner.png";
 
 const MODULO_ICONS: Record<BackupModuloId, React.ComponentType<{ className?: string }>> = {
   operacao: UtensilsCrossed,
@@ -455,7 +455,7 @@ export default function Backup() {
         className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
         style={{ background: "#FAEFEB" }}
       >
-        <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
+        <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6 pr-[150px] sm:pr-[200px] lg:pr-[260px] min-h-[130px] sm:min-h-[150px] lg:min-h-[170px]">
           <div className="flex-1 min-w-0">
             <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
               Backup
@@ -467,14 +467,15 @@ export default function Backup() {
               </p>
             </div>
           </div>
-          <img
-            src={backupHeroImg}
-            alt=""
-            aria-hidden="true"
-            className="pointer-events-none h-10 w-auto shrink-0 object-contain object-right sm:h-14 lg:h-16"
-          />
         </div>
+        <img
+          src={backupHeroImg}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-0 right-0 h-[140px] w-auto object-contain object-bottom sm:h-[180px] lg:h-[220px]"
+        />
       </div>
+
 
 
       {/* SOBRE OS BACKUPS */}
