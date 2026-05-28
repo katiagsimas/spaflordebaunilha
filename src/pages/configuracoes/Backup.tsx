@@ -471,7 +471,7 @@ export default function Backup() {
             src={backupHeroImg}
             alt=""
             aria-hidden="true"
-            className="pointer-events-none h-20 w-auto shrink-0 object-contain object-right sm:h-28 lg:h-[150px]"
+            className="pointer-events-none h-10 w-auto shrink-0 object-contain object-right sm:h-14 lg:h-16"
           />
         </div>
       </div>
