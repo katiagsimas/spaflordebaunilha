@@ -12,6 +12,7 @@ import { HeroBanner } from '@/components/HeroBanner';
 import emptyPrateleira from '@/assets/estoque-empty-prateleira.png';
 import valorEstoqueImg from '@/assets/estoque-valor-total.png';
 import itensCadastradosImg from '@/assets/estoque-itens-cadastrados.png';
+import abaixoMinimoImg from '@/assets/estoque-abaixo-minimo.png';
 
 export default function EstoqueDashboard() {
   const navigate = useNavigate();
@@ -58,6 +59,7 @@ export default function EstoqueDashboard() {
       label: 'Abaixo do Mínimo',
       value: itensAbaixoMinimo.length.toString(),
       Icon: AlertTriangle,
+      image: abaixoMinimoImg,
       tone: itensAbaixoMinimo.length > 0 ? 'text-[#F28C82]' : 'text-[#3D0F1C]',
       iconWrap:
         itensAbaixoMinimo.length > 0
