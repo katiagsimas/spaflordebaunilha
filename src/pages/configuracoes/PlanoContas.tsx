@@ -602,31 +602,25 @@ export default function PlanoContas() {
           </div>
         </div>
 
-        <div className="flex justify-between items-center gap-4">
-          <div className="flex items-center gap-4">
-            <div className="text-sm text-muted-foreground">
-              Mostrando <strong>{planosPaginados.length}</strong> de <strong>{planosFiltrados.length}</strong> plano(s)
-            </div>
-            <div className="flex items-center gap-2">
-              <Label className="text-sm whitespace-nowrap">Resultados por página:</Label>
-              <Select value={resultadosPorPagina} onValueChange={setResultadosPorPagina}>
-                <SelectTrigger className="w-24">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="25">25</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                  <SelectItem value="100">100</SelectItem>
-                  <SelectItem value="todos">Todos</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-muted-foreground">
+            Mostrando <strong>{planosPaginados.length}</strong> de <strong>{planosFiltrados.length}</strong> plano(s)
           </div>
-          <Button onClick={handleExportar} variant="outline" size="sm">
-            <Download className="mr-2 h-4 w-4" />
-            Exportar Excel
-          </Button>
+          <div className="flex items-center gap-2">
+            <Label className="text-sm whitespace-nowrap">Resultados por página:</Label>
+            <Select value={resultadosPorPagina} onValueChange={setResultadosPorPagina}>
+              <SelectTrigger className="w-24">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+                <SelectItem value="todos">Todos</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
