@@ -27,7 +27,7 @@ import { useGroup } from "@/contexts/GroupContext";
 import { RestaurarBackupDialog, type RestaurarBackupAlvo } from "@/components/backup/RestaurarBackupDialog";
 import { ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell, Tooltip } from "recharts";
 import { PageHeader } from "@/components/PageHeader";
-import backupHeroImg from "@/assets/backup-hero-banner.jpg";
+import backupHeroImg from "@/assets/backup-hero-banner.png";
 
 const MODULO_ICONS: Record<BackupModuloId, React.ComponentType<{ className?: string }>> = {
   operacao: UtensilsCrossed,
