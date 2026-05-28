@@ -31,7 +31,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2, MoreVertical } from 'lucide-react';
+import { Info, Power, PowerOff, Search, Download, Filter, Plus, Edit, Trash2, MoreVertical, ArrowRight } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
