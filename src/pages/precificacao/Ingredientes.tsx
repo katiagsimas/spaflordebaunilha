@@ -624,14 +624,14 @@ export default function Ingredientes() {
           <Input placeholder="Buscar por ingrediente ou marca..." value={termoBusca} onChange={e => setTermoBusca(e.target.value)} className="pl-10" />
         </div>
       </div>
-      <div className="flex justify-start gap-2">
-        <Button variant="outline" onClick={handleExportarExcel}>
-          <Download className="mr-2 h-4 w-4" />
-          Exportar Excel
-        </Button>
+      <div className="flex justify-between gap-2">
         <Button onClick={() => handleAbrirModal()}>
           <Plus className="mr-2 h-4 w-4" />
           Novo Ingrediente
+        </Button>
+        <Button variant="outline" onClick={handleExportarExcel}>
+          <Download className="mr-2 h-4 w-4" />
+          Exportar Excel
         </Button>
       </div>
 
