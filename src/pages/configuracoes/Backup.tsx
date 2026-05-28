@@ -449,8 +449,11 @@ export default function Backup() {
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6 space-y-6">
-      {/* HERO BANNER padronizado */}
-      <HeroBanner image={bannerImg} title="Backup" subtitle="Gerencie backups do seu projeto por módulo" />
+      <Card className="border-cda-vinho/10 bg-gradient-to-br from-cda-creme to-white shadow-sm">
+        <CardHeader>
+          <PageHeader title="Backup" description="Gerencie backups do seu projeto por módulo" />
+        </CardHeader>
+      </Card>
 
       {/* SOBRE OS BACKUPS */}
       <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5">
