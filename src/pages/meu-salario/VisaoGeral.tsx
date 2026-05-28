@@ -129,12 +129,15 @@ export function VisaoGeral() {
       {error && (
         <div className="rounded-2xl border border-[#F28C82] bg-[#F28C82]/10 p-6 text-center">
           <AlertTriangle className="h-8 w-8 text-[#F28C82] mx-auto mb-3" />
-          <h3 className="text-lg font-semibold text-[#3D0F1C]">Não foi possível carregar o resumo</h3>
-          <p className="text-sm text-[#3D0F1C]/80 mt-2">
-            {error instanceof Error ? error.message : "Ocorreu um erro inesperado."}
+          <h3 className="text-lg font-semibold text-[#3D0F1C]">
+            Ainda não há informações financeiras suficientes neste mês
+          </h3>
+          <p className="text-sm text-[#3D0F1C]/80 mt-2 max-w-xl mx-auto">
+            Para calcular seu salário, precisamos de lançamentos em Contas a Receber, Contas a Pagar e Retiradas referentes ao período selecionado. Cadastre suas movimentações financeiras ou escolha outro mês de referência para visualizar o resumo.
           </p>
         </div>
       )}
+
 
       {resumo && !isLoading && !error && (
         <>
