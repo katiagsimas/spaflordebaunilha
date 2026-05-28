@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { formatDateToISO } from "@/lib/dateUtils";
 import { PageHeader } from "@/components/PageHeader";
+import { FinanceiroNav } from "@/components/financeiro/FinanceiroNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

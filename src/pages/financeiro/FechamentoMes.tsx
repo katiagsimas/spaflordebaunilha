@@ -11,6 +11,8 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { PageHeader } from "@/components/PageHeader";
+import { BackButton } from "@/components/BackButton";
+import { FinanceiroNav } from "@/components/financeiro/FinanceiroNav";
 import {
   useFechamentoMes, useAbrirOuCriarFechamento, useFecharMes, useReabrirMes,
   useToggleChecklistItem, useListaFechamentos, useFechamentoLogs, mesAnteriorIso, listaMesesRecentes,
@@ -54,6 +56,12 @@ export default function FechamentoMes() {
       <PageHeader
         title="Fechamento de Mês"
         description="Consolide o resultado, marque o checklist e bloqueie alterações do período."
+        backButton={
+          <div className="flex flex-wrap items-center gap-2">
+            <BackButton to="/financeiro" />
+            <FinanceiroNav current="/financeiro/fechamento-mes" />
+          </div>
+        }
       />
 
       {/* Seletor de mês */}
