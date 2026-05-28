@@ -766,7 +766,7 @@ export default function Backup() {
       {/* Agendamento + Retenção + Restaurar */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Agendamento */}
-        <Card className="border-l-4 border-l-blue-500">
+        <Card className="border-l-4 border-l-blue-500 border-cda-dourado/40">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
@@ -894,7 +894,7 @@ export default function Backup() {
         </Card>
 
         {/* Restaurar */}
-        <Card className="border-l-4 border-l-amber-500">
+        <Card className="border-l-4 border-l-amber-500 border-cda-dourado/40">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
@@ -927,7 +927,7 @@ export default function Backup() {
       </div>
 
       {/* Histórico */}
-      <Card>
+      <Card className="border-cda-dourado/40">
         <CardHeader>
           <CardTitle className="text-lg">Histórico de backups</CardTitle>
           <CardDescription>Salvos na nuvem do Caixa de Açúcar</CardDescription>
