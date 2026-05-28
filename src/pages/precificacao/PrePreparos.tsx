@@ -255,36 +255,36 @@ export default function PrePreparos() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div className="flex items-start gap-3">
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between gap-3">
           <BackButton to="/precificacao" />
-          <div className="flex items-center gap-3">
-            <div className="flex flex-col items-start">
-              <h1 className="font-display text-3xl tracking-tight text-cda-vinho-escuro sm:text-4xl">
-                Pré-Preparos
-              </h1>
-              <div className="mt-2 flex items-center gap-3">
-                <span className="h-px w-12 bg-cda-dourado" />
-                <p className="text-sm font-body italic text-cda-vinho/70">
-                  Cadastre preparos intermediários para usar em receitas
-                </p>
-              </div>
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/precificacao/receitas')}
+            className="gap-2 text-muted-foreground hover:text-foreground font-body"
+          >
+            Ficha Técnica
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div className="flex flex-col items-start">
+            <h1 className="font-display text-3xl tracking-tight text-cda-vinho-escuro sm:text-4xl">
+              Pré-Preparos
+            </h1>
+            <div className="mt-2 flex items-center gap-3">
+              <span className="h-px w-12 bg-cda-dourado" />
+              <p className="text-sm font-body italic text-cda-vinho/70">
+                Cadastre preparos intermediários para usar em receitas
+              </p>
             </div>
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/precificacao/receitas')}
-              className="gap-2 text-muted-foreground hover:text-foreground font-body"
-            >
-              Ficha Técnica
-              <ArrowRight className="h-4 w-4" />
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button onClick={() => navigate('/precificacao/pre-preparos/novo')}>
+              <Plus className="mr-2 h-4 w-4" />
+              Criar Novo Pré-Preparo
             </Button>
           </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button onClick={() => navigate('/precificacao/pre-preparos/novo')}>
-            <Plus className="mr-2 h-4 w-4" />
-            Criar Novo Pré-Preparo
-          </Button>
         </div>
       </div>
 
