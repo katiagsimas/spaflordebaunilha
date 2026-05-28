@@ -501,19 +501,23 @@ export default function PlanoContas() {
       />
 
       {/* Alert */}
-      <Alert className="bg-blue-50 border-blue-200">
-        <Info className="h-4 w-4 text-blue-600" />
-        <AlertDescription>
+      <Alert className="bg-cda-creme border-2 border-cda-dourado">
+        <Info className="h-4 w-4 text-cda-vinho" />
+        <AlertDescription className="text-cda-preto">
           O sistema criou automaticamente {planos.filter(p => p.e_padrao).length} planos de contas padrão 
           para confeitaria. Você pode criar planos personalizados conforme sua necessidade.
         </AlertDescription>
       </Alert>
 
-      {/* Botão Criar */}
-      <div className="flex justify-center">
+      {/* Botões */}
+      <div className="flex justify-between items-center gap-2">
         <Button onClick={() => handleAbrirModal()} size="lg">
           <Plus className="mr-2 h-5 w-5" />
           Adicionar Plano de Contas
+        </Button>
+        <Button onClick={handleExportar} variant="outline" size="sm">
+          <Download className="mr-2 h-4 w-4" />
+          Exportar Excel
         </Button>
       </div>
 
@@ -598,31 +602,25 @@ export default function PlanoContas() {
           </div>
         </div>
 
-        <div className="flex justify-between items-center gap-4">
-          <div className="flex items-center gap-4">
-            <div className="text-sm text-muted-foreground">
-              Mostrando <strong>{planosPaginados.length}</strong> de <strong>{planosFiltrados.length}</strong> plano(s)
-            </div>
-            <div className="flex items-center gap-2">
-              <Label className="text-sm whitespace-nowrap">Resultados por página:</Label>
-              <Select value={resultadosPorPagina} onValueChange={setResultadosPorPagina}>
-                <SelectTrigger className="w-24">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="25">25</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                  <SelectItem value="100">100</SelectItem>
-                  <SelectItem value="todos">Todos</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-muted-foreground">
+            Mostrando <strong>{planosPaginados.length}</strong> de <strong>{planosFiltrados.length}</strong> plano(s)
           </div>
-          <Button onClick={handleExportar} variant="outline" size="sm">
-            <Download className="mr-2 h-4 w-4" />
-            Exportar Excel
-          </Button>
+          <div className="flex items-center gap-2">
+            <Label className="text-sm whitespace-nowrap">Resultados por página:</Label>
+            <Select value={resultadosPorPagina} onValueChange={setResultadosPorPagina}>
+              <SelectTrigger className="w-24">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+                <SelectItem value="todos">Todos</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
