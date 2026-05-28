@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { ScrollText, Plus, Trash2, Download, FileText, ArrowLeft, Send, CheckCircle2, Coins, LayoutList } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,7 @@ export default function Contratos() {
     valor_total: 0, data_evento: "", observacoes: "", status: "rascunho" as ContratoStatus,
   });
   const [toDelete, setToDelete] = useState<Contrato | null>(null);
+  const navigate = useNavigate();
 
   const { contratos, stats, create, remove } = useContratos();
   const { data: templates = [] } = useContratoTemplates();
@@ -213,6 +215,11 @@ export default function Contratos() {
       <PageHeader
         title="Contratos"
         description="Gere contratos a partir de modelos prontos e acompanhe o status de cada um."
+        backButton={
+          <Button variant="ghost" size="sm" className="gap-1 text-cda-vinho" onClick={() => navigate("/comercial/negociacoes")}>
+            <ArrowLeft className="h-4 w-4" /> Voltar
+          </Button>
+        }
         actions={
           <Button className="bg-cda-vinho hover:bg-cda-vinho-escuro text-white" onClick={() => setView("select-template")}>
             <Plus className="h-4 w-4 mr-2" /> Novo contrato
