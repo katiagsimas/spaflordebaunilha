@@ -238,11 +238,13 @@ export default function SeusDados() {
         .from("assinaturas")
         .upload(filePath, file, { upsert: true, contentType: file.type });
       if (uploadError) throw uploadError;
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("assinaturas").getPublicUrl(filePath);
-      setAssinatura(publicUrl);
-      await supabase.from("profiles").update({ assinatura_url: publicUrl } as any).eq("id", user.id);
+      // Bucket privado: persiste o path e gera URL assinada para exibição
+      setAssinatura(filePath);
+      const { data: signed } = await supabase.storage
+        .from("assinaturas")
+        .createSignedUrl(filePath, 3600);
+      setAssinaturaPreview(signed?.signedUrl || "");
+      await supabase.from("profiles").update({ assinatura_url: filePath } as any).eq("id", user.id);
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id, activeGroup?.id] });
       queryClient.invalidateQueries({ queryKey: ["business-profile", user?.id] });
       toast.success("Assinatura enviada!");
