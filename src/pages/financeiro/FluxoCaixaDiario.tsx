@@ -233,44 +233,55 @@ export default function FluxoCaixaDiario() {
       />
 
 
-      {/* Filtro de Ano e Mês */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Ano</label>
-              <Select value={ano.toString()} onValueChange={(value) => setAno(parseInt(value))}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {anos.map((a) => (
-                    <SelectItem key={a} value={a.toString()}>
-                      {a}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+      {/* Filtro de Ano e Mês + atalho cruzado */}
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <Card className="w-fit">
+          <CardContent className="py-3 px-4">
+            <div className="flex items-end gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-cda-vinho/70">Ano</label>
+                <Select value={ano.toString()} onValueChange={(value) => setAno(parseInt(value))}>
+                  <SelectTrigger className="h-9 w-[110px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {anos.map((a) => (
+                      <SelectItem key={a} value={a.toString()}>
+                        {a}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Mês</label>
-              <Select value={mes.toString()} onValueChange={(value) => setMes(parseInt(value))}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {mesesNomes.map((nome, index) => (
-                    <SelectItem key={index} value={index.toString()}>
-                      {nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-cda-vinho/70">Mês</label>
+                <Select value={mes.toString()} onValueChange={(value) => setMes(parseInt(value))}>
+                  <SelectTrigger className="h-9 w-[150px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mesesNomes.map((nome, index) => (
+                      <SelectItem key={index} value={index.toString()}>
+                        {nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate("/financeiro/fluxo-caixa/mensal")}
+          className="h-9 rounded-full border-cda-dourado/50 bg-cda-creme/60 text-cda-vinho hover:bg-cda-dourado/15 hover:text-cda-vinho-escuro"
+        >
+          Ver Fluxo de Caixa Mensal
+        </Button>
+      </div>
 
       {/* Cards de Resumo */}
       <div className="grid gap-4 md:grid-cols-4">
