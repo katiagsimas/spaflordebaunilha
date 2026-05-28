@@ -591,7 +591,7 @@ export default function Embalagens() {
               onClick={() => navigate('/precificacao/pre-preparos')}
               className="gap-2 text-muted-foreground hover:text-foreground font-body"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4" />
               Pré-Preparos
             </Button>
           </div>
