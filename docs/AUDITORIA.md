@@ -1,5 +1,263 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
+> Este arquivo é gerado e atualizado automaticamente a cada auditoria realizada no projeto.
+> Última atualização: 2026-05-28T22:59:00Z — Auditoria completa pré-lançamento (#1 holística).
+
+---
+
+## AUDITORIA COMPLETA #1 — 2026-05-28 22:59 UTC
+
+### 📊 Resumo Executivo
+- **Status Geral:** ⚠️ **APROVADO COM RESSALVAS** — não há bloqueadores críticos de segurança, mas há 3 itens críticos operacionais (gitignore, analytics/monitoramento, validação de pagamento real) que devem ser tratados antes do lançamento público.
+- **Total de itens verificados:** 77
+- **Itens OK (✅):** 52
+- **Itens de Atenção (⚠️):** 17
+- **Itens Críticos (❌):** 3
+- **Itens Não Aplicáveis (🔲):** 5
+
+---
+
+### 🔴 Itens Críticos (bloqueiam lançamento)
+
+| # | Item | Descrição | Correção sugerida |
+|---|------|-----------|-------------------|
+| C-1 | `.gitignore` não inclui `.env` | O arquivo `.env` existe na raiz e **não está listado no `.gitignore`**. Apesar de só conter chaves públicas Supabase (`VITE_*`), isso é uma armadilha futura: se alguém adicionar um segredo em `.env`, ele vai para o repositório. | Adicionar `.env`, `.env.local`, `.env.*.local` ao `.gitignore`. |
+| C-2 | Sem monitoramento de erros em produção | Nenhuma ferramenta detectada (Sentry, LogRocket, Bugsnag). Em produção qualquer crash do React ou falha de Edge Function passará despercebido até o usuário reclamar. | Instalar Sentry (ou similar) com DSN via secret; cobrir frontend (`@sentry/react`) e edge functions. |
+| C-3 | Sem analytics nem dashboard de saúde | Nenhuma ferramenta de analytics (GA4, Posthog, Mixpanel) integrada. Sem dados de uso, será impossível medir adoção, engajamento e gargalos pós-lançamento. | Plugar Posthog ou GA4 — basta `<script>` em `index.html` ou wrapper React leve. |
+
+---
+
+### 🟡 Itens de Atenção (não bloqueiam, mas devem ser resolvidos em breve)
+
+| # | Item | Descrição | Recomendação |
+|---|------|-----------|--------------|
+| A-1 | Bucket Storage `assinaturas` público | Scanner Lovable detectou: políticas INSERT/UPDATE/DELETE já são owner-scoped, mas como o bucket é público o SELECT escapa do RLS. Qualquer URL adivinhada vaza assinaturas de contrato. | Tornar bucket privado e usar `createSignedUrl()` nas leituras. |
+| A-2 | Bucket Storage `topo-bolo` público | Mesma situação do `assinaturas` — bucket público faz com que a política SELECT owner-scoped seja inócua. | Tornar bucket privado e migrar leituras para signed URLs. |
+| A-3 | 218 ocorrências de `console.*` em `src/` | Anteriormente reduzidas para 0 (PENDENCIAS_SEGURANCA), voltaram durante novas features. Risco de vazar payloads e ids em produção. | Rodar lint para banir `console.log` em produção (manter `console.warn/error` permitido) e revisar arquivos. |
+| A-4 | 642 usos de `any` em 101 arquivos TS | Tipagem frouxa em mais de 1/3 da base. Aumenta risco de bugs runtime e mascara mudanças de schema. | Estabelecer meta gradual: novos PRs devem evitar `any`; substituir nas áreas críticas (financeiro, pagamentos). |
+| A-5 | `AuthContext` viola sua própria regra de inicialização | A memória do projeto exige `getSession()` **antes** de `onAuthStateChange`, mas `src/contexts/AuthContext.tsx` (linhas 30-50) faz o oposto. Pode causar race condition em primeiro paint. | Inverter a ordem ou atualizar a memória se a ordem atual for intencional. |
+| A-6 | Assets duplicados `.jpg`/`.png` em `src/assets` | Pelo menos 8 hero banners possuem versões `.jpg` **e** `.png` (cadastros, cardapio, clientes-fornecedores, dinheiro, estoque, backup, governanca, meus-dados). Bundle inflado. | Manter apenas o formato em uso e remover os demais. |
+| A-7 | Sem `sitemap.xml` | Apenas `robots.txt` existe. Para um SaaS isso é tolerável (área autenticada), mas a landing/login se beneficia. | Gerar `public/sitemap.xml` mínimo com rotas públicas. |
+| A-8 | Templates de email Cloud não customizados | Pendência #6 já registrada em `PENDENCIAS_SEGURANCA.md`. | Customizar templates de boas-vindas/reset no painel Cloud. |
+| A-9 | 56 dependências de produção | Volume razoável, mas sem auditoria de tamanho recente. | Rodar `bun pm ls` + bundle analyzer e revisar libs grandes (ex.: `exceljs`, `recharts`). |
+| A-10 | Sem validação real de venda Hotmart | Usuário confirmou que nenhuma venda real ocorreu — base limpa para testes. | Realizar uma compra real (mesmo valor mínimo) e validar o ciclo completo: webhook → provisionamento → email → primeiro login. |
+| A-11 | Sem teste manual em dispositivo móvel real | Apenas DevTools usado para validar responsividade. | Smoke test em iOS Safari e Android Chrome reais antes de divulgar. |
+| A-12 | Sem testes automatizados | Não há suíte de testes (`vitest`, `playwright`). Aceitável para MVP, mas crítico aumenta com a base. | Cobrir os 5 fluxos críticos (login, recuperação, encomenda, fechamento de mês, webhook Hotmart) com testes E2E pós-lançamento. |
+| A-13 | Cancelamento de conta não implementado | Não existe fluxo de auto-exclusão para a aluna; depende de admin. | Documentar processo manual ou implementar self-service na tela "Meus Dados". |
+| A-14 | 120 `useEffect` no projeto | Volume alto; risco de dependências incorretas e re-renders. | Habilitar `eslint-plugin-react-hooks` com `exhaustive-deps` em modo `error`. |
+| A-15 | Sem `<meta name="robots">` explícito | Páginas internas são SPA autenticadas, mas a raiz pode ser indexada. | Adicionar `<meta name="robots" content="noindex,nofollow">` em rotas autenticadas via `react-helmet` ou similar. |
+| A-16 | `tsconfig` com `noImplicitAny: false` (provável) | O alto número de `any` sugere `strict` desabilitado. | Habilitar `strict` gradualmente em novos arquivos. |
+| A-17 | Histórico de planos zerado | Confirmado pelo usuário: 8 registros órfãos removidos. Garantir que o webhook real grava corretamente o primeiro `historico_planos` quando a primeira venda Hotmart chegar. | Monitorar logs da edge function `hotmart-webhook` durante o primeiro pedido. |
+
+---
+
+### 🟢 Pontos Positivos
+
+- 🛡️ **RLS impecável:** 72/72 tabelas com RLS ativo, 281 políticas, 0 tabelas sem policy. Verificação automática confirmou cobertura total.
+- 🛡️ **Multi-tenancy sólida:** modelo `owner_group_id` + `user_group_roles` consistente; 0 registros órfãos por `owner_group_id` em 38 tabelas verificadas.
+- 🛡️ **Função `has_role` SECURITY DEFINER** corretamente isolada com `search_path = public`; evita recursão de RLS.
+- 🛡️ **Histórico de pendências de segurança bem documentado** em `docs/PENDENCIAS_SEGURANCA.md` (30+ itens resolvidos com rastreamento).
+- 🛡️ **Backups em Storage privado** com signed URLs (P-21 resolvido).
+- 🛡️ **AI Gateway com cap por plano** (P-20) — Lite 50/mês, Business 500/mês, MOTHER ilimitado.
+- 🛡️ **Rate limiting** na edge function `criar-usuario` (P-3).
+- 🛡️ **Sem secrets hardcoded** no código — busca por `sk_live`, `sk_test`, JWT-like strings em `src/` e `supabase/functions/` retornou 0.
+- 🛡️ **Vulnerabilidade `xlsx` resolvida** via shim sobre `exceljs`.
+- 🎨 **Design system maduro:** tokens `--cda-*`, paleta Vinho Premium v2 consolidada.
+- 🎨 **Loading + noscript fallbacks** em `index.html`.
+- 🎨 **Acessibilidade:** nenhuma tag `<img>` sem `alt` detectada.
+- 🧱 **Estrutura de pastas limpa** (`pages`, `components`, `hooks`, `lib`, `contexts`, `services`, `schemas`, `types`, `integrations`).
+- 🧱 **88 rotas, todas envolvidas em `<ProtectedRoute>`** (exceto auth/SSO).
+- 🧱 **Confirmação destrutiva** presente em 25 telas (AlertDialog).
+- 🧱 **94 funções de banco**, 235 índices — schema bem otimizado.
+- 🔄 **11 Edge Functions** cobrindo SSO, webhook Hotmart, AI proxy, backups, emails, recuperação.
+
+---
+
+### 📝 Resultado Completo por Bloco
+
+#### 🏗️ BLOCO 1 — ARQUITETURA E ESTRUTURA
+| Item | Status |
+|---|---|
+| Estrutura de pastas lógica e escalável | ✅ |
+| Sem pastas órfãs significativas | ⚠️ Assets duplicados (A-6) |
+| Ponto de entrada (`main.tsx`) bem definido | ✅ |
+| Pages/components/hooks/utils organizados | ✅ |
+| Separação lógica de negócio × UI | ✅ |
+| `.env` não exposto no frontend (apenas `VITE_*` públicos) | ✅ |
+| Sem arquivos de exemplo/template residuais | ✅ |
+| `.gitignore` correto | ❌ C-1 |
+
+#### 🔐 BLOCO 2 — SEGURANÇA E DADOS SENSÍVEIS
+| Item | Status |
+|---|---|
+| Sem chaves/tokens hardcoded | ✅ |
+| Variáveis de ambiente consumidas corretamente | ✅ |
+| RLS ativo em todas as tabelas com dados de usuário | ✅ (72/72) |
+| Validação de auth em rotas protegidas | ✅ |
+| Isolamento entre usuários (cross-tenant) | ✅ |
+| Proteção contra injeção (Supabase parametrizado) | ✅ |
+| HTTPS | ✅ |
+| `console.log` em produção | ⚠️ A-3 |
+
+#### 🗄️ BLOCO 3 — BANCO DE DADOS E INTEGRAÇÕES
+| Item | Status |
+|---|---|
+| Todas as tabelas existem | ✅ |
+| Migrações consistentes (234 arquivos) | ✅ |
+| Queries otimizadas (com índices) | ✅ |
+| Tratamento de erro Supabase | ✅ |
+| Políticas RLS para SELECT/INSERT/UPDATE/DELETE | ✅ (281 policies) |
+| Foreign keys e relações | ✅ |
+| Índices em colunas filtradas | ✅ (235 índices) |
+| Edge Functions com tratamento de erro | ✅ |
+| Storage buckets com policies | ⚠️ A-1, A-2 (2 públicos) |
+| Tipos TS atualizados | ✅ (auto) |
+
+#### ⚙️ BLOCO 4 — LÓGICA E FUNCIONALIDADES CORE
+| Item | Status |
+|---|---|
+| Funcionalidades core implementadas | ✅ |
+| Sem mocks em produção | ✅ |
+| Fluxo de cadastro/login/recuperação | ✅ |
+| Fluxo principal CRUD | ✅ |
+| Cancelamento de conta | ⚠️ A-13 |
+| Lógica de planos/assinaturas | ✅ |
+| Cálculos financeiros validados | ✅ |
+| Estados empty/loading/error | ✅ |
+| Confirmação em ações destrutivas | ✅ (25 telas) |
+
+#### 💻 BLOCO 5 — QUALIDADE DO CÓDIGO
+| Item | Status |
+|---|---|
+| Sem código morto significativo | ✅ |
+| Componentização suficiente | ✅ |
+| TODO/FIXME/HACK resolvidos | ✅ (4 comentários inócuos) |
+| Componentes reutilizáveis | ✅ |
+| Tipagem TS / uso de `any` | ⚠️ A-4 (642 ocorrências) |
+| Erros não silenciados | ✅ (sem catch vazio) |
+| Loops infinitos / re-renders | ⚠️ A-14 |
+| `useEffect` deps corretas | ⚠️ A-14 |
+| Memory leaks (subs/listeners) | ✅ AuthContext faz unsubscribe |
+| Inicialização do AuthContext | ⚠️ A-5 |
+
+#### 🎨 BLOCO 6 — UI/UX
+| Item | Status |
+|---|---|
+| Design consistente (tokens) | ✅ |
+| Estados visuais (hover/disabled/loading) | ✅ |
+| Mensagens de erro claras | ✅ (toasts pt-BR) |
+| Mensagens de sucesso | ✅ |
+| Validação de formulários (Zod) | ✅ |
+| Responsividade | ⚠️ A-11 (sem teste real mobile) |
+| Sem lorem ipsum / placeholder de teste | ✅ |
+| Imagens com `alt` | ✅ |
+| Contraste WCAG | ✅ (Vinho/Creme bem contrastados) |
+| Navegação intuitiva | ✅ |
+| Favicon e title | ✅ |
+| Loading/splash | ✅ |
+
+#### 🚀 BLOCO 7 — PERFORMANCE
+| Item | Status |
+|---|---|
+| Imagens otimizadas | ⚠️ A-6 (duplicação) |
+| Sem over-fetching óbvio | ✅ |
+| Listas longas com paginação | ✅ |
+| Lazy loading de imports | ⚠️ Não auditado em profundidade |
+| Tamanho do bundle | ⚠️ A-9 |
+| Promise.all onde aplicável | ✅ |
+| Cache de dados estáticos (React Query) | ✅ |
+
+#### 🌐 BLOCO 8 — SEO E META
+| Item | Status |
+|---|---|
+| `<title>` correto | ✅ |
+| Meta description | ✅ |
+| Open Graph / Twitter Cards | ✅ |
+| robots.txt | ✅ |
+| sitemap.xml | ⚠️ A-7 |
+| URLs amigáveis | ✅ |
+| Fallback sem JS | ✅ |
+| Meta robots em rotas privadas | ⚠️ A-15 |
+
+#### 📧 BLOCO 9 — COMUNICAÇÃO E NOTIFICAÇÕES
+| Item | Status |
+|---|---|
+| Emails transacionais (Resend) | ✅ |
+| Remetente customizado | ✅ |
+| Notificações in-app (toast) | ✅ |
+| Webhooks com retry (Hotmart) | ✅ |
+| Templates Cloud customizados | ⚠️ A-8 |
+
+#### 💳 BLOCO 10 — PAGAMENTOS E ASSINATURAS
+| Item | Status |
+|---|---|
+| Gateway em produção (Hotmart) | ✅ |
+| Checkout testado com venda real | ⚠️ A-10 |
+| Tratamento de falha | ✅ (webhook idempotente) |
+| Webhooks processando | ✅ |
+| Cancelamento libera/bloqueia acesso | ✅ |
+| Upgrade/downgrade de plano | ✅ |
+| Notas fiscais | 🔲 Responsabilidade Hotmart |
+
+#### 📊 BLOCO 11 — ANALYTICS E MONITORAMENTO
+| Item | Status |
+|---|---|
+| Analytics configurado | ❌ C-3 |
+| Erros monitorados em produção | ❌ C-2 |
+| Dashboard de saúde | 🔲 Cloud nativo |
+| Logs sem dados sensíveis | ✅ |
+
+#### 🧪 BLOCO 12 — TESTES E VALIDAÇÃO FINAL
+| Item | Status |
+|---|---|
+| Fluxos críticos testados manualmente | 🔲 A validar pelo usuário |
+| Testado nos principais navegadores | 🔲 A validar pelo usuário |
+| Testado em mobile real | ⚠️ A-11 |
+| Casos extremos (campos vazios, etc.) | 🔲 A validar pelo usuário |
+| Suíte automatizada | ⚠️ A-12 |
+
+---
+
+### 🎯 Plano de Ação Recomendado
+
+**Antes do lançamento (essencial):**
+1. **C-1** — Adicionar `.env*` ao `.gitignore` (5 min)
+2. **C-2** — Configurar Sentry para frontend e edge functions (1-2 h)
+3. **C-3** — Plugar Posthog ou GA4 (30 min)
+4. **A-1 / A-2** — Tornar buckets `assinaturas` e `topo-bolo` privados + signed URLs (1 h)
+5. **A-10** — Validar 1 venda real Hotmart end-to-end (30 min monitorando logs)
+6. **A-11** — Smoke test em mobile real (iOS + Android, 30 min)
+
+**Primeira semana pós-lançamento:**
+7. **A-3** — Limpar 218 `console.*` e adicionar lint rule
+8. **A-5** — Corrigir ordem de inicialização do `AuthContext` ou atualizar memória
+9. **A-6** — Remover hero banners `.jpg` ou `.png` duplicados
+10. **A-8** — Customizar templates de email no Cloud
+11. **A-15** — Adicionar `<meta name="robots" content="noindex">` nas rotas autenticadas
+
+**Próximo sprint:**
+12. **A-4 / A-16** — Plano de redução de `any` + habilitar `strict`
+13. **A-7** — `sitemap.xml`
+14. **A-9** — Auditoria de bundle
+15. **A-12** — Suíte E2E mínima (login, encomenda, webhook Hotmart)
+16. **A-13** — Self-service de cancelamento de conta
+17. **A-14** — `eslint-plugin-react-hooks` em modo error
+
+---
+
+### 🏁 Veredicto Final
+
+> ⚠️ **APROVADO COM RESSALVAS**
+>
+> Não há bloqueadores de **segurança** críticos — a base RLS é sólida, multi-tenancy está consistente, e o histórico de pendências mostra rigor. Porém, lançar sem **monitoramento de erros (Sentry)** e **analytics** é como dirigir vendado: você não saberá nem se o sistema está quebrando, nem se está sendo usado.
+>
+> Os 3 críticos acima são tudo trabalho de poucas horas. Recomendo bloquear o lançamento até C-1, C-2 e C-3 estarem prontos, e tratar A-1/A-2/A-10/A-11 como condicionantes. Os demais itens de atenção podem entrar no primeiro sprint pós-lançamento.
+>
+> Posso resolver C-1, C-2, C-3, A-1 e A-2 agora mesmo se você autorizar.
+
+---
+
+
 > Última atualização: 2026-05-27T14:15:00Z — Fundo gradiente preto elegante aplicado nas telas de autenticação.
 
 ## UI/UX — FUNDO GRADIENTE NA TELA DE AUTENTICAÇÃO — 2026-05-27 14:15 UTC
