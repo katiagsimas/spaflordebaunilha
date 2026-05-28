@@ -862,9 +862,9 @@ export default function Ingredientes() {
               </div>
             </div>
 
-            <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800">
-              <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              <AlertDescription className="text-sm">
+            <Alert className="bg-cda-creme border-2 border-cda-dourado">
+              <Info className="h-4 w-4 text-cda-vinho" />
+              <AlertDescription className="text-sm text-cda-preto">
                 Este ingrediente será salvo e ficará disponível para usar.
               </AlertDescription>
             </Alert>
