@@ -147,7 +147,14 @@ export default function Dashboard() {
     mensal: 0,
     anual: 0
   });
-  const [modoVisualizacao, setModoVisualizacao] = useState<'mensal' | 'anual'>('mensal');
+  const [modoVisualizacao, setModoVisualizacao] = useState<'mensal' | 'anual'>(() => {
+    const saved = localStorage.getItem('cda_dashboard_periodo');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.modo === 'mensal' || parsed.modo === 'anual') return parsed.modo;
+    }
+    return 'mensal';
+  });
 
   // Contadores topo
   const [contadores, setContadores] = useState({
