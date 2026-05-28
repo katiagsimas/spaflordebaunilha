@@ -177,8 +177,8 @@ export function AppSidebar() {
 
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border" style={{ width: open ? '280px' : undefined }}>
-      <SidebarHeader className="h-14 border-b border-cda-dourado/30 px-4 py-0 flex items-center justify-center bg-gradient-to-r from-cda-vinho-escuro via-cda-vinho to-cda-vinho-escuro">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-cda-vinho" style={{ width: open ? '280px' : undefined }}>
+      <SidebarHeader className="h-14 border-b border-cda-dourado/30 px-4 py-0 flex items-center justify-center bg-cda-vinho">
         {open && (
           <div className="flex items-center gap-2.5">
             <img src="/cda-logo-dourado.png" alt="Caixa de Açúcar" className="h-7 w-7 drop-shadow" />
