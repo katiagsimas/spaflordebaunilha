@@ -131,14 +131,15 @@ export default function Login() {
 
             {/* Login card */}
             <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">
-              <CardHeader className="pb-2 pt-5">
-                <h2 className="text-xl font-display font-semibold text-cda-preto text-center">
-                  Bem-vinda de volta
-                </h2>
-                <p className="text-sm font-body text-muted-foreground text-center">
-                  Acesse sua conta para continuar
-                </p>
-              </CardHeader>
+              <form onSubmit={handleSubmit}>
+                <CardHeader className="pb-2 pt-5">
+                  <h2 className="text-xl font-display font-semibold text-cda-preto text-center">
+                    Bem-vinda de volta
+                  </h2>
+                  <p className="text-sm font-body text-muted-foreground text-center">
+                    Acesse sua conta para continuar
+                  </p>
+                </CardHeader>
 
                 <CardContent className="space-y-3 px-8">
                   <div className="space-y-2">
@@ -222,7 +223,6 @@ export default function Login() {
                     </a>
                   )}
                 </CardFooter>
-
               </form>
             </Card>
 
