@@ -1190,7 +1190,7 @@ export default function Dashboard() {
             </div>
             <button
               type="button"
-              onClick={() => navigate("/cadastros/clientes")}
+              onClick={() => navigate("/clientes")}
               className="text-xs font-body italic text-cda-dourado underline-offset-4 hover:underline"
             >
               Ver clientes
