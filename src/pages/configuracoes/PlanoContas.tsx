@@ -477,14 +477,24 @@ export default function PlanoContas() {
         description="Contas detalhadas para classificação de lançamentos financeiros"
         backButton={<BackButton to="/financeiro/cadastros" />}
         actions={
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/financeiro/cadastros/juros')}
-            className="gap-2 text-muted-foreground hover:text-foreground font-body"
-          >
-            Juros
-            <ArrowRight className="h-4 w-4" />
-          </Button>
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/financeiro/cadastros/categorias-plano-contas')}
+              className="gap-2 text-muted-foreground hover:text-foreground font-body"
+            >
+              <ArrowRight className="h-4 w-4" />
+              Categorias Planos de Contas
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/financeiro/cadastros/juros')}
+              className="gap-2 text-muted-foreground hover:text-foreground font-body"
+            >
+              Juros
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </>
         }
       />
 
