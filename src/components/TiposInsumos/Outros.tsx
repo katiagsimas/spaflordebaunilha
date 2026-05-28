@@ -256,6 +256,19 @@ export default function TiposInsumosOutros() {
         </AlertDescription>
       </Alert>
 
+      {/* Ações */}
+      <div className="flex justify-between items-center gap-2">
+        <Button onClick={() => handleAbrirModal()} className="gap-2">
+          <Plus className="h-4 w-4" />
+          Novo Outro Insumo
+        </Button>
+        <Button onClick={handleExportarExcel} variant="outline" className="gap-2">
+          <Download className="h-4 w-4" />
+          Exportar Excel
+        </Button>
+      </div>
+
+      {/* Busca */}
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -266,14 +279,6 @@ export default function TiposInsumosOutros() {
             className="pl-8"
           />
         </div>
-        <Button onClick={() => handleAbrirModal()} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Novo Outro Insumo
-        </Button>
-        <Button onClick={handleExportarExcel} variant="outline" className="gap-2">
-          <Download className="h-4 w-4" />
-          Exportar Excel
-        </Button>
       </div>
 
       <div className="border rounded-lg">
