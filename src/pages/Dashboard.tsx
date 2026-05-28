@@ -998,24 +998,31 @@ export default function Dashboard() {
   return (
     <div className="flex h-full">
       <div className="flex-1 min-w-0 space-y-6">
-      {/* ===== CARD QUADRADO DA SAUDAÇÃO (transparente, sem fundo/borda) ===== */}
-      <div className="flex justify-center md:justify-start">
-        <div className="aspect-square w-32 sm:w-40 md:w-48 bg-transparent border-0 shadow-none flex items-center justify-center">
-          <img
-            src={saudacaoPorHora().imagem}
-            alt={saudacaoPorHora().texto}
-            className="w-full h-full object-contain"
-          />
+      {/* ===== HEADER PREMIUM (padrão Negociações, com imagem à direita) ===== */}
+      <div
+        className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
+        style={{ background: "#FAEFEB" }}
+      >
+        <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6 pr-[150px] sm:pr-[200px] lg:pr-[260px] min-h-[130px] sm:min-h-[150px] lg:min-h-[170px]">
+          <div className="flex-1 min-w-0">
+            <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
+              {saudacaoPorHora().texto}, {getPrimeiroNome(profile?.nome_completo, user?.email)}!
+            </h1>
+            <div className="mt-2 flex items-center gap-3">
+              <span className="h-px w-8 bg-[#C9A14A] sm:w-10" />
+              <p className="text-xs italic text-[#C9A14A] sm:text-sm">
+                Aqui está o resumo do seu negócio.
+              </p>
+            </div>
+          </div>
         </div>
+        <img
+          src={saudacaoPorHora().imagem}
+          alt={saudacaoPorHora().texto}
+          aria-hidden="true"
+          className="pointer-events-none absolute right-0 top-1/2 h-[140px] w-auto -translate-y-1/2 object-contain sm:h-[180px] lg:h-[220px]"
+        />
       </div>
-
-      {/* ===== HERO BANNER padronizado ===== */}
-      <HeroBanner
-        image={saudacaoPorHora().imagem}
-        imageAlt={saudacaoPorHora().texto}
-        title={`${saudacaoPorHora().texto}, ${getPrimeiroNome(profile?.nome_completo, user?.email)}!`}
-        subtitle="Aqui está o resumo do seu negócio."
-      />
 
 
       {/* ===== BOTÃO DE AJUDA (padrão: canto esquerdo, abaixo do header) ===== */}
