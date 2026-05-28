@@ -103,8 +103,34 @@ export default function Backup() {
   useEffect(() => {
     carregarBackups();
     carregarAgendamento();
+    setPastaSalvamento(backupLocation.getSavedFolderName());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  async function escolherPasta() {
+    if (!fsApiSupported) {
+      toast.info("Seu navegador não permite escolher pasta. Tente Chrome, Edge ou Brave.");
+      return;
+    }
+    setEscolhendoPasta(true);
+    try {
+      const res = await backupLocation.pickFolder();
+      if (res) {
+        setPastaSalvamento(res.name);
+        toast.success(`Backups serão salvos em "${res.name}"`);
+      }
+    } catch (err: any) {
+      toast.error("Não foi possível selecionar a pasta: " + (err?.message || ""));
+    } finally {
+      setEscolhendoPasta(false);
+    }
+  }
+
+  async function limparPasta() {
+    await backupLocation.clearFolder();
+    setPastaSalvamento(null);
+    toast.success("Backups voltarão para a pasta Downloads do navegador.");
+  }
 
   async function carregarAgendamento() {
     if (!user) return;
