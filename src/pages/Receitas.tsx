@@ -94,15 +94,16 @@ export default function Receitas() {
         title="Fichas Técnicas"
         description="Gerencie suas receitas e fichas técnicas"
         backButton={<BackButton to="/precificacao" />}
-        actions={
-          <Button
-            onClick={() => navigate("/precificacao/ficha-tecnica/nova")}
-            className="bg-cda-vinho text-cda-creme hover:bg-cda-vinho-escuro"
-          >
-            <Plus className="mr-2 h-4 w-4" />Nova Ficha Técnica
-          </Button>
-        }
       />
+
+      <div className="flex justify-start">
+        <Button
+          onClick={() => navigate("/precificacao/ficha-tecnica/nova")}
+          className="bg-cda-vinho text-cda-creme hover:bg-cda-vinho-escuro"
+        >
+          <Plus className="mr-2 h-4 w-4" />Nova Ficha Técnica
+        </Button>
+      </div>
 
       <div className="flex flex-wrap gap-2">
         <Button
