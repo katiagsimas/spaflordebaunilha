@@ -39,6 +39,7 @@ export default function EstoqueDashboard() {
       label: 'Valor Total em Estoque',
       value: valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
       Icon: Coins,
+      image: valorEstoqueImg,
       tone: 'text-[#3D0F1C]',
       iconWrap: 'bg-[#C9A14A]/15 ring-[#C9A14A]/40',
       iconColor: 'text-[#C9A14A]',
