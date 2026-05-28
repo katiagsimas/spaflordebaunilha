@@ -166,19 +166,12 @@ export default function CofreBackups() {
   const mensaisTotal = items.filter((i) => i.eh_mensal).length;
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-6 space-y-6">
-      <div className="flex flex-col gap-4">
-        <BackButton to="/governanca" />
-        <div className="flex items-center gap-3">
-          <Archive className="h-8 w-8 text-cda-vinho" />
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight font-display">Cofre de Backups</h1>
-            <p className="text-muted-foreground">
-              Espelho automático de backups para suporte. Retenção: dia 1 de cada mês + 5 mais recentes por grupo.
-            </p>
-          </div>
-        </div>
-      </div>
+    <div className="container mx-auto p-6 space-y-6">
+      <PageHeader
+        title="Cofre de Backups"
+        description="Espelho automático de backups para suporte. Retenção: dia 1 de cada mês + 5 mais recentes por grupo."
+        backButton={<BackButton to="/governanca" />}
+      />
 
       <Card className="bg-cda-dourado/10 border-cda-dourado/30">
         <CardContent className="pt-6">
