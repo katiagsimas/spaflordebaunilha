@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,7 +23,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Info, Search, Download, Filter } from 'lucide-react';
+import { Info, Search, Download, Filter, ArrowRight } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { BackButton } from '@/components/BackButton';
 import * as XLSX from '@/lib/xlsxShim';
@@ -39,6 +40,7 @@ interface Categoria {
 }
 
 export default function CategoriasPlanoContas() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
@@ -221,6 +223,16 @@ export default function CategoriasPlanoContas() {
         title="Categorias do Plano de Contas"
         description="Categorias para classificação de receitas e despesas no DRE"
         backButton={<BackButton to="/financeiro/cadastros" />}
+        actions={
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/financeiro/cadastros/plano-contas')}
+            className="gap-2 text-muted-foreground hover:text-foreground font-body"
+          >
+            Plano de Contas
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        }
       />
 
       {/* Alertas */}
