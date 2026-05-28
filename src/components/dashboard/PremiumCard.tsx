@@ -22,6 +22,10 @@ interface PremiumCardProps {
   asideRight?: ReactNode;
   className?: string;
   bodyClassName?: string;
+  /** Oculta o ícone do header, mesmo que seja passado. */
+  hideIcon?: boolean;
+  /** Centraliza o título e subtítulo no header. */
+  centerTitle?: boolean;
 }
 
 export function PremiumCard({
