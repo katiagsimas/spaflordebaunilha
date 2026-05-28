@@ -764,6 +764,14 @@ export default function ContasReceber() {
         </Card>
       </div>
 
+      {/* Botão Adicionar */}
+      <div className="flex justify-start">
+        <Button onClick={() => navigate('/financeiro/contas-receber/nova')}>
+          <Plus className="mr-2 h-4 w-4" />
+          Adicionar Conta a Receber
+        </Button>
+      </div>
+
       {/* Filtros de Data */}
       <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
