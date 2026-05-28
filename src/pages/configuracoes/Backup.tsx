@@ -474,7 +474,7 @@ export default function Backup() {
   ];
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-6 space-y-6">
+    <div className="min-h-screen bg-background px-4 md:px-6 pt-1 pb-4 md:pb-6 space-y-6">
       {/* ===== HEADER PREMIUM (mesmo padrão do módulo Encomendas) ===== */}
       <div
         className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"

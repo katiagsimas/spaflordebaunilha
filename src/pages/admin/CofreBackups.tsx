@@ -166,7 +166,7 @@ export default function CofreBackups() {
   const mensaisTotal = items.filter((i) => i.eh_mensal).length;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
       <PageHeader
         title="Cofre de Backups"
         description="Espelho automático de backups para suporte. Retenção: dia 1 de cada mês + 5 mais recentes por grupo."

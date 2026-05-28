@@ -471,7 +471,7 @@ export default function PlanoContas() {
   if (loading) return <LoadingState message="Carregando Plano de Contas" submessage="Organizando suas contas..." />;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
       {/* Navegação superior */}
       <div className="flex items-center justify-between">
         <BackButton to="/financeiro/cadastros" />

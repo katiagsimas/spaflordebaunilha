@@ -225,7 +225,7 @@ export default function FluxoCaixaDiario() {
   const anos = Array.from({ length: anoAtual - 2024 + 5 }, (_, i) => 2025 + i);
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
       <PageHeader
         title="Fluxo de Caixa Diário"
         description="Movimentações do mês dia a dia."

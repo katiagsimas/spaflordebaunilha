@@ -10,7 +10,7 @@ export default function MeuSalario() {
   const [tab, setTab] = useState("visao");
 
   return (
-    <div className="renda-doce-scope -m-6 md:-m-8 min-h-[calc(100vh-3.5rem)] relative p-6 md:p-8">
+    <div className="renda-doce-scope -mx-6 md:-mx-8 -mt-2 -mb-6 md:-mb-8 min-h-[calc(100vh-3.5rem)] relative px-6 md:px-8 pt-2 pb-6 md:pb-8">
       {/* ===== HEADER PREMIUM (mesmo padrão do módulo Encomendas) ===== */}
       <div className="mb-6">
 

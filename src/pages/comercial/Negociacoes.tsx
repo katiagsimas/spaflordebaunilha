@@ -145,7 +145,7 @@ export default function Negociacoes() {
 
   return (
     <div className="min-h-screen bg-[#FFF9F5] pb-24">
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
         {/* ===== HEADER PREMIUM ===== */}
         <div
           className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"

@@ -776,7 +776,7 @@ export default function ContasPagar() {
   if (loading) return <LoadingState message="Carregando Contas a Pagar" submessage="Buscando suas despesas..." />;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
       <PageHeader
         title="Contas a Pagar"
         description="Gerencie seus pagamentos aqui"

@@ -44,7 +44,7 @@ export default function Governanca() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
         {/* HERO BANNER padronizado */}
         <HeroBanner
           image={governancaHero}

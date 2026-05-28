@@ -227,7 +227,7 @@ export default function Contratos() {
           <Plus className="h-4 w-4 mr-2" /> Novo contrato
         </Button>
       </div>
-      <div className="p-6 space-y-6">
+      <div className="px-6 pt-1 pb-6 space-y-6">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {[
             { label: "Total", value: s?.total ?? 0, icon: LayoutList, tone: "vinho" as const },
