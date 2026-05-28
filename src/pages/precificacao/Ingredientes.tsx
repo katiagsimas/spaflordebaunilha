@@ -595,10 +595,7 @@ export default function Ingredientes() {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" onClick={handleExportarExcel}>
-              <Download className="mr-2 h-4 w-4" />
-              Exportar Excel
-            </Button>
+            {/* ações removidas para baixo do busca */}
           </div>
         </div>
       </div>
@@ -626,6 +623,10 @@ export default function Ingredientes() {
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Buscar por ingrediente ou marca..." value={termoBusca} onChange={e => setTermoBusca(e.target.value)} className="pl-10" />
         </div>
+        <Button variant="outline" onClick={handleExportarExcel}>
+          <Download className="mr-2 h-4 w-4" />
+          Exportar Excel
+        </Button>
       </div>
       <div className="flex justify-start">
         <Button onClick={() => handleAbrirModal()}>

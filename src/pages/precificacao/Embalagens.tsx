@@ -599,10 +599,7 @@ export default function Embalagens() {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" onClick={handleExportarExcel}>
-              <Download className="mr-2 h-4 w-4" />
-              Exportar Excel
-            </Button>
+            {/* ações removidas para baixo do busca */}
           </div>
         </div>
       </div>
@@ -637,6 +634,10 @@ export default function Embalagens() {
             className="pl-10"
           />
         </div>
+        <Button variant="outline" onClick={handleExportarExcel}>
+          <Download className="mr-2 h-4 w-4" />
+          Exportar Excel
+        </Button>
       </div>
       <div className="flex justify-start">
         <Button onClick={() => handleAbrirModal()}>
