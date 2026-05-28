@@ -91,8 +91,22 @@ export default function Dashboard() {
   const { user } = useAuth();
   const { profile } = useUserProfile();
   const navigate = useNavigate();
-  const [mesSelecionado, setMesSelecionado] = useState(new Date().getMonth());
-  const [anoSelecionado, setAnoSelecionado] = useState(new Date().getFullYear());
+  const [mesSelecionado, setMesSelecionado] = useState(() => {
+    const saved = localStorage.getItem('cda_dashboard_periodo');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (typeof parsed.mes === 'number') return parsed.mes;
+    }
+    return new Date().getMonth();
+  });
+  const [anoSelecionado, setAnoSelecionado] = useState(() => {
+    const saved = localStorage.getItem('cda_dashboard_periodo');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (typeof parsed.ano === 'number') return parsed.ano;
+    }
+    return new Date().getFullYear();
+  });
   const [diaSelecionado, setDiaSelecionado] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const { plano } = usePlano();
@@ -133,7 +147,14 @@ export default function Dashboard() {
     mensal: 0,
     anual: 0
   });
-  const [modoVisualizacao, setModoVisualizacao] = useState<'mensal' | 'anual'>('mensal');
+  const [modoVisualizacao, setModoVisualizacao] = useState<'mensal' | 'anual'>(() => {
+    const saved = localStorage.getItem('cda_dashboard_periodo');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.modo === 'mensal' || parsed.modo === 'anual') return parsed.modo;
+    }
+    return 'mensal';
+  });
 
   // Contadores topo
   const [contadores, setContadores] = useState({
@@ -206,6 +227,14 @@ export default function Dashboard() {
     };
   }, [user, mesSelecionado, anoSelecionado]);
 
+  // Persistir período selecionado no localStorage
+  useEffect(() => {
+    localStorage.setItem('cda_dashboard_periodo', JSON.stringify({
+      mes: mesSelecionado,
+      ano: anoSelecionado,
+      modo: modoVisualizacao
+    }));
+  }, [mesSelecionado, anoSelecionado, modoVisualizacao]);
 
   useEffect(() => {
     setMesAnterior({ mes: mesSelecionado - 1 < 0 ? 11 : mesSelecionado - 1, ano: mesSelecionado - 1 < 0 ? anoSelecionado - 1 : anoSelecionado });
