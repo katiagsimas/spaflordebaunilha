@@ -22,6 +22,10 @@ interface PremiumCardProps {
   asideRight?: ReactNode;
   className?: string;
   bodyClassName?: string;
+  /** Oculta o ícone do header, mesmo que seja passado. */
+  hideIcon?: boolean;
+  /** Centraliza o título e subtítulo no header. */
+  centerTitle?: boolean;
 }
 
 export function PremiumCard({
@@ -37,6 +41,8 @@ export function PremiumCard({
   asideRight,
   className,
   bodyClassName,
+  hideIcon = false,
+  centerTitle = false,
 }: PremiumCardProps) {
   return (
     <div
@@ -55,13 +61,20 @@ export function PremiumCard({
             className="pointer-events-none absolute right-0 top-0 h-full w-auto max-w-[45%] object-contain object-right opacity-95"
           />
         )}
-        <div className="relative flex items-start gap-3 px-5 py-4 sm:px-6 sm:py-5">
-          {Icon && (
+        <div className={cn(
+          "relative flex items-start gap-3 px-5 py-4 sm:px-6 sm:py-5",
+          centerTitle && "flex-col items-center text-center"
+        )}>
+          {Icon && !hideIcon && (
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full ring-1 ring-cda-dourado/60">
               <Icon className="h-5 w-5 text-cda-dourado" />
             </div>
           )}
-          <div className="min-w-0 flex-1 pr-[40%] sm:pr-0">
+          <div className={cn(
+            "min-w-0 flex-1",
+            !centerTitle && "pr-[40%] sm:pr-0",
+            centerTitle && "flex flex-col items-center"
+          )}>
             <h3 className="font-display text-xl leading-tight text-cda-creme sm:text-2xl">
               {title}
             </h3>
