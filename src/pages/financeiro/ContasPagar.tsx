@@ -54,6 +54,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Plus, 
@@ -72,7 +77,8 @@ import {
   Download,
   FileDown,
   Check,
-  ChevronsUpDown
+  ChevronsUpDown,
+  Filter
 } from 'lucide-react';
 import { BackButton } from '@/components/BackButton';
 import { PageHeader } from '@/components/PageHeader';
