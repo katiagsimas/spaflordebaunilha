@@ -1025,13 +1025,9 @@ export default function Dashboard() {
       </div>
 
 
-      {/* ===== BOTÃO DE AJUDA (padrão: canto esquerdo, abaixo do header) ===== */}
-      <div className="flex justify-start">
+      {/* ===== BOTÃO DE AJUDA + FILTROS DE PERÍODO ===== */}
+      <div className="flex items-center justify-between">
         <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} />
-      </div>
-
-      {/* ===== FILTROS DE PERÍODO ===== */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-2">
           <Label className="text-xs font-body uppercase tracking-widest text-cda-vinho/60">Período</Label>
           <Select value={anoSelecionado.toString()} onValueChange={(v) => setAnoSelecionado(parseInt(v))}>
@@ -1057,6 +1053,7 @@ export default function Dashboard() {
           </Select>
         </div>
       </div>
+
 
 
 
