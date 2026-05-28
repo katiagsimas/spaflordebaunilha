@@ -31,6 +31,8 @@ import { EncomendaTagsSection } from "@/components/EncomendaTagsSection";
 import { EncomendaImagePreview } from "@/components/EncomendaImagePreview";
 import { CalendariosEncomendas } from "@/components/CalendariosEncomendas";
 import calendarioEncomendasIcon from "@/assets/calendario-encomendas-icon.png";
+import { EncomendasDoDia } from "@/components/EncomendasDoDia";
+
 import { useEncomendasHoje } from "@/hooks/useEncomendasHoje";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useModuleHelp } from "@/hooks/useModuleHelp";
