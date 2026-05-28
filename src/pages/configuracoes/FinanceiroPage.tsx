@@ -4,6 +4,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/ca
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
+import { FinanceiroNav } from "@/components/financeiro/FinanceiroNav";
 
 export default function CadastrosFinanceiroPage() {
   const navigate = useNavigate();
@@ -13,7 +14,12 @@ export default function CadastrosFinanceiroPage() {
       <PageHeader
         title="Cadastros"
         description="Gerencie bancos, documentos e plano de contas do Financeiro"
-        backButton={<BackButton to="/financeiro" />}
+        backButton={
+          <div className="flex flex-wrap items-center gap-2">
+            <BackButton to="/financeiro" />
+            <FinanceiroNav current="/financeiro/cadastros" />
+          </div>
+        }
       />
       
       <div className="p-4 md:p-6">

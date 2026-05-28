@@ -474,9 +474,12 @@ export default function DRE() {
         title="Demonstrativo de Resultado"
         description="DRE — análise completa do exercício."
         backButton={
-          <Button variant="ghost" size="icon" onClick={() => navigate("/financeiro")}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/financeiro")}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <FinanceiroNav current="/financeiro/dre" />
+          </div>
         }
         actions={
           <div className="flex gap-2">

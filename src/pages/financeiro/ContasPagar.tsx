@@ -81,6 +81,7 @@ import {
   Filter
 } from 'lucide-react';
 import { BackButton } from '@/components/BackButton';
+import { FinanceiroNav } from '@/components/financeiro/FinanceiroNav';
 import { PageHeader } from '@/components/PageHeader';
 
 export default function ContasPagar() {
@@ -779,7 +780,12 @@ export default function ContasPagar() {
       <PageHeader
         title="Contas a Pagar"
         description="Gerencie seus pagamentos aqui"
-        backButton={<BackButton to="/financeiro" />}
+        backButton={
+          <div className="flex flex-wrap items-center gap-2">
+            <BackButton to="/financeiro" />
+            <FinanceiroNav current="/financeiro/contas-pagar" />
+          </div>
+        }
       />
 
       {/* Dashboard */}
