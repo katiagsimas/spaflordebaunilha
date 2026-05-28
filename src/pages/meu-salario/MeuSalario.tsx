@@ -5,21 +5,8 @@ import { Retiradas } from "./Retiradas";
 import { Educativo } from "./Educativo";
 import { Sparkles, CalendarDays, Settings2, ChevronLeft } from "lucide-react";
 import { HeroBanner } from "@/components/HeroBanner";
-import topBanner from "@/assets/meu-salario-top-banner.png";
-
 
 export default function MeuSalario() {
-  const [tab, setTab] = useState("visao");
-
-  return (
-    <div className="renda-doce-scope -m-6 md:-m-8 min-h-[calc(100vh-3.5rem)] relative">
-      <img
-        src={topBanner}
-        alt=""
-        className="w-full h-auto block select-none pointer-events-none"
-      />
-      <div className="p-6 md:p-8 relative">
-      {/* Botões superiores direita */}
       <div className="absolute top-6 right-6 md:top-8 md:right-8 flex items-center gap-2 z-10">
         <button
           type="button"
