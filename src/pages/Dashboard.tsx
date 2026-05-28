@@ -4,7 +4,6 @@ import { PremiumCard } from "@/components/dashboard/PremiumCard";
 import { HeroBanner } from "@/components/HeroBanner";
 import illuPresenteVinho from "@/assets/cda-illu-presente-vinho.png";
 import illuCalendarioRosa from "@/assets/cda-illu-calendario-rosa.png";
-import iconCalendarioEntregas from "@/assets/proximas-entregas-calendario.png";
 import { getTodayISO, formatDateToISO } from "@/lib/dateUtils";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -1118,15 +1117,16 @@ export default function Dashboard() {
       <div className="grid gap-4 md:grid-cols-2">
         {/* Próximas Entregas — fundo creme/pink */}
         <div className="relative overflow-hidden rounded-2xl bg-cda-pink/15 shadow-[0_4px_24px_-12px_rgba(91,26,43,0.15)] ring-1 ring-cda-dourado/20">
+          <img
+            src={illuCalendarioRosa}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute bottom-0 right-0 h-[80%] w-auto max-w-[45%] object-contain object-bottom-right opacity-90"
+          />
           <div className="relative flex items-start justify-between px-6 pt-5">
             <div className="flex items-center gap-3">
-              <div className="relative h-12 w-12 shrink-0">
-                <img
-                  src={iconCalendarioEntregas}
-                  alt=""
-                  aria-hidden="true"
-                  className="pointer-events-none absolute left-1/2 top-1/2 h-[4.5rem] w-[4.5rem] -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_4px_8px_rgba(91,26,43,0.18)]"
-                />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cda-vinho/10 ring-1 ring-cda-dourado/40">
+                <CalendarIcon className="h-5 w-5 text-cda-vinho" />
               </div>
               <h3 className="font-display text-xl text-cda-vinho-escuro sm:text-2xl">
                 Próximas Entregas
@@ -1146,8 +1146,7 @@ export default function Dashboard() {
                 Nenhuma entrega nos próximos 7 dias
               </p>
             ) : (
-              <ul className="divide-y divide-dashed divide-cda-dourado/30">
-
+              <ul className="divide-y divide-dashed divide-cda-dourado/30 pr-[40%]">
                 {proximas.slice(0, 3).map((enc) => (
                   <li
                     key={enc.id}
