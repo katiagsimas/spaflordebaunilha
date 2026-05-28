@@ -1177,7 +1177,7 @@ export default function Dashboard() {
             src={illuPresenteVinho}
             alt=""
             aria-hidden="true"
-            className="pointer-events-none absolute bottom-0 right-0 h-[90%] w-auto max-w-[42%] object-contain object-bottom-right"
+            className="pointer-events-none absolute bottom-0 left-0 h-[90%] w-auto max-w-[42%] object-contain object-bottom-left"
           />
           <div className="relative flex items-start justify-between px-6 pt-5">
             <div className="flex items-center gap-3">
@@ -1202,7 +1202,7 @@ export default function Dashboard() {
                 Nenhum aniversariante este mês.
               </p>
             ) : (
-              <ul className="divide-y divide-dashed divide-cda-dourado/20 pr-[40%]">
+              <ul className="divide-y divide-dashed divide-cda-dourado/20 pl-[42%]">
                 {aniversariantes.slice(0, 3).map((c: any) => {
                   const partes = (c.data_aniversario || "").split("-");
                   const dia = parseInt(partes[2] || "0");
