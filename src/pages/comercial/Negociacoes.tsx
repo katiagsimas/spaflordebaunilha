@@ -1,22 +1,65 @@
-import { useNavigate } from "react-router-dom";
-import { FileSignature, ScrollText, LayoutList, CheckCircle2, Coins, TrendingUp } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useNavigate, NavLink } from "react-router-dom";
+import {
+  FileSignature, ScrollText, Coins, TrendingUp, Search, X, Plus,
+  Edit, Trash2, Download, Eye, CheckCircle2, Send, FileText,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "@/components/ui/table";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { usePropostas } from "@/hooks/usePropostas";
 import { useContratos } from "@/hooks/useContratos";
+import { useBusinessProfile, montarEnderecoCompleto } from "@/hooks/useBusinessProfile";
+import { gerarPropostaPDF } from "@/lib/propostaPdf";
+import { STATUS_LABELS as PROPOSTA_STATUS_LABELS, type PropostaStatus, type Proposta } from "@/types/proposta";
+import { CONTRATO_STATUS_LABELS, type ContratoStatus, type Contrato } from "@/types/contrato";
 import negociacoesHero from "@/assets/negociacoes-hero.png";
 
 function brl(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
+function formatDateBR(iso: string | null) {
+  if (!iso) return "-";
+  const [y, m, d] = iso.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+const PROPOSTA_STATUS_COLOR: Record<PropostaStatus, string> = {
+  rascunho: "bg-muted text-muted-foreground",
+  enviada: "bg-cda-dourado/20 text-cda-vinho border border-cda-dourado/40",
+  aceita: "bg-emerald-100 text-emerald-800 border border-emerald-300",
+  rejeitada: "bg-red-100 text-red-800 border border-red-300",
+  expirada: "bg-amber-100 text-amber-800 border border-amber-300",
+};
+const CONTRATO_STATUS_COLOR: Record<ContratoStatus, string> = {
+  rascunho: "bg-muted text-muted-foreground",
+  enviado: "bg-cda-dourado/20 text-cda-vinho border border-cda-dourado/40",
+  assinado: "bg-emerald-100 text-emerald-800 border border-emerald-300",
+  cancelado: "bg-red-100 text-red-800 border border-red-300",
+};
 
 export default function Negociacoes() {
   const navigate = useNavigate();
-  const { stats: propostasStats } = usePropostas();
-  const { stats: contratosStats } = useContratos();
+  const { propostas, stats: propostasStats, remove: removePr } = usePropostas();
+  const { contratos, stats: contratosStats, remove: removeCt } = useContratos();
+  const { data: business } = useBusinessProfile();
 
   const sP = propostasStats.data;
   const sC = contratosStats.data;
 
+  // ---- KPIs ----
   const totalPropostas = sP?.total ?? 0;
   const totalContratos = sC?.total ?? 0;
   const aceitas = sP?.aceita ?? 0;
@@ -30,20 +73,75 @@ export default function Negociacoes() {
     { label: "Valor Negociado", value: brl(valorNegociado), sub: "Acumulado", icon: Coins },
   ];
 
-  const cards = [
-    {
-      title: "Propostas",
-      description: "Crie e gerencie orçamentos para os seus clientes.",
-      icon: FileSignature,
-      to: "/comercial/propostas",
-    },
-    {
-      title: "Contratos",
-      description: "Gere contratos a partir de modelos prontos e acompanhe assinaturas.",
-      icon: ScrollText,
-      to: "/comercial/contratos",
-    },
-  ];
+  // ---- Filtros compartilhados ----
+  const [tab, setTab] = useState<"propostas" | "contratos">("propostas");
+  const [busca, setBusca] = useState("");
+  const [statusFiltro, setStatusFiltro] = useState<string>("todos");
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
+
+  const limparFiltros = () => {
+    setBusca("");
+    setStatusFiltro("todos");
+    setDataInicio("");
+    setDataFim("");
+  };
+
+  // ---- Dados filtrados ----
+  const propostasFiltradas = useMemo(() => {
+    const list = propostas.data ?? [];
+    return list.filter((p) => {
+      if (busca) {
+        const q = busca.toLowerCase();
+        const hit =
+          p.cliente_nome.toLowerCase().includes(q) ||
+          String(p.numero).padStart(4, "0").includes(q);
+        if (!hit) return false;
+      }
+      if (statusFiltro !== "todos" && p.status !== statusFiltro) return false;
+      if (dataInicio && p.data_emissao < dataInicio) return false;
+      if (dataFim && p.data_emissao > dataFim) return false;
+      return true;
+    });
+  }, [propostas.data, busca, statusFiltro, dataInicio, dataFim]);
+
+  const contratosFiltrados = useMemo(() => {
+    const list = contratos.data ?? [];
+    return list.filter((c) => {
+      if (busca) {
+        const q = busca.toLowerCase();
+        const hit =
+          c.cliente_nome.toLowerCase().includes(q) ||
+          String(c.numero).padStart(4, "0").includes(q) ||
+          (c.template_nome || "").toLowerCase().includes(q);
+        if (!hit) return false;
+      }
+      if (statusFiltro !== "todos" && c.status !== statusFiltro) return false;
+      const ref = c.data_evento ?? c.created_at?.slice(0, 10) ?? "";
+      if (dataInicio && ref && ref < dataInicio) return false;
+      if (dataFim && ref && ref > dataFim) return false;
+      return true;
+    });
+  }, [contratos.data, busca, statusFiltro, dataInicio, dataFim]);
+
+  // ---- Ações ----
+  const [toDeletePr, setToDeletePr] = useState<Proposta | null>(null);
+  const [toDeleteCt, setToDeleteCt] = useState<Contrato | null>(null);
+
+  const handleDownloadProposta = (p: Proposta) => {
+    const doc = gerarPropostaPDF(p, {
+      ...business,
+      endereco: montarEnderecoCompleto(business),
+      logomarca_url: business?.logo_url,
+    } as never);
+    doc.save(`proposta-${String(p.numero).padStart(4, "0")}.pdf`);
+  };
+
+  // Status options conforme aba
+  const statusOptions =
+    tab === "propostas"
+      ? Object.entries(PROPOSTA_STATUS_LABELS)
+      : Object.entries(CONTRATO_STATUS_LABELS);
 
   return (
     <div className="min-h-screen bg-[#FFF9F5] pb-24">
@@ -74,7 +172,6 @@ export default function Negociacoes() {
           />
         </div>
 
-
         {/* KPIs */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {kpis.map((kpi) => {
@@ -82,7 +179,7 @@ export default function Negociacoes() {
             return (
               <Card
                 key={kpi.label}
-                className="rounded-2xl border border-cda-dourado/20 bg-cda-branco shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)]"
+                className="rounded-2xl border-2 border-[#C9A14A]/60 bg-cda-branco shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)]"
               >
                 <CardContent className="p-4 flex items-start gap-3">
                   <div className="h-11 w-11 shrink-0 rounded-full flex items-center justify-center ring-1 ring-cda-dourado/40 bg-cda-dourado/15 text-cda-vinho">
@@ -103,32 +200,306 @@ export default function Negociacoes() {
           })}
         </div>
 
-        {/* Cards de navegação */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {cards.map((c) => {
-            const Icon = c.icon;
-            return (
-              <button
-                key={c.to}
-                onClick={() => navigate(c.to)}
-                className="group text-left bg-white border border-[#5B1A2B]/10 rounded-xl p-5 transition-all duration-200 hover:border-[#C9A14A]/50 hover:shadow-md"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-[52px] h-[52px] rounded-full bg-[#FDF6EE] flex items-center justify-center shrink-0">
-                    <Icon className="h-6 w-6 text-[#5B1A2B]" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-display text-[15px] font-semibold text-[#3D0F1C] leading-tight">
-                      {c.title}
-                    </p>
-                    <p className="text-[12px] text-muted-foreground mt-1">{c.description}</p>
-                  </div>
+        {/* ===== TABS + FILTROS + TABELA ===== */}
+        <Card className="rounded-2xl border-2 border-[#C9A14A]/60 bg-white shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)] overflow-hidden">
+          <Tabs
+            value={tab}
+            onValueChange={(v) => {
+              setTab(v as "propostas" | "contratos");
+              setStatusFiltro("todos");
+            }}
+          >
+            {/* Header com tabs + ação */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-[#5B1A2B]/10 px-4 sm:px-6 pt-4">
+              <TabsList className="bg-transparent p-0 h-auto gap-6 rounded-none justify-start">
+                <TabsTrigger
+                  value="propostas"
+                  className="relative rounded-none border-0 bg-transparent px-1 pb-3 pt-1 font-display text-[15px] text-[#3D0F1C]/60 data-[state=active]:text-[#3D0F1C] data-[state=active]:font-semibold data-[state=active]:shadow-none after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[3px] after:rounded-full after:bg-[#C9A14A] after:opacity-0 data-[state=active]:after:opacity-100 transition-all"
+                >
+                  Propostas
+                </TabsTrigger>
+                <TabsTrigger
+                  value="contratos"
+                  className="relative rounded-none border-0 bg-transparent px-1 pb-3 pt-1 font-display text-[15px] text-[#3D0F1C]/60 data-[state=active]:text-[#3D0F1C] data-[state=active]:font-semibold data-[state=active]:shadow-none after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[3px] after:rounded-full after:bg-[#C9A14A] after:opacity-0 data-[state=active]:after:opacity-100 transition-all"
+                >
+                  Contratos
+                </TabsTrigger>
+              </TabsList>
+
+              <div className="pb-3 sm:pb-0">
+                {tab === "propostas" ? (
+                  <Button asChild className="bg-cda-vinho hover:bg-cda-vinho-escuro text-white">
+                    <NavLink to="/comercial/propostas/nova">
+                      <Plus className="h-4 w-4 mr-2" /> Nova proposta
+                    </NavLink>
+                  </Button>
+                ) : (
+                  <Button
+                    className="bg-cda-vinho hover:bg-cda-vinho-escuro text-white"
+                    onClick={() => navigate("/comercial/contratos")}
+                  >
+                    <Plus className="h-4 w-4 mr-2" /> Novo contrato
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Filtros */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-3 px-4 sm:px-6 py-4 bg-[#FDF6EE]/40 border-b border-[#5B1A2B]/10">
+              <div className="md:col-span-5 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-cda-vinho/50" />
+                <Input
+                  value={busca}
+                  onChange={(e) => setBusca(e.target.value)}
+                  placeholder="Buscar por cliente, modelo ou número…"
+                  className="pl-9 bg-white border-[#5B1A2B]/15"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <Select value={statusFiltro} onValueChange={setStatusFiltro}>
+                  <SelectTrigger className="bg-white border-[#5B1A2B]/15">
+                    <SelectValue placeholder="Todos os status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos os status</SelectItem>
+                    {statusOptions.map(([v, l]) => (
+                      <SelectItem key={v} value={v}>
+                        {l}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="md:col-span-4 flex items-center gap-2">
+                <span className="text-xs text-cda-vinho/70 whitespace-nowrap font-medium">Período:</span>
+                <Input
+                  type="date"
+                  value={dataInicio}
+                  onChange={(e) => setDataInicio(e.target.value)}
+                  className="bg-white border-[#5B1A2B]/15"
+                />
+                <span className="text-xs text-cda-vinho/50">a</span>
+                <Input
+                  type="date"
+                  value={dataFim}
+                  onChange={(e) => setDataFim(e.target.value)}
+                  className="bg-white border-[#5B1A2B]/15"
+                />
+              </div>
+
+              <div className="md:col-span-1">
+                <Button
+                  variant="outline"
+                  onClick={limparFiltros}
+                  className="w-full border-[#5B1A2B]/20 text-cda-vinho hover:bg-cda-dourado hover:text-cda-preto hover:border-cda-dourado"
+                >
+                  <X className="h-4 w-4 mr-1" /> Limpar
+                </Button>
+              </div>
+            </div>
+
+            {/* Conteúdo das tabs */}
+            <TabsContent value="propostas" className="m-0">
+              {propostasFiltradas.length === 0 ? (
+                <div className="text-center py-16 px-6">
+                  <FileText className="h-12 w-12 mx-auto text-cda-dourado/60 mb-3" />
+                  <p className="text-lg font-semibold text-cda-vinho-escuro">
+                    Nenhuma proposta encontrada
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Ajuste os filtros ou crie uma nova proposta.
+                  </p>
                 </div>
-              </button>
-            );
-          })}
-        </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-[#FDF6EE]/60">
+                      <TableHead>Número</TableHead>
+                      <TableHead>Cliente</TableHead>
+                      <TableHead>Emissão</TableHead>
+                      <TableHead>Validade</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Valor</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {propostasFiltradas.map((p) => (
+                      <TableRow key={p.id}>
+                        <TableCell className="font-mono text-cda-vinho">
+                          PRO-{String(p.numero).padStart(5, "0")}
+                        </TableCell>
+                        <TableCell className="font-medium">{p.cliente_nome}</TableCell>
+                        <TableCell>{formatDateBR(p.data_emissao)}</TableCell>
+                        <TableCell>{formatDateBR(p.data_validade)}</TableCell>
+                        <TableCell>
+                          <Badge className={PROPOSTA_STATUS_COLOR[p.status]}>
+                            {PROPOSTA_STATUS_LABELS[p.status]}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right font-semibold">
+                          {brl(Number(p.valor_total))}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-1">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => handleDownloadProposta(p)}
+                              title="Baixar PDF"
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => navigate(`/comercial/propostas/nova?id=${p.id}`)}
+                              title="Editar"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => setToDeletePr(p)}
+                              title="Excluir"
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </TabsContent>
+
+            <TabsContent value="contratos" className="m-0">
+              {contratosFiltrados.length === 0 ? (
+                <div className="text-center py-16 px-6">
+                  <ScrollText className="h-12 w-12 mx-auto text-cda-dourado/60 mb-3" />
+                  <p className="text-lg font-semibold text-cda-vinho-escuro">
+                    Nenhum contrato encontrado
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Ajuste os filtros ou gere um novo contrato.
+                  </p>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-[#FDF6EE]/60">
+                      <TableHead>Número</TableHead>
+                      <TableHead>Cliente</TableHead>
+                      <TableHead>Modelo</TableHead>
+                      <TableHead>Evento</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Valor</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {contratosFiltrados.map((c) => (
+                      <TableRow key={c.id}>
+                        <TableCell className="font-mono text-cda-vinho">
+                          CTR-{String(c.numero).padStart(5, "0")}
+                        </TableCell>
+                        <TableCell className="font-medium">{c.cliente_nome}</TableCell>
+                        <TableCell>{c.template_nome}</TableCell>
+                        <TableCell>{formatDateBR(c.data_evento)}</TableCell>
+                        <TableCell>
+                          <Badge className={CONTRATO_STATUS_COLOR[c.status]}>
+                            {CONTRATO_STATUS_LABELS[c.status]}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right font-semibold">
+                          {brl(Number(c.valor_total))}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-1">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => navigate("/comercial/contratos")}
+                              title="Ver"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => setToDeleteCt(c)}
+                              title="Excluir"
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </TabsContent>
+          </Tabs>
+        </Card>
       </div>
+
+      {/* Confirmação de exclusão - Proposta */}
+      <AlertDialog open={!!toDeletePr} onOpenChange={(o) => !o && setToDeletePr(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir proposta?</AlertDialogTitle>
+            <AlertDialogDescription>
+              A proposta nº {toDeletePr?.numero} do cliente <b>{toDeletePr?.cliente_nome}</b> será
+              excluída.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground"
+              onClick={() => {
+                if (toDeletePr) {
+                  removePr.mutate(toDeletePr.id);
+                  setToDeletePr(null);
+                }
+              }}
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Confirmação de exclusão - Contrato */}
+      <AlertDialog open={!!toDeleteCt} onOpenChange={(o) => !o && setToDeleteCt(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir contrato?</AlertDialogTitle>
+            <AlertDialogDescription>
+              O contrato nº {toDeleteCt?.numero} de <b>{toDeleteCt?.cliente_nome}</b> será excluído.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground"
+              onClick={() => {
+                if (toDeleteCt) {
+                  removeCt.mutate(toDeleteCt.id);
+                  setToDeleteCt(null);
+                }
+              }}
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
