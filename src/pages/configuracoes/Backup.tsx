@@ -504,7 +504,6 @@ export default function Backup() {
 
 
       <div className="bg-white border border-cda-dourado/30 rounded-xl p-5">
-      <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5">
         <div className="flex items-center gap-2 mb-2">
           <Info className="h-4 w-4 text-[#5B1A2B]" />
           <span className="text-sm font-medium text-[#3D0F1C]">Sobre os backups</span>
