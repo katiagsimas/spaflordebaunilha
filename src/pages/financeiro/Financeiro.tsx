@@ -391,7 +391,6 @@ export default function Financeiro() {
               />
             </div>
           </div>
-          </div>
 
 
           {/* Botão de ajuda padronizado: canto esquerdo, abaixo do header */}
