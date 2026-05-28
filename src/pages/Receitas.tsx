@@ -90,11 +90,9 @@ export default function Receitas() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Fichas Técnicas"
-        description="Gerencie suas receitas e fichas técnicas"
-        backButton={<BackButton to="/precificacao" />}
-        actions={
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between gap-3">
+          <BackButton to="/precificacao" />
           <Button
             variant="ghost"
             onClick={() => navigate("/precificacao/pre-preparos")}
@@ -103,8 +101,21 @@ export default function Receitas() {
             <ArrowLeft className="h-4 w-4" />
             Pré-Preparos
           </Button>
-        }
-      />
+        </div>
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div className="flex flex-col items-start">
+            <h1 className="font-display text-3xl tracking-tight text-cda-vinho-escuro sm:text-4xl">
+              Fichas Técnicas
+            </h1>
+            <div className="mt-2 flex items-center gap-3">
+              <span className="h-px w-12 bg-cda-dourado" />
+              <p className="text-sm font-body italic text-cda-vinho/70">
+                Gerencie suas receitas e fichas técnicas
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="flex justify-start">
         <Button
