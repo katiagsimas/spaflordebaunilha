@@ -61,7 +61,7 @@ export default function ClientesFornecedores() {
       <div className="container mx-auto p-6 space-y-6">
       <div
         className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
-        style={{ background: "#FAEFEB" }}
+        style={{ background: "#F4E5D3" }}
       >
         <div className="flex flex-col items-start px-4 pt-4 pb-4 sm:px-6 sm:pt-6 sm:pb-6 lg:px-8 lg:pt-7 lg:pb-7">
           <div className="text-left">
