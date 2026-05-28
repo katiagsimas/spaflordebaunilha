@@ -67,6 +67,7 @@ import { BackButton } from '@/components/BackButton';
 import { PageHeader } from '@/components/PageHeader';
 
 export default function Embalagens() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [embalagens, setEmbalagens] = useState<any[]>([]);
   const [tiposDisponiveis, setTiposDisponiveis] = useState<any[]>([]);
