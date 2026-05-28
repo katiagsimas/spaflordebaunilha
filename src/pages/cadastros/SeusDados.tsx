@@ -354,34 +354,14 @@ export default function SeusDados() {
 
   return (
     <div className="space-y-6 relative">
-      {/* ===== HEADER PREMIUM (mesmo padrão do módulo Encomendas) ===== */}
-      <div className="mb-6">
-        <div
-          className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
-          style={{ background: "#FAEFEB" }}
-        >
-          <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6 pr-[150px] sm:pr-[200px] lg:pr-[260px] min-h-[130px] sm:min-h-[150px] lg:min-h-[170px]">
-            <div className="flex-1 min-w-0">
-              <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
-                {profile?.primeiro_acesso ? "Bem-vinda! Complete seus dados" : "Meus Dados"}
-              </h1>
-              <div className="mt-2 flex items-center gap-3">
-                <span className="h-px w-8 bg-[#C9A14A] sm:w-10" />
-                <p className="text-xs italic text-[#C9A14A] sm:text-sm">
-                  Gerencie seu perfil e os dados empresariais usados em toda a plataforma.
-                </p>
-              </div>
-            </div>
-          </div>
-          <img
-            src={meusDadosFooter}
-            alt=""
-            aria-hidden="true"
-            className="pointer-events-none absolute bottom-0 right-0 h-[140px] w-auto object-contain object-bottom sm:h-[180px] lg:h-[220px]"
-          />
+      {/* ===== HERO BANNER padronizado (mesmo padrão da página Cadastros) ===== */}
+      <HeroBanner
+        image={meusDadosFooter}
+        title={profile?.primeiro_acesso ? "Bem-vinda! Complete seus dados" : "Meus Dados"}
+        subtitle="Gerencie seu perfil e os dados empresariais usados em toda a plataforma."
+        imageAlt="Meus Dados"
+      />
 
-        </div>
-      </div>
 
 
 
