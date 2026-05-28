@@ -616,17 +616,17 @@ export default function Embalagens() {
 
       {/* Alertas */}
       <div className="grid gap-4 md:grid-cols-2">
-        <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800">
-          <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-          <AlertDescription>
+        <Alert className="bg-cda-creme border-2 border-cda-dourado">
+          <Info className="h-4 w-4 text-cda-vinho" />
+          <AlertDescription className="text-cda-preto">
             Após cadastrar, você pode editar apenas a marca e o preço.
           </AlertDescription>
         </Alert>
 
         {qtdDesatualizados > 0 && (
-          <Alert className="bg-amber-50 border-amber-200 dark:bg-amber-950 dark:border-amber-800">
-            <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-            <AlertDescription>
+          <Alert className="bg-cda-creme border-2 border-cda-dourado">
+            <AlertTriangle className="h-4 w-4 text-cda-coral" />
+            <AlertDescription className="text-cda-preto">
               <strong>{qtdDesatualizados}</strong> embalagem(ns) com preço desatualizado (mais de 30 dias)
             </AlertDescription>
           </Alert>
