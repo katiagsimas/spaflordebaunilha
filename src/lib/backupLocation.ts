@@ -82,16 +82,15 @@ export const backupLocation = {
   async getSavedHandle(): Promise<any | null> {
     if (!isFsApiSupported()) return null;
     const handle = await idbGet<any>(KEY);
-    if (!handle) return null;
     try {
       const opts = { mode: "readwrite" as const };
-      // @ts-expect-error - permission API on FileSystemHandle
-      const perm: string = (await handle.queryPermission?.(opts)) ?? "granted";
+      const perm: string = (await (handle as any).queryPermission?.(opts)) ?? "granted";
       if (perm === "granted") return handle;
-      // @ts-expect-error
-      const req: string = (await handle.requestPermission?.(opts)) ?? "denied";
+      const req: string = (await (handle as any).requestPermission?.(opts)) ?? "denied";
       return req === "granted" ? handle : null;
     } catch {
+      return null;
+    }
       return null;
     }
   },
