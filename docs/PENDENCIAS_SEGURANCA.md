@@ -21,7 +21,10 @@
 ## Pendências Resolvidas (Histórico)
 
 | Data (UTC) | Item | Resolução |
+| Data (UTC) | Item | Resolução |
 |------------|------|-----------|
+| 2026-05-28 | Storage — bucket `assinaturas` público (leitura aberta a anônimos) | Bucket convertido para privado. Removida policy `Assinaturas são publicamente acessíveis`; criada `Assinaturas: dono lê via folder` (SELECT owner-scoped via `foldername = auth.uid()`). `SeusDados.tsx` passa a salvar o **path** em `profiles.assinatura_url` e gera `createSignedUrl` (3600s) para exibição. Migração converte URLs públicas antigas em paths. |
+| 2026-05-28 | Storage — bucket `topo-bolo` público (RLS de SELECT bypassada via URL pública) | Bucket convertido para privado. As policies owner-scoped (folder = `auth.uid()`) agora são efetivamente aplicadas em toda leitura. Uploads atuais já usam o bucket `encomendas`; `topo-bolo` só serve como fallback de remoção de URLs legadas. |
 | 2026-05-27 | RLS — `historico_planos` sem acesso do próprio usuário | Adicionada policy `Users can view own plan history` (`user_id = auth.uid()`) para SELECT. Admin policy mantida; service_role segue inserindo via webhook. |
 | 2026-05-27 | RLS — `imersao_notificacoes_log` lia emails de destinatários para qualquer admin | Policy de SELECT trocada de `has_role(...,'admin')` para `is_mother(auth.uid())`. Apenas operadores MOTHER da plataforma leem o log. |
 | 2026-05-27 | RLS — `sso_token_log` sem políticas explícitas (linter 0008) | Adicionadas policies de negação explícita (`USING (false)`) para `authenticated` e `anon`. Acesso real continua apenas via `service_role` (bypass RLS) usado pelas edge functions de SSO. |
