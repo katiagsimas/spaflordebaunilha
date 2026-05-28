@@ -480,15 +480,9 @@ export default function Bancos() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-4">
-          <BackButton to="/financeiro/cadastros" />
-          <div>
-            <h1 className="text-3xl font-bold">Bancos</h1>
-            <p className="text-muted-foreground">Cadastre os bancos que você utiliza</p>
-          </div>
-        </div>
+      {/* Navegação superior */}
+      <div className="flex items-center justify-between">
+        <BackButton to="/financeiro/cadastros" />
         <Button
           variant="ghost"
           onClick={() => navigate('/financeiro/cadastros/tipos-documentos')}
@@ -497,6 +491,12 @@ export default function Bancos() {
           Tipos de Documentos
           <ArrowRight className="h-4 w-4" />
         </Button>
+      </div>
+
+      {/* Título */}
+      <div className="mb-2">
+        <h1 className="text-3xl font-bold">Bancos</h1>
+        <p className="text-muted-foreground">Cadastre os bancos que você utiliza</p>
       </div>
 
       <div className="flex justify-end gap-2">
