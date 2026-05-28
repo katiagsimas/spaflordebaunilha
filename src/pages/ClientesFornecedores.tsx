@@ -168,13 +168,13 @@ export default function ClientesFornecedores() {
               <TabsList className="bg-transparent p-0 h-auto gap-6 rounded-none justify-start">
                 <TabsTrigger
                   value="clientes"
-                  className="relative rounded-none border-0 bg-transparent px-1 pb-3 pt-1 font-display text-[15px] text-[#3D0F1C]/60 data-[state=active]:text-[#3D0F1C] data-[state=active]:font-semibold data-[state=active]:shadow-none after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[3px] after:rounded-full after:bg-[#C9A14A] after:opacity-0 data-[state=active]:after:opacity-100 transition-all"
+                  className="relative rounded-md border-0 px-3 pb-2 pt-2 font-display text-[15px] text-[#3D0F1C]/60 data-[state=active]:bg-cda-vinho data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none transition-all"
                 >
                   <Users className="h-4 w-4 mr-2" /> Clientes
                 </TabsTrigger>
                 <TabsTrigger
                   value="fornecedores"
-                  className="relative rounded-none border-0 bg-transparent px-1 pb-3 pt-1 font-display text-[15px] text-[#3D0F1C]/60 data-[state=active]:text-[#3D0F1C] data-[state=active]:font-semibold data-[state=active]:shadow-none after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[3px] after:rounded-full after:bg-[#C9A14A] after:opacity-0 data-[state=active]:after:opacity-100 transition-all"
+                  className="relative rounded-md border-0 px-3 pb-2 pt-2 font-display text-[15px] text-[#3D0F1C]/60 data-[state=active]:bg-cda-vinho data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none transition-all"
                 >
                   <Truck className="h-4 w-4 mr-2" /> Fornecedores
                 </TabsTrigger>
