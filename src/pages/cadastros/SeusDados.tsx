@@ -160,7 +160,21 @@ export default function SeusDados() {
       certificacoes: (profile as any).certificacoes || "",
     });
     if (profile.avatar_url) setLogomarca(profile.avatar_url);
-    if ((profile as any).assinatura_url) setAssinatura((profile as any).assinatura_url);
+    const ass = (profile as any).assinatura_url as string | null;
+    if (ass) {
+      setAssinatura(ass);
+      // Gera URL assinada para exibição (bucket privado)
+      if (ass.startsWith("http")) {
+        setAssinaturaPreview(ass);
+      } else {
+        supabase.storage.from("assinaturas").createSignedUrl(ass, 3600).then(({ data }) => {
+          if (data?.signedUrl) setAssinaturaPreview(data.signedUrl);
+        });
+      }
+    } else {
+      setAssinatura("");
+      setAssinaturaPreview("");
+    }
   }, [profile, reset]);
 
   const cepValue = watch("cep");
