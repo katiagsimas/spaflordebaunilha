@@ -220,12 +220,13 @@ export default function Contratos() {
             <ArrowLeft className="h-4 w-4" /> Voltar
           </Button>
         }
-        actions={
-          <Button className="bg-cda-vinho hover:bg-cda-vinho-escuro text-white" onClick={() => setView("select-template")}>
-            <Plus className="h-4 w-4 mr-2" /> Novo contrato
-          </Button>
-        }
       />
+
+      <div className="px-6 pb-2">
+        <Button className="bg-cda-vinho hover:bg-cda-vinho-escuro text-white" onClick={() => setView("select-template")}>
+          <Plus className="h-4 w-4 mr-2" /> Novo contrato
+        </Button>
+      </div>
       <div className="p-6 space-y-6">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {[
