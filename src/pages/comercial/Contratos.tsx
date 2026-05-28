@@ -213,6 +213,11 @@ export default function Contratos() {
       <PageHeader
         title="Contratos"
         description="Gere contratos a partir de modelos prontos e acompanhe o status de cada um."
+        backButton={
+          <Button variant="ghost" size="sm" className="gap-1 text-cda-vinho" onClick={() => navigate("/comercial/negociacoes")}>
+            <ArrowLeft className="h-4 w-4" /> Voltar
+          </Button>
+        }
         actions={
           <Button className="bg-cda-vinho hover:bg-cda-vinho-escuro text-white" onClick={() => setView("select-template")}>
             <Plus className="h-4 w-4 mr-2" /> Novo contrato

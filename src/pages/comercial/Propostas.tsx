@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { FileText, Plus, Edit, Trash2, Download, BarChart3, FileSpreadsheet, Send, CheckCircle2, Coins, LayoutList } from "lucide-react";
+import { FileText, Plus, Edit, Trash2, Download, BarChart3, FileSpreadsheet, Send, CheckCircle2, Coins, LayoutList, ArrowLeft } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -57,6 +57,11 @@ export default function Propostas() {
       <PageHeader
         title="Propostas"
         description="Crie e gerencie orçamentos para os seus clientes."
+        backButton={
+          <Button variant="ghost" size="sm" className="gap-1 text-cda-vinho" onClick={() => navigate("/comercial/negociacoes")}>
+            <ArrowLeft className="h-4 w-4" /> Voltar
+          </Button>
+        }
         actions={
           <div className="flex gap-2">
             <Button variant="outline" asChild>
