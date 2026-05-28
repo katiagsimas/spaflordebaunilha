@@ -1,10 +1,11 @@
 interface HeroBannerProps {
-  /** Imported image asset (top decorative). */
-  image: string;
+  /** Imported image asset (top decorative). Pass undefined to hide image. */
+  image?: string;
   title: string;
   subtitle?: string;
   imageAlt?: string;
 }
+
 
 /**
  * Hero banner padronizado — layout vertical com imagem no topo.
