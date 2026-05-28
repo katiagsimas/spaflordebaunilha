@@ -122,7 +122,8 @@ export default function SeusDados() {
   });
 
   const [logomarca, setLogomarca] = useState<string>("");
-  const [assinatura, setAssinatura] = useState<string>("");
+  const [assinatura, setAssinatura] = useState<string>(""); // path no Storage (bucket privado)
+  const [assinaturaPreview, setAssinaturaPreview] = useState<string>(""); // URL assinada para exibição
   const { buscarCEP, loading } = useViaCEP();
 
   const { register, handleSubmit, setValue, watch, reset } = useForm<SeusDadosForm>();
