@@ -1117,7 +1117,7 @@ export default function Dashboard() {
       {/* ===== PRÓXIMAS ENTREGAS + ANIVERSARIANTES (lado a lado) ===== */}
       <div className="grid gap-4 md:grid-cols-2">
         {/* Próximas Entregas — fundo creme/pink */}
-        <div className="relative overflow-hidden rounded-2xl bg-cda-pink/15 shadow-[0_4px_24px_-12px_rgba(91,26,43,0.15)] ring-1 ring-cda-dourado/20">
+        <div className="relative overflow-hidden rounded-2xl bg-cda-pink/15 shadow-[0_4px_24px_-12px_rgba(91,26,43,0.15)] border border-cda-dourado/50 transition-all duration-300 hover:shadow-[0_8px_32px_-12px_rgba(201,161,74,0.25)] hover:border-cda-dourado">
           <div className="relative flex items-start justify-between px-6 pt-5">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cda-vinho/10 ring-1 ring-cda-dourado/40">
