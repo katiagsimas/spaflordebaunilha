@@ -17,9 +17,13 @@ interface PageHeaderProps {
  */
 export function PageHeader({ title, description, actions, backButton }: PageHeaderProps) {
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-      <div className="flex items-start gap-3">
-        {backButton}
+    <div className="flex flex-col gap-4">
+      {backButton && (
+        <div className="flex flex-wrap items-center gap-2">
+          {backButton}
+        </div>
+      )}
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="flex flex-col items-start">
           <h1 className="font-display text-3xl tracking-tight text-cda-vinho-escuro sm:text-4xl">
             {title}
@@ -33,8 +37,8 @@ export function PageHeader({ title, description, actions, backButton }: PageHead
             </div>
           )}
         </div>
+        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
       </div>
-      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>
   );
 }
