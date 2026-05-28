@@ -13,7 +13,7 @@ export default function OrganizacaoDoceLanding() {
         className="absolute inset-0 h-full w-full object-cover object-center"
       />
 
-      <div className="absolute inset-0 flex items-end justify-center pb-[6%] sm:pb-[5%] lg:pb-[4%] px-4">
+      <div className="absolute inset-0 flex items-end justify-start pb-[6%] sm:pb-[5%] lg:pb-[4%] px-4">
         <Button
           size="lg"
           onClick={() => navigate("/organizacao-doce/ritual")}
