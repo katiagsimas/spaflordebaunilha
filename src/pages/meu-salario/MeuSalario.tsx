@@ -7,6 +7,11 @@ import { Sparkles, CalendarDays, Settings2, ChevronLeft } from "lucide-react";
 import { HeroBanner } from "@/components/HeroBanner";
 
 export default function MeuSalario() {
+  const [tab, setTab] = useState("visao");
+
+  return (
+    <div className="renda-doce-scope -m-6 md:-m-8 min-h-[calc(100vh-3.5rem)] relative p-6 md:p-8">
+      {/* Botões superiores direita */}
       <div className="absolute top-6 right-6 md:top-8 md:right-8 flex items-center gap-2 z-10">
         <button
           type="button"
@@ -69,7 +74,6 @@ export default function MeuSalario() {
       >
         <ChevronLeft className="h-5 w-5" />
       </button>
-      </div>
     </div>
   );
 }
