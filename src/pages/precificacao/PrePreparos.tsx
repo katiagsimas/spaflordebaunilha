@@ -12,13 +12,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Clock, Scale, Info, MoreVertical, Trash2, FileDown } from 'lucide-react';
+import { Plus, Edit, Clock, Scale, Info, MoreVertical, Trash2, FileDown, ArrowRight } from 'lucide-react';
 import { exportarPrePreparoPDF } from '@/utils/exportarPrePreparoPDF';
 import { EmptyState } from '@/components/EmptyState';
 import { ChefHat } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { BackButton } from '@/components/BackButton';
-import { PageHeader } from '@/components/PageHeader';
 import {
   DropdownMenu,
   DropdownMenuContent,
