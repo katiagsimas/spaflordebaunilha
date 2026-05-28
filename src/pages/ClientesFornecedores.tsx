@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { Users, Truck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { HeroBanner } from "@/components/HeroBanner";
 import { TileCard } from "@/components/TileCard";
 import { AniversariantesPremiumCard } from "@/components/AniversariantesPremiumCard";
 import { useClientes } from "@/hooks/useClientes";
@@ -60,12 +59,30 @@ export default function ClientesFornecedores() {
   return (
     <div className="min-h-screen bg-[#FFF9F5] pb-24">
       <div className="container mx-auto p-6 space-y-6">
-        <HeroBanner
-          image={clientesFornecedoresHero}
-          title="Clientes & Fornecedores"
-          subtitle="Cuide das pessoas que sustentam a sua confeitaria."
-          imageAlt="Clientes e Fornecedores"
-        />
+      <div
+        className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
+        style={{ background: "#FAEFEB" }}
+      >
+        <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
+          <div className="flex-1 min-w-0">
+            <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
+              Clientes e Fornecedores
+            </h1>
+            <div className="mt-2 flex items-center gap-3">
+              <span className="h-px w-8 bg-[#C9A14A] sm:w-10" />
+              <p className="text-xs italic text-[#C9A14A] sm:text-sm">
+                Cuide das pessoas que sustentam a sua confeitaria.
+              </p>
+            </div>
+          </div>
+          <img
+            src={clientesFornecedoresHero}
+            alt="Clientes e Fornecedores"
+            aria-hidden="true"
+            className="pointer-events-none h-20 w-auto shrink-0 object-contain object-right sm:h-28 lg:h-[150px]"
+          />
+        </div>
+      </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <TileCard
