@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import ConfiguracaoJuros from '@/components/configuracoes/ConfiguracaoJuros';
 import { PageHeader } from '@/components/PageHeader';
 import { BackButton } from '@/components/BackButton';
@@ -18,7 +18,7 @@ export default function ConfiguracaoJurosPage() {
           onClick={() => navigate('/financeiro/cadastros/plano-contas')}
           className="gap-2 text-muted-foreground hover:text-foreground font-body"
         >
-          <ArrowRight className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4" />
           Plano de Contas
         </Button>
       </div>
