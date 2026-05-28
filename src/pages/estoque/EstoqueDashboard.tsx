@@ -11,6 +11,7 @@ import heroBanner from '@/assets/estoque-hero-banner.jpg';
 import { HeroBanner } from '@/components/HeroBanner';
 import emptyPrateleira from '@/assets/estoque-empty-prateleira.png';
 import valorEstoqueImg from '@/assets/estoque-valor-total.png';
+import itensCadastradosImg from '@/assets/estoque-itens-cadastrados.png';
 
 export default function EstoqueDashboard() {
   const navigate = useNavigate();
