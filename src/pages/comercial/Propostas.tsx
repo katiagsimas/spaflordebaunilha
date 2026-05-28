@@ -73,7 +73,7 @@ export default function Propostas() {
         }
       />
 
-      <div className="px-6 pb-2">
+      <div className="px-6 pb-2 pt-4">
         <Button className="bg-cda-vinho hover:bg-cda-vinho-escuro text-white" asChild>
           <NavLink to="/comercial/propostas/nova">
             <Plus className="h-4 w-4 mr-2" /> Nova proposta
