@@ -22,7 +22,7 @@ export default function Cadastros() {
           {/* Card 1 — Mão de Obra */}
           <button
             onClick={() => navigate("/configuracoes/precificacao/mao-de-obra")}
-            className="group text-left bg-white border border-[#5B1A2B]/10 rounded-xl p-5 transition-all duration-200 hover:border-[#C9A14A]/50 hover:shadow-md"
+            className="group text-left bg-white border-2 border-[#C9A14A]/60 rounded-xl p-5 transition-all duration-200 hover:border-[#C9A14A] hover:shadow-md"
           >
             <div className="flex items-start gap-3">
               <div className="w-[52px] h-[52px] rounded-full bg-[#FDF6EE] flex items-center justify-center shrink-0">
