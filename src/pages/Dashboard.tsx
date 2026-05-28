@@ -1018,6 +1018,11 @@ export default function Dashboard() {
       />
 
 
+      {/* ===== BOTÃO DE AJUDA (padrão: canto esquerdo, abaixo do header) ===== */}
+      <div className="flex justify-start">
+        <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} />
+      </div>
+
       {/* ===== FILTROS DE PERÍODO ===== */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-2">
@@ -1044,9 +1049,8 @@ export default function Dashboard() {
             </SelectContent>
           </Select>
         </div>
-
-        <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} />
       </div>
+
 
 
       {/* ===== 3 CARDS: SALDO / A RECEBER / A PAGAR ===== */}
