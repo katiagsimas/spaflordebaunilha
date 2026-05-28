@@ -1607,6 +1607,54 @@ const Encomendas = () => {
           </button>
       </div>
 
+      {/* Filtro Mês/Ano - Horizontal */}
+      <div className="rounded-2xl border border-[#5B1A2B]/10 bg-white px-5 py-4 shadow-[0_2px_12px_-8px_rgba(91,26,43,0.12)]">
+        <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+          <div className="flex items-center gap-2 text-[#3D0F1C]">
+            <CalendarDays className="h-5 w-5 text-[#5B1A2B]" />
+            <span className="font-semibold">Período:</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Label className="text-sm text-foreground/60">Ano</Label>
+            <Select
+              value={anoSelecionado.toString()}
+              onValueChange={(value) => setAnoSelecionado(parseInt(value))}
+            >
+              <SelectTrigger className="h-9 w-28 rounded-md border-[#5B1A2B]/20 bg-white text-[#3D0F1C]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                {Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i).map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Label className="text-sm text-foreground/60">Mês</Label>
+            <Select
+              value={mesSelecionado.toString()}
+              onValueChange={(value) => setMesSelecionado(parseInt(value))}
+            >
+              <SelectTrigger className="h-9 w-36 rounded-md border-[#5B1A2B]/20 bg-white text-[#3D0F1C]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                {meses.map((mes, index) => (
+                  <SelectItem key={index} value={index.toString()}>
+                    {mes}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+
 
       {/* ===== CARDS LADO A LADO: ENCOMENDAS DO DIA + CALENDÁRIOS ===== */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
