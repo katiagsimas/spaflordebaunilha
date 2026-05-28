@@ -69,7 +69,7 @@ export function PremiumCard({
             src={headerOrnamentLeft}
             alt=""
             aria-hidden="true"
-            className="pointer-events-none absolute left-0 top-0 h-full w-auto max-w-[22%] object-contain object-left opacity-95"
+            className="pointer-events-none absolute left-0 top-0 h-full w-auto max-w-[44%] object-contain object-left opacity-95"
           />
         )}
         <div className={cn(
@@ -82,7 +82,7 @@ export function PremiumCard({
             </div>
           )}
           <div className={cn(
-            "min-w-0 flex-1",
+            "relative z-10 min-w-0 flex-1",
             !centerTitle && "pr-[40%] sm:pr-0",
             centerTitle && "flex flex-col items-center"
           )}>
