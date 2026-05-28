@@ -335,10 +335,20 @@ export default function TiposDocumentos() {
         description="Tipos de documentos para lançamentos financeiros"
         backButton={<BackButton to="/financeiro/cadastros" />}
         actions={
-          <Button onClick={() => handleAbrirModal()}>
-            <Plus className="mr-2 h-4 w-4" />
-            Criar Novo Tipo
-          </Button>
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/financeiro/cadastros/categorias-plano-contas')}
+              className="gap-2 text-muted-foreground hover:text-foreground font-body"
+            >
+              Categorias Planos de Contas
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+            <Button onClick={() => handleAbrirModal()}>
+              <Plus className="mr-2 h-4 w-4" />
+              Criar Novo Tipo
+            </Button>
+          </>
         }
       />
 

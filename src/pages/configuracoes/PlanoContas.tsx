@@ -476,6 +476,16 @@ export default function PlanoContas() {
         title="Plano de Contas"
         description="Contas detalhadas para classificação de lançamentos financeiros"
         backButton={<BackButton to="/financeiro/cadastros" />}
+        actions={
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/financeiro/cadastros/juros')}
+            className="gap-2 text-muted-foreground hover:text-foreground font-body"
+          >
+            Juros
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        }
       />
 
       {/* Alert */}
