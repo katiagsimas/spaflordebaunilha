@@ -82,7 +82,7 @@ import { useModuleHelp } from '@/hooks/useModuleHelp';
 import { HelpButton } from '@/components/help/HelpButton';
 import { ModuleHelpDrawer } from '@/components/help/ModuleHelpDrawer';
 import { financeiroHelp } from '@/components/help/contents/financeiroHelp';
-import dinheiroHero from '@/assets/dinheiro-hero-banner.jpg';
+import dinheiroHero from '@/assets/dinheiro-hero-banner.png';
 import { HeroBanner } from '@/components/HeroBanner';
 
 export default function Financeiro() {
