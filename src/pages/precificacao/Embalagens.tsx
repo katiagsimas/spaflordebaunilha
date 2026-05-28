@@ -64,7 +64,6 @@ import {
 import { cn } from '@/lib/utils';
 import * as XLSX from '@/lib/xlsxShim';
 import { BackButton } from '@/components/BackButton';
-import { PageHeader } from '@/components/PageHeader';
 
 export default function Embalagens() {
   const navigate = useNavigate();
