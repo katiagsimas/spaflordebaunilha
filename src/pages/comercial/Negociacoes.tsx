@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { FileSignature, ScrollText, LayoutList, CheckCircle2, Coins, TrendingUp } from "lucide-react";
-import { HeroBanner } from "@/components/HeroBanner";
 import { Card, CardContent } from "@/components/ui/card";
 import { usePropostas } from "@/hooks/usePropostas";
 import { useContratos } from "@/hooks/useContratos";
@@ -49,12 +48,32 @@ export default function Negociacoes() {
   return (
     <div className="min-h-screen bg-[#FFF9F5] pb-24">
       <div className="container mx-auto p-6 space-y-6">
-        <HeroBanner
-          image={negociacoesHero}
-          title="Negociações"
-          subtitle="Acompanhe suas negociações do início ao fechamento."
-          imageAlt="Negociações"
-        />
+        {/* ===== HEADER PREMIUM ===== */}
+        <div
+          className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
+          style={{ background: "#FAEFEB" }}
+        >
+          <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
+            <div className="flex-1 min-w-0">
+              <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
+                Negociações
+              </h1>
+              <div className="mt-2 flex items-center gap-3">
+                <span className="h-px w-8 bg-[#C9A14A] sm:w-10" />
+                <p className="text-xs italic text-[#C9A14A] sm:text-sm">
+                  Acompanhe suas negociações do início ao fechamento.
+                </p>
+              </div>
+            </div>
+            <img
+              src={negociacoesHero}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none h-20 w-auto shrink-0 object-contain object-right sm:h-28 lg:h-[150px]"
+            />
+          </div>
+        </div>
+
 
         {/* KPIs */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
