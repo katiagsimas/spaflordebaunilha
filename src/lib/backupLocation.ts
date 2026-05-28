@@ -91,8 +91,6 @@ export const backupLocation = {
     } catch {
       return null;
     }
-      return null;
-    }
   },
 
   /** Abre o seletor nativo de pasta e persiste a escolha. */
