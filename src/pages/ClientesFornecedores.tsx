@@ -64,13 +64,7 @@ export default function ClientesFornecedores() {
         style={{ background: "#FAEFEB" }}
       >
         <div className="flex flex-col items-start px-4 pt-4 pb-4 sm:px-6 sm:pt-6 sm:pb-6 lg:px-8 lg:pt-7 lg:pb-7">
-          <img
-            src={clientesFornecedoresHero}
-            alt="Clientes e Fornecedores"
-            aria-hidden="true"
-            className="pointer-events-none h-24 w-auto self-center object-contain sm:h-32 lg:h-40"
-          />
-          <div className="mt-4 text-left sm:mt-5">
+          <div className="text-left">
             <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
               Clientes e Fornecedores
             </h1>
@@ -81,6 +75,12 @@ export default function ClientesFornecedores() {
               </p>
             </div>
           </div>
+          <img
+            src={clientesFornecedoresHero}
+            alt="Clientes e Fornecedores"
+            aria-hidden="true"
+            className="pointer-events-none mt-4 h-24 w-auto self-center object-contain sm:mt-5 sm:h-32 lg:h-40"
+          />
         </div>
       </div>
 
