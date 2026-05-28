@@ -459,6 +459,7 @@ export default function Usuarios() {
           <PageHeader
             title="Usuários do Sistema"
             description="Gerencie todos os usuários cadastrados, suas permissões e a estrutura de grupos"
+            backButton={<BackButton to="/governanca" />}
           />
           <Button onClick={() => setShowCriarDialog(true)}>
             <UserPlus className="mr-2 h-4 w-4" />
