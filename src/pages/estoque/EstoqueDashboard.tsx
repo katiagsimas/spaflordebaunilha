@@ -11,6 +11,7 @@ import heroBanner from '@/assets/estoque-hero-banner.jpg';
 import { HeroBanner } from '@/components/HeroBanner';
 import emptyPrateleira from '@/assets/estoque-empty-prateleira.png';
 import valorEstoqueImg from '@/assets/estoque-valor-total.png';
+import itensCadastradosImg from '@/assets/estoque-itens-cadastrados.png';
 
 export default function EstoqueDashboard() {
   const navigate = useNavigate();
@@ -48,6 +49,7 @@ export default function EstoqueDashboard() {
       label: 'Itens Cadastrados',
       value: itens.length.toString(),
       Icon: PackageOpen,
+      image: itensCadastradosImg,
       tone: 'text-[#3D0F1C]',
       iconWrap: 'bg-[#5B1A2B]/10 ring-[#5B1A2B]/25',
       iconColor: 'text-[#5B1A2B]',
