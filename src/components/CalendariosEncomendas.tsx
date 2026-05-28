@@ -326,11 +326,6 @@ export function CalendariosEncomendas({
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        {renderCalendario(dadosAnterior, mesAnterior, "anterior")}
-        {renderCalendario(dadosAtual, mesAtual, "atual", true)}
-        {renderCalendario(dadosSeguinte, mesSeguinte, "seguinte")}
-      </div>
 
       {/* ===== ENCOMENDAS DO DIA SELECIONADO ===== */}
       <Card className="overflow-hidden border-cda-dourado/30 bg-cda-creme/40 shadow-[0_8px_30px_-18px_rgba(91,26,43,0.3)]">
