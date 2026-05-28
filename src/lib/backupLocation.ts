@@ -97,8 +97,7 @@ export const backupLocation = {
   async pickFolder(): Promise<{ name: string } | null> {
     if (!isFsApiSupported()) return null;
     try {
-      // @ts-expect-error - File System Access API
-      const handle = await window.showDirectoryPicker({ id: "cda-backup", mode: "readwrite" });
+      const handle = await (window as any).showDirectoryPicker({ id: "cda-backup", mode: "readwrite" });
       await idbSet(KEY, handle);
       try { localStorage.setItem(LS_NAME_KEY, handle.name); } catch { /* ignore */ }
       return { name: handle.name };
