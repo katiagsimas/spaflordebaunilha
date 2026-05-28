@@ -172,6 +172,7 @@ export default function LogsAdmin() {
       <PageHeader
         title="Logs de Administração"
         description="Histórico de todas as ações administrativas realizadas no sistema"
+        backButton={<BackButton to="/governanca" />}
       />
       
       {/* Filtros */}
