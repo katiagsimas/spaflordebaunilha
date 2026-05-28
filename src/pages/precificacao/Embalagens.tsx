@@ -579,6 +579,14 @@ export default function Embalagens() {
           <BackButton to="/precificacao" />
           <Button
             variant="ghost"
+            onClick={() => navigate('/precificacao/ingredientes')}
+            className="gap-2 text-muted-foreground hover:text-foreground font-body"
+          >
+            Ingredientes
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
             onClick={() => navigate('/precificacao/pre-preparos')}
             className="gap-2 text-muted-foreground hover:text-foreground font-body"
           >
