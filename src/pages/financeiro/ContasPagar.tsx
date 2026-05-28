@@ -843,6 +843,14 @@ export default function ContasPagar() {
         </Card>
       </div>
 
+      {/* Botão Adicionar */}
+      <div className="flex justify-start">
+        <Button onClick={() => navigate('/financeiro/contas-pagar/nova')}>
+          <Plus className="mr-2 h-4 w-4" />
+          Adicionar Conta a Pagar
+        </Button>
+      </div>
+
       {/* Filtros Rápidos */}
       <div className="flex flex-wrap justify-between items-center gap-2">
         <div className="flex flex-wrap gap-2">
