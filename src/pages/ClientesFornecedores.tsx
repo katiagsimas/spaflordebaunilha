@@ -172,13 +172,11 @@ export default function ClientesFornecedores() {
                 >
                   <Users className="h-4 w-4 mr-2" /> Clientes
                 </TabsTrigger>
-                </TabsTrigger>
                 <TabsTrigger
                   value="fornecedores"
                   className="relative rounded-md border-0 px-3 pb-2 pt-2 font-display text-[15px] text-[#3D0F1C]/60 data-[state=active]:bg-cda-vinho data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none transition-all"
                 >
                   <Truck className="h-4 w-4 mr-2" /> Fornecedores
-                </TabsTrigger>
                 </TabsTrigger>
               </TabsList>
 

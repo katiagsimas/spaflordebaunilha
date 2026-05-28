@@ -218,13 +218,11 @@ export default function Negociacoes() {
                 >
                   Propostas
                 </TabsTrigger>
-                </TabsTrigger>
                 <TabsTrigger
                   value="contratos"
                   className="relative rounded-md border-0 px-3 pb-2 pt-2 font-display text-[15px] text-[#3D0F1C]/60 data-[state=active]:bg-cda-vinho data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none transition-all"
                 >
                   Contratos
-                </TabsTrigger>
                 </TabsTrigger>
               </TabsList>
 
