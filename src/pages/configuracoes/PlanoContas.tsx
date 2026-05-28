@@ -501,19 +501,23 @@ export default function PlanoContas() {
       />
 
       {/* Alert */}
-      <Alert className="bg-blue-50 border-blue-200">
-        <Info className="h-4 w-4 text-blue-600" />
-        <AlertDescription>
+      <Alert className="bg-cda-creme border-2 border-cda-dourado">
+        <Info className="h-4 w-4 text-cda-vinho" />
+        <AlertDescription className="text-cda-preto">
           O sistema criou automaticamente {planos.filter(p => p.e_padrao).length} planos de contas padrão 
           para confeitaria. Você pode criar planos personalizados conforme sua necessidade.
         </AlertDescription>
       </Alert>
 
-      {/* Botão Criar */}
-      <div className="flex justify-center">
+      {/* Botões */}
+      <div className="flex justify-between items-center gap-2">
         <Button onClick={() => handleAbrirModal()} size="lg">
           <Plus className="mr-2 h-5 w-5" />
           Adicionar Plano de Contas
+        </Button>
+        <Button onClick={handleExportar} variant="outline" size="sm">
+          <Download className="mr-2 h-4 w-4" />
+          Exportar Excel
         </Button>
       </div>
 
