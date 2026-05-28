@@ -80,7 +80,6 @@ export default function Propostas() {
           </NavLink>
         </Button>
       </div>
-      />
 
       <div className="p-6 space-y-6">
         {/* Stats premium */}
