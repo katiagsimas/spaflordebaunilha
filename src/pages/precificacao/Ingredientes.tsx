@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Check, ChevronsUpDown, Info, Download, Search, AlertTriangle, Package, MoreVertical, Trash2 } from 'lucide-react';
+import { Plus, Edit, Check, ChevronsUpDown, Info, Download, Search, AlertTriangle, Package, MoreVertical, Trash2, ArrowRight } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
