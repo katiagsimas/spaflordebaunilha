@@ -96,6 +96,7 @@ import Propostas from "./pages/comercial/Propostas";
 import NovaProposta from "./pages/comercial/NovaProposta";
 import RelatorioPropostas from "./pages/comercial/RelatorioPropostas";
 import Contratos from "./pages/comercial/Contratos";
+import Negociacoes from "./pages/comercial/Negociacoes";
 import OnboardingBemVinda from "./pages/onboarding/BemVinda";
 import OnboardingConcluido from "./pages/onboarding/Concluido";
 
@@ -332,6 +333,7 @@ const App = () => (
           <Route path="/organizacao-doce" element={<ProtectedRoute><Layout><OrganizacaoDoce /></Layout></ProtectedRoute>} />
 
           {/* Comercial — Propostas e Contratos (Business + Imersão + Mother) */}
+          <Route path="/comercial/negociacoes" element={<ProtectedRoute><Layout><PlanoGuard><Negociacoes /></PlanoGuard></Layout></ProtectedRoute>} />
           <Route path="/comercial/propostas" element={<ProtectedRoute><Layout><PlanoGuard><Propostas /></PlanoGuard></Layout></ProtectedRoute>} />
           <Route path="/comercial/propostas/nova" element={<ProtectedRoute><Layout><PlanoGuard><NovaProposta /></PlanoGuard></Layout></ProtectedRoute>} />
           <Route path="/comercial/propostas/editar/:id" element={<ProtectedRoute><Layout><PlanoGuard><NovaProposta /></PlanoGuard></Layout></ProtectedRoute>} />
