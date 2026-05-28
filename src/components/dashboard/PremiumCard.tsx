@@ -8,8 +8,6 @@ interface PremiumCardProps {
   subtitle?: string;
   /** Imagem decorativa exibida no canto superior direito do header (PNG transparente). */
   headerOrnament?: string;
-  /** Imagem decorativa exibida no canto superior esquerdo do header (PNG transparente). */
-  headerOrnamentLeft?: string;
   /** Conteúdo principal renderizado no corpo creme. */
   children: ReactNode;
   /** Texto de nota no rodapé (ex.: "Pequenos gestos criam grandes lembranças."). */
@@ -24,10 +22,6 @@ interface PremiumCardProps {
   asideRight?: ReactNode;
   className?: string;
   bodyClassName?: string;
-  /** Oculta o ícone do header, mesmo que seja passado. */
-  hideIcon?: boolean;
-  /** Centraliza o título e subtítulo no header. */
-  centerTitle?: boolean;
 }
 
 export function PremiumCard({
@@ -35,7 +29,6 @@ export function PremiumCard({
   title,
   subtitle,
   headerOrnament,
-  headerOrnamentLeft,
   children,
   footerNote,
   footerNoteIcon,
@@ -44,8 +37,6 @@ export function PremiumCard({
   asideRight,
   className,
   bodyClassName,
-  hideIcon = false,
-  centerTitle = false,
 }: PremiumCardProps) {
   return (
     <div
@@ -64,28 +55,13 @@ export function PremiumCard({
             className="pointer-events-none absolute right-0 top-0 h-full w-auto max-w-[45%] object-contain object-right opacity-95"
           />
         )}
-        {headerOrnamentLeft && (
-          <img
-            src={headerOrnamentLeft}
-            alt=""
-            aria-hidden="true"
-            className="pointer-events-none absolute left-0 top-0 h-full w-auto max-w-[44%] object-contain object-left opacity-95"
-          />
-        )}
-        <div className={cn(
-          "relative flex items-start gap-3 px-5 py-4 sm:px-6 sm:py-5",
-          centerTitle && "flex-col items-center text-center"
-        )}>
-          {Icon && !hideIcon && (
+        <div className="relative flex items-start gap-3 px-5 py-4 sm:px-6 sm:py-5">
+          {Icon && (
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full ring-1 ring-cda-dourado/60">
               <Icon className="h-5 w-5 text-cda-dourado" />
             </div>
           )}
-          <div className={cn(
-            "relative z-10 min-w-0 flex-1",
-            !centerTitle && "pr-[40%] sm:pr-0",
-            centerTitle && "flex flex-col items-center"
-          )}>
+          <div className="min-w-0 flex-1 pr-[40%] sm:pr-0">
             <h3 className="font-display text-xl leading-tight text-cda-creme sm:text-2xl">
               {title}
             </h3>

@@ -5,7 +5,6 @@ import { HeroBanner } from "@/components/HeroBanner";
 import illuPresenteVinho from "@/assets/bolo-aniversariantes.png";
 import illuCalendarioRosa from "@/assets/cda-illu-calendario-rosa.png";
 import illuCalendarioProximas from "@/assets/calendario-proximas-entregas.png";
-import illuVisaoEconomica from "@/assets/visao-economica.png";
 import { getTodayISO, formatDateToISO } from "@/lib/dateUtils";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -1233,9 +1232,6 @@ export default function Dashboard() {
         icon={TrendingUp}
         title="Visão econômica"
         subtitle="Faturamento, custos e lucro do período"
-        headerOrnamentLeft={illuVisaoEconomica}
-        hideIcon
-        centerTitle
         headerRight={
           <div className="inline-flex rounded-full bg-cda-vinho-escuro/40 p-1 ring-1 ring-cda-dourado/40">
             {(["mensal", "anual"] as const).map((tab) => (
