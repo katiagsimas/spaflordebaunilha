@@ -128,6 +128,7 @@ export default function Precificacao() {
         image={heroBanner}
         title="Cardápio"
         subtitle="Gerencie seus Produtos"
+        bgColor="#F5E4D8"
       />
 
       {/* Cards de navegação */}
