@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { ScrollText, Plus, Trash2, Download, FileText, ArrowLeft, Send, CheckCircle2, Coins, LayoutList } from "lucide-react";
-import { PageHeader } from "@/components/PageHeader";
-import { Button } from "@/components/ui/button";
+import { NavLink, useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
