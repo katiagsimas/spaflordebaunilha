@@ -19,12 +19,7 @@ interface HeroBannerProps {
  * - Fio dourado + subtítulo itálico dourado (#C9A14A)
  */
 export function HeroBanner({ image, title, subtitle, imageAlt = "", bgColor = "#FAEFEB" }: HeroBannerProps) {
-  return (
-    <div
-      className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
-      style={{ background: bgColor }}
-    >
-      <div className="flex flex-col items-start px-4 pt-4 pb-4 sm:px-6 sm:pt-6 sm:pb-6 lg:px-8 lg:pt-7 lg:pb-7">
+      <div className="flex flex-col items-start px-4 pt-4 pb-0 sm:px-6 sm:pt-5 lg:px-8 lg:pt-6">
         <div className="text-left">
           <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
             {title}
@@ -41,7 +36,12 @@ export function HeroBanner({ image, title, subtitle, imageAlt = "", bgColor = "#
             src={image}
             alt={imageAlt}
             aria-hidden={imageAlt ? undefined : "true"}
-            className="pointer-events-none mt-4 h-24 w-auto self-center object-contain sm:mt-5 sm:h-32 lg:h-40"
+            className="pointer-events-none mt-1 h-16 w-auto self-center object-contain object-bottom sm:mt-1.5 sm:h-20 lg:h-24"
+          />
+        )}
+
+      </div>
+
           />
         )}
 
