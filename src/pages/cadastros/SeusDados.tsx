@@ -122,7 +122,8 @@ export default function SeusDados() {
   });
 
   const [logomarca, setLogomarca] = useState<string>("");
-  const [assinatura, setAssinatura] = useState<string>("");
+  const [assinatura, setAssinatura] = useState<string>(""); // path no Storage (bucket privado)
+  const [assinaturaPreview, setAssinaturaPreview] = useState<string>(""); // URL assinada para exibição
   const { buscarCEP, loading } = useViaCEP();
 
   const { register, handleSubmit, setValue, watch, reset } = useForm<SeusDadosForm>();
@@ -159,7 +160,21 @@ export default function SeusDados() {
       certificacoes: (profile as any).certificacoes || "",
     });
     if (profile.avatar_url) setLogomarca(profile.avatar_url);
-    if ((profile as any).assinatura_url) setAssinatura((profile as any).assinatura_url);
+    const ass = (profile as any).assinatura_url as string | null;
+    if (ass) {
+      setAssinatura(ass);
+      // Gera URL assinada para exibição (bucket privado)
+      if (ass.startsWith("http")) {
+        setAssinaturaPreview(ass);
+      } else {
+        supabase.storage.from("assinaturas").createSignedUrl(ass, 3600).then(({ data }) => {
+          if (data?.signedUrl) setAssinaturaPreview(data.signedUrl);
+        });
+      }
+    } else {
+      setAssinatura("");
+      setAssinaturaPreview("");
+    }
   }, [profile, reset]);
 
   const cepValue = watch("cep");
@@ -223,11 +238,13 @@ export default function SeusDados() {
         .from("assinaturas")
         .upload(filePath, file, { upsert: true, contentType: file.type });
       if (uploadError) throw uploadError;
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("assinaturas").getPublicUrl(filePath);
-      setAssinatura(publicUrl);
-      await supabase.from("profiles").update({ assinatura_url: publicUrl } as any).eq("id", user.id);
+      // Bucket privado: persiste o path e gera URL assinada para exibição
+      setAssinatura(filePath);
+      const { data: signed } = await supabase.storage
+        .from("assinaturas")
+        .createSignedUrl(filePath, 3600);
+      setAssinaturaPreview(signed?.signedUrl || "");
+      await supabase.from("profiles").update({ assinatura_url: filePath } as any).eq("id", user.id);
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id, activeGroup?.id] });
       queryClient.invalidateQueries({ queryKey: ["business-profile", user?.id] });
       toast.success("Assinatura enviada!");
@@ -244,6 +261,7 @@ export default function SeusDados() {
         await supabase.storage.from("assinaturas").remove(files.map((f) => `${user.id}/${f.name}`));
       }
       setAssinatura("");
+      setAssinaturaPreview("");
       await supabase.from("profiles").update({ assinatura_url: null } as any).eq("id", user.id);
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id, activeGroup?.id] });
       queryClient.invalidateQueries({ queryKey: ["business-profile", user?.id] });
@@ -664,7 +682,7 @@ export default function SeusDados() {
                   {assinatura ? (
                     <div className="relative inline-block">
                       <img
-                        src={assinatura}
+                        src={assinaturaPreview || assinatura}
                         alt="Assinatura"
                         className="max-w-xs max-h-32 rounded-lg border-2 border-border object-contain bg-muted p-4"
                       />
