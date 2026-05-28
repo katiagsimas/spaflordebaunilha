@@ -358,10 +358,10 @@ export default function SeusDados() {
       <div className="mb-6">
         <div
           className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
-          style={{ background: "#FAEFEB" }}
+          style={{ background: "#F2DBBE" }}
         >
-          <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
-            <div className="flex-1 min-w-0">
+          <div className="flex items-stretch gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
+            <div className="flex-1 min-w-0 flex flex-col justify-center">
               <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
                 {profile?.primeiro_acesso ? "Bem-vinda! Complete seus dados" : "Meus Dados"}
               </h1>
@@ -376,7 +376,7 @@ export default function SeusDados() {
               src={bannerImg}
               alt=""
               aria-hidden="true"
-              className="pointer-events-none h-10 w-auto shrink-0 object-contain object-right sm:h-14 lg:h-16"
+              className="pointer-events-none h-full max-h-32 w-auto shrink-0 self-stretch object-contain object-right sm:max-h-40 lg:max-h-48"
             />
           </div>
         </div>
