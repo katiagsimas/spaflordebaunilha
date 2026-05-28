@@ -188,10 +188,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           </header>
           <AlertaExpiracaoPlano />
           <ModalExpiracaoImersao />
-          <main className="flex-1 px-6 md:px-8 pt-2 pb-6 md:pb-8 bg-app">
+          <main className="flex-1 min-w-0 px-3 sm:px-4 md:px-8 pt-2 pb-6 md:pb-8 bg-app overflow-x-hidden md:overflow-x-visible">
             <FirstAccessRedirect />
             {children}
           </main>
+
           <FloatingNavigation />
           <footer className="border-t border-cda-dourado/30 bg-cda-vinho text-cda-creme/70 py-3 px-4 text-center text-[11px] font-body">
             Umbrella Doce by Ká Simas · CNPJ 65.786.966/0001-41 · Todos os direitos reservados.
