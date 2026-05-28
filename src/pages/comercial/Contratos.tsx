@@ -45,6 +45,7 @@ export default function Contratos() {
     valor_total: 0, data_evento: "", observacoes: "", status: "rascunho" as ContratoStatus,
   });
   const [toDelete, setToDelete] = useState<Contrato | null>(null);
+  const navigate = useNavigate();
 
   const { contratos, stats, create, remove } = useContratos();
   const { data: templates = [] } = useContratoTemplates();
