@@ -12,7 +12,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Clock, Scale, Info, MoreVertical, Trash2, FileDown, ArrowLeft } from 'lucide-react';
+import { Plus, Edit, Clock, Scale, Info, MoreVertical, Trash2, FileDown, ArrowLeft, ArrowRight } from 'lucide-react';
 import { exportarPrePreparoPDF } from '@/utils/exportarPrePreparoPDF';
 import { EmptyState } from '@/components/EmptyState';
 import { ChefHat } from 'lucide-react';
