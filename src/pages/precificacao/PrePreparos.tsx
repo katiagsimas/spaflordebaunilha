@@ -272,7 +272,7 @@ export default function PrePreparos() {
               onClick={() => navigate('/precificacao/ficha-tecnica')}
               className="gap-2 text-muted-foreground hover:text-foreground font-body"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4" />
               Ficha Técnica
             </Button>
           </div>
