@@ -36,9 +36,9 @@
 
 | # | Item | Status | Correção |
 |---|------|--------|----------|
-| C-1 | `.gitignore` não inclui `.env` | ❌ persistente | Adicionar `.env`, `.env.local`, `.env.*.local`. |
+| C-1 | `.gitignore` não inclui `.env` | ✅ corrigido (arquivo ainda tracked) | `git rm --cached .env` manual pendente. |
 | C-2 | Sem monitoramento de erros em produção | ❌ persistente | Sentry `@sentry/react` + cobertura nas 10 Edge Functions. |
-| C-3 | Sem analytics nem dashboard de saúde | ❌ persistente | Posthog (preferido) ou GA4. |
+| C-3 | Sem analytics nem dashboard de saúde | ⚠️ mitigado | GA4 básico implementado (`page_view` + evento `login`). Posthog/Sentry pendentes. |
 
 ### 🟡 Itens de Atenção
 
