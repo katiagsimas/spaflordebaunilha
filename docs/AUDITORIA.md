@@ -1,7 +1,90 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
 > Este arquivo é gerado e atualizado automaticamente a cada auditoria realizada no projeto.
-> Última atualização: 2026-05-28T22:59:00Z — Auditoria completa pré-lançamento (#1 holística).
+> Última atualização: 2026-05-29T19:30:00Z — Auditoria completa pré-lançamento #2.
+
+---
+
+## AUDITORIA COMPLETA #2 — 2026-05-29 19:30 UTC
+
+### 📊 Resumo Executivo
+- **Status Geral:** ⚠️ **APROVADO COM RESSALVAS** — sem bloqueadores de segurança de dados, mas persistem 3 itens críticos operacionais (`.env` fora do gitignore, ausência de monitoramento de erros, ausência de analytics) já apontados na #1 e ainda não resolvidos.
+- **Total de itens verificados:** 80
+- **Itens OK (✅):** 56 (+4 desde #1)
+- **Itens de Atenção (⚠️):** 16
+- **Itens Críticos (❌):** 3 (mesmos da #1)
+- **Itens Não Aplicáveis (🔲):** 5
+
+### 🔁 Diff desde a Auditoria #1
+- ✅ Índices `owner_group_id` aplicados nas tabelas de negócio (encomendas, estoque, fechamentos, planejamento, backups, profiles etc.).
+- ✅ Retenção de backups de 30 dias ativa no cron `executar-backups-agendados` (limpa após salvar o novo backup com sucesso).
+- ✅ `setInterval` em `ReceitaForm.tsx` confirmado dentro de `handleImageUpload` com `clearInterval` no `finally` — sem vazamento.
+- ✅ Validação de uso dos índices via `pg_stat_user_indexes` (27 com `idx_scan=0`, esperado em base vazia; reavaliar em 30 dias).
+- ⚠️ **Novo achado:** padrão RLS duplo — tabelas críticas de negócio (encomendas, receitas, contas_*, estoque, planejamento_*, custos_fixos, bancos etc.) usam `auth.uid() = usuario_id` em vez de `user_belongs_to_group`. Quebra a promessa multi-tenant via SQL; isolamento só pelo `useGroupFilter` no cliente.
+- ❌ `.env` continua fora do `.gitignore`.
+- ❌ Sem Sentry/LogRocket nem Posthog/GA4.
+
+### 🔴 Itens Críticos
+
+| # | Item | Status | Correção |
+|---|------|--------|----------|
+| C-1 | `.gitignore` não inclui `.env` | ❌ persistente | Adicionar `.env`, `.env.local`, `.env.*.local`. |
+| C-2 | Sem monitoramento de erros em produção | ❌ persistente | Sentry `@sentry/react` + cobertura nas 10 Edge Functions. |
+| C-3 | Sem analytics nem dashboard de saúde | ❌ persistente | Posthog (preferido) ou GA4. |
+
+### 🟡 Itens de Atenção
+
+| # | Item | Status | Recomendação |
+|---|------|--------|--------------|
+| A-1 | Bucket `assinaturas` público | ⚠️ persistente | Privado + `createSignedUrl()`. |
+| A-2 | Bucket `topo-bolo` público | ⚠️ persistente | Privado + signed URLs. |
+| A-3 | 218 `console.*` em 68 arquivos | ⚠️ persistente | ESLint `no-console` permitindo `warn`/`error`. |
+| A-4 | 662 `any` em 100 arquivos | ⚠️ piorou | Bloquear `any` em novos PRs; focar em financeiro e webhook. |
+| A-5 | `AuthContext`: confirmar ordem `getSession()` → `onAuthStateChange` | ⚠️ persistente | Validar versus memória do projeto. |
+| A-6 | Assets `.jpg`/`.png` duplicados em `src/assets` | ⚠️ persistente | Manter um formato. |
+| A-7 | Sem `sitemap.xml` | ⚠️ persistente | Gerar `public/sitemap.xml`. |
+| A-8 | Templates de email Cloud não customizados | ⚠️ persistente | Customizar no painel Cloud. |
+| A-9 | 56 deps de produção sem análise de bundle | ⚠️ persistente | `vite-bundle-visualizer`. |
+| A-10 | Sem validação real de venda Hotmart end-to-end | ⚠️ persistente | Compra real mínima: webhook → provisionamento → email → 1º login. |
+| A-11 | Sem teste em mobile real | ⚠️ persistente | iOS Safari + Android Chrome. |
+| A-12 | Sem testes automatizados | ⚠️ persistente | Playwright nos 5 fluxos críticos. |
+| A-13 | Cancelamento de conta não implementado | ⚠️ persistente | Documentar manual ou implementar self-service. |
+| A-14 | 120 `useEffect` no projeto | ⚠️ persistente | `exhaustive-deps` em `error`. |
+| A-15 | Sem `<meta name="robots">` em rotas privadas | ⚠️ persistente | `react-helmet` com `noindex,nofollow`. |
+| A-16 | **RLS padrão B em tabelas de negócio** (NOVO) | ⚠️ novo | Migrar para `user_belongs_to_group(...)` antes de receber 2+ usuários por grupo. |
+
+### 🟢 Pontos Positivos
+- 71 tabelas no `public` com RLS habilitado, todas com policy (linter zero erros estruturais).
+- Cron único com retenção de 30 dias.
+- `ai-proxy` centraliza 100% das chamadas LLM (auth + quota + rate limit + allowlist).
+- Realtime restrito a 1 tabela (`encomendas`).
+- 10 Edge Functions, todas sob demanda.
+- Banco 28 MB, Storage 86 kB — folga total.
+- Índices `owner_group_id` aplicados.
+- Sem secrets hardcoded; `.env` só contém `VITE_SUPABASE_*` (publishable).
+
+### 📝 Resultado por Bloco
+- **B1 Arquitetura:** ✅ exceto C-1 e A-6.
+- **B2 Segurança:** ✅ RLS, auth, HTTPS; ⚠️ A-1, A-2, A-3.
+- **B3 Banco/Supabase:** ✅ 236 migrations, tipos gerados, índices, error handling; ⚠️ A-16.
+- **B4 Funcionalidades:** ✅ fluxos principais; ⚠️ A-10, A-13.
+- **B5 Qualidade de código:** ⚠️ A-3, A-4, A-14.
+- **B6 UI/UX:** ✅ design system `cda-*` + loading states; ⚠️ A-11.
+- **B7 Performance:** ✅ React Query + índices.
+- **B8 SEO:** ⚠️ A-7, A-15.
+- **B9 Comunicação:** ✅ Resend; ⚠️ A-8.
+- **B10 Pagamentos:** ⚠️ A-10.
+- **B11 Analytics/Monitoramento:** ❌ C-2, C-3.
+- **B12 Testes:** ⚠️ A-12.
+
+### 🎯 Plano de Ação
+1. **Hoje:** corrigir C-1.
+2. **Antes do lançamento público:** C-2, C-3, A-1/A-2, A-10.
+3. **Sprint pós-lançamento:** A-16, A-3/A-4, A-12, A-13.
+4. **Backlog técnico:** A-6, A-7, A-15, A-9, A-14.
+
+### 🏁 Veredicto
+⚠️ **APROVADO COM RESSALVAS.** Pode lançar para a primeira leva controlada de alunas **desde que C-1 seja corrigido agora** e C-2/C-3 entrem em até 7 dias. A-16 não bloqueia hoje (1 USER por grupo), mas vira bloqueio assim que houver 2+ usuários por grupo.
 
 ---
 
