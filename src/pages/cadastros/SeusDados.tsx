@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import meusDadosFooter from "@/assets/meus-dados-hero-banner.png";
 import { HeroBanner } from "@/components/HeroBanner";
+import { SignaturePad } from "@/components/SignaturePad";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
