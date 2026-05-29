@@ -82,7 +82,7 @@
 - **B8 SEO:** ⚠️ A-7, A-15.
 - **B9 Comunicação:** ✅ Resend; ⚠️ A-8.
 - **B10 Pagamentos:** ⚠️ A-10.
-- **B11 Analytics/Monitoramento:** ❌ C-2, C-3.
+- **B11 Analytics/Monitoramento:** ⚠️ C-2 (Sentry pendente), C-3 (GA4 básico implementado).
 - **B12 Testes:** ⚠️ A-12.
 
 ### 🎯 Plano de Ação
