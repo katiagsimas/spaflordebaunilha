@@ -12,6 +12,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { GroupProvider } from "@/contexts/GroupContext";
 import { GlobalLoadingProvider, useGlobalLoading } from "@/contexts/GlobalLoadingContext";
 import { LoadingMascote } from "@/components/LoadingMascote";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { FirstAccessRedirect } from "@/components/FirstAccessRedirect";
 import { FloatingNavigation } from "@/components/FloatingNavigation";
 import { AlertaExpiracaoPlano } from "@/components/AlertaExpiracaoPlano";
