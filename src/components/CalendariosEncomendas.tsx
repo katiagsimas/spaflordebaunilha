@@ -181,12 +181,17 @@ export function CalendariosEncomendas({
   }, [user, mesAtual, mesAnterior, mesSeguinte]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !activeGroupId) return;
     const channel = supabase
       .channel("calendarios-encomendas-realtime")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "encomendas" },
+        {
+          event: "*",
+          schema: "public",
+          table: "encomendas",
+          filter: `owner_group_id=eq.${activeGroupId}`,
+        },
         () => recarregarTudo()
       )
       .subscribe();
@@ -194,7 +199,8 @@ export function CalendariosEncomendas({
       supabase.removeChannel(channel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, mesAtual, mesAnterior, mesSeguinte]);
+  }, [user, activeGroupId, mesAtual, mesAnterior, mesSeguinte]);
+
 
   function selecionarDia(dados: DadosDia) {
     setDiaSelecionado(dados.dia);
