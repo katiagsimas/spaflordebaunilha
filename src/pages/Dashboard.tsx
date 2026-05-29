@@ -206,7 +206,7 @@ export default function Dashboard() {
   // foram removidas da publicação `supabase_realtime`. O Dashboard recarrega ao remontar (navegação
   // entre rotas) e as próprias telas financeiras chamam suas rotinas de recarga após mutações.
   useEffect(() => {
-    if (!user) return;
+    if (!user || !activeGroupId) return;
 
     const recarregarTudoDebounced = () => {
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
@@ -222,7 +222,16 @@ export default function Dashboard() {
 
     const channel = supabase
       .channel('dashboard-updates')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'encomendas' }, recarregarTudoDebounced)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'encomendas',
+          filter: `owner_group_id=eq.${activeGroupId}`,
+        },
+        recarregarTudoDebounced
+      )
       .subscribe();
 
     return () => {
@@ -230,7 +239,8 @@ export default function Dashboard() {
       if (debounceCalendarioRef.current) clearTimeout(debounceCalendarioRef.current);
       supabase.removeChannel(channel);
     };
-  }, [user, mesSelecionado, anoSelecionado]);
+  }, [user, activeGroupId, mesSelecionado, anoSelecionado]);
+
 
   // Persistir período selecionado no localStorage
   useEffect(() => {
