@@ -8,11 +8,11 @@
 ## AUDITORIA COMPLETA #2 — 2026-05-29 19:30 UTC
 
 ### 📊 Resumo Executivo
-- **Status Geral:** ⚠️ **APROVADO COM RESSALVAS** — sem bloqueadores de segurança de dados, mas persistem 3 itens críticos operacionais (`.env` fora do gitignore, ausência de monitoramento de erros, ausência de analytics) já apontados na #1 e ainda não resolvidos.
+- **Status Geral:** ⚠️ **APROVADO COM RESSALVAS** — sem bloqueadores de segurança de dados, mas persistem 2 itens críticos operacionais (`.env` fora do gitignore — corrigido na #2 e #3, ausência de monitoramento de erros Sentry) e 1 mitigado (GA4 básico implementado).
 - **Total de itens verificados:** 80
-- **Itens OK (✅):** 56 (+4 desde #1)
+- **Itens OK (✅):** 57 (+1 desde #2)
 - **Itens de Atenção (⚠️):** 16
-- **Itens Críticos (❌):** 3 (mesmos da #1)
+- **Itens Críticos (❌):** 2 (C-2 Sentry, C-3 reduzido a ⚠️)
 - **Itens Não Aplicáveis (🔲):** 5
 
 ### 🔁 Diff desde a Auditoria #1
