@@ -105,6 +105,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
+      // GA4: evento de login bem-sucedido
+      try {
+        if (typeof window !== 'undefined' && (window as any).gtag && (window as any).gaMeasurementId) {
+          (window as any).gtag('event', 'login', {
+            method: 'email_password',
+            send_to: (window as any).gaMeasurementId,
+          });
+        }
+      } catch (_gaErr) {
+        // Silencioso: falhas de tracking não devem quebrar o login
+      }
+
       toast({
         title: '✅ Bem-vindo(a) de volta!',
         description: 'Login realizado com sucesso.',
