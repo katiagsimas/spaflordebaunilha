@@ -365,6 +365,7 @@ const App = () => (
       </GroupProvider>
     </AuthProvider>
   </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
