@@ -135,3 +135,20 @@ Migration criou `idx_<tabela>_owner_group` (com `IF NOT EXISTS`) nas seguintes t
 Tabelas já indexadas previamente (ignoradas pelo `IF NOT EXISTS`): `clientes`, `fornecedores`, `fornecedor_contatos`, `ingredientes`, `embalagens`, `receitas`, `contas_pagar`, `contas_receber`, `contratos`, `propostas`, `fechamento_logs`.
 
 Tabelas de configuração com baixa cardinalidade (categorias, bancos, plano_contas, tipos_*, unidades_medida, tags_encomendas, configuracoes_juros) foram deliberadamente deixadas sem índice — overhead não compensa o ganho.
+
+---
+
+## ✅ 2026-05-29 — Validação de uso dos índices `owner_group_id`
+
+Consulta em `pg_stat_user_indexes` retornou **27 índices com `idx_scan = 0`** — todos os criados nesta rodada + os pré-existentes. Resultado esperado: base praticamente vazia e índices recém-criados/sem tráfego de produção. Nenhum índice será removido agora; reavaliar após 30 dias de uso real.
+
+Lista (zero scans):
+backups, backups_cofre, clientes, contas_receber, contratos (unique key), conversa_doce_favoritos, custos_fixos, embalagens, encomenda_itens, encomendas, estoque, estoque_movimentacoes, fechamentos_mensais, fornecedores, ingredientes, mao_obra_perfis, meu_salario_retiradas, organizacao_doce_state, planejamento_datas_comemorativas, planejamento_descanso, planejamento_metas, planejamento_tarefas, pre_preparos, profiles, propostas (unique key), receitas, transferencias_bancos.
+
+---
+
+## ✅ 2026-05-29 — Retenção de backups (30 dias) aplicada
+
+`supabase/functions/executar-backups-agendados/index.ts`: a limpeza de backups antigos agora roda **sempre após o novo backup ser salvo com sucesso**, com default de **30 dias** quando o agendamento não definir `retencao_dias` próprio. Remove tanto a linha em `public.backups` quanto o arquivo em `storage.backups`.
+
+Cofre (`backups_cofre`) mantém sua política própria: mensais (`eh_mensal=true`) + 5 mais recentes do grupo.
