@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import { CalendarDays, FileDown, Plus, Search, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useGroup } from "@/contexts/GroupContext";
+
 import { useNavigate } from "react-router-dom";
 import calendarioMacaron from "@/assets/calendario-macaron.png";
 import { format } from "date-fns";
@@ -41,6 +43,8 @@ const statusLabel: Record<string, string> = {
 
 export function EncomendasDoDia({ onNovaEncomenda }: { onNovaEncomenda?: () => void } = {}) {
   const { user } = useAuth();
+  const { activeGroupId } = useGroup();
+
   const navigate = useNavigate();
   const hoje = new Date();
   const hojeStr = format(hoje, "yyyy-MM-dd");
@@ -74,12 +78,17 @@ export function EncomendasDoDia({ onNovaEncomenda }: { onNovaEncomenda?: () => v
   }, [user]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !activeGroupId) return;
     const channel = supabase
       .channel("encomendas-do-dia-realtime")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "encomendas" },
+        {
+          event: "*",
+          schema: "public",
+          table: "encomendas",
+          filter: `owner_group_id=eq.${activeGroupId}`,
+        },
         () => carregar(),
       )
       .subscribe();
@@ -87,7 +96,8 @@ export function EncomendasDoDia({ onNovaEncomenda }: { onNovaEncomenda?: () => v
       supabase.removeChannel(channel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, activeGroupId]);
+
 
   const encomendasFiltradas = encomendasDia.filter((e) =>
     buscaDia.trim() === "" ? true : e.cliente.toLowerCase().includes(buscaDia.toLowerCase()),

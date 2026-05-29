@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useGroup } from "@/contexts/GroupContext";
 import { getTodayISO } from "@/lib/dateUtils";
+
 
 /**
  * Retorna a quantidade de encomendas (não canceladas) com data_entrega = HOJE.
@@ -9,6 +11,7 @@ import { getTodayISO } from "@/lib/dateUtils";
  */
 export function useEncomendasHoje() {
   const { user } = useAuth();
+  const { activeGroupId } = useGroup();
   const [quantidade, setQuantidade] = useState(0);
 
   const carregar = async () => {
@@ -32,12 +35,17 @@ export function useEncomendasHoje() {
   }, [user]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !activeGroupId) return;
     const channel = supabase
       .channel("encomendas-hoje-alerta")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "encomendas" },
+        {
+          event: "*",
+          schema: "public",
+          table: "encomendas",
+          filter: `owner_group_id=eq.${activeGroupId}`,
+        },
         () => carregar()
       )
       .subscribe();
@@ -45,7 +53,8 @@ export function useEncomendasHoje() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, activeGroupId]);
+
 
   return { quantidade, temEncomendasHoje: quantidade > 0 };
 }
