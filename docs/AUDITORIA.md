@@ -1545,3 +1545,14 @@ Arquivos alterados:
 - ✅ `SeusDados.tsx`: após "Salvar Dados" durante onboarding, navega automaticamente para Mão de Obra.
 - ✅ `Backup.tsx`: após ativar agendamento + primeiro backup no onboarding, navega para `/onboarding/concluido`.
 - Mão de Obra → Backup já estava implementado. Fluxo: Meus Dados → Mão de Obra → Backup → Concluído, válido para todos os planos.
+
+---
+
+## Correção pontual — 2026-05-29
+
+### ✅ C-2 (parcial) — Tratamento global de erros
+- Criado `src/lib/errorLogger.ts` com `inicializarErrorLogger()` que captura `window.error` e `unhandledrejection`, registrando em `console.error` com contexto (usuário, email, rota, timestamp, user-agent, stack).
+- Criado `src/components/ErrorBoundary.tsx` (React class component) com fallback amigável em PT-BR usando design system Vinho Premium.
+- `ErrorBoundary` registrado como wrapper raiz em `src/App.tsx`.
+- `inicializarErrorLogger()` chamado em `src/main.tsx` antes do `createRoot`.
+- Substituir por Sentry quando configurado — o logger atual é ponte temporária.
