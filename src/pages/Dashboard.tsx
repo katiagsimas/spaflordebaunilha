@@ -39,6 +39,8 @@ import { dashboardHelp } from "@/components/help/contents/dashboardHelp";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useGroup } from "@/contexts/GroupContext";
+
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useNavigate } from "react-router-dom";
