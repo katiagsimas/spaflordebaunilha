@@ -21,8 +21,16 @@
 - ✅ `setInterval` em `ReceitaForm.tsx` confirmado dentro de `handleImageUpload` com `clearInterval` no `finally` — sem vazamento.
 - ✅ Validação de uso dos índices via `pg_stat_user_indexes` (27 com `idx_scan=0`, esperado em base vazia; reavaliar em 30 dias).
 - ⚠️ **Novo achado:** padrão RLS duplo — tabelas críticas de negócio (encomendas, receitas, contas_*, estoque, planejamento_*, custos_fixos, bancos etc.) usam `auth.uid() = usuario_id` em vez de `user_belongs_to_group`. Quebra a promessa multi-tenant via SQL; isolamento só pelo `useGroupFilter` no cliente.
-- ❌ `.env` continua fora do `.gitignore`.
-- ❌ Sem Sentry/LogRocket nem Posthog/GA4.
+- ✅ `.gitignore` corrigido na #3 — inclui `.env`, `.env.local`, `.env.*.local`.
+- ⚠️ GA4 implementado básico (`gtag` via `index.html` + evento `login`) — substitui C-3 total.
+- ⚠️ ErrorBoundary global + `errorLogger` em `main.tsx` — mitigação temporária de C-2 até Sentry.
+
+### Correções aplicadas após #2
+| # | Item | Status | Data | Detalhes |
+|---|------|--------|------|----------|
+| C-1 | `.gitignore` não inclui `.env` | ✅ corrigido | 2026-05-29 | Adicionados `.env`, `.env.local`, `.env.development[.local]`, `.env.production[.local]`, `.env.test[.local]`, `.env.*.local` ao `.gitignore`. Arquivo `.env` ainda tracked — aguardando `git rm --cached .env` manual. |
+| C-3 | Sem analytics nem dashboard de saúde | ⚠️ mitigado | 2026-05-29 | GA4 (`gtag`) adicionado ao `index.html` com `VITE_GA_MEASUREMENT_ID`. Rastreia `page_view` automático + evento `login` no `AuthContext.tsx`. Sem Posthog/Sentry ainda. |
+| — | Tratamento global de erros | ⚠️ mitigação temp. | 2026-05-29 | `ErrorBoundary.tsx` envolve `<App />` em `App.tsx`. `errorLogger.ts` captura `window.onerror` e `unhandledrejection` com contexto (usuário, rota, timestamp). Substitui Sentry provisoriamente.
 
 ### 🔴 Itens Críticos
 
