@@ -86,13 +86,13 @@
 - **B12 Testes:** ⚠️ A-12.
 
 ### 🎯 Plano de Ação
-1. **Hoje:** corrigir C-1.
-2. **Antes do lançamento público:** C-2, C-3, A-1/A-2, A-10.
+1. **Hoje:** corrigir C-1 (✅ feito), GA4 básico (✅ feito), ErrorBoundary (✅ feito).
+2. **Antes do lançamento público:** C-2 (Sentry), A-1/A-2, A-10.
 3. **Sprint pós-lançamento:** A-16, A-3/A-4, A-12, A-13.
 4. **Backlog técnico:** A-6, A-7, A-15, A-9, A-14.
 
 ### 🏁 Veredicto
-⚠️ **APROVADO COM RESSALVAS.** Pode lançar para a primeira leva controlada de alunas **desde que C-1 seja corrigido agora** e C-2/C-3 entrem em até 7 dias. A-16 não bloqueia hoje (1 USER por grupo), mas vira bloqueio assim que houver 2+ usuários por grupo.
+⚠️ **APROVADO COM RESSALVAS.** Pode lançar para a primeira leva controlada de alunas. C-1 e GA4 básico resolvidos. C-2 (Sentry) entra em até 7 dias. A-16 não bloqueia hoje (1 USER por grupo), mas vira bloqueio assim que houver 2+ usuários por grupo.
 
 ---
 
