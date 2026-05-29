@@ -92,6 +92,8 @@ interface DadosDia {
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { activeGroupId } = useGroup();
+
   const { profile } = useUserProfile();
   const navigate = useNavigate();
   const [mesSelecionado, setMesSelecionado] = useState(() => {
