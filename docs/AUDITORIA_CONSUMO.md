@@ -115,3 +115,23 @@ Os 1.5 pontos descontados são: filtro de realtime por tenant ausente, ausência
 ---
 
 **Próxima ação sugerida:** se quiser, eu aplico os 4 quick wins agora em uma única migration + ajustes no frontend. Tempo estimado: 30–45 min.
+
+---
+
+## ✅ 2026-05-29 — Índices em `owner_group_id` aplicados
+
+Migration criou `idx_<tabela>_owner_group` (com `IF NOT EXISTS`) nas seguintes tabelas de negócio:
+
+- `encomendas`, `encomenda_itens`
+- `estoque`, `estoque_movimentacoes`
+- `custos_fixos`, `mao_obra_perfis`, `meu_salario_retiradas`, `pre_preparos`
+- `fechamentos_mensais`
+- `planejamento_datas_comemorativas`, `planejamento_descanso`, `planejamento_metas`, `planejamento_tarefas`
+- `transferencias_bancos`
+- `conversa_doce_favoritos`, `organizacao_doce_state`
+- `backups`, `backups_cofre`
+- `profiles`
+
+Tabelas já indexadas previamente (ignoradas pelo `IF NOT EXISTS`): `clientes`, `fornecedores`, `fornecedor_contatos`, `ingredientes`, `embalagens`, `receitas`, `contas_pagar`, `contas_receber`, `contratos`, `propostas`, `fechamento_logs`.
+
+Tabelas de configuração com baixa cardinalidade (categorias, bancos, plano_contas, tipos_*, unidades_medida, tags_encomendas, configuracoes_juros) foram deliberadamente deixadas sem índice — overhead não compensa o ganho.
