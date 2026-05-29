@@ -675,34 +675,33 @@ export default function SeusDados() {
                     Assinatura Digitalizada
                   </h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Envie uma imagem da sua assinatura para inseri-la automaticamente em propostas e contratos.
+                    Desenhe sua assinatura no quadro abaixo usando o mouse ou o dedo (em telas touch). Ela será inserida automaticamente em propostas e contratos.
                   </p>
                   {assinatura ? (
-                    <div className="relative inline-block">
-                      <img
-                        src={assinaturaPreview || assinatura}
-                        alt="Assinatura"
-                        className="max-w-xs max-h-32 rounded-lg border-2 border-border object-contain bg-muted p-4"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        className="absolute -top-2 -right-2"
-                        onClick={handleRemoveAssinatura}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                    <div className="space-y-3">
+                      <div className="relative inline-block">
+                        <img
+                          src={assinaturaPreview || assinatura}
+                          alt="Assinatura"
+                          className="max-w-xs max-h-32 rounded-lg border-2 border-border object-contain bg-white p-4"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute -top-2 -right-2"
+                          onClick={handleRemoveAssinatura}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Para refazer, remova a assinatura atual no botão acima e desenhe novamente.
+                      </p>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-4">
-                      <Input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleAssinaturaUpload} className="max-w-sm" />
-                      <Upload className="h-5 w-5 text-muted-foreground" />
-                    </div>
+                    <SignaturePad onSave={handleAssinaturaDesenhada} saving={salvandoAssinatura} />
                   )}
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Formatos: PNG, JPG, WEBP. Máx. 2MB. Prefira PNG com fundo transparente.
-                  </p>
                 </div>
               </TabsContent>
             </Tabs>
