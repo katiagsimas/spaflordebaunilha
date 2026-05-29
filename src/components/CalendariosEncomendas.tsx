@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import { CalendarDays, ChevronLeft, ChevronRight, FileDown, Plus, Search, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useGroup } from "@/contexts/GroupContext";
+
 import { useNavigate } from "react-router-dom";
 import calendarioMacaron from "@/assets/calendario-macaron.png";
 import {
