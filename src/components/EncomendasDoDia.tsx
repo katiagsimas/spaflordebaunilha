@@ -78,12 +78,17 @@ export function EncomendasDoDia({ onNovaEncomenda }: { onNovaEncomenda?: () => v
   }, [user]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !activeGroupId) return;
     const channel = supabase
       .channel("encomendas-do-dia-realtime")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "encomendas" },
+        {
+          event: "*",
+          schema: "public",
+          table: "encomendas",
+          filter: `owner_group_id=eq.${activeGroupId}`,
+        },
         () => carregar(),
       )
       .subscribe();
@@ -91,7 +96,8 @@ export function EncomendasDoDia({ onNovaEncomenda }: { onNovaEncomenda?: () => v
       supabase.removeChannel(channel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, activeGroupId]);
+
 
   const encomendasFiltradas = encomendasDia.filter((e) =>
     buscaDia.trim() === "" ? true : e.cliente.toLowerCase().includes(buscaDia.toLowerCase()),
