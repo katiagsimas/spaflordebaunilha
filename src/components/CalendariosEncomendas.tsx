@@ -113,6 +113,8 @@ export function CalendariosEncomendas({
   anoSelecionado?: number;
 } = {}) {
   const { user } = useAuth();
+  const { activeGroupId } = useGroup();
+
   const navigate = useNavigate();
 
   const hoje = new Date();
