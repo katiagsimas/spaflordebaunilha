@@ -224,21 +224,17 @@ export default function SeusDados() {
     }
   };
 
-  const handleAssinaturaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error("A assinatura deve ter no máximo 2MB");
-      return;
-    }
+  const [salvandoAssinatura, setSalvandoAssinatura] = useState(false);
+
+  const handleAssinaturaDesenhada = async (blob: Blob) => {
+    if (!user) return;
+    setSalvandoAssinatura(true);
     try {
-      const ext = file.name.split(".").pop()?.toLowerCase() || "png";
-      const filePath = `${user.id}/assinatura.${ext}`;
+      const filePath = `${user.id}/assinatura.png`;
       const { error: uploadError } = await supabase.storage
         .from("assinaturas")
-        .upload(filePath, file, { upsert: true, contentType: file.type });
+        .upload(filePath, blob, { upsert: true, contentType: "image/png" });
       if (uploadError) throw uploadError;
-      // Bucket privado: persiste o path e gera URL assinada para exibição
       setAssinatura(filePath);
       const { data: signed } = await supabase.storage
         .from("assinaturas")
@@ -247,9 +243,11 @@ export default function SeusDados() {
       await supabase.from("profiles").update({ assinatura_url: filePath } as any).eq("id", user.id);
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id, activeGroup?.id] });
       queryClient.invalidateQueries({ queryKey: ["business-profile", user?.id] });
-      toast.success("Assinatura enviada!");
+      toast.success("Assinatura salva!");
     } catch (error: any) {
-      toast.error("Erro ao enviar assinatura: " + error.message);
+      toast.error("Erro ao salvar assinatura: " + error.message);
+    } finally {
+      setSalvandoAssinatura(false);
     }
   };
 
