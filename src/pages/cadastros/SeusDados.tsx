@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import meusDadosFooter from "@/assets/meus-dados-hero-banner.png";
 import { HeroBanner } from "@/components/HeroBanner";
+import { SignaturePad } from "@/components/SignaturePad";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
@@ -224,21 +225,17 @@ export default function SeusDados() {
     }
   };
 
-  const handleAssinaturaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error("A assinatura deve ter no máximo 2MB");
-      return;
-    }
+  const [salvandoAssinatura, setSalvandoAssinatura] = useState(false);
+
+  const handleAssinaturaDesenhada = async (blob: Blob) => {
+    if (!user) return;
+    setSalvandoAssinatura(true);
     try {
-      const ext = file.name.split(".").pop()?.toLowerCase() || "png";
-      const filePath = `${user.id}/assinatura.${ext}`;
+      const filePath = `${user.id}/assinatura.png`;
       const { error: uploadError } = await supabase.storage
         .from("assinaturas")
-        .upload(filePath, file, { upsert: true, contentType: file.type });
+        .upload(filePath, blob, { upsert: true, contentType: "image/png" });
       if (uploadError) throw uploadError;
-      // Bucket privado: persiste o path e gera URL assinada para exibição
       setAssinatura(filePath);
       const { data: signed } = await supabase.storage
         .from("assinaturas")
@@ -247,9 +244,11 @@ export default function SeusDados() {
       await supabase.from("profiles").update({ assinatura_url: filePath } as any).eq("id", user.id);
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id, activeGroup?.id] });
       queryClient.invalidateQueries({ queryKey: ["business-profile", user?.id] });
-      toast.success("Assinatura enviada!");
+      toast.success("Assinatura salva!");
     } catch (error: any) {
-      toast.error("Erro ao enviar assinatura: " + error.message);
+      toast.error("Erro ao salvar assinatura: " + error.message);
+    } finally {
+      setSalvandoAssinatura(false);
     }
   };
 
@@ -677,34 +676,33 @@ export default function SeusDados() {
                     Assinatura Digitalizada
                   </h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Envie uma imagem da sua assinatura para inseri-la automaticamente em propostas e contratos.
+                    Desenhe sua assinatura no quadro abaixo usando o mouse ou o dedo (em telas touch). Ela será inserida automaticamente em propostas e contratos.
                   </p>
                   {assinatura ? (
-                    <div className="relative inline-block">
-                      <img
-                        src={assinaturaPreview || assinatura}
-                        alt="Assinatura"
-                        className="max-w-xs max-h-32 rounded-lg border-2 border-border object-contain bg-muted p-4"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        className="absolute -top-2 -right-2"
-                        onClick={handleRemoveAssinatura}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                    <div className="space-y-3">
+                      <div className="relative inline-block">
+                        <img
+                          src={assinaturaPreview || assinatura}
+                          alt="Assinatura"
+                          className="max-w-xs max-h-32 rounded-lg border-2 border-border object-contain bg-white p-4"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute -top-2 -right-2"
+                          onClick={handleRemoveAssinatura}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Para refazer, remova a assinatura atual no botão acima e desenhe novamente.
+                      </p>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-4">
-                      <Input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleAssinaturaUpload} className="max-w-sm" />
-                      <Upload className="h-5 w-5 text-muted-foreground" />
-                    </div>
+                    <SignaturePad onSave={handleAssinaturaDesenhada} saving={salvandoAssinatura} />
                   )}
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Formatos: PNG, JPG, WEBP. Máx. 2MB. Prefira PNG com fundo transparente.
-                  </p>
                 </div>
               </TabsContent>
             </Tabs>
