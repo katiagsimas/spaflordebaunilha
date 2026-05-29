@@ -8,11 +8,11 @@
 ## AUDITORIA COMPLETA #2 — 2026-05-29 19:30 UTC
 
 ### 📊 Resumo Executivo
-- **Status Geral:** ⚠️ **APROVADO COM RESSALVAS** — sem bloqueadores de segurança de dados, mas persistem 3 itens críticos operacionais (`.env` fora do gitignore, ausência de monitoramento de erros, ausência de analytics) já apontados na #1 e ainda não resolvidos.
+- **Status Geral:** ⚠️ **APROVADO COM RESSALVAS** — sem bloqueadores de segurança de dados, mas persistem 2 itens críticos operacionais (`.env` fora do gitignore — corrigido na #2 e #3, ausência de monitoramento de erros Sentry) e 1 mitigado (GA4 básico implementado).
 - **Total de itens verificados:** 80
-- **Itens OK (✅):** 56 (+4 desde #1)
+- **Itens OK (✅):** 57 (+1 desde #2)
 - **Itens de Atenção (⚠️):** 16
-- **Itens Críticos (❌):** 3 (mesmos da #1)
+- **Itens Críticos (❌):** 2 (C-2 Sentry, C-3 reduzido a ⚠️)
 - **Itens Não Aplicáveis (🔲):** 5
 
 ### 🔁 Diff desde a Auditoria #1
@@ -21,16 +21,24 @@
 - ✅ `setInterval` em `ReceitaForm.tsx` confirmado dentro de `handleImageUpload` com `clearInterval` no `finally` — sem vazamento.
 - ✅ Validação de uso dos índices via `pg_stat_user_indexes` (27 com `idx_scan=0`, esperado em base vazia; reavaliar em 30 dias).
 - ⚠️ **Novo achado:** padrão RLS duplo — tabelas críticas de negócio (encomendas, receitas, contas_*, estoque, planejamento_*, custos_fixos, bancos etc.) usam `auth.uid() = usuario_id` em vez de `user_belongs_to_group`. Quebra a promessa multi-tenant via SQL; isolamento só pelo `useGroupFilter` no cliente.
-- ❌ `.env` continua fora do `.gitignore`.
-- ❌ Sem Sentry/LogRocket nem Posthog/GA4.
+- ✅ `.gitignore` corrigido na #3 — inclui `.env`, `.env.local`, `.env.*.local`.
+- ⚠️ GA4 implementado básico (`gtag` via `index.html` + evento `login`) — substitui C-3 total.
+- ⚠️ ErrorBoundary global + `errorLogger` em `main.tsx` — mitigação temporária de C-2 até Sentry.
+
+### Correções aplicadas após #2
+| # | Item | Status | Data | Detalhes |
+|---|------|--------|------|----------|
+| C-1 | `.gitignore` não inclui `.env` | ✅ corrigido | 2026-05-29 | Adicionados `.env`, `.env.local`, `.env.development[.local]`, `.env.production[.local]`, `.env.test[.local]`, `.env.*.local` ao `.gitignore`. Arquivo `.env` ainda tracked — aguardando `git rm --cached .env` manual. |
+| C-3 | Sem analytics nem dashboard de saúde | ⚠️ mitigado | 2026-05-29 | GA4 (`gtag`) adicionado ao `index.html` com `VITE_GA_MEASUREMENT_ID`. Rastreia `page_view` automático + evento `login` no `AuthContext.tsx`. Sem Posthog/Sentry ainda. |
+| — | Tratamento global de erros | ⚠️ mitigação temp. | 2026-05-29 | `ErrorBoundary.tsx` envolve `<App />` em `App.tsx`. `errorLogger.ts` captura `window.onerror` e `unhandledrejection` com contexto (usuário, rota, timestamp). Substitui Sentry provisoriamente.
 
 ### 🔴 Itens Críticos
 
 | # | Item | Status | Correção |
 |---|------|--------|----------|
-| C-1 | `.gitignore` não inclui `.env` | ❌ persistente | Adicionar `.env`, `.env.local`, `.env.*.local`. |
+| C-1 | `.gitignore` não inclui `.env` | ✅ corrigido (arquivo ainda tracked) | `git rm --cached .env` manual pendente. |
 | C-2 | Sem monitoramento de erros em produção | ❌ persistente | Sentry `@sentry/react` + cobertura nas 10 Edge Functions. |
-| C-3 | Sem analytics nem dashboard de saúde | ❌ persistente | Posthog (preferido) ou GA4. |
+| C-3 | Sem analytics nem dashboard de saúde | ⚠️ mitigado | GA4 básico implementado (`page_view` + evento `login`). Posthog/Sentry pendentes. |
 
 ### 🟡 Itens de Atenção
 
@@ -74,17 +82,17 @@
 - **B8 SEO:** ⚠️ A-7, A-15.
 - **B9 Comunicação:** ✅ Resend; ⚠️ A-8.
 - **B10 Pagamentos:** ⚠️ A-10.
-- **B11 Analytics/Monitoramento:** ❌ C-2, C-3.
+- **B11 Analytics/Monitoramento:** ⚠️ C-2 (Sentry pendente), C-3 (GA4 básico implementado).
 - **B12 Testes:** ⚠️ A-12.
 
 ### 🎯 Plano de Ação
-1. **Hoje:** corrigir C-1.
-2. **Antes do lançamento público:** C-2, C-3, A-1/A-2, A-10.
+1. **Hoje:** corrigir C-1 (✅ feito), GA4 básico (✅ feito), ErrorBoundary (✅ feito).
+2. **Antes do lançamento público:** C-2 (Sentry), A-1/A-2, A-10.
 3. **Sprint pós-lançamento:** A-16, A-3/A-4, A-12, A-13.
 4. **Backlog técnico:** A-6, A-7, A-15, A-9, A-14.
 
 ### 🏁 Veredicto
-⚠️ **APROVADO COM RESSALVAS.** Pode lançar para a primeira leva controlada de alunas **desde que C-1 seja corrigido agora** e C-2/C-3 entrem em até 7 dias. A-16 não bloqueia hoje (1 USER por grupo), mas vira bloqueio assim que houver 2+ usuários por grupo.
+⚠️ **APROVADO COM RESSALVAS.** Pode lançar para a primeira leva controlada de alunas. C-1 e GA4 básico resolvidos. C-2 (Sentry) entra em até 7 dias. A-16 não bloqueia hoje (1 USER por grupo), mas vira bloqueio assim que houver 2+ usuários por grupo.
 
 ---
 
