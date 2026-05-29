@@ -249,23 +249,24 @@ Deno.serve(async (req) => {
           console.error("Falha ao espelhar no cofre:", cofreErr);
         }
 
-        // Aplica retenção: limpa backups antigos no banco e seus arquivos no storage
-        if (ag.retencao_dias && ag.retencao_dias > 0) {
-          const limite = new Date(Date.now() - ag.retencao_dias * 86400000).toISOString();
-          const { data: velhos } = await admin
-            .from("backups")
-            .select("id, storage_path")
-            .eq("usuario_id", ag.usuario_id)
-            .lt("created_at", limite);
+        // Aplica retenção: SOMENTE após o novo backup ter sido salvo com sucesso (linhas acima).
+        // Default = 30 dias quando o agendamento não definir retenção própria.
+        const diasRetencao = (ag.retencao_dias && ag.retencao_dias > 0) ? ag.retencao_dias : 30;
+        const limite = new Date(Date.now() - diasRetencao * 86400000).toISOString();
+        const { data: velhos } = await admin
+          .from("backups")
+          .select("id, storage_path")
+          .eq("usuario_id", ag.usuario_id)
+          .lt("created_at", limite);
 
-          if (velhos && velhos.length > 0) {
-            const paths = velhos.map((v: any) => v.storage_path).filter(Boolean);
-            if (paths.length > 0) await admin.storage.from("backups").remove(paths);
-            await admin
-              .from("backups")
-              .delete()
-              .in("id", velhos.map((v: any) => v.id));
-          }
+        if (velhos && velhos.length > 0) {
+          const paths = velhos.map((v: any) => v.storage_path).filter(Boolean);
+          if (paths.length > 0) await admin.storage.from("backups").remove(paths);
+          await admin
+            .from("backups")
+            .delete()
+            .in("id", velhos.map((v: any) => v.id));
+          console.log(`Retenção: removidos ${velhos.length} backups > ${diasRetencao}d do usuário ${ag.usuario_id}`);
         }
 
         const { data: prox } = await admin.rpc("calcular_proxima_execucao_backup", {
