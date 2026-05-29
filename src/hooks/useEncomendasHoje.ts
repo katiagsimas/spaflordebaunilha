@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useGroup } from "@/contexts/GroupContext";
 import { getTodayISO } from "@/lib/dateUtils";
+
 
 /**
  * Retorna a quantidade de encomendas (não canceladas) com data_entrega = HOJE.
