@@ -43,6 +43,8 @@ const statusLabel: Record<string, string> = {
 
 export function EncomendasDoDia({ onNovaEncomenda }: { onNovaEncomenda?: () => void } = {}) {
   const { user } = useAuth();
+  const { activeGroupId } = useGroup();
+
   const navigate = useNavigate();
   const hoje = new Date();
   const hojeStr = format(hoje, "yyyy-MM-dd");
