@@ -1,78 +1,96 @@
+# Plano: Responsividade Mobile sem Cortes
+
 ## Objetivo
+Garantir que em viewport mobile (≤640px, foco em 360–414px) **nenhum elemento fique cortado, escondido sob outro ou exigindo scroll horizontal indesejado**, em todas as páginas do sistema.
 
-Aplicar o padrão visual da imagem de referência (header vinho com texto creme + serifa, corpo creme com acentos dourado, ilustrações decorativas, CTA vinho com seta dourada) em **todo o Dashboard (`/dashboard`)** e refinar a **Sidebar** mantendo a paleta `--cda-*` já existente (Vinho `#5B1A2B`, Vinho Escuro `#3D0F1C`, Dourado `#C9A14A`, Creme `#FDF6EE`, Branco `#FFF9F5`).
+## Diagnóstico (a partir do screenshot e varredura do código)
 
-Nenhuma lógica de negócio, query Supabase, hook ou cálculo será alterado — só estrutura visual / classes Tailwind / wrappers.
+Padrões problemáticos recorrentes:
 
-## 1. Assets
+1. **`CardHeader` com `flex flex-row items-center justify-between`** — força título + filtros + botão na mesma linha. Em 390px, o botão "Nova Unidade" sai da tela (visível no print: aparece `+ N` cortado).
+2. **Tabelas largas** (`<Table>`) sem wrapper de scroll consistente — colunas extras (Status, Ações) ficam fora da viewport.
+3. **Headers de página** com título longo + botões de ação na mesma linha.
+4. **Filtros mês/ano + período** com `gap-x-8` fixo que estoura a largura.
+5. **Modais (`DialogContent`)** sem `max-w` responsivo ou `max-h` + overflow para telas pequenas.
+6. **Sidebar mobile** ocupando espaço quando deveria colapsar.
 
-- Copiar `user-uploads://Imagens_e_Ícones_Caixa_de_Açúcar_1.png` → `src/assets/cda-illu-presente-vinho.png` (caixa de presente vinho com flores — usada como ornamento no canto superior direito do card de Aniversariantes).
-- Copiar `user-uploads://Imagens_e_Ícones_Caixa_de_Açúcar-2.png` → `src/assets/cda-illu-calendario-rosa.png` (calendário rosa com macaron — usada como ornamento nos calendários de encomendas).
+## Escopo das páginas a revisar
 
-## 2. Padrão de card "Vinho Premium" (criar componente reusável)
+Páginas/components identificados como críticos:
 
-Criar `src/components/dashboard/PremiumCard.tsx` com a estrutura espelhada da imagem:
+- **Cadastros**: `UnidadesMedida`, `Clientes`, `Fornecedores`, `Categorias`, `SeusDados`
+- **Configurações**: `Backup`, `Bancos`, `PlanoContas`, `CategoriasPlanoContas`, `TagsEncomendas`, `TiposDocumentos`, `TiposInsumos`, `ConfiguracaoJuros`, `FinanceiroPage`, `PrecificacaoPage`, `CadastrosBase`
+- **Financeiro**: `ContasPagar`, `ContasReceber`, `ContasPagarDetalhes`, `ContasReceberDetalhes`, `DRE`, `FluxoCaixaMensal`, `FluxoCaixaDiario`, `FluxoCaixaHub`, `DashboardFinanceiro`, `FechamentoMes`, `Financeiro`
+- **Encomendas**: `Encomendas`, `EncomendasLista`, `EncomendasCalendarios` + `EncomendaStatusCard`, `CalendariosEncomendas`
+- **Precificação**: `Precificacao`, `Ingredientes`, `Embalagens`, `PrePreparos`, `PrePreparoForm`, `MaoDeObra`
+- **Receitas**: `Receitas`, `ReceitaForm`
+- **Estoque**: `EstoqueDashboard`, `EstoqueEntrada`, `EstoqueAjuste`, `EstoqueMovimentacoes`
+- **Admin**: `Usuarios`, `Governanca`, `Logs`, `CofreBackups`
+- **Comercial**: `Propostas`, `NovaProposta`, `Contratos`, `Negociacoes`, `RelatorioPropostas`
+- **Planejamento**: `Planejamento`, `PlanejamentoCalendario`, `PlanejamentoTarefas`, `PlanejamentoBemEstar`
+- **Meu Salário**: `MeuSalario`, `Retiradas`, `VisaoGeral`, `Educativo`
+- **Conversa Doce**: `ConversaDoce`, `ConversaDoceRespostas`, `FavoritosSheet`
+- **Organização Doce**: `OrganizacaoDoce`
+- **Onboarding/Upgrade**: `BemVinda`, `Concluido`, `Upgrade`
+- **Componentes globais**: `PageHeader`, `AppSidebar`, `HeaderControls`, `UserMenu`, `EncomendaStatusCard`, `ContatosLista`, `FamiliaresLista`, `TabelaInadimplencia`, `FinanceiroNav`, `MaoObraSection`
 
+## Padrões de correção (aplicados de forma sistemática)
+
+### A. CardHeaders com filtros + botão
 ```text
-┌─────────────────────────────────────────────────┐
-│  [icon]  Título serifa creme       [illustration]│  ← header vinho (--cda-vinho)
-│          subtítulo dourado                       │
-├─────────────────────────────────────────────────┤
-│                                                  │
-│  conteúdo em fundo creme (--cda-creme)           │
-│                                                  │
-│  [ilustração opcional emoji/lucide]   [CTA vinho]│  ← footer com CTA opcional
-└─────────────────────────────────────────────────┘
+ANTES: flex flex-row items-center justify-between
+DEPOIS: flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between
 ```
+Filtros internos: `flex-wrap` + Select com `w-full sm:w-40`. Botão "Novo": `w-full sm:w-auto`.
 
-Props: `icon`, `title`, `subtitle`, `headerOrnament?` (img src), `footerNote?`, `footerCta?` ({label, onClick}), `children`. Bordas `rounded-2xl`, sombra suave, sem borda dura. Header: `bg-cda-vinho text-cda-creme`, título em `font-display` (serifa já no projeto), subtítulo em `text-cda-dourado/80 text-sm`.
+### B. Tabelas
+Toda `<Table>` envolvida em `<div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">` para permitir swipe lateral sem cortar o card. Adicionar `min-w-[640px]` na table quando colunas críticas.
 
-## 3. Aplicação nos blocos do Dashboard
+### C. PageHeader
+Já é responsivo (`md:flex-row`). Validar — sem mudanças estruturais, apenas garantir `truncate` no título quando muito longo e `actions` com `w-full sm:w-auto` nos botões.
 
-Substituir cada `<Card>` shadcn atual por `<PremiumCard>` mantendo o conteúdo:
+### D. Filtros de período (mês/ano)
+```text
+ANTES: flex flex-wrap items-center gap-x-8 gap-y-3
+DEPOIS: flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-x-6
+```
+Selects com `flex-1 sm:flex-none sm:w-36`.
 
-| Bloco atual | Vira |
-|---|---|
-| Saudação + contadores topo | Header próprio fora do PremiumCard (faixa simples) |
-| Alertas Financeiros (3 cards) | 1 `PremiumCard` "Alertas Financeiros" com 3 linhas internas (avatar circular vinho/dourado por tipo, mesmo padrão das linhas de aniversariantes da ref) |
-| Calendários (3 meses) | `PremiumCard` "Calendário de Encomendas" com `cda-illu-calendario-rosa.png` no canto superior direito; conteúdo (3 mini-calendários) intacto, só ajustar cores das células para vinho/dourado |
-| Aniversariantes | `PremiumCard` **espelho exato da imagem**: ornamento `cda-illu-presente-vinho.png`, avatares circulares vinho com iniciais douradas, dividers tracejados, contador lateral "X aniversariantes este mês", footer com 🎉 + "Pequenos gestos criam grandes lembranças." + CTA "VER TODOS →" |
-| Visão Econômica (tabs mensal/anual) | `PremiumCard` "Visão Econômica" — tabs em pill dourado, gráficos com cores `--cda-vinho`/`--cda-dourado` |
-| Top 5 Produtos + Ticket Médio | `PremiumCard` "Top Produtos" — ranking com badges circulares vinho/dourado |
-| Vendas por mês (linha) | `PremiumCard` "Vendas por Mês" — linha em `--cda-vinho`, grid em `--cda-dourado/20` |
-| Fluxo de caixa (linha) | `PremiumCard` "Fluxo de Caixa" — linha em `--cda-dourado` |
+### E. Modais (DialogContent)
+Adicionar `max-w-[calc(100vw-2rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto` onde estiver faltando.
 
-Grid mantido (responsivo, 2 colunas em desktop quando aplicável).
+### F. Padding lateral
+Páginas com `p-4 md:p-6` mantidas. Páginas que usam apenas `p-6` recebem `p-4 md:p-6`.
 
-## 4. Refino da Sidebar
+### G. Botões de ação fixos
+"Voltar" + "Atualizar" + badge de usuário no topo: garantir `flex-wrap` no container e `truncate` em labels longos.
 
-Mantém estrutura/menus atuais, só refina:
+### H. Sidebar/topo
+Validar que `AppSidebar` colapsa para sheet em mobile (já usa `useIsMobile`) — apenas verificar gaps.
 
-- `SidebarGroupLabel`: trocar para `font-display` (serifa), `tracking-[0.2em]`, dourado `text-cda-dourado/70`.
-- Item ativo: já usa borda esquerda dourada — adicionar leve `bg-gradient-to-r from-cda-dourado/10 to-transparent`.
-- Hover: `hover:bg-cda-dourado/5` (mais sutil) + transição de cor dourada no ícone.
-- Separadores entre seções: já existem em dourado; manter mas aumentar margem vertical (`my-2`).
-- Header da sidebar: trocar o texto "CAIXA DE AÇÚCAR" para `font-display` em creme, "by Umbrella Doce" em dourado claro.
-- Badge "HOJE" das encomendas: trocar do vermelho para `bg-cda-dourado text-cda-vinho` (mantém alerta visual mas dentro da paleta).
+### I. Cards de status (EncomendaStatusCard, dashboards)
+Grids `grid-cols-2 sm:grid-cols-3 lg:grid-cols-5` em vez de `flex` fixo.
 
-## 5. Arquivos a alterar
+## Estratégia de execução
 
-- **criar**: `src/assets/cda-illu-presente-vinho.png`, `src/assets/cda-illu-calendario-rosa.png`, `src/components/dashboard/PremiumCard.tsx`
-- **editar**: `src/pages/Dashboard.tsx` (substituições visuais nos blocos; zero mudança nas funções de carregamento), `src/components/AppSidebar.tsx` (refino de classes Tailwind)
+1. **Fase 1 — Componentes compartilhados** (impacto multiplicador):
+   `PageHeader`, `EncomendaStatusCard`, `FinanceiroNav`, `TabelaInadimplencia`, `HeaderControls`, `UserMenu`, `AlertaExpiracaoPlano`, wrapper de tabelas reutilizável.
 
-## 6. Restrições / não-objetivos
+2. **Fase 2 — Páginas de cadastro/configuração** (mesmo padrão de CardHeader+Tabela+Dialog): aplicar padrões A, B, E em ~20 páginas.
 
-- Nada de mudar SQL, RLS, hooks, Edge Functions, lógica financeira ou queries.
-- Nada de mexer em outras rotas/módulos (Financeiro, Estoque, Encomendas etc.) — só `/dashboard` e a Sidebar global.
-- Não introduzir cores fora dos tokens `cda-*`.
-- Não alterar `src/index.css` (tokens já existem).
-- Não alterar tipografia global; apenas usar as fontes já carregadas (`font-display` para serifa, `font-body` para sans).
+3. **Fase 3 — Financeiro** (filtros pesados + tabelas largas): padrões A, B, D.
 
-## 7. QA
+4. **Fase 4 — Encomendas + Precificação + Receitas + Estoque**: padrões A, B, I + revisão dos forms longos.
 
-Após implementar, abrir o preview em `/dashboard` e validar:
+5. **Fase 5 — Páginas restantes** (admin, comercial, planejamento, meu-salário, conversa-doce, onboarding).
 
-1. Header da sidebar e itens ativos com refino dourado.
-2. Card de Aniversariantes idêntico à imagem (ornamento, avatares, contador lateral, CTA).
-3. Demais cards com header vinho + corpo creme consistentes.
-4. Layout responsivo não quebra em 1020px (viewport atual do usuário).
+6. **QA visual**: navegar via browser tool em 390×680 pelas rotas principais (`/configuracoes/unidades-medida`, `/financeiro/contas-receber`, `/encomendas`, `/financeiro/dre`, `/admin/usuarios`, `/precificacao/ingredientes`) e capturar screenshots para confirmar zero cortes.
+
+## Fora de escopo
+- Redesign visual / mudança de paleta ou tipografia.
+- Mudanças de lógica/funcionalidade.
+- Otimização para tablet específica (foco mobile 360–414px; tablet já funciona com breakpoints `md:`).
+- Documentação em `docs/AUDITORIA.md` (não há mudança de RLS/SQL/auth/edge function).
+
+## Resultado esperado
+Em viewport 390×680, todas as páginas listadas devem: (1) caber sem scroll horizontal indesejado no body, (2) ter todos os botões de ação acessíveis (não cortados), (3) tabelas roláveis lateralmente dentro do card quando necessário, (4) modais sem overflow vertical bloqueado, (5) filtros empilhados verticalmente quando não couberem lado a lado.
