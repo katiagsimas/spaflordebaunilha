@@ -137,16 +137,16 @@ export default function EncomendasLista() {
       </div>
 
       {/* Filtro Mês/Ano */}
-      <div className="rounded-2xl border border-[#5B1A2B]/10 bg-white px-5 py-4 shadow-[0_2px_12px_-8px_rgba(91,26,43,0.12)]">
-        <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+      <div className="rounded-2xl border border-[#5B1A2B]/10 bg-white px-4 sm:px-5 py-4 shadow-[0_2px_12px_-8px_rgba(91,26,43,0.12)]">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 sm:gap-x-6">
           <div className="flex items-center gap-2 text-[#3D0F1C]">
             <CalendarDays className="h-5 w-5 text-[#5B1A2B]" />
             <span className="font-semibold">Período:</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1 sm:flex-none">
             <Label className="text-sm text-foreground/60">Ano</Label>
             <Select value={anoSelecionado.toString()} onValueChange={(v) => setAnoSelecionado(parseInt(v))}>
-              <SelectTrigger className="h-9 w-28 rounded-md border-[#5B1A2B]/20 bg-white text-[#3D0F1C]">
+              <SelectTrigger className="h-9 flex-1 sm:w-28 rounded-md border-[#5B1A2B]/20 bg-white text-[#3D0F1C]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-popover z-50">
@@ -156,10 +156,10 @@ export default function EncomendasLista() {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1 sm:flex-none">
             <Label className="text-sm text-foreground/60">Mês</Label>
             <Select value={mesSelecionado.toString()} onValueChange={(v) => setMesSelecionado(parseInt(v))}>
-              <SelectTrigger className="h-9 w-36 rounded-md border-[#5B1A2B]/20 bg-white text-[#3D0F1C]">
+              <SelectTrigger className="h-9 flex-1 sm:w-36 rounded-md border-[#5B1A2B]/20 bg-white text-[#3D0F1C]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-popover z-50">
