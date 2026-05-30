@@ -130,7 +130,7 @@ export default function UnidadesMedida() {
       />
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4 flex-1">
             <CardTitle>Lista de Unidades de Medida</CardTitle>
             <Select value={filtroStatus} onValueChange={(v: any) => setFiltroStatus(v)}>
