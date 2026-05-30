@@ -131,10 +131,10 @@ export default function UnidadesMedida() {
 
       <Card>
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-4 flex-1">
-            <CardTitle>Lista de Unidades de Medida</CardTitle>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 flex-1 min-w-0">
+            <CardTitle className="truncate">Lista de Unidades de Medida</CardTitle>
             <Select value={filtroStatus} onValueChange={(v: any) => setFiltroStatus(v)}>
-              <SelectTrigger className="w-40">
+              <SelectTrigger className="w-full sm:w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -144,10 +144,10 @@ export default function UnidadesMedida() {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full sm:w-auto">
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button onClick={() => setEditingUnidade(null)}>
+                <Button onClick={() => setEditingUnidade(null)} className="w-full sm:w-auto">
                   <Plus className="h-4 w-4 mr-2" />
                   Nova Unidade
                 </Button>
