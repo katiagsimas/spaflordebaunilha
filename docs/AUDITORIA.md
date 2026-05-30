@@ -30,7 +30,8 @@
 |---|------|--------|------|----------|
 | C-1 | `.gitignore` não inclui `.env` | ✅ corrigido | 2026-05-29 | Adicionados `.env`, `.env.local`, `.env.development[.local]`, `.env.production[.local]`, `.env.test[.local]`, `.env.*.local` ao `.gitignore`. Arquivo `.env` ainda tracked — aguardando `git rm --cached .env` manual. |
 | C-3 | Sem analytics nem dashboard de saúde | ⚠️ mitigado | 2026-05-29 | GA4 (`gtag`) adicionado ao `index.html` com `VITE_GA_MEASUREMENT_ID`. Rastreia `page_view` automático + evento `login` no `AuthContext.tsx`. Sem Posthog/Sentry ainda. |
-| — | Tratamento global de erros | ⚠️ mitigação temp. | 2026-05-29 | `ErrorBoundary.tsx` envolve `<App />` em `App.tsx`. `errorLogger.ts` captura `window.onerror` e `unhandledrejection` com contexto (usuário, rota, timestamp). Substitui Sentry provisoriamente.
+| — | Tratamento global de erros | ⚠️ mitigação temp. | 2026-05-29 | `ErrorBoundary.tsx` envolve `<App />` em `App.tsx`. `errorLogger.ts` captura `window.onerror` e `unhandledrejection` com contexto (usuário, rota, timestamp). Substitui Sentry provisoriamente. |
+| — | Nome da variável de projeto | ✅ corrigido | 2026-05-30 | Checklist de deploy referenciava `VITE_PROJECT_ID`; variável correta no projeto é `VITE_SUPABASE_PROJECT_ID` (gerenciada automaticamente pelo Lovable Cloud). |
 
 ### 🔴 Itens Críticos
 
