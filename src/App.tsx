@@ -99,6 +99,7 @@ import RelatorioPropostas from "./pages/comercial/RelatorioPropostas";
 import Contratos from "./pages/comercial/Contratos";
 import Negociacoes from "./pages/comercial/Negociacoes";
 import OnboardingBemVinda from "./pages/onboarding/BemVinda";
+import OnboardingProgresso from "./pages/onboarding/Progresso";
 import OnboardingConcluido from "./pages/onboarding/Concluido";
 
 
@@ -231,6 +232,7 @@ const App = () => (
 
           {/* Onboarding de primeiro acesso */}
           <Route path="/onboarding/bem-vinda" element={<ProtectedRoute><Layout><OnboardingBemVinda /></Layout></ProtectedRoute>} />
+          <Route path="/onboarding/progresso" element={<ProtectedRoute><Layout><OnboardingProgresso /></Layout></ProtectedRoute>} />
           <Route path="/onboarding/concluido" element={<ProtectedRoute><Layout><OnboardingConcluido /></Layout></ProtectedRoute>} />
 
           {/* Dashboard Principal */}
