@@ -703,7 +703,7 @@ export default function Usuarios() {
                 <TableBody>
                   {usuariosPaginados.map((profile) => {
                     const userRoles = rolesByUser[profile.id] || ['user'];
-                    const mainRole = userRoles[0];
+                    const mainRole = profile.role || 'user';
                     
                     // Lógica de grupo
                     const groupId = profile.owner_group_id || userGroupMap[profile.id];
