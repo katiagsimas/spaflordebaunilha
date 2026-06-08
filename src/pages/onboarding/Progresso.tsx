@@ -83,6 +83,7 @@ export default function OnboardingProgresso() {
       id: "meus_dados",
       title: "Meus Dados",
       description: "Identificação e endereço da sua confeitaria",
+      action: "Complete seus dados cadastrais para identificação.",
       icon: UserRound,
       route: "/configuracoes/dados-confeitaria",
       completed: onboardingStatus?.meusDados,
@@ -91,6 +92,7 @@ export default function OnboardingProgresso() {
       id: "mao_obra",
       title: "Mão de Obra",
       description: "Defina o valor da sua hora de trabalho",
+      action: "Adicione ao menos um perfil de mão de obra para calcular custos.",
       icon: ChefHat,
       route: "/configuracoes/precificacao/mao-de-obra",
       completed: onboardingStatus?.maoObra,
@@ -99,6 +101,7 @@ export default function OnboardingProgresso() {
       id: "backup",
       title: "Segurança (Backup)",
       description: "Proteja seus dados desde o primeiro dia",
+      action: "Realize o primeiro backup manual para garantir seus dados.",
       icon: HardDrive,
       route: "/configuracoes/backup",
       completed: onboardingStatus?.backup,
@@ -195,7 +198,12 @@ export default function OnboardingProgresso() {
                   <h3 className={`font-semibold text-sm ${step.completed ? "text-green-800" : "text-slate-900"}`}>
                     {step.title}
                   </h3>
-                  <p className="text-xs text-slate-500 truncate">{step.description}</p>
+                  <p className="text-xs text-slate-500 mb-1">{step.description}</p>
+                  {!step.completed && (
+                    <p className="text-[10px] font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full inline-block">
+                      Ação: {step.action}
+                    </p>
+                  )}
                 </div>
 
                 {step.completed ? (
@@ -238,10 +246,13 @@ export default function OnboardingProgresso() {
             </div>
             {!allCompleted && (
               <div className="pl-8 flex flex-col gap-1">
-                <p className="text-[11px] font-semibold text-amber-900 uppercase">Etapas Pendentes:</p>
-                <ul className="text-[11px] text-amber-800 list-disc list-inside">
+                <p className="text-[11px] font-semibold text-amber-900 uppercase">Próximas Ações Recomendadas:</p>
+                <ul className="text-[11px] text-amber-800 space-y-1 mt-1">
                   {steps.filter(s => !s.completed).map(s => (
-                    <li key={s.id}>{s.title}</li>
+                    <li key={s.id} className="flex flex-col">
+                      <span className="font-bold">• {s.title}:</span>
+                      <span className="pl-3 opacity-90">{s.action}</span>
+                    </li>
                   ))}
                 </ul>
               </div>
