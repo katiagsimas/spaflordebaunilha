@@ -497,7 +497,17 @@ export default function Ingredientes() {
     });
   };
 
-  const verificarIngredienteEmUso = async (ingredienteId: string): Promise<boolean> => {
+  const handleExcluirIngrediente = async () => {
+    if (onboardingPendente) {
+      toast({
+        title: 'Ação bloqueada',
+        description: 'Conclua o onboarding para realizar esta ação!',
+        variant: 'destructive',
+      });
+      return;
+    }
+    // ... rest of the code
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return false;

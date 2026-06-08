@@ -4,7 +4,11 @@ import cadastrosHero from "@/assets/cadastros-hero-banner.jpg";
 import { HeroBanner } from "@/components/HeroBanner";
 
 export default function Cadastros() {
+  const { profile: userProfile } = useUserProfile();
+  const onboardingPendente = userProfile && !(userProfile as any).onboarding_concluido;
+
   const navigate = useNavigate();
+
 
   return (
     <div className="min-h-screen bg-[#FFF9F5] pb-24">
@@ -21,7 +25,14 @@ export default function Cadastros() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Card 1 — Mão de Obra */}
           <button
-            onClick={() => navigate("/configuracoes/precificacao/mao-de-obra")}
+            onClick={() => {
+              if (onboardingPendente) {
+                toast.error("Conclua o onboarding para realizar esta ação!");
+                return;
+              }
+              navigate("/configuracoes/precificacao/mao-de-obra");
+            }}
+
             className="group text-left bg-white border-2 border-[#C9A14A]/60 rounded-xl p-5 transition-all duration-200 hover:border-[#C9A14A] hover:shadow-md"
           >
             <div className="flex items-start gap-3">
@@ -41,7 +52,14 @@ export default function Cadastros() {
 
           {/* Card 2 — Unidades de Medidas */}
           <button
-            onClick={() => navigate("/configuracoes/unidades-medida")}
+            onClick={() => {
+              if (onboardingPendente) {
+                toast.error("Conclua o onboarding para realizar esta ação!");
+                return;
+              }
+              navigate("/configuracoes/unidades-medida");
+            }}
+
             className="group text-left bg-white border-2 border-[#C9A14A]/60 rounded-xl p-5 transition-all duration-200 hover:border-[#C9A14A] hover:shadow-md"
           >
             <div className="flex items-start gap-3">
@@ -61,7 +79,14 @@ export default function Cadastros() {
 
           {/* Card 3 — Categorias */}
           <button
-            onClick={() => navigate("/configuracoes/categorias-receitas")}
+            onClick={() => {
+              if (onboardingPendente) {
+                toast.error("Conclua o onboarding para realizar esta ação!");
+                return;
+              }
+              navigate("/configuracoes/categorias-receitas");
+            }}
+
             className="group text-left bg-white border-2 border-[#C9A14A]/60 rounded-xl p-5 transition-all duration-200 hover:border-[#C9A14A] hover:shadow-md"
           >
             <div className="flex items-start gap-3">

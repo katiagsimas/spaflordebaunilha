@@ -16,7 +16,11 @@ import { exportarReceitaPDF } from "@/utils/exportarReceitaPDF";
 
 
 export default function Receitas() {
+  const { profile: userProfile } = useUserProfile();
+  const onboardingPendente = userProfile && !(userProfile as any).onboarding_concluido;
+
   const navigate = useNavigate();
+
   const { resumos, isLoading } = useCalculosReceita();
   const [dialogAberto, setDialogAberto] = useState(false);
   const [receitaParaDeletar, setReceitaParaDeletar] = useState<string | null>(null);
@@ -119,9 +123,16 @@ export default function Receitas() {
 
       <div className="flex justify-start">
         <Button
-          onClick={() => navigate("/precificacao/ficha-tecnica/nova")}
+          onClick={() => {
+            if (onboardingPendente) {
+              toast.error("Conclua o onboarding para realizar esta ação!");
+              return;
+            }
+            navigate("/precificacao/ficha-tecnica/nova");
+          }}
           className="bg-cda-vinho text-cda-creme hover:bg-cda-vinho-escuro"
         >
+
           <Plus className="mr-2 h-4 w-4" />Nova Ficha Técnica
         </Button>
       </div>
