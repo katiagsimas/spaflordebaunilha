@@ -152,25 +152,31 @@ export default function Usuarios() {
     return acc;
   }, {} as Record<string, string[]>) || {};
 
-  // Filtrar perfis de admin (ocultar da listagem)
-  const profilesSemAdmin = profiles?.filter(u => {
+  // Manter todos os perfis na listagem, mas identificar os admins
+  const profilesComRoles = profiles?.map(u => {
     const roles = rolesByUser[u.id] || [];
-    return !roles.includes('admin');
+    return {
+      ...u,
+      role: roles.includes('admin') ? 'admin' : (roles.includes('moderator') ? 'moderator' : 'user')
+    };
   });
 
   // Carregar estatísticas
   useEffect(() => {
-    if (!profilesSemAdmin) return;
+    if (!profilesComRoles) return;
     
+    // Filtrar apenas usuários para as estatísticas de plano (se desejado, ou manter todos)
+    const apenasUsuarios = profilesComRoles.filter(u => u.role === 'user');
+
     setEstatisticas({
-      total: profilesSemAdmin.length,
-      ativos: profilesSemAdmin.filter(u => u.ativo !== false).length,
-      inativos: profilesSemAdmin.filter(u => u.ativo === false).length,
-      baseAnual: profilesSemAdmin.filter(u => u.ativo !== false && (!u.plano_id || u.plano_id === 'base')).length,
-      negocioMensal: profilesSemAdmin.filter(u => u.ativo !== false && u.plano_id === 'negocio' && u.plano_tipo === 'mensal').length,
-      negocioAnual: profilesSemAdmin.filter(u => u.ativo !== false && u.plano_id === 'negocio' && u.plano_tipo === 'anual').length,
+      total: profilesComRoles.length,
+      ativos: profilesComRoles.filter(u => u.ativo !== false).length,
+      inativos: profilesComRoles.filter(u => u.ativo === false).length,
+      baseAnual: apenasUsuarios.filter(u => u.ativo !== false && (!u.plano_id || u.plano_id === 'base')).length,
+      negocioMensal: apenasUsuarios.filter(u => u.ativo !== false && u.plano_id === 'negocio' && u.plano_tipo === 'mensal').length,
+      negocioAnual: apenasUsuarios.filter(u => u.ativo !== false && u.plano_id === 'negocio' && u.plano_tipo === 'anual').length,
     });
-  }, [profilesSemAdmin]);
+  }, [profilesComRoles]);
 
   // Filtrar usuários
   const usuariosFiltrados = profilesSemAdmin?.filter(usuario => {

@@ -2852,7 +2852,9 @@ export type Database = {
           nome_confeitaria: string | null
           numero: string | null
           onboarding_concluido: boolean
+          onboarding_concluido_at: string | null
           onboarding_iniciado: boolean
+          onboarding_step_status: Json | null
           origem_criacao: string | null
           owner_group_id: string | null
           planejamento_banner_dismissed: boolean | null
@@ -2908,7 +2910,9 @@ export type Database = {
           nome_confeitaria?: string | null
           numero?: string | null
           onboarding_concluido?: boolean
+          onboarding_concluido_at?: string | null
           onboarding_iniciado?: boolean
+          onboarding_step_status?: Json | null
           origem_criacao?: string | null
           owner_group_id?: string | null
           planejamento_banner_dismissed?: boolean | null
@@ -2964,7 +2968,9 @@ export type Database = {
           nome_confeitaria?: string | null
           numero?: string | null
           onboarding_concluido?: boolean
+          onboarding_concluido_at?: string | null
           onboarding_iniciado?: boolean
+          onboarding_step_status?: Json | null
           origem_criacao?: string | null
           owner_group_id?: string | null
           planejamento_banner_dismissed?: boolean | null
