@@ -478,7 +478,17 @@ export default function Backup() {
     { name: "r", value: 100 - pct },
   ];
 
+  if (!isMasterLoading && !isMaster) {
+    return (
+      <div className="min-h-screen bg-background px-4 md:px-6 pt-6 pb-6 space-y-6">
+        <h1 className="text-2xl font-bold">Backups</h1>
+        <MasterOnlyGuard recurso="backups do grupo">{null}</MasterOnlyGuard>
+      </div>
+    );
+  }
+
   return (
+
     <div className="min-h-screen bg-background px-4 md:px-6 pt-1 pb-4 md:pb-6 space-y-6">
       {/* ===== HEADER PREMIUM (mesmo padrão do módulo Encomendas) ===== */}
       <div
