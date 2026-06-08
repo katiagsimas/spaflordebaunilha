@@ -1565,3 +1565,17 @@ Arquivos alterados:
 - `ErrorBoundary` registrado como wrapper raiz em `src/App.tsx`.
 - `inicializarErrorLogger()` chamado em `src/main.tsx` antes do `createRoot`.
 - Substituir por Sentry quando configurado — o logger atual é ponte temporária.
+
+---
+
+## 🔓 RLS Multi-tenant — Acesso por Grupo (08/06/2026)
+
+**Status:** ✅ Corrigido
+
+**Problema:** Usuários adicionados a um grupo via `user_group_roles` não conseguiam acessar os dados do grupo (encomendas, receitas, financeiro, etc.). As políticas RLS da maioria das tabelas filtravam apenas por `auth.uid() = usuario_id`, ignorando o pertencimento ao grupo.
+
+**Correção:** Migração `group_members_*_<tabela>` em todas as ~35 tabelas com `owner_group_id`, adicionando policies permissivas (combinadas via OR) baseadas em `user_belongs_to_group(auth.uid(), owner_group_id)`. Cobertura: bancos, categorias, contas_pagar/receber, custos_fixos, embalagens, encomendas/itens, estoque/movimentações, fornecedor_contatos, ingredientes, pre_preparos, receitas, tipos_documento/insumos, transferencias_bancos, unidades_medida, categorias_plano_contas, conversa_doce_favoritos, mao_obra_perfis, meu_salario_retiradas, organizacao_doce_state, planejamento_*, plano_contas, tags_encomendas, contratos, propostas, fechamentos_mensais.
+
+Preservadas regras especiais: `padrao_sistema = false` para DELETE em `categorias` e `tags_encomendas`.
+
+**UI:** `GruposManager` agora expande membros por grupo com gerenciamento de papel, ativar/desativar, remover e edição de permissões granulares.
