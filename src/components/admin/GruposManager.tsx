@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Building2, Plus, UserPlus, Trash2, Settings, ChevronDown, ChevronUp, Shield, User } from 'lucide-react';
+import { Building2, Plus, UserPlus, Trash2, Settings, ChevronDown, ChevronUp, Shield, User, Crown } from 'lucide-react';
 
 interface Group {
   id: string;
@@ -33,7 +33,9 @@ interface Group {
   is_active: boolean;
   created_at: string;
   created_by_user_id: string | null;
+  master_user_id: string | null;
 }
+
 
 interface UserLite {
   id: string;
