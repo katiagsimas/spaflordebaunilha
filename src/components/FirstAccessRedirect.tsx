@@ -47,7 +47,7 @@ export function FirstAccessRedirect() {
         temBackup: (bkpCount ?? 0) > 0,
       };
     },
-    enabled: !!user && !!profile && profile.ativo !== false && !isAdmin && !isMother && !(profile as any).onboarding_concluido,
+    enabled: !!user && !!profile && profile.ativo !== false && !isAdmin && !isMother,
   });
 
   // Verifica se o usuário é mestre de algum grupo ativo.
