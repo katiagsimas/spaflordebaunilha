@@ -1,0 +1,1 @@
+CREATE POLICY "Users can update own transferencias" ON public.transferencias_bancos FOR UPDATE USING (auth.uid() = usuario_id) WITH CHECK (auth.uid() = usuario_id);
