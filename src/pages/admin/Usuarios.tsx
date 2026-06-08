@@ -729,8 +729,14 @@ export default function Usuarios() {
                         <TableCell>{profile.email}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span className="text-sm font-medium">{groupName}</span>
+                            {group ? (
+                              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 gap-1.5 py-1">
+                                <Building2 className="h-3 w-3" />
+                                {groupName}
+                              </Badge>
+                            ) : (
+                              <span className="text-sm text-muted-foreground italic">-</span>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell>
