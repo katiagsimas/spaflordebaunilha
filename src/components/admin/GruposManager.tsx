@@ -154,9 +154,14 @@ export default function GruposManager() {
   const handleCreateGroup = async () => {
     if (!newGroupName.trim()) { toast.error('Nome do grupo é obrigatório'); return; }
     try {
+      // MOTHER cria grupo: ela mesma vira mestre por padrão (pode ser transferido depois).
       const { error } = await supabase
         .from('groups')
-        .insert({ name: newGroupName.trim(), created_by_user_id: user?.id });
+        .insert({
+          name: newGroupName.trim(),
+          created_by_user_id: user?.id,
+          master_user_id: user?.id,
+        } as any);
       if (error) throw error;
       toast.success('Grupo criado com sucesso!');
       setNewGroupName('');
@@ -167,6 +172,7 @@ export default function GruposManager() {
       toast.error('Erro ao criar grupo: ' + e.message);
     }
   };
+
 
   const handleToggleGroupActive = async (group: Group) => {
     try {
