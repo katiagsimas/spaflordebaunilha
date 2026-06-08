@@ -61,13 +61,18 @@ function gerarNomeBackup(nomeCompleto: string): string {
 
 const RETENCAO_OPCOES = [7, 15, 30, 60, 90, 180, 365];
 
+import { useIsGroupMaster } from "@/hooks/useIsGroupMaster";
+import { MasterOnlyGuard } from "@/components/MasterOnlyGuard";
+
 export default function Backup() {
   const { user } = useAuth();
   const { profile, loading: profileLoading } = useUserProfile();
   const { isMother } = useGroup();
+  const { isMaster, isLoading: isMasterLoading } = useIsGroupMaster();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const modulosVisiveis = modulosDisponiveis(isMother);
+
 
   const [backups, setBackups] = useState<BackupRecord[]>([]);
   const [realizandoBackup, setRealizandoBackup] = useState(false);
