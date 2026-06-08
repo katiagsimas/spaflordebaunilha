@@ -204,7 +204,7 @@ export default function Usuarios() {
     }
 
     // Lógica de herança de plano para a listagem
-    const userGroupData = userGroupMap[u.id];
+    const userGroupData = userGroupMap[u.id] as { groupId: string, syncStatus: string | null } | undefined;
     const groupId = u.owner_group_id || userGroupData?.groupId;
     const group = groupId ? groupsMap[groupId] : null;
     const isMaster = !group || group.master_user_id === u.id;
@@ -711,7 +711,8 @@ export default function Usuarios() {
                     const mainRole = profile.role || 'user';
                     
                     // Lógica de grupo
-                    const groupId = profile.owner_group_id || userGroupMap[profile.id];
+                    const userGroupData = userGroupMap[profile.id] as { groupId: string, syncStatus: string | null } | undefined;
+                    const groupId = profile.owner_group_id || userGroupData?.groupId;
                     const group = groupId ? groupsMap[groupId] : null;
                     const groupName = group?.name || '-';
                     
