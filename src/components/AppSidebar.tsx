@@ -3,6 +3,7 @@ import { LayoutDashboard, Users, Cake, BookOpen, Settings, FileText, Building2, 
 import { usePlano } from "@/hooks/usePlano";
 import { useMotherView } from "@/hooks/useMotherView";
 import { useConversaDoceAccess } from "@/hooks/useConversaDoceAccess";
+import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -102,22 +103,7 @@ export function AppSidebar() {
   const effectiveIsAdmin = isAdmin && !simulating;
   
   // Verificação de Onboarding Pendente
-  const { data: profileOnboarding } = useQuery({
-    queryKey: ['profile-onboarding', user?.id],
-    queryFn: async () => {
-      if (!user) return null;
-      const { data } = await supabase
-        .from('profiles')
-        .select('onboarding_concluido')
-        .eq('id', user.id)
-        .maybeSingle();
-      return data;
-    },
-    enabled: !!user,
-  });
-
-  const isMaster = !!user && activeGroup && activeGroup.master_user_id === user.id;
-  const onboardingPendente = !effectiveIsAdmin && !effectiveIsMother && isMaster && profileOnboarding && profileOnboarding.onboarding_concluido === false;
+  const { onboardingPendente } = useOnboardingStatus();
 
   const { rotaBloqueada, isLoading: isPlanoLoading, plano } = usePlano();
   const podeAcessarSsoDoce = effectiveIsAdmin || plano?.id === "negocio" || plano?.id === "aluna_imersao";
