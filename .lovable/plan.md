@@ -1,96 +1,73 @@
-# Plano: Responsividade Mobile sem Cortes
+# Refinamento dos Grupos — Mestre, USER vinculado e MOTHER membro
 
-## Objetivo
-Garantir que em viewport mobile (≤640px, foco em 360–414px) **nenhum elemento fique cortado, escondido sob outro ou exigindo scroll horizontal indesejado**, em todas as páginas do sistema.
+## Conceito
 
-## Diagnóstico (a partir do screenshot e varredura do código)
+- **ADMIN do grupo = "Mestre"**: dono dos dados base (Meus Dados, Mão de Obra, Backup). Passa pelo onboarding.
+- **USER**: membro vinculado a um grupo. **Não** passa pelo onboarding — herda os dados base do mestre. Plano herdado do mestre.
+- **MOTHER**: pode ser adicionada a qualquer grupo como ADMIN ou USER (escolha no momento), com acesso total e sem onboarding.
+- Um grupo pode ter mais de um ADMIN, mas só o criador (mestre original) precisa concluir o onboarding. ADMINs adicionais (incluindo MOTHER promovida a ADMIN) pulam onboarding.
 
-Padrões problemáticos recorrentes:
+## Mudanças
 
-1. **`CardHeader` com `flex flex-row items-center justify-between`** — força título + filtros + botão na mesma linha. Em 390px, o botão "Nova Unidade" sai da tela (visível no print: aparece `+ N` cortado).
-2. **Tabelas largas** (`<Table>`) sem wrapper de scroll consistente — colunas extras (Status, Ações) ficam fora da viewport.
-3. **Headers de página** com título longo + botões de ação na mesma linha.
-4. **Filtros mês/ano + período** com `gap-x-8` fixo que estoura a largura.
-5. **Modais (`DialogContent`)** sem `max-w` responsivo ou `max-h` + overflow para telas pequenas.
-6. **Sidebar mobile** ocupando espaço quando deveria colapsar.
+### 1. Banco — migration
 
-## Escopo das páginas a revisar
+- Adicionar coluna `groups.master_user_id UUID` (FK auth.users) → marca o mestre original do grupo.
+- Backfill: para cada grupo existente, `master_user_id = created_by_user_id` (ou o primeiro ADMIN ativo).
+- Função `is_group_master(_user_id, _group_id) RETURNS boolean` — retorna true se for o `master_user_id`.
+- Função `get_group_master(_group_id) RETURNS uuid`.
 
-Páginas/components identificados como críticos:
+### 2. Onboarding (FirstAccessRedirect)
 
-- **Cadastros**: `UnidadesMedida`, `Clientes`, `Fornecedores`, `Categorias`, `SeusDados`
-- **Configurações**: `Backup`, `Bancos`, `PlanoContas`, `CategoriasPlanoContas`, `TagsEncomendas`, `TiposDocumentos`, `TiposInsumos`, `ConfiguracaoJuros`, `FinanceiroPage`, `PrecificacaoPage`, `CadastrosBase`
-- **Financeiro**: `ContasPagar`, `ContasReceber`, `ContasPagarDetalhes`, `ContasReceberDetalhes`, `DRE`, `FluxoCaixaMensal`, `FluxoCaixaDiario`, `FluxoCaixaHub`, `DashboardFinanceiro`, `FechamentoMes`, `Financeiro`
-- **Encomendas**: `Encomendas`, `EncomendasLista`, `EncomendasCalendarios` + `EncomendaStatusCard`, `CalendariosEncomendas`
-- **Precificação**: `Precificacao`, `Ingredientes`, `Embalagens`, `PrePreparos`, `PrePreparoForm`, `MaoDeObra`
-- **Receitas**: `Receitas`, `ReceitaForm`
-- **Estoque**: `EstoqueDashboard`, `EstoqueEntrada`, `EstoqueAjuste`, `EstoqueMovimentacoes`
-- **Admin**: `Usuarios`, `Governanca`, `Logs`, `CofreBackups`
-- **Comercial**: `Propostas`, `NovaProposta`, `Contratos`, `Negociacoes`, `RelatorioPropostas`
-- **Planejamento**: `Planejamento`, `PlanejamentoCalendario`, `PlanejamentoTarefas`, `PlanejamentoBemEstar`
-- **Meu Salário**: `MeuSalario`, `Retiradas`, `VisaoGeral`, `Educativo`
-- **Conversa Doce**: `ConversaDoce`, `ConversaDoceRespostas`, `FavoritosSheet`
-- **Organização Doce**: `OrganizacaoDoce`
-- **Onboarding/Upgrade**: `BemVinda`, `Concluido`, `Upgrade`
-- **Componentes globais**: `PageHeader`, `AppSidebar`, `HeaderControls`, `UserMenu`, `EncomendaStatusCard`, `ContatosLista`, `FamiliaresLista`, `TabelaInadimplencia`, `FinanceiroNav`, `MaoObraSection`
+- Skip onboarding quando o usuário **não é o mestre de nenhum grupo ativo** (ou seja: só é USER/ADMIN secundário em grupos onde outro é o mestre).
+- Mestre continua com o fluxo atual (BemVinda → Meus Dados → Mão de Obra → Backup → Concluído).
+- MOTHER e admin legado continuam pulando, como hoje.
 
-## Padrões de correção (aplicados de forma sistemática)
+### 3. Criação de usuário (`admin/usuarios` + edge function `criar-usuario`)
 
-### A. CardHeaders com filtros + botão
-```text
-ANTES: flex flex-row items-center justify-between
-DEPOIS: flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between
-```
-Filtros internos: `flex-wrap` + Select com `w-full sm:w-40`. Botão "Novo": `w-full sm:w-auto`.
+Adicionar no dialog **Criar Novo Usuário** os campos:
 
-### B. Tabelas
-Toda `<Table>` envolvida em `<div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">` para permitir swipe lateral sem cortar o card. Adicionar `min-w-[640px]` na table quando colunas críticas.
+- **Tipo de usuário**: `Mestre (novo grupo)` | `Membro de grupo existente`
+- Se "Mestre": (fluxo atual) — campos de plano + cria grupo automaticamente com esse usuário como `master_user_id` e ADMIN.
+- Se "Membro": seleciona **Grupo** (dropdown) + **Papel no grupo** (ADMIN secundário / USER) + **permission_flags** (se USER). Sem campos de plano (herda do mestre). `primeiro_acesso = true` para forçar troca de senha, mas onboarding é pulado.
 
-### C. PageHeader
-Já é responsivo (`md:flex-row`). Validar — sem mudanças estruturais, apenas garantir `truncate` no título quando muito longo e `actions` com `w-full sm:w-auto` nos botões.
+Edge function:
+- Aceita `tipo_usuario: 'mestre' | 'membro'`, `group_id?`, `role_group?`, `permission_flags?`.
+- Para 'mestre': cria grupo, insere `user_group_roles (ADMIN)`, marca `groups.master_user_id`.
+- Para 'membro': não cria grupo, não preenche plano. Insere `user_group_roles` com papel solicitado. Define `active_group_id` na primeira sessão.
 
-### D. Filtros de período (mês/ano)
-```text
-ANTES: flex flex-wrap items-center gap-x-8 gap-y-3
-DEPOIS: flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-x-6
-```
-Selects com `flex-1 sm:flex-none sm:w-36`.
+### 4. GruposManager — adicionar MOTHER
 
-### E. Modais (DialogContent)
-Adicionar `max-w-[calc(100vw-2rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto` onde estiver faltando.
+- No dialog "Adicionar membro", buscar usuários incluindo MOTHER.
+- Permitir escolher papel `ADMIN` ou `USER` (já existe). MOTHER recebe acesso total automaticamente se ADMIN.
+- Badge visual "Mestre" no membro que é `master_user_id` do grupo (não pode ser removido nem rebaixado — só transferindo a mestria).
+- Botão "Transferir mestria" (opcional, futuro) — fora deste escopo.
 
-### F. Padding lateral
-Páginas com `p-4 md:p-6` mantidas. Páginas que usam apenas `p-6` recebem `p-4 md:p-6`.
+### 5. Herança do plano (USER)
 
-### G. Botões de ação fixos
-"Voltar" + "Atualizar" + badge de usuário no topo: garantir `flex-wrap` no container e `truncate` em labels longos.
+`usePlano` / `useBusinessProfile` / lógica de acesso:
+- Para USER, ler `plano_*` do mestre do `active_group_id` em vez do próprio perfil.
+- Cria hook `useEffectivePlan()` que retorna o plano do mestre quando o usuário ativo é USER, ou o próprio plano se for ADMIN/mestre/MOTHER.
+- Adaptar `PlanoGuard`, `useConversaDoceAccess`, badges no sidebar para usarem `useEffectivePlan`.
 
-### H. Sidebar/topo
-Validar que `AppSidebar` colapsa para sheet em mobile (já usa `useIsMobile`) — apenas verificar gaps.
+### 6. UI — esconder páginas de configuração base para USER
 
-### I. Cards de status (EncomendaStatusCard, dashboards)
-Grids `grid-cols-2 sm:grid-cols-3 lg:grid-cols-5` em vez de `flex` fixo.
+- Em `/configuracoes/dados-confeitaria`, `/configuracoes/precificacao/mao-de-obra`, `/configuracoes/backup`: mostrar mensagem "Estes dados são gerenciados pelo mestre do grupo (email do mestre)" e ocultar formulários para quem não é ADMIN/mestre.
 
-## Estratégia de execução
+### 7. Documentação
 
-1. **Fase 1 — Componentes compartilhados** (impacto multiplicador):
-   `PageHeader`, `EncomendaStatusCard`, `FinanceiroNav`, `TabelaInadimplencia`, `HeaderControls`, `UserMenu`, `AlertaExpiracaoPlano`, wrapper de tabelas reutilizável.
+Atualizar `docs/DOCS_GOVERNANCA.md` e `docs/AUDITORIA.md` com:
+- Conceito de mestre
+- Skip de onboarding para membros
+- Herança de plano
+- Fluxo novo de criar usuário
 
-2. **Fase 2 — Páginas de cadastro/configuração** (mesmo padrão de CardHeader+Tabela+Dialog): aplicar padrões A, B, E em ~20 páginas.
+## Ordem de execução
 
-3. **Fase 3 — Financeiro** (filtros pesados + tabelas largas): padrões A, B, D.
-
-4. **Fase 4 — Encomendas + Precificação + Receitas + Estoque**: padrões A, B, I + revisão dos forms longos.
-
-5. **Fase 5 — Páginas restantes** (admin, comercial, planejamento, meu-salário, conversa-doce, onboarding).
-
-6. **QA visual**: navegar via browser tool em 390×680 pelas rotas principais (`/configuracoes/unidades-medida`, `/financeiro/contas-receber`, `/encomendas`, `/financeiro/dre`, `/admin/usuarios`, `/precificacao/ingredientes`) e capturar screenshots para confirmar zero cortes.
-
-## Fora de escopo
-- Redesign visual / mudança de paleta ou tipografia.
-- Mudanças de lógica/funcionalidade.
-- Otimização para tablet específica (foco mobile 360–414px; tablet já funciona com breakpoints `md:`).
-- Documentação em `docs/AUDITORIA.md` (não há mudança de RLS/SQL/auth/edge function).
-
-## Resultado esperado
-Em viewport 390×680, todas as páginas listadas devem: (1) caber sem scroll horizontal indesejado no body, (2) ter todos os botões de ação acessíveis (não cortados), (3) tabelas roláveis lateralmente dentro do card quando necessário, (4) modais sem overflow vertical bloqueado, (5) filtros empilhados verticalmente quando não couberem lado a lado.
+1. Migration (coluna `master_user_id` + funções + backfill).
+2. Edge function `criar-usuario` (novos campos).
+3. `CriarUsuarioDialog` (UI com seletor mestre/membro).
+4. `FirstAccessRedirect` (skip onboarding p/ não-mestres).
+5. `useEffectivePlan` + adaptações de plano.
+6. Telas de configuração base (read-only p/ membros).
+7. `GruposManager` (adicionar MOTHER, badge "Mestre").
+8. Docs.

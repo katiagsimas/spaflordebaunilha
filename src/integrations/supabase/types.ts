@@ -1996,6 +1996,7 @@ export type Database = {
           created_by_user_id: string | null
           id: string
           is_active: boolean | null
+          master_user_id: string | null
           name: string
           updated_at: string | null
         }
@@ -2004,6 +2005,7 @@ export type Database = {
           created_by_user_id?: string | null
           id?: string
           is_active?: boolean | null
+          master_user_id?: string | null
           name: string
           updated_at?: string | null
         }
@@ -2012,6 +2014,7 @@ export type Database = {
           created_by_user_id?: string | null
           id?: string
           is_active?: boolean | null
+          master_user_id?: string | null
           name?: string
           updated_at?: string | null
         }
@@ -4201,6 +4204,7 @@ export type Database = {
         Args: { p_ano: number; p_mes: number; p_usuario_id: string }
         Returns: number
       }
+      get_group_master: { Args: { _group_id: string }; Returns: string }
       get_quantidade_vendas_mes: {
         Args: { p_ano: number; p_mes: number; p_usuario_id: string }
         Returns: number
@@ -4247,6 +4251,10 @@ export type Database = {
       }
       is_admin: { Args: { check_user_id: string }; Returns: boolean }
       is_group_admin: {
+        Args: { _group_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_group_master: {
         Args: { _group_id: string; _user_id: string }
         Returns: boolean
       }
@@ -4297,6 +4305,7 @@ export type Database = {
         Args: { _group_id: string; _user_id: string }
         Returns: boolean
       }
+      user_is_any_group_master: { Args: { _user_id: string }; Returns: boolean }
       validar_estoque_receita: {
         Args: {
           p_quantidade: number
