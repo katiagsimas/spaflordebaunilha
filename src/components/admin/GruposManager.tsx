@@ -485,7 +485,9 @@ export default function GruposManager() {
                             </div>
                           )}
                         </div>
-                      ))
+                        );
+                      })
+
                     )}
                   </div>
                 )}
