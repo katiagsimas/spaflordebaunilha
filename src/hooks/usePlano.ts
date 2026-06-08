@@ -42,6 +42,9 @@ export interface Plano {
   descricao: string | null;
   ativo: boolean;
   em_breve: boolean;
+  plano_inicio?: string | null;
+  plano_fim?: string | null;
+  plano_tipo?: string | null;
 }
 
 export function usePlano() {
@@ -93,21 +96,37 @@ export function usePlano() {
         }
       } catch {/* fallback ao próprio user */}
 
-      const { data } = await supabase
+      const { data: profile } = await supabase
         .from("profiles")
-        .select("plano_id")
+        .select("plano_id, plano_inicio, plano_fim, plano_tipo")
         .eq("id", planoUserId)
         .single();
 
-      if (!data?.plano_id) return { id: "base", nome: "Caixa Lite", descricao: null, ativo: true, em_breve: false } as Plano;
+      if (!profile?.plano_id) {
+        return { 
+          id: "base", 
+          nome: "Caixa Lite", 
+          descricao: null, 
+          ativo: true, 
+          em_breve: false,
+          plano_inicio: profile?.plano_inicio,
+          plano_fim: profile?.plano_fim,
+          plano_tipo: profile?.plano_tipo
+        } as Plano;
+      }
 
       const { data: plano } = await supabase
         .from("planos")
         .select("*")
-        .eq("id", data.plano_id)
+        .eq("id", profile.plano_id)
         .single();
 
-      return plano as Plano | null;
+      return {
+        ...plano,
+        plano_inicio: profile.plano_inicio,
+        plano_fim: profile.plano_fim,
+        plano_tipo: profile.plano_tipo
+      } as Plano;
     },
     enabled: !!user?.id,
     staleTime: 1000 * 60 * 5,
