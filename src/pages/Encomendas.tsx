@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ClienteAutocomplete } from "@/components/ClienteAutocomplete";
 import { useClientes } from "@/hooks/useClientes";
-import { useUserProfile } from "@/hooks/useUserProfile";
+import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 
 import { useReceitas } from "@/hooks/useReceitas";
 import { useEncomendaItens } from "@/hooks/useEncomendaItens";
@@ -68,8 +68,7 @@ const statusLabels = {
 };
 
 const Encomendas = () => {
-  const { profile: userProfile } = useUserProfile();
-  const onboardingPendente = userProfile && !(userProfile as any).onboarding_concluido;
+  const { onboardingPendente } = useOnboardingStatus();
 
   const navigate = useNavigate();
   const { encomendas, loading, createEncomenda, updateEncomenda, deleteEncomenda } = useEncomendas();

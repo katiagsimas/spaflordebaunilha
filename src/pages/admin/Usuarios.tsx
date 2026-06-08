@@ -58,6 +58,7 @@ interface UserProfile {
   onboarding_concluido?: boolean;
   onboarding_concluido_at?: string | null;
   onboarding_step_status?: any;
+  owner_group_id?: string | null;
 }
 
 interface UserRole {
@@ -103,7 +104,7 @@ export default function Usuarios() {
     queryFn: async () => {
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, email, nome_completo, nome_confeitaria, created_at, ativo, plano_id, plano_inicio, plano_fim, plano_tipo, last_login, origem_criacao, onboarding_concluido, onboarding_concluido_at, onboarding_step_status')
+        .select('id, email, nome_completo, nome_confeitaria, created_at, ativo, plano_id, plano_inicio, plano_fim, plano_tipo, last_login, origem_criacao, onboarding_concluido, onboarding_concluido_at, onboarding_step_status, owner_group_id')
         .order('created_at', { ascending: false });
       
       if (profilesError) throw profilesError;
@@ -124,6 +125,42 @@ export default function Usuarios() {
     },
     enabled: isAdmin,
   });
+
+  // Buscar todos os grupos para mapeamento
+  const { data: groupsData } = useQuery({
+    queryKey: ['admin-all-groups'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('groups').select('id, name, master_user_id');
+      if (error) throw error;
+      return data;
+    },
+    enabled: isAdmin,
+  });
+
+  // Mapear grupos por ID
+  const groupsMap = groupsData?.reduce((acc, g) => {
+    acc[g.id] = g;
+    return acc;
+  }, {} as Record<string, { id: string; name: string; master_user_id: string | null }>) || {};
+
+  // Buscar todos os vínculos de usuários com grupos
+  const { data: userGroupRolesData } = useQuery({
+    queryKey: ['admin-user-group-roles'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('user_group_roles').select('user_id, group_id, role_group');
+      if (error) throw error;
+      return data;
+    },
+    enabled: isAdmin,
+  });
+
+  // Mapear grupo principal por usuário (considerando o primeiro encontrado ou o owner_group_id)
+  const userGroupMap = userGroupRolesData?.reduce((acc, ugr) => {
+    if (!acc[ugr.user_id]) {
+      acc[ugr.user_id] = ugr.group_id;
+    }
+    return acc;
+  }, {} as Record<string, string>) || {};
 
   // Buscar roles globais de todos os usuários (sistema novo)
   const { data: rolesData, isLoading: isLoadingRoles } = useQuery({
@@ -220,9 +257,13 @@ export default function Usuarios() {
     const dadosExportacao = usuariosFiltrados.map(usuario => {
       const isAdmin = usuario.role === 'admin';
       
+      const groupId = usuario.owner_group_id || userGroupMap[usuario.id];
+      const group = groupId ? groupsMap[groupId] : null;
+      
       return {
         'Email': usuario.email,
         'Nome Completo': usuario.nome_completo || 'N/A',
+        'Grupo': group?.name || 'N/A',
         'Status': usuario.ativo !== false ? 'Ativo' : 'Inativo',
         'Permissão': isAdmin ? 'Administrador' : 'Usuário',
         'Plano': getPlanoLabel(usuario.plano_id),
@@ -630,6 +671,7 @@ export default function Usuarios() {
                   <TableRow>
                     <TableHead>Nome Completo</TableHead>
                     <TableHead>Email</TableHead>
+                    <TableHead>Grupo</TableHead>
                     <TableHead>Plano</TableHead>
                     <TableHead>Permissões</TableHead>
                     <TableHead>Início do Plano</TableHead>
@@ -643,33 +685,54 @@ export default function Usuarios() {
                   {usuariosPaginados.map((profile) => {
                     const userRoles = rolesByUser[profile.id] || ['user'];
                     const mainRole = userRoles[0];
+                    
+                    // Lógica de grupo
+                    const groupId = profile.owner_group_id || userGroupMap[profile.id];
+                    const group = groupId ? groupsMap[groupId] : null;
+                    const groupName = group?.name || '-';
+                    
+                    // Lógica de onboarding: apenas masters de grupos (que não sejam Mother/Admin) passam por onboarding
+                    const isMaster = !group || group.master_user_id === profile.id;
+                    const isMotherOrAdmin = profile.role === 'mother' || profile.role === 'admin';
+                    const showOnboardingBadges = isMaster && !isMotherOrAdmin;
+
                     return (
                       <TableRow key={profile.id}>
                         <TableCell className="font-medium">
                           <div className="flex flex-col gap-1">
                             <span className="font-semibold">{profile.nome_completo || '-'}</span>
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              {profile.onboarding_concluido ? (
-                                <Badge variant="outline" className="text-[10px] h-4 px-1.5 bg-green-50 text-green-700 border-green-200">
-                                  <CheckCircle2 className="h-2 w-2 mr-0.5" />
-                                  ONBOARDING OK
-                                </Badge>
-                              ) : (
-                                <Badge variant="outline" className="text-[10px] h-4 px-1.5 bg-amber-50 text-amber-700 border-amber-200">
-                                  <Clock className="h-2 w-2 mr-0.5" />
-                                  ONBOARDING PENDENTE
-                                </Badge>
-                              )}
-                              {!profile.tem_dados && (
-                                <Badge variant="outline" className="text-[10px] h-4 px-1.5 bg-orange-50 text-orange-700 border-orange-200">
-                                  <AlertCircle className="h-2 w-2 mr-0.5" />
-                                  SEM CADASTROS
-                                </Badge>
+                              {showOnboardingBadges && (
+                                <>
+                                  {profile.onboarding_concluido ? (
+                                    <Badge variant="outline" className="text-[10px] h-4 px-1.5 bg-green-50 text-green-700 border-green-200">
+                                      <CheckCircle2 className="h-2 w-2 mr-0.5" />
+                                      ONBOARDING OK
+                                    </Badge>
+                                  ) : (
+                                    <Badge variant="outline" className="text-[10px] h-4 px-1.5 bg-amber-50 text-amber-700 border-amber-200">
+                                      <Clock className="h-2 w-2 mr-0.5" />
+                                      ONBOARDING PENDENTE
+                                    </Badge>
+                                  )}
+                                  {!profile.tem_dados && (
+                                    <Badge variant="outline" className="text-[10px] h-4 px-1.5 bg-orange-50 text-orange-700 border-orange-200">
+                                      <AlertCircle className="h-2 w-2 mr-0.5" />
+                                      SEM CADASTROS
+                                    </Badge>
+                                  )}
+                                </>
                               )}
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>{profile.email}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span className="text-sm font-medium">{groupName}</span>
+                          </div>
+                        </TableCell>
                         <TableCell>
                           <Badge variant="outline" className="font-body text-xs">
                             {profile.plano_id === 'negocio' ? 'Business' : profile.plano_id === 'aluna_imersao' ? 'Imersão' : profile.plano_id === 'controle' ? 'Controle' : 'Lite'}

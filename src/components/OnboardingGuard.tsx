@@ -2,8 +2,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useIsAdmin } from '@/hooks/useIsAdmin';
-import { useGroup } from '@/contexts/GroupContext';
+import { useOnboardingStatus } from '@/hooks/useOnboardingStatus';
 import { toast } from 'sonner';
 import { AlertCircle, Lock, UserRound, ChefHat, HardDrive, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,8 +17,7 @@ interface OnboardingGuardProps {
 
 export function OnboardingGuard({ children, actionName = "esta ação" }: OnboardingGuardProps) {
   const { user } = useAuth();
-  const { isAdmin } = useIsAdmin();
-  const { isMother } = useGroup();
+  const { onboardingPendente, isAdmin, isMother } = useOnboardingStatus();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -56,10 +54,8 @@ export function OnboardingGuard({ children, actionName = "esta ação" }: Onboar
         backup: (bkpCount ?? 0) > 0,
       };
     },
-    enabled: !!user && !!profile,
+    enabled: !!user && !!profile && onboardingPendente,
   });
-
-  const onboardingPendente = !isAdmin && !isMother && profile && profile.onboarding_concluido === false;
 
   const logException = async () => {
     if (!user) return;

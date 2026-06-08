@@ -7,7 +7,7 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { useUserProfile } from "@/hooks/useUserProfile";
+import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -17,8 +17,7 @@ import { exportarReceitaPDF } from "@/utils/exportarReceitaPDF";
 
 
 export default function Receitas() {
-  const { profile: userProfile } = useUserProfile();
-  const onboardingPendente = userProfile && !(userProfile as any).onboarding_concluido;
+  const { onboardingPendente } = useOnboardingStatus();
 
   const navigate = useNavigate();
 
