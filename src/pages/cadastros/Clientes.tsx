@@ -15,6 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useClientes } from "@/hooks/useClientes";
+import { useUserProfile } from "@/hooks/useUserProfile";
+
 import { useViaCEP } from "@/hooks/useViaCEP";
 import { Plus, Pencil, Trash2, Users, Search, ChevronDown, Download, Cake, MoreVertical, UserPlus } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -28,6 +30,9 @@ import { Badge } from "@/components/ui/badge";
 import * as XLSX from '@/lib/xlsxShim';
 
 export default function Clientes() {
+  const { profile: userProfile } = useUserProfile();
+  const onboardingPendente = userProfile && !(userProfile as any).onboarding_concluido;
+
   const navigate = useNavigate();
   const { clientes, loading: loadingClientes, createCliente, updateCliente, deleteCliente } = useClientes();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -67,6 +72,13 @@ export default function Clientes() {
   }, [editingCliente]);
 
   const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (onboardingPendente) {
+      toast.error("Conclua o onboarding para realizar esta ação!");
+      return;
+    }
+
     e.preventDefault();
 
     if (!formData.nome) {

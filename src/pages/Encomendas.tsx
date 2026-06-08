@@ -21,6 +21,8 @@ import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ClienteAutocomplete } from "@/components/ClienteAutocomplete";
 import { useClientes } from "@/hooks/useClientes";
+import { useUserProfile } from "@/hooks/useUserProfile";
+
 import { useReceitas } from "@/hooks/useReceitas";
 import { useEncomendaItens } from "@/hooks/useEncomendaItens";
 import { useGroup } from "@/contexts/GroupContext";
@@ -66,6 +68,9 @@ const statusLabels = {
 };
 
 const Encomendas = () => {
+  const { profile: userProfile } = useUserProfile();
+  const onboardingPendente = userProfile && !(userProfile as any).onboarding_concluido;
+
   const navigate = useNavigate();
   const { encomendas, loading, createEncomenda, updateEncomenda, deleteEncomenda } = useEncomendas();
   const { activeGroupId } = useGroup();
@@ -348,6 +353,13 @@ const Encomendas = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (onboardingPendente) {
+      toast.error("Conclua o onboarding para realizar esta ação!");
+      return;
+    }
+
     e.preventDefault();
     
     // Para edição de encomenda existente

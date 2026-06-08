@@ -63,6 +63,9 @@ export default function PrePreparoForm() {
   const { showLoading, hideLoading } = useGlobalLoading();
   const isEditMode = !!id;
 
+  const onboardingPendente = profile && !(profile as any).onboarding_concluido;
+
+
   // Campos básicos
   const [nome, setNome] = useState('');
   const [categoriaId, setCategoriaId] = useState('');
@@ -535,7 +538,17 @@ export default function PrePreparoForm() {
   };
 
   const handleSalvar = async () => {
+    if (onboardingPendente) {
+      toast({
+        title: "Ação bloqueada",
+        description: "Conclua o onboarding para realizar esta ação!",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
+
       // Validações
       if (!nome.trim()) {
         toast({
