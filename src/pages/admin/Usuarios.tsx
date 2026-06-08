@@ -22,7 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Loader2, Users, Shield, User, MoreVertical, Edit, UserX, Trash2, Search, UserCheck, Clock, AlertCircle, Download, UserPlus, KeyRound } from 'lucide-react';
+import { Loader2, Users, Shield, User, MoreVertical, Edit, UserX, Trash2, Search, UserCheck, Clock, AlertCircle, Download, UserPlus, KeyRound, CheckCircle2 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useNavigate } from 'react-router-dom';
@@ -55,6 +55,9 @@ interface UserProfile {
   last_login?: string | null;
   origem_criacao?: string | null;
   tem_dados?: boolean;
+  onboarding_concluido?: boolean;
+  onboarding_concluido_at?: string | null;
+  onboarding_step_status?: any;
 }
 
 interface UserRole {
@@ -100,7 +103,7 @@ export default function Usuarios() {
     queryFn: async () => {
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, email, nome_completo, nome_confeitaria, created_at, ativo, plano_id, plano_inicio, plano_fim, plano_tipo, last_login, origem_criacao')
+        .select('id, email, nome_completo, nome_confeitaria, created_at, ativo, plano_id, plano_inicio, plano_fim, plano_tipo, last_login, origem_criacao, onboarding_concluido, onboarding_concluido_at, onboarding_step_status')
         .order('created_at', { ascending: false });
       
       if (profilesError) throw profilesError;
@@ -630,14 +633,27 @@ export default function Usuarios() {
                     return (
                       <TableRow key={profile.id}>
                         <TableCell className="font-medium">
-                          <div className="flex flex-col">
-                            <span>{profile.nome_completo || '-'}</span>
-                            {!profile.tem_dados && (
-                              <span className="text-[10px] text-orange-500 font-semibold flex items-center gap-0.5">
-                                <AlertCircle className="h-2.5 w-2.5" />
-                                NENHUM CADASTRO
-                              </span>
-                            )}
+                          <div className="flex flex-col gap-1">
+                            <span className="font-semibold">{profile.nome_completo || '-'}</span>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              {profile.onboarding_concluido ? (
+                                <Badge variant="outline" className="text-[10px] h-4 px-1.5 bg-green-50 text-green-700 border-green-200">
+                                  <CheckCircle2 className="h-2 w-2 mr-0.5" />
+                                  ONBOARDING OK
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="text-[10px] h-4 px-1.5 bg-amber-50 text-amber-700 border-amber-200">
+                                  <Clock className="h-2 w-2 mr-0.5" />
+                                  ONBOARDING PENDENTE
+                                </Badge>
+                              )}
+                              {!profile.tem_dados && (
+                                <Badge variant="outline" className="text-[10px] h-4 px-1.5 bg-orange-50 text-orange-700 border-orange-200">
+                                  <AlertCircle className="h-2 w-2 mr-0.5" />
+                                  SEM CADASTROS
+                                </Badge>
+                              )}
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>{profile.email}</TableCell>
