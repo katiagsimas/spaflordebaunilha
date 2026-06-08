@@ -692,6 +692,7 @@ export default function Usuarios() {
                     const groupName = group?.name || '-';
                     
                     // Lógica de onboarding: apenas masters de grupos (que não sejam Mother/Admin) passam por onboarding
+                    // Se o usuário não tem grupo ou é o master do seu próprio grupo, ele precisa de onboarding
                     const isMaster = !group || group.master_user_id === profile.id;
                     const isMotherOrAdmin = profile.role === 'mother' || profile.role === 'admin';
                     const showOnboardingBadges = isMaster && !isMotherOrAdmin;
