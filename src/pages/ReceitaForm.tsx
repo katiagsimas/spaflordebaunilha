@@ -130,6 +130,7 @@ export default function ReceitaForm() {
   const { profile: userProfile } = useUserProfile();
   const onboardingPendente = userProfile && !(userProfile as any).onboarding_concluido;
 
+
   const navigate = useNavigate();
   const { id } = useParams();
   const { user } = useAuth();
