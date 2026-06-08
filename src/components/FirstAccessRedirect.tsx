@@ -157,7 +157,7 @@ export function FirstAccessRedirect() {
     if (location.pathname !== ROTA_CONCLUIDO) {
       navigate(ROTA_CONCLUIDO, { replace: true });
     }
-  }, [profile, isLoading, onboardingStatus, loadingOnboarding, location.pathname, navigate, isAdmin, isMother, loadingAdmin]);
+  }, [profile, isLoading, onboardingStatus, loadingOnboarding, location.pathname, navigate, isAdmin, isMother, loadingAdmin, isMasterOfAnyGroup, loadingMaster]);
 
   return null;
 }
