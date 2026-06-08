@@ -681,33 +681,54 @@ export default function Usuarios() {
                   {usuariosPaginados.map((profile) => {
                     const userRoles = rolesByUser[profile.id] || ['user'];
                     const mainRole = userRoles[0];
+                    
+                    // Lógica de grupo
+                    const groupId = profile.owner_group_id || userGroupMap[profile.id];
+                    const group = groupId ? groupsMap[groupId] : null;
+                    const groupName = group?.name || '-';
+                    
+                    // Lógica de onboarding: apenas masters de grupos (que não sejam Mother/Admin) passam por onboarding
+                    const isMaster = !group || group.master_user_id === profile.id;
+                    const isMotherOrAdmin = profile.role === 'mother' || profile.role === 'admin';
+                    const showOnboardingBadges = isMaster && !isMotherOrAdmin;
+
                     return (
                       <TableRow key={profile.id}>
                         <TableCell className="font-medium">
                           <div className="flex flex-col gap-1">
                             <span className="font-semibold">{profile.nome_completo || '-'}</span>
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              {profile.onboarding_concluido ? (
-                                <Badge variant="outline" className="text-[10px] h-4 px-1.5 bg-green-50 text-green-700 border-green-200">
-                                  <CheckCircle2 className="h-2 w-2 mr-0.5" />
-                                  ONBOARDING OK
-                                </Badge>
-                              ) : (
-                                <Badge variant="outline" className="text-[10px] h-4 px-1.5 bg-amber-50 text-amber-700 border-amber-200">
-                                  <Clock className="h-2 w-2 mr-0.5" />
-                                  ONBOARDING PENDENTE
-                                </Badge>
-                              )}
-                              {!profile.tem_dados && (
-                                <Badge variant="outline" className="text-[10px] h-4 px-1.5 bg-orange-50 text-orange-700 border-orange-200">
-                                  <AlertCircle className="h-2 w-2 mr-0.5" />
-                                  SEM CADASTROS
-                                </Badge>
+                              {showOnboardingBadges && (
+                                <>
+                                  {profile.onboarding_concluido ? (
+                                    <Badge variant="outline" className="text-[10px] h-4 px-1.5 bg-green-50 text-green-700 border-green-200">
+                                      <CheckCircle2 className="h-2 w-2 mr-0.5" />
+                                      ONBOARDING OK
+                                    </Badge>
+                                  ) : (
+                                    <Badge variant="outline" className="text-[10px] h-4 px-1.5 bg-amber-50 text-amber-700 border-amber-200">
+                                      <Clock className="h-2 w-2 mr-0.5" />
+                                      ONBOARDING PENDENTE
+                                    </Badge>
+                                  )}
+                                  {!profile.tem_dados && (
+                                    <Badge variant="outline" className="text-[10px] h-4 px-1.5 bg-orange-50 text-orange-700 border-orange-200">
+                                      <AlertCircle className="h-2 w-2 mr-0.5" />
+                                      SEM CADASTROS
+                                    </Badge>
+                                  )}
+                                </>
                               )}
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>{profile.email}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span className="text-sm font-medium">{groupName}</span>
+                          </div>
+                        </TableCell>
                         <TableCell>
                           <Badge variant="outline" className="font-body text-xs">
                             {profile.plano_id === 'negocio' ? 'Business' : profile.plano_id === 'aluna_imersao' ? 'Imersão' : profile.plano_id === 'controle' ? 'Controle' : 'Lite'}
