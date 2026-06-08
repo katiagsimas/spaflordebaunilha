@@ -193,20 +193,38 @@ export default function Usuarios() {
     return acc;
   }, {} as Record<string, string[]>) || {};
 
-  // Manter todos os perfis na listagem, mas identificar os admins e mothers
+  // Manter todos os perfis na listagem, mas identificar os admins e mothers e aplicar herança de plano
   const profilesComRoles = profiles?.map(u => {
     const roles = rolesByUser[u.id] || [];
     let role = 'user';
     if (roles.includes('admin')) {
-      // No sistema legado mapeado, 'admin' é MOTHER
       role = 'mother';
     } else if (roles.includes('moderator')) {
       role = 'moderator';
     }
-    return {
-      ...u,
-      role
-    };
+
+    // Lógica de herança de plano para a listagem
+    const groupId = u.owner_group_id || userGroupMap[u.id];
+    const group = groupId ? groupsMap[groupId] : null;
+    const isMaster = !group || group.master_user_id === u.id;
+    
+    let profileEfetivo = { ...u, role };
+
+    // Se for membro, herda dados do plano do mestre
+    if (!isMaster && group?.master_user_id) {
+      const masterProfile = profiles?.find(p => p.id === group.master_user_id);
+      if (masterProfile) {
+        profileEfetivo = {
+          ...profileEfetivo,
+          plano_id: masterProfile.plano_id,
+          plano_inicio: masterProfile.plano_inicio,
+          plano_fim: masterProfile.plano_fim,
+          plano_tipo: masterProfile.plano_tipo
+        };
+      }
+    }
+
+    return profileEfetivo;
   });
 
   // Carregar estatísticas
@@ -685,7 +703,7 @@ export default function Usuarios() {
                 <TableBody>
                   {usuariosPaginados.map((profile) => {
                     const userRoles = rolesByUser[profile.id] || ['user'];
-                    const mainRole = userRoles[0];
+                    const mainRole = profile.role || 'user';
                     
                     // Lógica de grupo
                     const groupId = profile.owner_group_id || userGroupMap[profile.id];
