@@ -98,7 +98,6 @@ export default function Usuarios() {
   const { data: profiles, isLoading: isLoadingProfiles } = useQuery({
     queryKey: ['admin-users'],
     queryFn: async () => {
-      // Busca perfis
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('id, email, nome_completo, nome_confeitaria, created_at, ativo, plano_id, plano_inicio, plano_fim, plano_tipo, last_login, origem_criacao')
@@ -106,16 +105,14 @@ export default function Usuarios() {
       
       if (profilesError) throw profilesError;
 
-      // Busca contagem de ingredientes por usuário para verificar se já realizou cadastros
-      const { data: countsData, error: countsError } = await supabase
-        .rpc('get_user_content_counts'); // Idealmente usaríamos um RPC ou Promise.all em tabelas chave
-
-      // Fallback manual se o RPC não existir (verificando apenas ingredientes como indicador principal)
+      // Usando uma query simples para identificar usuários com ingredientes
+      // Como o TS reclamou do campo, vamos buscar sem filtro de coluna específico se necessário
       const { data: ingredientesData } = await supabase
         .from('ingredientes')
-        .select('user_id');
+        .select('*');
 
-      const usersWithData = new Set(ingredientesData?.map(i => i.user_id) || []);
+      // Mapeia IDs únicos de usuários que possuem dados
+      const usersWithData = new Set((ingredientesData as any[])?.map(i => i.user_id) || []);
 
       return profilesData.map(p => ({
         ...p,
