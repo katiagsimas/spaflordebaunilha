@@ -54,6 +54,7 @@ interface UserProfile {
   plano_tipo?: string | null;
   last_login?: string | null;
   origem_criacao?: string | null;
+  tem_dados?: boolean;
 }
 
 interface UserRole {
@@ -97,17 +98,29 @@ export default function Usuarios() {
   const { data: profiles, isLoading: isLoadingProfiles } = useQuery({
     queryKey: ['admin-users'],
     queryFn: async () => {
-      // Expiração de planos é tratada server-side pelo trigger
-      // `trg_enforce_plan_expiration` e por job agendado (service_role).
-
-
-      const { data, error } = await supabase
+      // Busca perfis
+      const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('id, email, nome_completo, nome_confeitaria, created_at, ativo, plano_id, plano_inicio, plano_fim, plano_tipo, last_login, origem_criacao')
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
-      return data as UserProfile[];
+      if (profilesError) throw profilesError;
+
+      // Busca contagem de ingredientes por usuário para verificar se já realizou cadastros
+      const { data: countsData, error: countsError } = await supabase
+        .rpc('get_user_content_counts'); // Idealmente usaríamos um RPC ou Promise.all em tabelas chave
+
+      // Fallback manual se o RPC não existir (verificando apenas ingredientes como indicador principal)
+      const { data: ingredientesData } = await supabase
+        .from('ingredientes')
+        .select('user_id');
+
+      const usersWithData = new Set(ingredientesData?.map(i => i.user_id) || []);
+
+      return profilesData.map(p => ({
+        ...p,
+        tem_dados: usersWithData.has(p.id)
+      })) as UserProfile[];
     },
     enabled: isAdmin,
   });
@@ -615,7 +628,15 @@ export default function Usuarios() {
                     return (
                       <TableRow key={profile.id}>
                         <TableCell className="font-medium">
-                          {profile.nome_completo || '-'}
+                          <div className="flex flex-col">
+                            <span>{profile.nome_completo || '-'}</span>
+                            {!profile.tem_dados && (
+                              <span className="text-[10px] text-orange-500 font-semibold flex items-center gap-0.5">
+                                <AlertCircle className="h-2.5 w-2.5" />
+                                NENHUM CADASTRO
+                              </span>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell>{profile.email}</TableCell>
                         <TableCell>
