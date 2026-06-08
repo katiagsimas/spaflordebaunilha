@@ -281,7 +281,8 @@ export default function Usuarios() {
     const dadosExportacao = usuariosFiltrados.map(usuario => {
       const isAdmin = usuario.role === 'admin';
       
-      const groupId = usuario.owner_group_id || userGroupMap[usuario.id];
+      const userGroupData = userGroupMap[usuario.id] as { groupId: string, syncStatus: string | null } | undefined;
+      const groupId = usuario.owner_group_id || userGroupData?.groupId;
       const group = groupId ? groupsMap[groupId] : null;
       
       return {
