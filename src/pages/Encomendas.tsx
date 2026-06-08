@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ClienteAutocomplete } from "@/components/ClienteAutocomplete";
 import { useClientes } from "@/hooks/useClientes";
-import { useUserProfile } from "@/hooks/useUserProfile";
+import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 
 import { useReceitas } from "@/hooks/useReceitas";
 import { useEncomendaItens } from "@/hooks/useEncomendaItens";
