@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePickerField } from '@/components/DatePickerField';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, Crown, Users } from 'lucide-react';
 import { formatDateToISO, parseISOToDate, addDaysToDate, getTodayISO } from '@/lib/dateUtils';
 import { IMERSAO_DIAS_ACESSO } from '@/lib/planos';
 
@@ -17,8 +17,19 @@ interface CriarUsuarioDialogProps {
   onSuccess?: () => void;
 }
 
+interface GroupLite {
+  id: string;
+  name: string;
+  master_email?: string | null;
+}
+
 export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuarioDialogProps) {
   const [loading, setLoading] = useState(false);
+  const [tipoUsuario, setTipoUsuario] = useState<'mestre' | 'membro'>('mestre');
+  const [groups, setGroups] = useState<GroupLite[]>([]);
+  const [groupId, setGroupId] = useState<string>('');
+  const [roleGroup, setRoleGroup] = useState<'ADMIN' | 'USER'>('USER');
+
   const [email, setEmail] = useState('');
   const [nomeCompleto, setNomeCompleto] = useState('');
   const [nomeConfeitaria, setNomeConfeitaria] = useState('');
@@ -29,8 +40,8 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
   const [imersaoTurma, setImersaoTurma] = useState('');
 
   const isImersao = planoId === 'aluna_imersao';
+  const isMembro = tipoUsuario === 'membro';
 
-  // Ajustar tipo automaticamente conforme plano selecionado
   useEffect(() => {
     if (planoId === 'base') setPlanoTipo('anual');
     if (planoId === 'aluna_imersao') setPlanoTipo('imersao');
@@ -39,20 +50,32 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
     }
   }, [planoId]);
 
-  // Calcular data fim
   useEffect(() => {
     if (!planoInicio) return;
     const inicioISO = formatDateToISO(planoInicio);
-    const diasMap: Record<string, number> = {
-      anual: 365,
-      mensal: 30,
-      imersao: IMERSAO_DIAS_ACESSO,
-    };
+    const diasMap: Record<string, number> = { anual: 365, mensal: 30, imersao: IMERSAO_DIAS_ACESSO };
     const dias = diasMap[planoTipo] ?? 365;
     setPlanoFim(parseISOToDate(addDaysToDate(inicioISO, dias)));
   }, [planoInicio, planoTipo]);
 
+  // Carrega grupos ativos quando dialog abre
+  useEffect(() => {
+    if (!open) return;
+    (async () => {
+      const { data } = await supabase
+        .from('groups')
+        .select('id, name, master_user_id')
+        .eq('is_active', true)
+        .order('name');
+      const list: GroupLite[] = (data || []).map((g: any) => ({ id: g.id, name: g.name }));
+      setGroups(list);
+    })();
+  }, [open]);
+
   const resetForm = () => {
+    setTipoUsuario('mestre');
+    setGroupId('');
+    setRoleGroup('USER');
     setEmail('');
     setNomeCompleto('');
     setNomeConfeitaria('');
@@ -69,32 +92,43 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
       toast({ title: 'Email obrigatório', variant: 'destructive' });
       return;
     }
+    if (isMembro && !groupId) {
+      toast({ title: 'Selecione o grupo destino', variant: 'destructive' });
+      return;
+    }
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('criar-usuario', {
-        body: {
-          email: email.trim().toLowerCase(),
-          nomeCompleto: nomeCompleto.trim() || null,
-          nomeConfeitaria: nomeConfeitaria.trim() || null,
-          planoId,
-          planoTipo,
-          planoInicio: planoInicio ? formatDateToISO(planoInicio) : getTodayISO(),
-          planoFim: planoFim ? formatDateToISO(planoFim) : null,
-          imersaoTurma: isImersao ? (imersaoTurma.trim() || null) : null,
-        },
-      });
+      const body: any = {
+        email: email.trim().toLowerCase(),
+        nomeCompleto: nomeCompleto.trim() || null,
+        nomeConfeitaria: nomeConfeitaria.trim() || null,
+        tipoUsuario,
+      };
 
+      if (isMembro) {
+        body.groupId = groupId;
+        body.roleGroup = roleGroup;
+      } else {
+        // Mestre: cria grupo novo e plano
+        body.planoId = planoId;
+        body.planoTipo = planoTipo;
+        body.planoInicio = planoInicio ? formatDateToISO(planoInicio) : getTodayISO();
+        body.planoFim = planoFim ? formatDateToISO(planoFim) : null;
+        body.imersaoTurma = isImersao ? (imersaoTurma.trim() || null) : null;
+      }
+
+      const { data, error } = await supabase.functions.invoke('criar-usuario', { body });
       if (error) throw error;
       if (!data?.success) throw new Error(data?.error || 'Erro ao criar usuário');
 
       toast({
-        title: data.updated ? '✅ Plano atualizado' : data.reactivated ? '✅ Usuário reativado' : '✅ Usuário criado',
-        description: isImersao
-          ? `Aluna da Imersão criada com ${IMERSAO_DIAS_ACESSO} dias de acesso completo ao sistema.`
-          : data.updated
-            ? 'O plano do usuário foi atualizado com sucesso.'
-            : 'O usuário foi criado e um email de boas-vindas foi enviado.',
+        title: data.updated ? '✅ Usuário atualizado' : data.reactivated ? '✅ Usuário reativado' : '✅ Usuário criado',
+        description: isMembro
+          ? 'Membro vinculado ao grupo. Não precisa passar pelo onboarding.'
+          : isImersao
+            ? `Aluna da Imersão criada com ${IMERSAO_DIAS_ACESSO} dias de acesso completo.`
+            : 'Usuário mestre criado com novo grupo. Email de boas-vindas enviado.',
       });
 
       resetForm();
@@ -113,14 +147,48 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
           <DialogTitle>Criar Novo Usuário</DialogTitle>
           <DialogDescription>
-            O usuário será criado e receberá um email de boas-vindas com link de acesso.
+            Escolha se este usuário será o <strong>mestre</strong> de um novo grupo (passa pelo onboarding) ou um <strong>membro</strong> vinculado a um grupo existente.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Seletor tipo de usuário */}
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setTipoUsuario('mestre')}
+              className={`rounded-lg border-2 p-3 text-left transition ${
+                tipoUsuario === 'mestre'
+                  ? 'border-cda-vinho bg-cda-vinho/5'
+                  : 'border-border hover:border-cda-vinho/40'
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <Crown className="h-4 w-4 text-cda-dourado" />
+                <span className="font-semibold text-sm">Mestre</span>
+              </div>
+              <p className="text-xs text-muted-foreground">Cria um novo grupo. Faz o onboarding completo.</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => setTipoUsuario('membro')}
+              className={`rounded-lg border-2 p-3 text-left transition ${
+                tipoUsuario === 'membro'
+                  ? 'border-cda-vinho bg-cda-vinho/5'
+                  : 'border-border hover:border-cda-vinho/40'
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <Users className="h-4 w-4 text-cda-vinho" />
+                <span className="font-semibold text-sm">Membro</span>
+              </div>
+              <p className="text-xs text-muted-foreground">Vincula a grupo existente. Pula o onboarding.</p>
+            </button>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="email">Email *</Label>
             <Input id="email" type="email" placeholder="confeiteira@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
@@ -129,78 +197,101 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
             <Label htmlFor="nome">Nome Completo</Label>
             <Input id="nome" placeholder="Maria da Silva" value={nomeCompleto} onChange={e => setNomeCompleto(e.target.value)} />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="confeitaria">Nome da Confeitaria</Label>
-            <Input id="confeitaria" placeholder="Doces da Maria" value={nomeConfeitaria} onChange={e => setNomeConfeitaria(e.target.value)} />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Plano</Label>
-              <Select value={planoId} onValueChange={setPlanoId}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="base">Caixa Lite</SelectItem>
-                  <SelectItem value="negocio">Caixa Business</SelectItem>
-                  <SelectItem value="aluna_imersao">Aluna da Imersão (30 dias)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Periodicidade</Label>
-              <Select value={planoTipo} onValueChange={setPlanoTipo} disabled={planoId === 'base' || isImersao}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {planoId === 'negocio' && <SelectItem value="mensal">Mensal (30 dias)</SelectItem>}
-                  {(planoId === 'base' || planoId === 'negocio') && <SelectItem value="anual">Anual (365 dias)</SelectItem>}
-                  {isImersao && <SelectItem value="imersao">Imersão ({IMERSAO_DIAS_ACESSO} dias)</SelectItem>}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
 
-          {isImersao && (
-            <div className="rounded-md border border-cda-dourado/40 bg-cda-dourado/10 p-3 space-y-2">
-              <div className="flex items-center gap-2 text-sm font-semibold text-cda-preto">
-                <Sparkles className="h-4 w-4 text-cda-dourado" />
-                Aluna da Imersão A Receita que Faltava
-              </div>
-              <p className="text-xs text-cda-preto/80">
-                Acesso completo ao Caixa Business por {IMERSAO_DIAS_ACESSO} dias. Após esse período, a conta fica
-                inativa automaticamente — os dados ficam preservados para reativação futura.
-              </p>
-              <div className="space-y-1.5">
-                <Label htmlFor="imersao-turma" className="text-xs">Turma (opcional)</Label>
-                <Input
-                  id="imersao-turma"
-                  placeholder="Ex.: Turma 01 — Out/2026"
-                  value={imersaoTurma}
-                  onChange={e => setImersaoTurma(e.target.value)}
-                />
-              </div>
+          {!isMembro && (
+            <div className="space-y-2">
+              <Label htmlFor="confeitaria">Nome da Confeitaria (será o nome do grupo)</Label>
+              <Input id="confeitaria" placeholder="Doces da Maria" value={nomeConfeitaria} onChange={e => setNomeConfeitaria(e.target.value)} />
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Data Início</Label>
-              <DatePickerField value={planoInicio} onChange={setPlanoInicio} placeholder="Data início..." />
-            </div>
-            <div className="space-y-2">
-              <Label>Data Expiração</Label>
-              <DatePickerField value={planoFim} onChange={setPlanoFim} placeholder="Data expiração..." />
-            </div>
-          </div>
+          {isMembro ? (
+            <>
+              <div className="space-y-2">
+                <Label>Grupo destino *</Label>
+                <Select value={groupId} onValueChange={setGroupId}>
+                  <SelectTrigger><SelectValue placeholder="Selecione o grupo" /></SelectTrigger>
+                  <SelectContent>
+                    {groups.map(g => (
+                      <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Papel no Grupo</Label>
+                <Select value={roleGroup} onValueChange={(v) => setRoleGroup(v as 'ADMIN' | 'USER')}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="USER">Usuário (permissões granulares)</SelectItem>
+                    <SelectItem value="ADMIN">Administrador (acesso total ao grupo)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Membros herdam o plano do mestre do grupo. Sem campos de plano/expiração.
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Plano</Label>
+                  <Select value={planoId} onValueChange={setPlanoId}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="base">Caixa Lite</SelectItem>
+                      <SelectItem value="negocio">Caixa Business</SelectItem>
+                      <SelectItem value="aluna_imersao">Aluna da Imersão (30 dias)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Periodicidade</Label>
+                  <Select value={planoTipo} onValueChange={setPlanoTipo} disabled={planoId === 'base' || isImersao}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {planoId === 'negocio' && <SelectItem value="mensal">Mensal (30 dias)</SelectItem>}
+                      {(planoId === 'base' || planoId === 'negocio') && <SelectItem value="anual">Anual (365 dias)</SelectItem>}
+                      {isImersao && <SelectItem value="imersao">Imersão ({IMERSAO_DIAS_ACESSO} dias)</SelectItem>}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {isImersao && (
+                <div className="rounded-md border border-cda-dourado/40 bg-cda-dourado/10 p-3 space-y-2">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-cda-preto">
+                    <Sparkles className="h-4 w-4 text-cda-dourado" />
+                    Aluna da Imersão A Receita que Faltava
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="imersao-turma" className="text-xs">Turma (opcional)</Label>
+                    <Input id="imersao-turma" placeholder="Ex.: Turma 01 — Out/2026" value={imersaoTurma} onChange={e => setImersaoTurma(e.target.value)} />
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Data Início</Label>
+                  <DatePickerField value={planoInicio} onChange={setPlanoInicio} placeholder="Data início..." />
+                </div>
+                <div className="space-y-2">
+                  <Label>Data Expiração</Label>
+                  <DatePickerField value={planoFim} onChange={setPlanoFim} placeholder="Data expiração..." />
+                </div>
+              </div>
+            </>
+          )}
+
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
               Cancelar
             </Button>
             <Button type="submit" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Criar Usuário
+              {isMembro ? 'Criar Membro' : 'Criar Mestre'}
             </Button>
           </DialogFooter>
         </form>

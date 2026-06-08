@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Building2, Plus, UserPlus, Trash2, Settings, ChevronDown, ChevronUp, Shield, User } from 'lucide-react';
+import { Building2, Plus, UserPlus, Trash2, Settings, ChevronDown, ChevronUp, Shield, User, Crown } from 'lucide-react';
 
 interface Group {
   id: string;
@@ -33,7 +33,9 @@ interface Group {
   is_active: boolean;
   created_at: string;
   created_by_user_id: string | null;
+  master_user_id: string | null;
 }
+
 
 interface UserLite {
   id: string;
@@ -152,9 +154,14 @@ export default function GruposManager() {
   const handleCreateGroup = async () => {
     if (!newGroupName.trim()) { toast.error('Nome do grupo é obrigatório'); return; }
     try {
+      // MOTHER cria grupo: ela mesma vira mestre por padrão (pode ser transferido depois).
       const { error } = await supabase
         .from('groups')
-        .insert({ name: newGroupName.trim(), created_by_user_id: user?.id });
+        .insert({
+          name: newGroupName.trim(),
+          created_by_user_id: user?.id,
+          master_user_id: user?.id,
+        } as any);
       if (error) throw error;
       toast.success('Grupo criado com sucesso!');
       setNewGroupName('');
@@ -165,6 +172,7 @@ export default function GruposManager() {
       toast.error('Erro ao criar grupo: ' + e.message);
     }
   };
+
 
   const handleToggleGroupActive = async (group: Group) => {
     try {
@@ -202,7 +210,16 @@ export default function GruposManager() {
     }
   };
 
+  const isMasterOfGroup = (member: GroupMember): boolean => {
+    const g = groups.find((g) => g.id === member.group_id);
+    return !!g && g.master_user_id === member.user_id;
+  };
+
   const handleRemoveMember = async (member: GroupMember) => {
+    if (isMasterOfGroup(member)) {
+      toast.error('Não é possível remover o mestre do grupo. Transfira a mestria primeiro.');
+      return;
+    }
     if (!confirm(`Remover ${member.nome_completo || member.email} do grupo?`)) return;
     try {
       const { error } = await supabase.from('user_group_roles').delete().eq('id', member.id);
@@ -215,6 +232,10 @@ export default function GruposManager() {
   };
 
   const handleToggleMemberActive = async (member: GroupMember) => {
+    if (isMasterOfGroup(member)) {
+      toast.error('Não é possível desativar o mestre do grupo.');
+      return;
+    }
     try {
       const { error } = await supabase
         .from('user_group_roles')
@@ -227,6 +248,10 @@ export default function GruposManager() {
   };
 
   const handleChangeRole = async (member: GroupMember, newRole: 'ADMIN' | 'USER') => {
+    if (isMasterOfGroup(member) && newRole !== 'ADMIN') {
+      toast.error('O mestre do grupo deve permanecer como ADMIN.');
+      return;
+    }
     try {
       const flags = newRole === 'ADMIN' ? ADMIN_FLAGS : USER_FLAGS;
       const { error } = await supabase
@@ -240,6 +265,7 @@ export default function GruposManager() {
       toast.error('Erro ao atualizar papel: ' + e.message);
     }
   };
+
 
   const handleTogglePermission = async (member: GroupMember, key: keyof PermissionFlags) => {
     try {
@@ -367,12 +393,16 @@ export default function GruposManager() {
                         Nenhum membro neste grupo ainda.
                       </p>
                     ) : (
-                      groupMembers.map((m) => (
-                        <div key={m.id} className="border rounded-lg p-3 space-y-2 bg-muted/30">
+                      groupMembers.map((m) => {
+                        const isMaster = isMasterOfGroup(m);
+                        return (
+                        <div key={m.id} className={`border rounded-lg p-3 space-y-2 ${isMaster ? 'bg-cda-dourado/10 border-cda-dourado/40' : 'bg-muted/30'}`}>
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                {m.role_group === 'ADMIN' ? (
+                              <div className="flex items-center gap-2 flex-wrap">
+                                {isMaster ? (
+                                  <Crown className="h-4 w-4 text-cda-dourado shrink-0" />
+                                ) : m.role_group === 'ADMIN' ? (
                                   <Shield className="h-4 w-4 text-primary shrink-0" />
                                 ) : (
                                   <User className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -380,6 +410,9 @@ export default function GruposManager() {
                                 <p className="font-medium text-sm truncate">
                                   {m.nome_completo || m.email}
                                 </p>
+                                {isMaster && (
+                                  <Badge className="bg-cda-dourado text-cda-preto text-[10px]">Mestre</Badge>
+                                )}
                               </div>
                               {m.nome_completo && (
                                 <p className="text-xs text-muted-foreground truncate ml-6">{m.email}</p>
@@ -391,6 +424,7 @@ export default function GruposManager() {
                               </Badge>
                             </div>
                           </div>
+
 
                           <div className="flex flex-wrap gap-2 items-center">
                             <Select
@@ -451,7 +485,9 @@ export default function GruposManager() {
                             </div>
                           )}
                         </div>
-                      ))
+                        );
+                      })
+
                     )}
                   </div>
                 )}

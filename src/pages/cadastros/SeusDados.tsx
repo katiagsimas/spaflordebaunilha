@@ -101,11 +101,17 @@ const UF_LIST = [
   "PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO",
 ];
 
+import { useIsGroupMaster } from "@/hooks/useIsGroupMaster";
+import { MasterOnlyGuard } from "@/components/MasterOnlyGuard";
+
 export default function SeusDados() {
   const { user } = useAuth();
   const { activeGroup } = useGroup();
+  const { isMaster, isLoading: isMasterLoading } = useIsGroupMaster();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["profile", user?.id, activeGroup?.id],
@@ -361,13 +367,24 @@ export default function SeusDados() {
     updateProfileMutation.mutate(data);
   };
 
-  if (isLoading) {
+  if (isLoading || isMasterLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <LoadingMascote size={72} label="Carregando seus dados..." />
       </div>
     );
   }
+
+  // Membros (não-mestres) acessam apenas em modo leitura/aviso
+  if (!isMaster) {
+    return (
+      <div className="container max-w-3xl py-6 space-y-4">
+        <h1 className="text-2xl font-bold">Meus Dados</h1>
+        <MasterOnlyGuard recurso="dados da confeitaria">{null}</MasterOnlyGuard>
+      </div>
+    );
+  }
+
 
   return (
     <div className="space-y-6 relative">

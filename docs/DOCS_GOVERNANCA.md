@@ -208,3 +208,44 @@ Exibido para usuários com role `admin` em `user_roles`: Usuários, Logs de Aç�
 
 ### Footer
 Mostra: nome da confeitaria, email, badges de role (Admin/Usuário/MOTHER)
+
+---
+
+## 9. CONCEITO DE "MESTRE" DO GRUPO — atualização 08/06/2026
+
+Cada grupo tem um **mestre** (`groups.master_user_id`) — o usuário responsável pelos dados base:
+- Meus Dados (perfil/confeitaria, endereço, contatos)
+- Mão de Obra (perfis de produção)
+- Backup do grupo
+- Plano contratado (membros herdam)
+
+### Regras
+
+| Aspecto | Mestre (ADMIN principal) | Membro (USER ou ADMIN secundário) | MOTHER |
+|--------|-------------------------|-----------------------------------|--------|
+| Onboarding obrigatório | Sim | **Não** (pula direto p/ Dashboard) | Não |
+| Edita Meus Dados / Mão de Obra / Backup | Sim | Não (vê aviso "gerenciado por…") | Sim |
+| Plano | Próprio | Herda do mestre via `usePlano` | Acesso total |
+| Pode ser removido do grupo | Não (proteção UI) | Sim | Sim, se não for mestre |
+| Pode ser rebaixado para USER | Não | Sim | Sim, se não for mestre |
+
+### Fluxo "Criar Novo Usuário"
+
+O dialog admin (`/admin/usuarios`) agora pergunta **Mestre** ou **Membro**:
+- **Mestre**: cria um novo grupo automaticamente (nome = nome da confeitaria), com plano próprio. Passa pelo onboarding.
+- **Membro**: seleciona um grupo existente + papel (USER/ADMIN secundário). Sem campos de plano. `onboarding_concluido = true` automaticamente.
+
+### MOTHER em grupos
+
+MOTHER pode ser adicionada a qualquer grupo (no GruposManager) como ADMIN ou USER. Recebe acesso total ao grupo independentemente do papel.
+
+### Funções SQL adicionadas
+
+- `is_group_master(_user_id, _group_id)` — true se o usuário é o mestre.
+- `get_group_master(_group_id)` — retorna o `master_user_id`.
+- `user_is_any_group_master(_user_id)` — true se for mestre de algum grupo ativo (usado pelo `FirstAccessRedirect`).
+
+### Componentes adicionados
+
+- `src/hooks/useIsGroupMaster.ts` — hook para saber se o usuário atual é mestre do grupo ativo.
+- `src/components/MasterOnlyGuard.tsx` — card "Gerenciado pelo mestre" para membros que tentam acessar páginas de configuração base.

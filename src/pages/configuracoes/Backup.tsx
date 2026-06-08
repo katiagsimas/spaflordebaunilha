@@ -61,13 +61,18 @@ function gerarNomeBackup(nomeCompleto: string): string {
 
 const RETENCAO_OPCOES = [7, 15, 30, 60, 90, 180, 365];
 
+import { useIsGroupMaster } from "@/hooks/useIsGroupMaster";
+import { MasterOnlyGuard } from "@/components/MasterOnlyGuard";
+
 export default function Backup() {
   const { user } = useAuth();
   const { profile, loading: profileLoading } = useUserProfile();
   const { isMother } = useGroup();
+  const { isMaster, isLoading: isMasterLoading } = useIsGroupMaster();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const modulosVisiveis = modulosDisponiveis(isMother);
+
 
   const [backups, setBackups] = useState<BackupRecord[]>([]);
   const [realizandoBackup, setRealizandoBackup] = useState(false);
@@ -473,7 +478,17 @@ export default function Backup() {
     { name: "r", value: 100 - pct },
   ];
 
+  if (!isMasterLoading && !isMaster) {
+    return (
+      <div className="min-h-screen bg-background px-4 md:px-6 pt-6 pb-6 space-y-6">
+        <h1 className="text-2xl font-bold">Backups</h1>
+        <MasterOnlyGuard recurso="backups do grupo">{null}</MasterOnlyGuard>
+      </div>
+    );
+  }
+
   return (
+
     <div className="min-h-screen bg-background px-4 md:px-6 pt-1 pb-4 md:pb-6 space-y-6">
       {/* ===== HEADER PREMIUM (mesmo padrão do módulo Encomendas) ===== */}
       <div

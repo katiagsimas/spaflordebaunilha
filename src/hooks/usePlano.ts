@@ -70,10 +70,33 @@ export function usePlano() {
         } as Plano;
       }
 
+      // Resolver o "user efetivo": se for membro (USER/ADMIN) de um grupo cujo
+      // mestre é outra pessoa, usar o plano_id do mestre.
+      let planoUserId = user!.id;
+      try {
+        const { data: session } = await supabase
+          .from("user_active_session")
+          .select("active_group_id")
+          .eq("user_id", user!.id)
+          .maybeSingle();
+        const activeGroupId = (session as any)?.active_group_id || null;
+        if (activeGroupId) {
+          const { data: grp } = await supabase
+            .from("groups")
+            .select("master_user_id")
+            .eq("id", activeGroupId)
+            .maybeSingle();
+          const masterId = (grp as any)?.master_user_id || null;
+          if (masterId && masterId !== user!.id) {
+            planoUserId = masterId;
+          }
+        }
+      } catch {/* fallback ao próprio user */}
+
       const { data } = await supabase
         .from("profiles")
         .select("plano_id")
-        .eq("id", user!.id)
+        .eq("id", planoUserId)
         .single();
 
       if (!data?.plano_id) return { id: "base", nome: "Caixa Lite", descricao: null, ativo: true, em_breve: false } as Plano;
@@ -89,6 +112,7 @@ export function usePlano() {
     enabled: !!user?.id,
     staleTime: 1000 * 60 * 5,
   });
+
 
   const plano = planoData ?? null;
 

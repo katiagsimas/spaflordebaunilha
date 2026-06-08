@@ -93,6 +93,22 @@ Deno.serve(async (req) => {
     const requestBody = await req.json()
     const { email, nomeCompleto, nomeConfeitaria, planoId, role, imersaoTurma } = requestBody
 
+    // === NOVO: tipo de usuário (mestre/membro) ===
+    // tipoUsuario = 'mestre'  -> cria grupo novo (ou usa criarGrupo=true), passa pelo onboarding
+    // tipoUsuario = 'membro'  -> vincula a grupo existente, sem onboarding, herda plano do mestre
+    const tipoUsuario: 'mestre' | 'membro' = requestBody.tipoUsuario === 'membro' ? 'membro' : 'mestre'
+    const groupId: string | null = requestBody.groupId || null
+    const roleGroup: 'ADMIN' | 'USER' = requestBody.roleGroup === 'ADMIN' ? 'ADMIN' : 'USER'
+    const permissionFlags = requestBody.permissionFlags || null
+    const criarGrupoComNome: string | null = requestBody.criarGrupoComNome || null
+
+    if (tipoUsuario === 'membro' && !groupId) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Para criar membro, informe o groupId do grupo destino.' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      )
+    }
+
     const planoTipo = requestBody.planoTipo || null
     const hoje = new Date().toISOString().split('T')[0]
     let planoInicio: string | null = requestBody.planoInicio || hoje
@@ -112,7 +128,7 @@ Deno.serve(async (req) => {
 
     const isImersao = planoId === 'aluna_imersao'
 
-    console.log('Dados:', { email, nomeCompleto, nomeConfeitaria, planoId, planoTipo, planoInicio, planoFim, imersaoTurma })
+    console.log('Dados:', { email, tipoUsuario, groupId, roleGroup, planoId })
 
     // Verificar se o usuário existe no Auth
     const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers()
@@ -123,54 +139,54 @@ Deno.serve(async (req) => {
       .from('profiles')
       .select('id, email, ativo')
       .eq('email', email)
-      .single()
+      .maybeSingle()
 
-    const planoFields: Record<string, any> = {
-      plano_id: planoId || null,
-      plano_tipo: planoTipo,
-      plano_inicio: planoInicio,
-      plano_fim: planoFim,
-      origem_criacao: isImersao ? 'imersao' : 'admin',
+    // Para MEMBRO: não preenche campos de plano (herda do mestre)
+    const planoFields: Record<string, any> = tipoUsuario === 'membro'
+      ? { origem_criacao: 'admin_membro' }
+      : {
+          plano_id: planoId || null,
+          plano_tipo: planoTipo,
+          plano_inicio: planoInicio,
+          plano_fim: planoFim,
+          origem_criacao: isImersao ? 'imersao' : 'admin',
+        }
+
+    if (isImersao && tipoUsuario === 'mestre') {
+      planoFields.imersao_turma = imersaoTurma || null
     }
 
-    if (isImersao) {
-      planoFields.imersao_turma = imersaoTurma || null
+    // Marca onboarding_concluido=true para membros (não precisam passar pelo onboarding)
+    if (tipoUsuario === 'membro') {
+      planoFields.onboarding_concluido = true
+      planoFields.onboarding_iniciado = true
     }
 
     let userId: string
 
     if (existingAuthUser && existingProfile) {
+      userId = existingAuthUser.id
       if (existingProfile.ativo === true) {
-        userId = existingAuthUser.id
         await supabaseAdmin
           .from('profiles')
           .update({ ...planoFields, updated_at: new Date().toISOString() })
           .eq('id', userId)
-
-        return new Response(
-          JSON.stringify({ success: true, user: { id: userId }, reactivated: false, updated: true }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-        )
+      } else {
+        // Reativar
+        await supabaseAdmin
+          .from('profiles')
+          .update({
+            ativo: true,
+            nome_completo: nomeCompleto,
+            nome_confeitaria: nomeConfeitaria,
+            primeiro_acesso: true,
+            ...planoFields,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', userId)
+        await enviarEmailBoasVindas(email, nomeCompleto, planoId || 'base', planoTipo)
+        console.log('Usuário reativado:', userId)
       }
-
-      // Reativar
-      userId = existingAuthUser.id
-      await supabaseAdmin
-        .from('profiles')
-        .update({
-          ativo: true,
-          nome_completo: nomeCompleto,
-          nome_confeitaria: nomeConfeitaria,
-          primeiro_acesso: true,
-          ...planoFields,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', userId)
-
-      // Enviar email de boas-vindas via Resend
-      await enviarEmailBoasVindas(email, nomeCompleto, planoId, planoTipo)
-
-      console.log('Usuário reativado:', userId)
     } else if (existingAuthUser && !existingProfile) {
       userId = existingAuthUser.id
       await supabaseAdmin
@@ -181,38 +197,28 @@ Deno.serve(async (req) => {
           nome_completo: nomeCompleto,
           nome_confeitaria: nomeConfeitaria,
           ativo: true,
-          primeiro_acesso: true,
           ...planoFields,
+          primeiro_acesso: true,
         })
-
-      await enviarEmailBoasVindas(email, nomeCompleto, planoId, planoTipo)
-      console.log('Perfil criado para usuário existente:', userId)
+      await enviarEmailBoasVindas(email, nomeCompleto, planoId || 'base', planoTipo)
     } else {
-      // Novo usuário - criar com senha temporária (usuário define no primeiro acesso)
+      // Novo usuário - criar com senha temporária
       const senhaTemporaria = crypto.randomUUID()
-      
       const { data: createData, error: createError } = await supabaseAdmin.auth.admin.createUser({
         email,
         password: senhaTemporaria,
         email_confirm: true,
         user_metadata: { nome_completo: nomeCompleto, nome_confeitaria: nomeConfeitaria }
       })
-
-      if (createError || !createData.user) {
-        throw createError || new Error('Erro ao criar usuário')
-      }
-
+      if (createError || !createData.user) throw createError || new Error('Erro ao criar usuário')
       userId = createData.user.id
-      console.log('Novo usuário criado:', userId)
 
       await new Promise(resolve => setTimeout(resolve, 2000))
-
       await supabaseAdmin
         .from('profiles')
-        .update({ primeiro_acesso: true, ...planoFields })
+        .update({ ...planoFields, primeiro_acesso: true })
         .eq('id', userId)
 
-      // Gerar magic link para o email de boas-vindas
       const { data: linkData } = await supabaseAdmin.auth.admin.generateLink({
         type: 'magiclink',
         email,
@@ -220,11 +226,74 @@ Deno.serve(async (req) => {
           redirectTo: `${(Deno.env.get('SITE_URL') || 'https://www.caixadeacucar.com.br').replace(/\/+$/, '')}/dashboard`
         }
       })
-
       const magicLink = linkData?.properties?.action_link || null
-
-      await enviarEmailBoasVindas(email, nomeCompleto, planoId, planoTipo, magicLink)
+      await enviarEmailBoasVindas(email, nomeCompleto, planoId || 'base', planoTipo, magicLink)
     }
+
+    // === Vínculo com Grupo ===
+    let finalGroupId = groupId
+    if (tipoUsuario === 'mestre') {
+      // Cria um novo grupo automaticamente
+      const nomeGrupo = (criarGrupoComNome || nomeConfeitaria || nomeCompleto || email || 'Novo Grupo').trim()
+      const { data: novoGrupo, error: errGrupo } = await supabaseAdmin
+        .from('groups')
+        .insert({
+          name: nomeGrupo,
+          created_by_user_id: userId,
+          master_user_id: userId,
+          is_active: true,
+        })
+        .select('id')
+        .single()
+      if (errGrupo) {
+        console.error('Erro ao criar grupo:', errGrupo)
+      } else {
+        finalGroupId = novoGrupo.id
+      }
+    }
+
+    if (finalGroupId) {
+      const ADMIN_FLAGS = {
+        financeiro_view: true, financeiro_edit: true,
+        metas_view: true, metas_edit: true,
+        tarefas_view: true, tarefas_edit: true,
+        cadastros_view: true, cadastros_edit: true,
+        receitas_view: true, receitas_edit: true,
+        encomendas_view: true, encomendas_edit: true,
+        precificacao_view: true, precificacao_edit: true,
+        admin_users_manage: true,
+      }
+      const USER_FLAGS = {
+        financeiro_view: true, financeiro_edit: false,
+        metas_view: true, metas_edit: false,
+        tarefas_view: true, tarefas_edit: false,
+        cadastros_view: true, cadastros_edit: false,
+        receitas_view: true, receitas_edit: false,
+        encomendas_view: true, encomendas_edit: false,
+        precificacao_view: true, precificacao_edit: false,
+        admin_users_manage: false,
+      }
+      const effectiveRole = tipoUsuario === 'mestre' ? 'ADMIN' : roleGroup
+      const flags = effectiveRole === 'ADMIN' ? ADMIN_FLAGS : (permissionFlags || USER_FLAGS)
+
+      await supabaseAdmin.from('user_group_roles').upsert(
+        {
+          user_id: userId,
+          group_id: finalGroupId,
+          role_group: effectiveRole,
+          permission_flags: flags,
+          is_active: true,
+        },
+        { onConflict: 'user_id,group_id' }
+      )
+
+      // Define sessão ativa
+      await supabaseAdmin.from('user_active_session').upsert(
+        { user_id: userId, active_group_id: finalGroupId, mode: 'group' },
+        { onConflict: 'user_id' }
+      )
+    }
+
 
     // Gerenciar roles
     if (role && role !== 'user') {
