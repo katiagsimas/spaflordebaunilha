@@ -66,6 +66,9 @@ import * as XLSX from '@/lib/xlsxShim';
 import { BackButton } from '@/components/BackButton';
 
 export default function Embalagens() {
+  const { profile: userProfile } = useUserProfile();
+  const onboardingPendente = userProfile && !(userProfile as any).onboarding_concluido;
+
   const navigate = useNavigate();
   const { toast } = useToast();
   const [embalagens, setEmbalagens] = useState<any[]>([]);
@@ -282,6 +285,11 @@ export default function Embalagens() {
   };
 
   const handleSalvar = async () => {
+    if (onboardingPendente) {
+      toast.error("Conclua o onboarding para realizar esta ação!");
+      return;
+    }
+
     try {
       if (!tipoSelecionado) {
         toast({

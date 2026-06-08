@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useUserProfile } from '@/hooks/useUserProfile';
+
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { getTodayISO, addMonthsToDate, addDaysToDate } from '@/lib/dateUtils';
@@ -45,6 +47,9 @@ export default function ContasPagarFormView({
   onSucesso,
   onCancelar,
 }: ContasPagarFormViewProps) {
+  const { profile: userProfile } = useUserProfile();
+  const onboardingPendente = userProfile && !(userProfile as any).onboarding_concluido;
+
   const { toast } = useToast();
   const navigate = useNavigate();
   const isEdicao = !!contaId;
@@ -265,6 +270,15 @@ export default function ContasPagarFormView({
   };
 
   const handleSalvar = async () => {
+    if (onboardingPendente) {
+      toast({
+        title: 'Ação bloqueada',
+        description: 'Conclua o onboarding para realizar esta ação!',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
       if (parcelasGeradas.length === 0) {
         toast({

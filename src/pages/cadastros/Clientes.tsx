@@ -28,6 +28,9 @@ import { Badge } from "@/components/ui/badge";
 import * as XLSX from '@/lib/xlsxShim';
 
 export default function Clientes() {
+  const { profile: userProfile } = useUserProfile();
+  const onboardingPendente = userProfile && !(userProfile as any).onboarding_concluido;
+
   const navigate = useNavigate();
   const { clientes, loading: loadingClientes, createCliente, updateCliente, deleteCliente } = useClientes();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -67,6 +70,13 @@ export default function Clientes() {
   }, [editingCliente]);
 
   const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (onboardingPendente) {
+      toast.error("Conclua o onboarding para realizar esta ação!");
+      return;
+    }
+
     e.preventDefault();
 
     if (!formData.nome) {

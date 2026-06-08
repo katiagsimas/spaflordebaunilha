@@ -127,6 +127,9 @@ interface UploadImagemItem {
 }
 
 export default function ReceitaForm() {
+  const { profile: userProfile } = useUserProfile();
+  const onboardingPendente = userProfile && !(userProfile as any).onboarding_concluido;
+
   const navigate = useNavigate();
   const { id } = useParams();
   const { user } = useAuth();
@@ -401,6 +404,11 @@ export default function ReceitaForm() {
   };
 
   const handleAddIngrediente = () => {
+    if (onboardingPendente) {
+      toast.error("Conclua o onboarding para realizar esta ação!");
+      return;
+    }
+
     const novoIngrediente: IngredienteReceita = {
       id: Date.now().toString(),
       ingredienteId: "",
@@ -458,6 +466,11 @@ export default function ReceitaForm() {
   };
 
   const handleAddEmbalagem = () => {
+    if (onboardingPendente) {
+      toast.error("Conclua o onboarding para realizar esta ação!");
+      return;
+    }
+
     const novaEmbalagem: EmbalagemReceita = {
       id: Date.now().toString(),
       embalagemId: "",
@@ -491,7 +504,13 @@ export default function ReceitaForm() {
   };
 
   const handleQuantidadeEmbalagemChange = (index: number, quantidade: number) => {
-    const novasEmbalagens = [...embalagens];
+    if (onboardingPendente) {
+      toast.error("Conclua o onboarding para realizar esta ação!");
+      return;
+    }
+
+    const novosEmbalagens = [...embalagens];
+
     novasEmbalagens[index] = calcularCustosEmbalagem({
       ...novasEmbalagens[index],
       quantidadeUtilizada: quantidade,
@@ -705,7 +724,13 @@ export default function ReceitaForm() {
     
     // Se a imagem está no Storage (não é base64), deletar do Storage
     if (imagemUrl && !imagemUrl.startsWith('data:')) {
-      try {
+    if (onboardingPendente) {
+      toast.error("Conclua o onboarding para realizar esta ação!");
+      return;
+    }
+
+    try {
+
         const { error } = await supabase.storage
           .from('receitas')
           .remove([imagemUrl]);
