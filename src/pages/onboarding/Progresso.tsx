@@ -54,10 +54,25 @@ export default function OnboardingProgresso() {
         return valor && String(valor).trim() !== '';
       });
 
-      return {
-        meusDados: !!meusDadosConcluido,
-        maoObra: (moCount ?? 0) > 0,
+      const status = {
+        meus_dados: !!meusDadosConcluido,
+        mao_obra: (moCount ?? 0) > 0,
         backup: (bkpCount ?? 0) > 0,
+      };
+
+      // Salva o status atual no perfil para auditoria (silenciosamente)
+      if (profile && JSON.stringify((profile as any).onboarding_step_status) !== JSON.stringify(status)) {
+        supabase
+          .from("profiles")
+          .update({ onboarding_step_status: status } as any)
+          .eq("id", user.id)
+          .then();
+      }
+
+      return {
+        meusDados: status.meus_dados,
+        maoObra: status.mao_obra,
+        backup: status.backup,
       };
     },
     enabled: !!user && !!profile,
