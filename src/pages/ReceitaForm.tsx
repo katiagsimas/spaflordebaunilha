@@ -512,12 +512,13 @@ export default function ReceitaForm() {
 
     const novosEmbalagens = [...embalagens];
 
-    novasEmbalagens[index] = calcularCustosEmbalagem({
-      ...novasEmbalagens[index],
+    novosEmbalagens[index] = calcularCustosEmbalagem({
+      ...novosEmbalagens[index],
       quantidadeUtilizada: quantidade,
     });
-    setEmbalagens(novasEmbalagens);
+    setEmbalagens(novosEmbalagens);
   };
+
 
   const handleRemoveEmbalagem = (index: number) => {
     setEmbalagens(embalagens.filter((_, i) => i !== index));
