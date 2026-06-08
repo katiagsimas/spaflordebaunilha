@@ -1595,3 +1595,10 @@ Ver `docs/DOCS_GOVERNANCA.md` §9 para detalhes do modelo.
 
 ## 2026-06-08 — RLS transferencias_bancos
 - ✅ Adicionada política UPDATE "Users can update own transferencias" (USING/WITH CHECK `auth.uid() = usuario_id`) para permitir que usuários solo (sem `owner_group_id`) atualizem suas próprias transferências bancárias. Antes existiam apenas INSERT/SELECT/DELETE solo e UPDATE de grupo.
+
+## 2026-06-08 — Correções de segurança pós-scan
+
+- ✅ RLS habilitado em `member_plan_sync_logs` com política SELECT restrita a MOTHER. INSERT direto revogado; gravações apenas via função `log_member_plan_sync` (SECURITY DEFINER).
+- ✅ `log_member_plan_sync` agora define `search_path = public` (lint 0011).
+- ✅ Políticas INSERT/UPDATE/DELETE do bucket `assinaturas` reescritas para escopo de usuário (`auth.uid()::text = folder[1]`), consistente com a política SELECT. Membros do grupo não podem mais sobrescrever a assinatura de outro membro.
+- ℹ️ Finding sobre Realtime de `encomendas` marcado como não aplicável: o app não assina canais Realtime para essa tabela; leitura é feita via PostgREST com RLS por `owner_group_id`.
