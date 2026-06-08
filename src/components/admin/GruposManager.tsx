@@ -210,7 +210,16 @@ export default function GruposManager() {
     }
   };
 
+  const isMasterOfGroup = (member: GroupMember): boolean => {
+    const g = groups.find((g) => g.id === member.group_id);
+    return !!g && g.master_user_id === member.user_id;
+  };
+
   const handleRemoveMember = async (member: GroupMember) => {
+    if (isMasterOfGroup(member)) {
+      toast.error('Não é possível remover o mestre do grupo. Transfira a mestria primeiro.');
+      return;
+    }
     if (!confirm(`Remover ${member.nome_completo || member.email} do grupo?`)) return;
     try {
       const { error } = await supabase.from('user_group_roles').delete().eq('id', member.id);
@@ -223,6 +232,10 @@ export default function GruposManager() {
   };
 
   const handleToggleMemberActive = async (member: GroupMember) => {
+    if (isMasterOfGroup(member)) {
+      toast.error('Não é possível desativar o mestre do grupo.');
+      return;
+    }
     try {
       const { error } = await supabase
         .from('user_group_roles')
@@ -235,6 +248,10 @@ export default function GruposManager() {
   };
 
   const handleChangeRole = async (member: GroupMember, newRole: 'ADMIN' | 'USER') => {
+    if (isMasterOfGroup(member) && newRole !== 'ADMIN') {
+      toast.error('O mestre do grupo deve permanecer como ADMIN.');
+      return;
+    }
     try {
       const flags = newRole === 'ADMIN' ? ADMIN_FLAGS : USER_FLAGS;
       const { error } = await supabase
@@ -248,6 +265,7 @@ export default function GruposManager() {
       toast.error('Erro ao atualizar papel: ' + e.message);
     }
   };
+
 
   const handleTogglePermission = async (member: GroupMember, key: keyof PermissionFlags) => {
     try {
