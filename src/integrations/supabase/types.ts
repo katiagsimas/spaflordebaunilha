@@ -2278,6 +2278,56 @@ export type Database = {
           },
         ]
       }
+      member_plan_sync_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          group_id: string | null
+          id: string
+          master_id: string | null
+          member_id: string | null
+          plano_id_aplicado: string | null
+          plano_tipo_aplicado: string | null
+          status: string
+          vigencia_fim_aplicada: string | null
+          vigencia_inicio_aplicada: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          group_id?: string | null
+          id?: string
+          master_id?: string | null
+          member_id?: string | null
+          plano_id_aplicado?: string | null
+          plano_tipo_aplicado?: string | null
+          status?: string
+          vigencia_fim_aplicada?: string | null
+          vigencia_inicio_aplicada?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          group_id?: string | null
+          id?: string
+          master_id?: string | null
+          member_id?: string | null
+          plano_id_aplicado?: string | null
+          plano_tipo_aplicado?: string | null
+          status?: string
+          vigencia_fim_aplicada?: string | null
+          vigencia_inicio_aplicada?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_plan_sync_logs_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meu_salario_retiradas: {
         Row: {
           created_at: string
@@ -3854,6 +3904,7 @@ export type Database = {
           is_active: boolean | null
           permission_flags: Json | null
           role_group: Database["public"]["Enums"]["role_group"]
+          sync_status: string | null
           updated_at: string | null
           user_id: string
         }
@@ -3864,6 +3915,7 @@ export type Database = {
           is_active?: boolean | null
           permission_flags?: Json | null
           role_group?: Database["public"]["Enums"]["role_group"]
+          sync_status?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -3874,6 +3926,7 @@ export type Database = {
           is_active?: boolean | null
           permission_flags?: Json | null
           role_group?: Database["public"]["Enums"]["role_group"]
+          sync_status?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -4310,6 +4363,20 @@ export type Database = {
           p_details?: Json
           p_module?: string
           p_target_user_id?: string
+        }
+        Returns: undefined
+      }
+      log_member_plan_sync: {
+        Args: {
+          p_error?: string
+          p_fim: string
+          p_group_id: string
+          p_inicio: string
+          p_master_id: string
+          p_member_id: string
+          p_plano_id: string
+          p_status?: string
+          p_tipo: string
         }
         Returns: undefined
       }
