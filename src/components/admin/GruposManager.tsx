@@ -110,6 +110,12 @@ export default function GruposManager() {
   const [selectedRole, setSelectedRole] = useState<'ADMIN' | 'USER'>('USER');
   const [editingMember, setEditingMember] = useState<GroupMember | null>(null);
 
+  // Criação de novo membro a partir do grupo
+  const [addMode, setAddMode] = useState<'novo' | 'existente'>('novo');
+  const [creatingMember, setCreatingMember] = useState(false);
+  const [novoEmail, setNovoEmail] = useState('');
+  const [novoNome, setNovoNome] = useState('');
+
   useEffect(() => {
     if (isMother) loadData();
   }, [isMother]);
