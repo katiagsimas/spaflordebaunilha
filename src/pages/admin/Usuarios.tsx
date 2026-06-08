@@ -667,6 +667,7 @@ export default function Usuarios() {
                   <TableRow>
                     <TableHead>Nome Completo</TableHead>
                     <TableHead>Email</TableHead>
+                    <TableHead>Grupo</TableHead>
                     <TableHead>Plano</TableHead>
                     <TableHead>Permissões</TableHead>
                     <TableHead>Início do Plano</TableHead>
