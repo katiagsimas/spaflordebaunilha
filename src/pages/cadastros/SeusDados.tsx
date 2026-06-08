@@ -361,13 +361,24 @@ export default function SeusDados() {
     updateProfileMutation.mutate(data);
   };
 
-  if (isLoading) {
+  if (isLoading || isMasterLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <LoadingMascote size={72} label="Carregando seus dados..." />
       </div>
     );
   }
+
+  // Membros (não-mestres) acessam apenas em modo leitura/aviso
+  if (!isMaster) {
+    return (
+      <div className="container max-w-3xl py-6 space-y-4">
+        <h1 className="text-2xl font-bold">Meus Dados</h1>
+        <MasterOnlyGuard recurso="dados da confeitaria">{null}</MasterOnlyGuard>
+      </div>
+    );
+  }
+
 
   return (
     <div className="space-y-6 relative">
