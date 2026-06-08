@@ -1592,3 +1592,6 @@ Preservadas regras especiais: `padrao_sistema = false` para DELETE em `categoria
 - ✅ Dialog "Criar Novo Usuário" agora pergunta Mestre/Membro.
 
 Ver `docs/DOCS_GOVERNANCA.md` §9 para detalhes do modelo.
+
+## 2026-06-08 — RLS transferencias_bancos
+- ✅ Adicionada política UPDATE "Users can update own transferencias" (USING/WITH CHECK `auth.uid() = usuario_id`) para permitir que usuários solo (sem `owner_group_id`) atualizem suas próprias transferências bancárias. Antes existiam apenas INSERT/SELECT/DELETE solo e UPDATE de grupo.
