@@ -23,12 +23,17 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useGlobalLoading } from "@/contexts/GlobalLoadingContext";
 
+import { useIsGroupMaster } from "@/hooks/useIsGroupMaster";
+import { MasterOnlyGuard } from "@/components/MasterOnlyGuard";
+
 export default function MaoDeObra() {
   const { showLoading, hideLoading } = useGlobalLoading();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { profile, loading: profileLoading } = useUserProfile();
   const { perfis, isLoading: perfisLoading, createPerfil, updatePerfil, deletePerfil } = useMaoObraPerfis();
+  const { isMaster, isLoading: isMasterLoading } = useIsGroupMaster();
+
 
   // Estados para o diálogo de perfil
   const [dialogOpen, setDialogOpen] = useState(false);
