@@ -3,6 +3,9 @@ import { Users, Truck, Search, X, Plus, Eye, Phone, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AniversariantesPremiumCard } from "@/components/AniversariantesPremiumCard";
 import { useClientes } from "@/hooks/useClientes";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { toast } from "sonner";
+
 import { useFornecedores } from "@/hooks/useFornecedores";
 import { useFamiliares } from "@/hooks/useFamiliares";
 import { parseISOToDate } from "@/lib/dateUtils";
@@ -26,7 +29,11 @@ function formatDateBR(iso?: string | null) {
 }
 
 export default function ClientesFornecedores() {
+  const { profile: userProfile } = useUserProfile();
+  const onboardingPendente = userProfile && !(userProfile as any).onboarding_concluido;
+
   const navigate = useNavigate();
+
   const { clientes } = useClientes();
   const { fornecedores } = useFornecedores();
   const { familiares: allFamiliares } = useFamiliares();
@@ -183,7 +190,14 @@ export default function ClientesFornecedores() {
               <div className="pb-3 sm:pb-0">
                 <Button
                   className="bg-cda-vinho hover:bg-cda-vinho-escuro text-white"
-                  onClick={() => navigate(tab === "clientes" ? "/clientes" : "/fornecedores")}
+                  onClick={() => {
+                    if (onboardingPendente) {
+                      toast.error("Conclua o onboarding para realizar esta ação!");
+                      return;
+                    }
+                    navigate(tab === "clientes" ? "/clientes" : "/fornecedores");
+                  }}
+
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   {tab === "clientes" ? "Novo cliente" : "Novo fornecedor"}

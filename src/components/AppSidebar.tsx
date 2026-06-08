@@ -100,6 +100,24 @@ export function AppSidebar() {
   const simulating = motherEnabled && !!motherView;
   const effectiveIsMother = isMother && !simulating;
   const effectiveIsAdmin = isAdmin && !simulating;
+  
+  // Verificação de Onboarding Pendente
+  const { data: profileOnboarding } = useQuery({
+    queryKey: ['profile-onboarding', user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from('profiles')
+        .select('onboarding_concluido')
+        .eq('id', user.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const onboardingPendente = !effectiveIsAdmin && !effectiveIsMother && profileOnboarding && profileOnboarding.onboarding_concluido === false;
+
   const { rotaBloqueada, isLoading: isPlanoLoading, plano } = usePlano();
   const podeAcessarSsoDoce = effectiveIsAdmin || plano?.id === "negocio" || plano?.id === "aluna_imersao";
   const { temAcesso: podeAcessarConversaDoce } = useConversaDoceAccess();
@@ -213,7 +231,14 @@ export function AppSidebar() {
                     .filter((item) => (!item.adminOnly || effectiveIsAdmin) && (!item.motherOnly || effectiveIsMother) && (!item.ssoDoce || podeAcessarSsoDoce) && (!item.conversaDoce || podeAcessarConversaDoce))
                     .map((item) => {
                       const Icon = item.icon;
+                      
+                      // Esconder itens se o onboarding estiver pendente (exceto para Admin/Mother)
+                      const isBloqueadoPorOnboarding = onboardingPendente && ["Vendas", "Fichas Técnicas", "Receitas", "Ingredientes", "Clientes", "Parceiros"].some(t => item.title.includes(t));
+                      
+                      if (isBloqueadoPorOnboarding) return null;
+
                       const bloqueado = !isPlanoLoading && !effectiveIsAdmin && item.active && rotaBloqueada(item.url);
+
                       const isComingSoon = !item.active && !effectiveIsAdmin;
 
                       // Se o usuário é admin e o item é adminOnly+inactive, ele pode acessar

@@ -2319,6 +2319,36 @@ export type Database = {
           },
         ]
       }
+      onboarding_exception_logs: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string
+          details: Json | null
+          id: string
+          route: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          route: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          route?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       organizacao_doce_state: {
         Row: {
           created_at: string

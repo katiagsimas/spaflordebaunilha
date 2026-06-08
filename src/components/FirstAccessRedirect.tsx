@@ -105,7 +105,8 @@ export function FirstAccessRedirect() {
     }
 
     // A partir daqui, se não concluiu, redireciona para o Progresso se tentar acessar rotas protegidas
-    const rotasPermitidas = [ROTA_BEM_VINDA, ROTA_PROGRESSO, ROTA_CONCLUIDO, ROTA_DADOS, ROTA_MAO_OBRA, ROTA_BACKUP];
+    const rotasPermitidas = [ROTA_BEM_VINDA, ROTA_PROGRESSO, ROTA_CONCLUIDO, ROTA_DADOS, ROTA_MAO_OBRA, ROTA_BACKUP, '/onboarding'];
+
     const emRotaPermitida = rotasPermitidas.some((r) => location.pathname.startsWith(r));
 
     if (!emRotaPermitida) {

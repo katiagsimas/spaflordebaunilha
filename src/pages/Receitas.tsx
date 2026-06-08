@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, Copy, AlertTriangle, Loader2, CookingPot, FileDown, ArrowLeft } from "lucide-react";
@@ -8,6 +7,8 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useUserProfile } from "@/hooks/useUserProfile";
+
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,7 +17,11 @@ import { exportarReceitaPDF } from "@/utils/exportarReceitaPDF";
 
 
 export default function Receitas() {
+  const { profile: userProfile } = useUserProfile();
+  const onboardingPendente = userProfile && !(userProfile as any).onboarding_concluido;
+
   const navigate = useNavigate();
+
   const { resumos, isLoading } = useCalculosReceita();
   const [dialogAberto, setDialogAberto] = useState(false);
   const [receitaParaDeletar, setReceitaParaDeletar] = useState<string | null>(null);
@@ -119,9 +124,16 @@ export default function Receitas() {
 
       <div className="flex justify-start">
         <Button
-          onClick={() => navigate("/precificacao/ficha-tecnica/nova")}
+          onClick={() => {
+            if (onboardingPendente) {
+              toast.error("Conclua o onboarding para realizar esta ação!");
+              return;
+            }
+            navigate("/precificacao/ficha-tecnica/nova");
+          }}
           className="bg-cda-vinho text-cda-creme hover:bg-cda-vinho-escuro"
         >
+
           <Plus className="mr-2 h-4 w-4" />Nova Ficha Técnica
         </Button>
       </div>
