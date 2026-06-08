@@ -393,12 +393,16 @@ export default function GruposManager() {
                         Nenhum membro neste grupo ainda.
                       </p>
                     ) : (
-                      groupMembers.map((m) => (
-                        <div key={m.id} className="border rounded-lg p-3 space-y-2 bg-muted/30">
+                      groupMembers.map((m) => {
+                        const isMaster = isMasterOfGroup(m);
+                        return (
+                        <div key={m.id} className={`border rounded-lg p-3 space-y-2 ${isMaster ? 'bg-cda-dourado/10 border-cda-dourado/40' : 'bg-muted/30'}`}>
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                {m.role_group === 'ADMIN' ? (
+                              <div className="flex items-center gap-2 flex-wrap">
+                                {isMaster ? (
+                                  <Crown className="h-4 w-4 text-cda-dourado shrink-0" />
+                                ) : m.role_group === 'ADMIN' ? (
                                   <Shield className="h-4 w-4 text-primary shrink-0" />
                                 ) : (
                                   <User className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -406,6 +410,9 @@ export default function GruposManager() {
                                 <p className="font-medium text-sm truncate">
                                   {m.nome_completo || m.email}
                                 </p>
+                                {isMaster && (
+                                  <Badge className="bg-cda-dourado text-cda-preto text-[10px]">Mestre</Badge>
+                                )}
                               </div>
                               {m.nome_completo && (
                                 <p className="text-xs text-muted-foreground truncate ml-6">{m.email}</p>
@@ -417,6 +424,7 @@ export default function GruposManager() {
                               </Badge>
                             </div>
                           </div>
+
 
                           <div className="flex flex-wrap gap-2 items-center">
                             <Select
