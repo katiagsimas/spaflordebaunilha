@@ -112,7 +112,17 @@ export default function OnboardingProgresso() {
   const handleFinalizar = async () => {
     if (!user) return;
     try {
+      // Registrar log de conclusão do onboarding
+      await supabase.from('onboarding_exception_logs').insert({
+        user_id: user.id,
+        admin_id: user.id,
+        action: 'Conclusão de Onboarding',
+        route: location.pathname,
+        details: { timestamp: new Date().toISOString(), context: 'Fluxo Normal' }
+      });
+
       const { error } = await supabase
+
         .from("profiles")
         .update({ 
           onboarding_concluido: true,
