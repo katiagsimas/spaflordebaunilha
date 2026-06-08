@@ -101,11 +101,17 @@ const UF_LIST = [
   "PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO",
 ];
 
+import { useIsGroupMaster } from "@/hooks/useIsGroupMaster";
+import { MasterOnlyGuard } from "@/components/MasterOnlyGuard";
+
 export default function SeusDados() {
   const { user } = useAuth();
   const { activeGroup } = useGroup();
+  const { isMaster, isLoading: isMasterLoading } = useIsGroupMaster();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["profile", user?.id, activeGroup?.id],
