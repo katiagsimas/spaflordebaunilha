@@ -90,6 +90,11 @@ export function FirstAccessRedirect() {
     // Se já concluiu, nada a fazer
     if (onboardingConcluido) return;
 
+    // Não-mestre (USER ou ADMIN secundário em grupo de outra pessoa) pula o onboarding
+    if (loadingMaster) return;
+    if (isMasterOfAnyGroup === false) return;
+
+
     // Etapa 0: Boas-vindas — antes de qualquer cadastro
     if (!onboardingIniciado) {
       if (location.pathname !== ROTA_BEM_VINDA) {
