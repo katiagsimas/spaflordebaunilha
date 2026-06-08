@@ -330,6 +330,7 @@ export default function Ingredientes() {
     }
 
 
+
     try {
       if (!tipoSelecionado) {
         toast({
@@ -737,12 +738,10 @@ export default function Ingredientes() {
                               Editar
                             </DropdownMenuItem>
                             <DropdownMenuItem 
-                              onClick={() => {
-                                setIngredienteParaExcluir(ingrediente);
-                                setDialogExcluirAberto(true);
-                              }}
+                              onClick={() => handleExcluirIngrediente(ingrediente)}
                               className="text-destructive"
                             >
+
                               <Trash2 className="mr-2 h-4 w-4" />
                               Excluir
                             </DropdownMenuItem>
