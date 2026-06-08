@@ -24,8 +24,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Building2, Plus, UserPlus, Trash2, Settings, ChevronDown, ChevronUp, Shield, User, Crown } from 'lucide-react';
+import { Building2, Plus, UserPlus, Trash2, Settings, ChevronDown, ChevronUp, Shield, User, Crown, Loader2 } from 'lucide-react';
 
 interface Group {
   id: string;
