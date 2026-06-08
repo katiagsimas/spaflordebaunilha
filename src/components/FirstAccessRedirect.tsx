@@ -50,11 +50,30 @@ export function FirstAccessRedirect() {
     enabled: !!user && !!profile && profile.ativo !== false && !isAdmin && !isMother && !(profile as any).onboarding_concluido,
   });
 
+  // Verifica se o usuário é mestre de algum grupo ativo.
+  // Quem NÃO é mestre (apenas membro USER/ADMIN secundário) pula o onboarding.
+  const { data: isMasterOfAnyGroup, isLoading: loadingMaster } = useQuery({
+    queryKey: ['is-master-of-any-group', user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      const { data, error } = await supabase
+        .from('groups')
+        .select('id')
+        .eq('master_user_id', user.id)
+        .eq('is_active', true)
+        .limit(1);
+      if (error) return false;
+      return (data?.length ?? 0) > 0;
+    },
+    enabled: !!user && !!profile && !isAdmin && !isMother,
+  });
+
   useEffect(() => {
     if (isLoading || !profile || loadingAdmin) return;
 
     // Admins (legacy) e MOTHER têm acesso total — sem onboarding obrigatório
     if (isAdmin || isMother) return;
+
 
     // Usuário inativo → logout
     if (profile.ativo === false) {
