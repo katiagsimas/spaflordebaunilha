@@ -179,7 +179,7 @@ export default function Usuarios() {
   }, [profilesComRoles]);
 
   // Filtrar usuários
-  const usuariosFiltrados = profilesSemAdmin?.filter(usuario => {
+  const usuariosFiltrados = (profilesComRoles || [])?.filter(usuario => {
     const matchEmail = buscaEmail === "" || 
       usuario.email.toLowerCase().includes(buscaEmail.toLowerCase()) ||
       usuario.nome_completo?.toLowerCase().includes(buscaEmail.toLowerCase()) ||
@@ -208,8 +208,7 @@ export default function Usuarios() {
   // Função de exportar para Excel
   const exportarParaExcel = () => {
     const dadosExportacao = usuariosFiltrados.map(usuario => {
-      const userRoles = rolesByUser[usuario.id] || [];
-      const isAdmin = userRoles.includes('admin');
+      const isAdmin = usuario.role === 'admin';
       
       return {
         'Email': usuario.email,
