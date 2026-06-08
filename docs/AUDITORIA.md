@@ -1579,3 +1579,16 @@ Arquivos alterados:
 Preservadas regras especiais: `padrao_sistema = false` para DELETE em `categorias` e `tags_encomendas`.
 
 **UI:** `GruposManager` agora expande membros por grupo com gerenciamento de papel, ativar/desativar, remover e edição de permissões granulares.
+
+## ✅ 08/06/2026 — Refinamento de Grupos: Conceito de "Mestre"
+
+- ✅ Adicionada coluna `groups.master_user_id` (backfill automático com `created_by_user_id`).
+- ✅ Criadas funções `is_group_master`, `get_group_master`, `user_is_any_group_master`.
+- ✅ Edge `criar-usuario` aceita `tipoUsuario` (`mestre`|`membro`), `groupId`, `roleGroup`, `permissionFlags`. Membro herda plano do mestre e pula onboarding (`onboarding_concluido=true`).
+- ✅ `FirstAccessRedirect` pula onboarding se o usuário não é mestre de nenhum grupo ativo.
+- ✅ `usePlano` resolve plano efetivo lendo do mestre do grupo ativo quando o usuário é membro.
+- ✅ Páginas `/cadastros/seus-dados`, `/configuracoes/precificacao/mao-de-obra`, `/configuracoes/backup` mostram `MasterOnlyGuard` para não-mestres.
+- ✅ `GruposManager` mostra badge "Mestre" (Crown dourado), bloqueia remoção/desativação/rebaixamento do mestre, e MOTHER pode ser adicionada como ADMIN ou USER.
+- ✅ Dialog "Criar Novo Usuário" agora pergunta Mestre/Membro.
+
+Ver `docs/DOCS_GOVERNANCA.md` §9 para detalhes do modelo.
