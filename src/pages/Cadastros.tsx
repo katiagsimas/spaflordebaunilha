@@ -2,6 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { Scale, FlaskConical, Cake, ChevronLeft } from "lucide-react";
 import cadastrosHero from "@/assets/cadastros-hero-banner.jpg";
 import { HeroBanner } from "@/components/HeroBanner";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { toast } from "sonner";
+
 
 export default function Cadastros() {
   const { profile: userProfile } = useUserProfile();

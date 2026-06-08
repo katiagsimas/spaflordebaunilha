@@ -3,6 +3,9 @@ import { Users, Truck, Search, X, Plus, Eye, Phone, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AniversariantesPremiumCard } from "@/components/AniversariantesPremiumCard";
 import { useClientes } from "@/hooks/useClientes";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { toast } from "sonner";
+
 import { useFornecedores } from "@/hooks/useFornecedores";
 import { useFamiliares } from "@/hooks/useFamiliares";
 import { parseISOToDate } from "@/lib/dateUtils";
