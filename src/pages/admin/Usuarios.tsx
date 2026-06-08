@@ -692,9 +692,13 @@ export default function Usuarios() {
                     const groupName = group?.name || '-';
                     
                     // Lógica de onboarding: apenas masters de grupos (que não sejam Mother/Admin) passam por onboarding
+                    // Se o usuário não tem grupo ou é o master do seu próprio grupo, ele precisa de onboarding
                     const isMaster = !group || group.master_user_id === profile.id;
                     const isMotherOrAdmin = profile.role === 'mother' || profile.role === 'admin';
-                    const showOnboardingBadges = isMaster && !isMotherOrAdmin;
+                    
+                    // Um usuário é considerado "Membro" se ele está em um grupo e NÃO é o master dele
+                    const isMember = group && group.master_user_id !== profile.id;
+                    const showOnboardingBadges = !isMotherOrAdmin && !isMember;
 
                     return (
                       <TableRow key={profile.id}>
