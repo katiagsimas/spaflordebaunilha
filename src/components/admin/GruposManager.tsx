@@ -24,8 +24,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Building2, Plus, UserPlus, Trash2, Settings, ChevronDown, ChevronUp, Shield, User, Crown } from 'lucide-react';
+import { Building2, Plus, UserPlus, Trash2, Settings, ChevronDown, ChevronUp, Shield, User, Crown, Loader2 } from 'lucide-react';
 
 interface Group {
   id: string;
@@ -108,6 +109,12 @@ export default function GruposManager() {
   const [selectedUserId, setSelectedUserId] = useState('');
   const [selectedRole, setSelectedRole] = useState<'ADMIN' | 'USER'>('USER');
   const [editingMember, setEditingMember] = useState<GroupMember | null>(null);
+
+  // Criação de novo membro a partir do grupo
+  const [addMode, setAddMode] = useState<'novo' | 'existente'>('novo');
+  const [creatingMember, setCreatingMember] = useState(false);
+  const [novoEmail, setNovoEmail] = useState('');
+  const [novoNome, setNovoNome] = useState('');
 
   useEffect(() => {
     if (isMother) loadData();
@@ -201,14 +208,48 @@ export default function GruposManager() {
       );
       if (error) throw error;
       toast.success('Usuário adicionado ao grupo!');
-      setShowAddUserToGroupDialog(false);
-      setSelectedUserId('');
-      setSelectedRole('USER');
+      closeAddDialog();
       loadData();
     } catch (e: any) {
       toast.error('Erro ao adicionar usuário: ' + e.message);
     }
   };
+
+  const handleCreateNewMember = async () => {
+    if (!selectedGroup) return;
+    if (!novoEmail.trim()) { toast.error('Email obrigatório'); return; }
+    setCreatingMember(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('criar-usuario', {
+        body: {
+          email: novoEmail.trim().toLowerCase(),
+          nomeCompleto: novoNome.trim() || null,
+          tipoUsuario: 'membro',
+          groupId: selectedGroup.id,
+          roleGroup: selectedRole,
+        },
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || 'Erro ao criar membro');
+      toast.success('Membro criado e vinculado ao grupo. Email de acesso enviado.');
+      closeAddDialog();
+      loadData();
+    } catch (e: any) {
+      toast.error('Erro ao criar membro: ' + (e.message || ''));
+    } finally {
+      setCreatingMember(false);
+    }
+  };
+
+  const closeAddDialog = () => {
+    setShowAddUserToGroupDialog(false);
+    setSelectedUserId('');
+    setSelectedRole('USER');
+    setNovoEmail('');
+    setNovoNome('');
+    setAddMode('novo');
+  };
+
 
   const isMasterOfGroup = (member: GroupMember): boolean => {
     const g = groups.find((g) => g.id === member.group_id);
@@ -498,49 +539,88 @@ export default function GruposManager() {
       </div>
 
       {/* Add user dialog */}
-      <Dialog open={showAddUserToGroupDialog} onOpenChange={setShowAddUserToGroupDialog}>
-        <DialogContent>
+      <Dialog open={showAddUserToGroupDialog} onOpenChange={(o) => (o ? setShowAddUserToGroupDialog(true) : closeAddDialog())}>
+        <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
-            <DialogTitle>Adicionar Usuário ao Grupo</DialogTitle>
+            <DialogTitle>Adicionar membro ao grupo</DialogTitle>
             <DialogDescription>
-              Adicione um usuário ao grupo "{selectedGroup?.name}"
+              Grupo: <strong>{selectedGroup?.name}</strong>. Crie um novo usuário ou vincule um já existente.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Usuário</Label>
-              <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione um usuário" />
-                </SelectTrigger>
-                <SelectContent>
-                  {users
-                    .filter((u) => !(members[selectedGroup?.id || '']?.some((m) => m.user_id === u.id)))
-                    .map((u) => (
-                      <SelectItem key={u.id} value={u.id}>
-                        {u.nome_completo || u.email}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Papel no Grupo</Label>
-              <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as 'ADMIN' | 'USER')}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ADMIN">Administrador (todas as permissões)</SelectItem>
-                  <SelectItem value="USER">Usuário (permissões granulares)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddUserToGroupDialog(false)}>Cancelar</Button>
-            <Button onClick={handleAddUserToGroup}>Adicionar</Button>
-          </DialogFooter>
+          <Tabs value={addMode} onValueChange={(v) => setAddMode(v as 'novo' | 'existente')} className="pt-2">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="novo">Criar novo</TabsTrigger>
+              <TabsTrigger value="existente">Vincular existente</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="novo" className="space-y-4 pt-4">
+              <div className="space-y-2">
+                <Label htmlFor="novo-email">Email *</Label>
+                <Input id="novo-email" type="email" placeholder="confeiteira@email.com" value={novoEmail} onChange={(e) => setNovoEmail(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="novo-nome">Nome completo</Label>
+                <Input id="novo-nome" placeholder="Maria da Silva" value={novoNome} onChange={(e) => setNovoNome(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Papel no grupo</Label>
+                <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as 'ADMIN' | 'USER')}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="USER">Usuário (permissões granulares)</SelectItem>
+                    <SelectItem value="ADMIN">Administrador (acesso total ao grupo)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Membros herdam o plano do mestre. Não passam pelo onboarding.
+                </p>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={closeAddDialog} disabled={creatingMember}>Cancelar</Button>
+                <Button onClick={handleCreateNewMember} disabled={creatingMember}>
+                  {creatingMember && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                  Criar membro
+                </Button>
+              </DialogFooter>
+            </TabsContent>
+
+            <TabsContent value="existente" className="space-y-4 pt-4">
+              <div className="space-y-2">
+                <Label>Usuário</Label>
+                <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um usuário" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {users
+                      .filter((u) => !(members[selectedGroup?.id || '']?.some((m) => m.user_id === u.id)))
+                      .map((u) => (
+                        <SelectItem key={u.id} value={u.id}>
+                          {u.nome_completo || u.email}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Papel no Grupo</Label>
+                <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as 'ADMIN' | 'USER')}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="USER">Usuário (permissões granulares)</SelectItem>
+                    <SelectItem value="ADMIN">Administrador (acesso total ao grupo)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={closeAddDialog}>Cancelar</Button>
+                <Button onClick={handleAddUserToGroup}>Vincular</Button>
+              </DialogFooter>
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
+
 
       {/* Edit permissions dialog */}
       <Dialog open={!!editingMember} onOpenChange={(o) => !o && setEditingMember(null)}>
