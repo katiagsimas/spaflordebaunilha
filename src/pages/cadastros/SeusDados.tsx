@@ -336,7 +336,7 @@ export default function SeusDados() {
       toast.success("✅ Dados salvos com sucesso!");
       if (eraOnboarding) {
         setTimeout(
-          () => navigate("/configuracoes/precificacao/mao-de-obra", { replace: true }),
+          () => navigate("/onboarding/progresso", { replace: true }),
           50
         );
       }

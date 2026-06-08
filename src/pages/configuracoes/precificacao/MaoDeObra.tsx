@@ -119,20 +119,15 @@ export default function MaoDeObra() {
 
     setDialogOpen(false);
 
-    // Se era o primeiro perfil criado, avança o onboarding para Backup
+    // Se era o primeiro perfil criado, avança o onboarding
     if (eraVazio && !editingPerfil && profile?.id) {
       try {
         queryClient.removeQueries({ queryKey: ["onboarding-status"] });
         await queryClient.refetchQueries({ queryKey: ["mao_obra_perfis"], type: "active" });
         await queryClient.refetchQueries({ queryKey: ["onboarding-status"], type: "active" });
 
-        const { count } = await (supabase
-          .from("backups" as any)
-          .select("id", { count: "exact", head: true })
-          .eq("usuario_id", profile.id) as any);
-        if ((count ?? 0) === 0) {
-          setTimeout(() => navigate("/configuracoes/backup", { replace: true }), 50);
-        }
+        // Redireciona para o progresso do onboarding
+        setTimeout(() => navigate("/onboarding/progresso", { replace: true }), 50);
       } catch (e) {
         console.error("Erro ao avançar onboarding:", e);
       }

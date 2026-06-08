@@ -278,6 +278,11 @@ export default function Backup() {
         ? `salvo em "${backupLocation.getSavedFolderName()}"`
         : "baixado para sua pasta de Downloads";
       toast.success(`Backup "${nomeBackup}" gerado, na nuvem e ${ondeMsg}!`);
+      
+      const eraOnboarding = (profile as any)?.onboarding_concluido !== true;
+      if (eraOnboarding) {
+        setTimeout(() => navigate("/onboarding/progresso", { replace: true }), 1000);
+      }
     } catch (err: any) {
       toast.error("Erro ao realizar backup: " + err.message);
     } finally {

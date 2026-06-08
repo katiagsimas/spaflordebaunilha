@@ -7,6 +7,7 @@ import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useGroup } from '@/contexts/GroupContext';
 
 const ROTA_BEM_VINDA = '/onboarding/bem-vinda';
+const ROTA_PROGRESSO = '/onboarding/progresso';
 const ROTA_CONCLUIDO = '/onboarding/concluido';
 const ROTA_DADOS = '/configuracoes/dados-confeitaria';
 const ROTA_MAO_OBRA = '/configuracoes/precificacao/mao-de-obra';
@@ -103,59 +104,42 @@ export function FirstAccessRedirect() {
       return;
     }
 
-    // Etapa 1: Meus Dados (Dados da Confeitaria) — obrigatório para TODOS
-    const camposObrigatoriosMeusDados = [
-      'nome_completo',
-      'nome_confeitaria',
-      'cpf',
-      'whatsapp',
-      'cep',
-      'endereco',
-      'cidade',
-      'estado',
-    ] as const;
-    const dadosIncompletos =
-      profile.primeiro_acesso ||
-      camposObrigatoriosMeusDados.some((campo) => {
-        const valor = (profile as any)[campo];
-        return !valor || String(valor).trim() === '';
-      });
+    // A partir daqui, se não concluiu, redireciona para o Progresso se tentar acessar rotas protegidas
+    const rotasPermitidas = [ROTA_BEM_VINDA, ROTA_PROGRESSO, ROTA_CONCLUIDO, ROTA_DADOS, ROTA_MAO_OBRA, ROTA_BACKUP];
+    const emRotaPermitida = rotasPermitidas.some((r) => location.pathname.startsWith(r));
 
-    if (dadosIncompletos) {
-      if (location.pathname !== ROTA_DADOS) {
-        navigate(ROTA_DADOS, { replace: true });
-      }
+    if (!emRotaPermitida) {
+      navigate(ROTA_PROGRESSO, { replace: true });
       return;
     }
 
-    // Etapas 2 e 3 dependem de consultas adicionais
+    // Se estiver na tela de progresso e já concluiu tudo (mas ainda não clicou em finalizar), deixa lá
+    // Se não estiver em rota de cadastro e tentar pular passos, manda pro progresso
+    // Mas vamos simplificar: o Progresso é o HUB.
+    if (location.pathname === ROTA_PROGRESSO) return;
+
+    // Verificar se pode estar na rota atual baseado no progresso
     if (loadingOnboarding || !onboardingStatus) return;
     const { temMaoObra, temBackup } = onboardingStatus;
+    
+    const camposObrigatoriosMeusDados = ['nome_completo', 'nome_confeitaria', 'cpf', 'whatsapp', 'cep', 'endereco', 'cidade', 'estado'];
+    const meusDadosConcluido = profile && camposObrigatoriosMeusDados.every(campo => {
+      const valor = (profile as any)[campo];
+      return valor && String(valor).trim() !== '';
+    });
 
-    // Etapa 2: Mão de Obra
-    if (!temMaoObra) {
-      const rotasPermitidas = [ROTA_MAO_OBRA, ROTA_DADOS];
-      const emRotaPermitida = rotasPermitidas.some((r) => location.pathname.startsWith(r));
-      if (!emRotaPermitida) {
-        navigate(ROTA_MAO_OBRA, { replace: true });
-      }
+    // Bloqueio de avanço forçado:
+    if (location.pathname === ROTA_MAO_OBRA && !meusDadosConcluido) {
+      navigate(ROTA_PROGRESSO, { replace: true });
       return;
     }
-
-    // Etapa 3: Backup
-    if (!temBackup) {
-      const rotasPermitidas = [ROTA_BACKUP, ROTA_MAO_OBRA, ROTA_DADOS];
-      const emRotaPermitida = rotasPermitidas.some((r) => location.pathname.startsWith(r));
-      if (!emRotaPermitida) {
-        navigate(ROTA_BACKUP, { replace: true });
-      }
+    if (location.pathname === ROTA_BACKUP && (!meusDadosConcluido || !temMaoObra)) {
+      navigate(ROTA_PROGRESSO, { replace: true });
       return;
     }
-
-    // Etapa 4: Tudo preenchido, mas ainda não marcou onboarding_concluido
-    // → exibe o cartão de conclusão
-    if (location.pathname !== ROTA_CONCLUIDO) {
-      navigate(ROTA_CONCLUIDO, { replace: true });
+    if (location.pathname === ROTA_CONCLUIDO && (!meusDadosConcluido || !temMaoObra || !temBackup)) {
+      navigate(ROTA_PROGRESSO, { replace: true });
+      return;
     }
   }, [profile, isLoading, onboardingStatus, loadingOnboarding, location.pathname, navigate, isAdmin, isMother, loadingAdmin, isMasterOfAnyGroup, loadingMaster]);
 
