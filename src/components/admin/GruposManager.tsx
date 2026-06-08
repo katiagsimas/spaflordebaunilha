@@ -208,14 +208,48 @@ export default function GruposManager() {
       );
       if (error) throw error;
       toast.success('Usuário adicionado ao grupo!');
-      setShowAddUserToGroupDialog(false);
-      setSelectedUserId('');
-      setSelectedRole('USER');
+      closeAddDialog();
       loadData();
     } catch (e: any) {
       toast.error('Erro ao adicionar usuário: ' + e.message);
     }
   };
+
+  const handleCreateNewMember = async () => {
+    if (!selectedGroup) return;
+    if (!novoEmail.trim()) { toast.error('Email obrigatório'); return; }
+    setCreatingMember(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('criar-usuario', {
+        body: {
+          email: novoEmail.trim().toLowerCase(),
+          nomeCompleto: novoNome.trim() || null,
+          tipoUsuario: 'membro',
+          groupId: selectedGroup.id,
+          roleGroup: selectedRole,
+        },
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || 'Erro ao criar membro');
+      toast.success('Membro criado e vinculado ao grupo. Email de acesso enviado.');
+      closeAddDialog();
+      loadData();
+    } catch (e: any) {
+      toast.error('Erro ao criar membro: ' + (e.message || ''));
+    } finally {
+      setCreatingMember(false);
+    }
+  };
+
+  const closeAddDialog = () => {
+    setShowAddUserToGroupDialog(false);
+    setSelectedUserId('');
+    setSelectedRole('USER');
+    setNovoEmail('');
+    setNovoNome('');
+    setAddMode('novo');
+  };
+
 
   const isMasterOfGroup = (member: GroupMember): boolean => {
     const g = groups.find((g) => g.id === member.group_id);
