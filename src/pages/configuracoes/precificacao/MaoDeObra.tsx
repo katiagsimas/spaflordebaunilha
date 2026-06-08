@@ -170,13 +170,25 @@ export default function MaoDeObra() {
     return labels[acao] || acao;
   };
 
-  if (profileLoading || perfisLoading) {
+  if (profileLoading || perfisLoading || isMasterLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
+
+  if (!isMaster) {
+    return (
+      <div className="min-h-screen bg-background">
+        <PageHeader title="Mão de Obra" description="Configurada pelo mestre do grupo" />
+        <div className="container max-w-3xl py-6">
+          <MasterOnlyGuard recurso="perfis de mão de obra">{null}</MasterOnlyGuard>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen bg-background">
