@@ -22,7 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Loader2, Users, Shield, User, MoreVertical, Edit, UserX, Trash2, Search, UserCheck, Clock, AlertCircle, Download, UserPlus, KeyRound, CheckCircle2 } from 'lucide-react';
+import { Loader2, Users, Shield, User, MoreVertical, Edit, UserX, Trash2, Search, UserCheck, Clock, AlertCircle, Download, UserPlus, KeyRound, CheckCircle2, History, RefreshCcw } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useNavigate } from 'react-router-dom';
@@ -148,20 +148,20 @@ export default function Usuarios() {
   const { data: userGroupRolesData } = useQuery({
     queryKey: ['admin-user-group-roles'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('user_group_roles').select('user_id, group_id, role_group');
+      const { data, error } = await supabase.from('user_group_roles').select('user_id, group_id, role_group, sync_status');
       if (error) throw error;
       return data;
     },
     enabled: isAdmin,
   });
 
-  // Mapear grupo principal por usuário (considerando o primeiro encontrado ou o owner_group_id)
+  // Mapear grupo principal e status de sincronização por usuário
   const userGroupMap = userGroupRolesData?.reduce((acc, ugr) => {
     if (!acc[ugr.user_id]) {
-      acc[ugr.user_id] = ugr.group_id;
+      acc[ugr.user_id] = { groupId: ugr.group_id, syncStatus: ugr.sync_status };
     }
     return acc;
-  }, {} as Record<string, string>) || {};
+  }, {} as Record<string, { groupId: string, syncStatus: string | null }>) || {};
 
   // Buscar roles globais de todos os usuários (sistema novo)
   const { data: rolesData, isLoading: isLoadingRoles } = useQuery({
@@ -204,11 +204,16 @@ export default function Usuarios() {
     }
 
     // Lógica de herança de plano para a listagem
-    const groupId = u.owner_group_id || userGroupMap[u.id];
+    const userGroupData = userGroupMap[u.id];
+    const groupId = u.owner_group_id || userGroupData?.groupId;
     const group = groupId ? groupsMap[groupId] : null;
     const isMaster = !group || group.master_user_id === u.id;
     
-    let profileEfetivo = { ...u, role };
+    let profileEfetivo = { 
+      ...u, 
+      role, 
+      sync_status: isMaster ? 'mestre' : (userGroupData?.syncStatus || 'sincronizado') 
+    };
 
     // Se for membro, herda dados do plano do mestre
     if (!isMaster && group?.master_user_id) {
@@ -719,11 +724,26 @@ export default function Usuarios() {
                     const isMember = group && group.master_user_id !== profile.id;
                     const showOnboardingBadges = !isMotherOrAdmin && !isMember;
 
+                    const syncStatus = (profile as any).sync_status;
+
                     return (
                       <TableRow key={profile.id}>
                         <TableCell className="font-medium">
                           <div className="flex flex-col gap-1">
-                            <span className="font-semibold">{profile.nome_completo || '-'}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold">{profile.nome_completo || '-'}</span>
+                              {isMember && (
+                                <div title={`Status de Sincronização: ${syncStatus}`}>
+                                  {syncStatus === 'erro' ? (
+                                    <AlertCircle className="h-3 w-3 text-red-500" />
+                                  ) : syncStatus === 'pendente' ? (
+                                    <RefreshCcw className="h-3 w-3 text-amber-500 animate-spin" />
+                                  ) : (
+                                    <CheckCircle2 className="h-3 w-3 text-green-500" />
+                                  )}
+                                </div>
+                              )}
+                            </div>
                             <div className="flex items-center gap-1.5 flex-wrap">
                               {showOnboardingBadges && (
                                 <>
@@ -842,9 +862,20 @@ export default function Usuarios() {
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => handleEditar(profile, mainRole)}>
                                 <Edit className="mr-2 h-4 w-4" />
-                                Editar
-                              </DropdownMenuItem>
-                              {profile.ativo !== false ? (
+                                 Editar
+                               </DropdownMenuItem>
+                               {isMember && (
+                                 <DropdownMenuItem onClick={() => {
+                                   toast({
+                                     title: "Histórico de Sincronização",
+                                     description: "Funcionalidade de auditoria detalhada sendo carregada...",
+                                   });
+                                 }}>
+                                   <History className="mr-2 h-4 w-4" />
+                                   Ver Histórico
+                                 </DropdownMenuItem>
+                               )}
+                               {profile.ativo !== false ? (
                                 <DropdownMenuItem 
                                   onClick={() => handleDesabilitar(profile)}
                                 >
