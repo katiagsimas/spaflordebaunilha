@@ -116,7 +116,8 @@ export function AppSidebar() {
     enabled: !!user,
   });
 
-  const onboardingPendente = !effectiveIsAdmin && !effectiveIsMother && profileOnboarding && profileOnboarding.onboarding_concluido === false;
+  const isMaster = !!user && activeGroup && activeGroup.master_user_id === user.id;
+  const onboardingPendente = !effectiveIsAdmin && !effectiveIsMother && isMaster && profileOnboarding && profileOnboarding.onboarding_concluido === false;
 
   const { rotaBloqueada, isLoading: isPlanoLoading, plano } = usePlano();
   const podeAcessarSsoDoce = effectiveIsAdmin || plano?.id === "negocio" || plano?.id === "aluna_imersao";
