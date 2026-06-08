@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useUserProfile } from "@/hooks/useUserProfile";
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -286,9 +288,14 @@ export default function Embalagens() {
 
   const handleSalvar = async () => {
     if (onboardingPendente) {
-      toast.error("Conclua o onboarding para realizar esta ação!");
+      toast({
+        title: 'Ação bloqueada',
+        description: 'Conclua o onboarding para realizar esta ação!',
+        variant: 'destructive',
+      });
       return;
     }
+
 
     try {
       if (!tipoSelecionado) {

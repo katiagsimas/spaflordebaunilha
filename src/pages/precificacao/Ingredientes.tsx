@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useReceitas } from '@/hooks/useReceitas';
+import { useUserProfile } from "@/hooks/useUserProfile";
+
 import { LoadingState } from '@/components/LoadingState';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -319,9 +321,14 @@ export default function Ingredientes() {
   };
   const handleSalvar = async () => {
     if (onboardingPendente) {
-      toast.error("Conclua o onboarding para realizar esta ação!");
+      toast({
+        title: 'Ação bloqueada',
+        description: 'Conclua o onboarding para realizar esta ação!',
+        variant: 'destructive',
+      });
       return;
     }
+
 
     try {
       if (!tipoSelecionado) {

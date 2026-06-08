@@ -15,6 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { useClientes } from "@/hooks/useClientes";
+import { useUserProfile } from "@/hooks/useUserProfile";
+
 import { useViaCEP } from "@/hooks/useViaCEP";
 import { Plus, Pencil, Trash2, Users, Search, ChevronDown, Download, Cake, MoreVertical, UserPlus } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";

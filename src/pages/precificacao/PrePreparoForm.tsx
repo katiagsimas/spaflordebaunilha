@@ -54,7 +54,9 @@ import { useMaoObraPerfis } from '@/hooks/useMaoObraPerfis';
 import { useUserProfile } from '@/hooks/useUserProfile';
 
 export default function PrePreparoForm() {
+  const { profile } = useUserProfile();
   const onboardingPendente = profile && !(profile as any).onboarding_concluido;
+
 
   const navigate = useNavigate();
   const { id } = useParams();
