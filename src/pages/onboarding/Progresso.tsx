@@ -218,12 +218,24 @@ export default function OnboardingProgresso() {
             <CheckCircle2 className="ml-2 h-5 w-5" />
           </Button>
         ) : (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3">
-            <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-amber-800 leading-relaxed">
-              <strong>Atenção:</strong> Você precisa completar todas as etapas acima para acessar o restante do sistema. 
-              Isso garante que sua experiência seja completa e segura.
-            </p>
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col gap-3">
+            <div className="flex gap-3">
+              <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-amber-800 leading-relaxed">
+                <strong>Atenção:</strong> Você precisa completar todas as etapas acima para acessar o restante do sistema. 
+                Isso garante que sua experiência seja completa e segura.
+              </p>
+            </div>
+            {!allCompleted && (
+              <div className="pl-8 flex flex-col gap-1">
+                <p className="text-[11px] font-semibold text-amber-900 uppercase">Etapas Pendentes:</p>
+                <ul className="text-[11px] text-amber-800 list-disc list-inside">
+                  {steps.filter(s => !s.completed).map(s => (
+                    <li key={s.id}>{s.title}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
 

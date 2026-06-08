@@ -155,12 +155,19 @@ export default function Usuarios() {
     return acc;
   }, {} as Record<string, string[]>) || {};
 
-  // Manter todos os perfis na listagem, mas identificar os admins
+  // Manter todos os perfis na listagem, mas identificar os admins e mothers
   const profilesComRoles = profiles?.map(u => {
     const roles = rolesByUser[u.id] || [];
+    let role = 'user';
+    if (roles.includes('admin')) {
+      // No sistema legado mapeado, 'admin' é MOTHER
+      role = 'mother';
+    } else if (roles.includes('moderator')) {
+      role = 'moderator';
+    }
     return {
       ...u,
-      role: roles.includes('admin') ? 'admin' : (roles.includes('moderator') ? 'moderator' : 'user')
+      role
     };
   });
 
@@ -437,6 +444,8 @@ export default function Usuarios() {
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
+      case 'mother':
+        return 'destructive';
       case 'admin':
         return 'destructive';
       case 'moderator':
@@ -448,6 +457,8 @@ export default function Usuarios() {
 
   const getRoleIcon = (role: string) => {
     switch (role) {
+      case 'mother':
+        return <Shield className="h-3 w-3" />;
       case 'admin':
         return <Shield className="h-3 w-3" />;
       case 'moderator':
@@ -459,6 +470,8 @@ export default function Usuarios() {
 
   const getRoleLabel = (role: string) => {
     switch (role) {
+      case 'mother':
+        return 'Mother';
       case 'admin':
         return 'Administrador';
       case 'moderator':
