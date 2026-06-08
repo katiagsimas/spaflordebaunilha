@@ -124,6 +124,7 @@ export default function Usuarios() {
       })) as UserProfile[];
     },
     enabled: isAdmin,
+    refetchInterval: 30000, // Atualiza a cada 30 segundos para refletir mudanças de plano/status
   });
 
   // Buscar todos os grupos para mapeamento
@@ -744,9 +745,16 @@ export default function Usuarios() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className="font-body text-xs">
-                            {profile.plano_id === 'negocio' ? 'Business' : profile.plano_id === 'aluna_imersao' ? 'Imersão' : profile.plano_id === 'controle' ? 'Controle' : 'Lite'}
-                          </Badge>
+                          <div className="flex flex-col gap-1">
+                            <Badge variant="outline" className="font-body text-xs w-fit">
+                              {profile.plano_id === 'negocio' ? 'Business' : profile.plano_id === 'aluna_imersao' ? 'Imersão' : profile.plano_id === 'controle' ? 'Controle' : 'Lite'}
+                            </Badge>
+                            {isMember && group && (
+                              <Badge variant="secondary" className="text-[9px] h-4 px-1 bg-slate-100 text-slate-600 border-slate-200 w-fit">
+                                HERDADO DO MESTRE
+                              </Badge>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-1 flex-wrap">
@@ -763,18 +771,28 @@ export default function Usuarios() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <span className="text-sm">
-                            {profile.plano_inicio
-                              ? new Date(profile.plano_inicio + 'T00:00:00').toLocaleDateString('pt-BR')
-                              : '-'}
-                          </span>
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-sm">
+                              {profile.plano_inicio
+                                ? new Date(profile.plano_inicio + 'T00:00:00').toLocaleDateString('pt-BR')
+                                : '-'}
+                            </span>
+                            {isMember && (
+                              <span className="text-[9px] text-muted-foreground uppercase">Vigência Herdada</span>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell>
-                          <span className="text-sm">
-                            {profile.plano_fim
-                              ? new Date(profile.plano_fim + 'T00:00:00').toLocaleDateString('pt-BR')
-                              : '-'}
-                          </span>
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-sm">
+                              {profile.plano_fim
+                                ? new Date(profile.plano_fim + 'T00:00:00').toLocaleDateString('pt-BR')
+                                : '-'}
+                            </span>
+                            {isMember && (
+                              <span className="text-[9px] text-muted-foreground uppercase">Vigência Herdada</span>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <Badge variant={profile.ativo !== false ? 'default' : 'secondary'}>
