@@ -68,8 +68,7 @@ const statusLabels = {
 };
 
 const Encomendas = () => {
-  const { profile: userProfile } = useUserProfile();
-  const onboardingPendente = userProfile && !(userProfile as any).onboarding_concluido;
+  const { onboardingPendente } = useOnboardingStatus();
 
   const navigate = useNavigate();
   const { encomendas, loading, createEncomenda, updateEncomenda, deleteEncomenda } = useEncomendas();

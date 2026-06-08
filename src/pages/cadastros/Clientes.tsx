@@ -30,8 +30,7 @@ import { Badge } from "@/components/ui/badge";
 import * as XLSX from '@/lib/xlsxShim';
 
 export default function Clientes() {
-  const { profile: userProfile } = useUserProfile();
-  const onboardingPendente = userProfile && !(userProfile as any).onboarding_concluido;
+  const { onboardingPendente } = useOnboardingStatus();
 
   const navigate = useNavigate();
   const { clientes, loading: loadingClientes, createCliente, updateCliente, deleteCliente } = useClientes();
