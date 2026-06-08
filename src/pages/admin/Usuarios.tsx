@@ -257,9 +257,13 @@ export default function Usuarios() {
     const dadosExportacao = usuariosFiltrados.map(usuario => {
       const isAdmin = usuario.role === 'admin';
       
+      const groupId = usuario.owner_group_id || userGroupMap[usuario.id];
+      const group = groupId ? groupsMap[groupId] : null;
+      
       return {
         'Email': usuario.email,
         'Nome Completo': usuario.nome_completo || 'N/A',
+        'Grupo': group?.name || 'N/A',
         'Status': usuario.ativo !== false ? 'Ativo' : 'Inativo',
         'Permissão': isAdmin ? 'Administrador' : 'Usuário',
         'Plano': getPlanoLabel(usuario.plano_id),
