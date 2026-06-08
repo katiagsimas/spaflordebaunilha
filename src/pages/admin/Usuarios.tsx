@@ -58,6 +58,7 @@ interface UserProfile {
   onboarding_concluido?: boolean;
   onboarding_concluido_at?: string | null;
   onboarding_step_status?: any;
+  owner_group_id?: string | null;
 }
 
 interface UserRole {
@@ -103,7 +104,7 @@ export default function Usuarios() {
     queryFn: async () => {
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, email, nome_completo, nome_confeitaria, created_at, ativo, plano_id, plano_inicio, plano_fim, plano_tipo, last_login, origem_criacao, onboarding_concluido, onboarding_concluido_at, onboarding_step_status')
+        .select('id, email, nome_completo, nome_confeitaria, created_at, ativo, plano_id, plano_inicio, plano_fim, plano_tipo, last_login, origem_criacao, onboarding_concluido, onboarding_concluido_at, onboarding_step_status, owner_group_id')
         .order('created_at', { ascending: false });
       
       if (profilesError) throw profilesError;
@@ -124,6 +125,42 @@ export default function Usuarios() {
     },
     enabled: isAdmin,
   });
+
+  // Buscar todos os grupos para mapeamento
+  const { data: groupsData } = useQuery({
+    queryKey: ['admin-all-groups'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('groups').select('id, name, master_user_id');
+      if (error) throw error;
+      return data;
+    },
+    enabled: isAdmin,
+  });
+
+  // Mapear grupos por ID
+  const groupsMap = groupsData?.reduce((acc, g) => {
+    acc[g.id] = g;
+    return acc;
+  }, {} as Record<string, { id: string; name: string; master_user_id: string | null }>) || {};
+
+  // Buscar todos os vínculos de usuários com grupos
+  const { data: userGroupRolesData } = useQuery({
+    queryKey: ['admin-user-group-roles'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('user_group_roles').select('user_id, group_id, role_group');
+      if (error) throw error;
+      return data;
+    },
+    enabled: isAdmin,
+  });
+
+  // Mapear grupo principal por usuário (considerando o primeiro encontrado ou o owner_group_id)
+  const userGroupMap = userGroupRolesData?.reduce((acc, ugr) => {
+    if (!acc[ugr.user_id]) {
+      acc[ugr.user_id] = ugr.group_id;
+    }
+    return acc;
+  }, {} as Record<string, string>) || {};
 
   // Buscar roles globais de todos os usuários (sistema novo)
   const { data: rolesData, isLoading: isLoadingRoles } = useQuery({
