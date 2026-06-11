@@ -322,9 +322,6 @@ const App = () => (
           {/* Meu Salário (Renda Doce) */}
           <Route path="/meu-salario" element={<ProtectedRoute><Layout><PlanoGuard><MeuSalario /></PlanoGuard></Layout></ProtectedRoute>} />
 
-          {/* Conversa Doce — admin-mãe + usuárias com acesso liberado */}
-          <Route path="/conversa-doce" element={<ProtectedRoute><Layout><ConversaDoceGuard><ConversaDoce /></ConversaDoceGuard></Layout></ProtectedRoute>} />
-          <Route path="/conversa-doce/respostas" element={<ProtectedRoute><Layout><ConversaDoceGuard><ConversaDoceRespostas /></ConversaDoceGuard></Layout></ProtectedRoute>} />
 
 
           {/* Comercial — Propostas e Contratos (Business + Imersão + Mother) */}
