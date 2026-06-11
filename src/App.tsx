@@ -319,8 +319,6 @@ const App = () => (
           <Route path="/estoque/ajuste" element={<ProtectedRoute><Layout><PlanoGuard><EstoqueAjuste /></PlanoGuard></Layout></ProtectedRoute>} />
           <Route path="/estoque/movimentacoes" element={<ProtectedRoute><Layout><PlanoGuard><EstoqueMovimentacoes /></PlanoGuard></Layout></ProtectedRoute>} />
           
-          {/* Planejamento — somente usuário MÃE (admin global) */}
-          <Route path="/planejamento" element={<ProtectedRoute><Layout><MotherGuard><Planejamento /></MotherGuard></Layout></ProtectedRoute>} />
           
 
           {/* Meu Salário (Renda Doce) */}
