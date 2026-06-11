@@ -56,17 +56,6 @@ export function AlertaExpiracaoPlano() {
           </AlertDescription>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          {ehImersao && (
-            <a
-              href={URL_UPGRADE_EXTERNO}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 bg-cda-coral text-cda-branco text-xs font-semibold px-3 py-1.5 rounded-md hover:bg-cda-coral/90 transition-colors"
-            >
-              Renovar agora
-              <ExternalLink className="h-3 w-3" />
-            </a>
-          )}
           <button
             onClick={() => setDismissed(true)}
             className="p-1 hover:bg-cda-preto/10 rounded transition-colors shrink-0"
