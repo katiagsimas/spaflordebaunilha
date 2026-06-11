@@ -56,7 +56,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
     ],
   },
   {
-    label: "MINHA OPERAÇÃO",
+    label: "MINHA PRODUÇÃO",
     items: [
       { title: "Cadastros", url: "/cadastros", icon: FileText, active: true },
       { title: "Cardápio", url: "/precificacao", icon: BookOpen, active: true },

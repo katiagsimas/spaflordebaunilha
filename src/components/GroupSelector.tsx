@@ -88,7 +88,7 @@ export function GroupSelector() {
         {isMother && (
           <>
             <DropdownMenuLabel className="text-xs text-muted-foreground">
-              Modo de Operação
+              Modo de Trabalho
             </DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() => handleChangeMode('system')}
