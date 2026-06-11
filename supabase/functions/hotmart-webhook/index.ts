@@ -366,6 +366,56 @@ Deno.serve(async (req) => {
             ...planoFields,
           })
 
+        // === Vínculo com Grupo (apenas se ainda não tiver um grupo como mestre) ===
+        const { data: existingGroup } = await supabaseAdmin
+          .from('groups')
+          .select('id')
+          .eq('master_user_id', userId)
+          .maybeSingle()
+
+        if (!existingGroup) {
+          const nomeGrupo = (buyerName || email || 'Nova Confeitaria').trim()
+          const { data: novoGrupo, error: errGrupo } = await supabaseAdmin
+            .from('groups')
+            .insert({
+              name: nomeGrupo,
+              created_by_user_id: userId,
+              master_user_id: userId,
+              is_active: true,
+            })
+            .select('id')
+            .single()
+
+          if (!errGrupo && novoGrupo) {
+            // Define permissões de admin no grupo
+            const ADMIN_FLAGS = {
+              financeiro_view: true, financeiro_edit: true,
+              metas_view: true, metas_edit: true,
+              tarefas_view: true, tarefas_edit: true,
+              cadastros_view: true, cadastros_edit: true,
+              receitas_view: true, receitas_edit: true,
+              encomendas_view: true, encomendas_edit: true,
+              precificacao_view: true, precificacao_edit: true,
+              admin_users_manage: true,
+            }
+
+            await supabaseAdmin.from('user_group_roles').upsert({
+              user_id: userId,
+              group_id: novoGrupo.id,
+              role_group: 'ADMIN',
+              permission_flags: ADMIN_FLAGS,
+              is_active: true,
+            }, { onConflict: 'user_id,group_id' })
+
+            // Define sessão ativa
+            await supabaseAdmin.from('user_active_session').upsert({
+              user_id: userId,
+              active_group_id: novoGrupo.id,
+              mode: 'group'
+            }, { onConflict: 'user_id' })
+          }
+        }
+
         await enviarEmailBoasVindas(email, buyerName, planoId)
         console.log('Perfil criado para usuário existente:', userId)
       } else {
