@@ -91,7 +91,7 @@ Deno.serve(async (req) => {
     }
 
     const requestBody = await req.json()
-    const { email, nomeCompleto, nomeConfeitaria, planoId, role, imersaoTurma } = requestBody
+    const { email, nomeCompleto, nomeConfeitaria, planoId, role } = requestBody
 
     // === NOVO: tipo de usuário (mestre/membro) ===
     // tipoUsuario = 'mestre'  -> cria grupo novo (ou usa criarGrupo=true), passa pelo onboarding
