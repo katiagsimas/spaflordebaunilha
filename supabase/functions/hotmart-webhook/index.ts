@@ -254,7 +254,6 @@ Deno.serve(async (req) => {
 
       // Classifica o evento para decidir como atualizar o perfil e quais e-mails enviar
       type TipoEvento =
-        | 'renovacao_imersao'
         | 'upgrade'
         | 'downgrade_agendado'
         | 'renovacao'
