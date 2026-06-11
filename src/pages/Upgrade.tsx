@@ -1,39 +1,12 @@
-import { Lock, ArrowLeft, MessageCircle, ExternalLink } from "lucide-react";
+import { Lock, ArrowLeft, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { usePlano } from "@/hooks/usePlano";
 import { Badge } from "@/components/ui/badge";
-import { URL_UPGRADE_EXTERNO } from "@/lib/constants";
 
 export default function Upgrade() {
   const navigate = useNavigate();
   const { plano } = usePlano();
-  const ehImersao = plano?.id === "aluna_imersao";
-
-  // Alunas da Imersão: redirecionar direto para a página externa de renovação
-  useEffect(() => {
-    if (ehImersao) {
-      window.location.href = URL_UPGRADE_EXTERNO;
-    }
-  }, [ehImersao]);
-
-  if (ehImersao) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-6">
-        <div className="text-center space-y-4">
-          <p className="text-muted-foreground font-body">Redirecionando para a página de renovação…</p>
-          <a
-            href={URL_UPGRADE_EXTERNO}
-            className="inline-flex items-center gap-2 text-cda-coral font-body underline"
-          >
-            Continuar manualmente
-            <ExternalLink className="h-4 w-4" />
-          </a>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
