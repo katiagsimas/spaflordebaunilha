@@ -262,9 +262,7 @@ Deno.serve(async (req) => {
 
       let tipoEvento: TipoEvento = 'criacao'
       if (existingUser && existingProfile) {
-        if (planoAnterior === 'aluna_imersao' && (planoId === 'base' || planoId === 'negocio')) {
-          tipoEvento = 'renovacao_imersao'
-        } else if (!ativoAnterior || !aindaVigente) {
+        if (!ativoAnterior || !aindaVigente) {
           tipoEvento = 'reativacao'
         } else if (planoAnterior === 'base' && planoId === 'negocio') {
           tipoEvento = 'upgrade'
