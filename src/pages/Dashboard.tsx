@@ -1297,9 +1297,6 @@ export default function Dashboard() {
               </div>
             ))}
 
-            {/* Meta do Mês */}
-            {/* Meta do Mês (Oculto - Módulo Planejamento Removido) */}
-            {null}
           </div>
         ) : (
           <div className="h-[300px]">
