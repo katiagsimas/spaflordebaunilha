@@ -90,9 +90,7 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
 
       toast({
         title: data.updated ? '✅ Usuário atualizado' : data.reactivated ? '✅ Usuário reativado' : '✅ Usuário criado',
-        description: isImersao
-          ? `Aluna da Imersão criada com ${IMERSAO_DIAS_ACESSO} dias de acesso completo. Grupo criado automaticamente.`
-          : 'Usuário mestre criado. Novo grupo gerado com o nome da confeitaria. Email de boas-vindas enviado.',
+        description: 'Usuário mestre criado. Novo grupo gerado com o nome da confeitaria. Email de boas-vindas enviado.',
       });
 
       resetForm();
