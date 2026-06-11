@@ -27,7 +27,6 @@ import EncomendasCalendarios from "./pages/EncomendasCalendarios";
 
 import Precificacao from "./pages/Precificacao";
 import Planejamento from "./pages/Planejamento";
-import PlanejamentoDoce from "./pages/PlanejamentoDoce";
 import SeusDados from "./pages/cadastros/SeusDados";
 import MaoDeObra from "./pages/configuracoes/precificacao/MaoDeObra";
 
@@ -92,7 +91,6 @@ import MeuSalario from "./pages/meu-salario/MeuSalario";
 import ConversaDoce from "./pages/conversa-doce/ConversaDoce";
 import ConversaDoceRespostas from "./pages/conversa-doce/ConversaDoceRespostas";
 // Módulo removido: OrganizacaoDoce
-import SSOReturnPage from "./pages/SSOReturnPage";
 import Propostas from "./pages/comercial/Propostas";
 import NovaProposta from "./pages/comercial/NovaProposta";
 import RelatorioPropostas from "./pages/comercial/RelatorioPropostas";
@@ -224,9 +222,6 @@ const App = () => (
             <Route path="/auth/forgot-password" element={<ForgotPassword />} />
             <Route path="/auth/reset-password" element={<ResetPassword />} />
 
-            {/* SSO público — retorno do Planejamento D.O.C.E. */}
-            <Route path="/sso-return" element={<SSOReturnPage />} />
-            <Route path="/sso-retorno" element={<SSOReturnPage />} />
           {/* Redirecionar raiz para Dashboard */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
