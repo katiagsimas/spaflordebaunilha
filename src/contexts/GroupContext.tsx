@@ -173,6 +173,13 @@ export function GroupProvider({ children }: { children: ReactNode }) {
   const setActiveGroup = async (groupId: string) => {
     if (!user) return;
     
+    // Validar se o usuário pertence ao grupo (ou é Mother)
+    const userBelongs = groups.some(g => g.id === groupId);
+    if (!userBelongs && !isMother) {
+      console.error('Tentativa de acesso a grupo não autorizado');
+      return;
+    }
+    
     try {
       await supabase
         .from('user_active_session')
@@ -191,7 +198,12 @@ export function GroupProvider({ children }: { children: ReactNode }) {
   };
 
   const setSessionMode = async (mode: SessionMode) => {
-    if (!user || !isMother) return;
+    if (!user || !isMother) {
+      if (!isMother && mode === 'system') {
+        console.error('Apenas administradores globais podem acessar o modo sistema');
+      }
+      return;
+    }
     
     try {
       await supabase
