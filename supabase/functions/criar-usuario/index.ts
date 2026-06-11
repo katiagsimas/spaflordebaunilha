@@ -230,22 +230,35 @@ Deno.serve(async (req) => {
     // === Vínculo com Grupo ===
     let finalGroupId = groupId
     if (tipoUsuario === 'mestre') {
-      // Cria um novo grupo automaticamente
-      const nomeGrupo = (criarGrupoComNome || nomeConfeitaria || nomeCompleto || email || 'Novo Grupo').trim()
-      const { data: novoGrupo, error: errGrupo } = await supabaseAdmin
+      // Verificar se já existe um grupo onde o usuário é mestre
+      const { data: existingGroup } = await supabaseAdmin
         .from('groups')
-        .insert({
-          name: nomeGrupo,
-          created_by_user_id: userId,
-          master_user_id: userId,
-          is_active: true,
-        })
         .select('id')
-        .single()
-      if (errGrupo) {
-        console.error('Erro ao criar grupo:', errGrupo)
+        .eq('master_user_id', userId)
+        .maybeSingle()
+
+      if (existingGroup) {
+        console.log('Mestre já possui grupo, mantendo o atual:', existingGroup.id)
+        finalGroupId = existingGroup.id
       } else {
-        finalGroupId = novoGrupo.id
+        // Cria um novo grupo apenas se não existir
+        const nomeGrupo = (criarGrupoComNome || nomeConfeitaria || nomeCompleto || email || 'Novo Grupo').trim()
+        const { data: novoGrupo, error: errGrupo } = await supabaseAdmin
+          .from('groups')
+          .insert({
+            name: nomeGrupo,
+            created_by_user_id: userId,
+            master_user_id: userId,
+            is_active: true,
+          })
+          .select('id')
+          .single()
+        
+        if (errGrupo) {
+          console.error('Erro ao criar grupo:', errGrupo)
+        } else {
+          finalGroupId = novoGrupo.id
+        }
       }
     }
 
