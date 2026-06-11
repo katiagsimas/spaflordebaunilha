@@ -17,7 +17,7 @@ export function isMotherUser(email?: string | null, isMother?: boolean): boolean
 function readStored(): MotherViewPlan {
   if (typeof window === 'undefined') return null;
   const v = localStorage.getItem(KEY);
-  return v === 'base' || v === 'negocio' || v === 'aluna_imersao' ? v : null;
+  return v === 'base' || v === 'negocio' ? v : null;
 }
 
 /**
