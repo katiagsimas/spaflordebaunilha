@@ -735,8 +735,7 @@ export function EditarUsuarioDialog({
                         Liberar acesso ao Conversa Doce
                       </label>
                       <p className="text-xs text-cda-creme/70">
-                        Para Aluna da Imersão, o acesso é vinculado automaticamente ao período do plano (30 dias).
-                        O histórico de favoritos é preservado após a expiração.
+                        O histórico de favoritos é preservado após a expiração do acesso.
                       </p>
                     </div>
                   </div>
