@@ -35,11 +35,10 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
   const [planoFim, setPlanoFim] = useState<Date | undefined>(undefined);
   const [imersaoTurma, setImersaoTurma] = useState('');
 
-  const isImersao = planoId === 'aluna_imersao';
+  const isImersao = false;
 
   useEffect(() => {
     if (planoId === 'base') setPlanoTipo('anual');
-    if (planoId === 'aluna_imersao') setPlanoTipo('imersao');
     if (planoId === 'negocio' && (planoTipo !== 'mensal' && planoTipo !== 'anual')) {
       setPlanoTipo('anual');
     }
