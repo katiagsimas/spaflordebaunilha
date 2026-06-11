@@ -2,7 +2,7 @@ import { useState } from "react";
 import { LayoutDashboard, Users, Cake, BookOpen, Settings, FileText, Building2, Lock, Package, Wallet, ClipboardList, CalendarCheck, Sparkles, MessageCircle, ListChecks, HardDrive, FileSignature, ScrollText } from "lucide-react";
 import { usePlano } from "@/hooks/usePlano";
 import { useMotherView } from "@/hooks/useMotherView";
-import { useConversaDoceAccess } from "@/hooks/useConversaDoceAccess";
+
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 
 import { NavLink } from "react-router-dom";
@@ -43,7 +43,7 @@ interface MenuItem {
   motherOnly?: boolean;
   motherUnlock?: boolean;
   ssoDoce?: boolean;
-  conversaDoce?: boolean;
+  
   comingSoonMessage?: string;
 }
 
@@ -77,7 +77,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
     items: [
       { title: "Meu Dinheiro", url: "/financeiro", icon: Wallet, active: true },
       { title: "Meu Salário", url: "/meu-salario", icon: Sparkles, active: true, adminOnly: true },
-      { title: "Conversa Doce", url: "/conversa-doce", icon: MessageCircle, active: true, conversaDoce: true },
+      
     ],
   },
   {
@@ -105,7 +105,7 @@ export function AppSidebar() {
 
   const { rotaBloqueada, isLoading: isPlanoLoading, plano } = usePlano();
   const podeAcessarSsoDoce = effectiveIsAdmin || plano?.id === "negocio" || plano?.id === "aluna_imersao";
-  const { temAcesso: podeAcessarConversaDoce } = useConversaDoceAccess();
+  
   const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
   const [comingSoonModal, setComingSoonModal] = useState<{ title: string; message: string } | null>(null);
   const [upgradeModal, setUpgradeModal] = useState<{ title: string } | null>(null);
@@ -213,7 +213,7 @@ export function AppSidebar() {
               <SidebarGroupContent>
                 <SidebarMenu>
                   {section.items
-                    .filter((item) => (!item.adminOnly || effectiveIsAdmin) && (!item.motherOnly || effectiveIsMother) && (!item.ssoDoce || podeAcessarSsoDoce) && (!item.conversaDoce || podeAcessarConversaDoce))
+                    .filter((item) => (!item.adminOnly || effectiveIsAdmin) && (!item.motherOnly || effectiveIsMother) && (!item.ssoDoce || podeAcessarSsoDoce))
                     .map((item) => {
                       const Icon = item.icon;
                       

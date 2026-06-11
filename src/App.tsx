@@ -82,14 +82,12 @@ import GovernancaHub from "./pages/Governanca";
 import Upgrade from "./pages/Upgrade";
 import { PlanoGuard } from "./components/PlanoGuard";
 import { MotherGuard } from "./components/MotherGuard";
-import { ConversaDoceGuard } from "./components/ConversaDoceGuard";
+
 import EstoqueDashboard from "./pages/estoque/EstoqueDashboard";
 import EstoqueEntrada from "./pages/estoque/EstoqueEntrada";
 import EstoqueAjuste from "./pages/estoque/EstoqueAjuste";
 import EstoqueMovimentacoes from "./pages/estoque/EstoqueMovimentacoes";
 import MeuSalario from "./pages/meu-salario/MeuSalario";
-import ConversaDoce from "./pages/conversa-doce/ConversaDoce";
-import ConversaDoceRespostas from "./pages/conversa-doce/ConversaDoceRespostas";
 
 import Propostas from "./pages/comercial/Propostas";
 import NovaProposta from "./pages/comercial/NovaProposta";
@@ -324,9 +322,6 @@ const App = () => (
           {/* Meu Salário (Renda Doce) */}
           <Route path="/meu-salario" element={<ProtectedRoute><Layout><PlanoGuard><MeuSalario /></PlanoGuard></Layout></ProtectedRoute>} />
 
-          {/* Conversa Doce — admin-mãe + usuárias com acesso liberado */}
-          <Route path="/conversa-doce" element={<ProtectedRoute><Layout><ConversaDoceGuard><ConversaDoce /></ConversaDoceGuard></Layout></ProtectedRoute>} />
-          <Route path="/conversa-doce/respostas" element={<ProtectedRoute><Layout><ConversaDoceGuard><ConversaDoceRespostas /></ConversaDoceGuard></Layout></ProtectedRoute>} />
 
 
           {/* Comercial — Propostas e Contratos (Business + Imersão + Mother) */}
