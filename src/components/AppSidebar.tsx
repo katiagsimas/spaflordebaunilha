@@ -61,7 +61,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
       { title: "Cadastros", url: "/cadastros", icon: FileText, active: true },
       { title: "Cardápio", url: "/precificacao", icon: BookOpen, active: true },
       { title: "Estoque", url: "/estoque", icon: Package, active: true },
-      { title: "Organização Doce", url: "/organizacao-doce", icon: ListChecks, active: true },
+      { title: "Gestão Operacional", url: "/operacao", icon: ListChecks, active: true },
     ],
   },
   {

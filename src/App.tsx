@@ -91,7 +91,7 @@ import EstoqueMovimentacoes from "./pages/estoque/EstoqueMovimentacoes";
 import MeuSalario from "./pages/meu-salario/MeuSalario";
 import ConversaDoce from "./pages/conversa-doce/ConversaDoce";
 import ConversaDoceRespostas from "./pages/conversa-doce/ConversaDoceRespostas";
-import OrganizacaoDoce from "./pages/organizacao-doce/OrganizacaoDoce";
+// Módulo removido: OrganizacaoDoce
 import SSOReturnPage from "./pages/SSOReturnPage";
 import Propostas from "./pages/comercial/Propostas";
 import NovaProposta from "./pages/comercial/NovaProposta";
@@ -336,7 +336,7 @@ const App = () => (
           <Route path="/conversa-doce/respostas" element={<ProtectedRoute><Layout><ConversaDoceGuard><ConversaDoceRespostas /></ConversaDoceGuard></Layout></ProtectedRoute>} />
 
           {/* Organização Doce — acesso livre para todos os usuários */}
-          <Route path="/organizacao-doce" element={<ProtectedRoute><Layout><OrganizacaoDoce /></Layout></ProtectedRoute>} />
+          {/* Módulo removido: organizacao-doce */}
 
           {/* Comercial — Propostas e Contratos (Business + Imersão + Mother) */}
           <Route path="/comercial/negociacoes" element={<ProtectedRoute><Layout><PlanoGuard><Negociacoes /></PlanoGuard></Layout></ProtectedRoute>} />
