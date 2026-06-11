@@ -330,8 +330,6 @@ const App = () => (
           <Route path="/conversa-doce" element={<ProtectedRoute><Layout><ConversaDoceGuard><ConversaDoce /></ConversaDoceGuard></Layout></ProtectedRoute>} />
           <Route path="/conversa-doce/respostas" element={<ProtectedRoute><Layout><ConversaDoceGuard><ConversaDoceRespostas /></ConversaDoceGuard></Layout></ProtectedRoute>} />
 
-          {/* Organização Doce — acesso livre para todos os usuários */}
-          {/* Módulo removido: organizacao-doce */}
 
           {/* Comercial — Propostas e Contratos (Business + Imersão + Mother) */}
           <Route path="/comercial/negociacoes" element={<ProtectedRoute><Layout><PlanoGuard><Negociacoes /></PlanoGuard></Layout></ProtectedRoute>} />
