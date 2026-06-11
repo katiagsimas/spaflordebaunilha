@@ -16,9 +16,7 @@ export function FloatingNavigation() {
   const location = useLocation();
   const [showTop, setShowTop] = useState(false);
 
-  const isAuthRoute = location.pathname.startsWith("/auth/") ||
-    location.pathname.startsWith("/sso-return") ||
-    location.pathname.startsWith("/sso-retorno");
+  const isAuthRoute = location.pathname.startsWith("/auth/");
   const isDashboard = location.pathname === "/" || location.pathname === "/dashboard";
 
   useEffect(() => {
