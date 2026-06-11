@@ -18,5 +18,5 @@ export function getPlanoLabel(planoId?: string | null): string {
 
 /** Plano que dá acesso completo aos módulos financeiros (Business). */
 export function isFullAccessPlano(planoId?: string | null): boolean {
-  return planoId === "negocio" || planoId === "aluna_imersao";
+  return planoId === "negocio";
 }
