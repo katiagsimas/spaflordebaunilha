@@ -339,10 +339,7 @@ Deno.serve(async (req) => {
             })
             .eq('id', userId)
 
-          if (tipoEvento === 'renovacao_imersao') {
-            await enviarEmailRenovacaoAluna(email, buyerName, planoId, planoFimEfetivo)
-            await enviarEmailRenovacaoAdmin(email, buyerName, planoId, planoFimEfetivo, `${product.id ?? ''}/${offerCode ?? ''}`)
-          } else if (tipoEvento === 'upgrade' || tipoEvento === 'renovacao') {
+          if (tipoEvento === 'upgrade' || tipoEvento === 'renovacao') {
             await enviarEmailMudancaPlanoAluna(email, buyerName, tipoEvento, {
               planoAnterior, planoNovo: planoId, planoFimNovo: planoFimEfetivo,
             })
