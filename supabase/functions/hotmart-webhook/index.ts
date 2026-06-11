@@ -631,6 +631,10 @@ async function enviarEmailBoasVindas(
   }
 }
 
+function formatarDataBR(iso: string): string {
+  const [y, m, d] = iso.split('-')
+  return `${d}/${m}/${y}`
+}
 
 // ============================================================
 // E-mails de mudança de plano (upgrade / downgrade / renovação)
