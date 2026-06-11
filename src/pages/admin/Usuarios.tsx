@@ -193,7 +193,6 @@ export default function Usuarios() {
     return acc;
   }, {} as Record<string, string[]>) || {};
 
-  // Manter todos os perfis na listagem, mas identificar os admins e mothers e aplicar herança de plano
   const profilesComRoles = profiles?.map(u => {
     const roles = rolesByUser[u.id] || [];
     let role = 'user';
