@@ -373,8 +373,6 @@ export default function GruposManager() {
 
       <div className="grid gap-4 md:grid-cols-2">
         {groups.map((group) => {
-          const groupMembers = members[group.id] || [];
-          const isOpen = !!expanded[group.id];
           return (
             <Card key={group.id} className={!group.is_active ? 'opacity-60' : ''}>
               <CardHeader className="pb-3">
@@ -384,7 +382,6 @@ export default function GruposManager() {
                     <span className="truncate">{group.name}</span>
                   </CardTitle>
                   <div className="flex items-center gap-2 shrink-0">
-                    <Badge variant="outline">{groupMembers.length} {groupMembers.length === 1 ? 'membro' : 'membros'}</Badge>
                     <Badge variant={group.is_active ? 'default' : 'secondary'}>
                       {group.is_active ? 'Ativo' : 'Inativo'}
                     </Badge>
@@ -402,57 +399,10 @@ export default function GruposManager() {
                     onCheckedChange={() => handleToggleGroupActive(group)}
                   />
                 </div>
-
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => setExpanded((p) => ({ ...p, [group.id]: !p[group.id] }))}
-                  >
-                    {isOpen ? <ChevronUp className="h-4 w-4 mr-2" /> : <ChevronDown className="h-4 w-4 mr-2" />}
-                    {isOpen ? 'Ocultar membros' : 'Ver membros'}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => {
-                      setSelectedGroup(group);
-                      setShowAddUserToGroupDialog(true);
-                    }}
-                  >
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Adicionar
-                  </Button>
-                </div>
-
-                {isOpen && (
-                  <div className="border-t pt-3 space-y-2">
-                    {groupMembers.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-3">
-                        Nenhum membro neste grupo ainda.
-                      </p>
-                    ) : (
-                      groupMembers.map((m) => {
-                        const isMaster = isMasterOfGroup(m);
-                        return (
-                        <div key={m.id} className={`border rounded-lg p-3 space-y-2 ${isMaster ? 'bg-cda-dourado/10 border-cda-dourado/40' : 'bg-muted/30'}`}>
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                {isMaster ? (
-                                  <Crown className="h-4 w-4 text-cda-dourado shrink-0" />
-                                ) : m.role_group === 'ADMIN' ? (
-                                  <Shield className="h-4 w-4 text-primary shrink-0" />
-                                ) : (
-                                  <User className="h-4 w-4 text-muted-foreground shrink-0" />
-                                )}
-                                <p className="font-medium text-sm truncate">
-                                  {m.nome_completo || m.email}
-                                </p>
-                                {isMaster && (
-                                  <Badge className="bg-cda-dourado text-cda-preto text-[10px]">Mestre</Badge>
+              </CardContent>
+            </Card>
+          );
+        })}
                                 )}
                               </div>
                               {m.nome_completo && (

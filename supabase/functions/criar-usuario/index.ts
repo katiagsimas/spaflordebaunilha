@@ -102,10 +102,10 @@ Deno.serve(async (req) => {
     const permissionFlags = requestBody.permissionFlags || null
     const criarGrupoComNome: string | null = requestBody.criarGrupoComNome || null
 
-    if (tipoUsuario === 'membro' && !groupId) {
+    if (tipoUsuario === 'membro') {
       return new Response(
-        JSON.stringify({ success: false, error: 'Para criar membro, informe o groupId do grupo destino.' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        JSON.stringify({ success: false, error: 'O sistema não permite mais a criação de membros em grupos.' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
       )
     }
 
