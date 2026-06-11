@@ -148,12 +148,11 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
             </div>
             <div className="space-y-2">
               <Label>Periodicidade</Label>
-              <Select value={planoTipo} onValueChange={setPlanoTipo} disabled={planoId === 'base' || isImersao}>
+              <Select value={planoTipo} onValueChange={setPlanoTipo} disabled={planoId === 'base'}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {planoId === 'negocio' && <SelectItem value="mensal">Mensal (30 dias)</SelectItem>}
                   {(planoId === 'base' || planoId === 'negocio') && <SelectItem value="anual">Anual (365 dias)</SelectItem>}
-                  {isImersao && <SelectItem value="imersao">Imersão ({IMERSAO_DIAS_ACESSO} dias)</SelectItem>}
                 </SelectContent>
               </Select>
             </div>
