@@ -185,7 +185,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
           </header>
           <AlertaExpiracaoPlano />
-          <ModalExpiracaoImersao />
+          
           <main className="flex-1 min-w-0 px-3 sm:px-4 md:px-8 pt-2 pb-6 md:pb-8 bg-app overflow-x-hidden md:overflow-x-visible">
             <FirstAccessRedirect />
             {children}
