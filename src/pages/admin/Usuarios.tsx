@@ -786,7 +786,7 @@ export default function Usuarios() {
                         <TableCell>
                           <div className="flex flex-col gap-1">
                             <Badge variant="outline" className="font-body text-xs w-fit">
-                              {profile.plano_id === 'negocio' ? 'Business' : profile.plano_id === 'aluna_imersao' ? 'Imersão' : profile.plano_id === 'controle' ? 'Controle' : 'Lite'}
+                              {profile.plano_id === 'negocio' ? 'Business' : profile.plano_id === 'controle' ? 'Controle' : 'Lite'}
                             </Badge>
                             {isMember && group && (
                               <Badge variant="secondary" className="text-[9px] h-4 px-1 bg-slate-100 text-slate-600 border-slate-200 w-fit">
