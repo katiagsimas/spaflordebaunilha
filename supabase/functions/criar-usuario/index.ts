@@ -152,9 +152,6 @@ Deno.serve(async (req) => {
           origem_criacao: isImersao ? 'imersao' : 'admin',
         }
 
-    if (isImersao && tipoUsuario === 'mestre') {
-      planoFields.imersao_turma = imersaoTurma || null
-    }
 
     // Marca onboarding_concluido=true para membros (não precisam passar pelo onboarding)
     if (tipoUsuario === 'membro') {
