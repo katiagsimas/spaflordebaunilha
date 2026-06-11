@@ -35,7 +35,6 @@ export function AlertaExpiracaoPlano() {
   });
 
   const diasRestantes = planoInfo?.diasRestantes;
-  const ehImersao = planoInfo?.planoId === 'aluna_imersao';
 
   if (dismissed || isAdmin || diasRestantes === null || diasRestantes === undefined || diasRestantes > 7 || diasRestantes < 0) {
     return null;
