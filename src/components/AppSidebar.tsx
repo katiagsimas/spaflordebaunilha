@@ -61,7 +61,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
       { title: "Cadastros", url: "/cadastros", icon: FileText, active: true },
       { title: "Cardápio", url: "/precificacao", icon: BookOpen, active: true },
       { title: "Estoque", url: "/estoque", icon: Package, active: true },
-      { title: "Gestão Operacional", url: "/operacao", icon: ListChecks, active: true },
+      { title: "Gestão Operacional", url: "/operacao", icon: ListChecks, active: false, comingSoonMessage: "Em breve você terá um painel completo para organizar sua produção diária e rotinas da confeitaria." },
     ],
   },
   {
