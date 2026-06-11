@@ -144,12 +144,6 @@ export default function Governanca() {
 
   const navCards = [
     {
-      title: 'Usuários',
-      icon: UserCog,
-      desc: 'Gestão de usuários, grupos e permissões do sistema.',
-      url: '/admin/usuarios',
-    },
-    {
       title: 'Log de Ações',
       icon: ScrollText,
       desc: 'Histórico de ações realizadas pelos usuários no sistema.',

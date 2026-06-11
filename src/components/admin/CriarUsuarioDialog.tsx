@@ -113,7 +113,6 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
           </DialogTitle>
           <DialogDescription>
             Todo novo usuário nasce como <strong>mestre</strong> e tem um grupo criado automaticamente com o nome da confeitaria.
-            Para criar usuários comuns vinculados a um grupo, acesse <strong>Governança → grupo → "Adicionar membro"</strong>.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">

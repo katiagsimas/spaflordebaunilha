@@ -219,8 +219,8 @@ export function GroupProvider({ children }: { children: ReactNode }) {
   // Helpers de permissão
   const hasPermission = (permission: keyof PermissionFlags): boolean => {
     if (!activeUserRole) return false;
-    if (activeRole === 'ADMIN') return true;
-    return activeUserRole.permission_flags?.[permission] ?? false;
+    // Em um sistema de usuário único por grupo, o usuário do grupo deve ser sempre o mestre/admin
+    return activeRole === 'ADMIN';
   };
 
   const isGroupAdmin = (): boolean => {
@@ -228,7 +228,7 @@ export function GroupProvider({ children }: { children: ReactNode }) {
   };
 
   const canManageUsers = (): boolean => {
-    return isGroupAdmin() || hasPermission('admin_users_manage');
+    return false; // Desabilitado conforme regra de usuário único por grupo
   };
 
   return (
