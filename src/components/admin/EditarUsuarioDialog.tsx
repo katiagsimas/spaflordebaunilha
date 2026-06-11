@@ -178,14 +178,6 @@ export function EditarUsuarioDialog({
     enabled: !!userId && open,
   });
 
-  // Auto-link Conversa Doce com o plano Aluna da Imersão (mesmo período)
-  useEffect(() => {
-    if (form.getValues('planoId') === 'aluna_imersao' && planoInicio && planoFim) {
-      setConversaDoceAtivo(true);
-      setConversaDoceInicio(planoInicio);
-      setConversaDoceFim(planoFim);
-    }
-  }, [form.watch('planoId'), planoInicio, planoFim]);
 
   // Fetch plan history
   const { data: historicoPlanos } = useQuery({
