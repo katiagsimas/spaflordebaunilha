@@ -29,7 +29,7 @@ import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState';
 
 import { EditarUsuarioDialog } from '@/components/admin/EditarUsuarioDialog';
-import { AlunasImersaoExpirando } from '@/components/admin/AlunasImersaoExpirando';
+
 import { getPlanoLabel } from '@/lib/planos';
 import { CriarUsuarioDialog } from '@/components/admin/CriarUsuarioDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
