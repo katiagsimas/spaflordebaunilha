@@ -83,17 +83,15 @@ Deno.serve(async (req) => {
   const cronSecret = Deno.env.get("CRON_SECRET");
   const callerSecret = req.headers.get("x-cron-secret");
   const authHeader = req.headers.get("authorization") || "";
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY") || "";
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
   const bearer = authHeader.toLowerCase().startsWith("bearer ")
     ? authHeader.slice(7).trim()
     : "";
 
   const autorizadoPorSecret = !!cronSecret && callerSecret === cronSecret;
-  const autorizadoPorServiceKey = !!bearer && bearer === serviceKey;
-  const autorizadoPorAnonKey = !!bearer && !!anonKey && bearer === anonKey;
+  const autorizadoPorServiceKey = !!bearer && !!serviceKey && bearer === serviceKey;
 
-  if (!autorizadoPorSecret && !autorizadoPorServiceKey && !autorizadoPorAnonKey) {
+  if (!autorizadoPorSecret && !autorizadoPorServiceKey) {
     return new Response(JSON.stringify({ error: "Não autorizado" }), {
       status: 401,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -283,9 +281,9 @@ Deno.serve(async (req) => {
           })
           .eq("id", ag.id);
 
-        resultados.push({ usuario_id: ag.usuario_id, ok: true, nome, modulos });
+        resultados.push({ ok: true });
       } catch (e: any) {
-        resultados.push({ usuario_id: ag.usuario_id, ok: false, erro: e.message });
+        resultados.push({ ok: false, erro: e.message });
       }
     }
 

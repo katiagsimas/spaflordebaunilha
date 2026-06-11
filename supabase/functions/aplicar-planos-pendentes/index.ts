@@ -15,8 +15,26 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const cronSecret = Deno.env.get('CRON_SECRET')
+    const callerSecret = req.headers.get('x-cron-secret')
+    const authHeader = req.headers.get('authorization') || ''
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const bearer = authHeader.toLowerCase().startsWith('bearer ')
+      ? authHeader.slice(7).trim()
+      : ''
+
+    const autorizado =
+      (!!cronSecret && callerSecret === cronSecret) ||
+      (!!bearer && bearer === supabaseServiceKey)
+
+    if (!autorizado) {
+      return new Response(
+        JSON.stringify({ error: 'Não autorizado' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      )
+    }
+
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     })

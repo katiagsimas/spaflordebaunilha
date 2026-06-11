@@ -123,6 +123,24 @@ Deno.serve(async (req) => {
     const resendKey = Deno.env.get('RESEND_API_KEY')
     const emailAdmin = Deno.env.get('EMAIL_ADMIN_IMERSAO')
 
+    const cronSecret = Deno.env.get('CRON_SECRET')
+    const callerSecret = req.headers.get('x-cron-secret')
+    const authHeader = req.headers.get('authorization') || ''
+    const bearer = authHeader.toLowerCase().startsWith('bearer ')
+      ? authHeader.slice(7).trim()
+      : ''
+
+    const autorizado =
+      (!!cronSecret && callerSecret === cronSecret) ||
+      (!!bearer && bearer === serviceKey)
+
+    if (!autorizado) {
+      return new Response(
+        JSON.stringify({ error: 'Não autorizado' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      )
+    }
+
     if (!resendKey) {
       return new Response(JSON.stringify({ error: 'RESEND_API_KEY ausente' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 })
@@ -226,14 +244,9 @@ Deno.serve(async (req) => {
       }
     }
 
+    void enviadas; void puladas; void falhas; void adminEnviado;
     return new Response(
-      JSON.stringify({
-        ok: true,
-        hoje_br: hoje,
-        encontradas: { d7: grupos[7].length, d3: grupos[3].length, d1: grupos[1].length },
-        enviadas, puladas, falhas,
-        admin_enviado: adminEnviado,
-      }),
+      JSON.stringify({ ok: true }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
   } catch (err) {
