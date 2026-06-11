@@ -57,7 +57,7 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
     setPlanoTipo('anual');
     setPlanoInicio(new Date());
     setPlanoFim(undefined);
-    setImersaoTurma('');
+    
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
