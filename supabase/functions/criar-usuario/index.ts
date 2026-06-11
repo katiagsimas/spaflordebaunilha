@@ -126,7 +126,7 @@ Deno.serve(async (req) => {
       planoFim = fim.toISOString().split('T')[0]
     }
 
-    const isImersao = planoId === 'aluna_imersao'
+    const isImersao = false
 
     console.log('Dados:', { email, tipoUsuario, groupId, roleGroup, planoId })
 
