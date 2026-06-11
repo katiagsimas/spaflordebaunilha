@@ -9,7 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { Loader2, Sparkles, Crown } from 'lucide-react';
 import { formatDateToISO, parseISOToDate, addDaysToDate, getTodayISO } from '@/lib/dateUtils';
-import { IMERSAO_DIAS_ACESSO } from '@/lib/planos';
+
 
 interface CriarUsuarioDialogProps {
   open: boolean;
