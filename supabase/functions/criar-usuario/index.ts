@@ -114,7 +114,7 @@ Deno.serve(async (req) => {
     let planoInicio: string | null = requestBody.planoInicio || hoje
     let planoFim: string | null = null
 
-    const diasMap: Record<string, number> = { anual: 365, mensal: 30, imersao: 30 }
+    const diasMap: Record<string, number> = { anual: 365, mensal: 30 }
 
     if (requestBody.planoFim) {
       planoFim = requestBody.planoFim
