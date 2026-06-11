@@ -337,7 +337,7 @@ export default function GruposManager() {
         <div>
           <h2 className="text-lg font-semibold">Grupos do Sistema</h2>
           <p className="text-sm text-muted-foreground">
-            Cada grupo organiza usuários e dados. Clique em "Ver membros" para gerenciar papéis e permissões.
+            Cada grupo organiza os dados de uma única conta mestre.
           </p>
         </div>
         <Dialog open={showNewGroupDialog} onOpenChange={setShowNewGroupDialog}>
@@ -350,7 +350,7 @@ export default function GruposManager() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Criar Novo Grupo</DialogTitle>
-              <DialogDescription>Crie um novo grupo para organizar usuários e dados.</DialogDescription>
+              <DialogDescription>Crie um novo grupo para organizar dados.</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
@@ -403,203 +403,7 @@ export default function GruposManager() {
             </Card>
           );
         })}
-                                )}
-                              </div>
-                              {m.nome_completo && (
-                                <p className="text-xs text-muted-foreground truncate ml-6">{m.email}</p>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-1 shrink-0">
-                              <Badge variant={m.is_active ? 'default' : 'secondary'} className="text-[10px]">
-                                {m.is_active ? 'Ativo' : 'Inativo'}
-                              </Badge>
-                            </div>
-                          </div>
-
-
-                          <div className="flex flex-wrap gap-2 items-center">
-                            <Select
-                              value={m.role_group}
-                              onValueChange={(v) => handleChangeRole(m, v as 'ADMIN' | 'USER')}
-                            >
-                              <SelectTrigger className="h-8 text-xs w-32">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="ADMIN">Administrador</SelectItem>
-                                <SelectItem value="USER">Usuário</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 px-2 text-xs"
-                              onClick={() => setEditingMember(m)}
-                              disabled={m.role_group === 'ADMIN'}
-                              title={m.role_group === 'ADMIN' ? 'Admins têm todas as permissões' : 'Editar permissões'}
-                            >
-                              <Settings className="h-3 w-3 mr-1" /> Permissões
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 px-2 text-xs"
-                              onClick={() => handleToggleMemberActive(m)}
-                            >
-                              {m.is_active ? 'Desativar' : 'Ativar'}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 px-2 text-xs text-destructive hover:text-destructive"
-                              onClick={() => handleRemoveMember(m)}
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-
-                          {m.role_group === 'USER' && (
-                            <div className="flex flex-wrap gap-1 pt-1">
-                              {PERMISSION_LABELS.filter((p) => m.permission_flags?.[p.key]).slice(0, 4).map((p) => (
-                                <Badge key={p.key} variant="secondary" className="text-[10px]">
-                                  {p.label}
-                                </Badge>
-                              ))}
-                              {(() => {
-                                const total = PERMISSION_LABELS.filter((p) => m.permission_flags?.[p.key]).length;
-                                return total > 4 ? (
-                                  <Badge variant="outline" className="text-[10px]">+{total - 4} mais</Badge>
-                                ) : total === 0 ? (
-                                  <Badge variant="outline" className="text-[10px]">Sem permissões</Badge>
-                                ) : null;
-                              })()}
-                            </div>
-                          )}
-                        </div>
-                        );
-                      })
-
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
       </div>
-
-      {/* Add user dialog */}
-      <Dialog open={showAddUserToGroupDialog} onOpenChange={(o) => (o ? setShowAddUserToGroupDialog(true) : closeAddDialog())}>
-        <DialogContent className="sm:max-w-[480px]">
-          <DialogHeader>
-            <DialogTitle>Adicionar membro ao grupo</DialogTitle>
-            <DialogDescription>
-              Grupo: <strong>{selectedGroup?.name}</strong>. Crie um novo usuário ou vincule um já existente.
-            </DialogDescription>
-          </DialogHeader>
-          <Tabs value={addMode} onValueChange={(v) => setAddMode(v as 'novo' | 'existente')} className="pt-2">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="novo">Criar novo</TabsTrigger>
-              <TabsTrigger value="existente">Vincular existente</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="novo" className="space-y-4 pt-4">
-              <div className="space-y-2">
-                <Label htmlFor="novo-email">Email *</Label>
-                <Input id="novo-email" type="email" placeholder="confeiteira@email.com" value={novoEmail} onChange={(e) => setNovoEmail(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="novo-nome">Nome completo</Label>
-                <Input id="novo-nome" placeholder="Maria da Silva" value={novoNome} onChange={(e) => setNovoNome(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label>Papel no grupo</Label>
-                <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as 'ADMIN' | 'USER')}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="USER">Usuário (permissões granulares)</SelectItem>
-                    <SelectItem value="ADMIN">Administrador (acesso total ao grupo)</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  Membros herdam o plano do mestre. Não passam pelo onboarding.
-                </p>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={closeAddDialog} disabled={creatingMember}>Cancelar</Button>
-                <Button onClick={handleCreateNewMember} disabled={creatingMember}>
-                  {creatingMember && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                  Criar membro
-                </Button>
-              </DialogFooter>
-            </TabsContent>
-
-            <TabsContent value="existente" className="space-y-4 pt-4">
-              <div className="space-y-2">
-                <Label>Usuário</Label>
-                <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione um usuário" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {users
-                      .filter((u) => !(members[selectedGroup?.id || '']?.some((m) => m.user_id === u.id)))
-                      .map((u) => (
-                        <SelectItem key={u.id} value={u.id}>
-                          {u.nome_completo || u.email}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Papel no Grupo</Label>
-                <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as 'ADMIN' | 'USER')}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="USER">Usuário (permissões granulares)</SelectItem>
-                    <SelectItem value="ADMIN">Administrador (acesso total ao grupo)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={closeAddDialog}>Cancelar</Button>
-                <Button onClick={handleAddUserToGroup}>Vincular</Button>
-              </DialogFooter>
-            </TabsContent>
-          </Tabs>
-        </DialogContent>
-      </Dialog>
-
-
-      {/* Edit permissions dialog */}
-      <Dialog open={!!editingMember} onOpenChange={(o) => !o && setEditingMember(null)}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Permissões de {editingMember?.nome_completo || editingMember?.email}</DialogTitle>
-            <DialogDescription>
-              Marque o que este usuário pode visualizar e editar dentro do grupo.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2 py-2 max-h-[60vh] overflow-y-auto">
-            {editingMember && PERMISSION_LABELS.map((p) => (
-              <div key={p.key} className="flex items-center justify-between py-1.5 border-b last:border-0">
-                <Label htmlFor={`perm-${p.key}`} className="text-sm cursor-pointer">
-                  {p.label}
-                </Label>
-                <Switch
-                  id={`perm-${p.key}`}
-                  checked={!!editingMember.permission_flags?.[p.key]}
-                  onCheckedChange={() => handleTogglePermission(editingMember, p.key)}
-                />
-              </div>
-            ))}
-          </div>
-          <DialogFooter>
-            <Button onClick={() => setEditingMember(null)}>Fechar</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
