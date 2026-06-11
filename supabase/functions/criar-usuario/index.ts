@@ -367,12 +367,6 @@ async function enviarEmailBoasVindas(
     planoId === 'negocio' ? 'Caixa Business'
     : 'Caixa Lite'
 
-  const blocoImersao = planoId === 'aluna_imersao' ? `
-      <div style="margin: 16px 0; padding: 12px 16px; background: #FBF1DE; border-left: 4px solid #C9A14A; border-radius: 4px;">
-        <p style="margin: 0 0 8px 0;"><strong>🎓 Imersão A Receita que Faltava</strong></p>
-        <p style="margin: 0; font-size: 14px;">Você tem <strong>30 dias</strong> de acesso completo ao Caixa Business. As gravações da imersão e o Playbook da Confeiteira Empresária ficam disponíveis na área de membros da Hotmart.</p>
-      </div>
-  ` : ''
 
   const html = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.6;">
