@@ -403,7 +403,6 @@ Deno.serve(async (req) => {
 
       // Record plan history
       const observacaoBits: string[] = []
-      if (tipoEvento === 'renovacao_imersao') observacaoBits.push(`Renovação Imersão → ${planoId}`)
       if (tipoEvento === 'downgrade_agendado') observacaoBits.push(`Downgrade agendado para ${pendenteInicio}`)
       if (tipoEvento === 'upgrade') observacaoBits.push(`Upgrade ${planoAnterior} → ${planoId}`)
       if (tipoEvento === 'renovacao') observacaoBits.push(`Renovação ${planoId}`)
