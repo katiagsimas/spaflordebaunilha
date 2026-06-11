@@ -7,7 +7,7 @@ const MODULOS_POR_PLANO: Record<string, string[]> = {
   base: [
     // MEU PAINEL
     "/dashboard",
-    // MINHA OPERAÇÃO (acesso total)
+    // MINHA PRODUÇÃO (acesso total)
     "/cadastros",
     "/precificacao",
     "/estoque",

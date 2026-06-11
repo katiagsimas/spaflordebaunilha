@@ -20,8 +20,8 @@ export interface BackupModuloDef {
 export const BACKUP_MODULOS: BackupModuloDef[] = [
   {
     id: "operacao",
-    titulo: "Minha Operação",
-    descricao: "Cadastros, Cardápio, Estoque e Organização Doce",
+    titulo: "Minha Produção",
+    descricao: "Cadastros, Cardápio, Estoque e Fichas Técnicas",
     tabelas: [
       // Cadastros
       "categorias",
