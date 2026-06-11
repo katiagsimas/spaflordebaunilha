@@ -32,7 +32,7 @@ export const dashboardHelp: HelpContent = {
     },
     {
       title: "Visão Econômica",
-      text: "Consolida faturamento, custos totais, lucro líquido, ticket médio e meta do mês. Clique em 'Anual' para ver o acumulado do ano.",
+      text: "Consolida faturamento, custos totais, lucro líquido e ticket médio. Clique em 'Anual' para ver o acumulado do ano.",
     },
   ],
   kaTip:
