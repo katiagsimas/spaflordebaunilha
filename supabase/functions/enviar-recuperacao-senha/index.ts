@@ -2,12 +2,45 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.0'
 import { corsHeaders } from '../_shared/cors.ts'
 import { escapeHtml } from '../_shared/escapeHtml.ts'
 
+// IP-based rate limiting (em memória, best-effort entre reinícios)
+const RATE_WINDOW_MS = 60_000
+const RATE_MAX = 5
+const rateBuckets = new Map<string, number[]>()
+
+function checarRateLimit(ip: string): { allowed: boolean; retryAfter: number } {
+  const agora = Date.now()
+  const lista = (rateBuckets.get(ip) || []).filter(ts => agora - ts < RATE_WINDOW_MS)
+  if (lista.length >= RATE_MAX) {
+    const retryAfter = Math.ceil((RATE_WINDOW_MS - (agora - lista[0])) / 1000)
+    return { allowed: false, retryAfter: Math.max(retryAfter, 1) }
+  }
+  lista.push(agora)
+  rateBuckets.set(ip, lista)
+  return { allowed: true, retryAfter: 0 }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
+    const ip = (req.headers.get('x-forwarded-for') || '').split(',')[0].trim() || 'unknown'
+    const limite = checarRateLimit(ip)
+    if (!limite.allowed) {
+      return new Response(
+        JSON.stringify({ error: 'rate_limit_exceeded', retry_after: limite.retryAfter }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+            'Retry-After': String(limite.retryAfter),
+          },
+        }
+      )
+    }
+
     const { email } = await req.json()
 
     if (!email || typeof email !== 'string') {
