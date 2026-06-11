@@ -11,7 +11,7 @@ const MODULOS_POR_PLANO: Record<string, string[]> = {
     "/cadastros",
     "/precificacao",
     "/estoque",
-    "/organizacao-doce",
+    
     // MEU COMERCIAL (parcial: apenas Clientes/Fornecedores e Pedidos/Encomendas)
     "/clientes-fornecedores",
     "/clientes",
