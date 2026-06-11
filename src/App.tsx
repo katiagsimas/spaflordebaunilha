@@ -26,7 +26,7 @@ import EncomendasLista from "./pages/EncomendasLista";
 import EncomendasCalendarios from "./pages/EncomendasCalendarios";
 
 import Precificacao from "./pages/Precificacao";
-import Planejamento from "./pages/Planejamento";
+
 import SeusDados from "./pages/cadastros/SeusDados";
 import MaoDeObra from "./pages/configuracoes/precificacao/MaoDeObra";
 
