@@ -655,7 +655,6 @@ export function EditarUsuarioDialog({
                         <SelectContent>
                           <SelectItem value="base">Caixa Lite</SelectItem>
                           <SelectItem value="negocio">Caixa Business</SelectItem>
-                          <SelectItem value="aluna_imersao">Aluna da Imersão (30 dias)</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
