@@ -1306,7 +1306,7 @@ export default function Dashboard() {
               return (
                 <button
                   type="button"
-                  onClick={() => navigate("/planejamento")}
+                  onClick={() => {}}
                   className="rounded-xl border border-cda-dourado/20 bg-cda-branco p-3 text-center transition hover:-translate-y-0.5 hover:border-cda-dourado/60 hover:shadow-md"
                 >
                   <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-cda-vinho/10 ring-1 ring-cda-dourado/40">
@@ -1326,7 +1326,7 @@ export default function Dashboard() {
                   ) : (
                     <>
                       <p className="mt-1 text-xs font-body text-cda-vinho/60">Meta não definida</p>
-                      <p className="mt-1 text-[10px] font-body text-cda-vinho underline">Definir meta</p>
+                      <p className="mt-1 text-[10px] font-body text-cda-vinho italic">Configure suas metas no Perfil</p>
                     </>
                   )}
                 </button>
