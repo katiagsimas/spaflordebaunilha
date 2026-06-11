@@ -90,7 +90,7 @@ import EstoqueMovimentacoes from "./pages/estoque/EstoqueMovimentacoes";
 import MeuSalario from "./pages/meu-salario/MeuSalario";
 import ConversaDoce from "./pages/conversa-doce/ConversaDoce";
 import ConversaDoceRespostas from "./pages/conversa-doce/ConversaDoceRespostas";
-// Módulo removido: OrganizacaoDoce
+
 import Propostas from "./pages/comercial/Propostas";
 import NovaProposta from "./pages/comercial/NovaProposta";
 import RelatorioPropostas from "./pages/comercial/RelatorioPropostas";
