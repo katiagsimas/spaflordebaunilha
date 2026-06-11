@@ -23,6 +23,14 @@
 | Data (UTC) | Item | Resolução |
 | Data (UTC) | Item | Resolução |
 |------------|------|-----------|
+| 2026-06-11 | RLS — `backups_cofre` aceitava INSERT direto de qualquer authenticated | Policy `Deny direct inserts on backups_cofre` (WITH CHECK false). Service role mantém escrita via edge (bypass RLS). |
+| 2026-06-11 | RLS — `clientes` bloqueava INSERT para usuários solo (sem grupo) | Policy `Solo users can insert own clientes` (`auth.uid() = usuario_id AND owner_group_id IS NULL`). |
+| 2026-06-11 | Storage — bucket `topo-bolo` sem policy de UPDATE | Policy owner-scoped por folder (`auth.uid()::text`). |
+| 2026-06-11 | Edge `executar-backups-agendados` aceitava anon key + vazava `usuario_id` | Removida auth via anon. Response sanitizada (sem `usuario_id`/`nome`/`modulos`). |
+| 2026-06-11 | Edge `notificar-expiracao-imersao` sem autenticação + vazava contagens | Exigido `x-cron-secret` ou bearer service role. Response = `{ ok, hoje_br }`. |
+| 2026-06-11 | Edge `aplicar-planos-pendentes` sem autenticação | Exigido `x-cron-secret` ou bearer service role. |
+| 2026-06-11 | Edge `enviar-recuperacao-senha` sujeita a email bombing | Rate limit por IP (5 req/min) com resposta 429 + `Retry-After`. |
+
 | 2026-05-28 | Storage — bucket `assinaturas` público (leitura aberta a anônimos) | Bucket convertido para privado. Removida policy `Assinaturas são publicamente acessíveis`; criada `Assinaturas: dono lê via folder` (SELECT owner-scoped via `foldername = auth.uid()`). `SeusDados.tsx` passa a salvar o **path** em `profiles.assinatura_url` e gera `createSignedUrl` (3600s) para exibição. Migração converte URLs públicas antigas em paths. |
 | 2026-05-28 | Storage — bucket `topo-bolo` público (RLS de SELECT bypassada via URL pública) | Bucket convertido para privado. As policies owner-scoped (folder = `auth.uid()`) agora são efetivamente aplicadas em toda leitura. Uploads atuais já usam o bucket `encomendas`; `topo-bolo` só serve como fallback de remoção de URLs legadas. |
 | 2026-05-27 | RLS — `historico_planos` sem acesso do próprio usuário | Adicionada policy `Users can view own plan history` (`user_id = auth.uid()`) para SELECT. Admin policy mantida; service_role segue inserindo via webhook. |
