@@ -9,7 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { Loader2, Sparkles, Crown } from 'lucide-react';
 import { formatDateToISO, parseISOToDate, addDaysToDate, getTodayISO } from '@/lib/dateUtils';
-import { IMERSAO_DIAS_ACESSO } from '@/lib/planos';
+
 
 interface CriarUsuarioDialogProps {
   open: boolean;
@@ -35,11 +35,10 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
   const [planoFim, setPlanoFim] = useState<Date | undefined>(undefined);
   const [imersaoTurma, setImersaoTurma] = useState('');
 
-  const isImersao = planoId === 'aluna_imersao';
+  const isImersao = false;
 
   useEffect(() => {
     if (planoId === 'base') setPlanoTipo('anual');
-    if (planoId === 'aluna_imersao') setPlanoTipo('imersao');
     if (planoId === 'negocio' && (planoTipo !== 'mensal' && planoTipo !== 'anual')) {
       setPlanoTipo('anual');
     }
@@ -48,7 +47,7 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
   useEffect(() => {
     if (!planoInicio) return;
     const inicioISO = formatDateToISO(planoInicio);
-    const diasMap: Record<string, number> = { anual: 365, mensal: 30, imersao: IMERSAO_DIAS_ACESSO };
+    const diasMap: Record<string, number> = { anual: 365, mensal: 30 };
     const dias = diasMap[planoTipo] ?? 365;
     setPlanoFim(parseISOToDate(addDaysToDate(inicioISO, dias)));
   }, [planoInicio, planoTipo]);
@@ -91,9 +90,7 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
 
       toast({
         title: data.updated ? '✅ Usuário atualizado' : data.reactivated ? '✅ Usuário reativado' : '✅ Usuário criado',
-        description: isImersao
-          ? `Aluna da Imersão criada com ${IMERSAO_DIAS_ACESSO} dias de acesso completo. Grupo criado automaticamente.`
-          : 'Usuário mestre criado. Novo grupo gerado com o nome da confeitaria. Email de boas-vindas enviado.',
+        description: 'Usuário mestre criado. Novo grupo gerado com o nome da confeitaria. Email de boas-vindas enviado.',
       });
 
       resetForm();
@@ -146,35 +143,21 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
                 <SelectContent>
                   <SelectItem value="base">Caixa Lite</SelectItem>
                   <SelectItem value="negocio">Caixa Business</SelectItem>
-                  <SelectItem value="aluna_imersao">Aluna da Imersão (30 dias)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label>Periodicidade</Label>
-              <Select value={planoTipo} onValueChange={setPlanoTipo} disabled={planoId === 'base' || isImersao}>
+              <Select value={planoTipo} onValueChange={setPlanoTipo} disabled={planoId === 'base'}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {planoId === 'negocio' && <SelectItem value="mensal">Mensal (30 dias)</SelectItem>}
                   {(planoId === 'base' || planoId === 'negocio') && <SelectItem value="anual">Anual (365 dias)</SelectItem>}
-                  {isImersao && <SelectItem value="imersao">Imersão ({IMERSAO_DIAS_ACESSO} dias)</SelectItem>}
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          {isImersao && (
-            <div className="rounded-md border border-cda-dourado/40 bg-cda-dourado/10 p-3 space-y-2">
-              <div className="flex items-center gap-2 text-sm font-semibold text-cda-preto">
-                <Sparkles className="h-4 w-4 text-cda-dourado" />
-                Aluna da Imersão A Receita que Faltava
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="imersao-turma" className="text-xs">Turma (opcional)</Label>
-                <Input id="imersao-turma" placeholder="Ex.: Turma 01 — Out/2026" value={imersaoTurma} onChange={e => setImersaoTurma(e.target.value)} />
-              </div>
-            </div>
-          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">

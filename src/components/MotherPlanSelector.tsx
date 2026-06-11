@@ -14,7 +14,7 @@ const OPCOES: Array<{ value: "default" | NonNullable<MotherViewPlan>; label: str
   { value: "default", label: "MOTHER · Acesso total" },
   { value: "base", label: "Visualizar como Caixa Lite" },
   { value: "negocio", label: "Visualizar como Caixa Business" },
-  { value: "aluna_imersao", label: "Visualizar como Aluna da Imersão" },
+  
 ];
 
 /**

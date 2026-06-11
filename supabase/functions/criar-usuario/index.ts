@@ -91,7 +91,7 @@ Deno.serve(async (req) => {
     }
 
     const requestBody = await req.json()
-    const { email, nomeCompleto, nomeConfeitaria, planoId, role, imersaoTurma } = requestBody
+    const { email, nomeCompleto, nomeConfeitaria, planoId, role } = requestBody
 
     // === NOVO: tipo de usuário (mestre/membro) ===
     // tipoUsuario = 'mestre'  -> cria grupo novo (ou usa criarGrupo=true), passa pelo onboarding
@@ -114,7 +114,7 @@ Deno.serve(async (req) => {
     let planoInicio: string | null = requestBody.planoInicio || hoje
     let planoFim: string | null = null
 
-    const diasMap: Record<string, number> = { anual: 365, mensal: 30, imersao: 30 }
+    const diasMap: Record<string, number> = { anual: 365, mensal: 30 }
 
     if (requestBody.planoFim) {
       planoFim = requestBody.planoFim
@@ -126,7 +126,7 @@ Deno.serve(async (req) => {
       planoFim = fim.toISOString().split('T')[0]
     }
 
-    const isImersao = planoId === 'aluna_imersao'
+    const isImersao = false
 
     console.log('Dados:', { email, tipoUsuario, groupId, roleGroup, planoId })
 
@@ -152,9 +152,6 @@ Deno.serve(async (req) => {
           origem_criacao: isImersao ? 'imersao' : 'admin',
         }
 
-    if (isImersao && tipoUsuario === 'mestre') {
-      planoFields.imersao_turma = imersaoTurma || null
-    }
 
     // Marca onboarding_concluido=true para membros (não precisam passar pelo onboarding)
     if (tipoUsuario === 'membro') {
@@ -368,15 +365,8 @@ async function enviarEmailBoasVindas(
   const emailSafe = escapeHtml(email)
   const planoNome =
     planoId === 'negocio' ? 'Caixa Business'
-    : planoId === 'aluna_imersao' ? 'Aluna da Imersão (30 dias de acesso completo)'
     : 'Caixa Lite'
 
-  const blocoImersao = planoId === 'aluna_imersao' ? `
-      <div style="margin: 16px 0; padding: 12px 16px; background: #FBF1DE; border-left: 4px solid #C9A14A; border-radius: 4px;">
-        <p style="margin: 0 0 8px 0;"><strong>🎓 Imersão A Receita que Faltava</strong></p>
-        <p style="margin: 0; font-size: 14px;">Você tem <strong>30 dias</strong> de acesso completo ao Caixa Business. As gravações da imersão e o Playbook da Confeiteira Empresária ficam disponíveis na área de membros da Hotmart.</p>
-      </div>
-  ` : ''
 
   const html = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.6;">
@@ -388,7 +378,7 @@ async function enviarEmailBoasVindas(
         <li>Digite o email <strong>${emailSafe}</strong> para receber o link de acesso</li>
       </ol>
       <p><strong>Seu plano:</strong> ${planoNome}</p>
-      ${blocoImersao}
+      ${''}
       <p>Qualquer dúvida, responda este email ou acesse o suporte através do e-mail <a href="mailto:ola@umbrelladoce.com.br" style="color: #5B1A2B;">ola@umbrelladoce.com.br</a></p>
       <br/>
       <p>Umbrella Doce</p>

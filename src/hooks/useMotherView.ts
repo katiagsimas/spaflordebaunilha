@@ -7,7 +7,7 @@ const EVT = 'cda:mother-view-changed';
 
 export const MOTHER_EMAIL = 'katiagsimas@gmail.com';
 
-export type MotherViewPlan = 'base' | 'negocio' | 'aluna_imersao' | null;
+export type MotherViewPlan = 'base' | 'negocio' | null;
 
 export function isMotherUser(email?: string | null, isMother?: boolean): boolean {
   if (!isMother) return false;
@@ -17,7 +17,7 @@ export function isMotherUser(email?: string | null, isMother?: boolean): boolean
 function readStored(): MotherViewPlan {
   if (typeof window === 'undefined') return null;
   const v = localStorage.getItem(KEY);
-  return v === 'base' || v === 'negocio' || v === 'aluna_imersao' ? v : null;
+  return v === 'base' || v === 'negocio' ? v : null;
 }
 
 /**

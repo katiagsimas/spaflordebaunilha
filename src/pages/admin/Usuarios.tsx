@@ -29,7 +29,7 @@ import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState';
 
 import { EditarUsuarioDialog } from '@/components/admin/EditarUsuarioDialog';
-import { AlunasImersaoExpirando } from '@/components/admin/AlunasImersaoExpirando';
+
 import { getPlanoLabel } from '@/lib/planos';
 import { CriarUsuarioDialog } from '@/components/admin/CriarUsuarioDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -193,7 +193,6 @@ export default function Usuarios() {
     return acc;
   }, {} as Record<string, string[]>) || {};
 
-  // Manter todos os perfis na listagem, mas identificar os admins e mothers e aplicar herança de plano
   const profilesComRoles = profiles?.map(u => {
     const roles = rolesByUser[u.id] || [];
     let role = 'user';
@@ -574,7 +573,7 @@ export default function Usuarios() {
 
           <TabsContent value="usuarios" className="space-y-6">
 
-        <AlunasImersaoExpirando />
+        
 
 
 
@@ -787,7 +786,7 @@ export default function Usuarios() {
                         <TableCell>
                           <div className="flex flex-col gap-1">
                             <Badge variant="outline" className="font-body text-xs w-fit">
-                              {profile.plano_id === 'negocio' ? 'Business' : profile.plano_id === 'aluna_imersao' ? 'Imersão' : profile.plano_id === 'controle' ? 'Controle' : 'Lite'}
+                              {profile.plano_id === 'negocio' ? 'Business' : profile.plano_id === 'controle' ? 'Controle' : 'Lite'}
                             </Badge>
                             {isMember && group && (
                               <Badge variant="secondary" className="text-[9px] h-4 px-1 bg-slate-100 text-slate-600 border-slate-200 w-fit">

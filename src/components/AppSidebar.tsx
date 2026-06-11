@@ -103,7 +103,7 @@ export function AppSidebar() {
   const { onboardingPendente } = useOnboardingStatus();
 
   const { rotaBloqueada, isLoading: isPlanoLoading, plano } = usePlano();
-  const podeAcessarSsoDoce = effectiveIsAdmin || plano?.id === "negocio" || plano?.id === "aluna_imersao";
+  const podeAcessarSsoDoce = effectiveIsAdmin || plano?.id === "negocio";
   
   const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
   const [comingSoonModal, setComingSoonModal] = useState<{ title: string; message: string } | null>(null);

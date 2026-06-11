@@ -35,23 +35,16 @@ export function AlertaExpiracaoPlano() {
   });
 
   const diasRestantes = planoInfo?.diasRestantes;
-  const ehImersao = planoInfo?.planoId === 'aluna_imersao';
 
   if (dismissed || isAdmin || diasRestantes === null || diasRestantes === undefined || diasRestantes > 7 || diasRestantes < 0) {
     return null;
   }
 
-  const mensagem = ehImersao
-    ? (diasRestantes === 0
-        ? 'Seu acesso à Imersão expira hoje! Renove agora para continuar.'
-        : diasRestantes === 1
-          ? 'Seu acesso à Imersão expira amanhã! Renove para não perder seus dados.'
-          : `Seu acesso à Imersão expira em ${diasRestantes} dias. Renove para continuar.`)
-    : (diasRestantes === 0
-        ? 'Seu acesso expira hoje! Renove agora para continuar usando o sistema.'
-        : diasRestantes === 1
-          ? 'Seu acesso expira amanhã! Renove para não perder seus dados.'
-          : `Seu acesso expira em ${diasRestantes} dias. Renove para continuar usando o sistema.`);
+  const mensagem = diasRestantes === 0
+    ? 'Seu acesso expira hoje! Renove agora para continuar usando o sistema.'
+    : diasRestantes === 1
+      ? 'Seu acesso expira amanhã! Renove para não perder seus dados.'
+      : `Seu acesso expira em ${diasRestantes} dias. Renove para continuar usando o sistema.`;
 
   return (
     <Alert className="rounded-none border-x-0 border-t-0 bg-cda-dourado border-cda-dourado text-cda-preto">
@@ -63,17 +56,6 @@ export function AlertaExpiracaoPlano() {
           </AlertDescription>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          {ehImersao && (
-            <a
-              href={URL_UPGRADE_EXTERNO}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 bg-cda-coral text-cda-branco text-xs font-semibold px-3 py-1.5 rounded-md hover:bg-cda-coral/90 transition-colors"
-            >
-              Renovar agora
-              <ExternalLink className="h-3 w-3" />
-            </a>
-          )}
           <button
             onClick={() => setDismissed(true)}
             className="p-1 hover:bg-cda-preto/10 rounded transition-colors shrink-0"
