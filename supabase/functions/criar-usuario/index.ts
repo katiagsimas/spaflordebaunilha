@@ -365,7 +365,6 @@ async function enviarEmailBoasVindas(
   const emailSafe = escapeHtml(email)
   const planoNome =
     planoId === 'negocio' ? 'Caixa Business'
-    : planoId === 'aluna_imersao' ? 'Aluna da Imersão (30 dias de acesso completo)'
     : 'Caixa Lite'
 
   const blocoImersao = planoId === 'aluna_imersao' ? `
