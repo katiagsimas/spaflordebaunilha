@@ -149,19 +149,23 @@ export function GroupProvider({ children }: { children: ReactNode }) {
         .maybeSingle();
 
       if (session) {
-        setActiveGroupId(session.active_group_id);
-        setSessionModeState((session.mode as SessionMode) || 'group');
+        // Validar se o grupo da sessão ainda é válido para o usuário
+        const isValidGroup = uniqueGroups.some(g => g.id === session.active_group_id);
+        
+        if (isValidGroup || isMother) {
+          setActiveGroupId(session.active_group_id);
+          setSessionModeState((session.mode as SessionMode) || 'group');
+        } else if (uniqueGroups.length > 0) {
+          // Se o grupo na sessão não é mais válido, força o primeiro grupo disponível
+          const firstGroupId = uniqueGroups[0].id;
+          await setActiveGroup(firstGroupId);
+        } else {
+          setActiveGroupId(null);
+        }
       } else if (uniqueGroups.length > 0) {
         // Criar sessão se não existir
         const firstGroupId = uniqueGroups[0].id;
-        await supabase
-          .from('user_active_session')
-          .insert({
-            user_id: user.id,
-            active_group_id: firstGroupId,
-            mode: 'group'
-          });
-        setActiveGroupId(firstGroupId);
+        await setActiveGroup(firstGroupId);
       }
     } catch (error) {
       console.error('Erro ao carregar dados do grupo:', error);
