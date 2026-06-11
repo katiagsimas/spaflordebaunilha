@@ -149,19 +149,23 @@ export function GroupProvider({ children }: { children: ReactNode }) {
         .maybeSingle();
 
       if (session) {
-        setActiveGroupId(session.active_group_id);
-        setSessionModeState((session.mode as SessionMode) || 'group');
+        // Validar se o grupo da sessão ainda é válido para o usuário
+        const isValidGroup = uniqueGroups.some(g => g.id === session.active_group_id);
+        
+        if (isValidGroup || isMother) {
+          setActiveGroupId(session.active_group_id);
+          setSessionModeState((session.mode as SessionMode) || 'group');
+        } else if (uniqueGroups.length > 0) {
+          // Se o grupo na sessão não é mais válido, força o primeiro grupo disponível
+          const firstGroupId = uniqueGroups[0].id;
+          await setActiveGroup(firstGroupId);
+        } else {
+          setActiveGroupId(null);
+        }
       } else if (uniqueGroups.length > 0) {
         // Criar sessão se não existir
         const firstGroupId = uniqueGroups[0].id;
-        await supabase
-          .from('user_active_session')
-          .insert({
-            user_id: user.id,
-            active_group_id: firstGroupId,
-            mode: 'group'
-          });
-        setActiveGroupId(firstGroupId);
+        await setActiveGroup(firstGroupId);
       }
     } catch (error) {
       console.error('Erro ao carregar dados do grupo:', error);
@@ -172,6 +176,13 @@ export function GroupProvider({ children }: { children: ReactNode }) {
 
   const setActiveGroup = async (groupId: string) => {
     if (!user) return;
+    
+    // Validar se o usuário pertence ao grupo (ou é Mother)
+    const userBelongs = groups.some(g => g.id === groupId);
+    if (!userBelongs && !isMother) {
+      console.error('Tentativa de acesso a grupo não autorizado');
+      return;
+    }
     
     try {
       await supabase
@@ -191,7 +202,12 @@ export function GroupProvider({ children }: { children: ReactNode }) {
   };
 
   const setSessionMode = async (mode: SessionMode) => {
-    if (!user || !isMother) return;
+    if (!user || !isMother) {
+      if (!isMother && mode === 'system') {
+        console.error('Apenas administradores globais podem acessar o modo sistema');
+      }
+      return;
+    }
     
     try {
       await supabase
