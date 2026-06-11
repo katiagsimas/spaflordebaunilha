@@ -1266,7 +1266,7 @@ export default function Dashboard() {
         }
       >
         {tabEconomica === "mensal" ? (
-          <div className="grid gap-3 grid-cols-2 md:grid-cols-5">
+          <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
             {[
               { label: "Faturamento", value: visaoEconomica.mensal.receitas, Icon: TrendingUp, accent: "text-cda-vinho" },
               { label: "Custos Totais", value: visaoEconomica.mensal.custos, Icon: TrendingDown, accent: "text-cda-coral" },
@@ -1298,40 +1298,8 @@ export default function Dashboard() {
             ))}
 
             {/* Meta do Mês */}
-            {(() => {
-              const meta = profile?.meta_faturamento_mensal || 0;
-              const atual = visaoEconomica.mensal.receitas;
-              const pct = meta > 0 ? Math.min((atual / meta) * 100, 100) : 0;
-              const corBarra = pct >= 80 ? "bg-green-500" : pct >= 50 ? "bg-cda-dourado" : "bg-cda-coral";
-              return (
-                <button
-                  type="button"
-                  onClick={() => {}}
-                  className="rounded-xl border border-cda-dourado/20 bg-cda-branco p-3 text-center transition hover:-translate-y-0.5 hover:border-cda-dourado/60 hover:shadow-md"
-                >
-                  <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-cda-vinho/10 ring-1 ring-cda-dourado/40">
-                    <TrendingUp className="h-4 w-4 text-cda-vinho" />
-                  </div>
-                  <p className="mt-2 text-[10px] font-body uppercase tracking-widest text-cda-vinho/60">Meta do mês</p>
-                  {meta > 0 ? (
-                    <>
-                      <p className="mt-1 font-display text-lg text-cda-vinho">{pct.toFixed(0)}%</p>
-                      <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-cda-dourado/15">
-                        <div className={`h-full ${corBarra} transition-all`} style={{ width: `${pct}%` }} />
-                      </div>
-                      <p className="mt-1 text-[10px] font-body text-cda-vinho/60">
-                        R$ {atual.toLocaleString('pt-BR', { maximumFractionDigits: 0 })} / R$ {meta.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="mt-1 text-xs font-body text-cda-vinho/60">Meta não definida</p>
-                      <p className="mt-1 text-[10px] font-body text-cda-vinho italic">Configure suas metas no Perfil</p>
-                    </>
-                  )}
-                </button>
-              );
-            })()}
+            {/* Meta do Mês (Oculto - Módulo Planejamento Removido) */}
+            {null}
           </div>
         ) : (
           <div className="h-[300px]">
