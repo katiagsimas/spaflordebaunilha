@@ -158,18 +158,6 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
             </div>
           </div>
 
-          {isImersao && (
-            <div className="rounded-md border border-cda-dourado/40 bg-cda-dourado/10 p-3 space-y-2">
-              <div className="flex items-center gap-2 text-sm font-semibold text-cda-preto">
-                <Sparkles className="h-4 w-4 text-cda-dourado" />
-                Aluna da Imersão A Receita que Faltava
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="imersao-turma" className="text-xs">Turma (opcional)</Label>
-                <Input id="imersao-turma" placeholder="Ex.: Turma 01 — Out/2026" value={imersaoTurma} onChange={e => setImersaoTurma(e.target.value)} />
-              </div>
-            </div>
-          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
