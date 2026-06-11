@@ -639,7 +639,6 @@ async function enviarEmailBoasVindas(
 const PLANO_NOME: Record<string, string> = {
   base: 'Caixa Lite',
   negocio: 'Caixa Business',
-  aluna_imersao: 'Imersão A Receita que Faltava',
 }
 
 const MODULOS_BUSINESS = [
