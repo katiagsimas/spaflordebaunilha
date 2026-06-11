@@ -77,9 +77,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
     items: [
       { title: "Meu Dinheiro", url: "/financeiro", icon: Wallet, active: true },
       { title: "Meu Salário", url: "/meu-salario", icon: Sparkles, active: true, adminOnly: true },
-      { title: "Meu Planejamento", url: "/planejamento", icon: CalendarCheck, active: false, comingSoonMessage: "Em breve você terá um plano claro para organizar sua produção, suas vendas e crescer com estratégia.", motherOnly: true },
       { title: "Conversa Doce", url: "/conversa-doce", icon: MessageCircle, active: true, conversaDoce: true },
-      
     ],
   },
   {
