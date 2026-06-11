@@ -78,7 +78,6 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
         planoTipo,
         planoInicio: planoInicio ? formatDateToISO(planoInicio) : getTodayISO(),
         planoFim: planoFim ? formatDateToISO(planoFim) : null,
-        imersaoTurma: isImersao ? (imersaoTurma.trim() || null) : null,
       };
 
       const { data, error } = await supabase.functions.invoke('criar-usuario', { body });
