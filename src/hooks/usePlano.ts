@@ -33,7 +33,7 @@ const MODULOS_POR_PLANO: Record<string, string[]> = {
 
   negocio: ["*"], // acesso total
   aluna_imersao: ["*"], // mesmos módulos do Business durante 30 dias
-  controle: [],   // em breve
+  
 };
 
 export interface Plano {
