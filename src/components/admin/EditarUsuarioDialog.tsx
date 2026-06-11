@@ -671,17 +671,13 @@ export function EditarUsuarioDialog({
                     if (planoIdAtual === 'base' && field.value !== 'anual') {
                       field.onChange('anual');
                     }
-                    if (planoIdAtual === 'aluna_imersao' && field.value !== 'imersao') {
-                      field.onChange('imersao');
-                    }
                     if (planoIdAtual === 'negocio' && field.value !== 'mensal' && field.value !== 'anual') {
                       field.onChange('anual');
                     }
-                    const isImersao = planoIdAtual === 'aluna_imersao';
                     return (
                       <FormItem>
                         <FormLabel>Periodicidade</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value} disabled={planoIdAtual === 'base' || isImersao}>
+                        <Select onValueChange={field.onChange} value={field.value} disabled={planoIdAtual === 'base'}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Periodicidade" />
@@ -690,7 +686,6 @@ export function EditarUsuarioDialog({
                           <SelectContent>
                             {planoIdAtual === 'negocio' && <SelectItem value="mensal">Mensal (30 dias)</SelectItem>}
                             {(planoIdAtual === 'base' || planoIdAtual === 'negocio') && <SelectItem value="anual">Anual (365 dias)</SelectItem>}
-                            {isImersao && <SelectItem value="imersao">Imersão ({IMERSAO_DIAS_ACESSO} dias)</SelectItem>}
                           </SelectContent>
                         </Select>
                         <FormMessage />
