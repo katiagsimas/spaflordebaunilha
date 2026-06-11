@@ -23,6 +23,8 @@
 | Data (UTC) | Item | Resolução |
 | Data (UTC) | Item | Resolução |
 |------------|------|-----------|
+| 2026-06-11 | RLS — `onboarding_exception_logs` permitia que qualquer ex-admin lesse logs criados por ele e que anon inserisse logs | SELECT restrito a `user_id = auth.uid() OR is_mother(auth.uid())`; INSERT exige `authenticated` + `is_mother(auth.uid())` + `admin_id = auth.uid()`. |
+| 2026-06-11 | Linter — `validate_active_group()` e `validate_profile_owner_group()` com `search_path` mutável | `ALTER FUNCTION ... SET search_path = public` aplicado em ambas. |
 | 2026-06-11 | RLS — `backups_cofre` aceitava INSERT direto de qualquer authenticated | Policy `Deny direct inserts on backups_cofre` (WITH CHECK false). Service role mantém escrita via edge (bypass RLS). |
 | 2026-06-11 | RLS — `clientes` bloqueava INSERT para usuários solo (sem grupo) | Policy `Solo users can insert own clientes` (`auth.uid() = usuario_id AND owner_group_id IS NULL`). |
 | 2026-06-11 | Storage — bucket `topo-bolo` sem policy de UPDATE | Policy owner-scoped por folder (`auth.uid()::text`). |
