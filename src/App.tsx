@@ -17,7 +17,7 @@ import { FirstAccessRedirect } from "@/components/FirstAccessRedirect";
 import { FloatingNavigation } from "@/components/FloatingNavigation";
 import { AlertaExpiracaoPlano } from "@/components/AlertaExpiracaoPlano";
 import { PlanExpirationWatcher } from "@/components/PlanExpirationWatcher";
-import { ModalExpiracaoImersao } from "@/components/ModalExpiracaoImersao";
+
 import { UserMenu, UserGreeting } from "@/components/UserMenu";
 import { MotherPlanSelector } from "@/components/MotherPlanSelector";
 import Dashboard from "./pages/Dashboard";
