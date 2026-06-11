@@ -40,17 +40,11 @@ export function AlertaExpiracaoPlano() {
     return null;
   }
 
-  const mensagem = ehImersao
-    ? (diasRestantes === 0
-        ? 'Seu acesso à Imersão expira hoje! Renove agora para continuar.'
-        : diasRestantes === 1
-          ? 'Seu acesso à Imersão expira amanhã! Renove para não perder seus dados.'
-          : `Seu acesso à Imersão expira em ${diasRestantes} dias. Renove para continuar.`)
-    : (diasRestantes === 0
-        ? 'Seu acesso expira hoje! Renove agora para continuar usando o sistema.'
-        : diasRestantes === 1
-          ? 'Seu acesso expira amanhã! Renove para não perder seus dados.'
-          : `Seu acesso expira em ${diasRestantes} dias. Renove para continuar usando o sistema.`);
+  const mensagem = diasRestantes === 0
+    ? 'Seu acesso expira hoje! Renove agora para continuar usando o sistema.'
+    : diasRestantes === 1
+      ? 'Seu acesso expira amanhã! Renove para não perder seus dados.'
+      : `Seu acesso expira em ${diasRestantes} dias. Renove para continuar usando o sistema.`;
 
   return (
     <Alert className="rounded-none border-x-0 border-t-0 bg-cda-dourado border-cda-dourado text-cda-preto">
