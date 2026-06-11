@@ -574,7 +574,7 @@ export default function Usuarios() {
 
           <TabsContent value="usuarios" className="space-y-6">
 
-        <AlunasImersaoExpirando />
+        
 
 
 
