@@ -378,7 +378,7 @@ async function enviarEmailBoasVindas(
         <li>Digite o email <strong>${emailSafe}</strong> para receber o link de acesso</li>
       </ol>
       <p><strong>Seu plano:</strong> ${planoNome}</p>
-      ${blocoImersao}
+      ${''}
       <p>Qualquer dúvida, responda este email ou acesse o suporte através do e-mail <a href="mailto:ola@umbrelladoce.com.br" style="color: #5B1A2B;">ola@umbrelladoce.com.br</a></p>
       <br/>
       <p>Umbrella Doce</p>
