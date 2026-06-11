@@ -33,9 +33,6 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
   const [planoTipo, setPlanoTipo] = useState('anual');
   const [planoInicio, setPlanoInicio] = useState<Date | undefined>(new Date());
   const [planoFim, setPlanoFim] = useState<Date | undefined>(undefined);
-  const [imersaoTurma, setImersaoTurma] = useState('');
-
-  const isImersao = false;
 
   useEffect(() => {
     if (planoId === 'base') setPlanoTipo('anual');
@@ -60,7 +57,7 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
     setPlanoTipo('anual');
     setPlanoInicio(new Date());
     setPlanoFim(undefined);
-    setImersaoTurma('');
+    
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -81,7 +78,6 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
         planoTipo,
         planoInicio: planoInicio ? formatDateToISO(planoInicio) : getTodayISO(),
         planoFim: planoFim ? formatDateToISO(planoFim) : null,
-        imersaoTurma: isImersao ? (imersaoTurma.trim() || null) : null,
       };
 
       const { data, error } = await supabase.functions.invoke('criar-usuario', { body });
