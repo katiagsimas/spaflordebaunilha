@@ -18,8 +18,6 @@ const MODULO_TABELAS: Record<string, string[]> = {
     "pre_preparos", "pre_preparos_ingredientes", "pre_preparos_mao_obra",
     // Estoque
     "estoque", "estoque_movimentacoes",
-    // Organização Doce
-    "organizacao_doce_state",
   ],
   comercial: [
     "clientes", "cliente_familiares",
