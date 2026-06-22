@@ -39,7 +39,7 @@
 |---|-------|------|--------------|
 | A-1 | 8 SEO | Sem `public/sitemap.xml`. | Gerar sitemap estático com as rotas públicas (atualmente todas exigem login — pode publicar só `/` e `/auth/login`). |
 | A-2 | 2 Segurança | `.env` versionado mesmo contendo apenas chaves *publishable*. | Resolver junto com C-1. |
-| A-3 | 3 Banco | Padrão RLS duplo em tabelas de negócio (encomendas, receitas, contas_*, estoque, custos_fixos, bancos…): `auth.uid() = usuario_id` em vez de `user_belongs_to_group(owner_group_id)`. Multi-tenant garantido pelo `useGroupFilter` no cliente; risco se algum hook esquecer o filtro. | Migrar políticas RLS para `user_belongs_to_group(owner_group_id)` em ondas (encomendas → financeiro → produção). Já identificado em #2. |
+| ~~A-3~~ | 3 Banco | ✅ **Corrigido em 2026-06-22** — padrão RLS unificado em todas as 29 tabelas de grupo via `user_belongs_to_group(owner_group_id)`. Ver seção dedicada abaixo. | — |
 | A-4 | 5 Código | 618 usos de `any` (em sua maioria *casts* sobre rows do Supabase). | Adotar `Database["public"]["Tables"][T]["Row"]` nos hooks de maior tráfego (`useEncomendas`, `useReceitas`, `useEstoque`, `useContas*`). |
 | A-5 | 5 Código | 40 `console.log` no código-fonte (incluindo edges). | Em `src/`, substituir por `errorLogger`; em edges, manter apenas logs estruturados úteis ao Supabase Logs. |
 | A-6 | 7 Performance | Sem code-splitting por rota (todas as páginas em bundle único). | Aplicar `React.lazy` + `Suspense` nas rotas pesadas (`Financeiro/*`, `Estoque/*`, `Comercial/*`, `Backup`). |
@@ -82,7 +82,7 @@
 |-------|--------|------------|
 | 1 Arquitetura | ✅ | A-11 (componentes longos) |
 | 2 Segurança | ⚠️ | C-1 (.env tracked), A-15 (rate-limit edges) |
-| 3 Banco / Supabase | ⚠️ | A-3 (RLS dupla), A-13 (255 migrações) |
+| 3 Banco / Supabase | ✅ | A-3 corrigido (RLS unificada); A-13 (255 migrações, baixo impacto) |
 | 4 Funcionalidades | ✅ | Todos fluxos OK |
 | 5 Qualidade do Código | ⚠️ | A-4 (`any`), A-5 (`console.log`) |
 | 6 UI/UX | ✅ | A-8 (OG externo), A-16 (helmet) |
@@ -106,6 +106,38 @@
 ### 🏁 Veredicto
 
 > ⚠️ **APROVADO COM RESSALVAS** — produto pode operar em produção (já está em `caixadeacucar.com.br`). Os dois itens críticos (C-1 e C-2) são operacionais, não comprometem dados de usuários, e devem ser resolvidos na próxima janela de deploy.
+
+---
+
+## 2026-06-22 — Padronização RLS multi-tenant (correção A-3) ✅
+
+**Escopo:** unificar o padrão RLS de todas as tabelas de negócio que pertencem a um grupo, eliminando o fallback `auth.uid() = usuario_id` em favor de `user_belongs_to_group(auth.uid(), owner_group_id)`.
+
+### Migração aplicada
+- **92 políticas legadas removidas** em 21 tabelas (`bancos`, `categorias`, `categorias_plano_contas`, `configuracoes_juros`, `contas_pagar`, `contas_receber`, `custos_fixos`, `embalagens`, `encomenda_itens`, `encomendas`, `estoque`, `estoque_movimentacoes`, `fornecedor_contatos`, `ingredientes`, `mao_obra_perfis`, `meu_salario_retiradas`, `plano_contas`, `pre_preparos`, `receitas`, `tags_encomendas`, `tipos_documento`, `tipos_insumos`, `transferencias_bancos`, `unidades_medida`). Cada tabela já possuía o equivalente `group_members_{select|insert|update|delete}_*` baseado em `user_belongs_to_group`, que passou a ser a única autoridade.
+- **`clientes` e `fornecedores`** tiveram as políticas `Group members can *` reescritas como `group_members_{select|insert|update|delete}_*`, **sem** o fallback `OR (auth.uid() = usuario_id)` que permitia acesso pelo proprietário original mesmo após sair do grupo.
+- **`fornecedor_contatos`**: 4 políticas duplicadas (`Group members can ...`) descartadas — restam apenas as `group_members_*_fornecedor_contatos`.
+- **Tabelas estritamente por-usuário** (`backups`, `backups_cofre`) **não foram alteradas** — pertencem ao usuário, não ao grupo.
+- **`useGroupFilter`** preservado no frontend como camada adicional de segurança (defense-in-depth), conforme solicitado.
+
+### Validação
+- ✅ **Auditoria pós-migração**: `0` políticas legadas restantes em tabelas de grupo (query `pg_policies` com regex para `auth.uid() = (usuario_id|user_id)` sem `user_belongs_to_group` no `qual`/`with_check`).
+- ✅ **Cobertura completa**: as 29 tabelas com `owner_group_id` (excluindo `backups`/`backups_cofre`) têm os 4 comandos (SELECT/INSERT/UPDATE/DELETE) cobertos por política baseada em `user_belongs_to_group`.
+- ✅ **Função `user_belongs_to_group` testada** com 2 usuários reais em grupos diferentes:
+  - `userA` ↔ grupo A → `true` (acesso permitido)
+  - `userA` ↔ grupo B → `false` (bloqueado)
+  - `userB` ↔ grupo B → `true` (acesso permitido)
+  - `userB` ↔ grupo A → `false` (bloqueado)
+  - `NULL` (anônimo) ↔ qualquer grupo → `false` (bloqueado)
+
+### Resultado prático
+- Usuários só conseguem `SELECT`/`INSERT`/`UPDATE`/`DELETE` em dados de grupos a que pertencem ativamente (`user_group_roles.is_active = true`).
+- Usuários removidos de um grupo **perdem acesso imediato** aos dados desse grupo (antes podiam continuar lendo via `usuario_id`).
+- Usuários anônimos não conseguem acessar nada.
+- A camada `useGroupFilter` no frontend continua aplicando `.eq('owner_group_id', activeGroupId)` em todas as queries — proteção em dois níveis.
+
+### Impacto em código de aplicação
+- **Nenhum.** Toda a lógica de negócio do frontend já chamava `useGroupFilter` (que injeta `owner_group_id`) ou setava `usuario_id = auth.uid()` no `insert`, ambos compatíveis com as novas políticas.
 
 ---
 
