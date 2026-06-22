@@ -228,15 +228,11 @@ Hub `/configuracoes` + páginas: `cadastros-base`, `precificacao`, `precificacao
 ### 6.6 Estoque
 - `estoque` (saldos por insumo), `estoque_movimentacoes` (entradas, saídas, ajustes — base do custo médio)
 
-### 6.7 Planejamento
-- `planejamento_metas`, `planejamento_tarefas`, `planejamento_datas_comemorativas`, `planejamento_descanso`
-
-### 6.8 Meu Salário
+### 6.7 Meu Salário
 - `meu_salario_retiradas` — retiradas mensais segundo o Método Renda Doce
 
-### 6.9 Conversa Doce & Organização
+### 6.8 Conversa Doce
 - `conversa_doce_favoritos` — respostas favoritadas por grupo
-- `organizacao_doce_state` — estado persistido do organizador
 
 ### 6.10 Configuração
 - `categorias`, `unidades_medida`, `bancos`, `tipos_documento`
