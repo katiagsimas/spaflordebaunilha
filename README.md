@@ -71,3 +71,30 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+
+## Monitoramento de erros (Sentry)
+
+Este projeto integra o [Sentry](https://sentry.io) para captura automática de erros em produção.
+
+### Como configurar em um novo ambiente
+
+1. Acesse [sentry.io](https://sentry.io) e crie (ou abra) um projeto do tipo **React**.
+2. Em **Settings → Projects → [seu projeto] → Client Keys (DSN)**, copie o valor do **DSN**.
+3. Defina a variável de ambiente `VITE_SENTRY_DSN` com esse valor:
+   - **Local:** adicione `VITE_SENTRY_DSN=...` ao arquivo `.env` (veja `.env.example`).
+   - **Produção (Lovable / Vercel / outro host):** cadastre `VITE_SENTRY_DSN` como variável de ambiente do build.
+4. Faça um novo build/deploy. Se o DSN estiver ausente ou vazio, o Sentry simplesmente não é inicializado — o app continua funcionando normalmente.
+
+### O que é capturado
+
+- Erros JavaScript não tratados (`window.error` e `unhandledrejection`).
+- Erros lançados em chamadas ao Supabase / Edge Functions (via `logarErro` em `src/lib/errorLogger.ts`).
+- Falhas registradas manualmente via `capturarErroNoSentry(...)`.
+
+### Filtros de privacidade aplicados
+
+- Senhas, tokens, chaves de API, dados de cartão e cabeçalhos `Authorization` são **mascarados** antes do envio.
+- Campos de formulário sensíveis são automaticamente mascarados pelo Session Replay (`maskAllInputs`, `maskAllText`, `blockAllMedia`).
+- O **corpo das respostas do Supabase** é removido dos breadcrumbs HTTP (mantemos apenas URL, método e status), evitando vazamento de dados pessoais.
+- `sendDefaultPii: false` e o `user` enviado contém apenas `id`.
+- Ambiente: `production` quando `import.meta.env.PROD === true`, `development` caso contrário. Em desenvolvimento, a taxa de amostragem é 10%.

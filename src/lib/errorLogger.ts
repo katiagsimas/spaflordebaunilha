@@ -6,6 +6,7 @@
  * Substituir por integração com Sentry/LogRocket quando disponível.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { capturarErroNoSentry } from "@/lib/sentry";
 
 type ErrorContext = {
   origem: string;
@@ -55,6 +56,8 @@ export function logarErro(origem: string, erro: unknown, extra?: Record<string, 
     stack: erro instanceof Error ? erro.stack : undefined,
     contexto,
   });
+  // Encaminha para Sentry (no-op se VITE_SENTRY_DSN não estiver configurado)
+  capturarErroNoSentry(origem, erro, { ...contexto, ...(extra ?? {}) });
 }
 
 /**
