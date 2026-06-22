@@ -379,7 +379,7 @@
 
 | # | Item | Status | Descrição |
 |---|------|--------|-----------|
-| BK-R1 | `src/lib/backupCatalog.ts` | ✅ | Módulo **Minha Operação** agora cobre Cadastros + Cardápio + Estoque + **Organização Doce** (incluída `organizacao_doce_state`). |
+| BK-R1 | `src/lib/backupCatalog.ts` | ✅ | Módulo **Minha Operação** agora cobre Cadastros + Cardápio + Estoque + **Meu Planejamento** (incluída `organizacao_doce_state`). |
 | BK-R2 | `src/lib/backupCatalog.ts` | ✅ | Módulo **Meu Negócio** consolidado: Meu Dinheiro (bancos, plano de contas, contas a pagar/receber, custos fixos, juros), Fechamentos, Meu Salário e **Conversa Doce** (`conversa_doce_favoritos` migrada de Sistema). |
 | BK-R3 | `src/lib/backupCatalog.ts` | ✅ | Módulo **Sistema** redefinido para refletir Configurações / Meus Dados: inclui `profiles` (perfil da confeitaria) e `tags` do sistema. |
 | BK-R4 | Edge Function `executar-backups-agendados` | ✅ | `MODULO_TABELAS` espelhado com o novo catálogo. Tratamento especial para `profiles` (filtrado por `id = usuario_id`). Deploy realizado. |
@@ -1263,12 +1263,12 @@ Substituiu a abordagem com Vault (que exigia `vault.create_secret` manual no SQL
 - **P-4 (assinatura definitiva):** A assinatura real de `public.fechar_mes` (`p_fechamento_id uuid, p_observacoes, p_snapshot, p_faturamento, p_custos, p_margem_seguranca, p_pro_labore_saudavel, p_retiradas, p_saldo_restante`) é a forma definitiva — superior à proposta original `(grupo_id, ano, mes)` porque grava o snapshot financeiro atomicamente com `status='fechado'`, eliminando janela de inconsistência entre cálculo do snapshot e fechamento. Spec original descartada; documentação reflete a assinatura real. Status: ✅ DEFINITIVO.
 - **P-8 (rename do componente):** `ContasPagarFormModal.tsx` renomeado para `ContasPagarFormView.tsx`. O nome "Modal" era enganoso — o componente é renderizado como página dedicada (rota `/financeiro/contas-pagar/novo|editar/:id`), não como overlay shadcn `<Dialog>`. Decisão arquitetural: formulário longo (741 linhas, com parcelas e anexos) tem UX melhor como página em viewports estreitos do que como Dialog. O ganho real da P-8 — wrapper de rota fino (24 linhas) + componente de formulário separado — está cumprido. Import em `src/pages/financeiro/ContasPagarForm.tsx` atualizado. Status: ✅ DEFINITIVO.
 
-## 2026-05-26 — Organização Doce: módulo portado + ajustes de layout ✅
+## 2026-05-26 — Meu Planejamento: módulo portado + ajustes de layout ✅
 
-- **Organização Doce:** portado do projeto `711eac8d-e6f1-40e2-b038-84b75e878531`. Ritual pessoal e privado por usuário (3 áreas: Diária, Semanal, Mensal), com reset semanal automático, frases motivacionais Ká Simas, exportação PDF (capa + ritual + Pró-Labore) e fonte Lora embutida.
+- **Meu Planejamento:** portado do projeto `711eac8d-e6f1-40e2-b038-84b75e878531`. Ritual pessoal e privado por usuário (3 áreas: Diária, Semanal, Mensal), com reset semanal automático, frases motivacionais Ká Simas, exportação PDF (capa + ritual + Pró-Labore) e fonte Lora embutida.
 - **DB:** Migration cria `public.organizacao_doce_state` (state JSONB) com RLS `owner_id = auth.uid()` para SELECT/INSERT/UPDATE/DELETE.
 - **Rota:** `/organizacao-doce` em `App.tsx` envelopada por `PlanoGuard` (acesso: Caixa Business + Mother; Lite redireciona para `/upgrade`).
-- **Sidebar:** item "Organização Doce" adicionado em PLANEJAMENTO (ícone `ListChecks`).
+- **Sidebar:** item "Meu Planejamento" adicionado em PLANEJAMENTO (ícone `ListChecks`).
 - **Layout global:**
   - Rodapé com texto `Umbrella Doce by Ká Simas · CNPJ 65.786.966/0001-41 · Todos os direitos reservados.` adicionado ao `Layout` em `src/App.tsx`.
   - Botão "Limpar cache e recarregar" movido do rodapé da Sidebar para o cabeçalho (entre `BackupBadge` e `UserMenu`) como ícone colapsável (`ClearCacheButton` em `HeaderControls.tsx`): primeiro clique expande o título, segundo clique executa a limpeza + hard reload.
@@ -1431,7 +1431,7 @@ Revisados os 3 documentos já considerados completos. Resultado: nenhuma referê
 Após P1+P2+P3, a pasta `docs/` está com 13 documentos modulares + `AUDITORIA.md` + `PENDENCIAS_SEGURANCA.md`, todos sincronizados com o estado atual do sistema (Vinho Premium v2, plano Start descontinuado, `aluna_imersao`, `plano_pendente_*`, edge function `aplicar-planos-pendentes`, fechamentos mensais com snapshot, transferências entre bancos, módulos Estoque/Planejamento/Conversa Doce/AI Gateway Cap).
 
 ## 2026-05-26 — Restrição de acesso ao módulo Planejamento
-- Todos os itens da seção PLANEJAMENTO (Meu Planejamento, Conversa Doce, Organização Doce, Planejamento Doce) agora são exclusivos do usuário MÃE (MOTHER).
+- Todos os itens da seção PLANEJAMENTO (Meu Planejamento, Conversa Doce, Meu Planejamento, Meu Planejamento) agora são exclusivos do usuário MÃE (MOTHER).
 - Sidebar: itens marcados como `motherOnly: true` (removido `ssoDoce`/`adminOnly` para essa seção).
 - Rotas `/planejamento`, `/planejamento-doce`, `/conversa-doce`, `/conversa-doce/respostas`, `/organizacao-doce` envolvidas com novo `MotherGuard` (`src/components/MotherGuard.tsx`).
 - Planos Business e Aluna da Imersão deixam de visualizar/acessar esses módulos.
@@ -1463,12 +1463,12 @@ Após P1+P2+P3, a pasta `docs/` está com 13 documentos modulares + `AUDITORIA.m
 
 ## 2026-05-26 — Módulos Propostas e Contratos + refactor Meus Dados
 
-✅ **Propostas e Contratos** portados do projeto Planejamento Doce para a seção MEU COMERCIAL (Business + Imersão + Mother).
+✅ **Propostas e Contratos** portados do projeto original para a seção MEU COMERCIAL (Business + Imersão + Mother).
 - Rotas: `/comercial/propostas`, `/comercial/propostas/nova`, `/comercial/propostas/editar/:id`, `/comercial/propostas/relatorio`, `/comercial/contratos`
 - Itens novos no Sidebar (MEU COMERCIAL): Propostas, Contratos
 - Seed de 3 templates padrão (Bolo de Aniversário, Bolo de Casamento, Mesa de Doces)
 
-✅ **Refactor `/configuracoes/dados-confeitaria`** com layout do "Meus Dados" do Planejamento Doce:
+✅ **Refactor `/configuracoes/dados-confeitaria`** com layout do "Meus Dados" do projeto original:
 - Abas: Pessoal · Empresa · Endereço · Bancário · Legal · Assinatura
 - Novos campos em `profiles`: complemento, documento_tipo, inscricao_municipal, certificacoes, email_comercial, telefone_fixo
 - Upload de assinatura no bucket `assinaturas`
