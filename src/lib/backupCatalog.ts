@@ -44,7 +44,7 @@ export const BACKUP_MODULOS: BackupModuloDef[] = [
       // Estoque
       "estoque",
       "estoque_movimentacoes",
-      // Organização Doce
+      // Meu Planejamento
       "organizacao_doce_state",
     ],
   },
