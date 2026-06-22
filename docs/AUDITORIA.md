@@ -39,7 +39,7 @@
 |---|-------|------|--------------|
 | A-1 | 8 SEO | Sem `public/sitemap.xml`. | Gerar sitemap estático com as rotas públicas (atualmente todas exigem login — pode publicar só `/` e `/auth/login`). |
 | A-2 | 2 Segurança | `.env` versionado mesmo contendo apenas chaves *publishable*. | Resolver junto com C-1. |
-| A-3 | 3 Banco | Padrão RLS duplo em tabelas de negócio (encomendas, receitas, contas_*, estoque, custos_fixos, bancos…): `auth.uid() = usuario_id` em vez de `user_belongs_to_group(owner_group_id)`. Multi-tenant garantido pelo `useGroupFilter` no cliente; risco se algum hook esquecer o filtro. | Migrar políticas RLS para `user_belongs_to_group(owner_group_id)` em ondas (encomendas → financeiro → produção). Já identificado em #2. |
+| ~~A-3~~ | 3 Banco | ✅ **Corrigido em 2026-06-22** — padrão RLS unificado em todas as 29 tabelas de grupo via `user_belongs_to_group(owner_group_id)`. Ver seção dedicada abaixo. | — |
 | A-4 | 5 Código | 618 usos de `any` (em sua maioria *casts* sobre rows do Supabase). | Adotar `Database["public"]["Tables"][T]["Row"]` nos hooks de maior tráfego (`useEncomendas`, `useReceitas`, `useEstoque`, `useContas*`). |
 | A-5 | 5 Código | 40 `console.log` no código-fonte (incluindo edges). | Em `src/`, substituir por `errorLogger`; em edges, manter apenas logs estruturados úteis ao Supabase Logs. |
 | A-6 | 7 Performance | Sem code-splitting por rota (todas as páginas em bundle único). | Aplicar `React.lazy` + `Suspense` nas rotas pesadas (`Financeiro/*`, `Estoque/*`, `Comercial/*`, `Backup`). |
