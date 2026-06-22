@@ -11,7 +11,7 @@
 ## 1. VISÃO GERAL
 
 ### 1.1 O que é
-Caixa de Açúcar é um SaaS de gestão completo para confeitarias, doceiras e padarias artesanais. Permite controlar encomendas, precificar produtos com fichas técnicas, gerenciar financeiro (contas a pagar/receber, fluxo de caixa, DRE, fechamento de mês), controlar estoque com custo médio, fazer planejamento estratégico, gerenciar pró-labore (Meu Salário), conversar com assistente IA (Conversa Doce) e organizar tarefas operacionais — tudo com isolamento multi-tenant por grupos.
+Caixa de Açúcar é um SaaS de gestão completo para confeitarias, doceiras e padarias artesanais. Permite controlar encomendas, precificar produtos com fichas técnicas, gerenciar financeiro (contas a pagar/receber, fluxo de caixa, DRE, fechamento de mês), controlar estoque com custo médio, fazer planejamento estratégico, gerenciar pró-labore (Meu Salário) e organizar tarefas operacionais — tudo com isolamento multi-tenant por grupos.
 
 ### 1.2 Para quem
 Confeiteiras, doceiras e pequenas empresas do ramo de confeitaria.
@@ -61,7 +61,6 @@ src/
 │   ├── financeiro/        # ContasReceberFormModal, DarBaixaDialog, FechamentoMes
 │   ├── estoque/           # Componentes do controle de estoque
 │   ├── planejamento/      # Calendário, Metas, Tarefas, Bem-Estar
-│   ├── conversa-doce/     # Chat IA + favoritos
 │   └── alertas/           # AlertaExpiracaoPlano, ModalExpiracaoImersao
 ├── contexts/              # AuthContext, GroupContext, GlobalLoadingContext
 ├── hooks/                 # useGroupFilter, usePlano, useUserProfile, etc.
@@ -72,7 +71,6 @@ src/
 │   ├── auth/              # Login, ForgotPassword, ResetPassword
 │   ├── cadastros/         # Categorias, Clientes, Fornecedores, SeusDados, UnidadesMedida
 │   ├── configuracoes/     # Backup, Bancos, PlanoContas, TiposDocumentos, MaoDeObra, etc.
-│   ├── conversa-doce/     # Chat e Respostas Favoritas
 │   ├── estoque/           # Lista, Entrada, Ajuste, Movimentações
 │   ├── financeiro/        # ContasPagar/Receber, DRE, FluxoCaixa, FechamentoMes
 │   ├── meu-salario/       # Método Renda Doce
@@ -157,7 +155,6 @@ Background dourado, texto preto, CTA em coral.
 | `/estoque` | Meus Insumos | Business / aluna_imersao / Admin |
 | `/clientes-fornecedores` | Clientes e Fornecedores | — |
 
-| `/conversa-doce` | Assistente IA WhatsApp | — |
 | `/organizacao-doce` | Organizador de tarefas | — |
 | `/upgrade` | Tela de upgrade | — |
 
@@ -183,13 +180,10 @@ Background dourado, texto preto, CTA em coral.
 ### 5.5 Estoque (`/estoque/*`)
 `/estoque` (lista), `/estoque/entrada`, `/estoque/ajuste`, `/estoque/movimentacoes`
 
-### 5.6 Conversa Doce (`/conversa-doce/*`)
-`/conversa-doce` (chat), `/conversa-doce/respostas` (favoritos do grupo)
-
-### 5.7 Configurações
+### 5.6 Configurações
 Hub `/configuracoes` + páginas: `cadastros-base`, `precificacao`, `precificacao/mao-de-obra`, `financeiro`, `dados-confeitaria`, `categorias-receitas`, `unidades-medida`, `tipos-insumos`, `categorias-plano-contas`, `plano-contas`, `bancos`, `tipos-documentos`, `juros`, `tags-encomendas`, `backup`.
 
-### 5.8 Administração
+### 5.7 Administração
 | Rota | Acesso |
 |------|--------|
 | `/admin/governanca` | MOTHER |
@@ -231,9 +225,6 @@ Hub `/configuracoes` + páginas: `cadastros-base`, `precificacao`, `precificacao
 ### 6.7 Meu Salário
 - `meu_salario_retiradas` — retiradas mensais segundo o Método Renda Doce
 
-### 6.8 Conversa Doce
-- `conversa_doce_favoritos` — respostas favoritadas por grupo
-
 ### 6.10 Configuração
 - `categorias`, `unidades_medida`, `bancos`, `tipos_documento`
 - `categorias_plano_contas`, `plano_contas`, `custos_fixos`, `configuracoes_juros`
@@ -261,7 +252,7 @@ Hub `/configuracoes` + páginas: `cadastros-base`, `precificacao`, `precificacao
 | `GlobalLoadingContext` | Loading global com mascote. UI usa `return null` enquanto ativo |
 
 ### Hooks Principais
-`useGroupFilter`, `usePlano`, `useIsAdmin`, `useUserId`, `useUserProfile`, `useClientes`, `useFornecedores`, `useReceitas`, `useEncomendas`, `useCalculosReceita`, `useMaoObraPerfis`, `useMaoObraHistorico`, `usePlanejamento`, `useEncomendasHoje`, `useEstoque`, `useMeuSalario`, `useConversaDoce`.
+`useGroupFilter`, `usePlano`, `useIsAdmin`, `useUserId`, `useUserProfile`, `useClientes`, `useFornecedores`, `useReceitas`, `useEncomendas`, `useCalculosReceita`, `useMaoObraPerfis`, `useMaoObraHistorico`, `usePlanejamento`, `useEncomendasHoje`, `useEstoque`, `useMeuSalario`.
 
 ---
 
@@ -328,7 +319,7 @@ Enforcement: `usePlano()` + `PlanoGuard` no frontend; `user_has_financial_access
 - Edge function única: `ai-proxy`
 - Tabela: `ai_usage_quotas` (quota mensal por usuário, reset automático)
 - Limites por plano (Lite/Business/Imersão/Admin), allowlist de modelos, rate limit
-- Toda feature de IA (Conversa Doce, insights, sugestões) **deve** reusar `ai-proxy` — proibido criar edge functions de IA por feature
+- Toda feature de IA (insights, sugestões) **deve** reusar `ai-proxy` — proibido criar edge functions de IA por feature
 
 > 📄 Detalhes em [AI_GATEWAY_CAP.md](./AI_GATEWAY_CAP.md)
 
@@ -343,7 +334,6 @@ Enforcement: `usePlano()` + `PlanoGuard` no frontend; `user_has_financial_access
 
 ### Maio/2026
 - Lazy load de páginas de relatórios (DRE, Fluxo de Caixa)
-- Conversa Doce com cache de favoritos por grupo
 - `AuthContext` reordenado (`getSession` awaitado antes do listener) — eliminou redirecionamentos intermitentes
 
 ---
