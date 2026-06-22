@@ -56,6 +56,8 @@ export function logarErro(origem: string, erro: unknown, extra?: Record<string, 
     stack: erro instanceof Error ? erro.stack : undefined,
     contexto,
   });
+  // Encaminha para Sentry (no-op se VITE_SENTRY_DSN não estiver configurado)
+  capturarErroNoSentry(origem, erro, { ...contexto, ...(extra ?? {}) });
 }
 
 /**
