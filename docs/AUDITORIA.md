@@ -379,7 +379,7 @@
 
 | # | Item | Status | Descrição |
 |---|------|--------|-----------|
-| BK-R1 | `src/lib/backupCatalog.ts` | ✅ | Módulo **Minha Operação** agora cobre Cadastros + Cardápio + Estoque + **Meu Planejamento** (incluída `organizacao_doce_state`). |
+| BK-R1 | `src/lib/backupCatalog.ts` | ✅ | Módulo **Minha Operação** agora cobre Cadastros + Cardápio + Estoque + ritual pessoal (incluída `organizacao_doce_state`, módulo descontinuado em 2026-06-22). |
 | BK-R2 | `src/lib/backupCatalog.ts` | ✅ | Módulo **Meu Negócio** consolidado: Meu Dinheiro (bancos, plano de contas, contas a pagar/receber, custos fixos, juros), Fechamentos, Meu Salário e **Conversa Doce** (`conversa_doce_favoritos` migrada de Sistema). |
 | BK-R3 | `src/lib/backupCatalog.ts` | ✅ | Módulo **Sistema** redefinido para refletir Configurações / Meus Dados: inclui `profiles` (perfil da confeitaria) e `tags` do sistema. |
 | BK-R4 | Edge Function `executar-backups-agendados` | ✅ | `MODULO_TABELAS` espelhado com o novo catálogo. Tratamento especial para `profiles` (filtrado por `id = usuario_id`). Deploy realizado. |
@@ -1010,7 +1010,7 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 
 
 
-## 2026-05-07 — Módulo Meu Planejamento (Fase 1)
+## 2026-05-07 — Módulo de planejamento (Fase 1) [DESCONTINUADO em 2026-06-22]
 - ✅ Criadas tabelas: planejamento_metas, planejamento_tarefas, planejamento_datas_comemorativas, planejamento_descanso
 - ✅ RLS multi-tenancy por owner_group_id em todas as tabelas
 - ✅ Seed de 11 datas comemorativas brasileiras (is_system=true)
@@ -1018,8 +1018,8 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 - ✅ UI com 4 abas: Calendário, Metas, Tarefas, Bem-Estar
 - ✅ Integração: encomendas e descansos exibidos no calendário
 - ✅ Acesso admin-only (PlanoGuard bloqueia /planejamento para não-admin)
-- ✅ Sidebar: Meu Planejamento em 'Em Breve' com adminOnly=true
-- ✅ Documentação: DOCS_PLANEJAMENTO.md criado
+- ✅ Sidebar: item em 'Em Breve' com adminOnly=true
+- ✅ Documentação: DOCS_PLANEJAMENTO.md criado (removido em 2026-06-22)
 
 
 ## 2026-05-14 — Módulo Meu Salário (Renda Doce)
@@ -1263,12 +1263,12 @@ Substituiu a abordagem com Vault (que exigia `vault.create_secret` manual no SQL
 - **P-4 (assinatura definitiva):** A assinatura real de `public.fechar_mes` (`p_fechamento_id uuid, p_observacoes, p_snapshot, p_faturamento, p_custos, p_margem_seguranca, p_pro_labore_saudavel, p_retiradas, p_saldo_restante`) é a forma definitiva — superior à proposta original `(grupo_id, ano, mes)` porque grava o snapshot financeiro atomicamente com `status='fechado'`, eliminando janela de inconsistência entre cálculo do snapshot e fechamento. Spec original descartada; documentação reflete a assinatura real. Status: ✅ DEFINITIVO.
 - **P-8 (rename do componente):** `ContasPagarFormModal.tsx` renomeado para `ContasPagarFormView.tsx`. O nome "Modal" era enganoso — o componente é renderizado como página dedicada (rota `/financeiro/contas-pagar/novo|editar/:id`), não como overlay shadcn `<Dialog>`. Decisão arquitetural: formulário longo (741 linhas, com parcelas e anexos) tem UX melhor como página em viewports estreitos do que como Dialog. O ganho real da P-8 — wrapper de rota fino (24 linhas) + componente de formulário separado — está cumprido. Import em `src/pages/financeiro/ContasPagarForm.tsx` atualizado. Status: ✅ DEFINITIVO.
 
-## 2026-05-26 — Meu Planejamento: módulo portado + ajustes de layout ✅
+## 2026-05-26 — Módulo de planejamento: portado + ajustes de layout [DESCONTINUADO em 2026-06-22]
 
-- **Meu Planejamento:** portado do projeto `711eac8d-e6f1-40e2-b038-84b75e878531`. Ritual pessoal e privado por usuário (3 áreas: Diária, Semanal, Mensal), com reset semanal automático, frases motivacionais Ká Simas, exportação PDF (capa + ritual + Pró-Labore) e fonte Lora embutida.
+- **Módulo:** portado do projeto `711eac8d-e6f1-40e2-b038-84b75e878531`. Ritual pessoal e privado por usuário (3 áreas: Diária, Semanal, Mensal), com reset semanal automático, frases motivacionais Ká Simas, exportação PDF (capa + ritual + Pró-Labore) e fonte Lora embutida.
 - **DB:** Migration cria `public.organizacao_doce_state` (state JSONB) com RLS `owner_id = auth.uid()` para SELECT/INSERT/UPDATE/DELETE.
 - **Rota:** `/organizacao-doce` em `App.tsx` envelopada por `PlanoGuard` (acesso: Caixa Business + Mother; Lite redireciona para `/upgrade`).
-- **Sidebar:** item "Meu Planejamento" adicionado em PLANEJAMENTO (ícone `ListChecks`).
+- **Sidebar:** item adicionado em PLANEJAMENTO (ícone `ListChecks`).
 - **Layout global:**
   - Rodapé com texto `Umbrella Doce by Ká Simas · CNPJ 65.786.966/0001-41 · Todos os direitos reservados.` adicionado ao `Layout` em `src/App.tsx`.
   - Botão "Limpar cache e recarregar" movido do rodapé da Sidebar para o cabeçalho (entre `BackupBadge` e `UserMenu`) como ícone colapsável (`ClearCacheButton` em `HeaderControls.tsx`): primeiro clique expande o título, segundo clique executa a limpeza + hard reload.
@@ -1431,7 +1431,7 @@ Revisados os 3 documentos já considerados completos. Resultado: nenhuma referê
 Após P1+P2+P3, a pasta `docs/` está com 13 documentos modulares + `AUDITORIA.md` + `PENDENCIAS_SEGURANCA.md`, todos sincronizados com o estado atual do sistema (Vinho Premium v2, plano Start descontinuado, `aluna_imersao`, `plano_pendente_*`, edge function `aplicar-planos-pendentes`, fechamentos mensais com snapshot, transferências entre bancos, módulos Estoque/Planejamento/Conversa Doce/AI Gateway Cap).
 
 ## 2026-05-26 — Restrição de acesso ao módulo Planejamento
-- Todos os itens da seção PLANEJAMENTO (Meu Planejamento, Conversa Doce, Meu Planejamento, Meu Planejamento) agora são exclusivos do usuário MÃE (MOTHER).
+- Todos os itens da seção PLANEJAMENTO (Conversa Doce e itens descontinuados em 2026-06-22) agora são exclusivos do usuário MÃE (MOTHER).
 - Sidebar: itens marcados como `motherOnly: true` (removido `ssoDoce`/`adminOnly` para essa seção).
 - Rotas `/planejamento`, `/planejamento-doce`, `/conversa-doce`, `/conversa-doce/respostas`, `/organizacao-doce` envolvidas com novo `MotherGuard` (`src/components/MotherGuard.tsx`).
 - Planos Business e Aluna da Imersão deixam de visualizar/acessar esses módulos.

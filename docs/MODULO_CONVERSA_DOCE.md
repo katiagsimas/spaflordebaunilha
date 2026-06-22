@@ -12,7 +12,7 @@ Assistente premium de respostas para WhatsApp das confeiteiras. A usuária cola 
 
 - **Plano:** Business (`negocio`). Lite (`base`) é bloqueado pelo `PlanoGuard` → redireciona para `/upgrade`.
 - **Role:** apenas usuárias admin/MOTHER veem no sidebar (`adminOnly: true`).
-- **Sidebar:** seção `PLANEJAMENTO`, entre "Meu Planejamento" e "Minha Presença".
+- **Sidebar:** seção `PLANEJAMENTO`.
 
 ## Rotas
 
