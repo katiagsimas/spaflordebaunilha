@@ -42,7 +42,7 @@ interface MenuItem {
   adminOnly?: boolean;
   motherOnly?: boolean;
   motherUnlock?: boolean;
-  ssoDoce?: boolean;
+  
   
   comingSoonMessage?: string;
 }
@@ -103,7 +103,8 @@ export function AppSidebar() {
   const { onboardingPendente } = useOnboardingStatus();
 
   const { rotaBloqueada, isLoading: isPlanoLoading, plano } = usePlano();
-  const podeAcessarSsoDoce = effectiveIsAdmin || plano?.id === "negocio";
+
+
   
   const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
   const [comingSoonModal, setComingSoonModal] = useState<{ title: string; message: string } | null>(null);
@@ -212,7 +213,7 @@ export function AppSidebar() {
               <SidebarGroupContent>
                 <SidebarMenu>
                   {section.items
-                    .filter((item) => (!item.adminOnly || effectiveIsAdmin) && (!item.motherOnly || effectiveIsMother) && (!item.ssoDoce || podeAcessarSsoDoce))
+                    .filter((item) => (!item.adminOnly || effectiveIsAdmin) && (!item.motherOnly || effectiveIsMother))
                     .map((item) => {
                       const Icon = item.icon;
                       
