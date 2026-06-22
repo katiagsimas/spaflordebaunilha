@@ -6,6 +6,7 @@
  * Substituir por integração com Sentry/LogRocket quando disponível.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { capturarErroNoSentry } from "@/lib/sentry";
 
 type ErrorContext = {
   origem: string;
