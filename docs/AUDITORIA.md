@@ -7,7 +7,7 @@
 
 ## 2026-06-22 — Remoção do doc obsoleto INTEGRACAO_SSO_DOCE.md ✅
 - Excluído `docs/INTEGRACAO_SSO_DOCE.md` — descrevia integração SSO Caixa ↔ Planejamento DOCE que já havia sido **inteiramente removida do código** (arquivos `src/hooks/useOpenPlannerDoce.ts`, `src/pages/SSOReturnPage.tsx`, edge functions `gerar-token-sso-doce` e `validar-token-retorno-doce`, e card "Planejamento DOCE" no Dashboard não existem mais).
-- ⚠️ **Resíduos no banco** ainda presentes (não removidos nesta passagem): tabela `public.sso_token_log` e função `public.cleanup_expired_sso_tokens()` + cron diário 03:00 UTC.
+- 🗑️ **Resíduos no banco removidos** via migração: tabela `public.sso_token_log`, função `public.cleanup_expired_sso_tokens()` e cron diário de limpeza (`DROP IF EXISTS` + `cron.unschedule`). Não restam resíduos da integração SSO no projeto.
 
 ---
 
