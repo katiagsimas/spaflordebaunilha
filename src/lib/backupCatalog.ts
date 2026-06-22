@@ -44,8 +44,6 @@ export const BACKUP_MODULOS: BackupModuloDef[] = [
       // Estoque
       "estoque",
       "estoque_movimentacoes",
-      // Ritual pessoal (módulo descontinuado, tabela mantida para backups históricos)
-      "organizacao_doce_state",
     ],
   },
   {

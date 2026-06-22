@@ -35,8 +35,6 @@ const TABELAS_PERMITIDAS_ORDEM: string[] = [
   "receitas_mao_obra", "receitas_despesas_venda", "receitas_imagens",
   // Estoque
   "estoque", "estoque_movimentacoes",
-  // Organização
-  "organizacao_doce_state",
   // Comercial - pais primeiro
   "clientes", "cliente_familiares",
   "fornecedores", "fornecedor_contatos",
