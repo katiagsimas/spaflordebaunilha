@@ -31,7 +31,7 @@
 | # | Item | Status | Origem | Correção sugerida |
 |---|------|--------|--------|--------------------|
 | **C-1** | `.env` ainda *tracked* no Git (`git ls-files .env` retorna 1 linha). Conteúdo atual contém apenas chaves *publishable* do Supabase (não são segredos), mas o arquivo continua versionado. | ❌ herdado #2 | `git ls-files` | `git rm --cached .env && git commit -m "chore: untrack .env"`. Ação manual fora do Lovable. |
-| **C-2** | Sem monitoramento de erros em produção (Sentry / LogRocket). `ErrorBoundary` + `errorLogger.ts` capturam local, mas não enviam para serviço externo. | ❌ herdado #2 | revisão `main.tsx`, `errorLogger.ts` | Integrar Sentry (DSN via secret) ou Posthog Error Tracking; já existe ponto de injeção pronto em `errorLogger.ts`. |
+| **C-2** | Sem monitoramento de erros em produção (Sentry / LogRocket). `ErrorBoundary` + `errorLogger.ts` capturam local, mas não enviam para serviço externo. | ✅ resolvido 2026-06-22 | revisão `main.tsx`, `errorLogger.ts` | **Sentry integrado** (`@sentry/react`) via `src/lib/sentry.ts`. DSN lido de `VITE_SENTRY_DSN` (sem hardcode). Filtros: scrub de senhas/tokens/cartões, `maskAllInputs`/`maskAllText` no Replay, corpo de respostas Supabase removido de breadcrumbs, `sendDefaultPii:false`. Ambiente automático prod/dev com sample 10% em dev. `errorLogger.ts` agora encaminha todos os erros capturados ao Sentry. Falta apenas inserir o DSN real (`VITE_SENTRY_DSN` em secrets/.env) para ativar. |
 
 ### 🟡 Itens de Atenção
 
