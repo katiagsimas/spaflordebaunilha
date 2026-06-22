@@ -5,6 +5,17 @@
 
 ---
 
+## 2026-06-22 — Descontinuação do módulo de planejamento ✅
+- Removidas todas as menções textuais a "Meu Planejamento" em docs e código (módulo sem UI/rotas ativas no projeto).
+- Arquivo `docs/DOCS_PLANEJAMENTO.md` excluído.
+- `docs/DOCS_MESTRE.md`: removida linha da rota `/planejamento`.
+- `docs/MODULO_CONVERSA_DOCE.md`: ajustada descrição da posição na sidebar.
+- `src/lib/backupCatalog.ts`: comentário atualizado; tabela `organizacao_doce_state` mantida no catálogo de backup para preservar dados históricos.
+- Entradas históricas em AUDITORIA.md preservadas e marcadas como `[DESCONTINUADO em 2026-06-22]`.
+- Tabelas no banco (`planejamento_*`, `organizacao_doce_state`) NÃO foram removidas — apenas as referências textuais ao nome de marketing "Meu Planejamento".
+
+---
+
 ## AUDITORIA COMPLETA #2 — 2026-05-29 19:30 UTC
 
 ### 📊 Resumo Executivo
