@@ -740,8 +740,6 @@ const PLANO_NOME: Record<string, string> = {
 const MODULOS_BUSINESS = [
   'Financeiro completo (Contas a Pagar/Receber, DRE, Fluxo de Caixa)',
   'Controle de Estoque',
-  'Planejamento Estratégico',
-  'Conversa Doce (IA)',
 ]
 
 interface MudancaPayload {
@@ -803,7 +801,7 @@ async function enviarEmailMudancaPlanoAluna(
       <p style="background:#FDF6EE;border-left:4px solid #C9A14A;padding:12px 16px;margin:20px 0;border-radius:6px;">
         <strong>A partir de ${inicioLite}:</strong><br/>
         ✅ Continua: Encomendas, Receitas, Precificação, Clientes &amp; Fornecedores, Cadastros, Meu Painel<br/>
-        ⏸️ Fica em pausa: Financeiro completo, Controle de Estoque, Planejamento Estratégico, Conversa Doce
+        ⏸️ Fica em pausa: Financeiro completo, Controle de Estoque
       </p>
       <p>Seus dados ficam preservados — se um dia voltar para o Business, está tudo aqui.</p>
     `

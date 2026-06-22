@@ -2598,9 +2598,6 @@ export type Database = {
           certificacoes: string | null
           cidade: string | null
           complemento: string | null
-          conversa_doce_ativo: boolean
-          conversa_doce_fim: string | null
-          conversa_doce_inicio: string | null
           cpf: string | null
           created_at: string | null
           dados_bancarios: Json
@@ -2651,9 +2648,6 @@ export type Database = {
           certificacoes?: string | null
           cidade?: string | null
           complemento?: string | null
-          conversa_doce_ativo?: boolean
-          conversa_doce_fim?: string | null
-          conversa_doce_inicio?: string | null
           cpf?: string | null
           created_at?: string | null
           dados_bancarios?: Json
@@ -2704,9 +2698,6 @@ export type Database = {
           certificacoes?: string | null
           cidade?: string | null
           complemento?: string | null
-          conversa_doce_ativo?: boolean
-          conversa_doce_fim?: string | null
-          conversa_doce_inicio?: string | null
           cpf?: string | null
           created_at?: string | null
           dados_bancarios?: Json
