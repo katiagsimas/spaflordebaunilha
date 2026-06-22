@@ -127,7 +127,7 @@ Migration criou `idx_<tabela>_owner_group` (com `IF NOT EXISTS`) nas seguintes t
 - `custos_fixos`, `mao_obra_perfis`, `meu_salario_retiradas`, `pre_preparos`
 - `fechamentos_mensais`
 - `transferencias_bancos`
-- `conversa_doce_favoritos`
+
 - `backups`, `backups_cofre`
 - `profiles`
 
@@ -142,7 +142,7 @@ Tabelas de configuração com baixa cardinalidade (categorias, bancos, plano_con
 Consulta em `pg_stat_user_indexes` retornou **27 índices com `idx_scan = 0`** — todos os criados nesta rodada + os pré-existentes. Resultado esperado: base praticamente vazia e índices recém-criados/sem tráfego de produção. Nenhum índice será removido agora; reavaliar após 30 dias de uso real.
 
 Lista (zero scans):
-backups, backups_cofre, clientes, contas_receber, contratos (unique key), conversa_doce_favoritos, custos_fixos, embalagens, encomenda_itens, encomendas, estoque, estoque_movimentacoes, fechamentos_mensais, fornecedores, ingredientes, mao_obra_perfis, meu_salario_retiradas, pre_preparos, profiles, propostas (unique key), receitas, transferencias_bancos.
+backups, backups_cofre, clientes, contas_receber, contratos (unique key), custos_fixos, embalagens, encomenda_itens, encomendas, estoque, estoque_movimentacoes, fechamentos_mensais, fornecedores, ingredientes, mao_obra_perfis, meu_salario_retiradas, pre_preparos, profiles, propostas (unique key), receitas, transferencias_bancos.
 
 ---
 

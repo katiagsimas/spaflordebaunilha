@@ -5,6 +5,16 @@
 
 ---
 
+## 2026-06-22 — Descontinuação do módulo Conversa Doce ✅
+- Módulo de assistente IA WhatsApp **inteiramente removido** do projeto.
+- **Banco** (migração): `DROP TABLE conversa_doce_favoritos`; removidas colunas `profiles.conversa_doce_ativo / _inicio / _fim`.
+- **Edge functions:** removidas referências em `restaurar-backup`, `executar-backups-agendados` e textos de e-mail do `hotmart-webhook` (lista de módulos Business + downgrade).
+- **Frontend:** `src/lib/backupCatalog.ts` (tabela removida), `src/hooks/usePlano.ts` (comentário de rota bloqueada), `src/components/admin/EditarUsuarioDialog.tsx` (bloco completo de gestão de acesso removido — states, query, useEffect, payload de update, invalidações e UI).
+- **Docs:** `docs/MODULO_CONVERSA_DOCE.md` excluído; `docs/DOCS_MESTRE.md` limpo (visão geral, estrutura, rotas, modelo de dados, hooks, IA, performance, índice); `docs/AUDITORIA_CONSUMO.md` ajustado.
+- **Resíduos esperados:** apenas migrações históricas em `supabase/migrations/*.sql` (imutáveis) e registros antigos em `AUDITORIA.md` (preservados por política).
+
+---
+
 ## 2026-06-22 — Remoção do doc obsoleto INTEGRACAO_SSO_DOCE.md ✅
 - Excluído `docs/INTEGRACAO_SSO_DOCE.md` — descrevia integração SSO Caixa ↔ Planejamento DOCE que já havia sido **inteiramente removida do código** (arquivos `src/hooks/useOpenPlannerDoce.ts`, `src/pages/SSOReturnPage.tsx`, edge functions `gerar-token-sso-doce` e `validar-token-retorno-doce`, e card "Planejamento DOCE" no Dashboard não existem mais).
 - 🗑️ **Resíduos no banco removidos** via migração: tabela `public.sso_token_log`, função `public.cleanup_expired_sso_tokens()` e cron diário de limpeza (`DROP IF EXISTS` + `cron.unschedule`). Não restam resíduos da integração SSO no projeto.
