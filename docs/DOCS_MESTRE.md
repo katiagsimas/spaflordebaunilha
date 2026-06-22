@@ -1,7 +1,7 @@
 # 📘 DOCUMENTAÇÃO MESTRE — CAIXA DE AÇÚCAR
 
 **Sistema de Gestão para Confeitarias — by Umbrella Doce**  
-**Atualizada em:** 26/05/2026  
+**Atualizada em:** 22/06/2026  
 **Stack:** React 18 + TypeScript + Vite + Tailwind CSS + Lovable Cloud (Supabase)
 
 > 📚 Este documento é o **índice canônico** do sistema. Cada módulo possui um doc dedicado em `docs/` para detalhes profundos. Logs cronológicos vivem em [`AUDITORIA.md`](./AUDITORIA.md) e [`PENDENCIAS_SEGURANCA.md`](./PENDENCIAS_SEGURANCA.md).
@@ -11,7 +11,7 @@
 ## 1. VISÃO GERAL
 
 ### 1.1 O que é
-Caixa de Açúcar é um SaaS de gestão completo para confeitarias, doceiras e padarias artesanais. Permite controlar encomendas, precificar produtos com fichas técnicas, gerenciar financeiro (contas a pagar/receber, fluxo de caixa, DRE, fechamento de mês), controlar estoque com custo médio, fazer planejamento estratégico, gerenciar pró-labore (Meu Salário) e organizar tarefas operacionais — tudo com isolamento multi-tenant por grupos.
+Caixa de Açúcar é um SaaS de gestão completo para confeitarias, doceiras e padarias artesanais. Permite controlar encomendas, precificar produtos com fichas técnicas, gerenciar comercial (propostas, contratos e negociações), financeiro (contas a pagar/receber, fluxo de caixa, DRE, fechamento de mês), controlar estoque com custo médio, gerenciar pró-labore (Meu Salário) — tudo com isolamento multi-tenant por grupos.
 
 ### 1.2 Para quem
 Confeiteiras, doceiras e pequenas empresas do ramo de confeitaria.
@@ -43,8 +43,9 @@ Sistema principal da **Umbrella Doce**. Criação de usuários exclusivamente vi
 | Planilhas | exceljs (via `src/lib/xlsxShim.ts`) |
 | Drag & Drop | @dnd-kit |
 | Emails transacionais | Resend (noreply@umbrelladoce.com.br) |
-| Agendamento | pg_cron (backups, notificações de imersão, planos pendentes) |
+| Agendamento | pg_cron (backups, planos pendentes) |
 | Pagamentos | Hotmart Webhook (compra, renovação, cancelamento) |
+| Monitoramento | Sentry (`@sentry/react` via `VITE_SENTRY_DSN`) |
 
 ---
 
@@ -55,29 +56,29 @@ src/
 ├── assets/                # Imagens, logos, mascote
 ├── components/
 │   ├── ui/                # shadcn/ui
-│   ├── admin/             # CriarUsuarioDialog, EditarUsuarioDialog
+│   ├── admin/             # CriarUsuarioDialog, EditarUsuarioDialog, GruposManager
 │   ├── auth/              # AlterarSenhaObrigatoria, FirstAccessRedirect
 │   ├── configuracoes/     # ConfiguracaoJuros, ConfiguracaoTagsEncomendas
 │   ├── financeiro/        # ContasReceberFormModal, DarBaixaDialog, FechamentoMes
-│   ├── estoque/           # Componentes do controle de estoque
-│   ├── planejamento/      # Calendário, Metas, Tarefas, Bem-Estar
-│   └── alertas/           # AlertaExpiracaoPlano, ModalExpiracaoImersao
+│   ├── encomendas/        # Status, tags, baixa de estoque
+│   ├── meu-salario/       # CardResumoMes, CenarioResultado, HistoricoMensal
+│   └── backup/            # RestaurarBackupDialog
 ├── contexts/              # AuthContext, GroupContext, GlobalLoadingContext
 ├── hooks/                 # useGroupFilter, usePlano, useUserProfile, etc.
 ├── integrations/supabase/ # client.ts e types.ts (AUTO-GERADOS — não editar)
-├── lib/                   # dateUtils, utils, validacaoSenha, constants
+├── lib/                   # dateUtils, utils, validacaoSenha, sentry, constants
 ├── pages/
-│   ├── admin/             # Governanca, Logs, Usuarios
+│   ├── admin/             # Governanca, Logs, Usuarios, CofreBackups
 │   ├── auth/              # Login, ForgotPassword, ResetPassword
 │   ├── cadastros/         # Categorias, Clientes, Fornecedores, SeusDados, UnidadesMedida
 │   ├── configuracoes/     # Backup, Bancos, PlanoContas, TiposDocumentos, MaoDeObra, etc.
-│   ├── estoque/           # Lista, Entrada, Ajuste, Movimentações
+│   ├── comercial/         # Negociacoes, Propostas, Contratos, NovaProposta, RelatorioPropostas
+│   ├── estoque/           # Dashboard, Entrada, Ajuste, Movimentações
 │   ├── financeiro/        # ContasPagar/Receber, DRE, FluxoCaixa, FechamentoMes
 │   ├── meu-salario/       # Método Renda Doce
-│   ├── organizacao-doce/  # Organizador de tarefas (rota /organizacao-doce)
-│   ├── planejamento/      # Calendário, Metas, Tarefas, Bem-Estar
 │   └── precificacao/      # Ingredientes, Embalagens, PrePreparos
 ├── schemas/               # Zod schemas
+├── services/              # contratoService, propostaService
 └── utils/                 # Geradores de PDF, insightsGenerator
 
 supabase/
@@ -91,7 +92,7 @@ supabase/
     ├── enviar-recuperacao-senha/       # Recovery via Resend
     ├── executar-backups-agendados/     # Backup automático via pg_cron
     ├── hotmart-webhook/                # Provisionamento via Hotmart
-    └── notificar-expiracao-imersao/    # E-mails D-7/D-3/D-1 para alunas Imersão
+    └── restaurar-backup/               # Restauração de snapshot JSONB
 
 docs/                      # Toda a documentação do projeto (raiz tem só README.md)
 ```
@@ -127,16 +128,51 @@ docs/                      # Toda a documentação do projeto (raiz tem só READ
 - **Logo:** Great Vibes (decorativo)
 
 ### 4.4 Sidebar
-Fundo Vinho com destaques Dourados. Ícone animado de bolo para aniversariantes.
+Fundo Vinho com destaques Dourados. Separadores em gradiente dourado entre seções. Ícone animado de bolo para aniversariantes. Badge dourado pulsante para "X HOJE" no módulo Vendas.
 
 ### 4.5 Alertas do Sistema
 Background dourado, texto preto, CTA em coral.
 
 ---
 
-## 5. MAPA DE ROTAS
+## 5. NAVEGAÇÃO — AGRUPAMENTO DO SIDEBAR
 
-### 5.1 Autenticação (público)
+A barra lateral organiza os módulos por **fluxo operacional da confeitaria** (função no negócio), não por tipo técnico de dado. A ordem das seções espelha a jornada mental da empreendedora:
+
+```
+PAINEL (vejo)  →  PRODUÇÃO (faço)  →  COMERCIAL (vendo)  →  NEGÓCIO (lucro)  →  SISTEMA (administro)
+```
+
+Dentro de cada seção, os itens seguem do **mais básico/cadastral** para o **mais operacional/transacional** (ex.: "Cadastros" antes de "Cardápio"; "Parceiros" antes de "Vendas").
+
+### 5.1 Seções da Sidebar (`src/components/AppSidebar.tsx`)
+
+| Seção | Itens | Rota | Restrição | Lógica |
+|-------|-------|------|-----------|--------|
+| **MEU PAINEL** | Meu Painel | `/dashboard` | — | Visão geral, KPIs e alertas — ponto de entrada |
+| **MINHA PRODUÇÃO** | Cadastros | `/cadastros` | — | Bases da produção: mão de obra, unidades, categorias |
+| | Cardápio | `/precificacao` | — | Fichas técnicas, receitas, pré-preparos, precificação |
+| | Estoque | `/estoque` | Business / Imersão / Admin | Ingredientes, embalagens, movimentações |
+| **MEU COMERCIAL** | Parceiros | `/clientes-fornecedores` | — | Clientes e fornecedores (relacionamento) |
+| | Negociações | `/comercial/negociacoes` | — | Propostas e contratos (pré-venda formal) |
+| | Vendas | `/encomendas` | — | Encomendas confirmadas (venda fechada) |
+| **MEU NEGÓCIO** | Meu Dinheiro | `/financeiro` | Business / Imersão / Admin | Financeiro completo da empresa |
+| | Meu Salário | `/meu-salario` | Admin do grupo | Pró-labore (Método Renda Doce) — separado do caixa da empresa |
+| **SISTEMA** | Configurações | `/configuracoes/dados-confeitaria` | — | Dados da confeitaria, juros, tags, plano de contas |
+| | Backup | `/configuracoes/backup` | Master | Exportar/restaurar dados |
+| | Governança | `/governanca` | MOTHER | Multi-tenancy, usuários, grupos |
+
+### 5.2 Indicadores Visuais na Sidebar
+- **🍰 Bolo dourado animado** em "Parceiros" quando há clientes aniversariantes no mês
+- **Badge dourado "X HOJE"** pulsante em "Vendas" quando há encomendas para o dia
+- **🔒 Cadeado** em itens bloqueados por plano (40% opacidade) — clique abre modal de upgrade
+- **Borda dourada esquerda** + gradiente para item ativo
+
+---
+
+## 6. MAPA DE ROTAS
+
+### 6.1 Autenticação (público)
 | Rota | Descrição |
 |------|-----------|
 | `/auth/login` | Login email/senha + Google OAuth |
@@ -144,21 +180,15 @@ Background dourado, texto preto, CTA em coral.
 | `/auth/forgot-password` | Recuperação via Resend |
 | `/auth/reset-password` | Redefinição via token |
 
-### 5.2 Módulos Principais (protegidos — sidebar "MEU NEGÓCIO")
-| Rota | Página | Restrição |
-|------|--------|-----------|
-| `/dashboard` | Meu Painel | — |
-| `/financeiro` | Meu Dinheiro (hub) | Business / aluna_imersao / Admin |
-| `/meu-salario` | Meu Salário (Método Renda Doce) | Admin do grupo |
-| `/encomendas` | Minhas Encomendas | — |
-| `/precificacao` | Meu Cardápio (hub) | — |
-| `/estoque` | Meus Insumos | Business / aluna_imersao / Admin |
-| `/clientes-fornecedores` | Clientes e Fornecedores | — |
+### 6.2 Comercial (`/comercial/*`)
+| Rota | Página |
+|------|--------|
+| `/comercial/negociacoes` | Hub de negociações (propostas + contratos) |
+| `/comercial/propostas` (+ `/nova`, `/:id`) | Propostas comerciais |
+| `/comercial/contratos` | Contratos |
+| `/comercial/relatorio-propostas` | Relatórios |
 
-| `/organizacao-doce` | Organizador de tarefas | — |
-| `/upgrade` | Tela de upgrade | — |
-
-### 5.3 Financeiro (`/financeiro/*`)
+### 6.3 Financeiro (`/financeiro/*`)
 | Rota | Página |
 |------|--------|
 | `/financeiro/dashboard` | Dashboard financeiro |
@@ -169,7 +199,7 @@ Background dourado, texto preto, CTA em coral.
 | `/financeiro/fechamento-mes` | Fechamento Mensal |
 | `/financeiro/cadastros/*` | Hub de cadastros financeiros (bancos, plano-contas, juros, tipos-documentos) |
 
-### 5.4 Precificação (`/precificacao/*`)
+### 6.4 Precificação (`/precificacao/*`)
 | Rota | Página |
 |------|--------|
 | `/precificacao/ficha-tecnica` (+ `/nova`, `/editar/:id`) | Fichas técnicas |
@@ -177,95 +207,105 @@ Background dourado, texto preto, CTA em coral.
 | `/precificacao/embalagens` | Embalagens |
 | `/precificacao/pre-preparos` (+ `/novo`, `/:id`) | Pré-preparos |
 
-### 5.5 Estoque (`/estoque/*`)
-`/estoque` (lista), `/estoque/entrada`, `/estoque/ajuste`, `/estoque/movimentacoes`
+### 6.5 Estoque (`/estoque/*`)
+`/estoque` (dashboard), `/estoque/entrada`, `/estoque/ajuste`, `/estoque/movimentacoes`
 
-### 5.6 Configurações
+### 6.6 Meu Salário (`/meu-salario/*`)
+`/meu-salario` (visão geral), `/meu-salario/retiradas`, `/meu-salario/educativo`
+
+### 6.7 Configurações
 Hub `/configuracoes` + páginas: `cadastros-base`, `precificacao`, `precificacao/mao-de-obra`, `financeiro`, `dados-confeitaria`, `categorias-receitas`, `unidades-medida`, `tipos-insumos`, `categorias-plano-contas`, `plano-contas`, `bancos`, `tipos-documentos`, `juros`, `tags-encomendas`, `backup`.
 
-### 5.7 Administração
+### 6.8 Administração
 | Rota | Acesso |
 |------|--------|
-| `/admin/governanca` | MOTHER |
+| `/governanca` | MOTHER (link da sidebar) |
+| `/admin/governanca` | MOTHER (URL direta) |
 | `/admin/usuarios` | MOTHER |
 | `/admin/logs` | MOTHER |
+| `/admin/cofre-backups` | MOTHER |
 
 ---
 
-## 6. MODELO DE DADOS
+## 7. MODELO DE DADOS
 
-> Todas as tabelas funcionais possuem `owner_group_id (uuid, FK → groups)` para isolamento multi-tenant.
+> Todas as tabelas funcionais possuem `owner_group_id (uuid, FK → groups)` para isolamento multi-tenant. As políticas RLS de tabelas de negócio usam `usuario_pertence_ao_grupo(owner_group_id)` (correção aplicada em 22/06/2026).
 
-### 6.1 Governança & Identidade
-- `groups`, `user_global_roles` (MOTHER), `user_group_roles` (ADMIN/USER + `permission_flags`), `user_active_session`
+### 7.1 Governança & Identidade
+- `groups` (com `master_user_id`), `user_global_roles` (MOTHER), `user_group_roles` (ADMIN/USER + `permission_flags`, coluna `role_group`), `user_active_session`
 - `profiles` — perfil do usuário. Campos de plano: `plano_id`, `plano_tipo`, `plano_inicio`, `plano_fim`, `plano_pendente_id`, `plano_pendente_tipo`, `plano_pendente_inicio`, `plano_pendente_fim`. Operacionais: `origem_criacao`, `primeiro_acesso`, `ativo`, `last_login`.
 
-### 6.2 Cadastros
+### 7.2 Cadastros
 - `clientes`, `cliente_familiares`
 - `fornecedores`, `fornecedor_contatos`
 
-### 6.3 Encomendas
+### 7.3 Encomendas
 - `encomendas`, `encomenda_itens`, `encomendas_tags`, `tags_encomendas`
 
-### 6.4 Precificação
+### 7.4 Comercial
+- `propostas`, `proposta_itens`, `contratos`
+
+### 7.5 Precificação
 - `receitas`, `receitas_ingredientes`, `receitas_embalagens`, `receitas_despesas_venda`, `receitas_imagens`, `receitas_mao_obra`
 - `ingredientes`, `embalagens`, `tipos_insumos`
 - `pre_preparos`, `pre_preparos_ingredientes`, `pre_preparos_mao_obra`
 - `mao_obra_perfis`, `mao_obra_perfis_historico`
 
-### 6.5 Financeiro
+### 7.6 Financeiro
 - `contas_receber` (+ `_parcelas`, `_pagamentos`, `_comprovantes`)
 - `contas_pagar` (+ `_parcelas`, `_pagamentos`, `_comprovantes`)
 - `saldos_iniciais_bancos`, `transferencias_bancos`
 - `fechamentos_mensais`, `fechamento_checklist_itens`, `fechamento_logs`
 
-### 6.6 Estoque
+### 7.7 Estoque
 - `estoque` (saldos por insumo), `estoque_movimentacoes` (entradas, saídas, ajustes — base do custo médio)
 
-### 6.7 Meu Salário
+### 7.8 Meu Salário
 - `meu_salario_retiradas` — retiradas mensais segundo o Método Renda Doce
 
-### 6.10 Configuração
+### 7.9 Configuração
 - `categorias`, `unidades_medida`, `bancos`, `tipos_documento`
 - `categorias_plano_contas`, `plano_contas`, `custos_fixos`, `configuracoes_juros`
 - `planos`, `hotmart_produtos`
 
-### 6.11 Sistema & Auditoria
-- `historico_planos` — histórico de mudanças de plano (`tipo_evento`: `criacao`, `renovacao`, `upgrade`, `downgrade_agendado`, `reativacao`, `renovacao_imersao`)
-- `imersao_notificacoes_log` — idempotência dos disparos D-7/D-3/D-1
+### 7.10 Sistema & Auditoria
+- `historico_planos` — histórico de mudanças de plano
 - `ai_usage_quotas` — quota mensal de IA por usuário/plano
 - `backup_agendamentos`, `backups`
 - `admin_logs`
 
-### 6.12 Legado (manter por compatibilidade)
+### 7.11 Legado (manter por compatibilidade)
 - `user_roles` (enum `app_role`), `tags`
 
 ---
 
-## 7. CONTEXTS E HOOKS
+## 8. CONTEXTS E HOOKS
 
 ### Contexts
 | Context | Responsabilidade |
 |---------|-----------------|
 | `AuthContext` | Login, logout, resetPassword. **Awaita `getSession()` antes do listener** (anti race condition). Toast pós-login para eventos de plano. |
-| `GroupContext` | Grupos, papéis, permissões, sessão ativa, `isMother` |
+| `GroupContext` | Grupos, papéis, permissões, sessão ativa, `isMother`, `isGroupAdmin`, simulação MOTHER (`useMotherView`) |
 | `GlobalLoadingContext` | Loading global com mascote. UI usa `return null` enquanto ativo |
 
 ### Hooks Principais
-`useGroupFilter`, `usePlano`, `useIsAdmin`, `useUserId`, `useUserProfile`, `useClientes`, `useFornecedores`, `useReceitas`, `useEncomendas`, `useCalculosReceita`, `useMaoObraPerfis`, `useMaoObraHistorico`, `usePlanejamento`, `useEncomendasHoje`, `useEstoque`, `useMeuSalario`.
+`useGroupFilter`, `usePlano`, `useIsAdmin`, `useIsGroupMaster`, `useUserId`, `useUserProfile`, `useClientes`, `useFornecedores`, `useReceitas`, `useEncomendas`, `useCalculosReceita`, `useMaoObraPerfis`, `useMaoObraHistorico`, `useEncomendasHoje`, `useEstoque`, `useMeuSalario`, `usePropostas`, `useContratos`, `useOnboardingStatus`, `useMotherView`.
 
 ---
 
-## 8. COMPONENTES DE SEGURANÇA
+## 9. COMPONENTES DE SEGURANÇA
 
 - **PermissionGuard** — `<PermissionGuard permission="..." | requireAdmin | requireMother>`
 - **PlanoGuard** — redireciona para `/upgrade` quando rota não é permitida pelo plano (admin ignora)
 - **ProtectedRoute** — exige autenticação
+- **MasterOnlyGuard** — restringe páginas de dados-base ao mestre do grupo (`groups.master_user_id`)
+- **MotherGuard** — restringe a usuários MOTHER
+- **OnboardingGuard** — bloqueia módulos operacionais enquanto onboarding pendente
 - **FirstAccessRedirect** — `ativo=false` → signOut + login; `primeiro_acesso=true` ou `nome_confeitaria` vazio → `/configuracoes/dados-confeitaria`
 
 ---
 
-## 9. EDGE FUNCTIONS
+## 10. EDGE FUNCTIONS
 
 | Função | Descrição | Auth |
 |--------|-----------|------|
@@ -274,14 +314,14 @@ Hub `/configuracoes` + páginas: `cadastros-base`, `precificacao`, `precificacao
 | `criar-usuario` | Provisionamento manual de usuários pelo admin (convite via Resend) | JWT de admin |
 | `enviar-recuperacao-senha` | Gera recovery link e envia via Resend | Pública (email no body) |
 | `executar-backups-agendados` | Backup automático JSONB | pg_cron (`*/30`) |
-| `hotmart-webhook` | Provisionamento via compra Hotmart. Classifica evento (`criacao` / `renovacao` / `upgrade` / `downgrade_agendado` / `reativacao` / `renovacao_imersao`), aplica regras e dispara e-mails de mudança de plano via Resend (aluna + admin). | Validação `hottok` |
-| `notificar-expiracao-imersao` | Cron diário 12:00 UTC. Envia D-7/D-3/D-1 para alunas Imersão (aluna + admin) com idempotência por `imersao_notificacoes_log`. | pg_cron |
+| `hotmart-webhook` | Provisionamento via compra Hotmart. Classifica evento (`criacao` / `renovacao` / `upgrade` / `downgrade_agendado` / `reativacao` / `renovacao_imersao`), aplica regras e dispara e-mails via Resend. | Validação `hottok` |
+| `restaurar-backup` | Restauração de snapshot JSONB (mestre/admin) | JWT |
 
-> 📄 Detalhes em [DOCS_AUTENTICACAO.md](./DOCS_AUTENTICACAO.md), [DOCS_PLANOS.md](./DOCS_PLANOS.md), [AI_GATEWAY_CAP.md](./AI_GATEWAY_CAP.md)
+> 📄 Detalhes em [DOCS_AUTENTICACAO.md](./DOCS_AUTENTICACAO.md), [DOCS_PLANOS.md](./DOCS_PLANOS.md), [AI_GATEWAY_CAP.md](./AI_GATEWAY_CAP.md), [DOCS_BACKUP_RESTORE.md](./DOCS_BACKUP_RESTORE.md)
 
 ---
 
-## 10. SISTEMA DE PLANOS
+## 11. SISTEMA DE PLANOS
 
 | Plano | ID | Acesso | Periodicidade | Origem |
 |-------|----|--------|---------------|--------|
@@ -289,32 +329,33 @@ Hub `/configuracoes` + páginas: `cadastros-base`, `precificacao`, `precificacao
 | Caixa Business | `negocio` | Acesso total (`*`) | Mensal (30d) ou Anual (365d) | Hotmart (keyword `negocio`) |
 | Aluna da Imersão | `aluna_imersao` | Acesso Business por 30 dias | 30 dias | **Manual** (fora do webhook) — gravações na Hotmart Club |
 
-> ⚠️ **Plano `Caixa Start` foi DESCONTINUADO em 2026-05-25.** Removido de `public.planos`; usuários migrados para `base` e desativados.
+> ⚠️ **Plano `Caixa Start` foi DESCONTINUADO em 2026-05-25.**
 
-### Eventos de plano (registrados em `historico_planos.tipo_evento`)
-- `criacao` — novo usuário
-- `renovacao` — mesmo plano, estende `plano_fim`
-- `upgrade` — Lite → Business (imediato)
-- `downgrade_agendado` — Business → Lite (mantém atual até `plano_fim`, novo plano vai para `plano_pendente_*` e é promovido pelo cron)
-- `reativacao` — usuário inativo reativando
-- `renovacao_imersao` — aluna Imersão migrando para plano pago
+### Eventos de plano (`historico_planos.tipo_evento`)
+`criacao`, `renovacao`, `upgrade`, `downgrade_agendado`, `reativacao`, `renovacao_imersao`
 
-Enforcement: `usePlano()` + `PlanoGuard` no frontend; `user_has_financial_access()` + 12 RLS RESTRICTIVE nas tabelas financeiras no backend. Admin ignora restrições. Itens bloqueados na sidebar: 40% opacidade + 🔒.
+### Herança de plano (mestre → membros)
+Membros (USER/ADMIN secundário) **pulam onboarding** e **herdam o plano do mestre** via `usePlano`. O mestre é `groups.master_user_id` — ADMIN principal que fez o onboarding.
 
-> 📄 Detalhes em [DOCS_PLANOS.md](./DOCS_PLANOS.md)
+Enforcement: `usePlano()` + `PlanoGuard` no frontend; `user_has_financial_access()` + RLS RESTRICTIVE nas tabelas financeiras no backend. Admin ignora restrições. Itens bloqueados na sidebar: 40% opacidade + 🔒.
+
+> 📄 Detalhes em [DOCS_PLANOS.md](./DOCS_PLANOS.md), [DOCS_MESTRE.md](./DOCS_MESTRE.md)
 
 ---
 
-## 11. SISTEMA DE BACKUP
+## 12. SISTEMA DE BACKUP
 
-- Página: `/configuracoes/backup`
+- Página: `/configuracoes/backup` (mestre)
 - Tabelas: `backup_agendamentos` (config), `backups` (dados JSONB)
 - Cron: `executar-backups-agendados` a cada 30 min
+- Restauração via edge function `restaurar-backup`
 - Frequências: Diário ou Semanal (dia/horário configuráveis)
+
+> 📄 Detalhes em [DOCS_BACKUP_RESTORE.md](./DOCS_BACKUP_RESTORE.md)
 
 ---
 
-## 12. AI GATEWAY CAP
+## 13. AI GATEWAY CAP
 
 - Edge function única: `ai-proxy`
 - Tabela: `ai_usage_quotas` (quota mensal por usuário, reset automático)
@@ -325,7 +366,16 @@ Enforcement: `usePlano()` + `PlanoGuard` no frontend; `user_has_financial_access
 
 ---
 
-## 13. OTIMIZAÇÕES DE PERFORMANCE
+## 14. MONITORAMENTO E OBSERVABILIDADE
+
+- **Sentry** (`@sentry/react`) — inicializado em `src/lib/sentry.ts` via `VITE_SENTRY_DSN`
+- Filtros de privacidade: `sendDefaultPii: false`, scrub de senhas/tokens/cartões, `maskAllText`/`maskAllInputs` em Session Replay
+- `tracesSampleRate: 1.0` em produção, `0.1` em dev
+- Integração com `errorLogger.ts` — todo erro capturado é encaminhado ao Sentry (no-op se DSN ausente)
+
+---
+
+## 15. OTIMIZAÇÕES DE PERFORMANCE
 
 ### Abril/2026
 - Cron de backup: `*/5` → `*/30` (~83% menos invocações)
@@ -336,9 +386,14 @@ Enforcement: `usePlano()` + `PlanoGuard` no frontend; `user_has_financial_access
 - Lazy load de páginas de relatórios (DRE, Fluxo de Caixa)
 - `AuthContext` reordenado (`getSession` awaitado antes do listener) — eliminou redirecionamentos intermitentes
 
+### Junho/2026
+- RLS de tabelas de negócio padronizada com `usuario_pertence_ao_grupo(owner_group_id)` (substitui o padrão antigo `auth.uid() = user_id`)
+- `sitemap.xml` e `robots.txt` configurados para lançamento
+- Integração Sentry para erros em produção
+
 ---
 
-## 14. CONVENÇÕES OBRIGATÓRIAS
+## 16. CONVENÇÕES OBRIGATÓRIAS
 
 - **Datas:** sempre `src/lib/dateUtils.ts` (YYYY-MM-DD ISO, sem time) para evitar offset UTC -1
 - **Loading:** `return null` enquanto `useGlobalLoading()` ativo (evita flash)
@@ -347,11 +402,12 @@ Enforcement: `usePlano()` + `PlanoGuard` no frontend; `user_has_financial_access
 - **Emails:** Supabase nativos suprimidos — usar Resend via Edge Function
 - **Cores:** usar tokens `--cda-*` (HSL). Nunca cor literal em componente. Nunca `cda-pistache`/`cda-cloud`
 - **Multi-tenancy:** tabelas `groups` e `user_group_roles` (coluna `role_group`). Nunca `grupos`/`grupo_membros`/`role_grupo`
+- **RLS:** tabelas de grupo usam `usuario_pertence_ao_grupo(owner_group_id)`, nunca apenas `auth.uid() = user_id`
 - **Docs:** toda mudança de RLS / SQL / Edge Function / Auth → registrar em `AUDITORIA.md`, `PENDENCIAS_SEGURANCA.md` ou `DOCS_AUTENTICACAO.md`
 
 ---
 
-## 15. DOCUMENTOS RELACIONADOS
+## 17. DOCUMENTOS RELACIONADOS
 
 > Todos os documentos vivem em `docs/`. A raiz mantém apenas o `README.md`.
 
@@ -365,10 +421,9 @@ Enforcement: `usePlano()` + `PlanoGuard` no frontend; `user_has_financial_access
 | [DOCS_PRECIFICACAO.md](./DOCS_PRECIFICACAO.md) | Ingredientes, embalagens, receitas, cálculos, mão de obra |
 | [DOCS_ENCOMENDAS.md](./DOCS_ENCOMENDAS.md) | Pedidos, itens, tags, vinculação financeira |
 | [DOCS_ESTOQUE.md](./DOCS_ESTOQUE.md) | Controle de estoque, custo médio, movimentações |
-| [DOCS_PLANEJAMENTO.md](./DOCS_PLANEJAMENTO.md) | Calendário, metas, tarefas, bem-estar |
 | [DOCS_MEU_SALARIO.md](./DOCS_MEU_SALARIO.md) | Método Renda Doce, pró-labore saudável |
 | [DOCS_MEU_PAINEL_E_MEU_DINHEIRO.md](./DOCS_MEU_PAINEL_E_MEU_DINHEIRO.md) | Dashboard e visão financeira consolidada |
-
+| [DOCS_BACKUP_RESTORE.md](./DOCS_BACKUP_RESTORE.md) | Backup automático, restauração, snapshot JSONB |
 | [AI_GATEWAY_CAP.md](./AI_GATEWAY_CAP.md) | Controle de consumo de IA |
-| [AUDITORIA.md](./AUDITORIA.md) | Registro de auditorias, correções e otimizações |
+| [AUDITORIA.md](./AUDITORIA.md) | Log cronológico de correções de auditoria |
 | [PENDENCIAS_SEGURANCA.md](./PENDENCIAS_SEGURANCA.md) | Pendências de segurança que dependem de ação externa |
