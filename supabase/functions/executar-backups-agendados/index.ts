@@ -36,8 +36,6 @@ const MODULO_TABELAS: Record<string, string[]> = {
     "fechamentos_mensais", "fechamento_logs", "fechamento_checklist_itens",
     // Meu Salário
     "meu_salario_retiradas",
-    // Conversa Doce
-    "conversa_doce_favoritos",
   ],
   // Sistema: Meus Dados (profiles)
   sistema: ["profiles"],

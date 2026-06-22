@@ -27,7 +27,7 @@ const MODULOS_POR_PLANO: Record<string, string[]> = {
     "/configuracoes/dados-confeitaria",
     "/encomendas/tags",
     "/configuracoes/backup",
-    // Bloqueados (mostram modal de upgrade): /financeiro, /conversa-doce,
+    // Bloqueados (mostram modal de upgrade): /financeiro,
     // /comercial/propostas, /comercial/contratos
   ],
 

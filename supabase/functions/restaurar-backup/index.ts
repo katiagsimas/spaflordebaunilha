@@ -51,8 +51,8 @@ const TABELAS_PERMITIDAS_ORDEM: string[] = [
   "custos_fixos", "configuracoes_juros",
   // Fechamentos
   "fechamentos_mensais", "fechamento_logs", "fechamento_checklist_itens",
-  // Meu Salário / Conversa Doce
-  "meu_salario_retiradas", "conversa_doce_favoritos",
+  // Meu Salário
+  "meu_salario_retiradas",
   // Histórico (não relacional pesado)
   "historico_planos",
 ];

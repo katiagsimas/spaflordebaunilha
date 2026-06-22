@@ -68,7 +68,7 @@ export const BACKUP_MODULOS: BackupModuloDef[] = [
   {
     id: "negocio",
     titulo: "Meu Negócio",
-    descricao: "Meu Dinheiro, fechamentos, Conversa Doce e Meu Salário",
+    descricao: "Meu Dinheiro, fechamentos e Meu Salário",
     tabelas: [
       // Meu Dinheiro
       "bancos",
@@ -93,8 +93,6 @@ export const BACKUP_MODULOS: BackupModuloDef[] = [
       "fechamento_checklist_itens",
       // Meu Salário
       "meu_salario_retiradas",
-      // Conversa Doce
-      "conversa_doce_favoritos",
     ],
   },
   {
