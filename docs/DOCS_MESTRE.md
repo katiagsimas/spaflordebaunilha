@@ -368,7 +368,7 @@ Enforcement: `usePlano()` + `PlanoGuard` no frontend; `user_has_financial_access
 | [DOCS_PLANEJAMENTO.md](./DOCS_PLANEJAMENTO.md) | Calendário, metas, tarefas, bem-estar |
 | [DOCS_MEU_SALARIO.md](./DOCS_MEU_SALARIO.md) | Método Renda Doce, pró-labore saudável |
 | [DOCS_MEU_PAINEL_E_MEU_DINHEIRO.md](./DOCS_MEU_PAINEL_E_MEU_DINHEIRO.md) | Dashboard e visão financeira consolidada |
-| [MODULO_CONVERSA_DOCE.md](./MODULO_CONVERSA_DOCE.md) | Assistente IA WhatsApp |
+
 | [AI_GATEWAY_CAP.md](./AI_GATEWAY_CAP.md) | Controle de consumo de IA |
 | [AUDITORIA.md](./AUDITORIA.md) | Registro de auditorias, correções e otimizações |
 | [PENDENCIAS_SEGURANCA.md](./PENDENCIAS_SEGURANCA.md) | Pendências de segurança que dependem de ação externa |
