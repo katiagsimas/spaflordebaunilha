@@ -109,6 +109,38 @@
 
 ---
 
+## 2026-06-22 — Padronização RLS multi-tenant (correção A-3) ✅
+
+**Escopo:** unificar o padrão RLS de todas as tabelas de negócio que pertencem a um grupo, eliminando o fallback `auth.uid() = usuario_id` em favor de `user_belongs_to_group(auth.uid(), owner_group_id)`.
+
+### Migração aplicada
+- **92 políticas legadas removidas** em 21 tabelas (`bancos`, `categorias`, `categorias_plano_contas`, `configuracoes_juros`, `contas_pagar`, `contas_receber`, `custos_fixos`, `embalagens`, `encomenda_itens`, `encomendas`, `estoque`, `estoque_movimentacoes`, `fornecedor_contatos`, `ingredientes`, `mao_obra_perfis`, `meu_salario_retiradas`, `plano_contas`, `pre_preparos`, `receitas`, `tags_encomendas`, `tipos_documento`, `tipos_insumos`, `transferencias_bancos`, `unidades_medida`). Cada tabela já possuía o equivalente `group_members_{select|insert|update|delete}_*` baseado em `user_belongs_to_group`, que passou a ser a única autoridade.
+- **`clientes` e `fornecedores`** tiveram as políticas `Group members can *` reescritas como `group_members_{select|insert|update|delete}_*`, **sem** o fallback `OR (auth.uid() = usuario_id)` que permitia acesso pelo proprietário original mesmo após sair do grupo.
+- **`fornecedor_contatos`**: 4 políticas duplicadas (`Group members can ...`) descartadas — restam apenas as `group_members_*_fornecedor_contatos`.
+- **Tabelas estritamente por-usuário** (`backups`, `backups_cofre`) **não foram alteradas** — pertencem ao usuário, não ao grupo.
+- **`useGroupFilter`** preservado no frontend como camada adicional de segurança (defense-in-depth), conforme solicitado.
+
+### Validação
+- ✅ **Auditoria pós-migração**: `0` políticas legadas restantes em tabelas de grupo (query `pg_policies` com regex para `auth.uid() = (usuario_id|user_id)` sem `user_belongs_to_group` no `qual`/`with_check`).
+- ✅ **Cobertura completa**: as 29 tabelas com `owner_group_id` (excluindo `backups`/`backups_cofre`) têm os 4 comandos (SELECT/INSERT/UPDATE/DELETE) cobertos por política baseada em `user_belongs_to_group`.
+- ✅ **Função `user_belongs_to_group` testada** com 2 usuários reais em grupos diferentes:
+  - `userA` ↔ grupo A → `true` (acesso permitido)
+  - `userA` ↔ grupo B → `false` (bloqueado)
+  - `userB` ↔ grupo B → `true` (acesso permitido)
+  - `userB` ↔ grupo A → `false` (bloqueado)
+  - `NULL` (anônimo) ↔ qualquer grupo → `false` (bloqueado)
+
+### Resultado prático
+- Usuários só conseguem `SELECT`/`INSERT`/`UPDATE`/`DELETE` em dados de grupos a que pertencem ativamente (`user_group_roles.is_active = true`).
+- Usuários removidos de um grupo **perdem acesso imediato** aos dados desse grupo (antes podiam continuar lendo via `usuario_id`).
+- Usuários anônimos não conseguem acessar nada.
+- A camada `useGroupFilter` no frontend continua aplicando `.eq('owner_group_id', activeGroupId)` em todas as queries — proteção em dois níveis.
+
+### Impacto em código de aplicação
+- **Nenhum.** Toda a lógica de negócio do frontend já chamava `useGroupFilter` (que injeta `owner_group_id`) ou setava `usuario_id = auth.uid()` no `insert`, ambos compatíveis com as novas políticas.
+
+---
+
 ## 2026-06-22 — Descontinuação do módulo Conversa Doce ✅
 - Módulo de assistente IA WhatsApp **inteiramente removido** do projeto.
 - **Banco** (migração): `DROP TABLE conversa_doce_favoritos`; removidas colunas `profiles.conversa_doce_ativo / _inicio / _fim`.
