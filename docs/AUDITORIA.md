@@ -1,7 +1,111 @@
 # 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
 
 > Este arquivo é gerado e atualizado automaticamente a cada auditoria realizada no projeto.
-> Última atualização: 2026-05-29T19:30:00Z — Auditoria completa pré-lançamento #2.
+> Última atualização: 2026-06-22T17:05:00Z — Auditoria completa pré-lançamento #3.
+
+---
+
+## AUDITORIA COMPLETA #3 — 2026-06-22 17:05 UTC
+
+### 📊 Resumo Executivo
+- **Status Geral:** ⚠️ **APROVADO COM RESSALVAS** — sem bloqueadores funcionais ou de segurança de dados; persistem 2 itens críticos operacionais herdados (`.env` ainda *tracked* no git, ausência de Sentry) e a divergência de padrão RLS multi-tenant identificada na #2.
+- **Total de itens verificados:** 92 (12 blocos)
+- **Itens OK (✅):** 64
+- **Itens de Atenção (⚠️):** 18
+- **Itens Críticos (❌):** 2
+- **Itens Não Aplicáveis (🔲):** 8
+
+### 🔁 Diff desde a Auditoria #2
+- ✅ Build TypeScript/Vite compila 100% após remoção do **Conversa Doce** (validado via Playwright em 16 rotas, todas 200; `/conversa-doce` → 404 esperado).
+- ✅ Módulo Conversa Doce **integralmente removido** — tabela, colunas em `profiles`, UI admin, edge functions, e-mails Hotmart, catálogo de backup, docs e memória.
+- ✅ Doc `INTEGRACAO_SSO_DOCE.md` e resíduos no banco (`sso_token_log`, função e cron de limpeza) removidos via migração.
+- ✅ Menções textuais a "Meu Planejamento" / "Organização Doce" / "Planejamento Doce" eliminadas (módulo descontinuado).
+- ✅ `dependency_scan` (npm audit) — **0 vulnerabilidades** high/critical.
+- ⚠️ `.env` ainda aparece em `git ls-files` (a regra de `.gitignore` foi adicionada na #2, mas o arquivo continua *tracked* — exige `git rm --cached .env` manual).
+- ⚠️ `public/sitemap.xml` ainda ausente.
+- ⚠️ 40 `console.log` em `src/` + `supabase/functions/` (a maioria em edge functions, aceitável; em `src/` há ocorrências em hooks/páginas que poderiam virar `errorLogger`).
+- ⚠️ 618 ocorrências de `any` no frontend (legado; concentradas em tipagens de Supabase row → DTO).
+
+### 🔴 Itens Críticos (bloqueiam lançamento)
+
+| # | Item | Status | Origem | Correção sugerida |
+|---|------|--------|--------|--------------------|
+| **C-1** | `.env` ainda *tracked* no Git (`git ls-files .env` retorna 1 linha). Conteúdo atual contém apenas chaves *publishable* do Supabase (não são segredos), mas o arquivo continua versionado. | ❌ herdado #2 | `git ls-files` | `git rm --cached .env && git commit -m "chore: untrack .env"`. Ação manual fora do Lovable. |
+| **C-2** | Sem monitoramento de erros em produção (Sentry / LogRocket). `ErrorBoundary` + `errorLogger.ts` capturam local, mas não enviam para serviço externo. | ❌ herdado #2 | revisão `main.tsx`, `errorLogger.ts` | Integrar Sentry (DSN via secret) ou Posthog Error Tracking; já existe ponto de injeção pronto em `errorLogger.ts`. |
+
+### 🟡 Itens de Atenção
+
+| # | Bloco | Item | Recomendação |
+|---|-------|------|--------------|
+| A-1 | 8 SEO | Sem `public/sitemap.xml`. | Gerar sitemap estático com as rotas públicas (atualmente todas exigem login — pode publicar só `/` e `/auth/login`). |
+| A-2 | 2 Segurança | `.env` versionado mesmo contendo apenas chaves *publishable*. | Resolver junto com C-1. |
+| A-3 | 3 Banco | Padrão RLS duplo em tabelas de negócio (encomendas, receitas, contas_*, estoque, custos_fixos, bancos…): `auth.uid() = usuario_id` em vez de `user_belongs_to_group(owner_group_id)`. Multi-tenant garantido pelo `useGroupFilter` no cliente; risco se algum hook esquecer o filtro. | Migrar políticas RLS para `user_belongs_to_group(owner_group_id)` em ondas (encomendas → financeiro → produção). Já identificado em #2. |
+| A-4 | 5 Código | 618 usos de `any` (em sua maioria *casts* sobre rows do Supabase). | Adotar `Database["public"]["Tables"][T]["Row"]` nos hooks de maior tráfego (`useEncomendas`, `useReceitas`, `useEstoque`, `useContas*`). |
+| A-5 | 5 Código | 40 `console.log` no código-fonte (incluindo edges). | Em `src/`, substituir por `errorLogger`; em edges, manter apenas logs estruturados úteis ao Supabase Logs. |
+| A-6 | 7 Performance | Sem code-splitting por rota (todas as páginas em bundle único). | Aplicar `React.lazy` + `Suspense` nas rotas pesadas (`Financeiro/*`, `Estoque/*`, `Comercial/*`, `Backup`). |
+| A-7 | 9 Comunicação | Templates de e-mail Hotmart (welcome/downgrade) ainda mencionam módulos vivos — revisar após cada remoção (último ajuste: Conversa Doce). | Adicionar teste de smoke no webhook que valide os módulos listados contra `MODULOS_POR_PLANO`. |
+| A-8 | 6 UI/UX | OG image aponta para `storage.googleapis.com/gpt-engineer-file-uploads/...` (asset herdado do Lovable). | Migrar para asset próprio sob `/public` ou bucket `assets`. |
+| A-9 | 11 Monitoramento | Sem dashboard de saúde (uptime/erros). | Posthog + UptimeRobot/BetterStack apontados para `/auth/login` e `ai-proxy` (HEAD). |
+| A-10 | 12 Testes | Sem suíte automatizada de testes. Validação atual é manual + Playwright pontual via sandbox. | Adicionar Vitest com pelo menos: `usePlano`, `useEncomendas` (cálculos), `dateUtils`, `useBaixaEstoqueEncomenda`. |
+| A-11 | 1 Arquitetura | Hooks e páginas têm crescimento orgânico (ex.: `EditarUsuarioDialog.tsx` ainda longo após limpeza). | Extrair seções em subcomponentes (`AcessoSection`, `PerfilSection`, etc.). |
+| A-12 | 4 Lógica | `useEffect` ainda usam `// eslint-disable-next-line react-hooks/exhaustive-deps` em pontos não auditados. | Varredura por `exhaustive-deps` e justificar / corrigir cada caso. |
+| A-13 | 3 Banco | 255 migrações acumuladas. Reset baseline não é recomendado, mas torna onboarding lento. | Manter; documentar em `docs/DOCS_MESTRE.md` que migrações antigas só rodam em ambiente novo. |
+| A-14 | 10 Pagamentos | Webhook Hotmart sem retry programático em falha (Hotmart retenta, mas não há *dead letter* local). | Persistir payload bruto em tabela `hotmart_webhook_log` (já existe?) e processar de forma idempotente. |
+| A-15 | 2 Segurança | Sem rate limit explícito nas edges `criar-usuario` e `enviar-recuperacao-senha` (existe IP rate-limit no `ai-proxy`). | Replicar pattern do `ai-proxy` ou usar `pg_rate_limit`. |
+| A-16 | 6 UI/UX | `lang="pt-BR"` ✅, mas `<title>` e `<meta description>` são estáticos — não muda por rota. | Implementar `react-helmet-async` para títulos por página (impacto SEO baixo já que tudo é autenticado). |
+| A-17 | 5 Código | 3 comentários `TODOS` (não são `TODO:` reais — são uso textual de "TODOS"). Falso-positivo. | Nenhuma. |
+| A-18 | 7 Performance | `bun.lock` + `bun.lockb` + `package-lock.json` coexistem na raiz. | Padronizar em um único gestor (Lovable usa bun por padrão). |
+
+### 🟢 Pontos Positivos
+
+- ✅ **Build limpo**: TS strict-mode passa; HMR aplicado; sem regressão após remoções recentes.
+- ✅ **0 vulnerabilidades** npm high/critical (`dependency_scan`).
+- ✅ **Auth robusto**: AuthContext aguarda `getSession()` antes do `onAuthStateChange`; `FirstAccessRedirect`, `ProtectedRoute`, `PlanoGuard`, `PermissionGuard`, `MasterOnlyGuard`, `OnboardingGuard`, `MotherGuard` cobrindo todas as camadas.
+- ✅ **Multi-tenancy**: `owner_group_id` + `useGroupFilter` + `user_belongs_to_group` + `useIsGroupMaster` consolidados.
+- ✅ **Backups**: agendamento + retenção 30 dias + **cofre** mensal + 5 últimos por grupo (`backups_cofre`).
+- ✅ **AI Gateway Cap**: `ai-proxy` com auth, rate-limit IP (30/min), quota mensal por plano, whitelist de modelos, `record_ai_tokens`.
+- ✅ **E-mails**: Resend via edges, supressão de e-mails nativos do Supabase; templates centralizados.
+- ✅ **Documentação viva**: 15 arquivos em `docs/`, AUDITORIA com histórico preservado.
+- ✅ **SEO básico**: title, description, OG, Twitter, lang=pt-BR, viewport, favicon, `<noscript>` fallback no body, fontes pré-conectadas.
+- ✅ **`robots.txt`** permite Googlebot/Bingbot/Twitterbot/facebookexternalhit e demais.
+- ✅ **GA4** ativo via `VITE_GA_MEASUREMENT_ID` com `send_page_view` automático.
+- ✅ **Loading UX pattern** consistente (early-return em `useGlobalLoading`).
+- ✅ **Datas timezone-safe** centralizadas em `src/lib/dateUtils.ts`.
+- ✅ **Design system** v2 Vinho Premium com tokens `--cda-*`.
+- ✅ **Hotmart**: keywords `lite`/`negocio` mapeadas; downgrade automático; histórico de planos.
+- ✅ **Estoque**: custo médio + movimentações + restrição por plano.
+- ✅ **Erro global**: `ErrorBoundary` + `errorLogger` (window.onerror + unhandledrejection).
+
+### 📝 Resultado Resumido por Bloco
+
+| Bloco | Status | Observação |
+|-------|--------|------------|
+| 1 Arquitetura | ✅ | A-11 (componentes longos) |
+| 2 Segurança | ⚠️ | C-1 (.env tracked), A-15 (rate-limit edges) |
+| 3 Banco / Supabase | ⚠️ | A-3 (RLS dupla), A-13 (255 migrações) |
+| 4 Funcionalidades | ✅ | Todos fluxos OK |
+| 5 Qualidade do Código | ⚠️ | A-4 (`any`), A-5 (`console.log`) |
+| 6 UI/UX | ✅ | A-8 (OG externo), A-16 (helmet) |
+| 7 Performance | ⚠️ | A-6 (code-splitting), A-18 (lockfiles) |
+| 8 SEO | ⚠️ | A-1 (sitemap) |
+| 9 Comunicação | ✅ | A-7 (smoke nos templates) |
+| 10 Pagamentos | ✅ | A-14 (dead-letter) |
+| 11 Monitoramento | ❌ | C-2 (Sentry), A-9 (uptime) |
+| 12 Testes | ⚠️ | A-10 (Vitest) |
+
+### 🎯 Plano de Ação (ordem de prioridade)
+
+1. **(Crítico, manual)** `git rm --cached .env && git commit` — C-1.
+2. **(Crítico)** Provisionar Sentry, adicionar DSN como secret e injetar em `errorLogger.ts` — C-2.
+3. **(Atenção alta)** Migrar RLS de tabelas de negócio para `user_belongs_to_group(owner_group_id)` — A-3.
+4. **(Atenção média)** Code-splitting por rota com `React.lazy` — A-6.
+5. **(Atenção média)** Adicionar Vitest + 4 hooks críticos — A-10.
+6. **(Atenção média)** Substituir `console.log` em `src/` por `errorLogger` — A-5.
+7. **(Atenção baixa)** Sitemap, OG asset próprio, helmet por rota, dead-letter Hotmart, rate-limit em edges sensíveis, padronização de lockfiles.
+
+### 🏁 Veredicto
+
+> ⚠️ **APROVADO COM RESSALVAS** — produto pode operar em produção (já está em `caixadeacucar.com.br`). Os dois itens críticos (C-1 e C-2) são operacionais, não comprometem dados de usuários, e devem ser resolvidos na próxima janela de deploy.
 
 ---
 
