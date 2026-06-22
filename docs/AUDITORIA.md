@@ -82,7 +82,7 @@
 |-------|--------|------------|
 | 1 Arquitetura | ✅ | A-11 (componentes longos) |
 | 2 Segurança | ⚠️ | C-1 (.env tracked), A-15 (rate-limit edges) |
-| 3 Banco / Supabase | ⚠️ | A-3 (RLS dupla), A-13 (255 migrações) |
+| 3 Banco / Supabase | ✅ | A-3 corrigido (RLS unificada); A-13 (255 migrações, baixo impacto) |
 | 4 Funcionalidades | ✅ | Todos fluxos OK |
 | 5 Qualidade do Código | ⚠️ | A-4 (`any`), A-5 (`console.log`) |
 | 6 UI/UX | ✅ | A-8 (OG externo), A-16 (helmet) |
