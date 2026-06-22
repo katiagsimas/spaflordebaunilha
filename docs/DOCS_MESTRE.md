@@ -156,7 +156,7 @@ Background dourado, texto preto, CTA em coral.
 | `/precificacao` | Meu Cardápio (hub) | — |
 | `/estoque` | Meus Insumos | Business / aluna_imersao / Admin |
 | `/clientes-fornecedores` | Clientes e Fornecedores | — |
-| `/planejamento` | Meu Planejamento | Admin do grupo |
+
 | `/conversa-doce` | Assistente IA WhatsApp | — |
 | `/organizacao-doce` | Organizador de tarefas | — |
 | `/upgrade` | Tela de upgrade | — |
