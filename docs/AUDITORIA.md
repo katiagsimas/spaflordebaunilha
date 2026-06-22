@@ -1765,3 +1765,24 @@ Ver `docs/DOCS_GOVERNANCA.md` §9 para detalhes do modelo.
 - ✅ `log_member_plan_sync` agora define `search_path = public` (lint 0011).
 - ✅ Políticas INSERT/UPDATE/DELETE do bucket `assinaturas` reescritas para escopo de usuário (`auth.uid()::text = folder[1]`), consistente com a política SELECT. Membros do grupo não podem mais sobrescrever a assinatura de outro membro.
 - ℹ️ Finding sobre Realtime de `encomendas` marcado como não aplicável: o app não assina canais Realtime para essa tabela; leitura é feita via PostgREST com RLS por `owner_group_id`.
+
+---
+
+## 2026-06-22 — SEO: sitemap.xml e robots.txt criados ✅ (correção A-1)
+
+**Arquivos criados:**
+- `public/sitemap.xml` — 1 entrada (`/`), `lastmod=2026-06-22`, `priority=1.0`, `changefreq=weekly`.
+- `public/robots.txt` — atualizado com blocos por bot, `Disallow` explícito de rotas internas e diretiva `Sitemap:`.
+
+**Rotas incluídas no sitemap (1):**
+- `/` — landing canônica (redireciona para `/dashboard` quando autenticado, para `/auth/login` caso contrário). Serve como ponto de indexação de marca.
+
+**Rotas excluídas (e por quê):**
+- `/auth/login`, `/auth/forgot-password`, `/auth/reset-password` — fluxo de autenticação, não devem aparecer em busca.
+- `/dashboard`, `/encomendas/*`, `/clientes`, `/fornecedores`, `/clientes-fornecedores`, `/precificacao/*`, `/cadastros`, `/configuracoes/*`, `/financeiro/*`, `/estoque/*`, `/meu-salario/*`, `/comercial/*`, `/upgrade`, `/onboarding/*` — exigem login (`ProtectedRoute`); não fazem sentido para crawlers.
+- `/admin/*` (Governanca, Usuarios, Logs, CofreBackups) — área administrativa interna.
+- `/api/` — não existe nesta aplicação, mas bloqueado por boa prática.
+
+**robots.txt:** mantém liberdade para Twitterbot/facebookexternalhit (necessário para preview de cards sociais), bloqueia rotas internas para Googlebot/Bingbot/`*` e publica o `Sitemap:` apontando para a URL canônica do projeto.
+
+Item **A-1 da Auditoria #3 marcado como corrigido.**
