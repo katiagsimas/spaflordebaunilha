@@ -229,7 +229,7 @@ Hub `/configuracoes` + páginas: `cadastros-base`, `precificacao`, `precificacao
 
 ## 7. MODELO DE DADOS
 
-> Todas as tabelas funcionais possuem `owner_group_id (uuid, FK → groups)` para isolamento multi-tenant. As políticas RLS de tabelas de negócio usam `usuario_pertence_ao_grupo(owner_group_id)` (correção aplicada em 22/06/2026).
+> Todas as tabelas funcionais possuem `owner_group_id (uuid, FK → groups)` para isolamento multi-tenant. As políticas RLS de tabelas de negócio usam `user_belongs_to_group(owner_group_id)` (correção aplicada em 22/06/2026).
 
 ### 7.1 Governança & Identidade
 - `groups` (com `master_user_id`), `user_global_roles` (MOTHER), `user_group_roles` (ADMIN/USER + `permission_flags`, coluna `role_group`), `user_active_session`
@@ -387,7 +387,7 @@ Enforcement: `usePlano()` + `PlanoGuard` no frontend; `user_has_financial_access
 - `AuthContext` reordenado (`getSession` awaitado antes do listener) — eliminou redirecionamentos intermitentes
 
 ### Junho/2026
-- RLS de tabelas de negócio padronizada com `usuario_pertence_ao_grupo(owner_group_id)` (substitui o padrão antigo `auth.uid() = user_id`)
+- RLS de tabelas de negócio padronizada com `user_belongs_to_group(owner_group_id)` (substitui o padrão antigo `auth.uid() = user_id`)
 - `sitemap.xml` e `robots.txt` configurados para lançamento
 - Integração Sentry para erros em produção
 
@@ -402,7 +402,7 @@ Enforcement: `usePlano()` + `PlanoGuard` no frontend; `user_has_financial_access
 - **Emails:** Supabase nativos suprimidos — usar Resend via Edge Function
 - **Cores:** usar tokens `--cda-*` (HSL). Nunca cor literal em componente. Nunca `cda-pistache`/`cda-cloud`
 - **Multi-tenancy:** tabelas `groups` e `user_group_roles` (coluna `role_group`). Nunca `grupos`/`grupo_membros`/`role_grupo`
-- **RLS:** tabelas de grupo usam `usuario_pertence_ao_grupo(owner_group_id)`, nunca apenas `auth.uid() = user_id`
+- **RLS:** tabelas de grupo usam `user_belongs_to_group(owner_group_id)`, nunca apenas `auth.uid() = user_id`
 - **Docs:** toda mudança de RLS / SQL / Edge Function / Auth → registrar em `AUDITORIA.md`, `PENDENCIAS_SEGURANCA.md` ou `DOCS_AUTENTICACAO.md`
 
 ---
