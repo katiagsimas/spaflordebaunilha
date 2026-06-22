@@ -1,8 +1,30 @@
 User-agent: Googlebot
 Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /onboarding/
+Disallow: /encomendas/
+Disallow: /clientes
+Disallow: /fornecedores
+Disallow: /clientes-fornecedores
+Disallow: /precificacao/
+Disallow: /cadastros
+Disallow: /configuracoes/
+Disallow: /financeiro/
+Disallow: /estoque/
+Disallow: /meu-salario/
+Disallow: /comercial/
+Disallow: /upgrade
+Disallow: /auth/
 
 User-agent: Bingbot
 Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /onboarding/
+Disallow: /auth/
 
 User-agent: Twitterbot
 Allow: /
@@ -12,3 +34,22 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /onboarding/
+Disallow: /encomendas/
+Disallow: /clientes
+Disallow: /fornecedores
+Disallow: /clientes-fornecedores
+Disallow: /precificacao/
+Disallow: /cadastros
+Disallow: /configuracoes/
+Disallow: /financeiro/
+Disallow: /estoque/
+Disallow: /meu-salario/
+Disallow: /comercial/
+Disallow: /upgrade
+Disallow: /auth/
+
+Sitemap: https://caixadeacucar.com.br/sitemap.xml
