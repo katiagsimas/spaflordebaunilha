@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: Porque para Mililitros não há a identificação "Padrão"?
+// Execute esta instrucao no projeto: Em Cadastros, crie o card "Produtos de Revenda", dentro deste card, crie os cards "Natura, Avon, Casa & Estilo (não insira nada dentro deste cards)
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";

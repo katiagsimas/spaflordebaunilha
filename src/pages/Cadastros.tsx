@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Scale, FlaskConical, Cake, ChevronLeft } from "lucide-react";
+import { Scale, FlaskConical, Cake, ChevronLeft, Package, ShoppingBag } from "lucide-react";
 
 import { HeroBanner } from "@/components/HeroBanner";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -93,6 +93,42 @@ export default function Cadastros() {
             </div>
           </button>
         </div>
+96: 
+97:         {/* Card Agrupador — Produtos de Revenda */}
+98:         <div className="bg-sfb-areia/20 border-2 border-dashed border-sfb-areia/60 rounded-2xl p-6 space-y-4">
+99:           <div className="flex items-center gap-2 mb-2">
+100:             <Package className="h-5 w-5 text-sfb-terracota" />
+101:             <h3 className="font-display text-lg font-semibold text-sfb-cacau">
+102:               Produtos de Revenda
+103:             </h3>
+104:           </div>
+105: 
+106:           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+107:             {/* Card Natura */}
+108:             <div className="bg-white border-2 border-sfb-areia/60 rounded-xl p-5 flex items-center gap-3">
+109:               <div className="w-[42px] h-[42px] rounded-full bg-sfb-baunilha flex items-center justify-center shrink-0">
+110:                 <ShoppingBag className="h-5 w-5 text-sfb-cacau" />
+111:               </div>
+112:               <p className="font-display text-[15px] font-semibold text-sfb-cacau">Natura</p>
+113:             </div>
+114: 
+115:             {/* Card Avon */}
+116:             <div className="bg-white border-2 border-sfb-areia/60 rounded-xl p-5 flex items-center gap-3">
+117:               <div className="w-[42px] h-[42px] rounded-full bg-sfb-baunilha flex items-center justify-center shrink-0">
+118:                 <ShoppingBag className="h-5 w-5 text-sfb-cacau" />
+119:               </div>
+120:               <p className="font-display text-[15px] font-semibold text-sfb-cacau">Avon</p>
+121:             </div>
+122: 
+123:             {/* Card Casa & Estilo */}
+124:             <div className="bg-white border-2 border-sfb-areia/60 rounded-xl p-5 flex items-center gap-3">
+125:               <div className="w-[42px] h-[42px] rounded-full bg-sfb-baunilha flex items-center justify-center shrink-0">
+126:                 <ShoppingBag className="h-5 w-5 text-sfb-cacau" />
+127:               </div>
+128:               <p className="font-display text-[15px] font-semibold text-sfb-cacau">Casa & Estilo</p>
+129:             </div>
+130:           </div>
+131:         </div>
       </div>
 
       {/* Botão flutuante voltar */}
