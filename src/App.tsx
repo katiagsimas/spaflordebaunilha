@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: O módulo Meu Saláriio não está sendo demonstrado no Projeto, favor verificaar e corrigir.
+// Execute esta instrucao no projeto: Favor remover as instruções de Projeto/botão de Ajuda
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";

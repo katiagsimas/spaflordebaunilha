@@ -15,7 +15,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-const WHATSAPP_SUPORTE = "5511978902943";
+
 
 export function getPrimeiroNome(nomeCompleto?: string | null, fallbackEmail?: string | null): string {
   if (nomeCompleto && nomeCompleto.trim()) {
@@ -64,12 +64,6 @@ export function UserMenu() {
     navigate("/auth/login");
   };
 
-  const handleSuporte = () => {
-    const msg = encodeURIComponent(
-      `Olá! Sou ${primeiroNome} (${user?.email ?? ""}) e preciso de suporte no Spa Flor de Baunilha.`
-    );
-    window.open(`https://wa.me/${WHATSAPP_SUPORTE}?text=${msg}`, "_blank");
-  };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
