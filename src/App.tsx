@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: Quando clico sobre os cards, sobe um alerta informando que o Módulo ainda está em desenvolvimento, favor verificare corrigir
+// Execute esta instrucao no projeto: No card "Produtos para Revenda", crie uma página dedicada para este card, ou seja, quando o usuário clicar sobre o card "Produtos para Revenda" sistema abrirá esta página dedicada. Mova os cards "Natura, Avon e Casa & Estilo" para dentro desta página
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
