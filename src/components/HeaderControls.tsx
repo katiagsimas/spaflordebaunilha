@@ -36,13 +36,13 @@ export function ClearCacheButton() {
         <TooltipTrigger asChild>
           <button
             onClick={handleClear}
-            className="flex items-center gap-2 h-9 rounded-full px-2 bg-cda-creme/10 hover:bg-cda-creme/20 text-cda-creme ring-1 ring-cda-creme/20 transition-all font-body text-xs"
+            className="flex items-center gap-2 h-9 rounded-full px-2 bg-sfb-creme/10 hover:bg-sfb-creme/20 text-sfb-creme ring-1 ring-sfb-creme/20 transition-all font-body text-xs"
             aria-label="Limpar cache e recarregar"
           >
             <RefreshCw className="h-4 w-4" />
           </button>
         </TooltipTrigger>
-        <TooltipContent side="bottom" className="bg-cda-preto text-cda-creme border-cda-dourado/40 max-w-[240px]">
+        <TooltipContent side="bottom" className="bg-sfb-preto text-sfb-creme border-sfb-dourado/40 max-w-[240px]">
           <span className="font-body text-xs">
             Faz logout, limpa o cache do navegador e recarrega o app.
           </span>
@@ -64,13 +64,13 @@ export function SidebarToggleLabeled() {
         <TooltipTrigger asChild>
           <button
             onClick={toggleSidebar}
-            className="flex items-center gap-2 h-9 rounded-full px-2 bg-cda-creme/10 hover:bg-cda-creme/20 text-cda-creme ring-1 ring-cda-creme/20 transition-all font-body text-xs"
+            className="flex items-center gap-2 h-9 rounded-full px-2 bg-sfb-creme/10 hover:bg-sfb-creme/20 text-sfb-creme ring-1 ring-sfb-creme/20 transition-all font-body text-xs"
             aria-label={label}
           >
             <Icon className="h-4 w-4" />
           </button>
         </TooltipTrigger>
-        <TooltipContent side="bottom" className="bg-cda-preto text-cda-creme border-cda-dourado/40">
+        <TooltipContent side="bottom" className="bg-sfb-preto text-sfb-creme border-sfb-dourado/40">
           <span className="font-body text-xs">{label}</span>
         </TooltipContent>
       </Tooltip>
@@ -83,15 +83,15 @@ export function SidebarToggleLabeled() {
 export function BackupBadge({ texto }: { texto: string | null }) {
   if (!texto) return null;
   return (
-    <div className="hidden sm:flex items-center gap-2 h-9 pl-2 pr-3 rounded-xl bg-cda-creme/10 ring-1 ring-cda-dourado/30">
-      <div className="h-6 w-6 rounded-md bg-cda-dourado/20 flex items-center justify-center">
-        <Database className="h-3.5 w-3.5 text-cda-dourado" />
+    <div className="hidden sm:flex items-center gap-2 h-9 pl-2 pr-3 rounded-xl bg-sfb-creme/10 ring-1 ring-sfb-dourado/30">
+      <div className="h-6 w-6 rounded-md bg-sfb-dourado/20 flex items-center justify-center">
+        <Database className="h-3.5 w-3.5 text-sfb-dourado" />
       </div>
       <div className="flex flex-col leading-tight">
-        <span className="text-[9px] uppercase tracking-wider text-cda-creme/70 font-body">
+        <span className="text-[9px] uppercase tracking-wider text-sfb-creme/70 font-body">
           Último backup
         </span>
-        <span className="text-[11px] font-semibold text-cda-creme">{texto}</span>
+        <span className="text-[11px] font-semibold text-sfb-creme">{texto}</span>
       </div>
     </div>
   );
@@ -108,7 +108,7 @@ export function SairButton() {
     <Button
       onClick={handleSair}
       size="sm"
-      className="h-9 rounded-full bg-cda-vinho-escuro hover:bg-cda-preto text-cda-creme ring-1 ring-cda-dourado/40 font-body text-xs gap-2 px-4"
+      className="h-9 rounded-full bg-sfb-vinho-escuro hover:bg-sfb-preto text-sfb-creme ring-1 ring-sfb-dourado/40 font-body text-xs gap-2 px-4"
     >
       <LogOut className="h-4 w-4" />
       <span className="hidden sm:inline">Sair</span>

@@ -1,6 +1,6 @@
 import React from "react";
 
-const cdaLogo = "/cda-logo-dourado.png";
+const cdaLogo = "/sfb-logo-dourado.png";
 
 interface LoadingMascoteProps {
   size?: number;

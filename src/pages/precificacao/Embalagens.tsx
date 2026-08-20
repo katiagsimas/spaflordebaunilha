@@ -613,12 +613,12 @@ export default function Embalagens() {
         </div>
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col items-start">
-            <h1 className="font-display text-3xl tracking-tight text-cda-vinho-escuro sm:text-4xl">
+            <h1 className="font-display text-3xl tracking-tight text-sfb-vinho-escuro sm:text-4xl">
               Embalagens
             </h1>
             <div className="mt-2 flex items-center gap-3">
-              <span className="h-px w-12 bg-cda-dourado" />
-              <p className="text-sm font-body italic text-cda-vinho/70">
+              <span className="h-px w-12 bg-sfb-dourado" />
+              <p className="text-sm font-body italic text-sfb-vinho/70">
                 Cadastre embalagens com marca e preço para usar em receitas
               </p>
             </div>
@@ -631,17 +631,17 @@ export default function Embalagens() {
 
       {/* Alertas */}
       <div className="grid gap-4 md:grid-cols-2">
-        <Alert className="bg-cda-creme border-2 border-cda-dourado">
-          <Info className="h-4 w-4 text-cda-vinho" />
-          <AlertDescription className="text-cda-preto">
+        <Alert className="bg-sfb-creme border-2 border-sfb-dourado">
+          <Info className="h-4 w-4 text-sfb-vinho" />
+          <AlertDescription className="text-sfb-preto">
             Após cadastrar, você pode editar apenas a marca e o preço.
           </AlertDescription>
         </Alert>
 
         {qtdDesatualizados > 0 && (
-          <Alert className="bg-cda-creme border-2 border-cda-dourado">
-            <AlertTriangle className="h-4 w-4 text-cda-coral" />
-            <AlertDescription className="text-cda-preto">
+          <Alert className="bg-sfb-creme border-2 border-sfb-dourado">
+            <AlertTriangle className="h-4 w-4 text-sfb-coral" />
+            <AlertDescription className="text-sfb-preto">
               <strong>{qtdDesatualizados}</strong> embalagem(ns) com preço desatualizado (mais de 30 dias)
             </AlertDescription>
           </Alert>
@@ -955,9 +955,9 @@ export default function Embalagens() {
               </div>
             </div>
 
-            <Alert className="bg-cda-creme border-2 border-cda-dourado">
-              <Info className="h-4 w-4 text-cda-vinho" />
-              <AlertDescription className="text-sm text-cda-preto">
+            <Alert className="bg-sfb-creme border-2 border-sfb-dourado">
+              <Info className="h-4 w-4 text-sfb-vinho" />
+              <AlertDescription className="text-sm text-sfb-preto">
                 Esta embalagem será salva e ficará disponível para usar.
               </AlertDescription>
             </Alert>

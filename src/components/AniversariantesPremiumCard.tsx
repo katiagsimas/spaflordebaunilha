@@ -123,19 +123,19 @@ export function AniversariantesPremiumCard({
   if (totalFonte === 0) return null;
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-cda-dourado/30 bg-cda-branco shadow-[0_10px_40px_-20px_rgba(91,26,43,0.35)]">
+    <div className="relative overflow-hidden rounded-3xl border border-sfb-dourado/30 bg-sfb-branco shadow-[0_10px_40px_-20px_rgba(91,26,43,0.35)]">
       {/* Cabeçalho — layout em grid, ilustração nunca cortada */}
-      <div className="relative bg-gradient-to-br from-cda-vinho-escuro via-cda-vinho to-cda-vinho-escuro px-5 py-5 sm:px-8 sm:py-7">
+      <div className="relative bg-gradient-to-br from-sfb-vinho-escuro via-sfb-vinho to-sfb-vinho-escuro px-5 py-5 sm:px-8 sm:py-7">
         <div className="grid grid-cols-[1fr_auto] items-center gap-4">
           <div className="flex items-start gap-3 min-w-0">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-cda-dourado/15 ring-1 ring-cda-dourado/40 sm:h-12 sm:w-12">
-              <Cake className="h-5 w-5 text-cda-dourado sm:h-6 sm:w-6" />
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-sfb-dourado/15 ring-1 ring-sfb-dourado/40 sm:h-12 sm:w-12">
+              <Cake className="h-5 w-5 text-sfb-dourado sm:h-6 sm:w-6" />
             </div>
             <div className="min-w-0 flex-1">
-              <h2 className="font-display text-xl tracking-tight text-cda-creme sm:text-3xl">
+              <h2 className="font-display text-xl tracking-tight text-sfb-creme sm:text-3xl">
                 {titulo}
               </h2>
-              <p className="mt-1 font-body text-xs italic text-cda-dourado/90 sm:text-sm">
+              <p className="mt-1 font-body text-xs italic text-sfb-dourado/90 sm:text-sm">
                 {subtitulo}
               </p>
             </div>
@@ -150,24 +150,24 @@ export function AniversariantesPremiumCard({
             className="pointer-events-none h-20 w-auto shrink-0 select-none sm:h-28 lg:h-32"
           />
         </div>
-        <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-cda-dourado/10 blur-2xl" />
+        <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-sfb-dourado/10 blur-2xl" />
       </div>
 
       {/* Busca + filtro por mês */}
-      <div className="flex flex-col gap-2 border-b border-cda-dourado/15 bg-cda-creme/40 px-5 py-3 sm:flex-row sm:items-center sm:gap-3 sm:px-8">
+      <div className="flex flex-col gap-2 border-b border-sfb-dourado/15 bg-sfb-creme/40 px-5 py-3 sm:flex-row sm:items-center sm:gap-3 sm:px-8">
         <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cda-vinho/50" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-sfb-vinho/50" />
           <Input
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             placeholder="Buscar por nome..."
-            className="h-9 pl-9 pr-9 bg-cda-branco border-cda-dourado/30 focus-visible:ring-cda-vinho/30"
+            className="h-9 pl-9 pr-9 bg-sfb-branco border-sfb-dourado/30 focus-visible:ring-sfb-vinho/30"
           />
           {busca && (
             <button
               type="button"
               onClick={() => setBusca("")}
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-cda-vinho/60 hover:bg-cda-creme hover:text-cda-vinho"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-sfb-vinho/60 hover:bg-sfb-creme hover:text-sfb-vinho"
               aria-label="Limpar busca"
             >
               <X className="h-3.5 w-3.5" />
@@ -175,7 +175,7 @@ export function AniversariantesPremiumCard({
           )}
         </div>
         <Select value={mesFiltro} onValueChange={setMesFiltro}>
-          <SelectTrigger className="h-9 sm:w-44 bg-cda-branco border-cda-dourado/30">
+          <SelectTrigger className="h-9 sm:w-44 bg-sfb-branco border-sfb-dourado/30">
             <SelectValue placeholder="Mês" />
           </SelectTrigger>
           <SelectContent>
@@ -192,38 +192,38 @@ export function AniversariantesPremiumCard({
       {/* Conteúdo */}
       <div className="px-5 py-5 sm:px-8 sm:py-6">
         {visiveis.length === 0 ? (
-          <p className="py-6 text-center font-body text-sm italic text-cda-vinho/60">
+          <p className="py-6 text-center font-body text-sm italic text-sfb-vinho/60">
             Nenhum aniversariante encontrado para os filtros aplicados.
           </p>
         ) : (
-          <ul className="divide-y divide-cda-dourado/15">
+          <ul className="divide-y divide-sfb-dourado/15">
             {visiveis.map((item) => (
               <li
                 key={item.id}
                 className={cn(
                   "flex items-center gap-3 py-3 sm:gap-4 sm:py-3.5",
                   item.onClick &&
-                    "cursor-pointer rounded-xl px-2 -mx-2 transition hover:bg-cda-creme/60",
+                    "cursor-pointer rounded-xl px-2 -mx-2 transition hover:bg-sfb-creme/60",
                 )}
                 onClick={item.onClick}
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-cda-vinho text-[0.65rem] font-bold tracking-wider text-cda-dourado ring-2 ring-cda-dourado/60 sm:h-11 sm:w-11 sm:text-[0.7rem]">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sfb-vinho text-[0.65rem] font-bold tracking-wider text-sfb-dourado ring-2 ring-sfb-dourado/60 sm:h-11 sm:w-11 sm:text-[0.7rem]">
                   {iniciais(item.nome)}
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <p className="font-display text-sm text-cda-vinho-escuro sm:text-lg truncate">
+                  <p className="font-display text-sm text-sfb-vinho-escuro sm:text-lg truncate">
                     {item.nome}
                   </p>
                   {item.legenda && (
-                    <p className="font-body text-xs text-cda-vinho/60 truncate">
+                    <p className="font-body text-xs text-sfb-vinho/60 truncate">
                       {item.legenda}
                     </p>
                   )}
                 </div>
 
-                <div className="flex shrink-0 items-center gap-1.5 text-cda-vinho sm:gap-2">
-                  <Calendar className="h-3.5 w-3.5 text-cda-vinho/70 sm:h-4 sm:w-4" />
+                <div className="flex shrink-0 items-center gap-1.5 text-sfb-vinho sm:gap-2">
+                  <Calendar className="h-3.5 w-3.5 text-sfb-vinho/70 sm:h-4 sm:w-4" />
                   <span className="font-body text-xs sm:text-sm">
                     {formatarDia(item.data_aniversario)}
                   </span>
@@ -235,16 +235,16 @@ export function AniversariantesPremiumCard({
       </div>
 
       {/* Rodapé */}
-      <div className="flex flex-col gap-3 border-t border-cda-dourado/20 bg-cda-pink/15 px-5 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-4">
-        <div className="flex items-center gap-2 font-body text-xs italic text-cda-vinho/80 sm:text-sm">
-          <PartyPopper className="h-4 w-4 text-cda-vinho" />
+      <div className="flex flex-col gap-3 border-t border-sfb-dourado/20 bg-sfb-pink/15 px-5 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-4">
+        <div className="flex items-center gap-2 font-body text-xs italic text-sfb-vinho/80 sm:text-sm">
+          <PartyPopper className="h-4 w-4 text-sfb-vinho" />
           Pequenos gestos criam grandes lembranças.
         </div>
         {total > limite && (
           <Button
             size="sm"
             onClick={() => setExpandido((v) => !v)}
-            className="gap-2 bg-cda-vinho text-cda-creme hover:bg-cda-vinho-escuro tracking-[0.18em] text-xs uppercase"
+            className="gap-2 bg-sfb-vinho text-sfb-creme hover:bg-sfb-vinho-escuro tracking-[0.18em] text-xs uppercase"
           >
             {expandido ? "Ver menos" : `Ver todos (${total})`}
             <ArrowRight className="h-4 w-4" />

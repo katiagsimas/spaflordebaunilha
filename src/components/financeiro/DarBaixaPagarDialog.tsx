@@ -392,7 +392,7 @@ export default function DarBaixaPagarDialog({
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Valor Total da Parcela:</span>
-              <span className="font-medium text-cda-coral">
+              <span className="font-medium text-sfb-coral">
                 {formatarValor(parcela.valor_parcela)}
               </span>
             </div>
@@ -404,14 +404,14 @@ export default function DarBaixaPagarDialog({
             </div>
             <div className="flex justify-between pt-2 border-t">
               <span className="text-sm font-medium">Valor Restante:</span>
-              <span className="font-bold text-cda-coral">
+              <span className="font-bold text-sfb-coral">
                 {formatarValor(valorRestante)}
               </span>
             </div>
           </div>
 
           {parcela.valor_pago > 0 && (
-            <Alert className="bg-cda-dourado/10 border-cda-dourado/40">
+            <Alert className="bg-sfb-dourado/10 border-sfb-dourado/40">
               <Info className="h-4 w-4 text-primary" />
               <AlertDescription>
                 Esta parcela já teve pagamento(s) anterior(es).
@@ -487,7 +487,7 @@ export default function DarBaixaPagarDialog({
           </div>
 
           {/* Cálculo do Valor Líquido */}
-          <div className="p-3 bg-cda-dourado/10 border border-cda-dourado/40 rounded-lg">
+          <div className="p-3 bg-sfb-dourado/10 border border-sfb-dourado/40 rounded-lg">
             <div className="flex justify-between items-center">
               <span className="font-medium">Valor Líquido a Pagar:</span>
               <span className="text-lg font-bold text-primary">

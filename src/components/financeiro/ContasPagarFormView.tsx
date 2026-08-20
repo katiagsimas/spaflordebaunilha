@@ -432,7 +432,7 @@ export default function ContasPagarFormView({
       </div>
 
       {/* Alert Informativo */}
-      <Alert className={isEdicao ? "bg-amber-50 border-amber-200" : "bg-cda-dourado/10 border-cda-dourado/40"}>
+      <Alert className={isEdicao ? "bg-amber-50 border-amber-200" : "bg-sfb-dourado/10 border-sfb-dourado/40"}>
         <Info className={isEdicao ? "h-4 w-4 text-amber-600" : "h-4 w-4 text-primary"} />
         <AlertDescription>
           {isEdicao ? (

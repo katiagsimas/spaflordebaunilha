@@ -19,7 +19,7 @@ interface TabelaInadimplenciaProps {
 }
 
 function getCorPorDiasAtraso(dias: number) {
-  if (dias > 30) return 'bg-cda-coral text-white';
+  if (dias > 30) return 'bg-sfb-coral text-white';
   if (dias > 15) return 'bg-warning text-white';
   return 'bg-warning text-white';
 }
@@ -32,9 +32,9 @@ export function TabelaInadimplencia({ tipo, itens }: TabelaInadimplenciaProps) {
   const cor = ehClientes
     ? {
         border: 'border-l-red-500',
-        iconBg: 'bg-cda-coral/10 dark:bg-cda-coral/20',
-        iconText: 'text-cda-coral dark:text-cda-coral',
-        totalText: 'text-cda-coral dark:text-cda-coral',
+        iconBg: 'bg-sfb-coral/10 dark:bg-sfb-coral/20',
+        iconText: 'text-sfb-coral dark:text-sfb-coral',
+        totalText: 'text-sfb-coral dark:text-sfb-coral',
       }
     : {
         border: 'border-l-orange-500',

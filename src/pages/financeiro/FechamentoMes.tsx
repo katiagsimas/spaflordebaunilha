@@ -78,7 +78,7 @@ export default function FechamentoMes() {
                 </SelectContent>
               </Select>
               {isFechado ? (
-                <Badge className="bg-cda-dourado text-cda-preto"><Lock className="h-3 w-3 mr-1" /> Fechado</Badge>
+                <Badge className="bg-sfb-dourado text-sfb-preto"><Lock className="h-3 w-3 mr-1" /> Fechado</Badge>
               ) : (
                 <Badge variant="outline"><Unlock className="h-3 w-3 mr-1" /> Aberto</Badge>
               )}
@@ -92,7 +92,7 @@ export default function FechamentoMes() {
             {fechamento && !isFechado && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button disabled={!podeFechar || fechar.isPending} className="bg-cda-dourado text-cda-preto hover:bg-cda-dourado/90">
+                  <Button disabled={!podeFechar || fechar.isPending} className="bg-sfb-dourado text-sfb-preto hover:bg-sfb-dourado/90">
                     <Lock className="h-4 w-4 mr-2" /> Fechar mês
                   </Button>
                 </AlertDialogTrigger>
@@ -184,11 +184,11 @@ export default function FechamentoMes() {
                 <CardDescription>
                   {itensConcluidos} de {totalItens} concluídos
                   {!isFechado && !podeFechar && totalItens > 0 && (
-                    <span className="text-cda-coral ml-2">— complete todos para fechar</span>
+                    <span className="text-sfb-coral ml-2">— complete todos para fechar</span>
                   )}
                 </CardDescription>
               </div>
-              {podeFechar && !isFechado && <CheckCircle2 className="h-6 w-6 text-cda-creme" />}
+              {podeFechar && !isFechado && <CheckCircle2 className="h-6 w-6 text-sfb-creme" />}
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -216,7 +216,7 @@ export default function FechamentoMes() {
                       {linkAtalho && (
                         <Link
                           to={linkAtalho}
-                          className="inline-flex items-center gap-1 text-xs text-cda-dourado hover:underline shrink-0"
+                          className="inline-flex items-center gap-1 text-xs text-sfb-dourado hover:underline shrink-0"
                         >
                           <ExternalLink className="h-3 w-3" />
                           Abrir
@@ -255,13 +255,13 @@ export default function FechamentoMes() {
             {logs.map((log) => (
               <div key={log.id} className="flex items-start gap-3 p-3 rounded-lg border bg-card">
                 {log.acao === "reaberto" ? (
-                  <Unlock className="h-4 w-4 mt-1 text-cda-coral shrink-0" />
+                  <Unlock className="h-4 w-4 mt-1 text-sfb-coral shrink-0" />
                 ) : (
-                  <Lock className="h-4 w-4 mt-1 text-cda-dourado shrink-0" />
+                  <Lock className="h-4 w-4 mt-1 text-sfb-dourado shrink-0" />
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant={log.acao === "reaberto" ? "outline" : "default"} className={log.acao === "fechado" ? "bg-cda-dourado text-cda-preto" : ""}>
+                    <Badge variant={log.acao === "reaberto" ? "outline" : "default"} className={log.acao === "fechado" ? "bg-sfb-dourado text-sfb-preto" : ""}>
                       {log.acao === "reaberto" ? "Reabertura" : "Fechamento"}
                     </Badge>
                     <span className="text-xs text-muted-foreground">
@@ -305,7 +305,7 @@ export default function FechamentoMes() {
                 >
                   <div className="flex items-center gap-3">
                     {f.status === "fechado"
-                      ? <Lock className="h-4 w-4 text-cda-dourado" />
+                      ? <Lock className="h-4 w-4 text-sfb-dourado" />
                       : <AlertCircle className="h-4 w-4 text-muted-foreground" />}
                     <div>
                       <p className="font-medium">{formatarMesReferencia(f.mes_referencia)}</p>
@@ -330,7 +330,7 @@ export default function FechamentoMes() {
 }
 
 function Item({ label, valor, positivo, negativo, destaque }: { label: string; valor: number; positivo?: boolean; negativo?: boolean; destaque?: boolean }) {
-  const cor = destaque ? "text-cda-dourado" : positivo ? "text-cda-creme" : negativo ? "text-cda-coral" : "text-foreground";
+  const cor = destaque ? "text-sfb-dourado" : positivo ? "text-sfb-creme" : negativo ? "text-sfb-coral" : "text-foreground";
   return (
     <div className="space-y-1">
       <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>

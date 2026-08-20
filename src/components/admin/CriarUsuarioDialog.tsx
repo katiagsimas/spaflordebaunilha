@@ -108,7 +108,7 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
       <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Crown className="h-5 w-5 text-cda-dourado" />
+            <Crown className="h-5 w-5 text-sfb-dourado" />
             Criar Novo Usuário (Mestre)
           </DialogTitle>
           <DialogDescription>

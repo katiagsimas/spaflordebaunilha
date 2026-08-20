@@ -500,9 +500,9 @@ export default function Bancos() {
       </div>
 
       {/* Alert */}
-      <Alert className="bg-cda-creme border-2 border-cda-dourado">
-        <Info className="h-4 w-4 text-cda-vinho" />
-        <AlertDescription className="text-cda-preto">
+      <Alert className="bg-sfb-creme border-2 border-sfb-dourado">
+        <Info className="h-4 w-4 text-sfb-vinho" />
+        <AlertDescription className="text-sfb-preto">
           <strong>Dica:</strong> Habilite apenas os bancos que você utiliza para melhor organização.
           Os bancos desabilitados não aparecerão nas listagens de seleção.
         </AlertDescription>
@@ -692,9 +692,9 @@ export default function Bancos() {
 
             {/* Alerta de banco não oficial */}
             {mostrarAlertaCustomizado && !codigoOficialEncontrado && (
-              <Alert className="bg-cda-creme border-2 border-cda-dourado">
-                <AlertCircle className="h-4 w-4 text-cda-coral" />
-                <AlertDescription className="text-cda-preto">
+              <Alert className="bg-sfb-creme border-2 border-sfb-dourado">
+                <AlertCircle className="h-4 w-4 text-sfb-coral" />
+                <AlertDescription className="text-sfb-preto">
                   <strong>Banco Inexistente:</strong> Este banco não consta na lista oficial BACEN.
                   Deseja cadastrar mesmo assim? Um código customizado será gerado automaticamente.
                 </AlertDescription>

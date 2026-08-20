@@ -279,12 +279,12 @@ export default function PrePreparos() {
         </div>
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col items-start">
-            <h1 className="font-display text-3xl tracking-tight text-cda-vinho-escuro sm:text-4xl">
+            <h1 className="font-display text-3xl tracking-tight text-sfb-vinho-escuro sm:text-4xl">
               Pré-Preparos
             </h1>
             <div className="mt-2 flex items-center gap-3">
-              <span className="h-px w-12 bg-cda-dourado" />
-              <p className="text-sm font-body italic text-cda-vinho/70">
+              <span className="h-px w-12 bg-sfb-dourado" />
+              <p className="text-sm font-body italic text-sfb-vinho/70">
                 Cadastre preparos intermediários para usar em receitas
               </p>
             </div>

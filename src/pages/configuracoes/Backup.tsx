@@ -497,7 +497,7 @@ export default function Backup() {
     <div className="min-h-screen bg-background px-4 md:px-6 pt-1 pb-4 md:pb-6 space-y-6">
       {/* ===== HEADER PREMIUM (mesmo padrão do módulo Encomendas) ===== */}
       <div
-        className="relative overflow-hidden rounded-2xl border border-cda-dourado/40 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
+        className="relative overflow-hidden rounded-2xl border border-sfb-dourado/40 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
         style={{ background: "#FAEFEB" }}
       >
         <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6 pr-[150px] sm:pr-[200px] lg:pr-[260px] min-h-[130px] sm:min-h-[150px] lg:min-h-[170px]">
@@ -523,7 +523,7 @@ export default function Backup() {
 
 
 
-      <div className="bg-white border border-cda-dourado/30 rounded-xl p-5">
+      <div className="bg-white border border-sfb-dourado/30 rounded-xl p-5">
         <div className="flex items-center gap-2 mb-2">
           <Info className="h-4 w-4 text-[#5B1A2B]" />
           <span className="text-sm font-medium text-[#3D0F1C]">Sobre os backups</span>
@@ -536,7 +536,7 @@ export default function Backup() {
       </div>
 
       {/* LOCAL DE SALVAMENTO */}
-      <div className="bg-white border border-cda-dourado/30 rounded-xl p-5">
+      <div className="bg-white border border-sfb-dourado/30 rounded-xl p-5">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div className="flex items-start gap-3 min-w-0">
             {pastaSalvamento ? (
@@ -589,7 +589,7 @@ export default function Backup() {
 
 
       {/* BACKUP MANUAL */}
-      <div className="bg-white border border-cda-dourado/30 rounded-xl p-5">
+      <div className="bg-white border border-sfb-dourado/30 rounded-xl p-5">
         <div className="flex items-start justify-between gap-3 mb-4">
           <div className="flex items-start gap-3">
             <Download className="h-[18px] w-[18px] text-[#C9A14A] mt-0.5" />
@@ -669,7 +669,7 @@ export default function Backup() {
       {/* PAINEIS INFERIORES — Histórico recentes / KPIs / Espaço */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Histórico Recentes */}
-        <div className="bg-white border border-cda-dourado/30 rounded-xl p-5">
+        <div className="bg-white border border-sfb-dourado/30 rounded-xl p-5">
           <h3 className="text-[15px] text-[#3D0F1C] mb-3" style={{ fontFamily: PLAYFAIR }}>
             Histórico de Backups Recentes
           </h3>
@@ -715,7 +715,7 @@ export default function Backup() {
         </div>
 
         {/* KPIs */}
-        <div className="bg-white border border-cda-dourado/30 rounded-xl p-5">
+        <div className="bg-white border border-sfb-dourado/30 rounded-xl p-5">
           <div className="grid grid-cols-3 gap-2">
             {[
               { pct: pctSalvos, label: "Dados salvos" },
@@ -751,7 +751,7 @@ export default function Backup() {
         </div>
 
         {/* Espaço */}
-        <div className="bg-white border border-cda-dourado/30 rounded-xl p-5">
+        <div className="bg-white border border-sfb-dourado/30 rounded-xl p-5">
           <h3 className="text-[15px] text-[#3D0F1C] mb-3" style={{ fontFamily: PLAYFAIR }}>
             Espaço
           </h3>
@@ -786,7 +786,7 @@ export default function Backup() {
       {/* Agendamento + Retenção + Restaurar */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Agendamento */}
-        <Card className="border-l-4 border-l-blue-500 border-cda-dourado/40">
+        <Card className="border-l-4 border-l-blue-500 border-sfb-dourado/40">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
@@ -914,7 +914,7 @@ export default function Backup() {
         </Card>
 
         {/* Restaurar */}
-        <Card className="border-l-4 border-l-amber-500 border-cda-dourado/40">
+        <Card className="border-l-4 border-l-amber-500 border-sfb-dourado/40">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
@@ -947,7 +947,7 @@ export default function Backup() {
       </div>
 
       {/* Histórico */}
-      <Card className="border-cda-dourado/40">
+      <Card className="border-sfb-dourado/40">
         <CardHeader>
           <CardTitle className="text-lg">Histórico de backups</CardTitle>
           <CardDescription>Salvos na nuvem do Spa Flor de Baunilha</CardDescription>

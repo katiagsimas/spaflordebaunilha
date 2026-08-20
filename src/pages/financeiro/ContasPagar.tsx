@@ -767,8 +767,8 @@ export default function ContasPagar() {
       aberto: <Badge variant="outline">Aberto</Badge>,
       pago: <Badge className="bg-success/15 text-success border-success/40">Pago</Badge>,
       pagamento_parcial: <Badge className="bg-warning/15 text-warning border-warning/40">Pagamento Parcial</Badge>,
-      atrasado: <Badge className="bg-cda-coral/15 text-cda-coral border-cda-coral/40">Atrasado</Badge>,
-      adiantado: <Badge className="bg-cda-dourado/15 text-primary border-cda-dourado/40">Adiantado</Badge>,
+      atrasado: <Badge className="bg-sfb-coral/15 text-sfb-coral border-sfb-coral/40">Atrasado</Badge>,
+      adiantado: <Badge className="bg-sfb-dourado/15 text-primary border-sfb-dourado/40">Adiantado</Badge>,
     };
     return badges[status] || <Badge variant="outline">{status}</Badge>;
   };
@@ -793,12 +793,12 @@ export default function ContasPagar() {
         <Card className="border-l-4 border-l-red-500">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-cda-coral/15 rounded-lg">
-                <TrendingDown className="h-4 w-4 text-cda-coral" />
+              <div className="p-2 bg-sfb-coral/15 rounded-lg">
+                <TrendingDown className="h-4 w-4 text-sfb-coral" />
               </div>
               <div>
                 <p className="text-xs font-medium text-muted-foreground">A Pagar</p>
-                <p className="text-lg font-bold text-cda-coral">
+                <p className="text-lg font-bold text-sfb-coral">
                   {formatarValor(dashboard.total_a_pagar)}
                 </p>
               </div>
@@ -841,7 +841,7 @@ export default function ContasPagar() {
         <Card className="border-l-4 border-l-blue-500">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-cda-dourado/15 rounded-lg">
+              <div className="p-2 bg-sfb-dourado/15 rounded-lg">
                 <Calendar className="h-4 w-4 text-primary" />
               </div>
               <div>
@@ -1165,7 +1165,7 @@ export default function ContasPagar() {
 
       {/* Barra de Ações em Lote */}
       {modoSelecao && parcelasSelecionadas.size > 0 && (
-        <div className="bg-cda-dourado/10 border border-cda-dourado/40 rounded-lg p-4 flex items-center justify-between">
+        <div className="bg-sfb-dourado/10 border border-sfb-dourado/40 rounded-lg p-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-primary" />
             <span className="font-medium">
@@ -1193,7 +1193,7 @@ export default function ContasPagar() {
               variant="outline"
               size="sm"
               onClick={handleExcluirLote}
-              className="text-cda-coral hover:text-cda-coral"
+              className="text-sfb-coral hover:text-sfb-coral"
             >
               <Trash2 className="mr-2 h-4 w-4" />
               Excluir Selecionadas
@@ -1262,13 +1262,13 @@ export default function ContasPagar() {
                   </TableCell>
                   <TableCell className="font-medium">{parcela.fornecedor_nome || 'N/A'}</TableCell>
                   <TableCell>{formatarData(parcela.data_vencimento)}</TableCell>
-                  <TableCell className="font-medium text-cda-coral">
+                  <TableCell className="font-medium text-sfb-coral">
                     {formatarValor(parcela.valor_total)}
                   </TableCell>
                   <TableCell className="font-mono font-medium">
                     {parcela.numero_parcela} de {parcela.numero_parcelas}
                   </TableCell>
-                  <TableCell className="font-medium text-cda-coral">
+                  <TableCell className="font-medium text-sfb-coral">
                     {formatarValor(parcela.valor_parcela)}
                   </TableCell>
                   <TableCell>
@@ -1304,7 +1304,7 @@ export default function ContasPagar() {
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={() => handleExcluir(parcela.conta_pagar_id)}
-                          className="text-cda-coral"
+                          className="text-sfb-coral"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Excluir
@@ -1342,26 +1342,26 @@ export default function ContasPagar() {
 
           <div className="space-y-4 py-4">
             {/* Resumo das Parcelas */}
-            <div className="p-4 bg-cda-dourado/10 border border-cda-dourado/40 rounded-lg space-y-2">
+            <div className="p-4 bg-sfb-dourado/10 border border-sfb-dourado/40 rounded-lg space-y-2">
               <h4 className="font-medium">Parcelas Selecionadas:</h4>
               <div className="text-sm space-y-1 max-h-40 overflow-y-auto">
                 {parcelasFiltradas
                   .filter((p: any) => parcelasSelecionadas.has(p.id) && 
                     (p.status === 'aberto' || p.status === 'atrasado' || p.status === 'pagamento_parcial'))
                   .map((p: any) => (
-                    <div key={p.id} className="flex justify-between py-1 border-b border-cda-dourado/40">
+                    <div key={p.id} className="flex justify-between py-1 border-b border-sfb-dourado/40">
                       <span>
                         {p.fornecedor_nome} - Parcela {p.numero_parcela}/{p.numero_parcelas}
                       </span>
-                      <span className="font-medium text-cda-coral">
+                      <span className="font-medium text-sfb-coral">
                         {formatarValor(p.valor_parcela - (p.valor_pago || 0))}
                       </span>
                     </div>
                   ))}
               </div>
-              <div className="flex justify-between pt-2 border-t border-cda-dourado/40 font-bold">
+              <div className="flex justify-between pt-2 border-t border-sfb-dourado/40 font-bold">
                 <span>Total a Pagar:</span>
-                <span className="text-cda-coral">
+                <span className="text-sfb-coral">
                   {formatarValor(
                     parcelasFiltradas
                       .filter((p: any) => parcelasSelecionadas.has(p.id) && 

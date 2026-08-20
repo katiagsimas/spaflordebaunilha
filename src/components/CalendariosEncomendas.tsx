@@ -50,7 +50,7 @@ const statusBadge: Record<string, string> = {
   confirmado: "bg-blue-100 text-blue-800 border-blue-200",
   em_producao: "bg-purple-100 text-purple-800 border-purple-200",
   pronto: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  entregue: "bg-cda-vinho/10 text-cda-vinho border-cda-vinho/20",
+  entregue: "bg-sfb-vinho/10 text-sfb-vinho border-sfb-vinho/20",
   cancelado: "bg-rose-100 text-rose-800 border-rose-200",
 };
 
@@ -236,17 +236,17 @@ export function CalendariosEncomendas({
     return (
       <Card
         className={cn(
-          "border bg-cda-branco shadow-[0_8px_24px_-18px_rgba(91,26,43,0.25)]",
+          "border bg-sfb-branco shadow-[0_8px_24px_-18px_rgba(91,26,43,0.25)]",
           destaque
-            ? "border-cda-dourado/50 ring-1 ring-cda-dourado/30"
-            : "border-cda-dourado/20",
+            ? "border-sfb-dourado/50 ring-1 ring-sfb-dourado/30"
+            : "border-sfb-dourado/20",
         )}
       >
         <CardHeader className="pb-3 pt-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="font-display text-lg tracking-tight text-cda-vinho-escuro">
+            <CardTitle className="font-display text-lg tracking-tight text-sfb-vinho-escuro">
               {meses[refMes.mes]}{" "}
-              <span className="font-body text-sm font-normal italic text-cda-vinho/70">
+              <span className="font-body text-sm font-normal italic text-sfb-vinho/70">
                 {refMes.ano}
               </span>
             </CardTitle>
@@ -254,7 +254,7 @@ export function CalendariosEncomendas({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 rounded-full text-cda-vinho hover:bg-cda-creme hover:text-cda-vinho-escuro"
+                className="h-7 w-7 rounded-full text-sfb-vinho hover:bg-sfb-creme hover:text-sfb-vinho-escuro"
                 onClick={() => navegar("prev", target)}
                 aria-label="Mês anterior"
               >
@@ -263,7 +263,7 @@ export function CalendariosEncomendas({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 rounded-full text-cda-vinho hover:bg-cda-creme hover:text-cda-vinho-escuro"
+                className="h-7 w-7 rounded-full text-sfb-vinho hover:bg-sfb-creme hover:text-sfb-vinho-escuro"
                 onClick={() => navegar("next", target)}
                 aria-label="Próximo mês"
               >
@@ -277,7 +277,7 @@ export function CalendariosEncomendas({
             {["D", "S", "T", "Q", "Q", "S", "S"].map((dia, i) => (
               <div
                 key={i}
-                className="py-1 text-center text-[10px] font-semibold uppercase tracking-wider text-cda-vinho/55"
+                className="py-1 text-center text-[10px] font-semibold uppercase tracking-wider text-sfb-vinho/55"
               >
                 {dia}
               </div>
@@ -294,10 +294,10 @@ export function CalendariosEncomendas({
                   onClick={() => selecionarDia(d)}
                   className={cn(
                     "relative aspect-square flex flex-col items-center justify-center rounded-lg text-[11px] font-medium transition",
-                    "hover:bg-cda-creme/80",
-                    ehHoje && "bg-cda-vinho text-cda-creme hover:bg-cda-vinho-escuro",
-                    !ehHoje && isSelected && "bg-cda-dourado/20 text-cda-vinho-escuro ring-1 ring-cda-dourado",
-                    !ehHoje && !isSelected && "text-cda-vinho-escuro",
+                    "hover:bg-sfb-creme/80",
+                    ehHoje && "bg-sfb-vinho text-sfb-creme hover:bg-sfb-vinho-escuro",
+                    !ehHoje && isSelected && "bg-sfb-dourado/20 text-sfb-vinho-escuro ring-1 ring-sfb-dourado",
+                    !ehHoje && !isSelected && "text-sfb-vinho-escuro",
                   )}
                   aria-label={`Dia ${format(d.dia, "d")}${temEncomendas ? `, ${d.quantidade} encomenda(s)` : ""}`}
                 >
@@ -308,7 +308,7 @@ export function CalendariosEncomendas({
                     <span
                       className={cn(
                         "absolute bottom-1 h-1.5 w-1.5 rounded-full",
-                        ehHoje ? "bg-cda-dourado" : "bg-cda-dourado",
+                        ehHoje ? "bg-sfb-dourado" : "bg-sfb-dourado",
                       )}
                     />
                   )}
@@ -328,10 +328,10 @@ export function CalendariosEncomendas({
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="font-display text-2xl tracking-tight text-cda-vinho-escuro">
+        <h2 className="font-display text-2xl tracking-tight text-sfb-vinho-escuro">
           Calendários de Encomendas
         </h2>
-        <p className="mt-1 font-body text-sm italic text-cda-vinho/70">
+        <p className="mt-1 font-body text-sm italic text-sfb-vinho/70">
           Visualize suas encomendas em 3 meses consecutivos
         </p>
       </div>

@@ -689,8 +689,8 @@ export default function ContasReceberDetalhes() {
       aberto: <Badge variant="outline">Aberto</Badge>,
       pago: <Badge className="bg-success/15 text-success border-success/40">Pago</Badge>,
       pagamento_parcial: <Badge className="bg-warning/15 text-warning border-warning/40">Pagamento Parcial</Badge>,
-      atrasado: <Badge className="bg-cda-coral/15 text-cda-coral border-cda-coral/40">Atrasado</Badge>,
-      adiantado: <Badge className="bg-cda-dourado/15 text-primary border-cda-dourado/40">Adiantado</Badge>,
+      atrasado: <Badge className="bg-sfb-coral/15 text-sfb-coral border-sfb-coral/40">Atrasado</Badge>,
+      adiantado: <Badge className="bg-sfb-dourado/15 text-primary border-sfb-dourado/40">Adiantado</Badge>,
     };
     return badges[status] || <Badge variant="outline">{status}</Badge>;
   };
@@ -698,8 +698,8 @@ export default function ContasReceberDetalhes() {
   const getBadgeTipoLancamento = (tipo) => {
     const badges = {
       unico: <Badge variant="outline" className="bg-muted/50">Único</Badge>,
-      parcelado: <Badge variant="outline" className="bg-cda-dourado/15 text-primary border-cda-dourado/40">Parcelado</Badge>,
-      recorrente: <Badge variant="outline" className="bg-cda-pink/20 text-cda-pink border-cda-pink/40">Recorrente</Badge>,
+      parcelado: <Badge variant="outline" className="bg-sfb-dourado/15 text-primary border-sfb-dourado/40">Parcelado</Badge>,
+      recorrente: <Badge variant="outline" className="bg-sfb-pink/20 text-sfb-pink border-sfb-pink/40">Recorrente</Badge>,
     };
     return badges[tipo] || <Badge variant="outline">{tipo}</Badge>;
   };
@@ -854,7 +854,7 @@ export default function ContasReceberDetalhes() {
                 <span className="text-sm text-muted-foreground">
                   {conta.numero_parcelas === 1 ? 'Valor da Parcela' : 'Valor da Próxima Parcela'}
                 </span>
-                <span className="font-medium text-lg text-cda-coral">
+                <span className="font-medium text-lg text-sfb-coral">
                   {(() => {
                     const proximaParcelaAberta = parcelas
                       .filter(p => p.status === 'aberto' || p.status === 'atrasado' || p.status === 'pagamento_parcial')
@@ -894,7 +894,7 @@ export default function ContasReceberDetalhes() {
               {totais.totalJuros > 0 && (
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">+ Juros</span>
-                  <span className="font-medium text-cda-coral">
+                  <span className="font-medium text-sfb-coral">
                     {formatarValor(totais.totalJuros)}
                   </span>
                 </div>
@@ -918,7 +918,7 @@ export default function ContasReceberDetalhes() {
 
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Total em Aberto</span>
-                <span className="font-medium text-cda-coral">
+                <span className="font-medium text-sfb-coral">
                   {formatarValor(totais.totalAberto)}
                 </span>
               </div>
@@ -1006,7 +1006,7 @@ export default function ContasReceberDetalhes() {
                       </TableCell>
                       <TableCell>
                         {parcela.juros ? (
-                          <span className="text-cda-coral">{formatarValor(parcela.juros)}</span>
+                          <span className="text-sfb-coral">{formatarValor(parcela.juros)}</span>
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
@@ -1027,7 +1027,7 @@ export default function ContasReceberDetalhes() {
           </div>
 
           {parcelas.length > 0 && (
-            <Alert className="mt-4 bg-cda-dourado/10 border-cda-dourado/40">
+            <Alert className="mt-4 bg-sfb-dourado/10 border-sfb-dourado/40">
               <Info className="h-4 w-4 text-primary" />
               <AlertDescription>
                 <div className="grid grid-cols-3 gap-4 text-sm">
@@ -1178,7 +1178,7 @@ export default function ContasReceberDetalhes() {
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={() => handleExcluirPagamento(pag)}
-                          className="text-cda-coral"
+                          className="text-sfb-coral"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Excluir
@@ -1190,14 +1190,14 @@ export default function ContasReceberDetalhes() {
 
                               {/* Linha de Juros (se houver) */}
                               {pag.juros && parseFloat(pag.juros) > 0 && (
-                                <TableRow key={`juros-${pag.id}`} className="bg-cda-coral/10/50">
+                                <TableRow key={`juros-${pag.id}`} className="bg-sfb-coral/10/50">
                                   <TableCell>
-                                    <Badge variant="outline" className="bg-cda-coral/15 text-cda-coral border-cda-coral/40">
+                                    <Badge variant="outline" className="bg-sfb-coral/15 text-sfb-coral border-sfb-coral/40">
                                       Juros
                                     </Badge>
                                   </TableCell>
                                   <TableCell>{formatarData(pag.data_pagamento)}</TableCell>
-                                  <TableCell className="font-medium text-cda-coral">
+                                  <TableCell className="font-medium text-sfb-coral">
                                     + {formatarValor(parseFloat(pag.juros))}
                                   </TableCell>
                                   <TableCell className="text-sm">
@@ -1206,7 +1206,7 @@ export default function ContasReceberDetalhes() {
                                   <TableCell className="text-sm">
                                     {pag.tipo_documento?.descricao}
                                   </TableCell>
-                                  <TableCell className="text-xs text-cda-coral">
+                                  <TableCell className="text-xs text-sfb-coral">
                                     Juros por atraso
                                   </TableCell>
                                   <TableCell>-</TableCell>
@@ -1216,9 +1216,9 @@ export default function ContasReceberDetalhes() {
 
                               {/* Linha de Desconto (se houver) */}
                               {pag.desconto && parseFloat(pag.desconto) > 0 && (
-                                <TableRow key={`desc-${pag.id}`} className="bg-cda-dourado/10/50">
+                                <TableRow key={`desc-${pag.id}`} className="bg-sfb-dourado/10/50">
                                   <TableCell>
-                                    <Badge variant="outline" className="bg-cda-dourado/15 text-primary border-cda-dourado/40">
+                                    <Badge variant="outline" className="bg-sfb-dourado/15 text-primary border-sfb-dourado/40">
                                       Desconto
                                     </Badge>
                                   </TableCell>
@@ -1369,7 +1369,7 @@ export default function ContasReceberDetalhes() {
                                   Pago: {formatarValor(totalValorPago)}
                                 </div>
                                 {totalJuros > 0 && (
-                                  <div className="text-cda-coral text-sm">
+                                  <div className="text-sfb-coral text-sm">
                                     + Juros: {formatarValor(totalJuros)}
                                   </div>
                                 )}
@@ -1414,7 +1414,7 @@ export default function ContasReceberDetalhes() {
           {pagamentoEditando && (
             <div className="space-y-4 py-4">
               {/* Info do Pagamento */}
-              <Alert className="bg-cda-dourado/10 border-cda-dourado/40">
+              <Alert className="bg-sfb-dourado/10 border-sfb-dourado/40">
                 <Info className="h-4 w-4 text-primary" />
                 <AlertDescription>
                   <strong>Atenção:</strong> Ao editar, a parcela será recalculada automaticamente.
@@ -1570,7 +1570,7 @@ export default function ContasReceberDetalhes() {
                 {pagamentoEstornando.juros && parseFloat(pagamentoEstornando.juros) > 0 && (
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Juros:</span>
-                    <span className="font-medium text-cda-coral">
+                    <span className="font-medium text-sfb-coral">
                       + {formatarValor(parseFloat(pagamentoEstornando.juros))}
                     </span>
                   </div>
@@ -1585,8 +1585,8 @@ export default function ContasReceberDetalhes() {
                 )}
               </div>
 
-              <Alert className="bg-cda-coral/10 border-cda-coral/30">
-                <AlertTriangle className="h-4 w-4 text-cda-coral" />
+              <Alert className="bg-sfb-coral/10 border-sfb-coral/30">
+                <AlertTriangle className="h-4 w-4 text-sfb-coral" />
                 <AlertDescription>
                   <strong>Atenção:</strong> O estorno recalculará automaticamente o status da parcela.
                   O pagamento permanecerá no histórico para auditoria.

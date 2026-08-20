@@ -239,7 +239,7 @@ export default function FluxoCaixaDiario() {
           <CardContent className="py-3 px-4">
             <div className="flex items-end gap-3">
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-cda-vinho/70">Ano</label>
+                <label className="text-xs font-medium text-sfb-vinho/70">Ano</label>
                 <Select value={ano.toString()} onValueChange={(value) => setAno(parseInt(value))}>
                   <SelectTrigger className="h-9 w-[110px]">
                     <SelectValue />
@@ -255,7 +255,7 @@ export default function FluxoCaixaDiario() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-cda-vinho/70">Mês</label>
+                <label className="text-xs font-medium text-sfb-vinho/70">Mês</label>
                 <Select value={mes.toString()} onValueChange={(value) => setMes(parseInt(value))}>
                   <SelectTrigger className="h-9 w-[150px]">
                     <SelectValue />
@@ -273,12 +273,12 @@ export default function FluxoCaixaDiario() {
           </CardContent>
         </Card>
 
-        <Card className="w-fit border-2 border-cda-dourado bg-cda-vinho">
+        <Card className="w-fit border-2 border-sfb-dourado bg-sfb-vinho">
           <CardContent className="py-3 px-4">
             <button
               type="button"
               onClick={() => navigate("/financeiro/fluxo-caixa/mensal")}
-              className="h-9 px-2 text-sm font-medium text-white hover:text-cda-dourado transition-colors"
+              className="h-9 px-2 text-sm font-medium text-white hover:text-sfb-dourado transition-colors"
             >
               Ver Fluxo Mensal →
             </button>
@@ -315,28 +315,28 @@ export default function FluxoCaixaDiario() {
           </CardContent>
         </Card>
 
-        <Card className="border-cda-coral/30 bg-cda-coral/10/50">
+        <Card className="border-sfb-coral/30 bg-sfb-coral/10/50">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-cda-coral">
+            <CardTitle className="text-sm font-medium text-sfb-coral">
               <TrendingDown className="inline w-4 h-4 mr-1" />
               Total Saídas
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-cda-coral">
+            <div className="text-2xl font-bold text-sfb-coral">
               R$ {totais.saidas.toFixed(2)}
             </div>
           </CardContent>
         </Card>
 
-        <Card className={`border-2 ${saldoFinal >= 0 ? 'border-primary bg-primary/10' : 'border-cda-coral bg-cda-coral/10'}`}>
+        <Card className={`border-2 ${saldoFinal >= 0 ? 'border-primary bg-primary/10' : 'border-sfb-coral bg-sfb-coral/10'}`}>
           <CardHeader className="pb-2">
-            <CardTitle className={`text-sm font-medium ${saldoFinal >= 0 ? 'text-primary' : 'text-cda-coral'}`}>
+            <CardTitle className={`text-sm font-medium ${saldoFinal >= 0 ? 'text-primary' : 'text-sfb-coral'}`}>
               Saldo Final
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${saldoFinal >= 0 ? 'text-primary' : 'text-cda-coral'}`}>
+            <div className={`text-2xl font-bold ${saldoFinal >= 0 ? 'text-primary' : 'text-sfb-coral'}`}>
               R$ {saldoFinal.toFixed(2)}
             </div>
           </CardContent>
@@ -396,7 +396,7 @@ export default function FluxoCaixaDiario() {
                   fluxo.map((item, index) => (
                     <TableRow 
                       key={index}
-                      className={item.entradas > 0 || item.saidas > 0 ? "bg-cda-dourado/10/30" : ""}
+                      className={item.entradas > 0 || item.saidas > 0 ? "bg-sfb-dourado/10/30" : ""}
                     >
                       <TableCell className="font-medium">
                         {format(item.dia, "dd", { locale: ptBR })}
@@ -404,18 +404,18 @@ export default function FluxoCaixaDiario() {
                       <TableCell className="text-right text-success">
                         {item.entradas > 0 ? `R$ ${item.entradas.toFixed(2)}` : "-"}
                       </TableCell>
-                      <TableCell className="text-right text-cda-coral">
+                      <TableCell className="text-right text-sfb-coral">
                         {item.saidas > 0 ? `R$ ${item.saidas.toFixed(2)}` : "-"}
                       </TableCell>
                       <TableCell className={`text-right font-medium ${
                         item.saldoDia > 0 ? "text-success" : 
-                        item.saldoDia < 0 ? "text-cda-coral" : 
+                        item.saldoDia < 0 ? "text-sfb-coral" : 
                         "text-muted-foreground"
                       }`}>
                         {item.saldoDia !== 0 ? `R$ ${item.saldoDia.toFixed(2)}` : "-"}
                       </TableCell>
                       <TableCell className={`text-right font-bold ${
-                        item.saldoAcumulado >= 0 ? "text-primary" : "text-cda-coral"
+                        item.saldoAcumulado >= 0 ? "text-primary" : "text-sfb-coral"
                       }`}>
                         R$ {item.saldoAcumulado.toFixed(2)}
                       </TableCell>
@@ -429,16 +429,16 @@ export default function FluxoCaixaDiario() {
                   <TableCell className="text-right font-bold text-success">
                     R$ {totais.entradas.toFixed(2)}
                   </TableCell>
-                  <TableCell className="text-right font-bold text-cda-coral">
+                  <TableCell className="text-right font-bold text-sfb-coral">
                     R$ {totais.saidas.toFixed(2)}
                   </TableCell>
                   <TableCell className={`text-right font-bold ${
-                    totais.saldo >= 0 ? "text-success" : "text-cda-coral"
+                    totais.saldo >= 0 ? "text-success" : "text-sfb-coral"
                   }`}>
                     R$ {totais.saldo.toFixed(2)}
                   </TableCell>
                   <TableCell className={`text-right font-bold ${
-                    saldoFinal >= 0 ? "text-primary" : "text-cda-coral"
+                    saldoFinal >= 0 ? "text-primary" : "text-sfb-coral"
                   }`}>
                     R$ {saldoFinal.toFixed(2)}
                   </TableCell>

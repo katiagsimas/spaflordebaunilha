@@ -55,7 +55,7 @@ export function UserGreeting() {
     user.email ||
     "Minha Confeitaria";
   return (
-    <span className="hidden md:inline text-sm font-display text-cda-dourado truncate max-w-[260px]">
+    <span className="hidden md:inline text-sm font-display text-sfb-dourado truncate max-w-[260px]">
       {nomeEmpresa}
     </span>
   );
@@ -136,13 +136,13 @@ export function UserMenu() {
       <Popover>
         <PopoverTrigger asChild>
           <button
-            className="h-9 w-9 rounded-full bg-cda-dourado/15 hover:bg-cda-dourado/25 ring-1 ring-cda-dourado/40 flex items-center justify-center text-cda-dourado transition-colors overflow-hidden"
+            className="h-9 w-9 rounded-full bg-sfb-dourado/15 hover:bg-sfb-dourado/25 ring-1 ring-sfb-dourado/40 flex items-center justify-center text-sfb-dourado transition-colors overflow-hidden"
             aria-label="Menu do usuário"
           >
             {profile?.avatar_url ? (
               <Avatar className="h-9 w-9">
                 <AvatarImage src={profile.avatar_url} alt={primeiroNome} />
-                <AvatarFallback className="bg-cda-dourado/20 text-cda-dourado text-xs font-semibold">
+                <AvatarFallback className="bg-sfb-dourado/20 text-sfb-dourado text-xs font-semibold">
                   {iniciais}
                 </AvatarFallback>
               </Avatar>
@@ -153,15 +153,15 @@ export function UserMenu() {
         </PopoverTrigger>
         <PopoverContent
           align="end"
-          className="w-80 p-0 overflow-hidden border-cda-dourado/30"
+          className="w-80 p-0 overflow-hidden border-sfb-dourado/30"
         >
           {/* Header com avatar + saudação + badges */}
-          <div className="bg-gradient-to-b from-cda-vinho-escuro to-cda-vinho text-cda-creme px-4 py-4 space-y-3">
+          <div className="bg-gradient-to-b from-sfb-vinho-escuro to-sfb-vinho text-sfb-creme px-4 py-4 space-y-3">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <Avatar className="h-14 w-14 ring-2 ring-cda-dourado/60">
+                <Avatar className="h-14 w-14 ring-2 ring-sfb-dourado/60">
                   {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt={primeiroNome} />}
-                  <AvatarFallback className="bg-cda-dourado/20 text-cda-dourado font-display text-lg">
+                  <AvatarFallback className="bg-sfb-dourado/20 text-sfb-dourado font-display text-lg">
                     {iniciais}
                   </AvatarFallback>
                 </Avatar>
@@ -170,7 +170,7 @@ export function UserMenu() {
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
                   aria-label="Alterar foto"
-                  className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-cda-dourado text-cda-preto flex items-center justify-center shadow ring-2 ring-cda-vinho hover:bg-cda-dourado/90 disabled:opacity-60"
+                  className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-sfb-dourado text-sfb-preto flex items-center justify-center shadow ring-2 ring-sfb-vinho hover:bg-sfb-dourado/90 disabled:opacity-60"
                 >
                   {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
                 </button>
@@ -183,10 +183,10 @@ export function UserMenu() {
                 />
               </div>
               <div className="min-w-0">
-                <p className="text-xs uppercase tracking-wider text-cda-creme/70 font-body">
+                <p className="text-xs uppercase tracking-wider text-sfb-creme/70 font-body">
                   Olá,
                 </p>
-                <p className="font-display text-xl text-cda-dourado leading-tight truncate">
+                <p className="font-display text-xl text-sfb-dourado leading-tight truncate">
                   {primeiroNome}!
                 </p>
               </div>
@@ -194,12 +194,12 @@ export function UserMenu() {
             {mostraBadges && (
               <div className="flex items-center gap-2 flex-wrap pt-1">
                 {activeGroup && sessionMode === "group" && (
-                  <Badge variant="outline" className="text-[10px] border-cda-creme/30 text-cda-creme/80 font-body">
+                  <Badge variant="outline" className="text-[10px] border-sfb-creme/30 text-sfb-creme/80 font-body">
                     {activeRole === "ADMIN" ? "Admin" : "Usuário"}
                   </Badge>
                 )}
                 {isMother && (
-                  <Badge variant="outline" className="text-[10px] border-cda-dourado text-cda-dourado font-body">
+                  <Badge variant="outline" className="text-[10px] border-sfb-dourado text-sfb-dourado font-body">
                     <Crown className="h-3 w-3 mr-1" />
                     MOTHER · Acesso total ao sistema
                   </Badge>
@@ -213,9 +213,9 @@ export function UserMenu() {
             {nomeEmpresa && (
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-body flex items-center gap-1">
-                  <Store className="h-3 w-3 text-cda-vinho" /> Confeitaria
+                  <Store className="h-3 w-3 text-sfb-vinho" /> Confeitaria
                 </p>
-                <p className="text-sm font-semibold text-cda-vinho-escuro truncate">
+                <p className="text-sm font-semibold text-sfb-vinho-escuro truncate">
                   {nomeEmpresa}
                 </p>
               </div>
@@ -228,10 +228,10 @@ export function UserMenu() {
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-body flex items-center gap-1">
-                <Crown className="h-3 w-3 text-cda-dourado" /> Plano
+                <Crown className="h-3 w-3 text-sfb-dourado" /> Plano
               </p>
               {isMother ? (
-                <p className="text-sm font-semibold text-cda-vinho-escuro">
+                <p className="text-sm font-semibold text-sfb-vinho-escuro">
                   Acesso total ao sistema
                   <span className="block text-[11px] font-normal text-muted-foreground mt-0.5">
                     Use o seletor no topo para visualizar como Lite, Business ou Aluna da Imersão.
@@ -239,7 +239,7 @@ export function UserMenu() {
                 </p>
               ) : (
                 <>
-                  <p className="text-sm font-semibold text-cda-vinho-escuro">
+                  <p className="text-sm font-semibold text-sfb-vinho-escuro">
                     {plano?.nome ?? "Carregando..."}
                     {profile?.plano_tipo && (
                       <span className="ml-1 font-normal text-muted-foreground">
@@ -266,7 +266,7 @@ export function UserMenu() {
                 className="w-full justify-start font-body text-sm"
                 onClick={() => navigate("/upgrade")}
               >
-                <ArrowUpCircle className="h-4 w-4 mr-2 text-cda-dourado" />
+                <ArrowUpCircle className="h-4 w-4 mr-2 text-sfb-dourado" />
                 Atualizar plano
               </Button>
             )}
@@ -280,7 +280,7 @@ export function UserMenu() {
             </Button>
             <Button
               variant="ghost"
-              className="w-full justify-start font-body text-sm text-cda-coral hover:text-cda-coral hover:bg-cda-coral/10"
+              className="w-full justify-start font-body text-sm text-sfb-coral hover:text-sfb-coral hover:bg-sfb-coral/10"
               onClick={handleSair}
             >
               <LogOut className="h-4 w-4 mr-2" />

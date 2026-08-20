@@ -487,7 +487,7 @@ export default function DRE() {
             <Button onClick={imprimir} variant="outline">
               <Printer className="mr-2 h-4 w-4" /> Imprimir
             </Button>
-            <Button onClick={exportarExcel} className="bg-cda-vinho hover:bg-cda-vinho-escuro text-white">
+            <Button onClick={exportarExcel} className="bg-sfb-vinho hover:bg-sfb-vinho-escuro text-white">
               <Download className="mr-2 h-4 w-4" /> Exportar
             </Button>
           </div>
@@ -556,7 +556,7 @@ export default function DRE() {
                 </TableRow>
 
                 {/* DEDUÇÕES */}
-                <TableRow className="bg-cda-coral/10">
+                <TableRow className="bg-sfb-coral/10">
                   <TableCell className="font-semibold">(-) Deduções Sobre Vendas</TableCell>
                   {dados.totalDeducoes.map((val, i) => (
                     <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
@@ -584,14 +584,14 @@ export default function DRE() {
                 </TableRow>
 
                 {/* RECEITA LÍQUIDA */}
-                <TableRow className="bg-cda-dourado/10">
+                <TableRow className="bg-sfb-dourado/10">
                   <TableCell className="font-semibold">(=) Receita Líquida</TableCell>
                   {dados.receitaLiquida.map((val, i) => (
-                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-success' : 'text-cda-coral'}`}>
+                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-success' : 'text-sfb-coral'}`}>
                       {val.toFixed(2)}
                     </TableCell>
                   ))}
-                  <TableCell className={`text-right font-bold ${calcularTotal(dados.receitaLiquida) >= 0 ? 'text-success' : 'text-cda-coral'}`}>
+                  <TableCell className={`text-right font-bold ${calcularTotal(dados.receitaLiquida) >= 0 ? 'text-success' : 'text-sfb-coral'}`}>
                     {calcularTotal(dados.receitaLiquida).toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.receitaLiquida), receitaBrutaTotal).toFixed(0)}%</TableCell>
@@ -644,14 +644,14 @@ export default function DRE() {
                 </TableRow>
 
                 {/* MARGEM DE CONTRIBUIÇÃO */}
-                <TableRow className="bg-cda-pink/15">
+                <TableRow className="bg-sfb-pink/15">
                   <TableCell className="font-semibold">(=) Margem de Contribuição</TableCell>
                   {dados.margemContribuicao.map((val, i) => (
-                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-cda-pink' : 'text-cda-coral'}`}>
+                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-sfb-pink' : 'text-sfb-coral'}`}>
                       {val.toFixed(2)}
                     </TableCell>
                   ))}
-                  <TableCell className={`text-right font-bold ${calcularTotal(dados.margemContribuicao) >= 0 ? 'text-cda-pink' : 'text-cda-coral'}`}>
+                  <TableCell className={`text-right font-bold ${calcularTotal(dados.margemContribuicao) >= 0 ? 'text-sfb-pink' : 'text-sfb-coral'}`}>
                     {calcularTotal(dados.margemContribuicao).toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.margemContribuicao), receitaBrutaTotal).toFixed(0)}%</TableCell>
@@ -708,14 +708,14 @@ export default function DRE() {
                 </TableRow>
 
                 {/* RESULTADO OPERACIONAL */}
-                <TableRow className="bg-cda-dourado/15">
+                <TableRow className="bg-sfb-dourado/15">
                   <TableCell className="font-semibold">(=) Resultado Operacional</TableCell>
                   {dados.resultadoOperacional.map((val, i) => (
-                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-primary' : 'text-cda-coral'}`}>
+                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-primary' : 'text-sfb-coral'}`}>
                       {val.toFixed(2)}
                     </TableCell>
                   ))}
-                  <TableCell className={`text-right font-bold ${calcularTotal(dados.resultadoOperacional) >= 0 ? 'text-primary' : 'text-cda-coral'}`}>
+                  <TableCell className={`text-right font-bold ${calcularTotal(dados.resultadoOperacional) >= 0 ? 'text-primary' : 'text-sfb-coral'}`}>
                     {calcularTotal(dados.resultadoOperacional).toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.resultadoOperacional), receitaBrutaTotal).toFixed(0)}%</TableCell>
@@ -744,7 +744,7 @@ export default function DRE() {
                 <TableRow className="bg-muted/30">
                   <TableCell className="font-semibold">Resultado Não Operacional</TableCell>
                   {dados.resultadoNaoOperacional.map((val, i) => (
-                    <TableCell key={i} className={`text-right ${val >= 0 ? '' : 'text-cda-coral'}`}>
+                    <TableCell key={i} className={`text-right ${val >= 0 ? '' : 'text-sfb-coral'}`}>
                       {val.toFixed(2)}
                     </TableCell>
                   ))}
@@ -774,11 +774,11 @@ export default function DRE() {
                 <TableRow className="bg-warning/15">
                   <TableCell className="font-semibold">(=) Lucro Antes do Imposto de Renda (LAIR)</TableCell>
                   {dados.lair.map((val, i) => (
-                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-warning' : 'text-cda-coral'}`}>
+                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-warning' : 'text-sfb-coral'}`}>
                       {val.toFixed(2)}
                     </TableCell>
                   ))}
-                  <TableCell className={`text-right font-bold ${calcularTotal(dados.lair) >= 0 ? 'text-warning' : 'text-cda-coral'}`}>
+                  <TableCell className={`text-right font-bold ${calcularTotal(dados.lair) >= 0 ? 'text-warning' : 'text-sfb-coral'}`}>
                     {calcularTotal(dados.lair).toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.lair), receitaBrutaTotal).toFixed(0)}%</TableCell>
@@ -800,11 +800,11 @@ export default function DRE() {
                 <TableRow className="bg-primary/10">
                   <TableCell className="font-bold">(=) Lucro Líquido</TableCell>
                   {dados.lucroLiquido.map((val, i) => (
-                    <TableCell key={i} className={`text-right font-semibold ${val >= 0 ? 'text-primary' : 'text-cda-coral'}`}>
+                    <TableCell key={i} className={`text-right font-semibold ${val >= 0 ? 'text-primary' : 'text-sfb-coral'}`}>
                       {val.toFixed(2)}
                     </TableCell>
                   ))}
-                  <TableCell className={`text-right font-bold ${calcularTotal(dados.lucroLiquido) >= 0 ? 'text-primary' : 'text-cda-coral'}`}>
+                  <TableCell className={`text-right font-bold ${calcularTotal(dados.lucroLiquido) >= 0 ? 'text-primary' : 'text-sfb-coral'}`}>
                     {calcularTotal(dados.lucroLiquido).toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.lucroLiquido), receitaBrutaTotal).toFixed(0)}%</TableCell>
@@ -870,13 +870,13 @@ export default function DRE() {
               </CardContent>
             </Card>
 
-            <Card className="border-cda-coral/30 bg-cda-coral/10">
+            <Card className="border-sfb-coral/30 bg-sfb-coral/10">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
-                  <TrendingDown className="h-8 w-8 text-cda-coral" />
+                  <TrendingDown className="h-8 w-8 text-sfb-coral" />
                   <div className="text-right">
                     <p className="text-sm text-muted-foreground">Custos Totais</p>
-                    <p className="text-2xl font-bold text-cda-coral">
+                    <p className="text-2xl font-bold text-sfb-coral">
                       R$ {custosTotaisAnual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </p>
                   </div>
@@ -884,15 +884,15 @@ export default function DRE() {
               </CardContent>
             </Card>
 
-            <Card className={`${lucroLiquidoAnual >= 0 ? 'border-primary bg-primary/10' : 'border-cda-coral bg-cda-coral/10'}`}>
+            <Card className={`${lucroLiquidoAnual >= 0 ? 'border-primary bg-primary/10' : 'border-sfb-coral bg-sfb-coral/10'}`}>
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
-                  <TrendingUp className={`h-8 w-8 ${lucroLiquidoAnual >= 0 ? 'text-primary' : 'text-cda-coral'}`} />
+                  <TrendingUp className={`h-8 w-8 ${lucroLiquidoAnual >= 0 ? 'text-primary' : 'text-sfb-coral'}`} />
                   <div className="text-right">
-                    <p className={`text-sm ${lucroLiquidoAnual >= 0 ? 'text-primary' : 'text-cda-coral'}`}>
+                    <p className={`text-sm ${lucroLiquidoAnual >= 0 ? 'text-primary' : 'text-sfb-coral'}`}>
                       Lucro Líquido
                     </p>
-                    <p className={`text-2xl font-bold ${lucroLiquidoAnual >= 0 ? 'text-primary' : 'text-cda-coral'}`}>
+                    <p className={`text-2xl font-bold ${lucroLiquidoAnual >= 0 ? 'text-primary' : 'text-sfb-coral'}`}>
                       R$ {lucroLiquidoAnual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </p>
                   </div>
@@ -980,18 +980,18 @@ export default function DRE() {
           {/* Indicadores do Mês */}
           {anoMensal === ano && dadosMensal ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="border-cda-pink/30 bg-cda-pink/15">
+              <Card className="border-sfb-pink/30 bg-sfb-pink/15">
                 <CardContent className="pt-6">
                   <p className="text-sm text-muted-foreground mb-2">
                     Margem de Contribuição (R$)
                   </p>
-                  <p className={`text-2xl font-bold ${dadosMensal.margemContribuicao >= 0 ? 'text-cda-pink' : 'text-cda-coral'}`}>
+                  <p className={`text-2xl font-bold ${dadosMensal.margemContribuicao >= 0 ? 'text-sfb-pink' : 'text-sfb-coral'}`}>
                     R$ {dadosMensal.margemContribuicao.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className="border-cda-dourado/40 bg-cda-dourado/10">
+              <Card className="border-sfb-dourado/40 bg-sfb-dourado/10">
                 <CardContent className="pt-6">
                   <p className="text-sm text-muted-foreground mb-2">
                     Margem de Contribuição (%)
@@ -1007,7 +1007,7 @@ export default function DRE() {
                   <p className="text-sm text-muted-foreground mb-2">
                     Resultado Operacional (R$)
                   </p>
-                  <p className={`text-2xl font-bold ${dadosMensal.resultadoOperacional >= 0 ? 'text-primary' : 'text-cda-coral'}`}>
+                  <p className={`text-2xl font-bold ${dadosMensal.resultadoOperacional >= 0 ? 'text-primary' : 'text-sfb-coral'}`}>
                     R$ {dadosMensal.resultadoOperacional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </CardContent>
@@ -1018,7 +1018,7 @@ export default function DRE() {
                   <p className="text-sm text-muted-foreground mb-2">
                     Margem Líquida (%)
                   </p>
-                  <p className={`text-2xl font-bold ${dadosMensal.margemLiquidaPerc >= 0 ? 'text-primary' : 'text-cda-coral'}`}>
+                  <p className={`text-2xl font-bold ${dadosMensal.margemLiquidaPerc >= 0 ? 'text-primary' : 'text-sfb-coral'}`}>
                     {dadosMensal.margemLiquidaPerc.toFixed(1)}%
                   </p>
                 </CardContent>

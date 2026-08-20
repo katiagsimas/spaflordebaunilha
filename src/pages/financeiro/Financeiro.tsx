@@ -335,11 +335,11 @@ export default function Financeiro() {
 
 
   const coresBanco = [
-    { border: 'border-l-blue-500', text: 'text-primary', bg: 'bg-cda-dourado/10 dark:bg-cda-dourado/20' },
+    { border: 'border-l-blue-500', text: 'text-primary', bg: 'bg-sfb-dourado/10 dark:bg-sfb-dourado/20' },
     { border: 'border-l-green-500', text: 'text-success', bg: 'bg-success/10 dark:bg-success/20' },
-    { border: 'border-l-cda-pink', text: 'text-cda-pink', bg: 'bg-cda-pink/15 dark:bg-cda-pink/20' },
+    { border: 'border-l-sfb-pink', text: 'text-sfb-pink', bg: 'bg-sfb-pink/15 dark:bg-sfb-pink/20' },
     { border: 'border-l-orange-500', text: 'text-warning', bg: 'bg-warning/10 dark:bg-warning/20' },
-    { border: 'border-l-cda-pink', text: 'text-cda-pink', bg: 'bg-cda-pink/10 dark:bg-cda-pink/20' },
+    { border: 'border-l-sfb-pink', text: 'text-sfb-pink', bg: 'bg-sfb-pink/10 dark:bg-sfb-pink/20' },
     { border: 'border-l-cyan-500', text: 'text-cyan-600', bg: 'bg-cyan-50 dark:bg-cyan-950' },
     { border: 'border-l-indigo-500', text: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-950' },
     { border: 'border-l-teal-500', text: 'text-teal-600', bg: 'bg-teal-50 dark:bg-teal-950' },
@@ -686,7 +686,7 @@ export default function Financeiro() {
                               size="icon"
                               onClick={() => handleExcluirSaldo(saldo.id)}
                             >
-                              <Trash2 className="h-4 w-4 text-cda-coral" />
+                              <Trash2 className="h-4 w-4 text-sfb-coral" />
                             </Button>
                           </TableCell>
                         </TableRow>

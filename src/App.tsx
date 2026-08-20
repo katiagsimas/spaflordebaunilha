@@ -166,11 +166,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             </div>
           )}
           
-          <header className="sticky top-0 z-10 h-14 border-b border-cda-dourado/30 shadow-sm bg-cda-vinho text-cda-creme">
+          <header className="sticky top-0 z-10 h-14 border-b border-sfb-dourado/30 shadow-sm bg-sfb-vinho text-sfb-creme">
             <div className="flex h-full items-center px-4 gap-3">
               <div className="flex items-center gap-3 min-w-0">
                 <SidebarToggleLabeled />
-                <div className="h-6 w-px bg-cda-creme/30 hidden sm:block" />
+                <div className="h-6 w-px bg-sfb-creme/30 hidden sm:block" />
                 <UserGreeting />
               </div>
               <div className="flex-1 flex items-center justify-center">
@@ -192,7 +192,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           </main>
 
           <FloatingNavigation />
-          <footer className="border-t border-cda-dourado/30 bg-cda-vinho text-cda-creme/70 py-3 px-4 text-center text-[11px] font-body">
+          <footer className="border-t border-sfb-dourado/30 bg-sfb-vinho text-sfb-creme/70 py-3 px-4 text-center text-[11px] font-body">
             Spa Flor de Baunilha by Ká Simas · CNPJ 65.786.966/0001-41 · Todos os direitos reservados.
           </footer>
         </div>

@@ -10,7 +10,7 @@
  * apenas para exibição.
  */
 
-const DB_NAME = "cda-backup-prefs";
+const DB_NAME = "sfb-backup-prefs";
 const STORE = "handles";
 const KEY = "backupFolder";
 const LS_NAME_KEY = "cda:backup:folderName";
@@ -97,7 +97,7 @@ export const backupLocation = {
   async pickFolder(): Promise<{ name: string } | null> {
     if (!isFsApiSupported()) return null;
     try {
-      const handle = await (window as any).showDirectoryPicker({ id: "cda-backup", mode: "readwrite" });
+      const handle = await (window as any).showDirectoryPicker({ id: "sfb-backup", mode: "readwrite" });
       await idbSet(KEY, handle);
       try { localStorage.setItem(LS_NAME_KEY, handle.name); } catch { /* ignore */ }
       return { name: handle.name };

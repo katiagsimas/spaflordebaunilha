@@ -54,25 +54,25 @@ export default function OnboardingBemVinda() {
 
   return (
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center p-4">
-      <Card className="max-w-3xl w-full overflow-hidden border-cda-dourado/40 shadow-elevated">
+      <Card className="max-w-3xl w-full overflow-hidden border-sfb-dourado/40 shadow-elevated">
         {/* Faixa superior decorativa */}
-        <div className="h-2 bg-gradient-to-r from-cda-vinho via-cda-dourado to-cda-vinho" />
+        <div className="h-2 bg-gradient-to-r from-sfb-vinho via-sfb-dourado to-sfb-vinho" />
 
-        <CardContent className="p-8 md:p-12 bg-cda-creme">
+        <CardContent className="p-8 md:p-12 bg-sfb-creme">
           <div className="flex flex-col items-center text-center space-y-6">
-            <div className="w-20 h-20 rounded-full bg-cda-vinho flex items-center justify-center shadow-elevated">
-              <Sparkles className="h-10 w-10 text-cda-dourado" />
+            <div className="w-20 h-20 rounded-full bg-sfb-vinho flex items-center justify-center shadow-elevated">
+              <Sparkles className="h-10 w-10 text-sfb-dourado" />
             </div>
 
             <div className="space-y-3">
-              <p className="text-sm uppercase tracking-[0.2em] text-cda-vinho font-semibold">
+              <p className="text-sm uppercase tracking-[0.2em] text-sfb-vinho font-semibold">
                 Boas-vindas ao Spa Flor de Baunilha
               </p>
-              <h1 className="text-3xl md:text-4xl font-display font-bold text-cda-preto leading-tight">
+              <h1 className="text-3xl md:text-4xl font-display font-bold text-sfb-preto leading-tight">
                 Que alegria ter você aqui,{" "}
-                <span className="text-cda-vinho">{primeiroNome}</span>! 🎉
+                <span className="text-sfb-vinho">{primeiroNome}</span>! 🎉
               </h1>
-              <p className="text-base md:text-lg text-cda-preto/80 font-body leading-relaxed max-w-xl mx-auto">
+              <p className="text-base md:text-lg text-sfb-preto/80 font-body leading-relaxed max-w-xl mx-auto">
                 Você acaba de dar um passo decisivo para transformar a sua confeitaria
                 em um negócio organizado, lucrativo e que <strong>cabe na sua rotina</strong>.
                 Aqui você vai precificar com confiança, controlar o financeiro sem complicação
@@ -82,31 +82,31 @@ export default function OnboardingBemVinda() {
 
             {/* Pilares de valor */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full pt-2">
-              <div className="rounded-xl border border-cda-dourado/30 bg-cda-branco p-4 flex flex-col items-center text-center gap-2">
-                <ChefHat className="h-7 w-7 text-cda-vinho" />
-                <p className="text-sm font-semibold text-cda-preto">Receitas precificadas</p>
-                <p className="text-xs text-cda-preto/70">Saiba o custo real e o preço justo de cada item</p>
+              <div className="rounded-xl border border-sfb-dourado/30 bg-sfb-branco p-4 flex flex-col items-center text-center gap-2">
+                <ChefHat className="h-7 w-7 text-sfb-vinho" />
+                <p className="text-sm font-semibold text-sfb-preto">Receitas precificadas</p>
+                <p className="text-xs text-sfb-preto/70">Saiba o custo real e o preço justo de cada item</p>
               </div>
-              <div className="rounded-xl border border-cda-dourado/30 bg-cda-branco p-4 flex flex-col items-center text-center gap-2">
-                <TrendingUp className="h-7 w-7 text-cda-vinho" />
-                <p className="text-sm font-semibold text-cda-preto">Resultados visíveis</p>
-                <p className="text-xs text-cda-preto/70">Métricas claras de faturamento, CMV e lucro</p>
+              <div className="rounded-xl border border-sfb-dourado/30 bg-sfb-branco p-4 flex flex-col items-center text-center gap-2">
+                <TrendingUp className="h-7 w-7 text-sfb-vinho" />
+                <p className="text-sm font-semibold text-sfb-preto">Resultados visíveis</p>
+                <p className="text-xs text-sfb-preto/70">Métricas claras de faturamento, CMV e lucro</p>
               </div>
-              <div className="rounded-xl border border-cda-dourado/30 bg-cda-branco p-4 flex flex-col items-center text-center gap-2">
-                <ShieldCheck className="h-7 w-7 text-cda-vinho" />
-                <p className="text-sm font-semibold text-cda-preto">Dados protegidos</p>
-                <p className="text-xs text-cda-preto/70">Backups automáticos do seu negócio</p>
+              <div className="rounded-xl border border-sfb-dourado/30 bg-sfb-branco p-4 flex flex-col items-center text-center gap-2">
+                <ShieldCheck className="h-7 w-7 text-sfb-vinho" />
+                <p className="text-sm font-semibold text-sfb-preto">Dados protegidos</p>
+                <p className="text-xs text-sfb-preto/70">Backups automáticos do seu negócio</p>
               </div>
             </div>
 
             {/* Aviso sobre os próximos passos */}
-            <div className="w-full rounded-xl bg-cda-dourado/15 border border-cda-dourado/40 p-5 text-left">
-              <p className="text-sm text-cda-preto font-body leading-relaxed">
-                <strong className="text-cda-vinho">Antes de começar</strong>, vamos juntas
+            <div className="w-full rounded-xl bg-sfb-dourado/15 border border-sfb-dourado/40 p-5 text-left">
+              <p className="text-sm text-sfb-preto font-body leading-relaxed">
+                <strong className="text-sfb-vinho">Antes de começar</strong>, vamos juntas
                 preencher 3 cadastros rápidos e obrigatórios — eles garantem que cada módulo
                 do sistema funcione perfeitamente para a sua confeitaria:
               </p>
-              <ol className="mt-3 space-y-1.5 text-sm text-cda-preto/90 font-body list-decimal list-inside">
+              <ol className="mt-3 space-y-1.5 text-sm text-sfb-preto/90 font-body list-decimal list-inside">
                 <li><strong>Meus Dados</strong> — identificação e endereço da confeitaria</li>
                 <li><strong>Valores de Mão de Obra</strong> — base para precificação justa</li>
                 <li><strong>Backup</strong> — proteção dos seus dados desde o primeiro dia</li>
@@ -117,7 +117,7 @@ export default function OnboardingBemVinda() {
               size="lg"
               onClick={handleIniciar}
               disabled={isLoading || !user}
-              className="bg-cda-vinho text-cda-creme hover:bg-cda-vinho-escuro hover:text-cda-branco px-8 py-6 text-base font-semibold shadow-elevated"
+              className="bg-sfb-vinho text-sfb-creme hover:bg-sfb-vinho-escuro hover:text-sfb-branco px-8 py-6 text-base font-semibold shadow-elevated"
             >
               Iniciar Onboarding
               <ArrowRight className="ml-2 h-5 w-5" />

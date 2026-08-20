@@ -71,7 +71,7 @@
 - ✅ **GA4** ativo via `VITE_GA_MEASUREMENT_ID` com `send_page_view` automático.
 - ✅ **Loading UX pattern** consistente (early-return em `useGlobalLoading`).
 - ✅ **Datas timezone-safe** centralizadas em `src/lib/dateUtils.ts`.
-- ✅ **Design system** v2 Vinho Premium com tokens `--cda-*`.
+- ✅ **Design system** v2 Vinho Premium com tokens `--sfb-*`.
 - ✅ **Hotmart**: keywords `lite`/`negocio` mapeadas; downgrade automático; histórico de planos.
 - ✅ **Estoque**: custo médio + movimentações + restrição por plano.
 - ✅ **Erro global**: `ErrorBoundary` + `errorLogger` (window.onerror + unhandledrejection).
@@ -241,7 +241,7 @@
 - **B3 Banco/Supabase:** ✅ 236 migrations, tipos gerados, índices, error handling; ⚠️ A-16.
 - **B4 Funcionalidades:** ✅ fluxos principais; ⚠️ A-10, A-13.
 - **B5 Qualidade de código:** ⚠️ A-3, A-4, A-14.
-- **B6 UI/UX:** ✅ design system `cda-*` + loading states; ⚠️ A-11.
+- **B6 UI/UX:** ✅ design system `sfb-*` + loading states; ⚠️ A-11.
 - **B7 Performance:** ✅ React Query + índices.
 - **B8 SEO:** ⚠️ A-7, A-15.
 - **B9 Comunicação:** ✅ Resend; ⚠️ A-8.
@@ -317,7 +317,7 @@
 - 🛡️ **Rate limiting** na edge function `criar-usuario` (P-3).
 - 🛡️ **Sem secrets hardcoded** no código — busca por `sk_live`, `sk_test`, JWT-like strings em `src/` e `supabase/functions/` retornou 0.
 - 🛡️ **Vulnerabilidade `xlsx` resolvida** via shim sobre `exceljs`.
-- 🎨 **Design system maduro:** tokens `--cda-*`, paleta Vinho Premium v2 consolidada.
+- 🎨 **Design system maduro:** tokens `--sfb-*`, paleta Vinho Premium v2 consolidada.
 - 🎨 **Loading + noscript fallbacks** em `index.html`.
 - 🎨 **Acessibilidade:** nenhuma tag `<img>` sem `alt` detectada.
 - 🧱 **Estrutura de pastas limpa** (`pages`, `components`, `hooks`, `lib`, `contexts`, `services`, `schemas`, `types`, `integrations`).
@@ -519,7 +519,7 @@
 
 | # | Item | Status | Descrição |
 |---|------|--------|-----------|
-| AU-1 | `src/pages/auth/Login.tsx` | ✅ | Lado direito (formulário) agora usa gradiente `linear-gradient(135deg, hsl(0 0% 10%), hsl(345 55% 9%), hsl(0 0% 5%))` em vez de `bg-cda-preto` plano. Opacidade do pattern overlay aumentada de 0.03 para 0.04. |
+| AU-1 | `src/pages/auth/Login.tsx` | ✅ | Lado direito (formulário) agora usa gradiente `linear-gradient(135deg, hsl(0 0% 10%), hsl(345 55% 9%), hsl(0 0% 5%))` em vez de `bg-sfb-preto` plano. Opacidade do pattern overlay aumentada de 0.03 para 0.04. |
 | AU-2 | `src/pages/auth/ForgotPassword.tsx` | ✅ | Mesmo gradiente e ajuste de pattern overlay aplicados no lado direito da tela. |
 | AU-3 | `src/pages/auth/ResetPassword.tsx` | ✅ | Mesmo gradiente e ajuste de pattern overlay aplicados no lado direito da tela. |
 
@@ -616,7 +616,7 @@
 
 | # | Item | Status | Descrição |
 |---|------|--------|-----------|
-| UI-1 | Cor do rodapé padronizada com header e sidebar | ✅ | Footer alterado em `src/App.tsx`: `bg-cda-vinho-escuro` → `bg-cda-vinho` e `border-cda-dourado/20` → `border-cda-dourado/30`. Agora o rodapé, o cabeçalho (`bg-cda-vinho`) e o sidebar (`--sidebar-background: 345 55% 23%`, mesmo vinho) compartilham a mesma cor de fundo, criando consistência visual no shell do app.
+| UI-1 | Cor do rodapé padronizada com header e sidebar | ✅ | Footer alterado em `src/App.tsx`: `bg-sfb-vinho-escuro` → `bg-sfb-vinho` e `border-sfb-dourado/20` → `border-sfb-dourado/30`. Agora o rodapé, o cabeçalho (`bg-sfb-vinho`) e o sidebar (`--sidebar-background: 345 55% 23%`, mesmo vinho) compartilham a mesma cor de fundo, criando consistência visual no shell do app.
 
 ---
 
@@ -800,8 +800,8 @@
 
 | # | Item | Status | Descrição |
 |---|------|--------|-----------|
-| 73 | Tokens CSS `--umbrella-*` → `--cda-*` | ✅ | Renomeados em index.css, tailwind.config.ts e todos os componentes que usavam classes `umbrella-*` |
-| 74 | Logo `umbrella-logo-dourado.png` → `cda-logo-dourado.png` | ✅ | Renomeado em public/ e src/assets/. Referências atualizadas em index.html e LoadingMascote.tsx |
+| 73 | Tokens CSS `--umbrella-*` → `--sfb-*` | ✅ | Renomeados em index.css, tailwind.config.ts e todos os componentes que usavam classes `umbrella-*` |
+| 74 | Logo `umbrella-logo-dourado.png` → `sfb-logo-dourado.png` | ✅ | Renomeado em public/ e src/assets/. Referências atualizadas em index.html e LoadingMascote.tsx |
 | 75 | Alt texts e comentários | ✅ | Alterados de "Spa Flor de Baunilha — Gestão para Confeitarias" para "Spa Flor de Baunilha" |
 | 76 | Link upgrade `gestao.umbrelladoce.com.br` | ✅ | Removido de AlertaExpiracaoPlano.tsx |
 | 77 | DOCS_MESTRE.md | ✅ | Atualizado ecossistema, paleta e tokens. Mantido "by Spa Flor de Baunilha" como marca da empresa |
@@ -1492,7 +1492,7 @@ Correções aplicadas em `supabase/functions/hotmart-webhook/index.ts` e `src/co
 - ✅ **`primeiro_acesso` não é mais ativado em renovações**: aluna que renova da Imersão para Lite/Business não é forçada a trocar senha no próximo login (`primeiro_acesso = false` quando `ehRenovacaoImersao`).
 - ✅ **Fallback de nome no e-mail admin**: `subject` usa `email` quando `buyer.name` vem vazio/whitespace.
 - ✅ **`observacao` do histórico inclui `tx:{transactionId}`**: chave usada pela checagem de idempotência.
-- ✅ **AuthContext limpa `sessionStorage.cda-modal-imersao-shown`** ao detectar `renovacao_imersao` recente — o `ModalExpiracaoImersao` não reaparece após a renovação.
+- ✅ **AuthContext limpa `sessionStorage.sfb-modal-imersao-shown`** ao detectar `renovacao_imersao` recente — o `ModalExpiracaoImersao` não reaparece após a renovação.
 
 ### Itens de atenção (não bloqueantes)
 
@@ -1541,7 +1541,7 @@ Aluna e admin recebem em todos os eventos:
 
 ### Frontend
 
-- `AuthContext` exibe toast distinto por `tipo_evento` (renovacao_imersao, upgrade, renovacao, downgrade_agendado, downgrade_aplicado), com flag `cda-evento-plano-toast-{id}` para não repetir
+- `AuthContext` exibe toast distinto por `tipo_evento` (renovacao_imersao, upgrade, renovacao, downgrade_agendado, downgrade_aplicado), com flag `sfb-evento-plano-toast-{id}` para não repetir
 
 ---
 
@@ -1584,7 +1584,7 @@ Aluna e admin recebem em todos os eventos:
 
 ## 📝 26/05/2026 — Revisão P3 (leve) de documentação modular
 
-Revisados os 3 documentos já considerados completos. Resultado: nenhuma referência obsoleta encontrada (sem menções a `Pistache`, `SugarBox`, `cda-cloud`, tabelas `grupos`/`grupo_membros` ou plano Start como ativo). Atualizado apenas o cabeçalho de data:
+Revisados os 3 documentos já considerados completos. Resultado: nenhuma referência obsoleta encontrada (sem menções a `Pistache`, `SugarBox`, `sfb-cloud`, tabelas `grupos`/`grupo_membros` ou plano Start como ativo). Atualizado apenas o cabeçalho de data:
 
 - `docs/DOCS_GOVERNANCA.md` — timestamp 26/05/2026
 - `docs/DOCS_PRECIFICACAO.md` — timestamp 26/05/2026

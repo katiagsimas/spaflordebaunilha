@@ -7,21 +7,21 @@
 @layer base {
   :root {
     /* Paleta Spa Flor de Baunilha — Vinho Premium */
-    --cda-vinho:        345 55% 23%;   /* #5B1A2B */
-    --cda-vinho-escuro: 345 55% 15%;   /* #3D0F1C */
-    --cda-dourado:      42  48% 54%;   /* #C9A14A */
-    --cda-creme:        38  67% 96%;   /* #FDF6EE */
-    --cda-preto:        0   0%  7%;    /* #121212 */
-    --cda-branco:       30  60% 99%;   /* #FFF9F5 */
-    --cda-coral:        5   82% 73%;   /* #F28C82 — mantido */
-    --cda-pink:         345 52% 77%;   /* #E7A1AF — mantido */
+    --sfb-vinho:        345 55% 23%;   /* #5B1A2B */
+    --sfb-vinho-escuro: 345 55% 15%;   /* #3D0F1C */
+    --sfb-dourado:      42  48% 54%;   /* #C9A14A */
+    --sfb-creme:        38  67% 96%;   /* #FDF6EE */
+    --sfb-preto:        0   0%  7%;    /* #121212 */
+    --sfb-branco:       30  60% 99%;   /* #FFF9F5 */
+    --sfb-coral:        5   82% 73%;   /* #F28C82 — mantido */
+    --sfb-pink:         345 52% 77%;   /* #E7A1AF — mantido */
 
     /*
      * ────────────────────────────────────────────────────────────────
      * Renda Doce — sub-tema deliberadamente diferenciado
      * ────────────────────────────────────────────────────────────────
      * Estes tokens (--rd-*) NÃO fazem parte do design system global
-     * (--cda-*) por decisão de design. O módulo "Meu Salário" usa uma
+     * (--sfb-*) por decisão de design. O módulo "Meu Salário" usa uma
      * paleta própria — "Renda Doce" — com vinho rosado, rosé queimado,
      * dourado quente e creme suave, criando uma atmosfera mais íntima
      * e acolhedora para a experiência financeira pessoal da usuária.
@@ -30,7 +30,7 @@
      * container raiz de src/pages/meu-salario/MeuSalario.tsx, garantindo
      * que estes tokens só afetem este módulo.
      *
-     * ⚠️  NÃO substituir por tokens --cda-* — a diferenciação visual é
+     * ⚠️  NÃO substituir por tokens --sfb-* — a diferenciação visual é
      *     intencional. Mantenha a paleta coesa apenas dentro do escopo.
      * ────────────────────────────────────────────────────────────────
      */

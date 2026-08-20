@@ -121,9 +121,9 @@ function EncomendaTimeline({ status }: { status: string }) {
                 className={cn(
                   "h-2.5 w-2.5 rounded-full border transition-colors",
                   isCancelado && "border-rose-300 bg-rose-100",
-                  !isCancelado && reached && "border-cda-vinho bg-cda-vinho",
-                  !isCancelado && !reached && "border-cda-vinho/25 bg-white",
-                  isCurrent && "ring-2 ring-cda-dourado ring-offset-1",
+                  !isCancelado && reached && "border-sfb-vinho bg-sfb-vinho",
+                  !isCancelado && !reached && "border-sfb-vinho/25 bg-white",
+                  isCurrent && "ring-2 ring-sfb-dourado ring-offset-1",
                 )}
               />
             </div>
@@ -132,8 +132,8 @@ function EncomendaTimeline({ status }: { status: string }) {
                 className={cn(
                   "h-0.5 flex-1 min-w-[8px]",
                   isCancelado && "bg-rose-200",
-                  !isCancelado && i < currentIdx && "bg-cda-vinho",
-                  !isCancelado && i >= currentIdx && "bg-cda-vinho/15",
+                  !isCancelado && i < currentIdx && "bg-sfb-vinho",
+                  !isCancelado && i >= currentIdx && "bg-sfb-vinho/15",
                 )}
               />
             )}
@@ -331,8 +331,8 @@ export function EncomendaStatusCard({
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition",
                     active
-                      ? "border-cda-vinho bg-cda-vinho text-cda-creme shadow-sm"
-                      : "border-cda-vinho/20 bg-white text-cda-vinho hover:bg-cda-creme/60",
+                      ? "border-sfb-vinho bg-sfb-vinho text-sfb-creme shadow-sm"
+                      : "border-sfb-vinho/20 bg-white text-sfb-vinho hover:bg-sfb-creme/60",
                   )}
                 >
                   <ChipIcon className="h-3.5 w-3.5" />

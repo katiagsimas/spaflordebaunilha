@@ -104,16 +104,16 @@ docs/                      # Toda a documentação do projeto (raiz tem só READ
 ### 4.1 Paleta Spa Flor de Baunilha
 | Token | Cor | HSL |
 |-------|-----|-----|
-| `--cda-vinho` | #5B1A2B | `345 55% 23%` |
-| `--cda-vinho-escuro` | #3D0F1C | `345 55% 15%` |
-| `--cda-dourado` | #C9A14A | `42 48% 54%` |
-| `--cda-creme` | #FDF6EE | `38 67% 96%` |
-| `--cda-preto` | #121212 | `0 0% 7%` |
-| `--cda-branco` | #FFF9F5 | `30 60% 99%` |
-| `--cda-coral` | #F28C82 | `5 82% 73%` |
-| `--cda-pink` | #E7A1AF | `345 52% 77%` |
+| `--sfb-vinho` | #5B1A2B | `345 55% 23%` |
+| `--sfb-vinho-escuro` | #3D0F1C | `345 55% 15%` |
+| `--sfb-dourado` | #C9A14A | `42 48% 54%` |
+| `--sfb-creme` | #FDF6EE | `38 67% 96%` |
+| `--sfb-preto` | #121212 | `0 0% 7%` |
+| `--sfb-branco` | #FFF9F5 | `30 60% 99%` |
+| `--sfb-coral` | #F28C82 | `5 82% 73%` |
+| `--sfb-pink` | #E7A1AF | `345 52% 77%` |
 
-> ⚠️ Tokens antigos `cda-pistache` e `cda-cloud` foram **removidos** — não reintroduzir.
+> ⚠️ Tokens antigos `sfb-pistache` e `sfb-cloud` foram **removidos** — não reintroduzir.
 
 ### 4.2 Tokens Semânticos
 - `--primary`: Vinho
@@ -400,7 +400,7 @@ Enforcement: `usePlano()` + `PlanoGuard` no frontend; `user_has_financial_access
 - **Auth init:** `await supabase.auth.getSession()` **antes** de `onAuthStateChange`
 - **IA:** sempre `ai-proxy` (nunca edge function dedicada)
 - **Emails:** Supabase nativos suprimidos — usar Resend via Edge Function
-- **Cores:** usar tokens `--cda-*` (HSL). Nunca cor literal em componente. Nunca `cda-pistache`/`cda-cloud`
+- **Cores:** usar tokens `--sfb-*` (HSL). Nunca cor literal em componente. Nunca `sfb-pistache`/`sfb-cloud`
 - **Multi-tenancy:** tabelas `groups` e `user_group_roles` (coluna `role_group`). Nunca `grupos`/`grupo_membros`/`role_grupo`
 - **RLS:** tabelas de grupo usam `user_belongs_to_group(owner_group_id)`, nunca apenas `auth.uid() = user_id`
 - **Docs:** toda mudança de RLS / SQL / Edge Function / Auth → registrar em `AUDITORIA.md`, `PENDENCIAS_SEGURANCA.md` ou `DOCS_AUTENTICACAO.md`

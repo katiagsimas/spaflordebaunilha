@@ -18,7 +18,7 @@ import type { Proposta } from "@/types/proposta";
 
 const STATUS_COLOR: Record<PropostaStatus, string> = {
   rascunho: "bg-muted text-muted-foreground",
-  enviada: "bg-cda-dourado/20 text-cda-vinho border border-cda-dourado/40",
+  enviada: "bg-sfb-dourado/20 text-sfb-vinho border border-sfb-dourado/40",
   aceita: "bg-emerald-100 text-emerald-800 border border-emerald-300",
   rejeitada: "bg-red-100 text-red-800 border border-red-300",
   expirada: "bg-amber-100 text-amber-800 border border-amber-300",
@@ -58,7 +58,7 @@ export default function Propostas() {
         title="Propostas"
         description="Crie e gerencie orçamentos para os seus clientes."
         backButton={
-          <Button variant="ghost" size="sm" className="gap-1 text-cda-vinho" onClick={() => navigate("/comercial/negociacoes")}>
+          <Button variant="ghost" size="sm" className="gap-1 text-sfb-vinho" onClick={() => navigate("/comercial/negociacoes")}>
             <ArrowLeft className="h-4 w-4" /> Voltar
           </Button>
         }
@@ -74,7 +74,7 @@ export default function Propostas() {
       />
 
       <div className="px-6 pb-2 pt-4">
-        <Button className="bg-cda-vinho hover:bg-cda-vinho-escuro text-white" asChild>
+        <Button className="bg-sfb-vinho hover:bg-sfb-vinho-escuro text-white" asChild>
           <NavLink to="/comercial/propostas/nova">
             <Plus className="h-4 w-4 mr-2" /> Nova proposta
           </NavLink>
@@ -92,19 +92,19 @@ export default function Propostas() {
             { label: "Ticket médio", value: formatBRL(s?.ticket_medio ?? 0), icon: Coins, tone: "vinho" as const },
           ].map((kpi) => {
             const Icon = kpi.icon;
-            const ring = kpi.tone === "vinho" ? "bg-cda-vinho/10 text-cda-vinho" : "bg-cda-dourado/20 text-cda-vinho";
+            const ring = kpi.tone === "vinho" ? "bg-sfb-vinho/10 text-sfb-vinho" : "bg-sfb-dourado/20 text-sfb-vinho";
             return (
               <Card
                 key={kpi.label}
-                className="rounded-2xl border border-cda-dourado/20 bg-cda-branco shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)]"
+                className="rounded-2xl border border-sfb-dourado/20 bg-sfb-branco shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)]"
               >
                 <CardContent className="p-4 flex items-start gap-3">
-                  <div className={`h-10 w-10 shrink-0 rounded-full flex items-center justify-center ring-1 ring-cda-dourado/40 ${ring}`}>
+                  <div className={`h-10 w-10 shrink-0 rounded-full flex items-center justify-center ring-1 ring-sfb-dourado/40 ${ring}`}>
                     <Icon className="h-4 w-4" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] uppercase tracking-wide font-body text-cda-vinho/60">{kpi.label}</p>
-                    <p className="font-display text-xl text-cda-vinho-escuro mt-0.5 truncate">{kpi.value}</p>
+                    <p className="text-[11px] uppercase tracking-wide font-body text-sfb-vinho/60">{kpi.label}</p>
+                    <p className="font-display text-xl text-sfb-vinho-escuro mt-0.5 truncate">{kpi.value}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -113,11 +113,11 @@ export default function Propostas() {
         </div>
 
         {/* Tabela */}
-        <Card className="rounded-2xl border border-cda-dourado/20 bg-cda-branco shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)] overflow-hidden">
+        <Card className="rounded-2xl border border-sfb-dourado/20 bg-sfb-branco shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)] overflow-hidden">
           <CardContent className="p-0">
             {data.length === 0 ? (
               <div className="text-center py-16 px-6">
-                <FileSpreadsheet className="h-12 w-12 mx-auto text-cda-dourado/60 mb-3" />
+                <FileSpreadsheet className="h-12 w-12 mx-auto text-sfb-dourado/60 mb-3" />
                 <p className="text-lg font-semibold">Nenhuma proposta cadastrada</p>
                 <p className="text-sm text-muted-foreground mt-1">Crie sua primeira proposta clicando no botão acima.</p>
               </div>

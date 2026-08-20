@@ -113,7 +113,7 @@ Tokens locais em `src/index.css` (escopados ao módulo):
 
 Wrapper `.renda-doce-scope` aplica gradiente creme em toda a página.
 
-> ⚠️ Estes tokens vivem em paralelo aos tokens globais `--cda-*` por design — o módulo tem identidade visual distinta dentro do app.
+> ⚠️ Estes tokens vivem em paralelo aos tokens globais `--sfb-*` por design — o módulo tem identidade visual distinta dentro do app.
 
 ---
 
