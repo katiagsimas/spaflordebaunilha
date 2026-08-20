@@ -6,7 +6,7 @@
 
 ## 1. VISÃO GERAL
 
-Módulo para cálculo de custos e formação de preços. Acessível no **Caixa Lite**.
+Módulo para cálculo de custos e formação de preços. Acessível no **Flor de Baunilha Lite**.
 
 ### Cadeia de Precificação
 ```

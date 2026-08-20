@@ -17,7 +17,7 @@ import { escapeHtml } from '../_shared/escapeHtml.ts'
  *
  * Ordem de matching:
  *   1. (product_id + offer_code) exato — produtos com múltiplas ofertas (ex.: Business mensal/anual).
- *   2. (product_id) com offer_code NULL — produtos de oferta única (ex.: Caixa Lite).
+ *   2. (product_id) com offer_code NULL — produtos de oferta única (ex.: Flor de Baunilha Lite).
  *   3. Fallback legado por palavras-chave no nome (compatibilidade).
  *
  * Retorna null se nada casar — o webhook ignora o evento para evitar provisionar
@@ -76,8 +76,8 @@ async function resolverPlano(
 
   // 3) Fallback: palavras-chave no nome (apenas para produtos não cadastrados)
   console.log('resolverPlano - productId/offer não cadastrados, usando fallback por nome')
-  const isNegocio = nome.includes('business') || nome.includes('negocio') || nome.includes('negócio') || nome.includes('caixa business')
-  const isLiteFallback = nome.includes('caixa lite') || nome.includes('Spa Flor de Baunilha lite') || nome.includes('caixa de acucar lite')
+  const isNegocio = nome.includes('business') || nome.includes('negocio') || nome.includes('negócio') || nome.includes('Flor de Baunilha Business')
+  const isLiteFallback = nome.includes('Flor de Baunilha Lite') || nome.includes('Spa Flor de Baunilha lite') || nome.includes('flor de baunilha lite')
 
   if (!isNegocio && !isLiteFallback) {
     console.log('resolverPlano - nome não reconhecido, rejeitando para evitar provisionamento indevido')
@@ -679,14 +679,14 @@ async function enviarEmailBoasVindas(
 
   const nomeDisplay = escapeHtml(nome || 'Confeiteira')
   const emailSafe = escapeHtml(email)
-  const planoNome = planoId === 'negocio' ? 'Caixa Business' : 'Caixa Lite'
+  const planoNome = planoId === 'negocio' ? 'Flor de Baunilha Business' : 'Flor de Baunilha Lite'
 
   const html = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.6;">
       <p>Olá, ${nomeDisplay}!</p>
       <p>Sua conta foi criada. Veja como acessar a plataforma agora:</p>
       <ol>
-        <li>Acesse <a href="https://caixa.umbrelladoce.com.br" style="color: #D89B8C;">caixa.umbrelladoce.com.br</a></li>
+        <li>Acesse <a href="https://spa.spaflordebaunilha.com.br" style="color: #D89B8C;">spa.spaflordebaunilha.com.br</a></li>
         <li>Clique em <strong>"Esqueci minha senha"</strong></li>
         <li>Digite o email <strong>${emailSafe}</strong> para receber o link de acesso</li>
       </ol>
@@ -733,8 +733,8 @@ function formatarDataBR(iso: string): string {
 // ============================================================
 
 const PLANO_NOME: Record<string, string> = {
-  base: 'Caixa Lite',
-  negocio: 'Caixa Business',
+  base: 'Flor de Baunilha Lite',
+  negocio: 'Flor de Baunilha Business',
 }
 
 const MODULOS_BUSINESS = [
@@ -797,7 +797,7 @@ async function enviarEmailMudancaPlanoAluna(
     subject = `Mudança de plano confirmada — ${planoNovoNome} a partir de ${inicioLite}`
     corpo = `
       <p>Olá, ${nomeDisplay}!</p>
-      <p>Recebemos sua contratação do <strong>${planoNovoNome}</strong>. Como você ainda tem acesso ao Caixa Business até <strong>${fimAtual}</strong>, sua mudança acontece automaticamente nessa data — você não perde nem um dia do que já pagou.</p>
+      <p>Recebemos sua contratação do <strong>${planoNovoNome}</strong>. Como você ainda tem acesso ao Flor de Baunilha Business até <strong>${fimAtual}</strong>, sua mudança acontece automaticamente nessa data — você não perde nem um dia do que já pagou.</p>
       <p style="background:#FDF6EE;border-left:4px solid #C9A14A;padding:12px 16px;margin:20px 0;border-radius:6px;">
         <strong>A partir de ${inicioLite}:</strong><br/>
         ✅ Continua: Encomendas, Receitas, Precificação, Clientes &amp; Fornecedores, Cadastros, Meu Painel<br/>
@@ -812,7 +812,7 @@ async function enviarEmailMudancaPlanoAluna(
       <h1 style="color:#5B1A2B;font-size:22px;margin:0 0 16px;">${subject.replace(/[—-].*$/, '').trim()}</h1>
       ${corpo}
       <div style="text-align:center;margin:32px 0;">
-        <a href="https://caixa.umbrelladoce.com.br" style="background:#5B1A2B;color:#FFF9F5;padding:14px 32px;text-decoration:none;border-radius:8px;font-weight:bold;display:inline-block;">Acessar minha conta</a>
+        <a href="https://spa.spaflordebaunilha.com.br" style="background:#5B1A2B;color:#FFF9F5;padding:14px 32px;text-decoration:none;border-radius:8px;font-weight:bold;display:inline-block;">Acessar minha conta</a>
       </div>
       <p style="font-size:13px;color:#555;">Dúvidas? Fale com a gente em <a href="mailto:ola@umbrelladoce.com.br" style="color:#5B1A2B;">ola@umbrelladoce.com.br</a>.</p>
       <p style="margin-top:24px;">Com carinho,<br/><strong>Equipe Spa Flor de Baunilha</strong></p>

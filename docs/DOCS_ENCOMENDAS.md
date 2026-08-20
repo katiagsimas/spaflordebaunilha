@@ -6,7 +6,7 @@
 
 ## 1. VISÃO GERAL
 
-Módulo central de gestão de pedidos. Acessível no **Caixa Lite**.
+Módulo central de gestão de pedidos. Acessível no **Flor de Baunilha Lite**.
 
 **Rota:** `/encomendas`  
 **Componente:** `src/pages/Encomendas.tsx`

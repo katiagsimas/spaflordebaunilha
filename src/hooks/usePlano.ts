@@ -105,7 +105,7 @@ export function usePlano() {
       if (!profile?.plano_id) {
         return { 
           id: "base", 
-          nome: "Caixa Lite", 
+          nome: "Flor de Baunilha Lite", 
           descricao: null, 
           ativo: true, 
           em_breve: false,

@@ -4,7 +4,7 @@
 **Atualizada em:** 22/06/2026  
 **Escopo:** Catálogo de planos, vínculo com `profiles`, herança mestre→membros, provisionamento via Hotmart, regras de expiração, upgrade/downgrade, plano pendente e continuidade.
 
-> ⚠️ **2026-05-25 — Plano `Caixa Start` DESCONTINUADO.**  
+> ⚠️ **2026-05-25 — Plano `Flor de Baunilha Start` DESCONTINUADO.**  
 > Registro removido de `public.planos`; usuários migrados para `base` e desativados. Periodicidades `7dias`/`14dias` removidas do `diasMap`. O webhook trata eventuais menções a "start" como fallback para `base` (Lite). Mantemos referências históricas pontuais apenas para auditoria.
 
 ---
@@ -15,10 +15,10 @@ Tabela `public.planos` (registros vigentes):
 
 | ID              | Nome                | Ativo | Em breve | Descrição                                                            |
 |-----------------|---------------------|:-----:|:--------:|----------------------------------------------------------------------|
-| `base`          | Caixa Lite          |  ✅   |    ❌    | Precificação, encomendas e parceiros — a fundação do negócio.        |
-| `negocio`       | Caixa Business      |  ✅   |    ❌    | Gestão completa — produção, comercial, financeiro e estoque.         |
+| `base`          | Flor de Baunilha Lite          |  ✅   |    ❌    | Precificação, encomendas e parceiros — a fundação do negócio.        |
+| `negocio`       | Flor de Baunilha Business      |  ✅   |    ❌    | Gestão completa — produção, comercial, financeiro e estoque.         |
 | `aluna_imersao` | Aluna da Imersão    |  ✅   |    ❌    | Acesso Business por **30 dias** — exclusivo de alunas da Imersão.    |
-| ~~`start`~~     | ~~Caixa Start~~     | ❌    | —        | DESCONTINUADO (2026-05-25).                                          |
+| ~~`start`~~     | ~~Flor de Baunilha Start~~     | ❌    | —        | DESCONTINUADO (2026-05-25).                                          |
 | `controle`      | Plano Controle      |  ❌   |    ✅    | Reservado para evolução futura (não disponível para venda).          |
 
 ### 1.1 Módulos liberados por plano
@@ -40,10 +40,10 @@ A rota raiz `/configuracoes` é sempre acessível. Itens bloqueados pelo plano a
 
 | Valor      | Duração (dias) | Usado por                                  |
 |------------|---------------:|--------------------------------------------|
-| `mensal`   | 30             | Caixa Business, Aluna Imersão (30 dias)    |
-| `anual`    | 365            | Caixa Lite (sempre), Caixa Business        |
+| `mensal`   | 30             | Flor de Baunilha Business, Aluna Imersão (30 dias)    |
+| `anual`    | 365            | Flor de Baunilha Lite (sempre), Flor de Baunilha Business        |
 
-> **Regra fixa:** Caixa Lite (`base`) é sempre anual. Aluna da Imersão é sempre 30 dias.
+> **Regra fixa:** Flor de Baunilha Lite (`base`) é sempre anual. Aluna da Imersão é sempre 30 dias.
 
 ### 1.3 Visão MOTHER
 
@@ -117,7 +117,7 @@ Regras (case-insensitive):
 
 | Palavra-chave detectada                                              | Resultado                          |
 |----------------------------------------------------------------------|------------------------------------|
-| `business`, `negocio`, `negócio`, `caixa business`                   | `negocio` (+ ver periodicidade)    |
+| `business`, `negocio`, `negócio`, `Flor de Baunilha Business`                   | `negocio` (+ ver periodicidade)    |
 | `anual`, `annual`, `yearly` (apenas para `negocio`)                  | `anual`                            |
 | ausência das anteriores (apenas para `negocio`)                      | `mensal`                           |
 | nenhuma das acima                                                    | `base` + `anual` (Lite, fallback)  |
@@ -227,7 +227,7 @@ Banner global exibido para não-admin quando `0 ≤ diasRestantes ≤ 7`:
 
 A página `src/pages/Upgrade.tsx` exibe:
 - Plano atual em badge.
-- CTA principal **"Quero fazer o upgrade"** apontando para `caixa.umbrelladoce.com.br`.
+- CTA principal **"Quero fazer o upgrade"** apontando para `spa.spaflordebaunilha.com.br`.
 - Botão "Voltar".
 
 > Não existe fluxo de upgrade automático/self-service dentro do app. Todo upgrade real acontece via nova compra Hotmart (que dispara `SWITCH_PLAN`/`PURCHASE_APPROVED` automaticamente) ou ajuste manual pelo painel admin.

@@ -12,8 +12,8 @@ import { useQueryClient } from "@tanstack/react-query";
 
 const OPCOES: Array<{ value: "default" | NonNullable<MotherViewPlan>; label: string }> = [
   { value: "default", label: "MOTHER · Acesso total" },
-  { value: "base", label: "Visualizar como Caixa Lite" },
-  { value: "negocio", label: "Visualizar como Caixa Business" },
+  { value: "base", label: "Visualizar como Flor de Baunilha Lite" },
+  { value: "negocio", label: "Visualizar como Flor de Baunilha Business" },
   
 ];
 

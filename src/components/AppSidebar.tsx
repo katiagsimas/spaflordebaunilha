@@ -343,12 +343,12 @@ export function AppSidebar() {
               {upgradeModal?.title} <Lock className="h-5 w-5 text-sfb-dourado" />
             </DialogTitle>
             <DialogDescription className="text-base font-body text-muted-foreground pt-2">
-              Este módulo é exclusivo do <strong>Plano Caixa Business</strong>. Faça o upgrade do seu plano para liberar <strong>{upgradeModal?.title}</strong> e todas as ferramentas avançadas do Spa Flor de Baunilha.
+              Este módulo é exclusivo do <strong>Plano Flor de Baunilha Business</strong>. Faça o upgrade do seu plano para liberar <strong>{upgradeModal?.title}</strong> e todas as ferramentas avançadas do Spa Flor de Baunilha.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end pt-2">
             <a
-              href="https://caixa.umbrelladoce.com.br"
+              href="https://spa.spaflordebaunilha.com.br"
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setUpgradeModal(null)}

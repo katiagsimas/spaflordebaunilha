@@ -3,7 +3,7 @@
 # check-umbrella-refs.sh
 # Verifica que não existem referências ao "app Spa Flor de Baunilha"
 # no código-fonte. Apenas "by Spa Flor de Baunilha" (marca da empresa),
-# emails @umbrelladoce.com.br e domínio caixa.umbrelladoce.com.br
+# emails @umbrelladoce.com.br e domínio spa.spaflordebaunilha.com.br
 # são permitidos.
 # ============================================================
 set -euo pipefail
@@ -100,7 +100,7 @@ echo ""
 echo -e "${YELLOW}ℹ️  Referências legítimas mantidas (empresa):${NC}"
 echo "  - 'by Spa Flor de Baunilha' (branding)"
 echo "  - Emails @umbrelladoce.com.br"  
-echo "  - Domínio caixa.umbrelladoce.com.br"
+echo "  - Domínio spa.spaflordebaunilha.com.br"
 echo ""
 
 if [ "$ERRORS" -gt 0 ]; then

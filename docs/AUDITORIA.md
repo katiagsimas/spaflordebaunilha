@@ -105,7 +105,7 @@
 
 ### 🏁 Veredicto
 
-> ⚠️ **APROVADO COM RESSALVAS** — produto pode operar em produção (já está em `caixadeacucar.com.br`). Os dois itens críticos (C-1 e C-2) são operacionais, não comprometem dados de usuários, e devem ser resolvidos na próxima janela de deploy.
+> ⚠️ **APROVADO COM RESSALVAS** — produto pode operar em produção (já está em `spaflordebaunilha.com.br`). Os dois itens críticos (C-1 e C-2) são operacionais, não comprometem dados de usuários, e devem ser resolvidos na próxima janela de deploy.
 
 ---
 
@@ -603,9 +603,9 @@
 | # | Item | Status | Descrição |
 |---|------|--------|-----------|
 | IM-1 | Tabela `imersao_notificacoes_log` | ✅ | Criada com campos `user_id`, `dias_restantes`, `tipo` (aluna/admin), `email_destinatario`, `enviado_em`, `erro`. Unique index `(user_id, dias_restantes, tipo, dia_BR)` garante idempotência diária. RLS: admin lê tudo via `has_role`; service_role gerencia. Grants padrão. |
-| IM-2 | Edge Function `notificar-expiracao-imersao` | ✅ | `verify_jwt = false`. Busca alunas com `plano_id='aluna_imersao'`, `ativo=true`, `plano_fim ∈ {hoje+7, hoje+3, hoje+1}` (timezone America/Sao_Paulo). Envia e-mails via Resend (`RESEND_API_KEY` reutilizada). Templates HTML inline com branding Vinho/Dourado e CTA para `https://upcaixa.umbrelladoce.com.br`. E-mail consolidado para admin via secret `EMAIL_ADMIN_IMERSAO`. Idempotência por insert na tabela de log antes do envio. |
+| IM-2 | Edge Function `notificar-expiracao-imersao` | ✅ | `verify_jwt = false`. Busca alunas com `plano_id='aluna_imersao'`, `ativo=true`, `plano_fim ∈ {hoje+7, hoje+3, hoje+1}` (timezone America/Sao_Paulo). Envia e-mails via Resend (`RESEND_API_KEY` reutilizada). Templates HTML inline com branding Vinho/Dourado e CTA para `https://upspa.spaflordebaunilha.com.br`. E-mail consolidado para admin via secret `EMAIL_ADMIN_IMERSAO`. Idempotência por insert na tabela de log antes do envio. |
 | IM-3 | Agendamento pg_cron `notificar-expiracao-imersao-diario` | ✅ | Job diário às 12:00 UTC (09:00 BRT) via `net.http_post` para a edge function. Inserido via `cron.schedule`. |
-| IM-4 | Redirect externo para alunas Imersão | ✅ | `src/pages/Upgrade.tsx`: se `plano.id === 'aluna_imersao'` → `window.location.href = URL_UPGRADE_EXTERNO` (`https://upcaixa.umbrelladoce.com.br`). Constante em `src/lib/constants.ts`. |
+| IM-4 | Redirect externo para alunas Imersão | ✅ | `src/pages/Upgrade.tsx`: se `plano.id === 'aluna_imersao'` → `window.location.href = URL_UPGRADE_EXTERNO` (`https://upspa.spaflordebaunilha.com.br`). Constante em `src/lib/constants.ts`. |
 | IM-5 | Notificações em tela (aluna) | ✅ | `AlertaExpiracaoPlano` ganhou CTA "Renovar agora" → URL externa quando plano é Imersão. Novo `ModalExpiracaoImersao` aparece uma vez por sessão (sessionStorage) em D-1 e D-0 com CTA destacado. |
 | IM-6 | CTA pós-expiração no Login | ✅ | `src/pages/auth/Login.tsx`: ao detectar erro contendo "expirou" no signIn, exibe botão coral "Renovar acesso à Imersão" → URL externa. |
 | IM-7 | Painel admin — alunas expirando | ✅ | Novo card `AlunasImersaoExpirando` em `/configuracoes/usuarios` (aba Usuários) lista alunas com `plano_fim` entre hoje e hoje+7, ordenadas por vencimento. Badge colorida por proximidade (destructive ≤1d, default ≤3d, secondary >3d). |
@@ -662,8 +662,8 @@
 
 | # | Item | Status | Descrição |
 |---|------|--------|-----------|
-| P-1.b | Suporte a múltiplas ofertas por produto (Caixa Business) | ✅ | Tabela `hotmart_produtos` ganhou coluna `offer_code` (text, nullable). PK antiga (`product_id`) substituída por índice único `(product_id, COALESCE(offer_code, ''))` — permite uma linha NULL por produto (oferta única, ex.: Lite) e várias linhas por produto quando há múltiplas ofertas. `resolverPlano()` agora aceita `offerCode` e segue a ordem: (1) match exato `(product_id, offer_code)`, (2) match `(product_id, offer_code IS NULL)`, (3) fallback por palavras-chave. Webhook lê `purchase.offer.code` do payload Hotmart e passa para `resolverPlano()` nos eventos `PURCHASE_APPROVED/COMPLETE` e `SWITCH_PLAN`. Seeds: `7448785/n20dvd6j` → `negocio/mensal` (Caixa Business Mensal), `7448785/mto997mw` → `negocio/anual` (Caixa Business Anual). Caixa Lite (`7449074`, offer_code NULL) continua funcionando via passo 2. |
-| P-1 | Webhook Hotmart resolve plano pelo `productId` exato | ✅ | Nova tabela `hotmart_produtos` (FK para `planos.id`, `plano_tipo` mensal/anual, `ativo`, `descricao`). RLS: leitura para `authenticated`, escrita só para MOTHER. Quando productId+offer está cadastrado e ativo → resolve por ID (fonte de verdade). Quando não está cadastrado → fallback de palavras-chave **passou a exigir match explícito** com `"business"` ou `"caixa lite"` (rejeita produtos genéricos como Imersão R$97 que antes caíam em Lite por default). Quando `ativo=false` → rejeita. Log de rejeição registra `productId` e `planName` para facilitar cadastro de novos produtos. |
+| P-1.b | Suporte a múltiplas ofertas por produto (Flor de Baunilha Business) | ✅ | Tabela `hotmart_produtos` ganhou coluna `offer_code` (text, nullable). PK antiga (`product_id`) substituída por índice único `(product_id, COALESCE(offer_code, ''))` — permite uma linha NULL por produto (oferta única, ex.: Lite) e várias linhas por produto quando há múltiplas ofertas. `resolverPlano()` agora aceita `offerCode` e segue a ordem: (1) match exato `(product_id, offer_code)`, (2) match `(product_id, offer_code IS NULL)`, (3) fallback por palavras-chave. Webhook lê `purchase.offer.code` do payload Hotmart e passa para `resolverPlano()` nos eventos `PURCHASE_APPROVED/COMPLETE` e `SWITCH_PLAN`. Seeds: `7448785/n20dvd6j` → `negocio/mensal` (Flor de Baunilha Business Mensal), `7448785/mto997mw` → `negocio/anual` (Flor de Baunilha Business Anual). Flor de Baunilha Lite (`7449074`, offer_code NULL) continua funcionando via passo 2. |
+| P-1 | Webhook Hotmart resolve plano pelo `productId` exato | ✅ | Nova tabela `hotmart_produtos` (FK para `planos.id`, `plano_tipo` mensal/anual, `ativo`, `descricao`). RLS: leitura para `authenticated`, escrita só para MOTHER. Quando productId+offer está cadastrado e ativo → resolve por ID (fonte de verdade). Quando não está cadastrado → fallback de palavras-chave **passou a exigir match explícito** com `"business"` ou `"Flor de Baunilha Lite"` (rejeita produtos genéricos como Imersão R$97 que antes caíam em Lite por default). Quando `ativo=false` → rejeita. Log de rejeição registra `productId` e `planName` para facilitar cadastro de novos produtos. |
 
 ---
 
@@ -704,9 +704,9 @@
 
 | # | Item | Status | Descrição |
 |---|------|--------|-----------|
-| RF-PLAN | Plano Caixa Start descontinuado | ✅ | 7 usuários com `plano_id='start'` desativados (`ativo=false`) e migrados para `plano_id='base'` / `plano_tipo='anual'`. Registros em `historico_planos` referenciando `start` foram apagados. Registro `id='start'` removido de `public.planos`. |
-| RF-PLAN | Webhook Hotmart — regra de rejeição removida | ✅ (revertido 2026-05-25 22:15 UTC) | ~~`resolverPlano()` retornava `null` para planos `start`.~~ Regra removida: `resolverPlano()` não rejeita mais por palavra-chave `start`. Eventos Hotmart com plano Start serão provisionados como `base` (Caixa Lite) ou `negocio` (Caixa Business) conforme demais palavras-chave. Simplifica o webhook já que o plano foi descontinuado no banco. |
-| RF-PLAN | UI Admin | ✅ | Opção "Caixa Start" removida de `CriarUsuarioDialog` e `EditarUsuarioDialog`; card de estatística "Start 14d" e filtros relacionados removidos de `Usuarios.tsx`; badge "Start" removida da listagem; export Excel sem rótulo Start. |
+| RF-PLAN | Plano Flor de Baunilha Start descontinuado | ✅ | 7 usuários com `plano_id='start'` desativados (`ativo=false`) e migrados para `plano_id='base'` / `plano_tipo='anual'`. Registros em `historico_planos` referenciando `start` foram apagados. Registro `id='start'` removido de `public.planos`. |
+| RF-PLAN | Webhook Hotmart — regra de rejeição removida | ✅ (revertido 2026-05-25 22:15 UTC) | ~~`resolverPlano()` retornava `null` para planos `start`.~~ Regra removida: `resolverPlano()` não rejeita mais por palavra-chave `start`. Eventos Hotmart com plano Start serão provisionados como `base` (Flor de Baunilha Lite) ou `negocio` (Flor de Baunilha Business) conforme demais palavras-chave. Simplifica o webhook já que o plano foi descontinuado no banco. |
+| RF-PLAN | UI Admin | ✅ | Opção "Flor de Baunilha Start" removida de `CriarUsuarioDialog` e `EditarUsuarioDialog`; card de estatística "Start 14d" e filtros relacionados removidos de `Usuarios.tsx`; badge "Start" removida da listagem; export Excel sem rótulo Start. |
 | RF-PLAN | Frontend geral | ✅ | `usePlano.ts` sem entrada `start`; `AlertaExpiracaoPlano` sem CTA "Fazer Upgrade" (que era exclusivo Start); `AppSidebar` exibe `plano_tipo` para todos os planos restantes. |
 
 ---
@@ -805,7 +805,7 @@
 | 75 | Alt texts e comentários | ✅ | Alterados de "Spa Flor de Baunilha — Gestão para Confeitarias" para "Spa Flor de Baunilha" |
 | 76 | Link upgrade `gestao.umbrelladoce.com.br` | ✅ | Removido de AlertaExpiracaoPlano.tsx |
 | 77 | DOCS_MESTRE.md | ✅ | Atualizado ecossistema, paleta e tokens. Mantido "by Spa Flor de Baunilha" como marca da empresa |
-| 78 | Referências mantidas (empresa) | ℹ️ | Emails (@umbrelladoce.com.br), domínio (caixa.umbrelladoce.com.br) e branding "by Spa Flor de Baunilha" preservados — são da empresa, não do app |
+| 78 | Referências mantidas (empresa) | ℹ️ | Emails (@umbrelladoce.com.br), domínio (spa.spaflordebaunilha.com.br) e branding "by Spa Flor de Baunilha" preservados — são da empresa, não do app |
 
 ---
 
@@ -816,7 +816,7 @@
 | 66 | Tabela `estoque` | ✅ | Criada com RLS owner + RESTRICTIVE plan_check |
 | 67 | Tabela `estoque_movimentacoes` | ✅ | Criada com RLS owner + RESTRICTIVE plan_check, sem UPDATE |
 | 68 | Sidebar "Meus Insumos" | ✅ | Movido de "Em Breve" para menu principal, apontando /estoque |
-| 69 | PlanoGuard /estoque/* | ✅ | Rotas bloqueadas para Caixa Lite |
+| 69 | PlanoGuard /estoque/* | ✅ | Rotas bloqueadas para Flor de Baunilha Lite |
 | 70 | Hook useEstoque | ✅ | CRUD estoque + movimentações + custo médio ponderado |
 | 71 | Páginas Dashboard/Entrada/Ajuste/Movimentações | ✅ | 4 telas criadas em src/pages/estoque/ |
 | 72 | DOCS_ESTOQUE.md | ✅ | Documentação do módulo criada |
@@ -882,7 +882,7 @@
 
 ---
 
-## REFINAMENTO CAIXA START — 2026-04-10 21:00 UTC (Apenas 14 dias)
+## REFINAMENTO Flor de Baunilha Start — 2026-04-10 21:00 UTC (Apenas 14 dias)
 
 | # | Item | Status | Descrição |
 |---|------|--------|-----------|
@@ -903,12 +903,12 @@
 
 ---
 
-## NOVO PLANO — 2026-04-10 12:00 UTC (Caixa Start)
+## NOVO PLANO — 2026-04-10 12:00 UTC (Flor de Baunilha Start)
 
 | # | Item | Status | Descrição |
 |---|------|--------|-----------|
-| 38 | Plano Caixa Start criado | ✅ | Novo plano com acesso completo (igual Business) e periodicidade de 7 ou 14 dias |
-| 39 | Webhook Hotmart atualizado | ✅ | Reconhece palavras-chave 'start' e 'caixa start', detecta 14 dias pelo nome |
+| 38 | Plano Flor de Baunilha Start criado | ✅ | Novo plano com acesso completo (igual Business) e periodicidade de 7 ou 14 dias |
+| 39 | Webhook Hotmart atualizado | ✅ | Reconhece palavras-chave 'start' e 'Flor de Baunilha Start', detecta 14 dias pelo nome |
 | 40 | UI Admin atualizada | ✅ | CriarUsuarioDialog, EditarUsuarioDialog e Usuarios.tsx suportam o novo plano |
 | 41 | usePlano atualizado | ✅ | Plano 'start' com acesso total (wildcard *) |
 
@@ -918,7 +918,7 @@
 
 | # | Item | Status | Descrição |
 |---|------|--------|-----------|
-| 35 | Caixa Lite somente anual | ✅ | Removida opção mensal para o plano Caixa Lite em todo o sistema: webhook Hotmart, CriarUsuarioDialog, EditarUsuarioDialog, cards de estatísticas do painel admin. |
+| 35 | Flor de Baunilha Lite somente anual | ✅ | Removida opção mensal para o plano Flor de Baunilha Lite em todo o sistema: webhook Hotmart, CriarUsuarioDialog, EditarUsuarioDialog, cards de estatísticas do painel admin. |
 | 36 | Correção de usuários existentes | ✅ | Usuário `chefkasimas+teste6@gmail.com` corrigido de `mensal` para `anual` com data de expiração recalculada (365 dias). |
 | 37 | Limpeza de usuários inativos | ✅ | Removido 1 usuário inativo (`chefkasimas+teste6@gmail.com`) e todos os seus dados: roles, histórico de planos, sessões, perfis de mão de obra, configurações, bancos, categorias, unidades de medida, tipos de documento, tags, plano de contas. Base agora com 0 inativos. |
 
@@ -937,8 +937,8 @@
 
 | # | Item | Status | Descrição |
 |---|------|--------|-----------|
-| 31 | Plano Base → Caixa Lite | ✅ | Nome atualizado no banco (tabela `planos`), webhook Hotmart, edge function `criar-usuario`, painel admin e fallback do hook `usePlano`. |
-| 32 | Plano Negócio → Caixa Business | ✅ | Mesmos pontos do item 31. Webhook mantém retrocompatibilidade com palavras-chave `negocio`, `negócio`, `business` e `caixa business`. |
+| 31 | Plano Base → Flor de Baunilha Lite | ✅ | Nome atualizado no banco (tabela `planos`), webhook Hotmart, edge function `criar-usuario`, painel admin e fallback do hook `usePlano`. |
+| 32 | Plano Negócio → Flor de Baunilha Business | ✅ | Mesmos pontos do item 31. Webhook mantém retrocompatibilidade com palavras-chave `negocio`, `negócio`, `business` e `Flor de Baunilha Business`. |
 
 ---
 
@@ -947,7 +947,7 @@
 | # | Item | Status | Descrição |
 |---|------|--------|-----------|
 | 29 | Submódulo Financeiro → Cadastros | ✅ | Submódulo renomeado para `Cadastros`, removido de Configurações e adicionado ao módulo Financeiro com card dedicado no hub principal. |
-| 30 | Acesso raiz de Configurações no Caixa Lite | ✅ | Regra de rotas refinada para permitir `/configuracoes` sem liberar subrotas financeiras; rotas antigas agora redirecionam para `/financeiro/cadastros/*`. |
+| 30 | Acesso raiz de Configurações no Flor de Baunilha Lite | ✅ | Regra de rotas refinada para permitir `/configuracoes` sem liberar subrotas financeiras; rotas antigas agora redirecionam para `/financeiro/cadastros/*`. |
 
 ---
 
@@ -1430,7 +1430,7 @@ Substituiu a abordagem com Vault (que exigia `vault.create_secret` manual no SQL
 
 - **Módulo:** portado do projeto `711eac8d-e6f1-40e2-b038-84b75e878531`. Ritual pessoal e privado por usuário (3 áreas: Diária, Semanal, Mensal), com reset semanal automático, frases motivacionais Ká Simas, exportação PDF (capa + ritual + Pró-Labore) e fonte Lora embutida.
 - **DB:** Migration cria `public.organizacao_doce_state` (state JSONB) com RLS `owner_id = auth.uid()` para SELECT/INSERT/UPDATE/DELETE.
-- **Rota:** `/organizacao-doce` em `App.tsx` envelopada por `PlanoGuard` (acesso: Caixa Business + Mother; Lite redireciona para `/upgrade`).
+- **Rota:** `/organizacao-doce` em `App.tsx` envelopada por `PlanoGuard` (acesso: Flor de Baunilha Business + Mother; Lite redireciona para `/upgrade`).
 - **Sidebar:** item adicionado em PLANEJAMENTO (ícone `ListChecks`).
 - **Layout global:**
   - Rodapé com texto `Spa Flor de Baunilha by Ká Simas · CNPJ 65.786.966/0001-41 · Todos os direitos reservados.` adicionado ao `Layout` em `src/App.tsx`.
@@ -1477,8 +1477,8 @@ Substituiu a abordagem com Vault (que exigia `vault.create_secret` manual no SQL
 - `AuthContext.signIn`: toast "🎉 Renovação confirmada" no primeiro login após renovação (flag em `localStorage` por `historico_planos.id`).
 
 **Ofertas Hotmart cadastradas em `hotmart_produtos`:**
-- Caixa Lite anual — productId `7449074`, offerCode `6yjlyf2i`
-- Caixa Business anual — productId `7448785`, offerCode `oytrdfwm`
+- Flor de Baunilha Lite anual — productId `7449074`, offerCode `6yjlyf2i`
+- Flor de Baunilha Business anual — productId `7448785`, offerCode `oytrdfwm`
 
 **Dados preservados:** id do usuário, grupo, cadastros e histórico. Apenas `plano_id`, `plano_tipo`, `plano_inicio`, `plano_fim` e `ativo` são atualizados.
 
@@ -1501,7 +1501,7 @@ Correções aplicadas em `supabase/functions/hotmart-webhook/index.ts` e `src/co
 
 ### Pendências operacionais
 
-- 🟡 Página `https://upcaixa.umbrelladoce.com.br` deve estar publicada com os 2 botões (ofertas `6yjlyf2i` e `oytrdfwm`).
+- 🟡 Página `https://upspa.spaflordebaunilha.com.br` deve estar publicada com os 2 botões (ofertas `6yjlyf2i` e `oytrdfwm`).
 - 🟡 Webhook da Hotmart configurado para as 2 novas ofertas apontando para `hotmart-webhook`.
 - 🟡 Secret `EMAIL_ADMIN_IMERSAO` preenchido em Cloud → Secrets.
 
@@ -1548,7 +1548,7 @@ Aluna e admin recebem em todos os eventos:
 ## 📝 26/05/2026 — Atualização P1 de documentação modular
 
 ### DOCS_ESTOQUE.md
-- Removida referência a `Caixa Start` como plano acessível ativo (marcado como descontinuado em 25/05/2026, legados mantidos)
+- Removida referência a `Flor de Baunilha Start` como plano acessível ativo (marcado como descontinuado em 25/05/2026, legados mantidos)
 - Adicionado `aluna_imersao` como plano com acesso completo
 - Nota no `PlanoGuard` ajustada
 
@@ -1606,7 +1606,7 @@ Após P1+P2+P3, a pasta `docs/` está com 13 documentos modulares + `AUDITORIA.m
 ✅ Endpoint público `GET /sso-retorno?token=<JWT>` implementado como rota SPA + edge function.
 
 **Fluxo:**
-1. Planner DOCE redireciona usuária para `https://www.caixadeacucar.com.br/sso-retorno?token=<JWT>`.
+1. Planner DOCE redireciona usuária para `https://www.spaflordebaunilha.com.br/sso-retorno?token=<JWT>`.
 2. Rota SPA `/sso-retorno` (alias de `/sso-return`) carrega `SSOReturnPage`.
 3. Página invoca edge function `validar-token-retorno-doce` com o token.
 4. Edge function valida HS256 com `SSO_SHARED_SECRET`, checa `exp`, `produto === "planejamento"` e anti-replay via `jti` sintético (`planejamento:<sub>:<iat>`) gravado em `sso_token_log`.

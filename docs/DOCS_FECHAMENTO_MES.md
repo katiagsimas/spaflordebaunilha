@@ -9,7 +9,7 @@
 Permite consolidar o resultado financeiro de um mês, congelar valores em **snapshot imutável** e bloquear alterações retroativas nos lançamentos daquele período. Garante coerência histórica para DRE, Fluxo de Caixa e Meu Salário.
 
 - **Rota:** `/financeiro/fechamento-mes`
-- **Acesso:** Caixa Business / `aluna_imersao` / Start legado / Admin
+- **Acesso:** Flor de Baunilha Business / `aluna_imersao` / Start legado / Admin
 - **Granularidade:** um registro por `(owner_group_id, mes_referencia)`
 
 ---

@@ -95,8 +95,8 @@ Verifica profiles.primeiro_acesso === true?
 | `PURCHASE_PROTEST` | Ignorado |
 
 **Detecção de plano:** O sistema analisa o nome do plano/oferta da Hotmart:
-- Contém "business/caixa business/negócio/negocio" → Caixa Business (`negocio`)
-- Caso contrário → Caixa Lite (`base`)
+- Contém "business/Flor de Baunilha Business/negócio/negocio" → Flor de Baunilha Business (`negocio`)
+- Caso contrário → Flor de Baunilha Lite (`base`)
 - Contém "anual/annual/yearly" → Anual (365 dias)
 - Caso contrário → Mensal (30 dias)
 - ⚠️ **Plano Start descontinuado em 25/05/2026** — o webhook não provisiona mais Start; usuários legados permanecem ativos.
@@ -170,7 +170,7 @@ Tela: "Verifique sua caixa de entrada"
 ```
 Usuário clica no link do e-mail
   ↓
-Abre diretamente no domínio personalizado (caixa.umbrelladoce.com.br)
+Abre diretamente no domínio personalizado (spa.spaflordebaunilha.com.br)
   ↓
 Frontend verifica token via supabase.auth.verifyOtp({ token_hash, type: 'recovery' })
   ↓

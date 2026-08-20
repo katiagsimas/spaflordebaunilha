@@ -52,4 +52,4 @@ Disallow: /comercial/
 Disallow: /upgrade
 Disallow: /auth/
 
-Sitemap: https://caixadeacucar.com.br/sitemap.xml
+Sitemap: https://spaflordebaunilha.com.br/sitemap.xml

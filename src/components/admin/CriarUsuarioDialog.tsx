@@ -136,8 +136,8 @@ export function CriarUsuarioDialog({ open, onOpenChange, onSuccess }: CriarUsuar
               <Select value={planoId} onValueChange={setPlanoId}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="base">Caixa Lite</SelectItem>
-                  <SelectItem value="negocio">Caixa Business</SelectItem>
+                  <SelectItem value="base">Flor de Baunilha Lite</SelectItem>
+                  <SelectItem value="negocio">Flor de Baunilha Business</SelectItem>
                 </SelectContent>
               </Select>
             </div>

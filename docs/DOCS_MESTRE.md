@@ -325,11 +325,11 @@ Hub `/configuracoes` + páginas: `cadastros-base`, `precificacao`, `precificacao
 
 | Plano | ID | Acesso | Periodicidade | Origem |
 |-------|----|--------|---------------|--------|
-| Caixa Lite | `base` | Precificação, Encomendas, Clientes, Fornecedores, configs básicas | Anual (365d) | Hotmart (keyword `lite`/base) |
-| Caixa Business | `negocio` | Acesso total (`*`) | Mensal (30d) ou Anual (365d) | Hotmart (keyword `negocio`) |
+| Flor de Baunilha Lite | `base` | Precificação, Encomendas, Clientes, Fornecedores, configs básicas | Anual (365d) | Hotmart (keyword `lite`/base) |
+| Flor de Baunilha Business | `negocio` | Acesso total (`*`) | Mensal (30d) ou Anual (365d) | Hotmart (keyword `negocio`) |
 | Aluna da Imersão | `aluna_imersao` | Acesso Business por 30 dias | 30 dias | **Manual** (fora do webhook) — gravações na Hotmart Club |
 
-> ⚠️ **Plano `Caixa Start` foi DESCONTINUADO em 2026-05-25.**
+> ⚠️ **Plano `Flor de Baunilha Start` foi DESCONTINUADO em 2026-05-25.**
 
 ### Eventos de plano (`historico_planos.tipo_evento`)
 `criacao`, `renovacao`, `upgrade`, `downgrade_agendado`, `reativacao`, `renovacao_imersao`
