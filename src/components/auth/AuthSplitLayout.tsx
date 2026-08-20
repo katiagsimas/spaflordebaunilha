@@ -8,9 +8,12 @@ interface AuthSplitLayoutProps {
 
 export function AuthSplitLayout({ children }: AuthSplitLayoutProps) {
   return (
-    <div className="min-h-screen flex bg-sfb-baunilha">
+    <div 
+      className="min-h-screen flex bg-sfb-baunilha bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: `url(${authBgAsset.url})` }}
+    >
       {/* Lateral esquerda com a arte da marca */}
-      <aside className="hidden lg:flex w-1/2 items-center justify-center bg-sfb-baunilha p-10 border-r border-sfb-areia/40">
+      <aside className="hidden lg:flex w-1/2 items-center justify-center p-10 border-r border-sfb-areia/40 bg-white/10 backdrop-blur-[2px]">
         <img
           src={authSideAsset.url}
           alt="Spa Flor de Baunilha"
