@@ -1728,7 +1728,7 @@ const Encomendas = () => {
 
 
       </div>
-      <ModuleHelpDrawer content={encomendaHelp} isOpen={isHelpOpen} onClose={closeHelp} />
+      
 
       {/* ===== BOTÕES FLUTUANTES ===== */}
       <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 sm:bottom-6 sm:right-6">
