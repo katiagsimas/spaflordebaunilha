@@ -12,8 +12,8 @@ import sfbLogoFull from '@/assets/sfb-logo-full.png';
 
 import { z } from 'zod';
 import { toast } from 'sonner';
-import authBrandImage from '@/assets/auth-brand-image.png';
-import authBackgroundAsset from '@/assets/auth-background.png.asset.json';
+import { AuthSplitLayout } from '@/components/auth/AuthSplitLayout';
+
 import { URL_UPGRADE_EXTERNO } from '@/lib/constants';
 
 const loginSchema = z.object({
