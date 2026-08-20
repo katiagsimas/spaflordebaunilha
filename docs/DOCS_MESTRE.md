@@ -1,6 +1,6 @@
-# 📘 DOCUMENTAÇÃO MESTRE — CAIXA DE AÇÚCAR
+# 📘 DOCUMENTAÇÃO MESTRE — Spa Flor de Baunilha
 
-**Sistema de Gestão para Confeitarias — by Umbrella Doce**  
+**Sistema de Gestão para Confeitarias — by Spa Flor de Baunilha**  
 **Atualizada em:** 22/06/2026  
 **Stack:** React 18 + TypeScript + Vite + Tailwind CSS + Lovable Cloud (Supabase)
 
@@ -11,13 +11,13 @@
 ## 1. VISÃO GERAL
 
 ### 1.1 O que é
-Caixa de Açúcar é um SaaS de gestão completo para confeitarias, doceiras e padarias artesanais. Permite controlar encomendas, precificar produtos com fichas técnicas, gerenciar comercial (propostas, contratos e negociações), financeiro (contas a pagar/receber, fluxo de caixa, DRE, fechamento de mês), controlar estoque com custo médio, gerenciar pró-labore (Meu Salário) — tudo com isolamento multi-tenant por grupos.
+Spa Flor de Baunilha é um SaaS de gestão completo para confeitarias, doceiras e padarias artesanais. Permite controlar encomendas, precificar produtos com fichas técnicas, gerenciar comercial (propostas, contratos e negociações), financeiro (contas a pagar/receber, fluxo de caixa, DRE, fechamento de mês), controlar estoque com custo médio, gerenciar pró-labore (Meu Salário) — tudo com isolamento multi-tenant por grupos.
 
 ### 1.2 Para quem
 Confeiteiras, doceiras e pequenas empresas do ramo de confeitaria.
 
 ### 1.3 Ecossistema
-Sistema principal da **Umbrella Doce**. Criação de usuários exclusivamente via **painel admin** ou **webhook Hotmart** (compra automática). Sem autocadastro público nem SSO externo.
+Sistema principal da **Spa Flor de Baunilha**. Criação de usuários exclusivamente via **painel admin** ou **webhook Hotmart** (compra automática). Sem autocadastro público nem SSO externo.
 
 > 📄 Detalhes em [DOCS_AUTENTICACAO.md](./DOCS_AUTENTICACAO.md)
 
@@ -42,7 +42,7 @@ Sistema principal da **Umbrella Doce**. Criação de usuários exclusivamente vi
 | PDF | jsPDF + jspdf-autotable |
 | Planilhas | exceljs (via `src/lib/xlsxShim.ts`) |
 | Drag & Drop | @dnd-kit |
-| Emails transacionais | Resend (noreply@umbrelladoce.com.br) |
+| Emails transacionais | Resend (noreply@spaflordebaunilha.com.br) |
 | Agendamento | pg_cron (backups, planos pendentes) |
 | Pagamentos | Hotmart Webhook (compra, renovação, cancelamento) |
 | Monitoramento | Sentry (`@sentry/react` via `VITE_SENTRY_DSN`) |
@@ -101,19 +101,19 @@ docs/                      # Toda a documentação do projeto (raiz tem só READ
 
 ## 4. DESIGN SYSTEM — Vinho Premium v2
 
-### 4.1 Paleta Caixa de Açúcar
+### 4.1 Paleta Spa Flor de Baunilha
 | Token | Cor | HSL |
 |-------|-----|-----|
-| `--cda-vinho` | #5B1A2B | `345 55% 23%` |
-| `--cda-vinho-escuro` | #3D0F1C | `345 55% 15%` |
-| `--cda-dourado` | #C9A14A | `42 48% 54%` |
-| `--cda-creme` | #FDF6EE | `38 67% 96%` |
-| `--cda-preto` | #121212 | `0 0% 7%` |
-| `--cda-branco` | #FFF9F5 | `30 60% 99%` |
-| `--cda-coral` | #F28C82 | `5 82% 73%` |
-| `--cda-pink` | #E7A1AF | `345 52% 77%` |
+| `--sfb-vinho` | #5B1A2B | `345 55% 23%` |
+| `--sfb-vinho-escuro` | #3D0F1C | `345 55% 15%` |
+| `--sfb-dourado` | #C9A14A | `42 48% 54%` |
+| `--sfb-creme` | #FDF6EE | `38 67% 96%` |
+| `--sfb-preto` | #121212 | `0 0% 7%` |
+| `--sfb-branco` | #FFF9F5 | `30 60% 99%` |
+| `--sfb-coral` | #F28C82 | `5 82% 73%` |
+| `--sfb-pink` | #E7A1AF | `345 52% 77%` |
 
-> ⚠️ Tokens antigos `cda-pistache` e `cda-cloud` foram **removidos** — não reintroduzir.
+> ⚠️ Tokens antigos `sfb-pistache` e `sfb-cloud` foram **removidos** — não reintroduzir.
 
 ### 4.2 Tokens Semânticos
 - `--primary`: Vinho
@@ -325,11 +325,11 @@ Hub `/configuracoes` + páginas: `cadastros-base`, `precificacao`, `precificacao
 
 | Plano | ID | Acesso | Periodicidade | Origem |
 |-------|----|--------|---------------|--------|
-| Caixa Lite | `base` | Precificação, Encomendas, Clientes, Fornecedores, configs básicas | Anual (365d) | Hotmart (keyword `lite`/base) |
-| Caixa Business | `negocio` | Acesso total (`*`) | Mensal (30d) ou Anual (365d) | Hotmart (keyword `negocio`) |
+| Flor de Baunilha Lite | `base` | Precificação, Encomendas, Clientes, Fornecedores, configs básicas | Anual (365d) | Hotmart (keyword `lite`/base) |
+| Flor de Baunilha Business | `negocio` | Acesso total (`*`) | Mensal (30d) ou Anual (365d) | Hotmart (keyword `negocio`) |
 | Aluna da Imersão | `aluna_imersao` | Acesso Business por 30 dias | 30 dias | **Manual** (fora do webhook) — gravações na Hotmart Club |
 
-> ⚠️ **Plano `Caixa Start` foi DESCONTINUADO em 2026-05-25.**
+> ⚠️ **Plano `Flor de Baunilha Start` foi DESCONTINUADO em 2026-05-25.**
 
 ### Eventos de plano (`historico_planos.tipo_evento`)
 `criacao`, `renovacao`, `upgrade`, `downgrade_agendado`, `reativacao`, `renovacao_imersao`
@@ -400,7 +400,7 @@ Enforcement: `usePlano()` + `PlanoGuard` no frontend; `user_has_financial_access
 - **Auth init:** `await supabase.auth.getSession()` **antes** de `onAuthStateChange`
 - **IA:** sempre `ai-proxy` (nunca edge function dedicada)
 - **Emails:** Supabase nativos suprimidos — usar Resend via Edge Function
-- **Cores:** usar tokens `--cda-*` (HSL). Nunca cor literal em componente. Nunca `cda-pistache`/`cda-cloud`
+- **Cores:** usar tokens `--sfb-*` (HSL). Nunca cor literal em componente. Nunca `sfb-pistache`/`sfb-cloud`
 - **Multi-tenancy:** tabelas `groups` e `user_group_roles` (coluna `role_group`). Nunca `grupos`/`grupo_membros`/`role_grupo`
 - **RLS:** tabelas de grupo usam `user_belongs_to_group(owner_group_id)`, nunca apenas `auth.uid() = user_id`
 - **Docs:** toda mudança de RLS / SQL / Edge Function / Auth → registrar em `AUDITORIA.md`, `PENDENCIAS_SEGURANCA.md` ou `DOCS_AUTENTICACAO.md`

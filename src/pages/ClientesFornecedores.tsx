@@ -175,13 +175,13 @@ export default function ClientesFornecedores() {
               <TabsList className="bg-transparent p-0 h-auto gap-6 rounded-none justify-start">
                 <TabsTrigger
                   value="clientes"
-                  className="relative rounded-md border-0 px-3 pb-2 pt-2 font-display text-[15px] text-[#3D0F1C]/60 data-[state=active]:bg-cda-vinho data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none transition-all"
+                  className="relative rounded-md border-0 px-3 pb-2 pt-2 font-display text-[15px] text-[#3D0F1C]/60 data-[state=active]:bg-sfb-vinho data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none transition-all"
                 >
                   <Users className="h-4 w-4 mr-2" /> Clientes
                 </TabsTrigger>
                 <TabsTrigger
                   value="fornecedores"
-                  className="relative rounded-md border-0 px-3 pb-2 pt-2 font-display text-[15px] text-[#3D0F1C]/60 data-[state=active]:bg-cda-vinho data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none transition-all"
+                  className="relative rounded-md border-0 px-3 pb-2 pt-2 font-display text-[15px] text-[#3D0F1C]/60 data-[state=active]:bg-sfb-vinho data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none transition-all"
                 >
                   <Truck className="h-4 w-4 mr-2" /> Fornecedores
                 </TabsTrigger>
@@ -189,7 +189,7 @@ export default function ClientesFornecedores() {
 
               <div className="pb-3 sm:pb-0">
                 <Button
-                  className="bg-cda-vinho hover:bg-cda-vinho-escuro text-white"
+                  className="bg-sfb-vinho hover:bg-sfb-vinho-escuro text-white"
                   onClick={() => {
                     if (onboardingPendente) {
                       toast.error("Conclua o onboarding para realizar esta ação!");
@@ -208,7 +208,7 @@ export default function ClientesFornecedores() {
             {/* Filtros */}
             <div className="grid grid-cols-1 md:grid-cols-12 gap-3 px-4 sm:px-6 py-4 bg-[#FDF6EE]/40 border-b border-[#5B1A2B]/10">
               <div className="md:col-span-8 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-cda-vinho/50" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sfb-vinho/50" />
                 <Input
                   value={busca}
                   onChange={(e) => setBusca(e.target.value)}
@@ -237,7 +237,7 @@ export default function ClientesFornecedores() {
                 <Button
                   variant="outline"
                   onClick={limparFiltros}
-                  className="w-full border-[#5B1A2B]/20 text-cda-vinho hover:bg-cda-dourado hover:text-cda-preto hover:border-cda-dourado"
+                  className="w-full border-[#5B1A2B]/20 text-sfb-vinho hover:bg-sfb-dourado hover:text-sfb-preto hover:border-sfb-dourado"
                 >
                   <X className="h-4 w-4 mr-1" /> Limpar
                 </Button>
@@ -248,8 +248,8 @@ export default function ClientesFornecedores() {
             <TabsContent value="clientes" className="m-0">
               {clientesFiltrados.length === 0 ? (
                 <div className="text-center py-16 px-6">
-                  <Users className="h-12 w-12 mx-auto text-cda-dourado/60 mb-3" />
-                  <p className="text-lg font-semibold text-cda-vinho-escuro">
+                  <Users className="h-12 w-12 mx-auto text-sfb-dourado/60 mb-3" />
+                  <p className="text-lg font-semibold text-sfb-vinho-escuro">
                     Nenhum cliente encontrado
                   </p>
                   <p className="text-sm text-muted-foreground mt-1">
@@ -271,12 +271,12 @@ export default function ClientesFornecedores() {
                   <TableBody>
                     {clientesFiltrados.map((c) => (
                       <TableRow key={c.id}>
-                        <TableCell className="font-medium text-cda-vinho-escuro">{c.nome}</TableCell>
-                        <TableCell className="text-sm text-cda-vinho/80">{c.tipo || "-"}</TableCell>
+                        <TableCell className="font-medium text-sfb-vinho-escuro">{c.nome}</TableCell>
+                        <TableCell className="text-sm text-sfb-vinho/80">{c.tipo || "-"}</TableCell>
                         <TableCell className="text-sm">
                           <div className="flex flex-col gap-0.5">
                             {c.telefone && (
-                              <span className="flex items-center gap-1 text-cda-vinho/80">
+                              <span className="flex items-center gap-1 text-sfb-vinho/80">
                                 <Phone className="h-3 w-3" /> {c.telefone}
                               </span>
                             )}
@@ -312,8 +312,8 @@ export default function ClientesFornecedores() {
             <TabsContent value="fornecedores" className="m-0">
               {fornecedoresFiltrados.length === 0 ? (
                 <div className="text-center py-16 px-6">
-                  <Truck className="h-12 w-12 mx-auto text-cda-dourado/60 mb-3" />
-                  <p className="text-lg font-semibold text-cda-vinho-escuro">
+                  <Truck className="h-12 w-12 mx-auto text-sfb-dourado/60 mb-3" />
+                  <p className="text-lg font-semibold text-sfb-vinho-escuro">
                     Nenhum fornecedor encontrado
                   </p>
                   <p className="text-sm text-muted-foreground mt-1">
@@ -334,12 +334,12 @@ export default function ClientesFornecedores() {
                   <TableBody>
                     {fornecedoresFiltrados.map((f) => (
                       <TableRow key={f.id}>
-                        <TableCell className="font-medium text-cda-vinho-escuro">{f.nome}</TableCell>
-                        <TableCell className="text-sm text-cda-vinho/80">{f.tipo || "-"}</TableCell>
+                        <TableCell className="font-medium text-sfb-vinho-escuro">{f.nome}</TableCell>
+                        <TableCell className="text-sm text-sfb-vinho/80">{f.tipo || "-"}</TableCell>
                         <TableCell className="text-sm">
                           <div className="flex flex-col gap-0.5">
                             {f.telefone && (
-                              <span className="flex items-center gap-1 text-cda-vinho/80">
+                              <span className="flex items-center gap-1 text-sfb-vinho/80">
                                 <Phone className="h-3 w-3" /> {f.telefone}
                               </span>
                             )}

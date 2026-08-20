@@ -1,4 +1,4 @@
-# 🔐 DOCUMENTAÇÃO: Autenticação — Caixa de Açúcar
+# 🔐 DOCUMENTAÇÃO: Autenticação — Spa Flor de Baunilha
 
 **Atualizada em:** 26/05/2026  
 **Versão:** 4.2
@@ -7,7 +7,7 @@
 
 ## 1. VISÃO GERAL
 
-O Caixa de Açúcar é uma plataforma independente. A autenticação segue estes princípios:
+O Spa Flor de Baunilha é uma plataforma independente. A autenticação segue estes princípios:
 
 1. **Sem autocadastro**: A rota `/auth/signup` redireciona para `/auth/login`
 2. **Provisionamento duplo**: Novos usuários são criados pelo **admin** (painel) ou pelo **Webhook da Hotmart** (compra automática)
@@ -72,7 +72,7 @@ Verifica profiles.primeiro_acesso === true?
 1. Admin preenche formulário e confirma
 2. Edge function `criar-usuario` é invocada (com rate limit 10 req/60s por IP)
 3. Usuário é criado no Supabase Auth com senha temporária e `primeiro_acesso = true`; e-mails nativos do Supabase ficam suprimidos
-4. Edge function gera link de recovery (`admin.generateLink`) e envia e-mail customizado via Resend (`noreply@umbrelladoce.com.br`) apontando direto para `/auth/reset-password?token_hash=...`
+4. Edge function gera link de recovery (`admin.generateLink`) e envia e-mail customizado via Resend (`noreply@spaflordebaunilha.com.br`) apontando direto para `/auth/reset-password?token_hash=...`
 5. Usuário clica no link, define a própria senha e é redirecionado ao login
 
 ### 3.2 Via Webhook Hotmart (Automático)
@@ -95,8 +95,8 @@ Verifica profiles.primeiro_acesso === true?
 | `PURCHASE_PROTEST` | Ignorado |
 
 **Detecção de plano:** O sistema analisa o nome do plano/oferta da Hotmart:
-- Contém "business/caixa business/negócio/negocio" → Caixa Business (`negocio`)
-- Caso contrário → Caixa Lite (`base`)
+- Contém "business/Flor de Baunilha Business/negócio/negocio" → Flor de Baunilha Business (`negocio`)
+- Caso contrário → Flor de Baunilha Lite (`base`)
 - Contém "anual/annual/yearly" → Anual (365 dias)
 - Caso contrário → Mensal (30 dias)
 - ⚠️ **Plano Start descontinuado em 25/05/2026** — o webhook não provisiona mais Start; usuários legados permanecem ativos.
@@ -159,7 +159,7 @@ Extrai token_hash da action_link
   ↓
 Constrói URL direta: ${SITE_URL}/auth/reset-password?token_hash=XXX&type=recovery
   ↓
-Envia e-mail personalizado via Resend (noreply@umbrelladoce.com.br)
+Envia e-mail personalizado via Resend (noreply@spaflordebaunilha.com.br)
   ↓
 Tela: "Verifique sua caixa de entrada"
 ```
@@ -170,7 +170,7 @@ Tela: "Verifique sua caixa de entrada"
 ```
 Usuário clica no link do e-mail
   ↓
-Abre diretamente no domínio personalizado (caixa.umbrelladoce.com.br)
+Abre diretamente no domínio personalizado (spa.spaflordebaunilha.com.br)
   ↓
 Frontend verifica token via supabase.auth.verifyOtp({ token_hash, type: 'recovery' })
   ↓

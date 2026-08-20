@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { PremiumCard } from "@/components/dashboard/PremiumCard";
 import { HeroBanner } from "@/components/HeroBanner";
 import illuPresenteVinho from "@/assets/bolo-aniversariantes.png";
-import illuCalendarioRosa from "@/assets/cda-illu-calendario-rosa.png";
+import illuCalendarioRosa from "@/assets/sfb-illu-calendario-rosa.png";
 import illuCalendarioProximas from "@/assets/calendario-proximas-entregas.png";
 import { getTodayISO, formatDateToISO } from "@/lib/dateUtils";
 import { Button } from "@/components/ui/button";
@@ -996,10 +996,10 @@ export default function Dashboard() {
     .slice(0, 5);
 
   const statusBadge = (status: string) => {
-    if (status === "confirmado") return "bg-cda-dourado/20 text-cda-vinho";
+    if (status === "confirmado") return "bg-sfb-dourado/20 text-sfb-vinho";
     if (status === "em_producao") return "bg-blue-100 text-blue-700";
     if (status === "pronto") return "bg-green-100 text-green-700";
-    return "bg-cda-creme text-cda-vinho/70";
+    return "bg-sfb-creme text-sfb-vinho/70";
   };
 
   const initials = (nome: string) =>
@@ -1044,9 +1044,9 @@ export default function Dashboard() {
       <div className="flex items-center justify-between">
         <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} />
         <div className="flex items-center gap-2">
-          <Label className="text-xs font-body uppercase tracking-widest text-cda-vinho/60">Período</Label>
+          <Label className="text-xs font-body uppercase tracking-widest text-sfb-vinho/60">Período</Label>
           <Select value={anoSelecionado.toString()} onValueChange={(v) => setAnoSelecionado(parseInt(v))}>
-            <SelectTrigger className="w-[100px] border-cda-dourado/40 bg-cda-creme text-cda-vinho hover:border-cda-dourado">
+            <SelectTrigger className="w-[100px] border-sfb-dourado/40 bg-sfb-creme text-sfb-vinho hover:border-sfb-dourado">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -1057,7 +1057,7 @@ export default function Dashboard() {
           </Select>
 
           <Select value={mesSelecionado.toString()} onValueChange={(v) => setMesSelecionado(parseInt(v))}>
-            <SelectTrigger className="w-[130px] border-cda-dourado/40 bg-cda-creme text-cda-vinho hover:border-cda-dourado">
+            <SelectTrigger className="w-[130px] border-sfb-dourado/40 bg-sfb-creme text-sfb-vinho hover:border-sfb-dourado">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -1080,9 +1080,9 @@ export default function Dashboard() {
             sufixo: null,
             value: financeiro.saldoAtual,
             Icon: DollarSign,
-            iconBg: "bg-cda-vinho/10",
-            iconColor: "text-cda-vinho",
-            accent: financeiro.saldoAtual >= 0 ? "text-cda-vinho" : "text-cda-coral",
+            iconBg: "bg-sfb-vinho/10",
+            iconColor: "text-sfb-vinho",
+            accent: financeiro.saldoAtual >= 0 ? "text-sfb-vinho" : "text-sfb-coral",
             onClick: () => navigate("/financeiro/dashboard"),
           },
           {
@@ -1090,8 +1090,8 @@ export default function Dashboard() {
             sufixo: meses[mesSelecionado].slice(0, 3),
             value: financeiro.receberAberto,
             Icon: TrendingUp,
-            iconBg: "bg-cda-dourado/15",
-            iconColor: "text-cda-vinho",
+            iconBg: "bg-sfb-dourado/15",
+            iconColor: "text-sfb-vinho",
             accent: "text-green-700",
             onClick: () => navigate("/financeiro/contas-receber"),
           },
@@ -1100,9 +1100,9 @@ export default function Dashboard() {
             sufixo: meses[mesSelecionado].slice(0, 3),
             value: financeiro.pagarAberto,
             Icon: TrendingDown,
-            iconBg: "bg-cda-pink/30",
-            iconColor: "text-cda-coral",
-            accent: "text-cda-coral",
+            iconBg: "bg-sfb-pink/30",
+            iconColor: "text-sfb-coral",
+            accent: "text-sfb-coral",
             onClick: () => navigate("/financeiro/contas-pagar"),
           },
         ].map(({ label, sufixo, value, Icon, iconBg, iconColor, accent, onClick }) => (
@@ -1110,15 +1110,15 @@ export default function Dashboard() {
             key={label}
             type="button"
             onClick={onClick}
-            className="group flex items-center gap-4 rounded-2xl border border-cda-dourado/50 bg-cda-branco px-5 py-4 text-left shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)] transition hover:-translate-y-0.5 hover:border-cda-dourado hover:shadow-[0_8px_24px_-12px_rgba(91,26,43,0.25)]"
+            className="group flex items-center gap-4 rounded-2xl border border-sfb-dourado/50 bg-sfb-branco px-5 py-4 text-left shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)] transition hover:-translate-y-0.5 hover:border-sfb-dourado hover:shadow-[0_8px_24px_-12px_rgba(91,26,43,0.25)]"
           >
-            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${iconBg} ring-1 ring-cda-dourado/40`}>
+            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${iconBg} ring-1 ring-sfb-dourado/40`}>
               <Icon className={`h-5 w-5 ${iconColor}`} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="font-display text-sm text-cda-vinho-escuro">
+              <p className="font-display text-sm text-sfb-vinho-escuro">
                 {label}
-                {sufixo && <span className="font-body text-cda-vinho/60"> · {sufixo}</span>}
+                {sufixo && <span className="font-body text-sfb-vinho/60"> · {sufixo}</span>}
               </p>
               <p className={`mt-0.5 font-display text-xl ${accent}`}>
                 R$ {value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
@@ -1131,20 +1131,20 @@ export default function Dashboard() {
       {/* ===== PRÓXIMAS ENTREGAS + ANIVERSARIANTES (lado a lado) ===== */}
       <div className="grid gap-4 md:grid-cols-2">
         {/* Próximas Entregas — fundo creme/pink */}
-        <div className="relative overflow-hidden rounded-2xl bg-cda-pink/15 shadow-[0_4px_24px_-12px_rgba(91,26,43,0.15)] border border-cda-dourado/50 transition-all duration-300 hover:shadow-[0_8px_32px_-12px_rgba(201,161,74,0.25)] hover:border-cda-dourado">
+        <div className="relative overflow-hidden rounded-2xl bg-sfb-pink/15 shadow-[0_4px_24px_-12px_rgba(91,26,43,0.15)] border border-sfb-dourado/50 transition-all duration-300 hover:shadow-[0_8px_32px_-12px_rgba(201,161,74,0.25)] hover:border-sfb-dourado">
           <div className="relative flex items-start justify-between px-6 pt-5">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cda-vinho/10 ring-1 ring-cda-dourado/40">
-                <CalendarIcon className="h-5 w-5 text-cda-vinho" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sfb-vinho/10 ring-1 ring-sfb-dourado/40">
+                <CalendarIcon className="h-5 w-5 text-sfb-vinho" />
               </div>
-              <h3 className="font-display text-xl text-cda-vinho-escuro sm:text-2xl">
+              <h3 className="font-display text-xl text-sfb-vinho-escuro sm:text-2xl">
                 Próximas Entregas
               </h3>
             </div>
             <button
               type="button"
               onClick={() => navigate("/encomendas")}
-              className="text-xs font-body italic text-cda-vinho underline-offset-4 hover:underline"
+              className="text-xs font-body italic text-sfb-vinho underline-offset-4 hover:underline"
             >
               Ver todas
             </button>
@@ -1157,23 +1157,23 @@ export default function Dashboard() {
               className="pointer-events-none absolute bottom-0 left-2 w-[110px] select-none"
             />
             {proximas.length === 0 ? (
-              <p className="pt-2 text-sm font-body text-cda-vinho/70">
+              <p className="pt-2 text-sm font-body text-sfb-vinho/70">
                 Nenhuma entrega nos próximos 7 dias
               </p>
             ) : (
-              <ul className="divide-y divide-dashed divide-cda-dourado/30">
+              <ul className="divide-y divide-dashed divide-sfb-dourado/30">
                 {proximas.slice(0, 3).map((enc) => (
                   <li
                     key={enc.id}
                     onClick={() => navigate("/encomendas")}
                     className="flex cursor-pointer items-center gap-3 py-2"
                   >
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cda-vinho text-[10px] font-semibold text-cda-dourado ring-1 ring-cda-dourado/60">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sfb-vinho text-[10px] font-semibold text-sfb-dourado ring-1 ring-sfb-dourado/60">
                       {initials(enc.cliente)}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-display text-sm text-cda-vinho">{enc.cliente}</p>
-                      <p className="text-[11px] font-body text-cda-vinho/60">
+                      <p className="truncate font-display text-sm text-sfb-vinho">{enc.cliente}</p>
+                      <p className="text-[11px] font-body text-sfb-vinho/60">
                         {format(enc._dia, "EEE, dd/MM", { locale: ptBR })}
                         {enc.hora_entrega ? ` · ${enc.hora_entrega}` : ""}
                       </p>
@@ -1186,7 +1186,7 @@ export default function Dashboard() {
         </div>
 
         {/* Aniversariantes — fundo vinho */}
-        <div className="relative overflow-hidden rounded-2xl bg-cda-vinho text-cda-creme shadow-[0_4px_24px_-12px_rgba(91,26,43,0.35)]">
+        <div className="relative overflow-hidden rounded-2xl bg-sfb-vinho text-sfb-creme shadow-[0_4px_24px_-12px_rgba(91,26,43,0.35)]">
           <img
             src={illuPresenteVinho}
             alt=""
@@ -1195,40 +1195,40 @@ export default function Dashboard() {
           />
           <div className="relative flex items-start justify-between px-6 pt-5">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full ring-1 ring-cda-dourado/60">
-                <Cake className="h-5 w-5 text-cda-dourado" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full ring-1 ring-sfb-dourado/60">
+                <Cake className="h-5 w-5 text-sfb-dourado" />
               </div>
-              <h3 className="font-display text-xl text-cda-creme sm:text-2xl">
+              <h3 className="font-display text-xl text-sfb-creme sm:text-2xl">
                 Aniversariantes este mês
               </h3>
             </div>
             <button
               type="button"
               onClick={() => navigate("/clientes")}
-              className="text-xs font-body italic text-cda-dourado underline-offset-4 hover:underline"
+              className="text-xs font-body italic text-sfb-dourado underline-offset-4 hover:underline"
             >
               Ver clientes
             </button>
           </div>
           <div className="relative px-6 pb-6 pt-4 min-h-[140px]">
             {aniversariantes.length === 0 ? (
-              <p className="pt-2 text-sm font-body italic text-cda-creme/70">
+              <p className="pt-2 text-sm font-body italic text-sfb-creme/70">
                 Nenhum aniversariante este mês.
               </p>
             ) : (
-              <ul className="divide-y divide-dashed divide-cda-dourado/20 pl-[42%]">
+              <ul className="divide-y divide-dashed divide-sfb-dourado/20 pl-[42%]">
                 {aniversariantes.slice(0, 3).map((c: any) => {
                   const partes = (c.data_aniversario || "").split("-");
                   const dia = parseInt(partes[2] || "0");
                   return (
                     <li key={c.id} className="flex items-center gap-3 py-2">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cda-vinho-escuro ring-1 ring-cda-dourado/60">
-                        <Cake className="h-4 w-4 text-cda-dourado" />
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sfb-vinho-escuro ring-1 ring-sfb-dourado/60">
+                        <Cake className="h-4 w-4 text-sfb-dourado" />
                       </div>
-                      <p className="min-w-0 flex-1 truncate font-display text-base text-cda-creme">
+                      <p className="min-w-0 flex-1 truncate font-display text-base text-sfb-creme">
                         {c.nome}
                       </p>
-                      <span className="text-xs font-body italic text-cda-dourado/90">
+                      <span className="text-xs font-body italic text-sfb-dourado/90">
                         dia {String(dia).padStart(2, "0")}
                       </span>
                     </li>
@@ -1247,7 +1247,7 @@ export default function Dashboard() {
         title="Visão econômica"
         subtitle="Faturamento, custos e lucro do período"
         headerRight={
-          <div className="inline-flex rounded-full bg-cda-vinho-escuro/40 p-1 ring-1 ring-cda-dourado/40">
+          <div className="inline-flex rounded-full bg-sfb-vinho-escuro/40 p-1 ring-1 ring-sfb-dourado/40">
             {(["mensal", "anual"] as const).map((tab) => (
               <button
                 key={tab}
@@ -1255,8 +1255,8 @@ export default function Dashboard() {
                 onClick={() => setTabEconomica(tab)}
                 className={`rounded-full px-4 py-1 text-xs font-body uppercase tracking-widest transition ${
                   tabEconomica === tab
-                    ? "bg-cda-dourado text-cda-vinho-escuro shadow"
-                    : "text-cda-creme/80 hover:text-cda-creme"
+                    ? "bg-sfb-dourado text-sfb-vinho-escuro shadow"
+                    : "text-sfb-creme/80 hover:text-sfb-creme"
                 }`}
               >
                 {tab}
@@ -1268,32 +1268,32 @@ export default function Dashboard() {
         {tabEconomica === "mensal" ? (
           <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
             {[
-              { label: "Faturamento", value: visaoEconomica.mensal.receitas, Icon: TrendingUp, accent: "text-cda-vinho" },
-              { label: "Custos Totais", value: visaoEconomica.mensal.custos, Icon: TrendingDown, accent: "text-cda-coral" },
+              { label: "Faturamento", value: visaoEconomica.mensal.receitas, Icon: TrendingUp, accent: "text-sfb-vinho" },
+              { label: "Custos Totais", value: visaoEconomica.mensal.custos, Icon: TrendingDown, accent: "text-sfb-coral" },
               {
                 label: "Lucro Líquido",
                 value: visaoEconomica.mensal.lucro,
                 Icon: DollarSign,
-                accent: visaoEconomica.mensal.lucro >= 0 ? "text-cda-vinho" : "text-cda-coral",
+                accent: visaoEconomica.mensal.lucro >= 0 ? "text-sfb-vinho" : "text-sfb-coral",
                 extra: `Margem: ${visaoEconomica.mensal.receitas > 0 ? ((visaoEconomica.mensal.lucro / visaoEconomica.mensal.receitas) * 100).toFixed(1) : 0}%`,
               },
               {
                 label: "Ticket Médio",
                 value: ticketMedio.mensal,
                 Icon: DollarSign,
-                accent: "text-cda-vinho",
+                accent: "text-sfb-vinho",
                 extra: `Anual: R$ ${ticketMedio.anual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
               },
             ].map(({ label, value, Icon, accent, extra }) => (
-              <div key={label} className="rounded-xl border border-cda-dourado/20 bg-cda-branco p-3 text-center">
-                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-cda-vinho/10 ring-1 ring-cda-dourado/40">
-                  <Icon className="h-4 w-4 text-cda-vinho" />
+              <div key={label} className="rounded-xl border border-sfb-dourado/20 bg-sfb-branco p-3 text-center">
+                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-sfb-vinho/10 ring-1 ring-sfb-dourado/40">
+                  <Icon className="h-4 w-4 text-sfb-vinho" />
                 </div>
-                <p className="mt-2 text-[10px] font-body uppercase tracking-widest text-cda-vinho/60">{label}</p>
+                <p className="mt-2 text-[10px] font-body uppercase tracking-widest text-sfb-vinho/60">{label}</p>
                 <p className={`mt-1 font-display text-lg ${accent}`}>
                   R$ {value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
-                {extra && <p className="mt-0.5 text-[10px] font-body text-cda-vinho/60">{extra}</p>}
+                {extra && <p className="mt-0.5 text-[10px] font-body text-sfb-vinho/60">{extra}</p>}
               </div>
             ))}
 
@@ -1373,7 +1373,7 @@ export default function Dashboard() {
                 title="Top 5 produtos"
                 subtitle={modoVisualizacao === 'mensal' ? `${meses[mesSelecionado]} de ${anoSelecionado}` : `Ano ${anoSelecionado}`}
                 headerRight={
-                  <div className="inline-flex rounded-full bg-cda-vinho-escuro/40 p-1 ring-1 ring-cda-dourado/40">
+                  <div className="inline-flex rounded-full bg-sfb-vinho-escuro/40 p-1 ring-1 ring-sfb-dourado/40">
                     {(["mensal", "anual"] as const).map((tab) => (
                       <button
                         key={tab}
@@ -1381,8 +1381,8 @@ export default function Dashboard() {
                         onClick={() => setModoVisualizacao(tab)}
                         className={`rounded-full px-3 py-1 text-[10px] font-body uppercase tracking-widest transition ${
                           modoVisualizacao === tab
-                            ? "bg-cda-dourado text-cda-vinho-escuro shadow"
-                            : "text-cda-creme/80 hover:text-cda-creme"
+                            ? "bg-sfb-dourado text-sfb-vinho-escuro shadow"
+                            : "text-sfb-creme/80 hover:text-sfb-creme"
                         }`}
                       >
                         {tab}
@@ -1391,19 +1391,19 @@ export default function Dashboard() {
                   </div>
                 }
               >
-                <ul className="divide-y divide-dashed divide-cda-dourado/30">
+                <ul className="divide-y divide-dashed divide-sfb-dourado/30">
                   {produtos.map((produto, index) => (
                     <li key={produto.id} className="flex items-center gap-3 py-2.5">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cda-vinho font-display text-sm text-cda-dourado ring-1 ring-cda-dourado/60">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sfb-vinho font-display text-sm text-sfb-dourado ring-1 ring-sfb-dourado/60">
                         {index + 1}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate font-display text-base text-cda-vinho">{produto.nome}</p>
-                        <p className="text-[11px] font-body text-cda-vinho/60">
+                        <p className="truncate font-display text-base text-sfb-vinho">{produto.nome}</p>
+                        <p className="text-[11px] font-body text-sfb-vinho/60">
                           {produto.quantidade} {produto.quantidade === 1 ? 'venda' : 'vendas'}
                         </p>
                       </div>
-                      <p className="font-display text-base text-cda-vinho">
+                      <p className="font-display text-base text-sfb-vinho">
                         R$ {produto.receita.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </p>
                     </li>

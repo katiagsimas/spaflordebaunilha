@@ -1,6 +1,6 @@
 # 📊💰 DOCUMENTAÇÃO — Módulos "Meu Painel" e "Meu Dinheiro"
 
-**Projeto:** Caixa de Açúcar
+**Projeto:** Spa Flor de Baunilha
 **Atualizado em:** 2026-05-25
 **Escopo:** Visão consolidada das implementações e do comportamento atual dos módulos **Meu Painel** (`/dashboard`) e **Meu Dinheiro** (`/financeiro`), incluindo integrações, hooks, regras de negócio e dependências cruzadas.
 
@@ -8,7 +8,7 @@
 > - **Meu Painel** → rota `/dashboard` → `src/pages/Dashboard.tsx`
 > - **Meu Dinheiro** → rota `/financeiro` → `src/pages/financeiro/Financeiro.tsx` (hub) + submódulos
 
-Ambos são acessíveis a usuários com plano ativo (passam por `PlanoGuard`) — Meu Painel está disponível para todos os planos pagos; Meu Dinheiro requer **Caixa Business** (ou role `admin` para bypass). Detalhes de plano em `docs/DOCS_PLANOS.md`.
+Ambos são acessíveis a usuários com plano ativo (passam por `PlanoGuard`) — Meu Painel está disponível para todos os planos pagos; Meu Dinheiro requer **Flor de Baunilha Business** (ou role `admin` para bypass). Detalhes de plano em `docs/DOCS_PLANOS.md`.
 
 ---
 
@@ -122,7 +122,7 @@ Todas com RLS por `owner_group_id` e bloqueio de SELECT/INSERT/UPDATE/DELETE for
 
 ### 2.4 Regras de negócio relevantes
 
-- **Caixa de fato:** somatórios financeiros (faturamento, custos, fluxo) consideram apenas pagamentos **`estornado = false`** dentro do intervalo de data — espelhando entradas/saídas reais.
+- **Spa de fato:** somatórios financeiros (faturamento, custos, fluxo) consideram apenas pagamentos **`estornado = false`** dentro do intervalo de data — espelhando entradas/saídas reais.
 - **Status do título** é derivado dos pagamentos: ao registrar/estornar pagamento, triggers atualizam `status` da parcela e do título-pai.
 - **Juros e multa** aplicáveis a parcelas vencidas seguem o cadastro em `configuracoes_juros`.
 - **Fechamento mensal congela** as bases (faturamento, custos, margem) usadas por `useResumoMesAnterior` (Meu Salário). Quando há `fechamento` com `status='fechado'` para o mês, o snapshot prevalece sobre o recálculo on-the-fly.

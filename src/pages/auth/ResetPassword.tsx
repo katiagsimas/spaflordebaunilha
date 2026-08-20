@@ -160,12 +160,12 @@ export default function ResetPassword() {
           <div className="text-center">
             <img
               src={caixaAcucarIcon}
-              alt="Caixa de Açúcar — by Umbrella Doce"
+              alt="Spa Flor de Baunilha"
               className="mx-auto w-full max-w-sm h-auto"
             />
           </div>
 
-          <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">
+          <Card className="bg-sfb-creme border-0 shadow-elevated rounded-2xl">
             <CardContent className="flex flex-col items-center justify-center py-8">
               <LoadingMascote size={64} label="Verificando link..." />
             </CardContent>
@@ -180,14 +180,14 @@ export default function ResetPassword() {
         <div className="text-center">
           <img
             src={caixaAcucarIcon}
-            alt="Caixa de Açúcar — by Umbrella Doce"
+            alt="Spa Flor de Baunilha"
             className="mx-auto w-full max-w-sm h-auto"
           />
         </div>
 
-        <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">
+        <Card className="bg-sfb-creme border-0 shadow-elevated rounded-2xl">
           <CardHeader className="pb-2 pt-8">
-            <h2 className="text-xl font-display font-semibold text-cda-preto text-center">
+            <h2 className="text-xl font-display font-semibold text-sfb-preto text-center">
               Redefinir Senha
             </h2>
             <p className="text-sm font-body text-muted-foreground text-center">
@@ -203,7 +203,7 @@ export default function ResetPassword() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-body text-sm font-medium text-cda-preto">Nova Senha</FormLabel>
+                      <FormLabel className="font-body text-sm font-medium text-sfb-preto">Nova Senha</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -233,7 +233,7 @@ export default function ResetPassword() {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-body text-sm font-medium text-cda-preto">Confirmar Nova Senha</FormLabel>
+                      <FormLabel className="font-body text-sm font-medium text-sfb-preto">Confirmar Nova Senha</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -284,7 +284,7 @@ export default function ResetPassword() {
           </Form>
         </Card>
 
-        <p className="text-center text-xs font-body text-cda-creme/40">
+        <p className="text-center text-xs font-body text-sfb-creme/40">
           Sistema de gestão para confeitarias
         </p>
       </div>
@@ -292,12 +292,12 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen flex bg-cda-preto">
+    <div className="min-h-screen flex bg-sfb-preto">
       {/* Lado esquerdo — Imagem de marca */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <img
           src={authBrandImage}
-          alt="Caixa de Açúcar — Gestão para Confeitarias"
+          alt="Spa Flor de Baunilha"
           className="absolute inset-0 w-full h-full object-cover"
         />
       </div>

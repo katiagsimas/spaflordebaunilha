@@ -41,12 +41,12 @@ export function PremiumCard({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-2xl bg-cda-creme shadow-[0_4px_24px_-8px_rgba(91,26,43,0.18)] ring-1 ring-cda-dourado/20",
+        "relative overflow-hidden rounded-2xl bg-sfb-creme shadow-[0_4px_24px_-8px_rgba(91,26,43,0.18)] ring-1 ring-sfb-dourado/20",
         className
       )}
     >
       {/* HEADER VINHO */}
-      <div className="relative bg-cda-vinho text-cda-creme">
+      <div className="relative bg-sfb-vinho text-sfb-creme">
         {headerOrnament && (
           <img
             src={headerOrnament}
@@ -57,16 +57,16 @@ export function PremiumCard({
         )}
         <div className="relative flex items-start gap-3 px-5 py-4 sm:px-6 sm:py-5">
           {Icon && (
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full ring-1 ring-cda-dourado/60">
-              <Icon className="h-5 w-5 text-cda-dourado" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full ring-1 ring-sfb-dourado/60">
+              <Icon className="h-5 w-5 text-sfb-dourado" />
             </div>
           )}
           <div className="min-w-0 flex-1 pr-[40%] sm:pr-0">
-            <h3 className="font-display text-xl leading-tight text-cda-creme sm:text-2xl">
+            <h3 className="font-display text-xl leading-tight text-sfb-creme sm:text-2xl">
               {title}
             </h3>
             {subtitle && (
-              <p className="mt-1 text-xs font-body text-cda-dourado/90 sm:text-sm">
+              <p className="mt-1 text-xs font-body text-sfb-dourado/90 sm:text-sm">
                 {subtitle}
               </p>
             )}
@@ -87,9 +87,9 @@ export function PremiumCard({
 
       {/* FOOTER */}
       {(footerNote || footerCta) && (
-        <div className="flex flex-col items-stretch gap-3 border-t border-cda-dourado/20 bg-cda-pink/10 px-5 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="flex flex-col items-stretch gap-3 border-t border-sfb-dourado/20 bg-sfb-pink/10 px-5 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           {footerNote && (
-            <div className="flex items-center gap-2 text-sm font-body italic text-cda-vinho">
+            <div className="flex items-center gap-2 text-sm font-body italic text-sfb-vinho">
               {footerNoteIcon}
               <span>{footerNote}</span>
             </div>
@@ -98,10 +98,10 @@ export function PremiumCard({
             <button
               type="button"
               onClick={footerCta.onClick}
-              className="group inline-flex items-center justify-center gap-2 self-end rounded-full bg-cda-vinho px-5 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-cda-creme shadow-sm transition hover:bg-cda-vinho-escuro sm:self-auto"
+              className="group inline-flex items-center justify-center gap-2 self-end rounded-full bg-sfb-vinho px-5 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-sfb-creme shadow-sm transition hover:bg-sfb-vinho-escuro sm:self-auto"
             >
               {footerCta.label}
-              <ArrowRight className="h-4 w-4 text-cda-dourado transition-transform group-hover:translate-x-0.5" />
+              <ArrowRight className="h-4 w-4 text-sfb-dourado transition-transform group-hover:translate-x-0.5" />
             </button>
           )}
         </div>

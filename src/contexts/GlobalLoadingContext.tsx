@@ -47,7 +47,7 @@ export function GlobalLoadingProvider({ children }: { children: ReactNode }) {
 }
 
 /**
- * Hook para controlar o loading global com a mascote da Caixa de Açúcar
+ * Hook para controlar o loading global com a mascote da Spa Flor de Baunilha
  * 
  * Uso:
  * ```tsx

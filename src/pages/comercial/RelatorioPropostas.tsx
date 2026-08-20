@@ -58,19 +58,19 @@ export default function RelatorioPropostas() {
         }
       />
       <div className="p-6 max-w-5xl mx-auto space-y-6">
-        <Card className="border-cda-dourado/40">
+        <Card className="border-sfb-dourado/40">
           <CardContent className="p-6 flex items-center justify-between">
             <div>
               <p className="text-xs uppercase text-muted-foreground tracking-widest">Faturamento de propostas aceitas (ano)</p>
-              <p className="text-3xl font-bold text-cda-vinho mt-1">{brl(totalAno)}</p>
+              <p className="text-3xl font-bold text-sfb-vinho mt-1">{brl(totalAno)}</p>
             </div>
-            <BarChart3 className="h-10 w-10 text-cda-dourado" />
+            <BarChart3 className="h-10 w-10 text-sfb-dourado" />
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-6">
-            <h2 className="text-lg font-semibold text-cda-vinho mb-4">Propostas por mês</h2>
+            <h2 className="text-lg font-semibold text-sfb-vinho mb-4">Propostas por mês</h2>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={porMes}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -87,7 +87,7 @@ export default function RelatorioPropostas() {
 
         <Card>
           <CardContent className="p-6">
-            <h2 className="text-lg font-semibold text-cda-vinho mb-4">Distribuição por status</h2>
+            <h2 className="text-lg font-semibold text-sfb-vinho mb-4">Distribuição por status</h2>
             <ResponsiveContainer width="100%" height={280}>
               <PieChart>
                 <Pie data={porStatus} dataKey="value" nameKey="name" outerRadius={100} label>

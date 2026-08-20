@@ -129,7 +129,7 @@ export default function EstoqueMovimentacoes() {
                       </TableCell>
                       <TableCell className="font-body text-sm">
                         {encomendaRef ? (
-                          <div className="flex items-center gap-1.5 text-cda-dourado">
+                          <div className="flex items-center gap-1.5 text-sfb-dourado">
                             <Package className="h-3.5 w-3.5 flex-shrink-0" />
                             <span className="truncate max-w-32" title={encomendaRef.cliente_nome || ''}>
                               {encomendaRef.cliente_nome || 'Encomenda'}

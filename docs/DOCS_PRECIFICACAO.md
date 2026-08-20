@@ -1,4 +1,4 @@
-# 🧮 DOCUMENTAÇÃO: Módulo de Precificação — Caixa de Açúcar
+# 🧮 DOCUMENTAÇÃO: Módulo de Precificação — Spa Flor de Baunilha
 
 **Atualizada em:** 26/05/2026
 
@@ -6,7 +6,7 @@
 
 ## 1. VISÃO GERAL
 
-Módulo para cálculo de custos e formação de preços. Acessível no **Caixa Lite**.
+Módulo para cálculo de custos e formação de preços. Acessível no **Flor de Baunilha Lite**.
 
 ### Cadeia de Precificação
 ```

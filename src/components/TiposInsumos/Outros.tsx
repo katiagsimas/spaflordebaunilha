@@ -247,10 +247,10 @@ export default function TiposInsumosOutros() {
 
   return (
     <div className="space-y-4">
-      <Alert className="bg-cda-creme border-2 border-cda-dourado">
-        <Info className="h-4 w-4 text-cda-vinho" />
-        <AlertTitle className="text-cda-preto">Como funcionam os Outros Insumos?</AlertTitle>
-        <AlertDescription className="text-cda-preto">
+      <Alert className="bg-sfb-creme border-2 border-sfb-dourado">
+        <Info className="h-4 w-4 text-sfb-vinho" />
+        <AlertTitle className="text-sfb-preto">Como funcionam os Outros Insumos?</AlertTitle>
+        <AlertDescription className="text-sfb-preto">
           Aqui você cadastra os tipos base de outros insumos (ex: Papel Toalha 1 rolo, Saco de Lixo 100un).
           Depois, você pode adicionar marcas e preços diferentes deste mesmo tipo na Precificação.
         </AlertDescription>

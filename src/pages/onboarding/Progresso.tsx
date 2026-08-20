@@ -152,7 +152,7 @@ export default function OnboardingProgresso() {
   if (isLoading || loadingStatus) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Clock className="h-8 w-8 animate-spin text-cda-vinho" />
+        <Clock className="h-8 w-8 animate-spin text-sfb-vinho" />
       </div>
     );
   }
@@ -160,17 +160,17 @@ export default function OnboardingProgresso() {
   return (
     <div className="container max-w-2xl py-12 px-4 space-y-8">
       <div className="text-center space-y-2">
-        <h1 className="text-3xl font-display font-bold text-cda-preto">Seu Progresso</h1>
+        <h1 className="text-3xl font-display font-bold text-sfb-preto">Seu Progresso</h1>
         <p className="text-muted-foreground">Complete as etapas abaixo para liberar o acesso total ao sistema.</p>
       </div>
 
-      <Card className="border-cda-dourado/20 shadow-sm overflow-hidden">
+      <Card className="border-sfb-dourado/20 shadow-sm overflow-hidden">
         <div className="h-1.5 bg-muted">
-          <Progress value={progressPercent} className="h-full bg-cda-dourado rounded-none" />
+          <Progress value={progressPercent} className="h-full bg-sfb-dourado rounded-none" />
         </div>
         <CardContent className="p-6">
           <div className="flex justify-between items-center mb-6">
-            <span className="text-sm font-semibold text-cda-vinho uppercase tracking-wider">
+            <span className="text-sm font-semibold text-sfb-vinho uppercase tracking-wider">
               {completedCount} de {steps.length} etapas concluídas
             </span>
             <Badge variant={allCompleted ? "default" : "secondary"} className={allCompleted ? "bg-green-100 text-green-700 hover:bg-green-100" : ""}>
@@ -185,7 +185,7 @@ export default function OnboardingProgresso() {
                 className={`flex items-center gap-4 p-4 rounded-xl border transition-all ${
                   step.completed 
                     ? "bg-green-50/50 border-green-100" 
-                    : "bg-white border-slate-100 hover:border-cda-dourado/30"
+                    : "bg-white border-slate-100 hover:border-sfb-dourado/30"
                 }`}
               >
                 <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
@@ -213,7 +213,7 @@ export default function OnboardingProgresso() {
                     variant="ghost" 
                     size="sm" 
                     onClick={() => navigate(step.route)}
-                    className="text-cda-vinho hover:text-cda-vinho-escuro hover:bg-cda-vinho/5"
+                    className="text-sfb-vinho hover:text-sfb-vinho-escuro hover:bg-sfb-vinho/5"
                   >
                     Começar
                     <ArrowRight className="ml-1 h-3 w-3" />
@@ -230,7 +230,7 @@ export default function OnboardingProgresso() {
           <Button 
             size="lg" 
             onClick={handleFinalizar}
-            className="w-full bg-cda-vinho text-cda-creme hover:bg-cda-vinho-escuro py-6 text-base font-bold shadow-elevated"
+            className="w-full bg-sfb-vinho text-sfb-creme hover:bg-sfb-vinho-escuro py-6 text-base font-bold shadow-elevated"
           >
             Concluir Onboarding e Começar
             <CheckCircle2 className="ml-2 h-5 w-5" />

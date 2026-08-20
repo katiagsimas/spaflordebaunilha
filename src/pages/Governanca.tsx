@@ -59,16 +59,16 @@ export default function Governanca() {
         <div className="grid gap-4 sm:grid-cols-2 max-w-4xl">
           {cards.map(({ title, description, icon: Icon, url }) => (
             <Link key={url} to={url} className="group">
-              <Card className="h-full transition-all duration-200 hover:shadow-lg border-cda-dourado/40 hover:border-cda-dourado/60 cursor-pointer">
+              <Card className="h-full transition-all duration-200 hover:shadow-lg border-sfb-dourado/40 hover:border-sfb-dourado/60 cursor-pointer">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="h-11 w-11 rounded-lg bg-cda-vinho/10 flex items-center justify-center group-hover:bg-cda-vinho/15 transition-colors">
-                        <Icon className="h-5 w-5 text-cda-vinho" />
+                      <div className="h-11 w-11 rounded-lg bg-sfb-vinho/10 flex items-center justify-center group-hover:bg-sfb-vinho/15 transition-colors">
+                        <Icon className="h-5 w-5 text-sfb-vinho" />
                       </div>
                       <CardTitle className="font-display text-lg">{title}</CardTitle>
                     </div>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-cda-dourado group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-sfb-dourado group-hover:translate-x-0.5 transition-all" />
                   </div>
                 </CardHeader>
                 <CardContent>

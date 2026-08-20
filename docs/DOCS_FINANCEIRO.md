@@ -1,4 +1,4 @@
-# 💰 DOCUMENTAÇÃO: Módulo Financeiro — Caixa de Açúcar
+# 💰 DOCUMENTAÇÃO: Módulo Financeiro — Spa Flor de Baunilha
 
 **Atualizada em:** 26/05/2026
 
@@ -6,7 +6,7 @@
 
 ## 1. VISÃO GERAL
 
-Módulo completo de gestão financeira. **Requer Caixa Business**, `aluna_imersao` ou usuários legados de `Caixa Start` (descontinuado em 25/05/2026). Admin sempre bypass.
+Módulo completo de gestão financeira. **Requer Flor de Baunilha Business**, `aluna_imersao` ou usuários legados de `Flor de Baunilha Start` (descontinuado em 25/05/2026). Admin sempre bypass.
 
 ### Submódulos
 - Dashboard Financeiro

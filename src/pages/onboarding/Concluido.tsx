@@ -58,24 +58,24 @@ export default function OnboardingConcluido() {
 
   return (
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center p-4">
-      <Card className="max-w-3xl w-full overflow-hidden border-cda-dourado/40 shadow-elevated">
-        <div className="h-2 bg-gradient-to-r from-cda-dourado via-cda-vinho to-cda-dourado" />
+      <Card className="max-w-3xl w-full overflow-hidden border-sfb-dourado/40 shadow-elevated">
+        <div className="h-2 bg-gradient-to-r from-sfb-dourado via-sfb-vinho to-sfb-dourado" />
 
-        <CardContent className="p-8 md:p-12 bg-cda-creme">
+        <CardContent className="p-8 md:p-12 bg-sfb-creme">
           <div className="flex flex-col items-center text-center space-y-6">
-            <div className="w-20 h-20 rounded-full bg-cda-dourado flex items-center justify-center shadow-elevated">
-              <Trophy className="h-10 w-10 text-cda-vinho" />
+            <div className="w-20 h-20 rounded-full bg-sfb-dourado flex items-center justify-center shadow-elevated">
+              <Trophy className="h-10 w-10 text-sfb-vinho" />
             </div>
 
             <div className="space-y-3">
-              <p className="text-sm uppercase tracking-[0.2em] text-cda-vinho font-semibold">
+              <p className="text-sm uppercase tracking-[0.2em] text-sfb-vinho font-semibold">
                 Onboarding concluído
               </p>
-              <h1 className="text-3xl md:text-4xl font-display font-bold text-cda-preto leading-tight">
-                Parabéns, <span className="text-cda-vinho">{primeiroNome}</span>!  
+              <h1 className="text-3xl md:text-4xl font-display font-bold text-sfb-preto leading-tight">
+                Parabéns, <span className="text-sfb-vinho">{primeiroNome}</span>!  
                 <br className="hidden md:block" /> Você está pronta para decolar 🚀
               </h1>
-              <p className="text-base md:text-lg text-cda-preto/80 font-body leading-relaxed max-w-xl mx-auto">
+              <p className="text-base md:text-lg text-sfb-preto/80 font-body leading-relaxed max-w-xl mx-auto">
                 Obrigada por dedicar esse tempo aos cadastros iniciais. Tudo o que você
                 preencheu agora vai trabalhar a seu favor — em cada precificação,
                 cada encomenda e cada relatório.
@@ -83,17 +83,17 @@ export default function OnboardingConcluido() {
             </div>
 
             {/* Frase motivacional forte */}
-            <div className="w-full rounded-xl bg-cda-vinho text-cda-creme p-6 shadow-soft">
+            <div className="w-full rounded-xl bg-sfb-vinho text-sfb-creme p-6 shadow-soft">
               <div className="flex items-start gap-3">
-                <Heart className="h-6 w-6 text-cda-dourado flex-shrink-0 mt-1" />
+                <Heart className="h-6 w-6 text-sfb-dourado flex-shrink-0 mt-1" />
                 <p className="text-base md:text-lg font-display italic leading-relaxed text-left">
-                  "Negócio doce de verdade é aquele que <strong className="text-cda-dourado not-italic">dá lucro, sustenta sua vida e ainda sobra amor pra fazer mais</strong>.
+                  "Negócio doce de verdade é aquele que <strong className="text-sfb-dourado not-italic">dá lucro, sustenta sua vida e ainda sobra amor pra fazer mais</strong>.
                   E é exatamente isso que começa agora."
                 </p>
               </div>
             </div>
 
-            <p className="text-sm text-cda-preto/70 font-body">
+            <p className="text-sm text-sfb-preto/70 font-body">
               Pronta para começar?
             </p>
 
@@ -102,7 +102,7 @@ export default function OnboardingConcluido() {
               <Button
                 size="lg"
                 onClick={handleJornada}
-                className="bg-cda-vinho text-cda-creme hover:bg-cda-vinho-escuro hover:text-cda-branco h-auto py-5 flex-col gap-1 shadow-elevated"
+                className="bg-sfb-vinho text-sfb-creme hover:bg-sfb-vinho-escuro hover:text-sfb-branco h-auto py-5 flex-col gap-1 shadow-elevated"
               >
                 <div className="flex items-center gap-2">
                   <Rocket className="h-5 w-5" />

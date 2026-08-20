@@ -681,9 +681,9 @@ export default function ContasReceber() {
       aberto: <Badge variant="outline">Aberto</Badge>,
       pago: <Badge className="bg-success/15 text-success border-success/40">Pago</Badge>,
       pagamento_parcial: <Badge className="bg-warning/15 text-warning border-warning/40">Pagamento Parcial</Badge>,
-      atrasado: <Badge className="bg-cda-coral/15 text-cda-coral border-cda-coral/40">Atrasado</Badge>,
-      vencido: <Badge className="bg-cda-coral/15 text-cda-coral border-cda-coral/40">Vencido</Badge>,
-      adiantado: <Badge className="bg-cda-dourado/15 text-primary border-cda-dourado/40">Adiantado</Badge>,
+      atrasado: <Badge className="bg-sfb-coral/15 text-sfb-coral border-sfb-coral/40">Atrasado</Badge>,
+      vencido: <Badge className="bg-sfb-coral/15 text-sfb-coral border-sfb-coral/40">Vencido</Badge>,
+      adiantado: <Badge className="bg-sfb-dourado/15 text-primary border-sfb-dourado/40">Adiantado</Badge>,
     };
     return badges[status] || <Badge variant="outline">{status}</Badge>;
   };
@@ -724,7 +724,7 @@ export default function ContasReceber() {
         <Card className="border-l-4 border-l-blue-500">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-cda-dourado/15 rounded-lg">
+              <div className="p-2 bg-sfb-dourado/15 rounded-lg">
                 <CheckCircle2 className="h-4 w-4 text-primary" />
               </div>
               <div>
@@ -756,12 +756,12 @@ export default function ContasReceber() {
         <Card className="border-l-4 border-l-purple-500">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-cda-pink/20 rounded-lg">
-                <Calendar className="h-4 w-4 text-cda-pink" />
+              <div className="p-2 bg-sfb-pink/20 rounded-lg">
+                <Calendar className="h-4 w-4 text-sfb-pink" />
               </div>
               <div>
                 <p className="text-xs font-medium text-muted-foreground">Vence Hoje</p>
-                <p className="text-lg font-bold text-cda-pink">
+                <p className="text-lg font-bold text-sfb-pink">
                   {formatarValor(dashboard.vencendo_hoje)}
                 </p>
               </div>
@@ -1149,7 +1149,7 @@ export default function ContasReceber() {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem 
                           onClick={() => handleExcluir(parcela.conta_receber_id)}
-                          className="text-cda-coral"
+                          className="text-sfb-coral"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Excluir

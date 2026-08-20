@@ -1,12 +1,12 @@
 /**
- * Constantes e helpers centralizados de planos do Caixa de Açúcar.
+ * Constantes e helpers centralizados de planos do Spa Flor de Baunilha.
  */
 
 export const IMERSAO_DIAS_ACESSO = 30;
 
 export const PLANO_LABELS: Record<string, string> = {
-  base: "Caixa Lite",
-  negocio: "Caixa Business",
+  base: "Flor de Baunilha Lite",
+  negocio: "Flor de Baunilha Business",
   
   controle: "Plano Controle",
 };

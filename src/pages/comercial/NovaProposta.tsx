@@ -116,7 +116,7 @@ export default function NovaProposta() {
             <Button variant="outline" onClick={handleSaveAndPdf}>
               <Download className="h-4 w-4 mr-2" /> Salvar + PDF
             </Button>
-            <Button className="bg-cda-vinho hover:bg-cda-vinho-escuro text-white" onClick={handleSaveAndExit}>
+            <Button className="bg-sfb-vinho hover:bg-sfb-vinho-escuro text-white" onClick={handleSaveAndExit}>
               <Save className="h-4 w-4 mr-2" /> Salvar
             </Button>
           </div>
@@ -127,7 +127,7 @@ export default function NovaProposta() {
         {/* CLIENTE */}
         <Card>
           <CardContent className="p-6 space-y-4">
-            <h2 className="text-lg font-semibold text-cda-vinho">Dados do cliente</h2>
+            <h2 className="text-lg font-semibold text-sfb-vinho">Dados do cliente</h2>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <Label>Nome *</Label>
@@ -179,7 +179,7 @@ export default function NovaProposta() {
         <Card>
           <CardContent className="p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-cda-vinho">Itens do orçamento</h2>
+              <h2 className="text-lg font-semibold text-sfb-vinho">Itens do orçamento</h2>
               <Button size="sm" variant="outline" onClick={addProduto}>
                 <Plus className="h-4 w-4 mr-2" /> Adicionar item
               </Button>
@@ -206,7 +206,7 @@ export default function NovaProposta() {
                   </div>
                   <div className="col-span-3 md:col-span-2 text-right text-sm">
                     <Label className="text-xs">Total</Label>
-                    <div className="h-10 flex items-center justify-end font-semibold text-cda-vinho">{brl(p.quantidade * p.preco_unitario)}</div>
+                    <div className="h-10 flex items-center justify-end font-semibold text-sfb-vinho">{brl(p.quantidade * p.preco_unitario)}</div>
                   </div>
                   <div className="col-span-1">
                     <Button size="icon" variant="ghost" onClick={() => delProduto(p.id)}>
@@ -227,7 +227,7 @@ export default function NovaProposta() {
               </div>
               <div className="text-right">
                 <p className="text-xs text-muted-foreground">Subtotal: {brl(subtotal)}</p>
-                <p className="text-2xl font-bold text-cda-vinho">{brl(valor_total)}</p>
+                <p className="text-2xl font-bold text-sfb-vinho">{brl(valor_total)}</p>
               </div>
             </div>
           </CardContent>
@@ -236,7 +236,7 @@ export default function NovaProposta() {
         {/* CONDIÇÕES */}
         <Card>
           <CardContent className="p-6 space-y-4">
-            <h2 className="text-lg font-semibold text-cda-vinho">Condições e observações</h2>
+            <h2 className="text-lg font-semibold text-sfb-vinho">Condições e observações</h2>
             <div className="grid md:grid-cols-3 gap-4">
               <div>
                 <Label>Emissão</Label>

@@ -173,20 +173,20 @@ export default function CofreBackups() {
         backButton={<BackButton to="/governanca" />}
       />
 
-      <Card className="bg-cda-dourado/10 border-cda-dourado/30">
+      <Card className="bg-sfb-dourado/10 border-sfb-dourado/30">
         <CardContent className="pt-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div>
-              <div className="text-cda-preto/70">Total no cofre</div>
-              <div className="text-2xl font-bold text-cda-vinho">{items.length}</div>
+              <div className="text-sfb-preto/70">Total no cofre</div>
+              <div className="text-2xl font-bold text-sfb-vinho">{items.length}</div>
             </div>
             <div>
-              <div className="text-cda-preto/70">Snapshots mensais</div>
-              <div className="text-2xl font-bold text-cda-vinho">{mensaisTotal}</div>
+              <div className="text-sfb-preto/70">Snapshots mensais</div>
+              <div className="text-2xl font-bold text-sfb-vinho">{mensaisTotal}</div>
             </div>
             <div>
-              <div className="text-cda-preto/70">Recentes (rolling)</div>
-              <div className="text-2xl font-bold text-cda-vinho">{items.length - mensaisTotal}</div>
+              <div className="text-sfb-preto/70">Recentes (rolling)</div>
+              <div className="text-2xl font-bold text-sfb-vinho">{items.length - mensaisTotal}</div>
             </div>
           </div>
         </CardContent>
@@ -222,11 +222,11 @@ export default function CofreBackups() {
               {filtrados.map((i) => (
                 <div key={i.id} className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors gap-3">
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <Archive className="h-4 w-4 text-cda-vinho shrink-0" />
+                    <Archive className="h-4 w-4 text-sfb-vinho shrink-0" />
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="text-sm font-medium truncate">{i.nome}</p>
-                        {i.eh_mensal && <Badge className="text-[10px] h-4 px-1.5 bg-cda-dourado text-cda-preto hover:bg-cda-dourado">mensal</Badge>}
+                        {i.eh_mensal && <Badge className="text-[10px] h-4 px-1.5 bg-sfb-dourado text-sfb-preto hover:bg-sfb-dourado">mensal</Badge>}
                         <Badge variant="secondary" className="text-[10px] h-4 px-1.5">{i.origem}</Badge>
                       </div>
                       <p className="text-xs text-muted-foreground truncate">

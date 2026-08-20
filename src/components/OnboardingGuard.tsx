@@ -154,7 +154,7 @@ export function OnboardingGuard({ children, actionName = "esta ação" }: Onboar
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <Button 
               onClick={() => navigate('/onboarding/progresso')}
-              className="flex-1 bg-cda-vinho text-cda-creme hover:bg-cda-vinho-escuro"
+              className="flex-1 bg-sfb-vinho text-sfb-creme hover:bg-sfb-vinho-escuro"
             >
               Ver Painel de Onboarding
             </Button>

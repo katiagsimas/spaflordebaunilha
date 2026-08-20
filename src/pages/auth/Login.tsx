@@ -93,12 +93,12 @@ export default function Login() {
     <>
       <AlterarSenhaObrigatoria open={mostrarAlterarSenha} />
 
-      <div className="min-h-screen flex bg-cda-preto">
+      <div className="min-h-screen flex bg-sfb-preto">
         {/* Lado esquerdo — Imagem de marca */}
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
           <img
             src={authBrandImage}
-            alt="Caixa de Açúcar — Gestão para Confeitarias"
+            alt="Spa Flor de Baunilha"
             className="absolute inset-0 w-full h-full object-cover"
           />
         </div>
@@ -124,16 +124,16 @@ export default function Login() {
             <div className="text-center">
               <img
                 src={caixaAcucarLogoFull}
-                alt="Caixa de Açúcar — by Umbrella Doce"
+                alt="Spa Flor de Baunilha"
                 className="mx-auto w-full max-w-sm h-auto"
               />
             </div>
 
             {/* Login card */}
-            <Card className="bg-cda-creme border-0 shadow-elevated rounded-2xl">
+            <Card className="bg-sfb-creme border-0 shadow-elevated rounded-2xl">
               <form onSubmit={handleSubmit}>
                 <CardHeader className="pb-2 pt-5">
-                  <h2 className="text-xl font-display font-semibold text-cda-preto text-center">
+                  <h2 className="text-xl font-display font-semibold text-sfb-preto text-center">
                     Bem-vinda de volta
                   </h2>
                   <p className="text-sm font-body text-muted-foreground text-center">
@@ -143,7 +143,7 @@ export default function Login() {
 
                 <CardContent className="space-y-3 px-8">
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="font-body text-sm font-medium text-cda-preto">Email</Label>
+                    <Label htmlFor="email" className="font-body text-sm font-medium text-sfb-preto">Email</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
@@ -160,7 +160,7 @@ export default function Login() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="password" className="font-body text-sm font-medium text-cda-preto">Senha</Label>
+                    <Label htmlFor="password" className="font-body text-sm font-medium text-sfb-preto">Senha</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
@@ -187,7 +187,7 @@ export default function Login() {
                   <div className="flex justify-end">
                     <Link
                       to="/auth/forgot-password"
-                      className="text-sm font-body text-cda-dourado hover:underline"
+                      className="text-sm font-body text-sfb-dourado hover:underline"
                     >
                       Esqueci minha senha
                     </Link>
@@ -216,7 +216,7 @@ export default function Login() {
                       href={URL_UPGRADE_EXTERNO}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full inline-flex items-center justify-center gap-2 bg-cda-coral text-cda-branco font-body font-semibold py-2.5 rounded-md hover:bg-cda-coral/90 transition-colors text-sm"
+                      className="w-full inline-flex items-center justify-center gap-2 bg-sfb-coral text-sfb-branco font-body font-semibold py-2.5 rounded-md hover:bg-sfb-coral/90 transition-colors text-sm"
                     >
                       Renovar acesso à Imersão
                       <ExternalLink className="h-4 w-4" />
@@ -226,7 +226,7 @@ export default function Login() {
               </form>
             </Card>
 
-            <p className="text-center text-xs font-body text-cda-creme/40">
+            <p className="text-center text-xs font-body text-sfb-creme/40">
               Sistema de gestão para confeitarias
             </p>
           </div>

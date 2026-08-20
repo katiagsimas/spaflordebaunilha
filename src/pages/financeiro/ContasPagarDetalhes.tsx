@@ -586,8 +586,8 @@ export default function ContasPagarDetalhes() {
       aberto: <Badge variant="outline">Aberto</Badge>,
       pago: <Badge className="bg-success/15 text-success border-success/40">Pago</Badge>,
       pagamento_parcial: <Badge className="bg-warning/15 text-warning border-warning/40">Pagamento Parcial</Badge>,
-      atrasado: <Badge className="bg-cda-coral/15 text-cda-coral border-cda-coral/40">Atrasado</Badge>,
-      adiantado: <Badge className="bg-cda-dourado/15 text-primary border-cda-dourado/40">Adiantado</Badge>,
+      atrasado: <Badge className="bg-sfb-coral/15 text-sfb-coral border-sfb-coral/40">Atrasado</Badge>,
+      adiantado: <Badge className="bg-sfb-dourado/15 text-primary border-sfb-dourado/40">Adiantado</Badge>,
     };
     return badges[status] || <Badge variant="outline">{status}</Badge>;
   };
@@ -595,8 +595,8 @@ export default function ContasPagarDetalhes() {
   const getBadgeTipoLancamento = (tipo: string) => {
     const badges: Record<string, JSX.Element> = {
       unico: <Badge variant="outline" className="bg-muted/50">Único</Badge>,
-      parcelado: <Badge variant="outline" className="bg-cda-dourado/15 text-primary border-cda-dourado/40">Parcelado</Badge>,
-      recorrente: <Badge variant="outline" className="bg-cda-pink/20 text-cda-pink border-cda-pink/40">Recorrente</Badge>,
+      parcelado: <Badge variant="outline" className="bg-sfb-dourado/15 text-primary border-sfb-dourado/40">Parcelado</Badge>,
+      recorrente: <Badge variant="outline" className="bg-sfb-pink/20 text-sfb-pink border-sfb-pink/40">Recorrente</Badge>,
     };
     return badges[tipo] || <Badge variant="outline">{tipo}</Badge>;
   };
@@ -733,7 +733,7 @@ export default function ContasPagarDetalhes() {
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Valor Total:</span>
-                <span className="font-bold text-cda-coral text-lg">{formatarValor(conta.valor_total)}</span>
+                <span className="font-bold text-sfb-coral text-lg">{formatarValor(conta.valor_total)}</span>
               </div>
               
               <Separator />
@@ -746,7 +746,7 @@ export default function ContasPagarDetalhes() {
               {totais.totalJuros > 0 && (
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-muted-foreground">Juros:</span>
-                  <span className="text-cda-coral">+ {formatarValor(totais.totalJuros)}</span>
+                  <span className="text-sfb-coral">+ {formatarValor(totais.totalJuros)}</span>
                 </div>
               )}
               
@@ -819,7 +819,7 @@ export default function ContasPagarDetalhes() {
                     </div>
                     <div className="text-sm text-muted-foreground space-y-1">
                       <p>Vencimento: <span className="font-medium text-foreground">{formatarData(parcela.data_vencimento)}</span></p>
-                      <p>Valor da Parcela: <span className="font-medium text-cda-coral">{formatarValor(parcela.valor_parcela)}</span></p>
+                      <p>Valor da Parcela: <span className="font-medium text-sfb-coral">{formatarValor(parcela.valor_parcela)}</span></p>
                       {parcela.valor_pago > 0 && (
                         <p>Valor Pago: <span className="font-medium text-success">{formatarValor(parcela.valor_pago)}</span></p>
                       )}
@@ -864,7 +864,7 @@ export default function ContasPagarDetalhes() {
                         key={pag.id}
                         className={`p-3 rounded-lg border ${
                           pag.estornado 
-                            ? 'bg-cda-coral/10 border-cda-coral/30' 
+                            ? 'bg-sfb-coral/10 border-sfb-coral/30' 
                             : 'bg-muted'
                         }`}
                       >
@@ -888,7 +888,7 @@ export default function ContasPagarDetalhes() {
                               {pag.juros > 0 && (
                                 <div>
                                   <span className="text-muted-foreground">Juros:</span>
-                                  <span className="ml-2 font-medium text-cda-coral">
+                                  <span className="ml-2 font-medium text-sfb-coral">
                                     {formatarValor(pag.juros)}
                                   </span>
                                 </div>
@@ -967,18 +967,18 @@ export default function ContasPagarDetalhes() {
 
                             {/* Informação de Estorno */}
                             {pag.estornado && (
-                              <div className="pt-2 border-t bg-cda-coral/15 -m-3 mt-2 p-3 rounded-b-lg">
+                              <div className="pt-2 border-t bg-sfb-coral/15 -m-3 mt-2 p-3 rounded-b-lg">
                                 <div className="flex items-start gap-2">
-                                  <RefreshCw className="h-4 w-4 text-cda-coral mt-0.5" />
+                                  <RefreshCw className="h-4 w-4 text-sfb-coral mt-0.5" />
                                   <div className="flex-1">
-                                    <p className="text-sm font-medium text-cda-coral">
+                                    <p className="text-sm font-medium text-sfb-coral">
                                       Pagamento Estornado
                                     </p>
-                                    <p className="text-xs text-cda-coral">
+                                    <p className="text-xs text-sfb-coral">
                                       Data do estorno: {new Date(pag.data_estorno).toLocaleString('pt-BR')}
                                     </p>
                                     {pag.motivo_estorno && (
-                                      <p className="text-xs text-cda-coral mt-1">
+                                      <p className="text-xs text-sfb-coral mt-1">
                                         Motivo: {pag.motivo_estorno}
                                       </p>
                                     )}
@@ -1008,7 +1008,7 @@ export default function ContasPagarDetalhes() {
                                   </DropdownMenuItem>
                                   <DropdownMenuItem 
                                     onClick={() => handleExcluirPagamento(pag)}
-                                    className="text-cda-coral"
+                                    className="text-sfb-coral"
                                   >
                                     <Trash2 className="mr-2 h-4 w-4" />
                                     Excluir

@@ -84,7 +84,7 @@ export function exportarMeuSalarioPDF(resumo: ResumoMes) {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(150, 140, 130);
-  doc.text("Caixa de Açúcar • Método Renda Doce", pageWidth / 2, 790, { align: "center" });
+  doc.text("Spa Flor de Baunilha • Método Renda Doce", pageWidth / 2, 790, { align: "center" });
 
   doc.save(`meu-salario-${resumo.mesReferencia}.pdf`);
 }

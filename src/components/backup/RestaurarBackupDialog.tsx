@@ -45,8 +45,8 @@ export function RestaurarBackupDialog({ open, onOpenChange, alvo, onConfirm, res
     <Dialog open={open} onOpenChange={(v) => (!restaurando ? onOpenChange(v) : null)}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-cda-vinho">
-            <ShieldAlert className="h-5 w-5 text-cda-coral" />
+          <DialogTitle className="flex items-center gap-2 text-sfb-vinho">
+            <ShieldAlert className="h-5 w-5 text-sfb-coral" />
             Restaurar backup
           </DialogTitle>
           <DialogDescription>
@@ -56,13 +56,13 @@ export function RestaurarBackupDialog({ open, onOpenChange, alvo, onConfirm, res
 
         {etapa === 1 ? (
           <div className="space-y-4">
-            <div className="rounded-lg border border-cda-dourado/40 bg-cda-dourado/10 p-4 space-y-2">
+            <div className="rounded-lg border border-sfb-dourado/40 bg-sfb-dourado/10 p-4 space-y-2">
               <div className="text-sm">
-                <span className="font-semibold text-cda-preto">Backup: </span>
+                <span className="font-semibold text-sfb-preto">Backup: </span>
                 <code className="text-xs">{alvo.nome}</code>
               </div>
               {alvo.dataCriacao && (
-                <div className="text-sm text-cda-preto/80">
+                <div className="text-sm text-sfb-preto/80">
                   <span className="font-semibold">Data do snapshot: </span>
                   {alvo.dataCriacao}
                 </div>
@@ -76,9 +76,9 @@ export function RestaurarBackupDialog({ open, onOpenChange, alvo, onConfirm, res
               )}
             </div>
 
-            <div className="rounded-lg border border-cda-coral/40 bg-cda-coral/10 p-4 flex gap-3">
-              <AlertTriangle className="h-5 w-5 text-cda-coral shrink-0 mt-0.5" />
-              <p className="text-sm text-cda-preto">
+            <div className="rounded-lg border border-sfb-coral/40 bg-sfb-coral/10 p-4 flex gap-3">
+              <AlertTriangle className="h-5 w-5 text-sfb-coral shrink-0 mt-0.5" />
+              <p className="text-sm text-sfb-preto">
                 <strong>Todos os dados criados ou alterados</strong> depois desse backup serão{" "}
                 <strong>perdidos e não poderão ser recuperados</strong>. Os módulos do snapshot
                 serão sobrescritos com os dados desta cópia.
@@ -87,7 +87,7 @@ export function RestaurarBackupDialog({ open, onOpenChange, alvo, onConfirm, res
 
             <label className="flex items-start gap-3 cursor-pointer">
               <Checkbox checked={aceito} onCheckedChange={(v) => setAceito(!!v)} className="mt-0.5" />
-              <span className="text-sm text-cda-preto">
+              <span className="text-sm text-sfb-preto">
                 Entendo que esta ação é <strong>irreversível</strong> e os dados atuais serão
                 permanentemente substituídos.
               </span>
@@ -98,7 +98,7 @@ export function RestaurarBackupDialog({ open, onOpenChange, alvo, onConfirm, res
               <Button
                 onClick={() => setEtapa(2)}
                 disabled={!aceito}
-                className="bg-cda-vinho hover:bg-cda-vinho-escuro text-cda-branco"
+                className="bg-sfb-vinho hover:bg-sfb-vinho-escuro text-sfb-branco"
               >
                 Continuar
               </Button>
@@ -106,7 +106,7 @@ export function RestaurarBackupDialog({ open, onOpenChange, alvo, onConfirm, res
           </div>
         ) : (
           <div className="space-y-4">
-            <p className="text-sm text-cda-preto">
+            <p className="text-sm text-sfb-preto">
               Para confirmar, digite a frase exata abaixo:
             </p>
             <div className="rounded-md bg-muted px-3 py-2 font-mono text-sm select-all">
@@ -126,7 +126,7 @@ export function RestaurarBackupDialog({ open, onOpenChange, alvo, onConfirm, res
               />
             </div>
             {restaurando && (
-              <div className="rounded-md border bg-cda-creme p-3 text-sm text-cda-preto flex items-center gap-2">
+              <div className="rounded-md border bg-sfb-creme p-3 text-sm text-sfb-preto flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Restaurando… não feche esta janela.
               </div>
@@ -139,7 +139,7 @@ export function RestaurarBackupDialog({ open, onOpenChange, alvo, onConfirm, res
               <Button
                 onClick={() => onConfirm(confirmTexto.trim())}
                 disabled={!podeConfirmar || restaurando}
-                className="bg-cda-coral hover:bg-cda-coral/90 text-cda-branco"
+                className="bg-sfb-coral hover:bg-sfb-coral/90 text-sfb-branco"
               >
                 {restaurando ? (
                   <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Restaurando…</>

@@ -1,4 +1,4 @@
-# 📦 DOCUMENTAÇÃO: Módulo de Estoque — Caixa de Açúcar
+# 📦 DOCUMENTAÇÃO: Módulo de Estoque — Spa Flor de Baunilha
 
 **Criado em:** Maio 2026
 **Última atualização:** 26/05/2026
@@ -10,10 +10,10 @@
 Módulo de controle de estoque de ingredientes e embalagens para confeitarias. Permite registrar entradas (compras), saídas manuais (perdas, doações, correções) e baixa automática ao finalizar encomendas.
 
 ### Acesso
-- **Caixa Lite**: ❌ Não tem acesso
-- **Caixa Business**: ✅ Acesso completo
+- **Flor de Baunilha Lite**: ❌ Não tem acesso
+- **Flor de Baunilha Business**: ✅ Acesso completo
 - **Aluna Imersão (`aluna_imersao`)**: ✅ Acesso completo (equivalente Business por 30 dias)
-- **Caixa Start**: ⚠️ Plano descontinuado em 25/05/2026 — usuários legados mantêm acesso
+- **Flor de Baunilha Start**: ⚠️ Plano descontinuado em 25/05/2026 — usuários legados mantêm acesso
 - **Admin**: ✅ Acesso total independente do plano
 
 ---

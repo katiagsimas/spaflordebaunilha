@@ -21,17 +21,17 @@ export function MasterOnlyGuard({ recurso, children }: MasterOnlyGuardProps) {
   const quem = masterName ? `${masterName} (${masterEmail || '—'})` : (masterEmail || 'o mestre do grupo');
 
   return (
-    <Card className="border-cda-dourado/40 bg-cda-dourado/10">
+    <Card className="border-sfb-dourado/40 bg-sfb-dourado/10">
       <CardContent className="p-6 flex items-start gap-4">
-        <div className="rounded-full bg-cda-dourado/20 p-3 shrink-0">
-          <Crown className="h-6 w-6 text-cda-dourado" />
+        <div className="rounded-full bg-sfb-dourado/20 p-3 shrink-0">
+          <Crown className="h-6 w-6 text-sfb-dourado" />
         </div>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <Lock className="h-4 w-4 text-cda-vinho" />
-            <p className="font-semibold text-cda-preto">Gerenciado pelo mestre do grupo</p>
+            <Lock className="h-4 w-4 text-sfb-vinho" />
+            <p className="font-semibold text-sfb-preto">Gerenciado pelo mestre do grupo</p>
           </div>
-          <p className="text-sm text-cda-preto/80">
+          <p className="text-sm text-sfb-preto/80">
             Os <strong>{recurso}</strong> deste grupo são configurados por <strong>{quem}</strong>.
             Você acessa as informações já cadastradas, mas só o mestre pode alterá-las.
           </p>

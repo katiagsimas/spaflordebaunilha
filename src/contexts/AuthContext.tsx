@@ -137,9 +137,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .maybeSingle();
 
           if (hist?.id) {
-            const flagKey = `cda-evento-plano-toast-${hist.id}`;
+            const flagKey = `sfb-evento-plano-toast-${hist.id}`;
             if (!localStorage.getItem(flagKey)) {
-              const planoNome = hist.plano_novo === 'negocio' ? 'Caixa Business' : 'Caixa Lite';
+              const planoNome = hist.plano_novo === 'negocio' ? 'Flor de Baunilha Business' : 'Flor de Baunilha Lite';
               const inicio = hist.plano_inicio
                 ? new Date(hist.plano_inicio + 'T00:00:00').toLocaleDateString('pt-BR')
                 : '';
@@ -171,7 +171,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
             // Limpa flags do modal de expiração da Imersão para não reaparecer
             try {
-              sessionStorage.removeItem('cda-modal-imersao-shown');
+              sessionStorage.removeItem('sfb-modal-imersao-shown');
             } catch {}
           }
         } catch (e) {
@@ -229,7 +229,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const resetPassword = async (email: string) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://www.caixadeacucar.com.br/auth/reset-password',
+        redirectTo: 'https://www.spaflordebaunilha.com.br/auth/reset-password',
       });
 
       if (error) throw error;

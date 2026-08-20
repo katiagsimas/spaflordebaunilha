@@ -624,8 +624,8 @@ export function EditarUsuarioDialog({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="base">Caixa Lite</SelectItem>
-                          <SelectItem value="negocio">Caixa Business</SelectItem>
+                          <SelectItem value="base">Flor de Baunilha Lite</SelectItem>
+                          <SelectItem value="negocio">Flor de Baunilha Business</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

@@ -220,7 +220,7 @@ Deno.serve(async (req) => {
         type: 'magiclink',
         email,
         options: {
-          redirectTo: `${(Deno.env.get('SITE_URL') || 'https://www.caixadeacucar.com.br').replace(/\/+$/, '')}/dashboard`
+          redirectTo: `${(Deno.env.get('SITE_URL') || 'https://www.spaflordebaunilha.com.br').replace(/\/+$/, '')}/dashboard`
         }
       })
       const magicLink = linkData?.properties?.action_link || null
@@ -377,8 +377,8 @@ async function enviarEmailBoasVindas(
   const nomeDisplay = escapeHtml(nome || 'Confeiteira')
   const emailSafe = escapeHtml(email)
   const planoNome =
-    planoId === 'negocio' ? 'Caixa Business'
-    : 'Caixa Lite'
+    planoId === 'negocio' ? 'Flor de Baunilha Business'
+    : 'Flor de Baunilha Lite'
 
 
   const html = `
@@ -386,15 +386,15 @@ async function enviarEmailBoasVindas(
       <p>Olá, ${nomeDisplay}!</p>
       <p>Sua conta foi criada. Veja como acessar a plataforma agora:</p>
       <ol>
-        <li>Acesse <a href="https://www.caixadeacucar.com.br" style="color: #5B1A2B;">www.caixadeacucar.com.br</a></li>
+        <li>Acesse <a href="https://www.spaflordebaunilha.com.br" style="color: #5B1A2B;">www.spaflordebaunilha.com.br</a></li>
         <li>Clique em <strong>"Esqueci minha senha"</strong></li>
         <li>Digite o email <strong>${emailSafe}</strong> para receber o link de acesso</li>
       </ol>
       <p><strong>Seu plano:</strong> ${planoNome}</p>
       ${''}
-      <p>Qualquer dúvida, responda este email ou acesse o suporte através do e-mail <a href="mailto:ola@umbrelladoce.com.br" style="color: #5B1A2B;">ola@umbrelladoce.com.br</a></p>
+      <p>Qualquer dúvida, responda este email ou acesse o suporte através do e-mail <a href="mailto:ola@spaflordebaunilha.com.br" style="color: #5B1A2B;">ola@spaflordebaunilha.com.br</a></p>
       <br/>
-      <p>Umbrella Doce</p>
+      <p>Spa Flor de Baunilha</p>
     </div>
   `
 
@@ -406,9 +406,9 @@ async function enviarEmailBoasVindas(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Caixa de Açúcar <noreply@umbrelladoce.com.br>',
+        from: 'Spa Flor de Baunilha <noreply@spaflordebaunilha.com.br>',
         to: [email],
-        subject: 'Seu acesso ao Caixa de Açúcar está pronto',
+        subject: 'Seu acesso ao Spa Flor de Baunilha está pronto',
         html,
       }),
     })

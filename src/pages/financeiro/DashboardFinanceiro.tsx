@@ -58,7 +58,7 @@ export default function DashboardFinanceiro() {
           </Button>
         }
         actions={
-          <Button onClick={() => setTransferenciaOpen(true)} variant="outline" className="gap-2 border-cda-dourado/40 text-cda-vinho hover:bg-cda-dourado/10">
+          <Button onClick={() => setTransferenciaOpen(true)} variant="outline" className="gap-2 border-sfb-dourado/40 text-sfb-vinho hover:bg-sfb-dourado/10">
             <ArrowLeftRight className="h-4 w-4" />
             Transferência entre Bancos
           </Button>
@@ -90,12 +90,12 @@ export default function DashboardFinanceiro() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <TrendingDown className="h-4 w-4 text-cda-coral" />
+              <TrendingDown className="h-4 w-4 text-sfb-coral" />
               Total a Pagar
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-cda-coral">
+            <p className="text-2xl font-bold text-sfb-coral">
               R$ {resumo.totalPagar.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </p>
           </CardContent>
@@ -128,18 +128,18 @@ export default function DashboardFinanceiro() {
         <Card className={`${
           resumo.saldoLiquido >= 0
             ? "border-primary bg-primary/10"
-            : "border-cda-coral bg-cda-coral/10"
+            : "border-sfb-coral bg-sfb-coral/10"
         }`}>
           <CardHeader className="pb-2">
             <CardTitle className={`text-sm font-medium ${
-              resumo.saldoLiquido >= 0 ? "text-primary" : "text-cda-coral"
+              resumo.saldoLiquido >= 0 ? "text-primary" : "text-sfb-coral"
             }`}>
               Saldo Líquido
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className={`text-2xl font-bold ${
-              resumo.saldoLiquido >= 0 ? "text-primary" : "text-cda-coral"
+              resumo.saldoLiquido >= 0 ? "text-primary" : "text-sfb-coral"
             }`}>
               R$ {resumo.saldoLiquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </p>

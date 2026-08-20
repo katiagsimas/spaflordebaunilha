@@ -13,8 +13,8 @@ export default function Upgrade() {
       <div className="max-w-md w-full text-center space-y-8 animate-fade-in-up">
         {/* Ícone */}
         <div className="flex justify-center">
-          <div className="w-20 h-20 rounded-full bg-cda-coral/15 flex items-center justify-center">
-            <Lock className="h-10 w-10 text-cda-coral" />
+          <div className="w-20 h-20 rounded-full bg-sfb-coral/15 flex items-center justify-center">
+            <Lock className="h-10 w-10 text-sfb-coral" />
           </div>
         </div>
 
@@ -36,9 +36,9 @@ export default function Upgrade() {
         {/* Botões */}
         <div className="space-y-3">
           <Button
-            className="w-full bg-cda-coral text-white hover:bg-cda-coral/90 font-body"
+            className="w-full bg-sfb-coral text-white hover:bg-sfb-coral/90 font-body"
             size="lg"
-            onClick={() => window.open("https://wa.me/5511999999999?text=Olá Ká! Gostaria de fazer upgrade do meu plano no Caixa de Açúcar.", "_blank")}
+            onClick={() => window.open("https://wa.me/5511999999999?text=Olá Ká! Gostaria de fazer upgrade do meu plano no Spa Flor de Baunilha.", "_blank")}
           >
             <MessageCircle className="mr-2 h-5 w-5" />
             Falar no WhatsApp

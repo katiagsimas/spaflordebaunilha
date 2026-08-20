@@ -3,7 +3,7 @@ import autoTable from "jspdf-autotable";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDateBR } from "@/lib/dateUtils";
 
-// Paleta Caixa de Açúcar
+// Paleta Spa Flor de Baunilha
 const COR_PRETO: [number, number, number] = [28, 28, 28];
 const COR_DOURADO: [number, number, number] = [198, 168, 90];
 const COR_PISTACHE: [number, number, number] = [191, 207, 184];
@@ -121,7 +121,7 @@ function desenharRodape(doc: jsPDF, encomendaId: string) {
     pageH - 9,
     { align: "center" }
   );
-  doc.text("Caixa de Açúcar by Umbrella Doce", pageW / 2, pageH - 5, { align: "center" });
+  doc.text("Spa Flor de Baunilha", pageW / 2, pageH - 5, { align: "center" });
 }
 
 function bloco(doc: jsPDF, x: number, y: number, w: number, h: number, titulo: string) {

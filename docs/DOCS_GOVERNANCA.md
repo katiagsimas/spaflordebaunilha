@@ -1,4 +1,4 @@
-# 🏛️ DOCUMENTAÇÃO: Governança e Grupos — Caixa de Açúcar
+# 🏛️ DOCUMENTAÇÃO: Governança e Grupos — Spa Flor de Baunilha
 
 **Atualizada em:** 22/06/2026
 
@@ -10,7 +10,7 @@ Arquitetura multi-tenant com isolamento total via `owner_group_id`:
 
 | Papel | Escopo | Descrição |
 |-------|--------|-----------|
-| **MOTHER** | Global | Administrador único da Umbrella Doce — governança de grupos |
+| **MOTHER** | Global | Administrador único da Spa Flor de Baunilha — governança de grupos |
 | **ADMIN** | Grupo | Administrador de um grupo específico (mestre ou secundário) |
 | **USER** | Grupo | Usuário com permissões granulares |
 

@@ -2,7 +2,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { supabase } from "@/integrations/supabase/client";
 
-// Paleta Caixa de Açúcar
+// Paleta Spa Flor de Baunilha
 const COR_PRETO: [number, number, number] = [28, 28, 28];
 const COR_CLOUD: [number, number, number] = [245, 244, 241];
 const COR_PISTACHE: [number, number, number] = [191, 207, 184];
@@ -530,7 +530,7 @@ export async function exportarReceitaPDF(receitaId: string) {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
   doc.setTextColor(...COR_CINZA_TEXTO);
-  doc.text("Caixa de Açúcar by Umbrella Doce", marginX, pageH - 5);
+  doc.text("Spa Flor de Baunilha", marginX, pageH - 5);
   doc.text("Página 1 de 1", pageW - marginX, pageH - 5, { align: "right" });
 
   const slug = (receita.nome || "ficha-tecnica")

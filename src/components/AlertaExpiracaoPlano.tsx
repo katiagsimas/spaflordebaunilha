@@ -47,18 +47,18 @@ export function AlertaExpiracaoPlano() {
       : `Seu acesso expira em ${diasRestantes} dias. Renove para continuar usando o sistema.`;
 
   return (
-    <Alert className="rounded-none border-x-0 border-t-0 bg-cda-dourado border-cda-dourado text-cda-preto">
+    <Alert className="rounded-none border-x-0 border-t-0 bg-sfb-dourado border-sfb-dourado text-sfb-preto">
       <div className="flex items-center justify-between w-full gap-3 flex-wrap">
         <div className="flex items-center gap-2 min-w-0 flex-1">
-          <AlertCircle className="h-4 w-4 text-cda-preto shrink-0" />
-          <AlertDescription className="text-sm font-medium text-cda-preto">
+          <AlertCircle className="h-4 w-4 text-sfb-preto shrink-0" />
+          <AlertDescription className="text-sm font-medium text-sfb-preto">
             ⚠️ {mensagem}
           </AlertDescription>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => setDismissed(true)}
-            className="p-1 hover:bg-cda-preto/10 rounded transition-colors shrink-0"
+            className="p-1 hover:bg-sfb-preto/10 rounded transition-colors shrink-0"
             aria-label="Fechar alerta"
           >
             <X className="h-4 w-4" />

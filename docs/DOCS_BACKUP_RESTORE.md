@@ -1,4 +1,4 @@
-# Backup & Restauração — Caixa de Açúcar
+# Backup & Restauração — Spa Flor de Baunilha
 
 Última atualização: 2026-05-26
 
@@ -179,7 +179,7 @@ Implementado o seletor de **pasta local** para os arquivos `.json` de backup.
 - **UI:** `src/pages/configuracoes/Backup.tsx` — novo card "Local de salvamento" entre "Sobre os backups" e "Backup manual".
 - **Utilitário:** `src/lib/backupLocation.ts` — usa a **File System Access API**
   (`window.showDirectoryPicker`) e persiste o `FileSystemDirectoryHandle` em
-  IndexedDB (`cda-backup-prefs/handles/backupFolder`). Nome amigável da pasta
+  IndexedDB (`sfb-backup-prefs/handles/backupFolder`). Nome amigável da pasta
   fica em `localStorage` (`cda:backup:folderName`).
 - **Comportamento:**
   - Se a usuária escolheu uma pasta → grava o arquivo direto nela via

@@ -60,11 +60,11 @@ export function FinanceiroNav({ current, className }: FinanceiroNavProps) {
           onClick={() => navigate(to)}
           className={cn(
             "group inline-flex items-center gap-1.5 rounded-full px-3 py-1.5",
-            "text-xs font-medium font-body text-cda-vinho/80",
-            "bg-cda-creme/60 border border-cda-dourado/40",
+            "text-xs font-medium font-body text-sfb-vinho/80",
+            "bg-sfb-creme/60 border border-sfb-dourado/40",
             "transition-all duration-200",
-            "hover:bg-cda-vinho hover:text-cda-branco hover:border-cda-vinho hover:shadow-sm",
-            "focus:outline-none focus-visible:ring-2 focus-visible:ring-cda-dourado focus-visible:ring-offset-1"
+            "hover:bg-sfb-vinho hover:text-sfb-branco hover:border-sfb-vinho hover:shadow-sm",
+            "focus:outline-none focus-visible:ring-2 focus-visible:ring-sfb-dourado focus-visible:ring-offset-1"
           )}
         >
           <Icon className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />

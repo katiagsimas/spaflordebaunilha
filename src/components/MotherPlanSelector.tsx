@@ -12,8 +12,8 @@ import { useQueryClient } from "@tanstack/react-query";
 
 const OPCOES: Array<{ value: "default" | NonNullable<MotherViewPlan>; label: string }> = [
   { value: "default", label: "MOTHER · Acesso total" },
-  { value: "base", label: "Visualizar como Caixa Lite" },
-  { value: "negocio", label: "Visualizar como Caixa Business" },
+  { value: "base", label: "Visualizar como Flor de Baunilha Lite" },
+  { value: "negocio", label: "Visualizar como Flor de Baunilha Business" },
   
 ];
 
@@ -44,18 +44,18 @@ export function MotherPlanSelector() {
 
   return (
     <div className="hidden md:flex items-center gap-2">
-      <Crown className="h-4 w-4 text-cda-dourado" aria-hidden />
+      <Crown className="h-4 w-4 text-sfb-dourado" aria-hidden />
       <Select value={current} onValueChange={handleChange}>
         <SelectTrigger
-          className="h-8 w-[240px] bg-cda-vinho-escuro/60 border-cda-dourado/40 text-cda-creme text-xs font-body"
+          className="h-8 w-[240px] bg-sfb-vinho-escuro/60 border-sfb-dourado/40 text-sfb-creme text-xs font-body"
           aria-label="Modo de visualização do MOTHER"
         >
           <div className="flex items-center gap-1.5 truncate">
-            <Eye className="h-3.5 w-3.5 text-cda-dourado/80" />
+            <Eye className="h-3.5 w-3.5 text-sfb-dourado/80" />
             <SelectValue />
           </div>
         </SelectTrigger>
-        <SelectContent className="bg-cda-creme border-cda-dourado/40">
+        <SelectContent className="bg-sfb-creme border-sfb-dourado/40">
           {OPCOES.map((o) => (
             <SelectItem key={o.value} value={o.value} className="text-xs font-body">
               {o.label}

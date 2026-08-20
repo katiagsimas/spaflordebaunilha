@@ -990,8 +990,8 @@ const Encomendas = () => {
     <div className="flex h-full overflow-hidden">
       <div className="flex-1 min-w-0 overflow-auto space-y-8">
       {temEncomendasHoje && (
-        <Alert className="border-2 border-cda-dourado bg-cda-dourado/15 animate-pulse">
-          <AlertCircle className="h-5 w-5 text-cda-dourado" />
+        <Alert className="border-2 border-sfb-dourado bg-sfb-dourado/15 animate-pulse">
+          <AlertCircle className="h-5 w-5 text-sfb-dourado" />
           <AlertDescription className="font-semibold text-foreground ml-2">
             🔔 Você tem {encomendasHojeQtd} encomenda{encomendasHojeQtd > 1 ? "s" : ""} para entregar HOJE!
           </AlertDescription>
@@ -1697,17 +1697,17 @@ const Encomendas = () => {
         <EncomendasDoDia onNovaEncomenda={() => setDialogOpen(true)} />
 
         {/* Calendários de Encomendas - Direita */}
-        <Card className="overflow-hidden rounded-2xl border-2 border-[#C9A14A]/60 bg-cda-creme/40 shadow-[0_8px_30px_-18px_rgba(91,26,43,0.3)]">
-          <CardHeader className="border-b border-cda-dourado/15 bg-cda-branco/60 pb-4">
+        <Card className="overflow-hidden rounded-2xl border-2 border-[#C9A14A]/60 bg-sfb-creme/40 shadow-[0_8px_30px_-18px_rgba(91,26,43,0.3)]">
+          <CardHeader className="border-b border-sfb-dourado/15 bg-sfb-branco/60 pb-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cda-vinho text-cda-dourado ring-1 ring-cda-dourado/40">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sfb-vinho text-sfb-dourado ring-1 ring-sfb-dourado/40">
                 <CalendarDays className="h-5 w-5" />
               </div>
               <div>
-                <CardTitle className="font-display text-xl tracking-tight text-cda-vinho-escuro sm:text-2xl">
+                <CardTitle className="font-display text-xl tracking-tight text-sfb-vinho-escuro sm:text-2xl">
                   Calendários de Encomendas
                 </CardTitle>
-                <CardDescription className="mt-0.5 font-body text-sm text-cda-vinho/80">
+                <CardDescription className="mt-0.5 font-body text-sm text-sfb-vinho/80">
                   Visualize e organize suas encomendas por mês
                 </CardDescription>
               </div>
@@ -1725,7 +1725,7 @@ const Encomendas = () => {
                 alt="Calendários de Encomendas"
                 className="h-32 w-32 object-contain drop-shadow-sm md:h-40 md:w-40"
               />
-              <span className="rounded-lg bg-cda-vinho px-4 py-2 text-sm font-semibold text-cda-creme shadow-md transition group-hover:bg-cda-vinho-escuro">
+              <span className="rounded-lg bg-sfb-vinho px-4 py-2 text-sm font-semibold text-sfb-creme shadow-md transition group-hover:bg-sfb-vinho-escuro">
                 Abrir Calendários
               </span>
             </button>
@@ -1746,7 +1746,7 @@ const Encomendas = () => {
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           aria-label="Voltar ao topo"
           title="Voltar ao topo"
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-cda-dourado text-cda-preto shadow-[0_8px_24px_-8px_rgba(201,161,74,0.6)] ring-1 ring-cda-dourado/60 transition hover:scale-105 hover:bg-[#b58c39] active:scale-95"
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-sfb-dourado text-sfb-preto shadow-[0_8px_24px_-8px_rgba(201,161,74,0.6)] ring-1 ring-sfb-dourado/60 transition hover:scale-105 hover:bg-[#b58c39] active:scale-95"
         >
           <ArrowUp className="h-5 w-5" strokeWidth={2.5} />
         </button>
@@ -1755,7 +1755,7 @@ const Encomendas = () => {
           onClick={() => navigate(-1)}
           aria-label="Voltar"
           title="Voltar"
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-cda-vinho text-cda-creme shadow-[0_8px_24px_-8px_rgba(91,26,43,0.6)] ring-1 ring-cda-vinho-escuro/60 transition hover:scale-105 hover:bg-cda-vinho-escuro active:scale-95"
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-sfb-vinho text-sfb-creme shadow-[0_8px_24px_-8px_rgba(91,26,43,0.6)] ring-1 ring-sfb-vinho-escuro/60 transition hover:scale-105 hover:bg-sfb-vinho-escuro active:scale-95"
         >
           <ArrowLeft className="h-5 w-5" strokeWidth={2.5} />
         </button>

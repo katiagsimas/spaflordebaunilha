@@ -28,7 +28,7 @@ const statusBadge: Record<string, string> = {
   confirmado: "bg-blue-100 text-blue-800 border-blue-200",
   em_producao: "bg-purple-100 text-purple-800 border-purple-200",
   pronto: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  entregue: "bg-cda-vinho/10 text-cda-vinho border-cda-vinho/20",
+  entregue: "bg-sfb-vinho/10 text-sfb-vinho border-sfb-vinho/20",
   cancelado: "bg-rose-100 text-rose-800 border-rose-200",
 };
 
@@ -104,26 +104,26 @@ export function EncomendasDoDia({ onNovaEncomenda }: { onNovaEncomenda?: () => v
   );
 
   return (
-    <Card className="overflow-hidden rounded-2xl border-2 border-[#C9A14A]/60 bg-cda-creme/40 shadow-[0_8px_30px_-18px_rgba(91,26,43,0.3)]">
-      <CardHeader className="border-b border-cda-dourado/15 bg-cda-branco/60 pb-4">
+    <Card className="overflow-hidden rounded-2xl border-2 border-[#C9A14A]/60 bg-sfb-creme/40 shadow-[0_8px_30px_-18px_rgba(91,26,43,0.3)]">
+      <CardHeader className="border-b border-sfb-dourado/15 bg-sfb-branco/60 pb-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cda-vinho text-cda-dourado ring-1 ring-cda-dourado/40">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sfb-vinho text-sfb-dourado ring-1 ring-sfb-dourado/40">
               <CalendarDays className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <CardTitle className="font-display text-xl tracking-tight text-cda-vinho-escuro sm:text-2xl">
+              <CardTitle className="font-display text-xl tracking-tight text-sfb-vinho-escuro sm:text-2xl">
                 Encomendas do dia
               </CardTitle>
               <div className="mt-0.5 flex flex-wrap items-center gap-2">
-                <span className="font-body text-sm text-cda-vinho/80">
+                <span className="font-body text-sm text-sfb-vinho/80">
                   {format(hoje, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
                 </span>
-                <Badge className="bg-cda-dourado text-cda-preto hover:bg-cda-dourado tracking-[0.18em] text-[10px] uppercase">
+                <Badge className="bg-sfb-dourado text-sfb-preto hover:bg-sfb-dourado tracking-[0.18em] text-[10px] uppercase">
                   Hoje
                 </Badge>
                 {encomendasDia.length > 0 && (
-                  <Badge variant="outline" className="border-cda-vinho/20 text-cda-vinho">
+                  <Badge variant="outline" className="border-sfb-vinho/20 text-sfb-vinho">
                     {encomendasDia.length} encomenda{encomendasDia.length > 1 ? "s" : ""}
                   </Badge>
                 )}
@@ -134,18 +134,18 @@ export function EncomendasDoDia({ onNovaEncomenda }: { onNovaEncomenda?: () => v
           {encomendasDia.length > 0 && (
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cda-vinho/50" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-sfb-vinho/50" />
                 <Input
                   value={buscaDia}
                   onChange={(e) => setBuscaDia(e.target.value)}
                   placeholder="Buscar cliente..."
-                  className="h-9 pl-9 bg-cda-branco border-cda-dourado/30 sm:w-56"
+                  className="h-9 pl-9 bg-sfb-branco border-sfb-dourado/30 sm:w-56"
                 />
               </div>
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-2 border-cda-vinho/20 text-cda-vinho hover:bg-cda-vinho/5"
+                className="gap-2 border-sfb-vinho/20 text-sfb-vinho hover:bg-sfb-vinho/5"
                 onClick={() => {
                   const linhas = [
                     ["Cliente", "Horário", "Valor", "Status"],
@@ -178,7 +178,7 @@ export function EncomendasDoDia({ onNovaEncomenda }: { onNovaEncomenda?: () => v
 
       <CardContent className="p-5 sm:p-6">
         {encomendasDia.length === 0 ? (
-          <div className="flex flex-col items-center gap-5 rounded-2xl border border-dashed border-cda-dourado/40 bg-cda-branco/60 px-6 py-10 text-center md:flex-row md:items-center md:justify-center md:gap-10 md:text-left">
+          <div className="flex flex-col items-center gap-5 rounded-2xl border border-dashed border-sfb-dourado/40 bg-sfb-branco/60 px-6 py-10 text-center md:flex-row md:items-center md:justify-center md:gap-10 md:text-left">
             <img
               src={calendarioMacaron}
               alt=""
@@ -186,16 +186,16 @@ export function EncomendasDoDia({ onNovaEncomenda }: { onNovaEncomenda?: () => v
               className="pointer-events-none h-32 w-auto shrink-0 select-none object-contain sm:h-40"
             />
             <div className="flex flex-col items-center md:items-start">
-              <h3 className="font-display text-xl tracking-tight text-cda-vinho-escuro sm:text-2xl">
+              <h3 className="font-display text-xl tracking-tight text-sfb-vinho-escuro sm:text-2xl">
                 Nenhuma encomenda para hoje
               </h3>
-              <p className="mt-2 max-w-md font-body text-sm text-cda-vinho/70">
+              <p className="mt-2 max-w-md font-body text-sm text-sfb-vinho/70">
                 Você ainda não possui encomendas cadastradas para hoje. Que tal cadastrar a primeira?
               </p>
               {onNovaEncomenda && (
                 <Button
                   onClick={onNovaEncomenda}
-                  className="mt-5 gap-2 rounded-lg bg-cda-vinho text-cda-creme shadow-md transition hover:bg-cda-vinho-escuro tracking-[0.16em] text-xs uppercase"
+                  className="mt-5 gap-2 rounded-lg bg-sfb-vinho text-sfb-creme shadow-md transition hover:bg-sfb-vinho-escuro tracking-[0.16em] text-xs uppercase"
                 >
                   <Plus className="h-4 w-4" />
                   Nova Encomenda
@@ -210,19 +210,19 @@ export function EncomendasDoDia({ onNovaEncomenda }: { onNovaEncomenda?: () => v
                 key={encomenda.id}
                 type="button"
                 onClick={() => navigate(`/encomendas?id=${encomenda.id}`)}
-                className="group text-left rounded-xl border border-cda-dourado/20 bg-cda-branco p-4 shadow-[0_4px_18px_-14px_rgba(91,26,43,0.25)] transition hover:-translate-y-0.5 hover:border-cda-vinho/40 hover:shadow-[0_10px_28px_-16px_rgba(91,26,43,0.4)]"
+                className="group text-left rounded-xl border border-sfb-dourado/20 bg-sfb-branco p-4 shadow-[0_4px_18px_-14px_rgba(91,26,43,0.25)] transition hover:-translate-y-0.5 hover:border-sfb-vinho/40 hover:shadow-[0_10px_28px_-16px_rgba(91,26,43,0.4)]"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
-                    <p className="font-display text-base text-cda-vinho-escuro truncate">
+                    <p className="font-display text-base text-sfb-vinho-escuro truncate">
                       {encomenda.cliente}
                     </p>
-                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-cda-vinho/70">
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-sfb-vinho/70">
                       <span className="inline-flex items-center gap-1">
                         <Clock className="h-3 w-3" />
                         {encomenda.hora_entrega || "Sem horário"}
                       </span>
-                      <span className="font-semibold text-cda-vinho">
+                      <span className="font-semibold text-sfb-vinho">
                         R$ {encomenda.valor.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                       </span>
                     </div>
@@ -237,7 +237,7 @@ export function EncomendasDoDia({ onNovaEncomenda }: { onNovaEncomenda?: () => v
                     {statusLabel[encomenda.status] ?? encomenda.status}
                   </Badge>
                 </div>
-                <div className="mt-3 flex items-center justify-end text-[11px] font-semibold uppercase tracking-[0.18em] text-cda-vinho/60 transition group-hover:text-cda-vinho">
+                <div className="mt-3 flex items-center justify-end text-[11px] font-semibold uppercase tracking-[0.18em] text-sfb-vinho/60 transition group-hover:text-sfb-vinho">
                   Ver detalhes →
                 </div>
               </button>
