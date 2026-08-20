@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Scale, FlaskConical, Cake, ChevronLeft } from "lucide-react";
+import { Scale, FlaskConical, Cake, ChevronLeft, ShoppingBag } from "lucide-react";
 
 import { HeroBanner } from "@/components/HeroBanner";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -88,6 +88,29 @@ export default function Cadastros() {
                 </p>
                 <p className="text-[12px] text-muted-foreground mt-1">
                   Organize seus produtos por categorias
+                </p>
+              </div>
+            </div>
+          </button>
+
+          {/* Card 4 — Produtos para Revenda */}
+          <button
+            onClick={() => {
+              // Card vazio no momento
+              console.log("Produtos para Revenda clicado");
+            }}
+            className="group text-left bg-white border-2 border-sfb-areia/60 rounded-xl p-5 transition-all duration-200 hover:border-sfb-terracota hover:shadow-md"
+          >
+            <div className="flex items-start gap-3">
+              <div className="w-[52px] h-[52px] rounded-full bg-sfb-baunilha flex items-center justify-center shrink-0">
+                <ShoppingBag className="h-6 w-6 text-sfb-cacau" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-display text-[15px] font-semibold text-sfb-cacau leading-tight">
+                  Produtos para Revenda
+                </p>
+                <p className="text-[12px] text-muted-foreground mt-1">
+                  Gerencie itens adquiridos para revenda direta
                 </p>
               </div>
             </div>
