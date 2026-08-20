@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: Em Cadastros/Bancos / Listagem de Bancos, mantenha por padrão, visível somente os bancos Habilitdos
+// Execute esta instrucao no projeto: Corrija o erro ao criar documentos
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
