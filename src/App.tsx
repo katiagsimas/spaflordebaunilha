@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: No card "Produtos para Revenda", crie uma página dedicada para este card, ou seja, quando o usuário clicar sobre o card "Produtos para Revenda" sistema abrirá esta página dedicada. Mova os cards "Natura, Avon e Casa & Estilo" para dentro desta página
+// Execute esta instrucao no projeto: Em Cadastros / Produtos para Revenda / Natura, crie uma página dedicada para este card, dentro desta página, teremos o botão e respectivo formulário para cadastro de Novo Produto, bem como a listagem de produtos cadastrados. Faça a mesma implementação nos cards Avon e Casa & Estilo
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
