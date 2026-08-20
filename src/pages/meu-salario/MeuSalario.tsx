@@ -26,7 +26,7 @@ export default function MeuSalario() {
               <div className="mt-2 flex items-center gap-3">
                 <span className="h-px w-8 bg-sfb-terracota sm:w-10" />
                 <p className="text-xs italic text-sfb-terracota sm:text-sm">
-                  Método Renda Doce — quanto sua confeitaria pode te pagar sem sufocar.
+                  Quanto seu negócio pode te pagar sem sufocar.
                 </p>
               </div>
             </div>

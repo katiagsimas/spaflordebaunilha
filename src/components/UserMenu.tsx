@@ -191,16 +191,6 @@ export function UserMenu() {
 
           {/* Infos */}
           <div className="px-4 py-3 space-y-3 border-b border-border">
-            {nomeEmpresa && (
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-body flex items-center gap-1">
-                  <Store className="h-3 w-3 text-sfb-vinho" /> Confeitaria
-                </p>
-                <p className="text-sm font-semibold text-sfb-vinho-escuro truncate">
-                  {nomeEmpresa}
-                </p>
-              </div>
-            )}
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-body flex items-center gap-1">
                 <Mail className="h-3 w-3" /> E-mail
@@ -211,14 +201,6 @@ export function UserMenu() {
 
           {/* Ações */}
           <div className="p-2 space-y-1">
-            <Button
-              variant="ghost"
-              className="w-full justify-start font-body text-sm"
-              onClick={handleSuporte}
-            >
-              <Headphones className="h-4 w-4 mr-2 text-green-600" />
-              Suporte via WhatsApp
-            </Button>
             <Button
               variant="ghost"
               className="w-full justify-start font-body text-sm text-sfb-coral hover:text-sfb-coral hover:bg-sfb-coral/10"

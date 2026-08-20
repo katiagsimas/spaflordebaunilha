@@ -26,7 +26,7 @@ export default function Precificacao() {
       to: "/precificacao/embalagens",
     },
     {
-      title: "Configurações de Preço",
+      title: "Configurações",
       description: "Mão de obra, unidades de medida e categorias",
       icon: Settings,
       to: "/configuracoes/precificacao",

@@ -16,13 +16,13 @@ export const CENARIOS = {
   equilibrio: {
     titulo: "Equilíbrio saudável",
     mensagem:
-      "Suas retiradas permaneceram dentro da capacidade saudável da sua confeitaria. Isso é sinal de consciência financeira e maturidade empresarial.",
+      "Suas retiradas permaneceram dentro da capacidade saudável do seu negócio. Isso é sinal de consciência financeira e maturidade empresarial.",
     tom: "neutro" as const,
   },
   acima: {
     titulo: "Retiradas acima do saudável",
     mensagem:
-      "Sua confeitaria precisou sustentar retiradas acima do valor saudável neste período. Sem culpa: agora que você enxerga, pode reorganizar com leveza no próximo mês.",
+      "Seu negócio precisou sustentar retiradas acima do valor saudável neste período. Sem culpa: agora que você enxerga, pode reorganizar com leveza no próximo mês.",
     tom: "atencao" as const,
   },
 };
@@ -36,12 +36,12 @@ export const EDUCATIVO = [
   {
     titulo: "O que é pró-labore?",
     texto:
-      "É a sua remuneração como dona da confeitaria. Pense nele como o seu salário de empresária — separado dos lucros e dos custos do negócio.",
+      "É a sua remuneração como dona do negócio. Pense nele como o seu salário de empresária — separado dos lucros e dos custos do negócio.",
   },
   {
     titulo: "Por que ter reserva?",
     texto:
-      "A reserva financeira é o oxigênio da sua confeitaria. Ela cobre meses fracos, ingredientes que sobem de preço e imprevistos sem sufocar você nem o negócio.",
+      "A reserva financeira é o oxigênio do seu negócio. Ela cobre meses fracos, ingredientes que sobem de preço e imprevistos sem sufocar você nem o negócio.",
   },
   {
     titulo: "Retirada saudável",
