@@ -542,14 +542,6 @@ export default function TiposDocumentos() {
         </DialogContent>
       </Dialog>
 
-      {/* Alerta informativo */}
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertDescription className="text-sm">
-          <strong>Importante:</strong> Tipos padrão podem apenas ser habilitados/desabilitados. 
-          Tipos customizados podem ser editados e deletados (se não estiverem em uso).
-        </AlertDescription>
-      </Alert>
     </div>
   );
 }
