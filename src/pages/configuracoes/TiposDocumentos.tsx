@@ -34,12 +34,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
+import { useGroup } from '@/contexts/GroupContext';
 import { BackButton } from '@/components/BackButton';
 import { PageHeader } from '@/components/PageHeader';
 
 interface TipoDocumento {
   id: string;
   usuario_id: string;
+  owner_group_id?: string;
   codigo: number;
   descricao: string;
   e_padrao?: boolean;
@@ -53,6 +55,7 @@ export default function TiposDocumentos() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { activeGroupId } = useGroup();
   const [tipos, setTipos] = useState<TipoDocumento[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -77,14 +80,14 @@ export default function TiposDocumentos() {
 
   const fetchTipos = async () => {
     try {
-      if (!user) return;
+      if (!user || !activeGroupId) return;
 
 
       // Buscar tipos ordenados: habilitados primeiro, depois padrão, depois alfabético
       const { data, error } = await supabase
         .from('tipos_documento')
         .select('*')
-        .eq('usuario_id', user.id)
+        .eq('owner_group_id', activeGroupId)
         .order('habilitado', { ascending: false })
         .order('e_padrao', { ascending: false })
         .order('descricao');
@@ -142,10 +145,11 @@ export default function TiposDocumentos() {
     } else {
       // Gerar código
       try {
-        if (!user) return;
+        if (!user || !activeGroupId) return;
 
         const { data: codigo, error } = await supabase.rpc('gerar_proximo_codigo_tipo_documento', {
-          p_user_id: user.id
+          p_user_id: user.id,
+          p_owner_group_id: activeGroupId
         });
 
         if (error) {
@@ -176,7 +180,7 @@ export default function TiposDocumentos() {
         return;
       }
 
-      if (!user) throw new Error('Não autenticado');
+      if (!user || !activeGroupId) throw new Error('Não autenticado ou grupo não selecionado');
 
       if (editando) {
         // Atualizar
@@ -204,6 +208,7 @@ export default function TiposDocumentos() {
           .from('tipos_documento')
           .insert({
             usuario_id: user.id,
+            owner_group_id: activeGroupId,
             codigo: parseInt(codigoSugerido),
             descricao: descricao.trim(),
             e_padrao: false,
