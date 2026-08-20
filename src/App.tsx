@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: remova os itens em destaque na captura anexa
+// Execute esta instrucao no projeto: O módulo Meu Saláriio não está sendo demonstrado no Projeto, favor verificaar e corrigir.
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
