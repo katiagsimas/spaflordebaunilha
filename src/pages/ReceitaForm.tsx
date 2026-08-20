@@ -135,6 +135,7 @@ export default function ReceitaForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { user } = useAuth();
+  const { activeGroupId } = useGroup();
   const [ingredientesCadastrados, setIngredientesCadastrados] = useState<any[]>([]);
   const [embalagensCadastradas, setEmbalagensCadastradas] = useState<any[]>([]);
   const { categorias, categoriasAtivas } = useCategorias();
