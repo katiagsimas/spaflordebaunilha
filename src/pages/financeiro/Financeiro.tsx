@@ -389,10 +389,6 @@ export default function Financeiro() {
           </div>
 
 
-          {/* Botão de ajuda padronizado: canto esquerdo, abaixo do header */}
-          <div className="flex justify-start">
-            <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} />
-          </div>
 
 
           {/* CARDS DE NAVEGAÇÃO 2x3 */}
@@ -701,7 +697,6 @@ export default function Financeiro() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <ModuleHelpDrawer content={financeiroHelp} isOpen={isHelpOpen} onClose={closeHelp} />
     </div>
 
   );

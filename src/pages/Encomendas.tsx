@@ -1017,7 +1017,6 @@ const Encomendas = () => {
       </div>
 
       <div className="flex items-center justify-start gap-3">
-        <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} />
         <Dialog open={dialogOpen} onOpenChange={(open) => {
           setDialogOpen(open);
           if (!open) resetForm();
