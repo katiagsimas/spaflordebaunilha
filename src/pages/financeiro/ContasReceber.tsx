@@ -40,7 +40,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, MoreVertical, Eye, DollarSign, Edit, Trash2, Info, Filter, Calendar, ChevronDown, X, Download, CheckSquare, Square, TrendingUp, CheckCircle2, AlertTriangle, ChevronsUpDown, Check } from 'lucide-react';
+import { Plus, MoreVertical, Eye, DollarSign, Edit, Trash2, Info, Filter, Calendar, ChevronDown, X, Download, CheckSquare, Square, TrendingUp, CheckCircle2, AlertTriangle, ChevronsUpDown, Check, TrendingDown } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -753,15 +753,15 @@ export default function ContasReceber() {
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-purple-500">
+        <Card className="border-l-4 border-l-sfb-cacau">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-sfb-pink/20 rounded-lg">
-                <Calendar className="h-4 w-4 text-sfb-pink" />
+              <div className="p-2 bg-sfb-cacau/20 rounded-lg">
+                <Calendar className="h-4 w-4 text-sfb-cacau" />
               </div>
               <div>
                 <p className="text-xs font-medium text-muted-foreground">Vence Hoje</p>
-                <p className="text-lg font-bold text-sfb-pink">
+                <p className="text-lg font-bold text-sfb-cacau">
                   {formatarValor(dashboard.vencendo_hoje)}
                 </p>
               </div>
@@ -900,7 +900,7 @@ export default function ContasReceber() {
             </Button>
           </CollapsibleTrigger>
 
-          <Button variant="default" size="sm" onClick={limparFiltros}>
+          <Button variant="outline" size="sm" onClick={limparFiltros} className="border-sfb-cacau/30 text-sfb-cacau hover:bg-sfb-baunilha">
             <X className="mr-2 h-4 w-4" />
             Limpar Filtros
           </Button>

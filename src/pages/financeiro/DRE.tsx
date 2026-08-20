@@ -487,7 +487,7 @@ export default function DRE() {
             <Button onClick={imprimir} variant="outline">
               <Printer className="mr-2 h-4 w-4" /> Imprimir
             </Button>
-            <Button onClick={exportarExcel} className="bg-sfb-terracota hover:bg-sfb-terracota-escuro text-sfb-baunilha">
+            <Button onClick={exportarExcel} className="bg-sfb-terracota hover:bg-sfb-terracota/90 text-sfb-baunilha">
               <Download className="mr-2 h-4 w-4" /> Exportar
             </Button>
           </div>
@@ -556,7 +556,7 @@ export default function DRE() {
                 </TableRow>
 
                 {/* DEDUÇÕES */}
-                <TableRow className="bg-sfb-coral/10">
+                <TableRow className="bg-sfb-terracota/10">
                   <TableCell className="font-semibold">(-) Deduções Sobre Vendas</TableCell>
                   {dados.totalDeducoes.map((val, i) => (
                     <TableCell key={i} className="text-right">{val > 0 ? val.toFixed(2) : '-'}</TableCell>
@@ -587,11 +587,11 @@ export default function DRE() {
                 <TableRow className="bg-sfb-areia/10">
                   <TableCell className="font-semibold">(=) Receita Líquida</TableCell>
                   {dados.receitaLiquida.map((val, i) => (
-                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-success' : 'text-sfb-coral'}`}>
+                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-success' : 'text-sfb-terracota'}`}>
                       {val.toFixed(2)}
                     </TableCell>
                   ))}
-                  <TableCell className={`text-right font-bold ${calcularTotal(dados.receitaLiquida) >= 0 ? 'text-success' : 'text-sfb-coral'}`}>
+                  <TableCell className={`text-right font-bold ${calcularTotal(dados.receitaLiquida) >= 0 ? 'text-success' : 'text-sfb-terracota'}`}>
                     {calcularTotal(dados.receitaLiquida).toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.receitaLiquida), receitaBrutaTotal).toFixed(0)}%</TableCell>
@@ -644,14 +644,14 @@ export default function DRE() {
                 </TableRow>
 
                 {/* MARGEM DE CONTRIBUIÇÃO */}
-                <TableRow className="bg-sfb-pink/15">
+                <TableRow className="bg-sfb-terracota/15">
                   <TableCell className="font-semibold">(=) Margem de Contribuição</TableCell>
                   {dados.margemContribuicao.map((val, i) => (
-                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-sfb-pink' : 'text-sfb-coral'}`}>
+                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-sfb-cacau' : 'text-sfb-terracota'}`}>
                       {val.toFixed(2)}
                     </TableCell>
                   ))}
-                  <TableCell className={`text-right font-bold ${calcularTotal(dados.margemContribuicao) >= 0 ? 'text-sfb-pink' : 'text-sfb-coral'}`}>
+                  <TableCell className={`text-right font-bold ${calcularTotal(dados.margemContribuicao) >= 0 ? 'text-sfb-cacau' : 'text-sfb-terracota'}`}>
                     {calcularTotal(dados.margemContribuicao).toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.margemContribuicao), receitaBrutaTotal).toFixed(0)}%</TableCell>
@@ -711,11 +711,11 @@ export default function DRE() {
                 <TableRow className="bg-sfb-areia/15">
                   <TableCell className="font-semibold">(=) Resultado Operacional</TableCell>
                   {dados.resultadoOperacional.map((val, i) => (
-                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-primary' : 'text-sfb-coral'}`}>
+                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-sfb-cacau' : 'text-sfb-terracota'}`}>
                       {val.toFixed(2)}
                     </TableCell>
                   ))}
-                  <TableCell className={`text-right font-bold ${calcularTotal(dados.resultadoOperacional) >= 0 ? 'text-primary' : 'text-sfb-coral'}`}>
+                  <TableCell className={`text-right font-bold ${calcularTotal(dados.resultadoOperacional) >= 0 ? 'text-sfb-cacau' : 'text-sfb-terracota'}`}>
                     {calcularTotal(dados.resultadoOperacional).toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.resultadoOperacional), receitaBrutaTotal).toFixed(0)}%</TableCell>
@@ -744,7 +744,7 @@ export default function DRE() {
                 <TableRow className="bg-muted/30">
                   <TableCell className="font-semibold">Resultado Não Operacional</TableCell>
                   {dados.resultadoNaoOperacional.map((val, i) => (
-                    <TableCell key={i} className={`text-right ${val >= 0 ? '' : 'text-sfb-coral'}`}>
+                    <TableCell key={i} className={`text-right ${val >= 0 ? '' : 'text-sfb-terracota'}`}>
                       {val.toFixed(2)}
                     </TableCell>
                   ))}
@@ -774,11 +774,11 @@ export default function DRE() {
                 <TableRow className="bg-warning/15">
                   <TableCell className="font-semibold">(=) Lucro Antes do Imposto de Renda (LAIR)</TableCell>
                   {dados.lair.map((val, i) => (
-                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-warning' : 'text-sfb-coral'}`}>
+                    <TableCell key={i} className={`text-right ${val >= 0 ? 'text-sfb-cacau' : 'text-sfb-terracota'}`}>
                       {val.toFixed(2)}
                     </TableCell>
                   ))}
-                  <TableCell className={`text-right font-bold ${calcularTotal(dados.lair) >= 0 ? 'text-warning' : 'text-sfb-coral'}`}>
+                  <TableCell className={`text-right font-bold ${calcularTotal(dados.lair) >= 0 ? 'text-sfb-cacau' : 'text-sfb-terracota'}`}>
                     {calcularTotal(dados.lair).toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.lair), receitaBrutaTotal).toFixed(0)}%</TableCell>
@@ -797,14 +797,14 @@ export default function DRE() {
                 </TableRow>
 
                 {/* LUCRO LÍQUIDO */}
-                <TableRow className="bg-primary/10">
+                <TableRow className="bg-sfb-cacau/10">
                   <TableCell className="font-bold">(=) Lucro Líquido</TableCell>
                   {dados.lucroLiquido.map((val, i) => (
-                    <TableCell key={i} className={`text-right font-semibold ${val >= 0 ? 'text-primary' : 'text-sfb-coral'}`}>
+                    <TableCell key={i} className={`text-right font-semibold ${val >= 0 ? 'text-sfb-cacau' : 'text-sfb-terracota'}`}>
                       {val.toFixed(2)}
                     </TableCell>
                   ))}
-                  <TableCell className={`text-right font-bold ${calcularTotal(dados.lucroLiquido) >= 0 ? 'text-primary' : 'text-sfb-coral'}`}>
+                  <TableCell className={`text-right font-bold ${calcularTotal(dados.lucroLiquido) >= 0 ? 'text-sfb-cacau' : 'text-sfb-terracota'}`}>
                     {calcularTotal(dados.lucroLiquido).toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right font-bold">{calcularAV(calcularTotal(dados.lucroLiquido), receitaBrutaTotal).toFixed(0)}%</TableCell>

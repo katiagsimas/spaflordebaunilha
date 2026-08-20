@@ -149,7 +149,7 @@ export default function Negociacoes() {
         {/* ===== HEADER PREMIUM ===== */}
         <div
           className="relative overflow-hidden rounded-2xl border border-sfb-cacau/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
-          style={{ background: "#FAEFEB" }}
+          style={{ background: "var(--sfb-baunilha)" }}
         >
           <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6 pr-[150px] sm:pr-[200px] lg:pr-[260px] min-h-[130px] sm:min-h-[150px] lg:min-h-[170px]">
             <div className="flex-1 min-w-0">
@@ -182,14 +182,14 @@ export default function Negociacoes() {
                 className="rounded-2xl border-2 border-sfb-terracota/60 bg-sfb-baunilha shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)]"
               >
                 <CardContent className="p-4 flex items-start gap-3">
-                  <div className="h-11 w-11 shrink-0 rounded-full flex items-center justify-center ring-1 ring-sfb-dourado/40 bg-sfb-areia/15 text-sfb-cacau">
+                  <div className="h-11 w-11 shrink-0 rounded-full flex items-center justify-center ring-1 ring-sfb-areia/40 bg-sfb-baunilha text-sfb-cacau">
                     <Icon className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
                     <p className="text-[11px] uppercase tracking-wide font-body text-sfb-cacau/60">
                       {kpi.label}
                     </p>
-                    <p className="font-display text-xl text-sfb-cacau-escuro mt-0.5 truncate">
+                    <p className="font-display text-xl text-sfb-cacau mt-0.5 truncate">
                       {kpi.value}
                     </p>
                     <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{kpi.sub}</p>
@@ -228,14 +228,14 @@ export default function Negociacoes() {
 
               <div className="pb-3 sm:pb-0">
                 {tab === "propostas" ? (
-                  <Button asChild className="bg-sfb-terracota hover:bg-sfb-terracota-escuro text-sfb-baunilha">
+                  <Button asChild className="bg-sfb-terracota hover:bg-sfb-terracota/90 text-sfb-baunilha">
                     <NavLink to="/comercial/propostas/nova">
                       <Plus className="h-4 w-4 mr-2" /> Nova proposta
                     </NavLink>
                   </Button>
                 ) : (
                   <Button
-                    className="bg-sfb-terracota hover:bg-sfb-terracota-escuro text-sfb-baunilha"
+                    className="bg-sfb-terracota hover:bg-sfb-terracota/90 text-sfb-baunilha"
                     onClick={() => navigate("/comercial/contratos")}
                   >
                     <Plus className="h-4 w-4 mr-2" /> Novo contrato
@@ -293,7 +293,7 @@ export default function Negociacoes() {
                 <Button
                   variant="outline"
                   onClick={limparFiltros}
-                  className="w-full border-sfb-cacau/20 text-sfb-cacau hover:bg-sfb-areia hover:text-sfb-cacau hover:border-sfb-areia"
+                  className="w-full border-sfb-cacau/20 text-sfb-cacau hover:bg-sfb-terracota hover:text-sfb-baunilha hover:border-sfb-terracota"
                 >
                   <X className="h-4 w-4 mr-1" /> Limpar
                 </Button>

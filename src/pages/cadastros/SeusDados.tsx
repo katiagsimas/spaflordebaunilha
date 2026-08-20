@@ -755,9 +755,9 @@ export default function SeusDados() {
           return (
             <section>
               <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2 text-[#2A1F1A]">
-                  <CalendarDays className="h-5 w-5 text-[#3D2F28]" />
-                  <h2 className="text-[18px]" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                <div className="flex items-center gap-2 text-sfb-cacau">
+                  <CalendarDays className="h-5 w-5 text-sfb-cacau" />
+                  <h2 className="text-[18px]" style={{ fontFamily: "var(--font-display)" }}>
                     Resumo do Perfil
                   </h2>
                 </div>
@@ -777,17 +777,17 @@ export default function SeusDados() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Completude */}
-                <div className="bg-white border border-[#3D2F28]/10 rounded-xl p-5 flex gap-4 items-start">
-                  <div className="w-13 h-13 rounded-full bg-[#FBF6EE] flex items-center justify-center shrink-0" style={{ width: 52, height: 52 }}>
-                    <ShieldCheck className="h-6 w-6 text-[#C98A75]" />
+                <div className="bg-white border border-sfb-cacau/10 rounded-xl p-5 flex gap-4 items-start">
+                  <div className="w-13 h-13 rounded-full bg-sfb-baunilha flex items-center justify-center shrink-0" style={{ width: 52, height: 52 }}>
+                    <ShieldCheck className="h-6 w-6 text-sfb-terracota" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-[15px] text-[#2A1F1A] mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                       Completude do Perfil
                     </h3>
-                    <div className="h-3 rounded-full bg-[#FBF6EE] overflow-hidden">
+                    <div className="h-3 rounded-full bg-sfb-baunilha overflow-hidden">
                       <div
-                        className="h-full bg-[#C98A75] rounded-full transition-all"
+                        className="h-full bg-sfb-terracota rounded-full transition-all"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -807,8 +807,8 @@ export default function SeusDados() {
 
                 {/* Último Acesso */}
                 <div
-                  className="border border-[#3D2F28]/10 rounded-xl p-5 flex gap-4 items-center"
-                  style={{ background: "linear-gradient(135deg, #FBF6EE 0%, #FFFFFF 100%)" }}
+                  className="border border-sfb-cacau/10 rounded-xl p-5 flex gap-4 items-center"
+                  style={{ background: "linear-gradient(135deg, var(--sfb-baunilha) 0%, #FFFFFF 100%)" }}
                 >
                   <div className="rounded-full bg-white flex items-center justify-center shrink-0 border border-[#3D2F28]/10" style={{ width: 52, height: 52 }}>
                     <Clock className="h-6 w-6 text-[#3D2F28]" />

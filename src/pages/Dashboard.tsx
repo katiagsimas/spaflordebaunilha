@@ -1014,30 +1014,30 @@ export default function Dashboard() {
     <div className="flex h-full">
       <div className="flex-1 min-w-0 space-y-6">
       {/* ===== HEADER PREMIUM (padrão Negociações, com imagem à direita) ===== */}
-      <div
-        className="relative overflow-hidden rounded-2xl border border-[#3D2F28]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
-        style={{ background: "#FAEFEB" }}
-      >
-        <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6 pr-[150px] sm:pr-[200px] lg:pr-[260px] min-h-[130px] sm:min-h-[150px] lg:min-h-[170px]">
-          <div className="flex-1 min-w-0">
-            <h1 className="font-display text-2xl font-normal leading-tight text-[#2A1F1A] sm:text-3xl lg:text-[36px]">
-              {saudacaoPorHora().texto}, {getPrimeiroNome(profile?.nome_completo, user?.email)}!
-            </h1>
-            <div className="mt-2 flex items-center gap-3">
-              <span className="h-px w-8 bg-[#C98A75] sm:w-10" />
-              <p className="text-xs italic text-[#C98A75] sm:text-sm">
-                Aqui está o resumo do seu negócio.
-              </p>
+        <div
+          className="relative overflow-hidden rounded-2xl border border-sfb-cacau/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
+          style={{ background: "var(--sfb-baunilha)" }}
+        >
+          <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6 pr-[150px] sm:pr-[200px] lg:pr-[260px] min-h-[130px] sm:min-h-[150px] lg:min-h-[170px]">
+            <div className="flex-1 min-w-0">
+              <h1 className="font-display text-2xl font-normal leading-tight text-sfb-cacau sm:text-3xl lg:text-[36px]">
+                {saudacaoPorHora().texto}, {getPrimeiroNome(profile?.nome_completo, user?.email)}!
+              </h1>
+              <div className="mt-2 flex items-center gap-3">
+                <span className="h-px w-8 bg-sfb-terracota sm:w-10" />
+                <p className="text-xs italic text-sfb-terracota sm:text-sm">
+                  Aqui está o resumo do seu negócio.
+                </p>
+              </div>
             </div>
           </div>
+          <img
+            src={saudacaoPorHora().imagem}
+            alt={saudacaoPorHora().texto}
+            aria-hidden="true"
+            className="pointer-events-none absolute right-0 top-1/2 h-[140px] w-auto -translate-y-1/2 object-contain sm:h-[180px] lg:h-[220px]"
+          />
         </div>
-        <img
-          src={saudacaoPorHora().imagem}
-          alt={saudacaoPorHora().texto}
-          aria-hidden="true"
-          className="pointer-events-none absolute right-0 top-1/2 h-[140px] w-auto -translate-y-1/2 object-contain sm:h-[180px] lg:h-[220px]"
-        />
-      </div>
 
 
       {/* ===== BOTÃO DE AJUDA + FILTROS DE PERÍODO ===== */}
@@ -1046,7 +1046,7 @@ export default function Dashboard() {
         <div className="flex items-center gap-2">
           <Label className="text-xs font-body uppercase tracking-widest text-sfb-vinho/60">Período</Label>
           <Select value={anoSelecionado.toString()} onValueChange={(v) => setAnoSelecionado(parseInt(v))}>
-            <SelectTrigger className="w-[100px] border-sfb-dourado/40 bg-sfb-creme text-sfb-vinho hover:border-sfb-dourado">
+            <SelectTrigger className="w-[100px] border-sfb-areia/40 bg-sfb-baunilha text-sfb-cacau hover:border-sfb-terracota">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -1057,7 +1057,7 @@ export default function Dashboard() {
           </Select>
 
           <Select value={mesSelecionado.toString()} onValueChange={(v) => setMesSelecionado(parseInt(v))}>
-            <SelectTrigger className="w-[130px] border-sfb-dourado/40 bg-sfb-creme text-sfb-vinho hover:border-sfb-dourado">
+            <SelectTrigger className="w-[130px] border-sfb-areia/40 bg-sfb-baunilha text-sfb-cacau hover:border-sfb-terracota">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -1080,9 +1080,9 @@ export default function Dashboard() {
             sufixo: null,
             value: financeiro.saldoAtual,
             Icon: DollarSign,
-            iconBg: "bg-sfb-vinho/10",
-            iconColor: "text-sfb-vinho",
-            accent: financeiro.saldoAtual >= 0 ? "text-sfb-vinho" : "text-sfb-coral",
+            iconBg: "bg-sfb-cacau/10",
+            iconColor: "text-sfb-cacau",
+            accent: financeiro.saldoAtual >= 0 ? "text-sfb-cacau" : "text-sfb-terracota",
             onClick: () => navigate("/financeiro/dashboard"),
           },
           {
@@ -1090,8 +1090,8 @@ export default function Dashboard() {
             sufixo: meses[mesSelecionado].slice(0, 3),
             value: financeiro.receberAberto,
             Icon: TrendingUp,
-            iconBg: "bg-sfb-dourado/15",
-            iconColor: "text-sfb-vinho",
+            iconBg: "bg-sfb-terracota/15",
+            iconColor: "text-sfb-terracota",
             accent: "text-green-700",
             onClick: () => navigate("/financeiro/contas-receber"),
           },
@@ -1100,9 +1100,9 @@ export default function Dashboard() {
             sufixo: meses[mesSelecionado].slice(0, 3),
             value: financeiro.pagarAberto,
             Icon: TrendingDown,
-            iconBg: "bg-sfb-pink/30",
-            iconColor: "text-sfb-coral",
-            accent: "text-sfb-coral",
+            iconBg: "bg-sfb-terracota/30",
+            iconColor: "text-sfb-terracota",
+            accent: "text-sfb-terracota",
             onClick: () => navigate("/financeiro/contas-pagar"),
           },
         ].map(({ label, sufixo, value, Icon, iconBg, iconColor, accent, onClick }) => (
@@ -1110,15 +1110,15 @@ export default function Dashboard() {
             key={label}
             type="button"
             onClick={onClick}
-            className="group flex items-center gap-4 rounded-2xl border border-sfb-dourado/50 bg-sfb-branco px-5 py-4 text-left shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)] transition hover:-translate-y-0.5 hover:border-sfb-dourado hover:shadow-[0_8px_24px_-12px_rgba(91,26,43,0.25)]"
+            className="group flex items-center gap-4 rounded-2xl border border-sfb-areia/50 bg-white px-5 py-4 text-left shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)] transition hover:-translate-y-0.5 hover:border-sfb-terracota hover:shadow-[0_8px_24px_-12px_rgba(91,26,43,0.25)]"
           >
-            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${iconBg} ring-1 ring-sfb-dourado/40`}>
+            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${iconBg} ring-1 ring-sfb-areia/40`}>
               <Icon className={`h-5 w-5 ${iconColor}`} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="font-display text-sm text-sfb-vinho-escuro">
+              <p className="font-display text-sm text-sfb-cacau">
                 {label}
-                {sufixo && <span className="font-body text-sfb-vinho/60"> · {sufixo}</span>}
+                {sufixo && <span className="font-body text-sfb-cacau/60"> · {sufixo}</span>}
               </p>
               <p className={`mt-0.5 font-display text-xl ${accent}`}>
                 R$ {value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
@@ -1131,20 +1131,20 @@ export default function Dashboard() {
       {/* ===== PRÓXIMAS ENTREGAS + ANIVERSARIANTES (lado a lado) ===== */}
       <div className="grid gap-4 md:grid-cols-2">
         {/* Próximas Entregas — fundo creme/pink */}
-        <div className="relative overflow-hidden rounded-2xl bg-sfb-pink/15 shadow-[0_4px_24px_-12px_rgba(91,26,43,0.15)] border border-sfb-dourado/50 transition-all duration-300 hover:shadow-[0_8px_32px_-12px_rgba(201,161,74,0.25)] hover:border-sfb-dourado">
+        <div className="relative overflow-hidden rounded-2xl bg-sfb-terracota/5 shadow-[0_4px_24px_-12px_rgba(91,26,43,0.15)] border border-sfb-areia/50 transition-all duration-300 hover:shadow-[0_8px_32px_-12px_rgba(201,161,74,0.25)] hover:border-sfb-terracota">
           <div className="relative flex items-start justify-between px-6 pt-5">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sfb-vinho/10 ring-1 ring-sfb-dourado/40">
-                <CalendarIcon className="h-5 w-5 text-sfb-vinho" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sfb-cacau/10 ring-1 ring-sfb-areia/40">
+                <CalendarIcon className="h-5 w-5 text-sfb-cacau" />
               </div>
-              <h3 className="font-display text-xl text-sfb-vinho-escuro sm:text-2xl">
+              <h3 className="font-display text-xl text-sfb-cacau sm:text-2xl">
                 Próximas Entregas
               </h3>
             </div>
             <button
               type="button"
               onClick={() => navigate("/encomendas")}
-              className="text-xs font-body italic text-sfb-vinho underline-offset-4 hover:underline"
+              className="text-xs font-body italic text-sfb-cacau underline-offset-4 hover:underline"
             >
               Ver todas
             </button>
@@ -1161,19 +1161,19 @@ export default function Dashboard() {
                 Nenhuma entrega nos próximos 7 dias
               </p>
             ) : (
-              <ul className="divide-y divide-dashed divide-sfb-dourado/30">
+              <ul className="divide-y divide-dashed divide-sfb-areia/30">
                 {proximas.slice(0, 3).map((enc) => (
                   <li
                     key={enc.id}
                     onClick={() => navigate("/encomendas")}
                     className="flex cursor-pointer items-center gap-3 py-2"
                   >
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sfb-vinho text-[10px] font-semibold text-sfb-dourado ring-1 ring-sfb-dourado/60">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sfb-cacau text-[10px] font-semibold text-sfb-baunilha ring-1 ring-sfb-areia/60">
                       {initials(enc.cliente)}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-display text-sm text-sfb-vinho">{enc.cliente}</p>
-                      <p className="text-[11px] font-body text-sfb-vinho/60">
+                      <p className="truncate font-display text-sm text-sfb-cacau">{enc.cliente}</p>
+                      <p className="text-[11px] font-body text-sfb-cacau/60">
                         {format(enc._dia, "EEE, dd/MM", { locale: ptBR })}
                         {enc.hora_entrega ? ` · ${enc.hora_entrega}` : ""}
                       </p>
@@ -1186,7 +1186,7 @@ export default function Dashboard() {
         </div>
 
         {/* Aniversariantes — fundo vinho */}
-        <div className="relative overflow-hidden rounded-2xl bg-sfb-vinho text-sfb-creme shadow-[0_4px_24px_-12px_rgba(91,26,43,0.35)]">
+        <div className="relative overflow-hidden rounded-2xl bg-sfb-cacau text-sfb-baunilha shadow-[0_4px_24px_-12px_rgba(91,26,43,0.35)]">
           <img
             src={illuPresenteVinho}
             alt=""
@@ -1195,17 +1195,17 @@ export default function Dashboard() {
           />
           <div className="relative flex items-start justify-between px-6 pt-5">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full ring-1 ring-sfb-dourado/60">
-                <Cake className="h-5 w-5 text-sfb-dourado" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full ring-1 ring-sfb-areia/60">
+                <Cake className="h-5 w-5 text-sfb-areia" />
               </div>
-              <h3 className="font-display text-xl text-sfb-creme sm:text-2xl">
+              <h3 className="font-display text-xl text-sfb-baunilha sm:text-2xl">
                 Aniversariantes este mês
               </h3>
             </div>
             <button
               type="button"
               onClick={() => navigate("/clientes")}
-              className="text-xs font-body italic text-sfb-dourado underline-offset-4 hover:underline"
+              className="text-xs font-body italic text-sfb-terracota underline-offset-4 hover:underline"
             >
               Ver clientes
             </button>
@@ -1216,19 +1216,19 @@ export default function Dashboard() {
                 Nenhum aniversariante este mês.
               </p>
             ) : (
-              <ul className="divide-y divide-dashed divide-sfb-dourado/20 pl-[42%]">
+              <ul className="divide-y divide-dashed divide-sfb-areia/20 pl-[42%]">
                 {aniversariantes.slice(0, 3).map((c: any) => {
                   const partes = (c.data_aniversario || "").split("-");
                   const dia = parseInt(partes[2] || "0");
                   return (
                     <li key={c.id} className="flex items-center gap-3 py-2">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sfb-vinho-escuro ring-1 ring-sfb-dourado/60">
-                        <Cake className="h-4 w-4 text-sfb-dourado" />
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sfb-cacau/80 ring-1 ring-sfb-areia/60">
+                        <Cake className="h-4 w-4 text-sfb-areia" />
                       </div>
-                      <p className="min-w-0 flex-1 truncate font-display text-base text-sfb-creme">
+                      <p className="min-w-0 flex-1 truncate font-display text-base text-sfb-baunilha">
                         {c.nome}
                       </p>
-                      <span className="text-xs font-body italic text-sfb-dourado/90">
+                      <span className="text-xs font-body italic text-sfb-areia/90">
                         dia {String(dia).padStart(2, "0")}
                       </span>
                     </li>
@@ -1247,7 +1247,7 @@ export default function Dashboard() {
         title="Visão econômica"
         subtitle="Faturamento, custos e lucro do período"
         headerRight={
-          <div className="inline-flex rounded-full bg-sfb-vinho-escuro/40 p-1 ring-1 ring-sfb-dourado/40">
+          <div className="inline-flex rounded-full bg-sfb-cacau/40 p-1 ring-1 ring-sfb-areia/40">
             {(["mensal", "anual"] as const).map((tab) => (
               <button
                 key={tab}
@@ -1255,8 +1255,8 @@ export default function Dashboard() {
                 onClick={() => setTabEconomica(tab)}
                 className={`rounded-full px-4 py-1 text-xs font-body uppercase tracking-widest transition ${
                   tabEconomica === tab
-                    ? "bg-sfb-dourado text-sfb-vinho-escuro shadow"
-                    : "text-sfb-creme/80 hover:text-sfb-creme"
+                    ? "bg-sfb-terracota text-sfb-baunilha shadow"
+                    : "text-sfb-baunilha/80 hover:text-sfb-baunilha"
                 }`}
               >
                 {tab}
@@ -1268,32 +1268,32 @@ export default function Dashboard() {
         {tabEconomica === "mensal" ? (
           <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
             {[
-              { label: "Faturamento", value: visaoEconomica.mensal.receitas, Icon: TrendingUp, accent: "text-sfb-vinho" },
-              { label: "Custos Totais", value: visaoEconomica.mensal.custos, Icon: TrendingDown, accent: "text-sfb-coral" },
+              { label: "Faturamento", value: visaoEconomica.mensal.receitas, Icon: TrendingUp, accent: "text-sfb-cacau" },
+              { label: "Custos Totais", value: visaoEconomica.mensal.custos, Icon: TrendingDown, accent: "text-sfb-terracota" },
               {
                 label: "Lucro Líquido",
                 value: visaoEconomica.mensal.lucro,
                 Icon: DollarSign,
-                accent: visaoEconomica.mensal.lucro >= 0 ? "text-sfb-vinho" : "text-sfb-coral",
+                accent: visaoEconomica.mensal.lucro >= 0 ? "text-sfb-cacau" : "text-sfb-terracota",
                 extra: `Margem: ${visaoEconomica.mensal.receitas > 0 ? ((visaoEconomica.mensal.lucro / visaoEconomica.mensal.receitas) * 100).toFixed(1) : 0}%`,
               },
               {
                 label: "Ticket Médio",
                 value: ticketMedio.mensal,
                 Icon: DollarSign,
-                accent: "text-sfb-vinho",
+                accent: "text-sfb-cacau",
                 extra: `Anual: R$ ${ticketMedio.anual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
               },
             ].map(({ label, value, Icon, accent, extra }) => (
-              <div key={label} className="rounded-xl border border-sfb-dourado/20 bg-sfb-branco p-3 text-center">
-                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-sfb-vinho/10 ring-1 ring-sfb-dourado/40">
-                  <Icon className="h-4 w-4 text-sfb-vinho" />
+              <div key={label} className="rounded-xl border border-sfb-areia/20 bg-white p-3 text-center">
+                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-sfb-cacau/10 ring-1 ring-sfb-areia/40">
+                  <Icon className="h-4 w-4 text-sfb-cacau" />
                 </div>
-                <p className="mt-2 text-[10px] font-body uppercase tracking-widest text-sfb-vinho/60">{label}</p>
+                <p className="mt-2 text-[10px] font-body uppercase tracking-widest text-sfb-cacau/60">{label}</p>
                 <p className={`mt-1 font-display text-lg ${accent}`}>
                   R$ {value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
-                {extra && <p className="mt-0.5 text-[10px] font-body text-sfb-vinho/60">{extra}</p>}
+                {extra && <p className="mt-0.5 text-[10px] font-body text-sfb-cacau/60">{extra}</p>}
               </div>
             ))}
 

@@ -121,9 +121,9 @@ function EncomendaTimeline({ status }: { status: string }) {
                 className={cn(
                   "h-2.5 w-2.5 rounded-full border transition-colors",
                   isCancelado && "border-rose-300 bg-rose-100",
-                  !isCancelado && reached && "border-sfb-vinho bg-sfb-vinho",
-                  !isCancelado && !reached && "border-sfb-vinho/25 bg-white",
-                  isCurrent && "ring-2 ring-sfb-dourado ring-offset-1",
+                  !isCancelado && reached && "border-sfb-terracota bg-sfb-terracota",
+                  !isCancelado && !reached && "border-sfb-terracota/25 bg-white",
+                  isCurrent && "ring-2 ring-sfb-areia ring-offset-1",
                 )}
               />
             </div>
@@ -132,8 +132,8 @@ function EncomendaTimeline({ status }: { status: string }) {
                 className={cn(
                   "h-0.5 flex-1 min-w-[8px]",
                   isCancelado && "bg-rose-200",
-                  !isCancelado && i < currentIdx && "bg-sfb-vinho",
-                  !isCancelado && i >= currentIdx && "bg-sfb-vinho/15",
+                  !isCancelado && i < currentIdx && "bg-sfb-terracota",
+                  !isCancelado && i >= currentIdx && "bg-sfb-terracota/15",
                 )}
               />
             )}
@@ -297,11 +297,11 @@ export function EncomendaStatusCard({
   ];
 
   return (
-    <div className="rounded-xl border border-[#3D2F28]/10 bg-white shadow-[0_2px_12px_-8px_rgba(91,26,43,0.10)] overflow-hidden">
+    <div className="rounded-xl border border-sfb-cacau/10 bg-white shadow-[0_2px_12px_-8px_rgba(91,26,43,0.10)] overflow-hidden">
       <button
         type="button"
         onClick={() => setExpanded((s) => !s)}
-        className="w-full p-4 flex items-center gap-3 hover:bg-[#3D2F28]/[0.02] transition-colors text-left"
+        className="w-full p-4 flex items-center gap-3 hover:bg-sfb-cacau/[0.02] transition-colors text-left"
         aria-expanded={expanded}
       >
         <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${bg}`}>
@@ -309,15 +309,15 @@ export function EncomendaStatusCard({
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-[11px] uppercase tracking-wide text-foreground/55">{label}</p>
-          <p className="font-display text-[28px] font-normal leading-none text-[#2A1F1A]">{value}</p>
+          <p className="font-display text-[28px] font-normal leading-none text-sfb-cacau">{value}</p>
         </div>
         <ChevronDown
-          className={`h-5 w-5 text-[#3D2F28]/60 transition-transform ${expanded ? "rotate-180" : ""}`}
+          className={`h-5 w-5 text-sfb-cacau/60 transition-transform ${expanded ? "rotate-180" : ""}`}
         />
       </button>
 
       {expanded && (
-        <div className="border-t border-[#3D2F28]/10 bg-[#FBF6EE]/40">
+        <div className="border-t border-sfb-cacau/10 bg-sfb-baunilha/40">
           {/* Quick chips + ordenação */}
           <div className="px-4 pt-4 flex flex-wrap items-center gap-2">
             {quickChips.map((c) => {
@@ -331,8 +331,8 @@ export function EncomendaStatusCard({
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition",
                     active
-                      ? "border-sfb-vinho bg-sfb-vinho text-sfb-creme shadow-sm"
-                      : "border-sfb-vinho/20 bg-white text-sfb-vinho hover:bg-sfb-creme/60",
+                      ? "border-sfb-terracota bg-sfb-terracota text-sfb-baunilha shadow-sm"
+                      : "border-sfb-terracota/20 bg-white text-sfb-terracota hover:bg-sfb-baunilha/60",
                   )}
                 >
                   <ChipIcon className="h-3.5 w-3.5" />

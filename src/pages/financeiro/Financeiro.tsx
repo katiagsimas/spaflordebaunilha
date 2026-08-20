@@ -337,9 +337,9 @@ export default function Financeiro() {
   const coresBanco = [
     { border: 'border-l-blue-500', text: 'text-primary', bg: 'bg-sfb-areia/10 dark:bg-sfb-areia/20' },
     { border: 'border-l-green-500', text: 'text-success', bg: 'bg-success/10 dark:bg-success/20' },
-    { border: 'border-l-sfb-pink', text: 'text-sfb-pink', bg: 'bg-sfb-pink/15 dark:bg-sfb-pink/20' },
+    { border: 'border-l-sfb-terracota', text: 'text-sfb-terracota', bg: 'bg-sfb-terracota/15 dark:bg-sfb-terracota/20' },
     { border: 'border-l-orange-500', text: 'text-warning', bg: 'bg-warning/10 dark:bg-warning/20' },
-    { border: 'border-l-sfb-pink', text: 'text-sfb-pink', bg: 'bg-sfb-pink/10 dark:bg-sfb-pink/20' },
+    { border: 'border-l-sfb-terracota', text: 'text-sfb-terracota', bg: 'bg-sfb-terracota/10 dark:bg-sfb-terracota/20' },
     { border: 'border-l-cyan-500', text: 'text-cyan-600', bg: 'bg-cyan-50 dark:bg-cyan-950' },
     { border: 'border-l-indigo-500', text: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-950' },
     { border: 'border-l-teal-500', text: 'text-teal-600', bg: 'bg-teal-50 dark:bg-teal-950' },
@@ -369,7 +369,7 @@ export default function Financeiro() {
           {/* ===== HEADER PREMIUM ===== */}
           <div
             className="relative overflow-hidden rounded-2xl border border-sfb-cacau/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
-            style={{ background: "#FAEFEB" }}
+            style={{ background: "var(--sfb-baunilha)" }}
           >
             <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6 pr-[150px] sm:pr-[200px] lg:pr-[260px] min-h-[130px] sm:min-h-[150px] lg:min-h-[170px]">
               <div className="flex-1 min-w-0">
