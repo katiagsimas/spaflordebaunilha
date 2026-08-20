@@ -168,8 +168,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <div className="flex h-full items-center px-4 gap-3">
               <div className="flex items-center gap-3 min-w-0">
                 <SidebarToggleLabeled />
-                <div className="h-6 w-px bg-sfb-creme/30 hidden sm:block" />
-                <UserGreeting />
               </div>
               <div className="flex-1 flex items-center justify-center">
                 <MotherPlanSelector />
