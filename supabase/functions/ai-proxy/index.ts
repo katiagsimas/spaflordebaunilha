@@ -77,7 +77,6 @@ Deno.serve(async (req) => {
 
     const { data: profile } = await admin
       .from('profiles')
-      .select('plano_id, ativo')
       .eq('id', userId)
       .single()
 
@@ -87,11 +86,9 @@ Deno.serve(async (req) => {
       })
     }
 
-    const planoId = profile.plano_id || 'base'
 
     const { data: quotaResult, error: quotaError } = await admin.rpc('check_and_increment_ai_quota', {
       p_user_id: userId,
-      p_plano_id: planoId,
     })
 
     if (quotaError) {
