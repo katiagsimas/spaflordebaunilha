@@ -31,7 +31,6 @@ import {
   Loader2,
   ArrowRight
 } from "lucide-react";
-import { usePlano } from "@/hooks/usePlano";
 import { useModuleHelp } from "@/hooks/useModuleHelp";
 import { HelpButton } from "@/components/help/HelpButton";
 import { ModuleHelpDrawer } from "@/components/help/ModuleHelpDrawer";
@@ -114,7 +113,6 @@ export default function Dashboard() {
   });
   const [diaSelecionado, setDiaSelecionado] = useState(new Date());
   const [loading, setLoading] = useState(true);
-  const { plano } = usePlano();
   const { isAdmin } = useIsAdmin();
   const { isHelpOpen, toggleHelp, closeHelp } = useModuleHelp();
 

@@ -16,11 +16,9 @@ import { LoadingMascote } from "@/components/LoadingMascote";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 import { FloatingNavigation } from "@/components/FloatingNavigation";
-import { AlertaExpiracaoPlano } from "@/components/AlertaExpiracaoPlano";
-import { PlanExpirationWatcher } from "@/components/PlanExpirationWatcher";
 
 import { UserMenu, UserGreeting } from "@/components/UserMenu";
-import { MotherPlanSelector } from "@/components/MotherPlanSelector";
+
 import Dashboard from "./pages/Dashboard";
 import Encomendas from "./pages/Encomendas";
 import EncomendasLista from "./pages/EncomendasLista";
@@ -80,8 +78,6 @@ import LogsAdmin from "./pages/admin/Logs";
 import Governanca from "./pages/admin/Governanca";
 import CofreBackups from "./pages/admin/CofreBackups";
 import GovernancaHub from "./pages/Governanca";
-import Upgrade from "./pages/Upgrade";
-import { PlanoGuard } from "./components/PlanoGuard";
 import { MotherGuard } from "./components/MotherGuard";
 
 import EstoqueDashboard from "./pages/estoque/EstoqueDashboard";
@@ -170,7 +166,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 <SidebarToggleLabeled />
               </div>
               <div className="flex-1 flex items-center justify-center">
-                <MotherPlanSelector />
               </div>
               <div className="flex items-center gap-2">
                 <BackupBadge texto={ultimoBackupTexto} />
@@ -180,7 +175,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             </div>
 
           </header>
-          <AlertaExpiracaoPlano />
+          
           
           <main className="flex-1 min-w-0 px-3 sm:px-4 md:px-8 pt-2 pb-6 md:pb-8 bg-app overflow-x-hidden md:overflow-x-visible">
             
@@ -207,7 +202,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <PlanExpirationWatcher />
+              
           <Routes>
             {/* Auth routes */}
             <Route path="/auth/login" element={<AuthLogin />} />
@@ -244,15 +239,15 @@ const App = () => (
           <Route path="/configuracoes" element={<ProtectedRoute><Layout><Configuracoes /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/cadastros-base" element={<ProtectedRoute><Layout><CadastrosBase /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/precificacao" element={<ProtectedRoute><Layout><PrecificacaoPage /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/financeiro" element={<ProtectedRoute><Layout><PlanoGuard><Navigate to="/financeiro/cadastros" replace /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/financeiro" element={<ProtectedRoute><Layout><Navigate to="/financeiro/cadastros" replace /></Layout></ProtectedRoute>} />
           
           <Route path="/configuracoes/precificacao/mao-de-obra" element={<ProtectedRoute><Layout><MaoDeObra /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/tipos-insumos" element={<ProtectedRoute><Layout><TiposInsumos /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/categorias-plano-contas" element={<ProtectedRoute><Layout><PlanoGuard><Navigate to="/financeiro/cadastros/categorias-plano-contas" replace /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/plano-contas" element={<ProtectedRoute><Layout><PlanoGuard><Navigate to="/financeiro/cadastros/plano-contas" replace /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/bancos" element={<ProtectedRoute><Layout><PlanoGuard><Navigate to="/financeiro/cadastros/bancos" replace /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/tipos-documentos" element={<ProtectedRoute><Layout><PlanoGuard><Navigate to="/financeiro/cadastros/tipos-documentos" replace /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/juros" element={<ProtectedRoute><Layout><PlanoGuard><Navigate to="/financeiro/cadastros/juros" replace /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/categorias-plano-contas" element={<ProtectedRoute><Layout><Navigate to="/financeiro/cadastros/categorias-plano-contas" replace /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/plano-contas" element={<ProtectedRoute><Layout><Navigate to="/financeiro/cadastros/plano-contas" replace /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/bancos" element={<ProtectedRoute><Layout><Navigate to="/financeiro/cadastros/bancos" replace /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/tipos-documentos" element={<ProtectedRoute><Layout><Navigate to="/financeiro/cadastros/tipos-documentos" replace /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/juros" element={<ProtectedRoute><Layout><Navigate to="/financeiro/cadastros/juros" replace /></Layout></ProtectedRoute>} />
           <Route path="/encomendas/tags" element={<ProtectedRoute><Layout><TagsEncomendasPage /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/tags-encomendas" element={<Navigate to="/encomendas/tags" replace />} />
           <Route path="/configuracoes/backup" element={<ProtectedRoute><Layout><BackupPage /></Layout></ProtectedRoute>} />
@@ -271,58 +266,58 @@ const App = () => (
           <Route path="/precificacao/pre-preparos/:id" element={<ProtectedRoute><Layout><PrePreparoForm /></Layout></ProtectedRoute>} />
           
           {/* Financeiro - Página Principal */}
-          <Route path="/financeiro" element={<ProtectedRoute><Layout><PlanoGuard><Financeiro /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/financeiro/cadastros" element={<ProtectedRoute><Layout><PlanoGuard><CadastrosFinanceiroPage /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/financeiro/cadastros/bancos" element={<ProtectedRoute><Layout><PlanoGuard><Bancos /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/financeiro/cadastros/tipos-documentos" element={<ProtectedRoute><Layout><PlanoGuard><TiposDocumentos /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/financeiro/cadastros/categorias-plano-contas" element={<ProtectedRoute><Layout><PlanoGuard><CategoriasPlanoContas /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/financeiro/cadastros/plano-contas" element={<ProtectedRoute><Layout><PlanoGuard><PlanoContas /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/financeiro/cadastros/juros" element={<ProtectedRoute><Layout><PlanoGuard><ConfiguracaoJurosPage /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/financeiro/dashboard" element={<ProtectedRoute><Layout><PlanoGuard><DashboardFinanceiro /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/financeiro" element={<ProtectedRoute><Layout><Financeiro /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/cadastros" element={<ProtectedRoute><Layout><CadastrosFinanceiroPage /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/cadastros/bancos" element={<ProtectedRoute><Layout><Bancos /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/cadastros/tipos-documentos" element={<ProtectedRoute><Layout><TiposDocumentos /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/cadastros/categorias-plano-contas" element={<ProtectedRoute><Layout><CategoriasPlanoContas /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/cadastros/plano-contas" element={<ProtectedRoute><Layout><PlanoContas /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/cadastros/juros" element={<ProtectedRoute><Layout><ConfiguracaoJurosPage /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/dashboard" element={<ProtectedRoute><Layout><DashboardFinanceiro /></Layout></ProtectedRoute>} />
           
           {/* Financeiro - Contas a Receber */}
-          <Route path="/financeiro/contas-receber" element={<ProtectedRoute><Layout><PlanoGuard><ContasReceber /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/financeiro/contas-receber/nova" element={<ProtectedRoute><Layout><PlanoGuard><ContasReceberForm /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/financeiro/contas-receber/editar/:id" element={<ProtectedRoute><Layout><PlanoGuard><ContasReceberForm /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/financeiro/contas-receber/detalhes/:id" element={<ProtectedRoute><Layout><PlanoGuard><ContasReceberDetalhes /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/contas-receber" element={<ProtectedRoute><Layout><ContasReceber /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/contas-receber/nova" element={<ProtectedRoute><Layout><ContasReceberForm /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/contas-receber/editar/:id" element={<ProtectedRoute><Layout><ContasReceberForm /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/contas-receber/detalhes/:id" element={<ProtectedRoute><Layout><ContasReceberDetalhes /></Layout></ProtectedRoute>} />
           
           {/* Financeiro - Contas a Pagar */}
-          <Route path="/financeiro/contas-pagar" element={<ProtectedRoute><Layout><PlanoGuard><ContasPagar /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/financeiro/contas-pagar/nova" element={<ProtectedRoute><Layout><PlanoGuard><ContasPagarForm /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/financeiro/contas-pagar/editar/:id" element={<ProtectedRoute><Layout><PlanoGuard><ContasPagarForm /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/financeiro/contas-pagar/detalhes/:id" element={<ProtectedRoute><Layout><PlanoGuard><ContasPagarDetalhes /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/contas-pagar" element={<ProtectedRoute><Layout><ContasPagar /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/contas-pagar/nova" element={<ProtectedRoute><Layout><ContasPagarForm /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/contas-pagar/editar/:id" element={<ProtectedRoute><Layout><ContasPagarForm /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/contas-pagar/detalhes/:id" element={<ProtectedRoute><Layout><ContasPagarDetalhes /></Layout></ProtectedRoute>} />
           
           {/* Financeiro - Fluxo de Caixa */}
-          <Route path="/financeiro/fluxo-caixa" element={<ProtectedRoute><Layout><PlanoGuard><FluxoCaixaHub /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/financeiro/fluxo-caixa/diario" element={<ProtectedRoute><Layout><PlanoGuard><FluxoCaixaDiario /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/financeiro/fluxo-caixa/mensal" element={<ProtectedRoute><Layout><PlanoGuard><FluxoCaixaMensal /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/fluxo-caixa" element={<ProtectedRoute><Layout><FluxoCaixaHub /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/fluxo-caixa/diario" element={<ProtectedRoute><Layout><FluxoCaixaDiario /></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/fluxo-caixa/mensal" element={<ProtectedRoute><Layout><FluxoCaixaMensal /></Layout></ProtectedRoute>} />
           
           {/* Financeiro - DRE */}
-          <Route path="/financeiro/dre" element={<ProtectedRoute><Layout><PlanoGuard><DRE /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/dre" element={<ProtectedRoute><Layout><DRE /></Layout></ProtectedRoute>} />
 
           {/* Financeiro - Fechamento de Mês */}
-          <Route path="/financeiro/fechamento-mes" element={<ProtectedRoute><Layout><PlanoGuard><FechamentoMes /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/financeiro/fechamento-mes" element={<ProtectedRoute><Layout><FechamentoMes /></Layout></ProtectedRoute>} />
           
           {/* Estoque */}
-          <Route path="/estoque" element={<ProtectedRoute><Layout><PlanoGuard><EstoqueDashboard /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/estoque/entrada" element={<ProtectedRoute><Layout><PlanoGuard><EstoqueEntrada /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/estoque/ajuste" element={<ProtectedRoute><Layout><PlanoGuard><EstoqueAjuste /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/estoque/movimentacoes" element={<ProtectedRoute><Layout><PlanoGuard><EstoqueMovimentacoes /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/estoque" element={<ProtectedRoute><Layout><EstoqueDashboard /></Layout></ProtectedRoute>} />
+          <Route path="/estoque/entrada" element={<ProtectedRoute><Layout><EstoqueEntrada /></Layout></ProtectedRoute>} />
+          <Route path="/estoque/ajuste" element={<ProtectedRoute><Layout><EstoqueAjuste /></Layout></ProtectedRoute>} />
+          <Route path="/estoque/movimentacoes" element={<ProtectedRoute><Layout><EstoqueMovimentacoes /></Layout></ProtectedRoute>} />
           
           
 
           {/* Meu Salário (Renda Doce) */}
-          <Route path="/meu-salario" element={<ProtectedRoute><Layout><PlanoGuard><MeuSalario /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/meu-salario" element={<ProtectedRoute><Layout><MeuSalario /></Layout></ProtectedRoute>} />
 
 
 
           {/* Comercial — Propostas e Contratos (Business + Imersão + Mother) */}
-          <Route path="/comercial/negociacoes" element={<ProtectedRoute><Layout><PlanoGuard><Negociacoes /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/comercial/propostas" element={<ProtectedRoute><Layout><PlanoGuard><Propostas /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/comercial/propostas/nova" element={<ProtectedRoute><Layout><PlanoGuard><NovaProposta /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/comercial/propostas/editar/:id" element={<ProtectedRoute><Layout><PlanoGuard><NovaProposta /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/comercial/propostas/relatorio" element={<ProtectedRoute><Layout><PlanoGuard><RelatorioPropostas /></PlanoGuard></Layout></ProtectedRoute>} />
-          <Route path="/comercial/contratos" element={<ProtectedRoute><Layout><PlanoGuard><Contratos /></PlanoGuard></Layout></ProtectedRoute>} />
+          <Route path="/comercial/negociacoes" element={<ProtectedRoute><Layout><Negociacoes /></Layout></ProtectedRoute>} />
+          <Route path="/comercial/propostas" element={<ProtectedRoute><Layout><Propostas /></Layout></ProtectedRoute>} />
+          <Route path="/comercial/propostas/nova" element={<ProtectedRoute><Layout><NovaProposta /></Layout></ProtectedRoute>} />
+          <Route path="/comercial/propostas/editar/:id" element={<ProtectedRoute><Layout><NovaProposta /></Layout></ProtectedRoute>} />
+          <Route path="/comercial/propostas/relatorio" element={<ProtectedRoute><Layout><RelatorioPropostas /></Layout></ProtectedRoute>} />
+          <Route path="/comercial/contratos" element={<ProtectedRoute><Layout><Contratos /></Layout></ProtectedRoute>} />
 
 
 
@@ -334,8 +329,6 @@ const App = () => (
           <Route path="/admin/cofre-backups" element={<ProtectedRoute><Layout><CofreBackups /></Layout></ProtectedRoute>} />
           <Route path="/governanca" element={<ProtectedRoute><Layout><GovernancaHub /></Layout></ProtectedRoute>} />
           
-          {/* Upgrade */}
-          <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
           </Routes>
