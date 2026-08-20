@@ -13,7 +13,8 @@ import { Lock, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { validarSenhaForte } from '@/lib/validacaoSenha';
-import sfbIcon from '@/assets/sfb-logo-full.png';
+import sfbIconAsset from '@/assets/sfb-logo-full.png.asset.json';
+const sfbIcon = sfbIconAsset.url;
 import { AuthSplitLayout } from '@/components/auth/AuthSplitLayout';
 
 

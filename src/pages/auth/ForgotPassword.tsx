@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Loader2, Mail } from 'lucide-react';
-import sfbIcon from '@/assets/sfb-logo-full.png';
+import sfbIconAsset from '@/assets/sfb-logo-full.png.asset.json';
+const sfbIcon = sfbIconAsset.url;
 import { AuthSplitLayout } from '@/components/auth/AuthSplitLayout';
 
 import { BackButton } from '@/components/BackButton';
