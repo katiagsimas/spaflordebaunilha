@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: Quando clico sobre os cards, sobe um alerta informando que o Módulo ainda está em desenvolvimento, favor verificare corrigir
+// Execute esta instrucao no projeto: No card "Produtos para Revenda", crie uma página dedicada para este card, ou seja, quando o usuário clicar sobre o card "Produtos para Revenda" sistema abrirá esta página dedicada. Mova os cards "Natura, Avon e Casa & Estilo" para dentro desta página
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -91,6 +91,7 @@ import NovaProposta from "./pages/comercial/NovaProposta";
 import RelatorioPropostas from "./pages/comercial/RelatorioPropostas";
 import Contratos from "./pages/comercial/Contratos";
 import Negociacoes from "./pages/comercial/Negociacoes";
+import ProdutosRevenda from "./pages/ProdutosRevenda";
 
 
 
@@ -255,6 +256,7 @@ const App = () => (
           <Route path="/configuracoes/categorias" element={<ProtectedRoute><Layout><Categorias /></Layout></ProtectedRoute>} />
           
           <Route path="/configuracoes/unidades-medida" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros/produtos-revenda" element={<ProtectedRoute><Layout><ProdutosRevenda /></Layout></ProtectedRoute>} />
           
           {/* Precificação - Ingredientes e Embalagens */}
           <Route path="/precificacao/ingredientes" element={<ProtectedRoute><Layout><Ingredientes /></Layout></ProtectedRoute>} />
