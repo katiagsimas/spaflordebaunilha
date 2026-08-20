@@ -8,7 +8,7 @@ export function FraseRendaDoce() {
   );
   return (
     <div className="text-center py-6">
-      <p className="text-base md:text-lg italic text-[hsl(var(--rd-dourado))] font-light">
+      <p className="text-base md:text-lg italic text-sfb-terracota font-light">
         “{frase}”
       </p>
     </div>
