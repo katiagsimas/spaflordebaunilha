@@ -411,7 +411,7 @@ export default function TiposDocumentos() {
           <TableBody>
             {tiposFiltrados.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                   {termoBusca 
                     ? 'Nenhum tipo encontrado.' 
                     : 'Nenhum tipo cadastrado.'}
