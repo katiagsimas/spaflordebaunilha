@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: Cadastre as categorias "Plástica dos Pés", "Descartáveis", "Utensílios", "Uso Geral", "Spa Facial", garanta persistência no banco de dados
+// Execute esta instrucao no projeto: Em Cadastros / Unidades de Medidas, cadastre "Mililitros"
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
