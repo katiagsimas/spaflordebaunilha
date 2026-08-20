@@ -2567,6 +2567,69 @@ export type Database = {
           },
         ]
       }
+      produtos_revenda: {
+        Row: {
+          categoria_id: string | null
+          codigo: string | null
+          created_at: string
+          descricao: string
+          id: string
+          linha: string | null
+          marca: string
+          owner_group_id: string | null
+          quantidade_ml: string | null
+          quantidade_pontos: number | null
+          status: string | null
+          updated_at: string
+          usuario_id: string | null
+        }
+        Insert: {
+          categoria_id?: string | null
+          codigo?: string | null
+          created_at?: string
+          descricao: string
+          id?: string
+          linha?: string | null
+          marca: string
+          owner_group_id?: string | null
+          quantidade_ml?: string | null
+          quantidade_pontos?: number | null
+          status?: string | null
+          updated_at?: string
+          usuario_id?: string | null
+        }
+        Update: {
+          categoria_id?: string | null
+          codigo?: string | null
+          created_at?: string
+          descricao?: string
+          id?: string
+          linha?: string | null
+          marca?: string
+          owner_group_id?: string | null
+          quantidade_ml?: string | null
+          quantidade_pontos?: number | null
+          status?: string | null
+          updated_at?: string
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "produtos_revenda_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "produtos_revenda_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           alerta_cmv: number | null
