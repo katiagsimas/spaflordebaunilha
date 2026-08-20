@@ -554,7 +554,7 @@ export default function Financeiro() {
           </button>
           <button
             onClick={() => navigate(-1)}
-            className="w-11 h-11 rounded-full bg-sfb-cacau text-sfb-baunilha flex items-center justify-center shadow-lg hover:opacity-90 transition"
+            className="w-11 h-11 rounded-full bg-sfb-terracota text-sfb-baunilha flex items-center justify-center shadow-lg hover:bg-sfb-terracota/90 transition"
             aria-label="Voltar"
           >
             <ChevronLeft className="h-5 w-5" />
