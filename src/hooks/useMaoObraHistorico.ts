@@ -24,43 +24,42 @@ export function useMaoObraHistorico(perfilId?: string, dataInicial?: string, dat
     queryFn: async () => {
       if (!userId || !activeGroupId) return [];
       
-      const { data, error } = await supabase
+      let query = supabase
         .from("mao_obra_perfis_historico")
         .select("*, mao_obra_perfis(nome)")
-        .eq("user_id", userId)
+        .eq("owner_group_id", activeGroupId)
         .order("registrado_em", { ascending: false });
+
+      if (perfilId) {
+        query = query.eq("perfil_id", perfilId);
+      }
+
+      if (dataInicial) {
+        query = query.gte("registrado_em", dataInicial);
+      }
+
+      if (dataFinal) {
+        query = query.lte("registrado_em", dataFinal + "T23:59:59");
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error("Erro ao buscar histórico:", error);
         throw error;
       }
       
-      let filteredData = (data || []).map((item: any) => ({
+      return (data || []).map((item: any) => ({
         id: item.id,
         perfil_id: item.perfil_id,
         user_id: item.user_id,
-        owner_group_id: null,
+        owner_group_id: item.owner_group_id,
         valor_antigo: item.valor_antigo,
         valor_novo: item.valor_novo,
         acao: item.acao,
         registrado_em: item.registrado_em,
         perfil_nome: item.mao_obra_perfis?.nome || "Perfil removido"
       })) as MaoObraHistorico[];
-
-      if (perfilId) {
-        filteredData = filteredData.filter(item => item.perfil_id === perfilId);
-      }
-
-      if (dataInicial) {
-        filteredData = filteredData.filter(item => item.registrado_em >= dataInicial);
-      }
-
-      if (dataFinal) {
-        const endDate = dataFinal + "T23:59:59";
-        filteredData = filteredData.filter(item => item.registrado_em <= endDate);
-      }
-      
-      return filteredData;
     },
     enabled: !!userId && !!activeGroupId,
   });
