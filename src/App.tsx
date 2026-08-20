@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: Reestruture a seção "Minha Produção" para refletir a consultora de beleza (Produtos Natura/Avon/Avon Casa & Estilo) e os serviços de Spa Facial e Spa dos Pés com um fluxo de plano de produção
+// Execute esta instrucao no projeto: ué, você não fez nenhuma alteração no projeto???
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
