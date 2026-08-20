@@ -14,8 +14,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { validarSenhaForte } from '@/lib/validacaoSenha';
 import sfbIcon from '@/assets/sfb-logo-full.png';
-import authBrandImage from '@/assets/auth-brand-image.png';
-import authBackgroundAsset from '@/assets/auth-background.png.asset.json';
+import { AuthSplitLayout } from '@/components/auth/AuthSplitLayout';
+
 
 const resetPasswordSchema = z.object({
   password: z.string().min(6, 'A senha deve ter no mínimo 6 caracteres'),
