@@ -92,6 +92,7 @@ import RelatorioPropostas from "./pages/comercial/RelatorioPropostas";
 import Contratos from "./pages/comercial/Contratos";
 import Negociacoes from "./pages/comercial/Negociacoes";
 import ProdutosRevenda from "./pages/ProdutosRevenda";
+import MarcaRevendaPage from "./pages/MarcaRevendaPage";
 
 
 
@@ -257,6 +258,7 @@ const App = () => (
           
           <Route path="/configuracoes/unidades-medida" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
           <Route path="/cadastros/produtos-revenda" element={<ProtectedRoute><Layout><ProdutosRevenda /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros/produtos-revenda/:marca" element={<ProtectedRoute><Layout><MarcaRevendaPage /></Layout></ProtectedRoute>} />
           
           {/* Precificação - Ingredientes e Embalagens */}
           <Route path="/precificacao/ingredientes" element={<ProtectedRoute><Layout><Ingredientes /></Layout></ProtectedRoute>} />

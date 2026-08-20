@@ -20,21 +20,26 @@ export interface ProdutoRevenda {
   updated_at?: string;
 }
 
-export function useProdutosRevenda() {
+export function useProdutosRevenda(marca?: 'natura' | 'avon' | 'casa_estilo') {
   const userId = useUserId();
   const { activeGroupId } = useGroup();
   const queryClient = useQueryClient();
 
   const { data: produtos = [], isLoading: loading } = useQuery({
-    queryKey: ['produtos_revenda', userId, activeGroupId],
+    queryKey: ['produtos_revenda', userId, activeGroupId, marca],
     queryFn: async () => {
       if (!userId || !activeGroupId) return [];
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('produtos_revenda')
         .select('*')
-        .eq('owner_group_id', activeGroupId)
-        .order('descricao');
+        .eq('owner_group_id', activeGroupId);
+      
+      if (marca) {
+        query = query.eq('marca', marca);
+      }
+
+      const { data, error } = await query.order('descricao');
 
       if (error) throw error;
       return (data || []) as ProdutoRevenda[];
