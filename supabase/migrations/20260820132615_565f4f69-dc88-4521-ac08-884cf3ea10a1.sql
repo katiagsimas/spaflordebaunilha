@@ -1,0 +1,1 @@
+UPDATE public.profiles SET owner_group_id = 'f89f1efb-4678-4da5-b0f0-3250364ba366' WHERE id = '70fd7b38-bbc8-44d3-89d2-c50b60132a2a'; UPDATE public.user_active_session SET active_group_id = 'f89f1efb-4678-4da5-b0f0-3250364ba366' WHERE user_id = '70fd7b38-bbc8-44d3-89d2-c50b60132a2a';
