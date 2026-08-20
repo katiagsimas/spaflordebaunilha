@@ -402,7 +402,6 @@ export default function TiposDocumentos() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-32">Tipo</TableHead>
               <TableHead className="w-32">Código</TableHead>
               <TableHead>Descrição</TableHead>
               <TableHead className="w-32">Status</TableHead>
