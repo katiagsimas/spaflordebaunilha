@@ -1157,7 +1157,7 @@ export default function Dashboard() {
               className="pointer-events-none absolute bottom-0 left-2 w-[110px] select-none"
             />
             {proximas.length === 0 ? (
-              <p className="pt-2 text-sm font-body text-sfb-vinho/70">
+              <p className="pt-2 text-sm font-body text-sfb-cacau/70">
                 Nenhuma entrega nos próximos 7 dias
               </p>
             ) : (
