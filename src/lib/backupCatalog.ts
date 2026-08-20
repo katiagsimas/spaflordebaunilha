@@ -74,8 +74,8 @@ export const BACKUP_MODULOS: BackupModuloDef[] = [
       "bancos",
       "saldos_iniciais_bancos",
       "transferencias_bancos",
-      "plano_contas",
       "categorias_plano_contas",
+      "categorias_categorias_plano_contas",
       "tipos_documento",
       "contas_receber",
       "contas_receber_parcelas",
@@ -114,7 +114,6 @@ export const BACKUP_MODULOS: BackupModuloDef[] = [
       "user_group_roles",
       "user_roles",
       "profiles",
-      "historico_planos",
     ],
   },
 ];
