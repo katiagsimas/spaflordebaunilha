@@ -587,7 +587,7 @@ export default function ContasPagarDetalhes() {
       pago: <Badge className="bg-success/15 text-success border-success/40">Pago</Badge>,
       pagamento_parcial: <Badge className="bg-warning/15 text-warning border-warning/40">Pagamento Parcial</Badge>,
       atrasado: <Badge className="bg-sfb-coral/15 text-sfb-coral border-sfb-coral/40">Atrasado</Badge>,
-      adiantado: <Badge className="bg-sfb-dourado/15 text-primary border-sfb-dourado/40">Adiantado</Badge>,
+      adiantado: <Badge className="bg-sfb-areia/15 text-primary border-sfb-areia/40">Adiantado</Badge>,
     };
     return badges[status] || <Badge variant="outline">{status}</Badge>;
   };
@@ -595,7 +595,7 @@ export default function ContasPagarDetalhes() {
   const getBadgeTipoLancamento = (tipo: string) => {
     const badges: Record<string, JSX.Element> = {
       unico: <Badge variant="outline" className="bg-muted/50">Único</Badge>,
-      parcelado: <Badge variant="outline" className="bg-sfb-dourado/15 text-primary border-sfb-dourado/40">Parcelado</Badge>,
+      parcelado: <Badge variant="outline" className="bg-sfb-areia/15 text-primary border-sfb-areia/40">Parcelado</Badge>,
       recorrente: <Badge variant="outline" className="bg-sfb-pink/20 text-sfb-pink border-sfb-pink/40">Recorrente</Badge>,
     };
     return badges[tipo] || <Badge variant="outline">{tipo}</Badge>;

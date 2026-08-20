@@ -768,7 +768,7 @@ export default function ContasPagar() {
       pago: <Badge className="bg-success/15 text-success border-success/40">Pago</Badge>,
       pagamento_parcial: <Badge className="bg-warning/15 text-warning border-warning/40">Pagamento Parcial</Badge>,
       atrasado: <Badge className="bg-sfb-coral/15 text-sfb-coral border-sfb-coral/40">Atrasado</Badge>,
-      adiantado: <Badge className="bg-sfb-dourado/15 text-primary border-sfb-dourado/40">Adiantado</Badge>,
+      adiantado: <Badge className="bg-sfb-areia/15 text-primary border-sfb-areia/40">Adiantado</Badge>,
     };
     return badges[status] || <Badge variant="outline">{status}</Badge>;
   };
@@ -841,7 +841,7 @@ export default function ContasPagar() {
         <Card className="border-l-4 border-l-blue-500">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-sfb-dourado/15 rounded-lg">
+              <div className="p-2 bg-sfb-areia/15 rounded-lg">
                 <Calendar className="h-4 w-4 text-primary" />
               </div>
               <div>
@@ -1165,7 +1165,7 @@ export default function ContasPagar() {
 
       {/* Barra de Ações em Lote */}
       {modoSelecao && parcelasSelecionadas.size > 0 && (
-        <div className="bg-sfb-dourado/10 border border-sfb-dourado/40 rounded-lg p-4 flex items-center justify-between">
+        <div className="bg-sfb-areia/10 border border-sfb-areia/40 rounded-lg p-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-primary" />
             <span className="font-medium">
@@ -1342,14 +1342,14 @@ export default function ContasPagar() {
 
           <div className="space-y-4 py-4">
             {/* Resumo das Parcelas */}
-            <div className="p-4 bg-sfb-dourado/10 border border-sfb-dourado/40 rounded-lg space-y-2">
+            <div className="p-4 bg-sfb-areia/10 border border-sfb-areia/40 rounded-lg space-y-2">
               <h4 className="font-medium">Parcelas Selecionadas:</h4>
               <div className="text-sm space-y-1 max-h-40 overflow-y-auto">
                 {parcelasFiltradas
                   .filter((p: any) => parcelasSelecionadas.has(p.id) && 
                     (p.status === 'aberto' || p.status === 'atrasado' || p.status === 'pagamento_parcial'))
                   .map((p: any) => (
-                    <div key={p.id} className="flex justify-between py-1 border-b border-sfb-dourado/40">
+                    <div key={p.id} className="flex justify-between py-1 border-b border-sfb-areia/40">
                       <span>
                         {p.fornecedor_nome} - Parcela {p.numero_parcela}/{p.numero_parcelas}
                       </span>
@@ -1359,7 +1359,7 @@ export default function ContasPagar() {
                     </div>
                   ))}
               </div>
-              <div className="flex justify-between pt-2 border-t border-sfb-dourado/40 font-bold">
+              <div className="flex justify-between pt-2 border-t border-sfb-areia/40 font-bold">
                 <span>Total a Pagar:</span>
                 <span className="text-sfb-coral">
                   {formatarValor(

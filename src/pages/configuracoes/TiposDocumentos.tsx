@@ -359,9 +359,9 @@ export default function TiposDocumentos() {
       />
 
       {/* Alert */}
-      <Alert className="bg-sfb-creme border-2 border-sfb-dourado">
-        <Info className="h-4 w-4 text-sfb-vinho" />
-        <AlertDescription className="text-sfb-preto">
+      <Alert className="bg-sfb-creme border-2 border-sfb-areia">
+        <Info className="h-4 w-4 text-sfb-cacau" />
+        <AlertDescription className="text-sfb-cacau">
           O sistema já cadastrou 14 tipos de documentos mais comuns.
           Você pode criar tipos personalizados conforme sua necessidade.
         </AlertDescription>

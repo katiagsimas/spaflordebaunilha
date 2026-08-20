@@ -31,7 +31,7 @@ function formatDateBR(iso: string | null) {
 
 const STATUS_COLOR: Record<ContratoStatus, string> = {
   rascunho: "bg-muted text-muted-foreground",
-  enviado: "bg-sfb-dourado/20 text-sfb-vinho border border-sfb-dourado/40",
+  enviado: "bg-sfb-areia/20 text-sfb-cacau border border-sfb-areia/40",
   assinado: "bg-emerald-100 text-emerald-800 border border-emerald-300",
   cancelado: "bg-red-100 text-red-800 border border-red-300",
 };
@@ -114,12 +114,12 @@ export default function Contratos() {
           )}
           {templates.map((t) => (
             <button key={t.id} onClick={() => selectTemplate(t)} className="text-left">
-              <Card className="hover:border-sfb-dourado transition-colors cursor-pointer h-full">
+              <Card className="hover:border-sfb-areia transition-colors cursor-pointer h-full">
                 <CardContent className="p-5">
                   <div className="flex items-start gap-3">
                     <div className="text-3xl">{t.icone}</div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-sfb-vinho">{t.nome}</h3>
+                      <h3 className="font-semibold text-sfb-cacau">{t.nome}</h3>
                       {t.descricao && <p className="text-sm text-muted-foreground mt-1">{t.descricao}</p>}
                       <p className="text-xs text-sfb-dourado mt-2">{t.campos.length} campos</p>
                     </div>
@@ -144,14 +144,14 @@ export default function Contratos() {
           actions={
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => handleSave(true)}><Download className="h-4 w-4 mr-2" /> Salvar + PDF</Button>
-              <Button className="bg-sfb-vinho hover:bg-sfb-vinho-escuro text-white" onClick={() => handleSave(false)}>Salvar</Button>
+              <Button className="bg-sfb-terracota hover:bg-sfb-terracota-escuro text-sfb-baunilha" onClick={() => handleSave(false)}>Salvar</Button>
             </div>
           }
         />
         <div className="p-6 max-w-4xl mx-auto space-y-6">
           <Card>
             <CardContent className="p-6 space-y-4">
-              <h2 className="text-lg font-semibold text-sfb-vinho">Dados do cliente</h2>
+              <h2 className="text-lg font-semibold text-sfb-cacau">Dados do cliente</h2>
               <div className="grid md:grid-cols-2 gap-4">
                 <div><Label>Nome *</Label><Input value={meta.cliente_nome} onChange={(e) => setMeta((m) => ({ ...m, cliente_nome: e.target.value }))} /></div>
                 <div><Label>Telefone</Label><Input value={meta.cliente_telefone} onChange={(e) => setMeta((m) => ({ ...m, cliente_telefone: e.target.value }))} /></div>
@@ -165,7 +165,7 @@ export default function Contratos() {
 
           <Card>
             <CardContent className="p-6 space-y-4">
-              <h2 className="text-lg font-semibold text-sfb-vinho">Campos do contrato</h2>
+              <h2 className="text-lg font-semibold text-sfb-cacau">Campos do contrato</h2>
               {tpl.campos.length === 0 && <p className="text-sm text-muted-foreground">Este modelo não exige campos adicionais.</p>}
               <div className="grid md:grid-cols-2 gap-4">
                 {tpl.campos.map((c) => (
@@ -216,14 +216,14 @@ export default function Contratos() {
         title="Contratos"
         description="Gere contratos a partir de modelos prontos e acompanhe o status de cada um."
         backButton={
-          <Button variant="ghost" size="sm" className="gap-1 text-sfb-vinho" onClick={() => navigate("/comercial/negociacoes")}>
+          <Button variant="ghost" size="sm" className="gap-1 text-sfb-cacau" onClick={() => navigate("/comercial/negociacoes")}>
             <ArrowLeft className="h-4 w-4" /> Voltar
           </Button>
         }
       />
 
       <div className="px-6 pb-2 pt-4">
-        <Button className="bg-sfb-vinho hover:bg-sfb-vinho-escuro text-white" onClick={() => setView("select-template")}>
+        <Button className="bg-sfb-terracota hover:bg-sfb-terracota-escuro text-sfb-baunilha" onClick={() => setView("select-template")}>
           <Plus className="h-4 w-4 mr-2" /> Novo contrato
         </Button>
       </div>
@@ -237,19 +237,19 @@ export default function Contratos() {
             { label: "Valor total", value: brl(s?.valor_total ?? 0), icon: Coins, tone: "vinho" as const },
           ].map((kpi) => {
             const Icon = kpi.icon;
-            const ring = kpi.tone === "vinho" ? "bg-sfb-vinho/10 text-sfb-vinho" : "bg-sfb-dourado/20 text-sfb-vinho";
+            const ring = kpi.tone === "vinho" ? "bg-sfb-terracota/10 text-sfb-cacau" : "bg-sfb-areia/20 text-sfb-cacau";
             return (
               <Card
                 key={kpi.label}
-                className="rounded-2xl border border-sfb-dourado/20 bg-sfb-branco shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)]"
+                className="rounded-2xl border border-sfb-areia/20 bg-sfb-baunilha shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)]"
               >
                 <CardContent className="p-4 flex items-start gap-3">
                   <div className={`h-10 w-10 shrink-0 rounded-full flex items-center justify-center ring-1 ring-sfb-dourado/40 ${ring}`}>
                     <Icon className="h-4 w-4" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] uppercase tracking-wide font-body text-sfb-vinho/60">{kpi.label}</p>
-                    <p className="font-display text-xl text-sfb-vinho-escuro mt-0.5 truncate">{kpi.value}</p>
+                    <p className="text-[11px] uppercase tracking-wide font-body text-sfb-cacau/60">{kpi.label}</p>
+                    <p className="font-display text-xl text-sfb-cacau-escuro mt-0.5 truncate">{kpi.value}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -257,7 +257,7 @@ export default function Contratos() {
           })}
         </div>
 
-        <Card className="rounded-2xl border border-sfb-dourado/20 bg-sfb-branco shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)] overflow-hidden">
+        <Card className="rounded-2xl border border-sfb-areia/20 bg-sfb-baunilha shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)] overflow-hidden">
           <CardContent className="p-0">
             {lista.length === 0 ? (
               <div className="text-center py-16 px-6">

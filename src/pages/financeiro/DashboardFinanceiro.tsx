@@ -58,7 +58,7 @@ export default function DashboardFinanceiro() {
           </Button>
         }
         actions={
-          <Button onClick={() => setTransferenciaOpen(true)} variant="outline" className="gap-2 border-sfb-dourado/40 text-sfb-vinho hover:bg-sfb-dourado/10">
+          <Button onClick={() => setTransferenciaOpen(true)} variant="outline" className="gap-2 border-sfb-areia/40 text-sfb-cacau hover:bg-sfb-areia/10">
             <ArrowLeftRight className="h-4 w-4" />
             Transferência entre Bancos
           </Button>

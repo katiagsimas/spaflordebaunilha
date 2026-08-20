@@ -239,7 +239,7 @@ export default function FluxoCaixaDiario() {
           <CardContent className="py-3 px-4">
             <div className="flex items-end gap-3">
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-sfb-vinho/70">Ano</label>
+                <label className="text-xs font-medium text-sfb-cacau/70">Ano</label>
                 <Select value={ano.toString()} onValueChange={(value) => setAno(parseInt(value))}>
                   <SelectTrigger className="h-9 w-[110px]">
                     <SelectValue />
@@ -255,7 +255,7 @@ export default function FluxoCaixaDiario() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-sfb-vinho/70">Mês</label>
+                <label className="text-xs font-medium text-sfb-cacau/70">Mês</label>
                 <Select value={mes.toString()} onValueChange={(value) => setMes(parseInt(value))}>
                   <SelectTrigger className="h-9 w-[150px]">
                     <SelectValue />
@@ -273,12 +273,12 @@ export default function FluxoCaixaDiario() {
           </CardContent>
         </Card>
 
-        <Card className="w-fit border-2 border-sfb-dourado bg-sfb-vinho">
+        <Card className="w-fit border-2 border-sfb-areia bg-sfb-terracota">
           <CardContent className="py-3 px-4">
             <button
               type="button"
               onClick={() => navigate("/financeiro/fluxo-caixa/mensal")}
-              className="h-9 px-2 text-sm font-medium text-white hover:text-sfb-dourado transition-colors"
+              className="h-9 px-2 text-sm font-medium text-sfb-baunilha hover:text-sfb-dourado transition-colors"
             >
               Ver Fluxo Mensal →
             </button>
@@ -396,7 +396,7 @@ export default function FluxoCaixaDiario() {
                   fluxo.map((item, index) => (
                     <TableRow 
                       key={index}
-                      className={item.entradas > 0 || item.saidas > 0 ? "bg-sfb-dourado/10/30" : ""}
+                      className={item.entradas > 0 || item.saidas > 0 ? "bg-sfb-areia/10/30" : ""}
                     >
                       <TableCell className="font-medium">
                         {format(item.dia, "dd", { locale: ptBR })}
