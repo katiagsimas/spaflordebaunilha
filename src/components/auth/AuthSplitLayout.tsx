@@ -22,8 +22,8 @@ export function AuthSplitLayout({ children }: AuthSplitLayoutProps) {
       </aside>
 
       {/* Área do formulário */}
-      <main className="flex-1 flex items-center justify-center p-6 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.04]" style={{
+      <main className="flex-1 flex items-center justify-center p-6 relative overflow-hidden backdrop-blur-[2px]">
+        <div className="absolute inset-0 opacity-[0.02]" style={{
           backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--foreground)) 1px, transparent 0)',
           backgroundSize: '40px 40px',
         }} />
