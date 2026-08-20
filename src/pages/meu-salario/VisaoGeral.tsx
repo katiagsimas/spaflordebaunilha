@@ -23,13 +23,13 @@ import {
   Tooltip,
 } from "recharts";
 
-const PLAYFAIR = "'Playfair Display', serif";
+const PLAYFAIR = "'Cormorant Garamond', serif";
 
-const COR_DOURADO = "#C9A14A";
-const COR_VINHO = "#5B1A2B";
-const COR_VINHO_ESCURO = "#3D0F1C";
+const COR_DOURADO = "#C98A75";
+const COR_VINHO = "#3D2F28";
+const COR_VINHO_ESCURO = "#2A1F1A";
 
-const DISTRIB_CORES = ["#3D0F1C", "#5B1A2B", "#8B4513", "#C9A14A", "#D2B48C"];
+const DISTRIB_CORES = ["#2A1F1A", "#3D2F28", "#8B4513", "#C98A75", "#D2B48C"];
 const DISTRIB_LABELS = ["Ingredientes", "Mão de Obra", "Embalagens", "Logística", "Impostos"];
 
 export function VisaoGeral() {
@@ -94,18 +94,18 @@ export function VisaoGeral() {
     <div className="space-y-5">
       {/* Seletor de mês */}
       <div className="flex flex-col items-center gap-2">
-        <p className="text-[10px] uppercase tracking-widest text-[#3D0F1C]/50">Mês de referência</p>
+        <p className="text-[10px] uppercase tracking-widest text-[#2A1F1A]/50">Mês de referência</p>
         <div className="flex items-center gap-4">
           <button
             type="button"
             onClick={irAnterior}
             aria-label="Mês anterior"
-            className="w-9 h-9 rounded-full border border-[#5B1A2B]/20 text-[#5B1A2B] flex items-center justify-center hover:bg-[#FDF6EE] transition"
+            className="w-9 h-9 rounded-full border border-[#3D2F28]/20 text-[#3D2F28] flex items-center justify-center hover:bg-[#FBF6EE] transition"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
           <span
-            className="text-base text-[#3D0F1C] capitalize text-center min-w-[160px]"
+            className="text-base text-[#2A1F1A] capitalize text-center min-w-[160px]"
             style={{ fontFamily: PLAYFAIR }}
           >
             {resumo?.rotuloMes ?? "—"}
@@ -115,7 +115,7 @@ export function VisaoGeral() {
             onClick={irProximo}
             disabled={!podeAvancar}
             aria-label="Próximo mês"
-            className="w-9 h-9 rounded-full border border-[#5B1A2B]/20 text-[#5B1A2B] flex items-center justify-center hover:bg-[#FDF6EE] transition disabled:opacity-30 disabled:cursor-not-allowed"
+            className="w-9 h-9 rounded-full border border-[#3D2F28]/20 text-[#3D2F28] flex items-center justify-center hover:bg-[#FBF6EE] transition disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -123,16 +123,16 @@ export function VisaoGeral() {
       </div>
 
       {isLoading && (
-        <div className="text-[#5B1A2B] py-10 text-center">Preparando seu resumo...</div>
+        <div className="text-[#3D2F28] py-10 text-center">Preparando seu resumo...</div>
       )}
 
       {error && (
-        <div className="rounded-2xl border border-[#F28C82] bg-[#F28C82]/10 p-6 text-center">
-          <AlertTriangle className="h-8 w-8 text-[#F28C82] mx-auto mb-3" />
-          <h3 className="text-lg font-semibold text-[#3D0F1C]">
+        <div className="rounded-2xl border border-[#C98A75] bg-[#C98A75]/10 p-6 text-center">
+          <AlertTriangle className="h-8 w-8 text-[#C98A75] mx-auto mb-3" />
+          <h3 className="text-lg font-semibold text-[#2A1F1A]">
             Ainda não há informações financeiras suficientes neste mês
           </h3>
-          <p className="text-sm text-[#3D0F1C]/80 mt-2 max-w-xl mx-auto">
+          <p className="text-sm text-[#2A1F1A]/80 mt-2 max-w-xl mx-auto">
             Para calcular seu salário, precisamos de lançamentos em Contas a Receber, Contas a Pagar e Retiradas referentes ao período selecionado. Cadastre suas movimentações financeiras ou escolha outro mês de referência para visualizar o resumo.
           </p>
         </div>
@@ -143,21 +143,21 @@ export function VisaoGeral() {
         <>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* COLUNA ESQUERDA — Receita e Custo */}
-            <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5 flex flex-col">
-              <h3 className="text-[18px] text-[#3D0F1C] mb-4" style={{ fontFamily: PLAYFAIR }}>
+            <div className="bg-white border border-[#3D2F28]/10 rounded-xl p-5 flex flex-col">
+              <h3 className="text-[18px] text-[#2A1F1A] mb-4" style={{ fontFamily: PLAYFAIR }}>
                 Receita e Custo
               </h3>
 
               <div className="grid grid-cols-2 gap-4 mb-3">
                 <div>
-                  <p className="text-xs text-[#3D0F1C]/55">Receita Total</p>
-                  <p className="text-[22px] font-bold text-[#3D0F1C] leading-tight">
+                  <p className="text-xs text-[#2A1F1A]/55">Receita Total</p>
+                  <p className="text-[22px] font-bold text-[#2A1F1A] leading-tight">
                     {formatBRL(resumo.faturamento)}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs text-[#3D0F1C]/55">Lucro Bruto</p>
-                  <p className="text-base font-bold text-[#3D0F1C] leading-tight">
+                  <p className="text-xs text-[#2A1F1A]/55">Lucro Bruto</p>
+                  <p className="text-base font-bold text-[#2A1F1A] leading-tight">
                     {formatBRL(lucroBruto)}
                   </p>
                 </div>
@@ -206,8 +206,8 @@ export function VisaoGeral() {
 
               <div className="flex justify-end mt-2">
                 <div className="text-right">
-                  <p className="text-xs text-[#3D0F1C]/55">Custo Total</p>
-                  <p className="text-[22px] font-bold text-[#3D0F1C] leading-tight">
+                  <p className="text-xs text-[#2A1F1A]/55">Custo Total</p>
+                  <p className="text-[22px] font-bold text-[#2A1F1A] leading-tight">
                     {formatBRL(resumo.custos)}
                   </p>
                 </div>
@@ -217,8 +217,8 @@ export function VisaoGeral() {
             {/* COLUNA DIREITA */}
             <div className="space-y-4">
               {/* Distribuição de Custos */}
-              <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5">
-                <h3 className="text-base text-[#3D0F1C] mb-3" style={{ fontFamily: PLAYFAIR }}>
+              <div className="bg-white border border-[#3D2F28]/10 rounded-xl p-5">
+                <h3 className="text-base text-[#2A1F1A] mb-3" style={{ fontFamily: PLAYFAIR }}>
                   Distribuição de Custos
                 </h3>
                 <div className="grid grid-cols-2 gap-4 items-center">
@@ -243,14 +243,14 @@ export function VisaoGeral() {
                   <ul className="space-y-1.5">
                     {dadosDistribuicao.map((d) => (
                       <li key={d.name} className="flex items-center justify-between gap-2 text-xs">
-                        <div className="flex items-center gap-2 text-[#3D0F1C]">
+                        <div className="flex items-center gap-2 text-[#2A1F1A]">
                           <span
                             className="inline-block w-2.5 h-2.5 rounded-sm"
                             style={{ backgroundColor: d.cor }}
                           />
                           {d.name}
                         </div>
-                        <span className="text-[#3D0F1C]/50">{d.value}% Ilustrativo</span>
+                        <span className="text-[#2A1F1A]/50">{d.value}% Ilustrativo</span>
                       </li>
                     ))}
                   </ul>
@@ -259,19 +259,19 @@ export function VisaoGeral() {
 
               <div className="grid grid-cols-2 gap-4">
                 {/* Retiradas Disponíveis */}
-                <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-4">
-                  <h3 className="text-[15px] text-[#3D0F1C] mb-3" style={{ fontFamily: PLAYFAIR }}>
+                <div className="bg-white border border-[#3D2F28]/10 rounded-xl p-4">
+                  <h3 className="text-[15px] text-[#2A1F1A] mb-3" style={{ fontFamily: PLAYFAIR }}>
                     Retiradas Disponíveis
                   </h3>
-                  <p className="text-xs text-[#3D0F1C]/55">Disponível para Retirada</p>
-                  <p className="text-[26px] font-bold text-[#3D0F1C] leading-tight mt-1">
+                  <p className="text-xs text-[#2A1F1A]/55">Disponível para Retirada</p>
+                  <p className="text-[26px] font-bold text-[#2A1F1A] leading-tight mt-1">
                     {formatBRL(Math.max(0, resumo.saldoRestante))}
                   </p>
                 </div>
 
                 {/* Performance do Mês */}
-                <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-4">
-                  <h3 className="text-[15px] text-[#3D0F1C] mb-2" style={{ fontFamily: PLAYFAIR }}>
+                <div className="bg-white border border-[#3D2F28]/10 rounded-xl p-4">
+                  <h3 className="text-[15px] text-[#2A1F1A] mb-2" style={{ fontFamily: PLAYFAIR }}>
                     Performance do Mês
                   </h3>
                   <div className="h-[100px]">
@@ -306,7 +306,7 @@ export function VisaoGeral() {
             <Button
               onClick={() => exportarMeuSalarioPDF(resumo)}
               variant="outline"
-              className="border-[#C9A14A] text-[#5B1A2B] hover:bg-[#FDF6EE]"
+              className="border-[#C98A75] text-[#3D2F28] hover:bg-[#FBF6EE]"
             >
               <Download className="h-4 w-4 mr-2" />
               Salvar meu resumo

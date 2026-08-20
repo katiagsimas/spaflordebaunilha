@@ -14,7 +14,7 @@ export default function Cadastros() {
 
 
   return (
-    <div className="min-h-screen bg-[#FFF9F5] pb-24">
+    <div className="min-h-screen bg-[#FFFDF9] pb-24">
       <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
         {/* HERO BANNER padronizado */}
         <HeroBanner
@@ -36,14 +36,14 @@ export default function Cadastros() {
               navigate("/configuracoes/precificacao/mao-de-obra");
             }}
 
-            className="group text-left bg-white border-2 border-[#C9A14A]/60 rounded-xl p-5 transition-all duration-200 hover:border-[#C9A14A] hover:shadow-md"
+            className="group text-left bg-white border-2 border-[#C98A75]/60 rounded-xl p-5 transition-all duration-200 hover:border-[#C98A75] hover:shadow-md"
           >
             <div className="flex items-start gap-3">
-              <div className="w-[52px] h-[52px] rounded-full bg-[#FDF6EE] flex items-center justify-center shrink-0">
-                <Scale className="h-6 w-6 text-[#5B1A2B]" />
+              <div className="w-[52px] h-[52px] rounded-full bg-[#FBF6EE] flex items-center justify-center shrink-0">
+                <Scale className="h-6 w-6 text-[#3D2F28]" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-display text-[15px] font-semibold text-[#3D0F1C] leading-tight">
+                <p className="font-display text-[15px] font-semibold text-[#2A1F1A] leading-tight">
                   Valores de Mão de Obra
                 </p>
                 <p className="text-[12px] text-muted-foreground mt-1">
@@ -63,14 +63,14 @@ export default function Cadastros() {
               navigate("/configuracoes/unidades-medida");
             }}
 
-            className="group text-left bg-white border-2 border-[#C9A14A]/60 rounded-xl p-5 transition-all duration-200 hover:border-[#C9A14A] hover:shadow-md"
+            className="group text-left bg-white border-2 border-[#C98A75]/60 rounded-xl p-5 transition-all duration-200 hover:border-[#C98A75] hover:shadow-md"
           >
             <div className="flex items-start gap-3">
-              <div className="w-[52px] h-[52px] rounded-full bg-[#FDF6EE] flex items-center justify-center shrink-0">
-                <FlaskConical className="h-6 w-6 text-[#5B1A2B]" />
+              <div className="w-[52px] h-[52px] rounded-full bg-[#FBF6EE] flex items-center justify-center shrink-0">
+                <FlaskConical className="h-6 w-6 text-[#3D2F28]" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-display text-[15px] font-semibold text-[#3D0F1C] leading-tight">
+                <p className="font-display text-[15px] font-semibold text-[#2A1F1A] leading-tight">
                   Unidades de Medidas
                 </p>
                 <p className="text-[12px] text-muted-foreground mt-1">
@@ -90,14 +90,14 @@ export default function Cadastros() {
               navigate("/configuracoes/categorias-receitas");
             }}
 
-            className="group text-left bg-white border-2 border-[#C9A14A]/60 rounded-xl p-5 transition-all duration-200 hover:border-[#C9A14A] hover:shadow-md"
+            className="group text-left bg-white border-2 border-[#C98A75]/60 rounded-xl p-5 transition-all duration-200 hover:border-[#C98A75] hover:shadow-md"
           >
             <div className="flex items-start gap-3">
-              <div className="w-[52px] h-[52px] rounded-full bg-[#FDF6EE] flex items-center justify-center shrink-0">
-                <Cake className="h-6 w-6 text-[#5B1A2B]" />
+              <div className="w-[52px] h-[52px] rounded-full bg-[#FBF6EE] flex items-center justify-center shrink-0">
+                <Cake className="h-6 w-6 text-[#3D2F28]" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-display text-[15px] font-semibold text-[#3D0F1C] leading-tight">
+                <p className="font-display text-[15px] font-semibold text-[#2A1F1A] leading-tight">
                   Categorias de Receitas
                 </p>
                 <p className="text-[12px] text-muted-foreground mt-1">
@@ -112,7 +112,7 @@ export default function Cadastros() {
       {/* Botão flutuante voltar */}
       <button
         onClick={() => navigate(-1)}
-        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-[#5B1A2B] text-white flex items-center justify-center shadow-lg hover:opacity-90 transition"
+        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-[#3D2F28] text-white flex items-center justify-center shadow-lg hover:opacity-90 transition"
         aria-label="Voltar"
       >
         <ChevronLeft className="h-5 w-5" />

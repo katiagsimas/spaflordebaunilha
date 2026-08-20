@@ -363,22 +363,22 @@ export default function Financeiro() {
   ];
 
   return (
-    <div className="flex h-full overflow-hidden bg-[#FFF9F5]">
+    <div className="flex h-full overflow-hidden bg-[#FFFDF9]">
       <div className="flex-1 min-w-0 overflow-auto">
         <div className="container mx-auto px-6 pt-1 pb-6 space-y-6 pb-24">
           {/* ===== HEADER PREMIUM ===== */}
           <div
-            className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
+            className="relative overflow-hidden rounded-2xl border border-[#3D2F28]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
             style={{ background: "#FAEFEB" }}
           >
             <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6 pr-[150px] sm:pr-[200px] lg:pr-[260px] min-h-[130px] sm:min-h-[150px] lg:min-h-[170px]">
               <div className="flex-1 min-w-0">
-                <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
+                <h1 className="font-display text-2xl font-normal leading-tight text-[#2A1F1A] sm:text-3xl lg:text-[36px]">
                   Meu Dinheiro
                 </h1>
                 <div className="mt-2 flex items-center gap-3">
-                  <span className="h-px w-8 bg-[#C9A14A] sm:w-10" />
-                  <p className="text-xs italic text-[#C9A14A] sm:text-sm">
+                  <span className="h-px w-8 bg-[#C98A75] sm:w-10" />
+                  <p className="text-xs italic text-[#C98A75] sm:text-sm">
                     Controle total do que entra, sai e vira lucro.
                   </p>
                 </div>
@@ -407,13 +407,13 @@ export default function Financeiro() {
                 <button
                   key={c.title}
                   onClick={() => navigate(c.to)}
-                  className="group flex items-center gap-4 bg-white border-2 border-[#C9A14A]/60 rounded-xl p-5 text-left transition-all duration-200 hover:border-[#C9A14A] hover:shadow-md"
+                  className="group flex items-center gap-4 bg-white border-2 border-[#C98A75]/60 rounded-xl p-5 text-left transition-all duration-200 hover:border-[#C98A75] hover:shadow-md"
                 >
-                  <div className="w-11 h-11 rounded-full bg-[#FDF6EE] flex items-center justify-center shrink-0">
-                    <Icon className="h-5 w-5 text-[#5B1A2B]" />
+                  <div className="w-11 h-11 rounded-full bg-[#FBF6EE] flex items-center justify-center shrink-0">
+                    <Icon className="h-5 w-5 text-[#3D2F28]" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-display text-[15px] font-semibold text-[#3D0F1C] leading-tight">
+                    <p className="font-display text-[15px] font-semibold text-[#2A1F1A] leading-tight">
                       {c.title}
                     </p>
                     <p className="text-[12px] text-muted-foreground mt-0.5">
@@ -426,17 +426,17 @@ export default function Financeiro() {
           </div>
 
           {/* RESUMO FINANCEIRO */}
-          <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-6 space-y-5">
+          <div className="bg-white border border-[#3D2F28]/10 rounded-xl p-6 space-y-5">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-[#5B1A2B]" />
-                <h2 className="font-display text-[18px] uppercase tracking-wide text-[#3D0F1C]">
+                <BookOpen className="h-5 w-5 text-[#3D2F28]" />
+                <h2 className="font-display text-[18px] uppercase tracking-wide text-[#2A1F1A]">
                   Resumo Financeiro
                 </h2>
               </div>
               <Button
                 onClick={handleAbrirConfig}
-                className={`bg-[#3D0F1C] hover:bg-[#5B1A2B] text-white rounded-lg px-4 py-2 text-sm ${bancosSaldos.length === 0 ? 'animate-pulse' : ''}`}
+                className={`bg-[#2A1F1A] hover:bg-[#3D2F28] text-white rounded-lg px-4 py-2 text-sm ${bancosSaldos.length === 0 ? 'animate-pulse' : ''}`}
               >
                 <Settings2 className="mr-2 h-4 w-4" />
                 Configure Saldos Iniciais
@@ -448,7 +448,7 @@ export default function Financeiro() {
               <div>
                 <Label className="text-[11px] text-muted-foreground mb-1">Mês</Label>
                 <Select value={mesSelecionado.toString()} onValueChange={(v) => setMesSelecionado(parseInt(v))}>
-                  <SelectTrigger className="w-full border-[#5B1A2B]/20 rounded-lg bg-white">
+                  <SelectTrigger className="w-full border-[#3D2F28]/20 rounded-lg bg-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -461,7 +461,7 @@ export default function Financeiro() {
               <div>
                 <Label className="text-[11px] text-muted-foreground mb-1">Ano</Label>
                 <Select value={anoSelecionado.toString()} onValueChange={(v) => setAnoSelecionado(parseInt(v))}>
-                  <SelectTrigger className="w-full border-[#5B1A2B]/20 rounded-lg bg-white">
+                  <SelectTrigger className="w-full border-[#3D2F28]/20 rounded-lg bg-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -475,33 +475,33 @@ export default function Financeiro() {
 
             {/* KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5 flex items-center justify-between">
+              <div className="bg-white border border-[#3D2F28]/10 rounded-xl p-5 flex items-center justify-between">
                 <div>
                   <p className="text-[12px] text-muted-foreground">Saldo Anterior</p>
-                  <p className="text-2xl font-bold text-[#3D0F1C] mt-1">{formatarValor(saldoAnterior)}</p>
+                  <p className="text-2xl font-bold text-[#2A1F1A] mt-1">{formatarValor(saldoAnterior)}</p>
                 </div>
                 <CalendarDays className="h-7 w-7 text-muted-foreground" />
               </div>
-              <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5 flex items-center justify-between">
+              <div className="bg-white border border-[#3D2F28]/10 rounded-xl p-5 flex items-center justify-between">
                 <div>
                   <p className="text-[12px] text-muted-foreground">Entradas</p>
                   <p className="text-2xl font-bold mt-1" style={{ color: '#2e7d32' }}>{formatarValor(entradas)}</p>
                 </div>
                 <ArrowUp className="h-7 w-7" style={{ color: '#2e7d32' }} />
               </div>
-              <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5 flex items-center justify-between">
+              <div className="bg-white border border-[#3D2F28]/10 rounded-xl p-5 flex items-center justify-between">
                 <div>
                   <p className="text-[12px] text-muted-foreground">Saídas</p>
-                  <p className="text-2xl font-bold text-[#F28C82] mt-1">{formatarValor(saidas)}</p>
+                  <p className="text-2xl font-bold text-[#C98A75] mt-1">{formatarValor(saidas)}</p>
                 </div>
-                <ArrowDown className="h-7 w-7 text-[#F28C82]" />
+                <ArrowDown className="h-7 w-7 text-[#C98A75]" />
               </div>
-              <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5 flex items-center justify-between">
+              <div className="bg-white border border-[#3D2F28]/10 rounded-xl p-5 flex items-center justify-between">
                 <div>
                   <p className="text-[12px] text-muted-foreground">Saldo Atual</p>
-                  <p className="text-2xl font-bold text-[#3D0F1C] mt-1">{formatarValor(saldoAtual)}</p>
+                  <p className="text-2xl font-bold text-[#2A1F1A] mt-1">{formatarValor(saldoAtual)}</p>
                 </div>
-                <DollarSign className="h-7 w-7 text-[#C9A14A]" />
+                <DollarSign className="h-7 w-7 text-[#C98A75]" />
               </div>
             </div>
 
@@ -510,23 +510,23 @@ export default function Financeiro() {
               <>
                 <Separator />
                 <div>
-                  <h3 className="font-display text-[15px] uppercase tracking-wide text-[#3D0F1C] mb-4 flex items-center gap-2">
-                    <Building2 className="h-5 w-5 text-[#5B1A2B]" />
+                  <h3 className="font-display text-[15px] uppercase tracking-wide text-[#2A1F1A] mb-4 flex items-center gap-2">
+                    <Building2 className="h-5 w-5 text-[#3D2F28]" />
                     Distribuição por Banco
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                     {bancosSaldos.filter(b => b.saldo_atual !== 0).map((banco) => (
-                      <div key={banco.banco_id} className="bg-white border border-[#5B1A2B]/10 rounded-xl p-4 flex items-center justify-between">
+                      <div key={banco.banco_id} className="bg-white border border-[#3D2F28]/10 rounded-xl p-4 flex items-center justify-between">
                         <div className="flex-1 min-w-0">
                           <p className="text-xs text-muted-foreground truncate font-semibold">
                             {banco.banco_codigo} - {banco.banco_nome}
                           </p>
-                          <p className="text-lg font-bold mt-1 text-[#3D0F1C]">
+                          <p className="text-lg font-bold mt-1 text-[#2A1F1A]">
                             {formatarValor(banco.saldo_atual)}
                           </p>
                         </div>
-                        <div className="w-10 h-10 rounded-lg bg-[#FDF6EE] flex items-center justify-center">
-                          <Wallet className="h-5 w-5 text-[#C9A14A]" />
+                        <div className="w-10 h-10 rounded-lg bg-[#FBF6EE] flex items-center justify-center">
+                          <Wallet className="h-5 w-5 text-[#C98A75]" />
                         </div>
                       </div>
                     ))}
@@ -547,14 +547,14 @@ export default function Financeiro() {
         <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="w-11 h-11 rounded-full bg-[#C9A14A] text-white flex items-center justify-center shadow-lg hover:opacity-90 transition"
+            className="w-11 h-11 rounded-full bg-[#C98A75] text-white flex items-center justify-center shadow-lg hover:opacity-90 transition"
             aria-label="Topo"
           >
             <ArrowUp className="h-5 w-5" />
           </button>
           <button
             onClick={() => navigate(-1)}
-            className="w-11 h-11 rounded-full bg-[#5B1A2B] text-white flex items-center justify-center shadow-lg hover:opacity-90 transition"
+            className="w-11 h-11 rounded-full bg-[#3D2F28] text-white flex items-center justify-center shadow-lg hover:opacity-90 transition"
             aria-label="Voltar"
           >
             <ChevronLeft className="h-5 w-5" />

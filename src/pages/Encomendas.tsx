@@ -1000,17 +1000,17 @@ const Encomendas = () => {
 
       {/* ===== HEADER PREMIUM ===== */}
       <div
-        className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
+        className="relative overflow-hidden rounded-2xl border border-[#3D2F28]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
         style={{ background: "#FAEFEB" }}
       >
         <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
           <div className="flex-1 min-w-0">
-            <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
+            <h1 className="font-display text-2xl font-normal leading-tight text-[#2A1F1A] sm:text-3xl lg:text-[36px]">
               Pedidos e Encomendas
             </h1>
             <div className="mt-2 flex items-center gap-3">
-              <span className="h-px w-8 bg-[#C9A14A] sm:w-10" />
-              <p className="text-xs italic text-[#C9A14A] sm:text-sm">
+              <span className="h-px w-8 bg-[#C98A75] sm:w-10" />
+              <p className="text-xs italic text-[#C98A75] sm:text-sm">
                 Do pedido à entrega, tudo sob controle
               </p>
             </div>
@@ -1031,7 +1031,7 @@ const Encomendas = () => {
           if (!open) resetForm();
         }}>
           <DialogTrigger asChild>
-            <Button className="shrink-0 rounded-lg bg-[#3D0F1C] text-white hover:bg-[#3D0F1C]/90">
+            <Button className="shrink-0 rounded-lg bg-[#2A1F1A] text-white hover:bg-[#2A1F1A]/90">
               <Plus className="h-4 w-4 mr-2" />
               Nova Encomenda
             </Button>
@@ -1611,7 +1611,7 @@ const Encomendas = () => {
           <button
             type="button"
             onClick={() => navigate('/encomendas/tags')}
-            className="ml-auto flex items-center gap-2 rounded-lg bg-[#3D0F1C] px-4 py-2.5 text-white transition hover:bg-[#3D0F1C]/90 shrink-0"
+            className="ml-auto flex items-center gap-2 rounded-lg bg-[#2A1F1A] px-4 py-2.5 text-white transition hover:bg-[#2A1F1A]/90 shrink-0"
           >
             <TagIcon className="h-4 w-4" />
             <span className="text-sm font-medium">Tags de Encomendas</span>
@@ -1619,10 +1619,10 @@ const Encomendas = () => {
       </div>
 
       {/* Filtro Mês/Ano - Horizontal */}
-      <div className="rounded-2xl border border-[#5B1A2B]/10 bg-white px-5 py-4 shadow-[0_2px_12px_-8px_rgba(91,26,43,0.12)]">
+      <div className="rounded-2xl border border-[#3D2F28]/10 bg-white px-5 py-4 shadow-[0_2px_12px_-8px_rgba(91,26,43,0.12)]">
         <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
-          <div className="flex items-center gap-2 text-[#3D0F1C]">
-            <CalendarDays className="h-5 w-5 text-[#5B1A2B]" />
+          <div className="flex items-center gap-2 text-[#2A1F1A]">
+            <CalendarDays className="h-5 w-5 text-[#3D2F28]" />
             <span className="font-semibold">Período:</span>
           </div>
 
@@ -1632,7 +1632,7 @@ const Encomendas = () => {
               value={anoSelecionado.toString()}
               onValueChange={(value) => setAnoSelecionado(parseInt(value))}
             >
-              <SelectTrigger className="h-9 w-28 rounded-md border-[#5B1A2B]/20 bg-white text-[#3D0F1C]">
+              <SelectTrigger className="h-9 w-28 rounded-md border-[#3D2F28]/20 bg-white text-[#2A1F1A]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-popover z-50">
@@ -1651,7 +1651,7 @@ const Encomendas = () => {
               value={mesSelecionado.toString()}
               onValueChange={(value) => setMesSelecionado(parseInt(value))}
             >
-              <SelectTrigger className="h-9 w-36 rounded-md border-[#5B1A2B]/20 bg-white text-[#3D0F1C]">
+              <SelectTrigger className="h-9 w-36 rounded-md border-[#3D2F28]/20 bg-white text-[#2A1F1A]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-popover z-50">
@@ -1669,17 +1669,17 @@ const Encomendas = () => {
       {/* ===== KPI CARDS COMPACTOS CLICÁVEIS ===== */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
         {[
-          { label: "Total", value: indicadores.total, Icon: ClipboardList, bg: "bg-[#5B1A2B]/10", color: "text-[#5B1A2B]", slug: "total" },
-          { label: "Pendentes", value: indicadores.pendentes, Icon: Clock, bg: "bg-[#C9A14A]/15", color: "text-[#C9A14A]", slug: "pendentes" },
+          { label: "Total", value: indicadores.total, Icon: ClipboardList, bg: "bg-[#3D2F28]/10", color: "text-[#3D2F28]", slug: "total" },
+          { label: "Pendentes", value: indicadores.pendentes, Icon: Clock, bg: "bg-[#C98A75]/15", color: "text-[#C98A75]", slug: "pendentes" },
           { label: "Confirmadas", value: indicadores.confirmadas, Icon: CheckCircle2, bg: "bg-emerald-100", color: "text-emerald-700", slug: "confirmadas" },
           { label: "Entregues", value: indicadores.entregues, Icon: Truck, bg: "bg-sky-100", color: "text-sky-700", slug: "entregues" },
-          { label: "Canceladas", value: indicadores.canceladas, Icon: XCircle, bg: "bg-[#F28C82]/20", color: "text-[#F28C82]", slug: "canceladas" },
+          { label: "Canceladas", value: indicadores.canceladas, Icon: XCircle, bg: "bg-[#C98A75]/20", color: "text-[#C98A75]", slug: "canceladas" },
         ].map((card) => (
           <button
             key={card.label}
             type="button"
             onClick={() => navigate(`/encomendas/lista/${card.slug}`)}
-            className="group rounded-xl border border-[#5B1A2B]/10 bg-white px-3 py-3 shadow-[0_2px_12px_-8px_rgba(91,26,43,0.10)] hover:shadow-[0_4px_18px_-8px_rgba(91,26,43,0.25)] hover:border-[#5B1A2B]/25 transition-all text-left flex flex-col items-start gap-2"
+            className="group rounded-xl border border-[#3D2F28]/10 bg-white px-3 py-3 shadow-[0_2px_12px_-8px_rgba(91,26,43,0.10)] hover:shadow-[0_4px_18px_-8px_rgba(91,26,43,0.25)] hover:border-[#3D2F28]/25 transition-all text-left flex flex-col items-start gap-2"
             aria-label={`Ver lista de encomendas ${card.label}`}
           >
             <div className={`flex h-9 w-9 items-center justify-center rounded-full ${card.bg}`}>
@@ -1687,7 +1687,7 @@ const Encomendas = () => {
             </div>
             <div className="min-w-0">
               <p className="text-[10px] uppercase tracking-wide text-foreground/55 truncate">{card.label}</p>
-              <p className="font-display text-2xl font-normal leading-none text-[#3D0F1C]">{card.value}</p>
+              <p className="font-display text-2xl font-normal leading-none text-[#2A1F1A]">{card.value}</p>
             </div>
           </button>
         ))}
@@ -1697,7 +1697,7 @@ const Encomendas = () => {
         <EncomendasDoDia onNovaEncomenda={() => setDialogOpen(true)} />
 
         {/* Calendários de Encomendas - Direita */}
-        <Card className="overflow-hidden rounded-2xl border-2 border-[#C9A14A]/60 bg-sfb-creme/40 shadow-[0_8px_30px_-18px_rgba(91,26,43,0.3)]">
+        <Card className="overflow-hidden rounded-2xl border-2 border-[#C98A75]/60 bg-sfb-creme/40 shadow-[0_8px_30px_-18px_rgba(91,26,43,0.3)]">
           <CardHeader className="border-b border-sfb-dourado/15 bg-sfb-branco/60 pb-4">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sfb-vinho text-sfb-dourado ring-1 ring-sfb-dourado/40">
@@ -1718,7 +1718,7 @@ const Encomendas = () => {
               type="button"
               onClick={() => navigate('/encomendas/calendarios')}
               aria-label="Abrir Calendários de Encomendas"
-              className="group flex flex-col items-center gap-3 transition hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5B1A2B]/40 rounded-xl p-4"
+              className="group flex flex-col items-center gap-3 transition hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3D2F28]/40 rounded-xl p-4"
             >
               <img
                 src={calendarioEncomendasIcon}

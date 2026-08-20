@@ -65,22 +65,22 @@ export function GroupSelector() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="w-full justify-between gap-2 bg-[#FFF9F5]/10 border border-[#FFF9F5]/20 text-[#FFF9F5] hover:bg-[#FFF9F5]/15 hover:border-[#FFF9F5]/30"
+          className="w-full justify-between gap-2 bg-[#FFFDF9]/10 border border-[#FFFDF9]/20 text-[#FFFDF9] hover:bg-[#FFFDF9]/15 hover:border-[#FFFDF9]/30"
         >
           <div className="flex items-center gap-2 truncate">
             {sessionMode === 'system' ? (
               <>
-                <Settings className="h-4 w-4 text-[#FFF9F5]/80" />
+                <Settings className="h-4 w-4 text-[#FFFDF9]/80" />
                 <span className="truncate font-medium">Modo Sistema</span>
               </>
             ) : (
               <>
-                <Building2 className="h-4 w-4 text-[#FFF9F5]/80" />
+                <Building2 className="h-4 w-4 text-[#FFFDF9]/80" />
                 <span className="truncate">{activeGroup?.name || 'Selecionar grupo'}</span>
               </>
             )}
           </div>
-          <ChevronDown className="h-4 w-4 shrink-0 text-[#FFF9F5]/60" />
+          <ChevronDown className="h-4 w-4 shrink-0 text-[#FFFDF9]/60" />
         </Button>
       </DropdownMenuTrigger>
       

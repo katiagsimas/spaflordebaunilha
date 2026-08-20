@@ -42,30 +42,30 @@ export default function EstoqueDashboard() {
       value: valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
       Icon: Coins,
       image: valorEstoqueImg,
-      tone: 'text-[#3D0F1C]',
-      iconWrap: 'bg-[#C9A14A]/15 ring-[#C9A14A]/40',
-      iconColor: 'text-[#C9A14A]',
+      tone: 'text-[#2A1F1A]',
+      iconWrap: 'bg-[#C98A75]/15 ring-[#C98A75]/40',
+      iconColor: 'text-[#C98A75]',
     },
     {
       label: 'Itens Cadastrados',
       value: itens.length.toString(),
       Icon: PackageOpen,
       image: itensCadastradosImg,
-      tone: 'text-[#3D0F1C]',
-      iconWrap: 'bg-[#5B1A2B]/10 ring-[#5B1A2B]/25',
-      iconColor: 'text-[#5B1A2B]',
+      tone: 'text-[#2A1F1A]',
+      iconWrap: 'bg-[#3D2F28]/10 ring-[#3D2F28]/25',
+      iconColor: 'text-[#3D2F28]',
     },
     {
       label: 'Abaixo do Mínimo',
       value: itensAbaixoMinimo.length.toString(),
       Icon: AlertTriangle,
       image: abaixoMinimoImg,
-      tone: itensAbaixoMinimo.length > 0 ? 'text-[#F28C82]' : 'text-[#3D0F1C]',
+      tone: itensAbaixoMinimo.length > 0 ? 'text-[#C98A75]' : 'text-[#2A1F1A]',
       iconWrap:
         itensAbaixoMinimo.length > 0
-          ? 'bg-[#F28C82]/20 ring-[#F28C82]/40'
-          : 'bg-[#5B1A2B]/10 ring-[#5B1A2B]/25',
-      iconColor: itensAbaixoMinimo.length > 0 ? 'text-[#F28C82]' : 'text-[#5B1A2B]',
+          ? 'bg-[#C98A75]/20 ring-[#C98A75]/40'
+          : 'bg-[#3D2F28]/10 ring-[#3D2F28]/25',
+      iconColor: itensAbaixoMinimo.length > 0 ? 'text-[#C98A75]' : 'text-[#3D2F28]',
     },
   ];
 
@@ -82,21 +82,21 @@ export default function EstoqueDashboard() {
       <div className="flex flex-wrap items-center justify-end gap-2">
         <Button
           onClick={() => navigate('/estoque/entrada')}
-          className="gap-2 rounded-lg bg-[#3D0F1C] text-white hover:bg-[#5B1A2B]"
+          className="gap-2 rounded-lg bg-[#2A1F1A] text-white hover:bg-[#3D2F28]"
         >
           <Plus className="h-4 w-4" /> Nova Entrada
         </Button>
         <Button
           variant="outline"
           onClick={() => navigate('/estoque/ajuste')}
-          className="gap-2 rounded-lg border-[#5B1A2B]/30 bg-white text-[#3D0F1C] hover:border-[#5B1A2B] hover:bg-[#FDF6EE]"
+          className="gap-2 rounded-lg border-[#3D2F28]/30 bg-white text-[#2A1F1A] hover:border-[#3D2F28] hover:bg-[#FBF6EE]"
         >
           <SlidersHorizontal className="h-4 w-4" /> Ajuste Manual
         </Button>
         <Button
           variant="outline"
           onClick={() => navigate('/estoque/movimentacoes')}
-          className="gap-2 rounded-lg border-[#5B1A2B]/30 bg-white text-[#3D0F1C] hover:border-[#5B1A2B] hover:bg-[#FDF6EE]"
+          className="gap-2 rounded-lg border-[#3D2F28]/30 bg-white text-[#2A1F1A] hover:border-[#3D2F28] hover:bg-[#FBF6EE]"
         >
           <Search className="h-4 w-4" /> Movimentações
         </Button>
@@ -107,7 +107,7 @@ export default function EstoqueDashboard() {
         {kpis.map(({ label, value, Icon, image, tone, iconWrap, iconColor }) => (
           <div
             key={label}
-            className="flex items-center gap-4 rounded-xl border border-[#5B1A2B]/10 bg-white p-5"
+            className="flex items-center gap-4 rounded-xl border border-[#3D2F28]/10 bg-white p-5"
           >
             {image ? (
               <img
@@ -121,7 +121,7 @@ export default function EstoqueDashboard() {
               </div>
             )}
             <div className="min-w-0">
-              <p className="font-body text-xs uppercase tracking-wide text-[#5B1A2B]/60">{label}</p>
+              <p className="font-body text-xs uppercase tracking-wide text-[#3D2F28]/60">{label}</p>
               <p className={`mt-1 font-display text-[28px] font-semibold leading-none ${tone}`}>{value}</p>
             </div>
           </div>
@@ -131,16 +131,16 @@ export default function EstoqueDashboard() {
       {/* FILTROS */}
       <div className="flex flex-col gap-3 md:flex-row md:items-center">
         <div className="relative flex-1 md:max-w-[45%]">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5B1A2B]/40" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#3D2F28]/40" />
           <Input
             placeholder="Buscar insumo..."
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            className="rounded-lg border-[#5B1A2B]/20 bg-white pl-9 focus-visible:border-[#C9A14A]"
+            className="rounded-lg border-[#3D2F28]/20 bg-white pl-9 focus-visible:border-[#C98A75]"
           />
         </div>
         <Select value={filtroTipo} onValueChange={setFiltroTipo}>
-          <SelectTrigger className="w-full rounded-lg border-[#5B1A2B]/20 bg-white md:w-48">
+          <SelectTrigger className="w-full rounded-lg border-[#3D2F28]/20 bg-white md:w-48">
             <SelectValue placeholder="Todos os tipos" />
           </SelectTrigger>
           <SelectContent>
@@ -150,7 +150,7 @@ export default function EstoqueDashboard() {
           </SelectContent>
         </Select>
         <Select value={filtroStatus} onValueChange={setFiltroStatus}>
-          <SelectTrigger className="w-full rounded-lg border-[#5B1A2B]/20 bg-white md:w-48">
+          <SelectTrigger className="w-full rounded-lg border-[#3D2F28]/20 bg-white md:w-48">
             <SelectValue placeholder="Todos os status" />
           </SelectTrigger>
           <SelectContent>
@@ -165,15 +165,15 @@ export default function EstoqueDashboard() {
       {/* LAYOUT PRINCIPAL */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_minmax(260px,35%)]">
         {/* COLUNA ESQUERDA */}
-        <div className="rounded-xl border border-[#5B1A2B]/10 bg-white">
-          <div className="flex items-center gap-2 border-b border-[#5B1A2B]/10 px-5 py-4">
-            <CalendarDays className="h-5 w-5 text-[#5B1A2B]" />
-            <h2 className="font-display text-lg text-[#3D0F1C]">Histórico de Movimentações</h2>
+        <div className="rounded-xl border border-[#3D2F28]/10 bg-white">
+          <div className="flex items-center gap-2 border-b border-[#3D2F28]/10 px-5 py-4">
+            <CalendarDays className="h-5 w-5 text-[#3D2F28]" />
+            <h2 className="font-display text-lg text-[#2A1F1A]">Histórico de Movimentações</h2>
           </div>
 
           {itensFiltrados.length === 0 ? (
             <div className="px-5 py-12 text-center">
-              <p className="font-body text-sm text-[#5B1A2B]/60">
+              <p className="font-body text-sm text-[#3D2F28]/60">
                 Nenhuma movimentação encontrada com os filtros atuais.
               </p>
             </div>
@@ -181,14 +181,14 @@ export default function EstoqueDashboard() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-[#FDF6EE] text-left">
-                    <th className="px-5 py-3 font-body text-xs font-medium uppercase tracking-wide text-[#5B1A2B]/70">
+                  <tr className="bg-[#FBF6EE] text-left">
+                    <th className="px-5 py-3 font-body text-xs font-medium uppercase tracking-wide text-[#3D2F28]/70">
                       Insumo
                     </th>
-                    <th className="px-5 py-3 text-right font-body text-xs font-medium uppercase tracking-wide text-[#5B1A2B]/70">
+                    <th className="px-5 py-3 text-right font-body text-xs font-medium uppercase tracking-wide text-[#3D2F28]/70">
                       Valor no Estoque
                     </th>
-                    <th className="px-5 py-3 text-right font-body text-xs font-medium uppercase tracking-wide text-[#5B1A2B]/70">
+                    <th className="px-5 py-3 text-right font-body text-xs font-medium uppercase tracking-wide text-[#3D2F28]/70">
                       Ajuste do Mínimo
                     </th>
                   </tr>
@@ -201,18 +201,18 @@ export default function EstoqueDashboard() {
                     return (
                       <tr
                         key={item.id}
-                        className={`border-b border-[#5B1A2B]/5 transition hover:bg-[#FDF6EE]/60 ${
-                          idx % 2 === 1 ? 'bg-[#FDF6EE]/30' : 'bg-white'
+                        className={`border-b border-[#3D2F28]/5 transition hover:bg-[#FBF6EE]/60 ${
+                          idx % 2 === 1 ? 'bg-[#FBF6EE]/30' : 'bg-white'
                         }`}
                       >
                         <td className="px-5 py-3">
                           <div className="flex items-center gap-2">
-                            <Package className="h-4 w-4 text-[#5B1A2B]/50" />
+                            <Package className="h-4 w-4 text-[#3D2F28]/50" />
                             <div className="min-w-0">
-                              <p className="truncate font-body text-sm font-medium text-[#3D0F1C]">
+                              <p className="truncate font-body text-sm font-medium text-[#2A1F1A]">
                                 {item.nome_insumo}
                               </p>
-                              <p className="font-body text-[11px] text-[#5B1A2B]/50">
+                              <p className="font-body text-[11px] text-[#3D2F28]/50">
                                 {Number(item.quantidade_atual).toLocaleString('pt-BR', {
                                   maximumFractionDigits: 2,
                                 })}{' '}
@@ -222,16 +222,16 @@ export default function EstoqueDashboard() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-5 py-3 text-right font-body text-sm text-[#3D0F1C]">
+                        <td className="px-5 py-3 text-right font-body text-sm text-[#2A1F1A]">
                           {valorItem.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                         </td>
                         <td className="px-5 py-3 text-right">
                           {abaixoMinimo ? (
-                            <Badge className="gap-1 rounded-md bg-[#F28C82]/20 font-body text-xs text-[#B23A2E] hover:bg-[#F28C82]/30">
+                            <Badge className="gap-1 rounded-md bg-[#C98A75]/20 font-body text-xs text-[#B23A2E] hover:bg-[#C98A75]/30">
                               <AlertTriangle className="h-3 w-3" /> Abaixo
                             </Badge>
                           ) : (
-                            <span className="font-body text-sm text-[#5B1A2B]/70">— Ajustado</span>
+                            <span className="font-body text-sm text-[#3D2F28]/70">— Ajustado</span>
                           )}
                         </td>
                       </tr>
@@ -244,7 +244,7 @@ export default function EstoqueDashboard() {
         </div>
 
         {/* COLUNA DIREITA */}
-        <aside className="rounded-xl border border-[#5B1A2B]/10 bg-white p-6">
+        <aside className="rounded-xl border border-[#3D2F28]/10 bg-white p-6">
           {itens.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center">
               <img
@@ -255,14 +255,14 @@ export default function EstoqueDashboard() {
                 height={640}
                 loading="lazy"
               />
-              <p className="mt-4 font-display text-lg leading-snug text-[#3D0F1C]">
+              <p className="mt-4 font-display text-lg leading-snug text-[#2A1F1A]">
                 Nenhum insumo
                 <br />
                 cadastrado ainda
               </p>
               <Button
                 onClick={() => navigate('/estoque/entrada')}
-                className="mt-5 gap-2 rounded-lg bg-[#3D0F1C] text-white hover:bg-[#5B1A2B]"
+                className="mt-5 gap-2 rounded-lg bg-[#2A1F1A] text-white hover:bg-[#3D2F28]"
               >
                 <Plus className="h-4 w-4" /> Nova Entrada
               </Button>
@@ -270,27 +270,27 @@ export default function EstoqueDashboard() {
           ) : itensAbaixoMinimo.length > 0 ? (
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-[#F28C82]" />
-                <h3 className="font-display text-base text-[#3D0F1C]">Abaixo do mínimo</h3>
+                <AlertTriangle className="h-5 w-5 text-[#C98A75]" />
+                <h3 className="font-display text-base text-[#2A1F1A]">Abaixo do mínimo</h3>
               </div>
               <ul className="space-y-2">
                 {itensAbaixoMinimo.slice(0, 6).map((item) => (
                   <li
                     key={item.id}
-                    className="flex items-center justify-between rounded-lg border border-[#F28C82]/25 bg-[#F28C82]/10 px-3 py-2"
+                    className="flex items-center justify-between rounded-lg border border-[#C98A75]/25 bg-[#C98A75]/10 px-3 py-2"
                   >
                     <div className="min-w-0">
-                      <p className="truncate font-body text-sm font-medium text-[#3D0F1C]">
+                      <p className="truncate font-body text-sm font-medium text-[#2A1F1A]">
                         {item.nome_insumo}
                       </p>
-                      <p className="font-body text-[11px] text-[#5B1A2B]/60">
+                      <p className="font-body text-[11px] text-[#3D2F28]/60">
                         {Number(item.quantidade_atual).toLocaleString('pt-BR', {
                           maximumFractionDigits: 2,
                         })}{' '}
                         {item.unidade}
                       </p>
                     </div>
-                    <Badge className="rounded-md bg-[#F28C82]/30 font-body text-[10px] text-[#B23A2E] hover:bg-[#F28C82]/40">
+                    <Badge className="rounded-md bg-[#C98A75]/30 font-body text-[10px] text-[#B23A2E] hover:bg-[#C98A75]/40">
                       Baixo
                     </Badge>
                   </li>
@@ -299,7 +299,7 @@ export default function EstoqueDashboard() {
               <Button
                 variant="outline"
                 onClick={() => navigate('/estoque/entrada')}
-                className="w-full gap-2 rounded-lg border-[#5B1A2B]/30 text-[#3D0F1C] hover:border-[#5B1A2B] hover:bg-[#FDF6EE]"
+                className="w-full gap-2 rounded-lg border-[#3D2F28]/30 text-[#2A1F1A] hover:border-[#3D2F28] hover:bg-[#FBF6EE]"
               >
                 <Plus className="h-4 w-4" /> Repor estoque
               </Button>
@@ -314,10 +314,10 @@ export default function EstoqueDashboard() {
                 height={640}
                 loading="lazy"
               />
-              <p className="mt-4 font-display text-base leading-snug text-[#3D0F1C]">
+              <p className="mt-4 font-display text-base leading-snug text-[#2A1F1A]">
                 Estoque equilibrado
               </p>
-              <p className="mt-1 font-body text-xs text-[#5B1A2B]/60">
+              <p className="mt-1 font-body text-xs text-[#3D2F28]/60">
                 Nenhum insumo abaixo do mínimo.
               </p>
             </div>

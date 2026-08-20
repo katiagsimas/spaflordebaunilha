@@ -40,7 +40,7 @@ interface AdminLogRow {
   created_at: string | null;
 }
 
-const PALETTE = ['#3D0F1C', '#5B1A2B', '#8B4513', '#C9A14A'];
+const PALETTE = ['#2A1F1A', '#3D2F28', '#8B4513', '#C98A75'];
 
 export default function Governanca() {
   const { isMother } = useGroup();
@@ -80,13 +80,13 @@ export default function Governanca() {
         });
         const total = Object.values(counts).reduce((s, n) => s + n, 0) || 1;
         const mapColor: Record<string, string> = {
-          ADMIN: '#3D0F1C',
-          MOTHER: '#3D0F1C',
-          EDITOR: '#5B1A2B',
-          BUSINESS: '#5B1A2B',
-          USER: '#C9A14A',
-          VIEWER: '#C9A14A',
-          BASE: '#C9A14A',
+          ADMIN: '#2A1F1A',
+          MOTHER: '#2A1F1A',
+          EDITOR: '#3D2F28',
+          BUSINESS: '#3D2F28',
+          USER: '#C98A75',
+          VIEWER: '#C98A75',
+          BASE: '#C98A75',
         };
         setRoleDistribution(
           Object.entries(counts).map(([k, v]) => ({
@@ -133,7 +133,7 @@ export default function Governanca() {
 
   if (!isMother) {
     return (
-      <div className="flex flex-col min-h-screen bg-[#FDF6EE]">
+      <div className="flex flex-col min-h-screen bg-[#FBF6EE]">
         <PageHeader title="Governança" description="Acesso restrito" />
         <div className="flex-1 p-6">
           <PermissionGuard requireMother />
@@ -158,7 +158,7 @@ export default function Governanca() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FDF6EE]">
+    <div className="min-h-screen bg-[#FBF6EE]">
       <div className="max-w-7xl mx-auto px-6 pt-1 pb-6 space-y-6">
         {/* HERO BANNER padronizado */}
         <HeroBanner
@@ -174,21 +174,21 @@ export default function Governanca() {
               key={url}
               type="button"
               onClick={() => navigate(url)}
-              className="text-left bg-white border border-[#5B1A2B]/10 rounded-xl p-5 cursor-pointer transition-all duration-200 hover:border-[#C9A14A]/50 hover:shadow-md"
+              className="text-left bg-white border border-[#3D2F28]/10 rounded-xl p-5 cursor-pointer transition-all duration-200 hover:border-[#C98A75]/50 hover:shadow-md"
             >
               <div className="flex items-center gap-3">
                 <div
                   className="rounded-full flex items-center justify-center shrink-0"
-                  style={{ width: 52, height: 52, background: '#FDF6EE' }}
+                  style={{ width: 52, height: 52, background: '#FBF6EE' }}
                 >
-                  <Icon className="w-6 h-6 text-[#5B1A2B]" />
+                  <Icon className="w-6 h-6 text-[#3D2F28]" />
                 </div>
-                <h3 className="font-bold text-[18px] text-[#3D0F1C]">{title}</h3>
+                <h3 className="font-bold text-[18px] text-[#2A1F1A]">{title}</h3>
               </div>
 
               <div
                 className="my-4 rounded-lg overflow-hidden flex items-center justify-center"
-                style={{ height: 120, background: '#FDF6EE' }}
+                style={{ height: 120, background: '#FBF6EE' }}
               >
                 <img
                   src={heroBanner}
@@ -206,18 +206,18 @@ export default function Governanca() {
                 />
               </div>
 
-              <p className="text-[13px] text-[#3D0F1C]/65 font-body">{desc}</p>
+              <p className="text-[13px] text-[#2A1F1A]/65 font-body">{desc}</p>
 
               {title === 'Cofre de Backups' && (
-                <div className="mt-3 border-t border-[#5B1A2B]/10 pt-2">
-                  <div className="grid grid-cols-2 text-[11px] font-semibold text-[#3D0F1C] mb-1">
+                <div className="mt-3 border-t border-[#3D2F28]/10 pt-2">
+                  <div className="grid grid-cols-2 text-[11px] font-semibold text-[#2A1F1A] mb-1">
                     <span>Backup</span>
                     <span>Data</span>
                   </div>
                   {(backups.slice(0, 3)).map((b) => (
                     <div
                       key={b.id}
-                      className="grid grid-cols-2 text-[11px] text-[#3D0F1C]/70 py-0.5"
+                      className="grid grid-cols-2 text-[11px] text-[#2A1F1A]/70 py-0.5"
                     >
                       <span className="truncate">{b.tipo || 'Backup'}</span>
                       <span>
@@ -231,7 +231,7 @@ export default function Governanca() {
                     </div>
                   ))}
                   {backups.length === 0 && (
-                    <div className="text-[11px] text-[#3D0F1C]/40 py-1">
+                    <div className="text-[11px] text-[#2A1F1A]/40 py-1">
                       {loading ? 'Carregando…' : 'Sem backups ainda.'}
                     </div>
                   )}
@@ -244,14 +244,14 @@ export default function Governanca() {
         {/* Visão Geral da Auditoria */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Painel esquerdo */}
-          <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5">
-            <h2 className="font-display text-[18px] text-[#3D0F1C] mb-4">
+          <div className="bg-white border border-[#3D2F28]/10 rounded-xl p-5">
+            <h2 className="font-display text-[18px] text-[#2A1F1A] mb-4">
               Visão Geral da Auditoria
             </h2>
             <div className="flex items-center gap-3">
               <div
                 className="rounded-lg overflow-hidden shrink-0 hidden sm:block"
-                style={{ width: 120, height: 160, background: '#FDF6EE' }}
+                style={{ width: 120, height: 160, background: '#FBF6EE' }}
               >
                 <img
                   src={heroBanner}
@@ -262,7 +262,7 @@ export default function Governanca() {
               </div>
               <div className="flex-1" style={{ height: 160 }}>
                 {actionsByUser.length === 0 ? (
-                  <div className="h-full flex items-center justify-center text-[12px] text-[#3D0F1C]/50">
+                  <div className="h-full flex items-center justify-center text-[12px] text-[#2A1F1A]/50">
                     {loading ? 'Carregando…' : 'Sem ações registradas ainda.'}
                   </div>
                 ) : (
@@ -270,16 +270,16 @@ export default function Governanca() {
                     <BarChart data={actionsByUser} margin={{ top: 16, right: 4, left: -20, bottom: 0 }}>
                       <XAxis
                         dataKey="name"
-                        tick={{ fontSize: 10, fill: '#3D0F1C' }}
+                        tick={{ fontSize: 10, fill: '#2A1F1A' }}
                         axisLine={false}
                         tickLine={false}
                       />
                       <YAxis hide />
                       <Tooltip
-                        cursor={{ fill: '#FDF6EE' }}
+                        cursor={{ fill: '#FBF6EE' }}
                         contentStyle={{
-                          background: '#FFF9F5',
-                          border: '1px solid #5B1A2B22',
+                          background: '#FFFDF9',
+                          border: '1px solid #3D2F2822',
                           borderRadius: 8,
                           fontSize: 12,
                         }}
@@ -291,7 +291,7 @@ export default function Governanca() {
                         <LabelList
                           dataKey="value"
                           position="top"
-                          style={{ fontSize: 11, fill: '#3D0F1C' }}
+                          style={{ fontSize: 11, fill: '#2A1F1A' }}
                         />
                       </Bar>
                     </BarChart>
@@ -302,14 +302,14 @@ export default function Governanca() {
           </div>
 
           {/* Painel direito */}
-          <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5">
-            <h2 className="font-display text-[18px] text-[#3D0F1C] mb-4">
+          <div className="bg-white border border-[#3D2F28]/10 rounded-xl p-5">
+            <h2 className="font-display text-[18px] text-[#2A1F1A] mb-4">
               Visão Geral da Auditoria
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Ações Recentes por Usuário */}
               <div>
-                <p className="font-body text-[12px] font-bold text-[#3D0F1C] mb-2">
+                <p className="font-body text-[12px] font-bold text-[#2A1F1A] mb-2">
                   Ações Recentes por Usuário
                 </p>
                 <div style={{ height: 140 }}>
@@ -317,28 +317,28 @@ export default function Governanca() {
                     <BarChart data={actionsByDay} margin={{ top: 16, right: 4, left: -25, bottom: 0 }}>
                       <XAxis
                         dataKey="name"
-                        tick={{ fontSize: 10, fill: '#3D0F1C' }}
+                        tick={{ fontSize: 10, fill: '#2A1F1A' }}
                         axisLine={false}
                         tickLine={false}
                       />
                       <YAxis hide />
                       <Tooltip
-                        cursor={{ fill: '#FDF6EE' }}
+                        cursor={{ fill: '#FBF6EE' }}
                         contentStyle={{
-                          background: '#FFF9F5',
-                          border: '1px solid #5B1A2B22',
+                          background: '#FFFDF9',
+                          border: '1px solid #3D2F2822',
                           borderRadius: 8,
                           fontSize: 12,
                         }}
                       />
                       <Bar dataKey="value" radius={[3, 3, 0, 0]}>
                         {actionsByDay.map((_, i) => (
-                          <Cell key={i} fill={i % 2 === 0 ? '#3D0F1C' : '#8B4513'} />
+                          <Cell key={i} fill={i % 2 === 0 ? '#2A1F1A' : '#8B4513'} />
                         ))}
                         <LabelList
                           dataKey="value"
                           position="top"
-                          style={{ fontSize: 10, fill: '#3D0F1C' }}
+                          style={{ fontSize: 10, fill: '#2A1F1A' }}
                         />
                       </Bar>
                     </BarChart>
@@ -348,7 +348,7 @@ export default function Governanca() {
 
               {/* Distribuição de Permissões */}
               <div>
-                <p className="font-body text-[12px] font-bold text-[#3D0F1C] mb-2">
+                <p className="font-body text-[12px] font-bold text-[#2A1F1A] mb-2">
                   Distribuição de Permissões
                 </p>
                 <div className="flex items-center gap-2" style={{ height: 140 }}>
@@ -359,7 +359,7 @@ export default function Governanca() {
                           data={
                             roleDistribution.length > 0
                               ? roleDistribution
-                              : [{ name: '—', value: 1, color: '#FDF6EE' }]
+                              : [{ name: '—', value: 1, color: '#FBF6EE' }]
                           }
                           dataKey="value"
                           innerRadius={45}
@@ -368,7 +368,7 @@ export default function Governanca() {
                         >
                           {(roleDistribution.length > 0
                             ? roleDistribution
-                            : [{ name: '—', value: 1, color: '#FDF6EE' }]
+                            : [{ name: '—', value: 1, color: '#FBF6EE' }]
                           ).map((d, i) => (
                             <Cell key={i} fill={d.color} />
                           ))}
@@ -376,9 +376,9 @@ export default function Governanca() {
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-                  <ul className="space-y-1 text-[12px] text-[#3D0F1C]">
+                  <ul className="space-y-1 text-[12px] text-[#2A1F1A]">
                     {roleDistribution.length === 0 ? (
-                      <li className="text-[#3D0F1C]/40">—</li>
+                      <li className="text-[#2A1F1A]/40">—</li>
                     ) : (
                       roleDistribution.map((d) => (
                         <li key={d.name} className="flex items-center gap-2">
@@ -387,7 +387,7 @@ export default function Governanca() {
                             style={{ width: 10, height: 10, background: d.color, borderRadius: 2 }}
                           />
                           <span className="capitalize">{d.name.toLowerCase()}</span>
-                          <span className="ml-1 text-[#3D0F1C]/70">{d.value}%</span>
+                          <span className="ml-1 text-[#2A1F1A]/70">{d.value}%</span>
                         </li>
                       ))
                     )}
@@ -405,7 +405,7 @@ export default function Governanca() {
         onClick={() => navigate(-1)}
         aria-label="Voltar"
         className="fixed bottom-6 right-6 z-50 rounded-full w-11 h-11 flex items-center justify-center shadow-lg text-white hover:opacity-90 transition"
-        style={{ background: '#5B1A2B' }}
+        style={{ background: '#3D2F28' }}
       >
         <ChevronLeft className="w-5 h-5" />
       </button>

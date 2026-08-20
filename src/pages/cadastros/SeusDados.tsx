@@ -415,7 +415,7 @@ export default function SeusDados() {
                   <TabsTrigger
                     key={v}
                     value={v}
-                    className="rounded-lg px-4 py-2 text-sm bg-white border border-[#5B1A2B]/15 text-[#3D0F1C]/60 hover:border-[#C9A14A]/50 data-[state=active]:bg-[#C9A14A] data-[state=active]:text-[#3D0F1C] data-[state=active]:font-bold data-[state=active]:border-[#C9A14A] data-[state=active]:shadow-none"
+                    className="rounded-lg px-4 py-2 text-sm bg-white border border-[#3D2F28]/15 text-[#2A1F1A]/60 hover:border-[#C98A75]/50 data-[state=active]:bg-[#C98A75] data-[state=active]:text-[#2A1F1A] data-[state=active]:font-bold data-[state=active]:border-[#C98A75] data-[state=active]:shadow-none"
                   >
                     <Icon className="h-3.5 w-3.5 mr-1.5" />
                     <span className="hidden sm:inline">{l}</span>
@@ -731,11 +731,11 @@ export default function SeusDados() {
           const p: any = profile || {};
           const bancarios = p.dados_bancarios || {};
           const secoes = [
-            { label: "Pessoal", ok: !!(p.nome_completo && p.email), cor: "#C9A14A" },
-            { label: "Empresa", ok: !!(p.nome_confeitaria && p.cpf), cor: "#C9A14A" },
-            { label: "Contatos", ok: !!(p.whatsapp || p.telefone), cor: "#5B1A2B" },
-            { label: "Endereço", ok: !!(p.cep && p.endereco && p.cidade && p.estado), cor: "#5B1A2B" },
-            { label: "Completo", ok: !!(bancarios.banco || bancarios.pix), cor: "#FDF6EE", border: true },
+            { label: "Pessoal", ok: !!(p.nome_completo && p.email), cor: "#C98A75" },
+            { label: "Empresa", ok: !!(p.nome_confeitaria && p.cpf), cor: "#C98A75" },
+            { label: "Contatos", ok: !!(p.whatsapp || p.telefone), cor: "#3D2F28" },
+            { label: "Endereço", ok: !!(p.cep && p.endereco && p.cidade && p.estado), cor: "#3D2F28" },
+            { label: "Completo", ok: !!(bancarios.banco || bancarios.pix), cor: "#FBF6EE", border: true },
           ];
           const preenchidas = secoes.filter((s) => s.ok).length;
           const pct = Math.round((preenchidas / secoes.length) * 100);
@@ -755,16 +755,16 @@ export default function SeusDados() {
           return (
             <section>
               <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2 text-[#3D0F1C]">
-                  <CalendarDays className="h-5 w-5 text-[#5B1A2B]" />
-                  <h2 className="text-[18px]" style={{ fontFamily: "'Playfair Display', serif" }}>
+                <div className="flex items-center gap-2 text-[#2A1F1A]">
+                  <CalendarDays className="h-5 w-5 text-[#3D2F28]" />
+                  <h2 className="text-[18px]" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                     Resumo do Perfil
                   </h2>
                 </div>
                 <Button
                   type="submit"
                   disabled={updateProfileMutation.isPending}
-                  className="rounded-lg px-5 py-2.5 text-sm bg-[#3D0F1C] hover:bg-[#5B1A2B] text-white"
+                  className="rounded-lg px-5 py-2.5 text-sm bg-[#2A1F1A] hover:bg-[#3D2F28] text-white"
                 >
                   <Save className="h-4 w-4 mr-2" />
                   {updateProfileMutation.isPending
@@ -777,25 +777,25 @@ export default function SeusDados() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Completude */}
-                <div className="bg-white border border-[#5B1A2B]/10 rounded-xl p-5 flex gap-4 items-start">
-                  <div className="w-13 h-13 rounded-full bg-[#FDF6EE] flex items-center justify-center shrink-0" style={{ width: 52, height: 52 }}>
-                    <ShieldCheck className="h-6 w-6 text-[#C9A14A]" />
+                <div className="bg-white border border-[#3D2F28]/10 rounded-xl p-5 flex gap-4 items-start">
+                  <div className="w-13 h-13 rounded-full bg-[#FBF6EE] flex items-center justify-center shrink-0" style={{ width: 52, height: 52 }}>
+                    <ShieldCheck className="h-6 w-6 text-[#C98A75]" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-[15px] text-[#3D0F1C] mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                    <h3 className="text-[15px] text-[#2A1F1A] mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                       Completude do Perfil
                     </h3>
-                    <div className="h-3 rounded-full bg-[#FDF6EE] overflow-hidden">
+                    <div className="h-3 rounded-full bg-[#FBF6EE] overflow-hidden">
                       <div
-                        className="h-full bg-[#C9A14A] rounded-full transition-all"
+                        className="h-full bg-[#C98A75] rounded-full transition-all"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
                     <div className="flex flex-wrap gap-x-3 gap-y-1.5 mt-3">
                       {secoes.map((s) => (
-                        <div key={s.label} className="flex items-center gap-1.5 text-[11px] text-[#3D0F1C]/80">
+                        <div key={s.label} className="flex items-center gap-1.5 text-[11px] text-[#2A1F1A]/80">
                           <span
-                            className={`inline-block w-2.5 h-2.5 rounded-sm ${s.border ? "border border-[#5B1A2B]/20" : ""}`}
+                            className={`inline-block w-2.5 h-2.5 rounded-sm ${s.border ? "border border-[#3D2F28]/20" : ""}`}
                             style={{ backgroundColor: s.cor }}
                           />
                           {s.label}
@@ -807,17 +807,17 @@ export default function SeusDados() {
 
                 {/* Último Acesso */}
                 <div
-                  className="border border-[#5B1A2B]/10 rounded-xl p-5 flex gap-4 items-center"
-                  style={{ background: "linear-gradient(135deg, #FDF6EE 0%, #FFFFFF 100%)" }}
+                  className="border border-[#3D2F28]/10 rounded-xl p-5 flex gap-4 items-center"
+                  style={{ background: "linear-gradient(135deg, #FBF6EE 0%, #FFFFFF 100%)" }}
                 >
-                  <div className="rounded-full bg-white flex items-center justify-center shrink-0 border border-[#5B1A2B]/10" style={{ width: 52, height: 52 }}>
-                    <Clock className="h-6 w-6 text-[#5B1A2B]" />
+                  <div className="rounded-full bg-white flex items-center justify-center shrink-0 border border-[#3D2F28]/10" style={{ width: 52, height: 52 }}>
+                    <Clock className="h-6 w-6 text-[#3D2F28]" />
                   </div>
                   <div>
-                    <h3 className="text-[15px] text-[#3D0F1C]" style={{ fontFamily: "'Playfair Display', serif" }}>
+                    <h3 className="text-[15px] text-[#2A1F1A]" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                       Último Acesso
                     </h3>
-                    <p className="text-sm text-[#3D0F1C] mt-1">{ultimoAcesso}</p>
+                    <p className="text-sm text-[#2A1F1A] mt-1">{ultimoAcesso}</p>
                   </div>
                 </div>
               </div>
@@ -830,7 +830,7 @@ export default function SeusDados() {
         type="button"
         onClick={() => navigate(-1)}
         aria-label="Voltar"
-        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-[#5B1A2B] hover:bg-[#3D0F1C] text-white shadow-lg flex items-center justify-center transition"
+        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-[#3D2F28] hover:bg-[#2A1F1A] text-white shadow-lg flex items-center justify-center transition"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>

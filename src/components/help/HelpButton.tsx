@@ -15,10 +15,10 @@ export function HelpButton({ isOpen, onClick, className }: HelpButtonProps) {
       aria-label={isOpen ? "Fechar ajuda" : "Abrir ajuda"}
       aria-pressed={isOpen}
       className={cn(
-        "relative inline-flex h-[30px] w-[30px] items-center justify-center rounded-full border-[1.5px] border-[#5B1A2B] transition-all duration-200",
+        "relative inline-flex h-[30px] w-[30px] items-center justify-center rounded-full border-[1.5px] border-[#3D2F28] transition-all duration-200",
         isOpen
-          ? "bg-[#5B1A2B] text-[#FFF9F5]"
-          : "bg-transparent text-[#5B1A2B] hover:bg-[#5B1A2B]/5",
+          ? "bg-[#3D2F28] text-[#FFFDF9]"
+          : "bg-transparent text-[#3D2F28] hover:bg-[#3D2F28]/5",
         className,
       )}
     >
@@ -26,7 +26,7 @@ export function HelpButton({ isOpen, onClick, className }: HelpButtonProps) {
       {!isOpen && (
         <span
           aria-hidden="true"
-          className="absolute -top-1 -right-1 h-2 w-2 rounded-full border-[1.5px] border-white bg-[#C9A14A]"
+          className="absolute -top-1 -right-1 h-2 w-2 rounded-full border-[1.5px] border-white bg-[#C98A75]"
         />
       )}
     </button>

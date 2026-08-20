@@ -13,7 +13,7 @@ export default function EncomendasCalendarios() {
           variant="ghost"
           size="sm"
           onClick={() => navigate("/encomendas")}
-          className="text-[#3D0F1C] hover:bg-[#5B1A2B]/10"
+          className="text-[#2A1F1A] hover:bg-[#3D2F28]/10"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Voltar

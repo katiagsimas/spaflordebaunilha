@@ -14,9 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        'display': ['Playfair Display', 'Georgia', 'serif'],
-        'body': ['Inter', 'system-ui', 'sans-serif'],
-        'logo': ['Great Vibes', 'cursive'],
+        'display': ['Cormorant Garamond', 'Georgia', 'serif'],
+        'body': ['Poppins', 'system-ui', 'sans-serif'],
+        'logo': ['Cormorant Garamond', 'Georgia', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -68,15 +68,22 @@ export default {
           DEFAULT: "hsl(var(--info))",
           light: "hsl(var(--info) / 0.1)",
         },
-        cda: {
-          vinho:          '#5B1A2B',
-          'vinho-escuro': '#3D0F1C',
-          dourado:        '#C9A14A',
-          creme:          '#FDF6EE',
-          preto:          '#121212',
-          branco:         '#FFF9F5',
-          coral:          '#F28C82',
-          pink:           '#E7A1AF',
+        sfb: {
+          // Paleta institucional Espaço Flor de Baunilha
+          baunilha:       '#FBF6EE',
+          areia:          '#D8CBB9',
+          terracota:      '#C98A75',
+          salvia:         '#8E9E8C',
+          cacau:          '#3D2F28',
+          // aliases legados (mapeados para a nova paleta)
+          vinho:          '#3D2F28',
+          'vinho-escuro': '#2A1F1A',
+          dourado:        '#C98A75',
+          creme:          '#FBF6EE',
+          preto:          '#3D2F28',
+          branco:         '#FFFDF9',
+          coral:          '#C98A75',
+          pink:           '#D8CBB9',
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

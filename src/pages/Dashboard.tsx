@@ -1015,17 +1015,17 @@ export default function Dashboard() {
       <div className="flex-1 min-w-0 space-y-6">
       {/* ===== HEADER PREMIUM (padrão Negociações, com imagem à direita) ===== */}
       <div
-        className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
+        className="relative overflow-hidden rounded-2xl border border-[#3D2F28]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
         style={{ background: "#FAEFEB" }}
       >
         <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6 pr-[150px] sm:pr-[200px] lg:pr-[260px] min-h-[130px] sm:min-h-[150px] lg:min-h-[170px]">
           <div className="flex-1 min-w-0">
-            <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
+            <h1 className="font-display text-2xl font-normal leading-tight text-[#2A1F1A] sm:text-3xl lg:text-[36px]">
               {saudacaoPorHora().texto}, {getPrimeiroNome(profile?.nome_completo, user?.email)}!
             </h1>
             <div className="mt-2 flex items-center gap-3">
-              <span className="h-px w-8 bg-[#C9A14A] sm:w-10" />
-              <p className="text-xs italic text-[#C9A14A] sm:text-sm">
+              <span className="h-px w-8 bg-[#C98A75] sm:w-10" />
+              <p className="text-xs italic text-[#C98A75] sm:text-sm">
                 Aqui está o resumo do seu negócio.
               </p>
             </div>
@@ -1302,14 +1302,14 @@ export default function Dashboard() {
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={visaoEconomica.anual}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#C9A14A33" />
-                <XAxis dataKey="mes" stroke="#5B1A2B" />
-                <YAxis stroke="#5B1A2B" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#C98A7533" />
+                <XAxis dataKey="mes" stroke="#3D2F28" />
+                <YAxis stroke="#3D2F28" />
                 <Tooltip formatter={(v: number) => `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} />
                 <Legend />
-                <Line type="monotone" dataKey="receitas" stroke="#C9A14A" name="Receitas" strokeWidth={2} />
-                <Line type="monotone" dataKey="custos" stroke="#F28C82" name="Custos" strokeWidth={2} />
-                <Line type="monotone" dataKey="lucro" stroke="#5B1A2B" name="Lucro" strokeWidth={2} />
+                <Line type="monotone" dataKey="receitas" stroke="#C98A75" name="Receitas" strokeWidth={2} />
+                <Line type="monotone" dataKey="custos" stroke="#C98A75" name="Custos" strokeWidth={2} />
+                <Line type="monotone" dataKey="lucro" stroke="#3D2F28" name="Lucro" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -1328,11 +1328,11 @@ export default function Dashboard() {
               <div className="h-[220px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={vendasPorMes}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#C9A14A33" />
-                    <XAxis dataKey="mes" stroke="#5B1A2B" fontSize={12} />
-                    <YAxis stroke="#5B1A2B" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#C98A7533" />
+                    <XAxis dataKey="mes" stroke="#3D2F28" fontSize={12} />
+                    <YAxis stroke="#3D2F28" fontSize={12} />
                     <Tooltip formatter={(v: number) => [`R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, "Vendas"]} />
-                    <Bar dataKey="total" fill="#5B1A2B" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="total" fill="#3D2F28" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -1349,16 +1349,16 @@ export default function Dashboard() {
                 <div className="h-[160px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={fluxoCaixa}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#C9A14A33" />
-                      <XAxis dataKey="mes" stroke="#5B1A2B" fontSize={12} />
-                      <YAxis stroke="#5B1A2B" fontSize={12} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#C98A7533" />
+                      <XAxis dataKey="mes" stroke="#3D2F28" fontSize={12} />
+                      <YAxis stroke="#3D2F28" fontSize={12} />
                       <Tooltip formatter={(v: number) => [`R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, "Saldo"]} />
                       <Line
                         type="monotone"
                         dataKey="saldo"
-                        stroke="#C9A14A"
+                        stroke="#C98A75"
                         strokeWidth={2.5}
-                        dot={{ fill: "#5B1A2B", r: 4 }}
+                        dot={{ fill: "#3D2F28", r: 4 }}
                         activeDot={{ r: 6 }}
                       />
                     </LineChart>

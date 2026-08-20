@@ -29,7 +29,7 @@ export function SignaturePad({ onSave, saving, width = 500, height = 180 }: Sign
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.lineWidth = 2.2;
-    ctx.strokeStyle = "#121212";
+    ctx.strokeStyle = "#3D2F28";
   }, [width, height]);
 
   const getPos = (e: React.PointerEvent<HTMLCanvasElement>) => {
