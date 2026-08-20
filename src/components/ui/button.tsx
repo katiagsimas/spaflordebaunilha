@@ -5,18 +5,18 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold font-body ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold font-body ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sfb-terracota focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98]",
   {
     variants: {
       variant: {
-        default: "bg-sfb-terracota text-sfb-baunilha shadow-soft hover:brightness-[0.95] hover:-translate-y-0.5 hover:shadow-elevated",
-        destructive: "bg-destructive text-destructive-foreground hover:brightness-[0.92]",
-        outline: "border border-secondary bg-transparent text-foreground hover:bg-secondary/20",
-        secondary: "bg-secondary text-secondary-foreground hover:brightness-[0.95]",
-        ghost: "bg-transparent text-foreground hover:bg-secondary/15",
-        link: "text-accent underline-offset-4 hover:underline",
-        warning: "bg-warning text-foreground hover:brightness-95",
-        premium: "bg-sfb-dourado text-sfb-preto hover:brightness-[0.95]",
+        default: "bg-sfb-terracota text-sfb-baunilha shadow-soft hover:bg-sfb-terracota/90 hover:-translate-y-0.5 hover:shadow-elevated active:bg-sfb-terracota",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        outline: "border-2 border-sfb-terracota bg-transparent text-sfb-cacau hover:bg-sfb-terracota hover:text-sfb-baunilha",
+        secondary: "bg-sfb-areia text-sfb-cacau hover:bg-sfb-areia/80",
+        ghost: "bg-transparent text-sfb-cacau hover:bg-sfb-terracota/10 hover:text-sfb-terracota",
+        link: "text-sfb-terracota underline-offset-4 hover:underline",
+        warning: "bg-warning text-foreground hover:bg-warning/90",
+        premium: "bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90 shadow-md",
       },
       size: {
         default: "h-10 px-6 py-3",
