@@ -7,7 +7,7 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
+
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +17,7 @@ import { exportarReceitaPDF } from "@/utils/exportarReceitaPDF";
 
 
 export default function Receitas() {
-  const { onboardingPendente } = useOnboardingStatus();
+  
 
   const navigate = useNavigate();
 
@@ -124,10 +124,6 @@ export default function Receitas() {
       <div className="flex justify-start">
         <Button
           onClick={() => {
-            if (onboardingPendente) {
-              toast.error("Conclua o onboarding para realizar esta ação!");
-              return;
-            }
             navigate("/precificacao/ficha-tecnica/nova");
           }}
           className="bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90"
