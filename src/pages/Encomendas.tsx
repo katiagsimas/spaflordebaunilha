@@ -37,10 +37,6 @@ import { EncomendasDoDia } from "@/components/EncomendasDoDia";
 
 import { useEncomendasHoje } from "@/hooks/useEncomendasHoje";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useModuleHelp } from "@/hooks/useModuleHelp";
-import { HelpButton } from "@/components/help/HelpButton";
-import { ModuleHelpDrawer } from "@/components/help/ModuleHelpDrawer";
-import { encomendaHelp } from "@/components/help/contents/encomendaHelp";
 import { EncomendaStatusCard } from "@/components/encomendas/EncomendaStatusCard";
 
 

@@ -78,10 +78,6 @@ import {
 
 import { useResumoDashboard } from '@/hooks/useResumoDashboard';
 import { TabelaInadimplencia } from '@/components/financeiro/TabelaInadimplencia';
-import { useModuleHelp } from '@/hooks/useModuleHelp';
-import { HelpButton } from '@/components/help/HelpButton';
-import { ModuleHelpDrawer } from '@/components/help/ModuleHelpDrawer';
-import { financeiroHelp } from '@/components/help/contents/financeiroHelp';
 import dinheiroHero from '@/assets/dinheiro-hero-banner.png';
 import { HeroBanner } from '@/components/HeroBanner';
 
