@@ -12,7 +12,7 @@ export default function PrecificacaoPage() {
     <div className="min-h-screen bg-background">
       <PageHeader
         title="Precificação"
-        description="Configure mão de obra, unidades de medida e categorias de receitas"
+        description="Configure mão de obra, unidades de medida e categorias"
         backButton={<BackButton to="/cadastros" />}
       />
       
@@ -64,7 +64,7 @@ export default function PrecificacaoPage() {
           </CardHeader>
         </Card>
 
-        {/* Card: Categorias de Receitas */}
+        {/* Card: Categorias */}
         <Card 
           className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-sfb-terracota/60"
           onClick={() => navigate("/configuracoes/categorias-receitas")}
@@ -76,7 +76,7 @@ export default function PrecificacaoPage() {
               </div>
               <div className="min-w-0 flex-1">
                 <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
-                  Categorias de Receitas
+                  Categorias
                 </CardTitle>
               </div>
             </div>

@@ -93,7 +93,7 @@ export default function Categorias() {
       XLSX.utils.book_append_sheet(wb, ws, 'Categorias');
       
       const hoje = new Date().toISOString().split('T')[0];
-      XLSX.writeFile(wb, `Categorias_Receitas_${hoje}.xlsx`);
+      XLSX.writeFile(wb, `Categorias_${hoje}.xlsx`);
 
       toast.success('Planilha exportada com sucesso!');
     } catch (error) {
@@ -117,14 +117,14 @@ export default function Categorias() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Categorias de Receitas"
-        description="Gerencie as categorias de receitas"
+        title="Categorias"
+        description="Gerencie as categorias"
         backButton={<BackButton to="/cadastros" />}
       />
 
       <Card>
         <CardHeader>
-          <CardTitle>Categorias de Receitas</CardTitle>
+          <CardTitle>Categorias</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
             {/* Filtros */}
