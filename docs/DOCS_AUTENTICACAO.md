@@ -1,4 +1,4 @@
-# 🔐 DOCUMENTAÇÃO: Autenticação — Caixa de Açúcar
+# 🔐 DOCUMENTAÇÃO: Autenticação — Spa Flor de Baunilha
 
 **Atualizada em:** 26/05/2026  
 **Versão:** 4.2
@@ -7,7 +7,7 @@
 
 ## 1. VISÃO GERAL
 
-O Caixa de Açúcar é uma plataforma independente. A autenticação segue estes princípios:
+O Spa Flor de Baunilha é uma plataforma independente. A autenticação segue estes princípios:
 
 1. **Sem autocadastro**: A rota `/auth/signup` redireciona para `/auth/login`
 2. **Provisionamento duplo**: Novos usuários são criados pelo **admin** (painel) ou pelo **Webhook da Hotmart** (compra automática)

@@ -15,7 +15,7 @@ export function LoadingMascote({
     <div className="flex flex-col items-center justify-center gap-3">
       <img
         src={cdaLogo}
-        alt="Carregando - Caixa de Açúcar"
+        alt="Carregando - Spa Flor de Baunilha"
         style={{ width: size, height: size }}
         className="animate-spin-slow"
       />

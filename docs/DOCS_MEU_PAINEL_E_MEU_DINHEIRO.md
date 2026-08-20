@@ -1,6 +1,6 @@
 # 📊💰 DOCUMENTAÇÃO — Módulos "Meu Painel" e "Meu Dinheiro"
 
-**Projeto:** Caixa de Açúcar
+**Projeto:** Spa Flor de Baunilha
 **Atualizado em:** 2026-05-25
 **Escopo:** Visão consolidada das implementações e do comportamento atual dos módulos **Meu Painel** (`/dashboard`) e **Meu Dinheiro** (`/financeiro`), incluindo integrações, hooks, regras de negócio e dependências cruzadas.
 

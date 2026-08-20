@@ -38,7 +38,7 @@ export default function Upgrade() {
           <Button
             className="w-full bg-cda-coral text-white hover:bg-cda-coral/90 font-body"
             size="lg"
-            onClick={() => window.open("https://wa.me/5511999999999?text=Olá Ká! Gostaria de fazer upgrade do meu plano no Caixa de Açúcar.", "_blank")}
+            onClick={() => window.open("https://wa.me/5511999999999?text=Olá Ká! Gostaria de fazer upgrade do meu plano no Spa Flor de Baunilha.", "_blank")}
           >
             <MessageCircle className="mr-2 h-5 w-5" />
             Falar no WhatsApp

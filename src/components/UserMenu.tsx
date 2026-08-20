@@ -83,7 +83,7 @@ export function UserMenu() {
 
   const handleSuporte = () => {
     const msg = encodeURIComponent(
-      `Olá! Sou ${primeiroNome} (${user?.email ?? ""}) e preciso de suporte no Caixa de Açúcar.`
+      `Olá! Sou ${primeiroNome} (${user?.email ?? ""}) e preciso de suporte no Spa Flor de Baunilha.`
     );
     window.open(`https://wa.me/${WHATSAPP_SUPORTE}?text=${msg}`, "_blank");
   };

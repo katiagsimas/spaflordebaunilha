@@ -66,7 +66,7 @@ export default function OnboardingBemVinda() {
 
             <div className="space-y-3">
               <p className="text-sm uppercase tracking-[0.2em] text-cda-vinho font-semibold">
-                Boas-vindas ao Caixa de Açúcar
+                Boas-vindas ao Spa Flor de Baunilha
               </p>
               <h1 className="text-3xl md:text-4xl font-display font-bold text-cda-preto leading-tight">
                 Que alegria ter você aqui,{" "}

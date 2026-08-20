@@ -1,4 +1,4 @@
-# 💗 DOCUMENTAÇÃO: Meu Salário (Método Renda Doce) — Caixa de Açúcar
+# 💗 DOCUMENTAÇÃO: Meu Salário (Método Renda Doce) — Spa Flor de Baunilha
 
 **Atualizada em:** 26/05/2026
 

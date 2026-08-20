@@ -1,4 +1,4 @@
-# 🛍️ DOCUMENTAÇÃO: Módulo de Encomendas — Caixa de Açúcar
+# 🛍️ DOCUMENTAÇÃO: Módulo de Encomendas — Spa Flor de Baunilha
 
 **Atualizada em:** 26/05/2026
 

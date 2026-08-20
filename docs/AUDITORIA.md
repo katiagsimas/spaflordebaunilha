@@ -1,4 +1,4 @@
-# 📋 REGISTRO DE AUDITORIAS — CAIXA DE AÇÚCAR
+# 📋 REGISTRO DE AUDITORIAS — Spa Flor de Baunilha
 
 > Este arquivo é gerado e atualizado automaticamente a cada auditoria realizada no projeto.
 > Última atualização: 2026-06-22T17:05:00Z — Auditoria completa pré-lançamento #3.
@@ -525,7 +525,7 @@
 
 ---
 
-> Última atualização: 2026-05-27T12:30:00Z — Removido botão "Tour pelo Caixa de Açúcar" do onboarding de conclusão.
+> Última atualização: 2026-05-27T12:30:00Z — Removido botão "Tour pelo Spa Flor de Baunilha" do onboarding de conclusão.
 
 ## BACKUP — MÓDULO GOVERNANÇA (MOTHER ONLY) — 2026-05-26 21:00 UTC
 
@@ -796,16 +796,16 @@
 
 ---
 
-## REMOÇÃO APP UMBRELLA DOCE — 2026-05-07 12:00 UTC
+## REMOÇÃO APP Spa Flor de Baunilha — 2026-05-07 12:00 UTC
 
 | # | Item | Status | Descrição |
 |---|------|--------|-----------|
 | 73 | Tokens CSS `--umbrella-*` → `--cda-*` | ✅ | Renomeados em index.css, tailwind.config.ts e todos os componentes que usavam classes `umbrella-*` |
 | 74 | Logo `umbrella-logo-dourado.png` → `cda-logo-dourado.png` | ✅ | Renomeado em public/ e src/assets/. Referências atualizadas em index.html e LoadingMascote.tsx |
-| 75 | Alt texts e comentários | ✅ | Alterados de "Umbrella Doce — Gestão para Confeitarias" para "Caixa de Açúcar — Gestão para Confeitarias" |
+| 75 | Alt texts e comentários | ✅ | Alterados de "Spa Flor de Baunilha — Gestão para Confeitarias" para "Spa Flor de Baunilha" |
 | 76 | Link upgrade `gestao.umbrelladoce.com.br` | ✅ | Removido de AlertaExpiracaoPlano.tsx |
-| 77 | DOCS_MESTRE.md | ✅ | Atualizado ecossistema, paleta e tokens. Mantido "by Umbrella Doce" como marca da empresa |
-| 78 | Referências mantidas (empresa) | ℹ️ | Emails (@umbrelladoce.com.br), domínio (caixa.umbrelladoce.com.br) e branding "by Umbrella Doce" preservados — são da empresa, não do app |
+| 77 | DOCS_MESTRE.md | ✅ | Atualizado ecossistema, paleta e tokens. Mantido "by Spa Flor de Baunilha" como marca da empresa |
+| 78 | Referências mantidas (empresa) | ℹ️ | Emails (@umbrelladoce.com.br), domínio (caixa.umbrelladoce.com.br) e branding "by Spa Flor de Baunilha" preservados — são da empresa, não do app |
 
 ---
 
@@ -997,13 +997,13 @@
 
 ---
 
-## ARQUITETURA — 2026-04-08 21:00 UTC (Desvinculação Umbrella Doce)
+## ARQUITETURA — 2026-04-08 21:00 UTC (Desvinculação Spa Flor de Baunilha)
 
 | # | Item | Status | Descrição |
 |---|------|--------|-----------|
-| 9 | SSO removido | ✅ | Deletados: SSO.tsx, validar-token-sso, gerar-token-retorno. Rota /auth/sso removida. Botão "Voltar Umbrella Doce" removido da sidebar. Secret SSO_SECRET deletado. |
+| 9 | SSO removido | ✅ | Deletados: SSO.tsx, validar-token-sso, gerar-token-retorno. Rota /auth/sso removida. Botão "Voltar Spa Flor de Baunilha" removido da sidebar. Secret SSO_SECRET deletado. |
 | 10 | Webhook Hotmart criado | ✅ | Edge function `hotmart-webhook` para provisionamento automático. Eventos: PURCHASE_APPROVED/COMPLETE (ativa), CANCELED/REFUNDED/CHARGEBACK/SUBSCRIPTION_CANCELLATION (desativa), SWITCH_PLAN (atualiza plano). Validação via HOTMART_HOTTOK. |
-| 11 | criar-usuario simplificado | ✅ | Removida autenticação via x-api-secret (Umbrella Doce). Mantida apenas autenticação via JWT de admin. Adicionado log em admin_logs. |
+| 11 | criar-usuario simplificado | ✅ | Removida autenticação via x-api-secret (Spa Flor de Baunilha). Mantida apenas autenticação via JWT de admin. Adicionado log em admin_logs. |
 | 12 | Painel admin: criar usuário | ✅ | Botão "Criar Usuário" adicionado em /admin/usuarios com dialog (email, nome, confeitaria, plano, periodicidade). Envia convite por Magic Link. |
 
 ---
@@ -1143,7 +1143,7 @@ Todos os itens críticos foram resolvidos. Restam 18 itens de atenção (⚠️)
 
 ---
 
-*Auditoria realizada por Lovable AI — Prompt de Auditoria v1.0 — Umbrella Doce | Ká Simas*
+*Auditoria realizada por Lovable AI — Prompt de Auditoria v1.0 — Spa Flor de Baunilha | Ká Simas*
 
 ## 2026-04-19 — Agendamento de Backup persistente
 - ✅ Criada tabela `backup_agendamentos` (RLS por usuário) para persistir frequência, horário e status ativo.
@@ -1433,7 +1433,7 @@ Substituiu a abordagem com Vault (que exigia `vault.create_secret` manual no SQL
 - **Rota:** `/organizacao-doce` em `App.tsx` envelopada por `PlanoGuard` (acesso: Caixa Business + Mother; Lite redireciona para `/upgrade`).
 - **Sidebar:** item adicionado em PLANEJAMENTO (ícone `ListChecks`).
 - **Layout global:**
-  - Rodapé com texto `Umbrella Doce by Ká Simas · CNPJ 65.786.966/0001-41 · Todos os direitos reservados.` adicionado ao `Layout` em `src/App.tsx`.
+  - Rodapé com texto `Spa Flor de Baunilha by Ká Simas · CNPJ 65.786.966/0001-41 · Todos os direitos reservados.` adicionado ao `Layout` em `src/App.tsx`.
   - Botão "Limpar cache e recarregar" movido do rodapé da Sidebar para o cabeçalho (entre `BackupBadge` e `UserMenu`) como ícone colapsável (`ClearCacheButton` em `HeaderControls.tsx`): primeiro clique expande o título, segundo clique executa a limpeza + hard reload.
 
 ---
@@ -1711,7 +1711,7 @@ Arquivos alterados:
 - `FirstAccessRedirect` reorganizado para o fluxo: Boas-vindas → Meus Dados → Mão de Obra → Backup → Conclusão.
 - Fluxo se aplica a TODOS os planos. Apenas usuário MOTHER e admins legados são dispensados.
 - Estado de progresso persistido no banco; sobrevive a logout/login e troca de dispositivo.
-- **2026-05-27**: Removido botão "Tour pelo Caixa de Açúcar". Constante `TOUR_URL` e função `handleTour` removidas de `Concluido.tsx`. Apenas botão "Iniciar Minha Jornada" permanece.
+- **2026-05-27**: Removido botão "Tour pelo Spa Flor de Baunilha". Constante `TOUR_URL` e função `handleTour` removidas de `Concluido.tsx`. Apenas botão "Iniciar Minha Jornada" permanece.
 
 ## 2026-05-27 — Onboarding: navegação automática entre etapas
 - ✅ `SeusDados.tsx`: após "Salvar Dados" durante onboarding, navega automaticamente para Mão de Obra.

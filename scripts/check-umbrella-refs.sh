@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ============================================================
 # check-umbrella-refs.sh
-# Verifica que não existem referências ao "app Umbrella Doce"
-# no código-fonte. Apenas "by Umbrella Doce" (marca da empresa),
+# Verifica que não existem referências ao "app Spa Flor de Baunilha"
+# no código-fonte. Apenas "by Spa Flor de Baunilha" (marca da empresa),
 # emails @umbrelladoce.com.br e domínio caixa.umbrelladoce.com.br
 # são permitidos.
 # ============================================================
@@ -15,7 +15,7 @@ NC='\033[0m'
 
 ERRORS=0
 
-echo "🔍 Verificando referências proibidas ao app Umbrella Doce..."
+echo "🔍 Verificando referências proibidas ao app Spa Flor de Baunilha..."
 echo ""
 
 # 1. Tokens CSS antigos --umbrella-*
@@ -72,9 +72,9 @@ else
   echo -e "${GREEN}OK${NC}"
 fi
 
-# 6. Texto "app Umbrella Doce" (menção ao app como produto separado)
-echo -n "  [6/6] Texto 'app Umbrella Doce' ... "
-HITS=$(rg -rni 'app umbrella doce' src/ supabase/ index.html DOCS_MESTRE.md DOCS_AUTENTICACAO.md 2>/dev/null || true)
+# 6. Texto "app Spa Flor de Baunilha" (menção ao app como produto separado)
+echo -n "  [6/6] Texto 'app Spa Flor de Baunilha' ... "
+HITS=$(rg -rni 'app Spa Flor de Baunilha' src/ supabase/ index.html DOCS_MESTRE.md DOCS_AUTENTICACAO.md 2>/dev/null || true)
 if [ -n "$HITS" ]; then
   echo -e "${RED}FALHOU${NC}"
   echo "$HITS"
@@ -84,8 +84,8 @@ else
 fi
 
 # 7. Strings em PDFs exportados (exportarReceitaPDF, exportarPrePreparoPDF, gerarReciboPagamento, templates)
-echo -n "  [7/7] Texto 'app Umbrella Doce' em geradores de PDF ... "
-HITS=$(rg -rni 'app umbrella doce' src/utils/exportar*.ts src/utils/gerar*.ts supabase/functions/*/index.ts 2>/dev/null | grep -vi 'by umbrella doce' || true)
+echo -n "  [7/7] Texto 'app Spa Flor de Baunilha' em geradores de PDF ... "
+HITS=$(rg -rni 'app Spa Flor de Baunilha' src/utils/exportar*.ts src/utils/gerar*.ts supabase/functions/*/index.ts 2>/dev/null | grep -vi 'by Spa Flor de Baunilha' || true)
 if [ -n "$HITS" ]; then
   echo -e "${RED}FALHOU${NC}"
   echo "$HITS"
@@ -98,7 +98,7 @@ echo ""
 
 # Verificação informativa (não bloqueia)
 echo -e "${YELLOW}ℹ️  Referências legítimas mantidas (empresa):${NC}"
-echo "  - 'by Umbrella Doce' (branding)"
+echo "  - 'by Spa Flor de Baunilha' (branding)"
 echo "  - Emails @umbrelladoce.com.br"  
 echo "  - Domínio caixa.umbrelladoce.com.br"
 echo ""

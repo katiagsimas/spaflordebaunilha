@@ -1,5 +1,5 @@
 /**
- * Validação de Senha — Caixa de Açúcar
+ * Validação de Senha — Spa Flor de Baunilha
  * 
  * Regras:
  * 1. Mínimo de 6 caracteres

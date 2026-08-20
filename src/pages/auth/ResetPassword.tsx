@@ -160,7 +160,7 @@ export default function ResetPassword() {
           <div className="text-center">
             <img
               src={caixaAcucarIcon}
-              alt="Caixa de Açúcar — by Umbrella Doce"
+              alt="Spa Flor de Baunilha"
               className="mx-auto w-full max-w-sm h-auto"
             />
           </div>
@@ -180,7 +180,7 @@ export default function ResetPassword() {
         <div className="text-center">
           <img
             src={caixaAcucarIcon}
-            alt="Caixa de Açúcar — by Umbrella Doce"
+            alt="Spa Flor de Baunilha"
             className="mx-auto w-full max-w-sm h-auto"
           />
         </div>
@@ -297,7 +297,7 @@ export default function ResetPassword() {
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <img
           src={authBrandImage}
-          alt="Caixa de Açúcar — Gestão para Confeitarias"
+          alt="Spa Flor de Baunilha"
           className="absolute inset-0 w-full h-full object-cover"
         />
       </div>

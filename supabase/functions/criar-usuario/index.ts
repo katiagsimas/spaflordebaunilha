@@ -394,7 +394,7 @@ async function enviarEmailBoasVindas(
       ${''}
       <p>Qualquer dúvida, responda este email ou acesse o suporte através do e-mail <a href="mailto:ola@umbrelladoce.com.br" style="color: #5B1A2B;">ola@umbrelladoce.com.br</a></p>
       <br/>
-      <p>Umbrella Doce</p>
+      <p>Spa Flor de Baunilha</p>
     </div>
   `
 
@@ -406,9 +406,9 @@ async function enviarEmailBoasVindas(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Caixa de Açúcar <noreply@umbrelladoce.com.br>',
+        from: 'Spa Flor de Baunilha <noreply@umbrelladoce.com.br>',
         to: [email],
-        subject: 'Seu acesso ao Caixa de Açúcar está pronto',
+        subject: 'Seu acesso ao Spa Flor de Baunilha está pronto',
         html,
       }),
     })

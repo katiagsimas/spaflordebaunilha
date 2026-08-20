@@ -113,7 +113,7 @@ Deno.serve(async (req) => {
     const html = `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.6;">
         <p>Olá, ${nomeDisplay}!</p>
-        <p>Recebemos uma solicitação para redefinir sua senha no Caixa de Açúcar.</p>
+        <p>Recebemos uma solicitação para redefinir sua senha no Spa Flor de Baunilha.</p>
         <p>Clique no botão abaixo para criar uma nova senha:</p>
         <div style="text-align: center; margin: 30px 0;">
           <a href="${recoveryLink}" style="background-color: #D89B8C; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
@@ -122,7 +122,7 @@ Deno.serve(async (req) => {
         </div>
         <p style="font-size: 13px; color: #666;">Se você não solicitou essa alteração, ignore este email. O link expira em 1 hora.</p>
         <br/>
-        <p>Umbrella Doce</p>
+        <p>Spa Flor de Baunilha</p>
       </div>
     `
 
@@ -133,9 +133,9 @@ Deno.serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Caixa de Açúcar <noreply@umbrelladoce.com.br>',
+        from: 'Spa Flor de Baunilha <noreply@umbrelladoce.com.br>',
         to: [email.trim().toLowerCase()],
-        subject: 'Redefinição de senha — Caixa de Açúcar',
+        subject: 'Redefinição de senha — Spa Flor de Baunilha',
         html,
       }),
     })

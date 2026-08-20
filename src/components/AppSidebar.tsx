@@ -184,13 +184,13 @@ export function AppSidebar() {
       <SidebarHeader className="h-14 border-b border-cda-dourado/30 px-4 py-0 flex items-center justify-center bg-cda-vinho">
         {open && (
           <div className="flex items-center gap-2.5">
-            <img src="/cda-logo-dourado.png" alt="Caixa de Açúcar" className="h-7 w-7 drop-shadow" />
+            <img src="/cda-logo-dourado.png" alt="Spa Flor de Baunilha" className="h-7 w-7 drop-shadow" />
             <div className="flex flex-col leading-tight">
               <span className="font-display text-base text-cda-creme tracking-wide">
-                Caixa de Açúcar
+                Spa Flor de Baunilha
               </span>
               <span className="text-[9px] font-body font-light text-cda-dourado/80 tracking-[0.2em] uppercase">
-                by Umbrella Doce
+                by Spa Flor de Baunilha
               </span>
             </div>
           </div>
@@ -343,7 +343,7 @@ export function AppSidebar() {
               {upgradeModal?.title} <Lock className="h-5 w-5 text-cda-dourado" />
             </DialogTitle>
             <DialogDescription className="text-base font-body text-muted-foreground pt-2">
-              Este módulo é exclusivo do <strong>Plano Caixa Business</strong>. Faça o upgrade do seu plano para liberar <strong>{upgradeModal?.title}</strong> e todas as ferramentas avançadas do Caixa de Açúcar.
+              Este módulo é exclusivo do <strong>Plano Caixa Business</strong>. Faça o upgrade do seu plano para liberar <strong>{upgradeModal?.title}</strong> e todas as ferramentas avançadas do Spa Flor de Baunilha.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end pt-2">

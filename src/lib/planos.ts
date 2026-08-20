@@ -1,5 +1,5 @@
 /**
- * Constantes e helpers centralizados de planos do Caixa de Açúcar.
+ * Constantes e helpers centralizados de planos do Spa Flor de Baunilha.
  */
 
 export const IMERSAO_DIAS_ACESSO = 30;

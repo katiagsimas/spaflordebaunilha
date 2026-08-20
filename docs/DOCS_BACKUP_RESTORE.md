@@ -1,4 +1,4 @@
-# Backup & Restauração — Caixa de Açúcar
+# Backup & Restauração — Spa Flor de Baunilha
 
 Última atualização: 2026-05-26
 

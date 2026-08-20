@@ -1,4 +1,4 @@
-# 🔒 DOCUMENTAÇÃO: Fechamento de Mês — Caixa de Açúcar
+# 🔒 DOCUMENTAÇÃO: Fechamento de Mês — Spa Flor de Baunilha
 
 **Atualizada em:** 26/05/2026
 

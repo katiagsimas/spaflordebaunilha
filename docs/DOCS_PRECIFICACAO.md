@@ -1,4 +1,4 @@
-# 🧮 DOCUMENTAÇÃO: Módulo de Precificação — Caixa de Açúcar
+# 🧮 DOCUMENTAÇÃO: Módulo de Precificação — Spa Flor de Baunilha
 
 **Atualizada em:** 26/05/2026
 

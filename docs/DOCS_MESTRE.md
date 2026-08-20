@@ -1,6 +1,6 @@
-# 📘 DOCUMENTAÇÃO MESTRE — CAIXA DE AÇÚCAR
+# 📘 DOCUMENTAÇÃO MESTRE — Spa Flor de Baunilha
 
-**Sistema de Gestão para Confeitarias — by Umbrella Doce**  
+**Sistema de Gestão para Confeitarias — by Spa Flor de Baunilha**  
 **Atualizada em:** 22/06/2026  
 **Stack:** React 18 + TypeScript + Vite + Tailwind CSS + Lovable Cloud (Supabase)
 
@@ -11,13 +11,13 @@
 ## 1. VISÃO GERAL
 
 ### 1.1 O que é
-Caixa de Açúcar é um SaaS de gestão completo para confeitarias, doceiras e padarias artesanais. Permite controlar encomendas, precificar produtos com fichas técnicas, gerenciar comercial (propostas, contratos e negociações), financeiro (contas a pagar/receber, fluxo de caixa, DRE, fechamento de mês), controlar estoque com custo médio, gerenciar pró-labore (Meu Salário) — tudo com isolamento multi-tenant por grupos.
+Spa Flor de Baunilha é um SaaS de gestão completo para confeitarias, doceiras e padarias artesanais. Permite controlar encomendas, precificar produtos com fichas técnicas, gerenciar comercial (propostas, contratos e negociações), financeiro (contas a pagar/receber, fluxo de caixa, DRE, fechamento de mês), controlar estoque com custo médio, gerenciar pró-labore (Meu Salário) — tudo com isolamento multi-tenant por grupos.
 
 ### 1.2 Para quem
 Confeiteiras, doceiras e pequenas empresas do ramo de confeitaria.
 
 ### 1.3 Ecossistema
-Sistema principal da **Umbrella Doce**. Criação de usuários exclusivamente via **painel admin** ou **webhook Hotmart** (compra automática). Sem autocadastro público nem SSO externo.
+Sistema principal da **Spa Flor de Baunilha**. Criação de usuários exclusivamente via **painel admin** ou **webhook Hotmart** (compra automática). Sem autocadastro público nem SSO externo.
 
 > 📄 Detalhes em [DOCS_AUTENTICACAO.md](./DOCS_AUTENTICACAO.md)
 
@@ -101,7 +101,7 @@ docs/                      # Toda a documentação do projeto (raiz tem só READ
 
 ## 4. DESIGN SYSTEM — Vinho Premium v2
 
-### 4.1 Paleta Caixa de Açúcar
+### 4.1 Paleta Spa Flor de Baunilha
 | Token | Cor | HSL |
 |-------|-----|-----|
 | `--cda-vinho` | #5B1A2B | `345 55% 23%` |

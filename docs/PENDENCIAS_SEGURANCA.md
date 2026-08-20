@@ -1,4 +1,4 @@
-# 🔒 PENDÊNCIAS DE SEGURANÇA — CAIXA DE AÇÚCAR
+# 🔒 PENDÊNCIAS DE SEGURANÇA — Spa Flor de Baunilha
 
 > Itens que dependem de ação externa ou decisão do time para serem resolvidos.
 > Última atualização: 2026-05-28T23:20:00Z
@@ -69,4 +69,4 @@
 
 ---
 
-*Mantido por Lovable AI — Umbrella Doce | Ká Simas*
+*Mantido por Lovable AI — Spa Flor de Baunilha | Ká Simas*

@@ -1,4 +1,4 @@
-# 💰 DOCUMENTAÇÃO: Módulo Financeiro — Caixa de Açúcar
+# 💰 DOCUMENTAÇÃO: Módulo Financeiro — Spa Flor de Baunilha
 
 **Atualizada em:** 26/05/2026
 

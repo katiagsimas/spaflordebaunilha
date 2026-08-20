@@ -529,7 +529,7 @@ export default function Backup() {
           <span className="text-sm font-medium text-[#3D0F1C]">Sobre os backups</span>
         </div>
         <p className="text-[13px] text-[#3D0F1C]/70 leading-relaxed">
-          Cada backup é salvo na nuvem do Caixa de Açúcar e baixado para o seu computador. Você pode escolher quais{" "}
+          Cada backup é salvo na nuvem do Spa Flor de Baunilha e baixado para o seu computador. Você pode escolher quais{" "}
           <span className="font-bold text-[#3D0F1C]">módulos</span> incluir e por quantos dias manter os backups antigos. Nome do arquivo:{" "}
           <code className="font-mono text-[12px] bg-[#FDF6EE] px-2 py-0.5 rounded">{nomeBackupAtual}</code>
         </p>
@@ -900,7 +900,7 @@ export default function Backup() {
                       await queryClient.invalidateQueries({ queryKey: ["onboarding-status"] });
                       await queryClient.refetchQueries({ queryKey: ["onboarding-status"], type: "active" });
                       if (eraOnboarding) {
-                        toast.success("Configuração concluída! Bem-vindo(a) ao Caixa de Açúcar 🎉");
+                        toast.success("Configuração concluída! Bem-vindo(a) ao Spa Flor de Baunilha 🎉");
                         setTimeout(() => navigate("/onboarding/concluido", { replace: true }), 50);
                       }
                     }
@@ -950,7 +950,7 @@ export default function Backup() {
       <Card className="border-cda-dourado/40">
         <CardHeader>
           <CardTitle className="text-lg">Histórico de backups</CardTitle>
-          <CardDescription>Salvos na nuvem do Caixa de Açúcar</CardDescription>
+          <CardDescription>Salvos na nuvem do Spa Flor de Baunilha</CardDescription>
         </CardHeader>
         <CardContent>
           {carregando ? (

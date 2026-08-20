@@ -1,4 +1,4 @@
-# Auditoria de Consumo e Arquitetura — Caixa de Açúcar
+# Auditoria de Consumo e Arquitetura — Spa Flor de Baunilha
 
 **Data:** 2026-05-29 UTC
 **Escopo:** Diagnóstico real baseado no estado atual do projeto (banco, storage, edge functions, realtime, IA, cron e frontend).

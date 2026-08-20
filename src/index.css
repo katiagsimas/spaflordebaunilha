@@ -2,11 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Caixa de Açúcar by Ká Simas — Design System v2 */
+/* Spa Flor de Baunilha by Ká Simas — Design System v2 */
 
 @layer base {
   :root {
-    /* Paleta Caixa de Açúcar — Vinho Premium */
+    /* Paleta Spa Flor de Baunilha — Vinho Premium */
     --cda-vinho:        345 55% 23%;   /* #5B1A2B */
     --cda-vinho-escuro: 345 55% 15%;   /* #3D0F1C */
     --cda-dourado:      42  48% 54%;   /* #C9A14A */

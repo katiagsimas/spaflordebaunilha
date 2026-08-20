@@ -1,4 +1,4 @@
-# 📦 DOCUMENTAÇÃO: Módulo de Estoque — Caixa de Açúcar
+# 📦 DOCUMENTAÇÃO: Módulo de Estoque — Spa Flor de Baunilha
 
 **Criado em:** Maio 2026
 **Última atualização:** 26/05/2026
