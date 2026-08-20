@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useGroup } from '@/contexts/GroupContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -101,6 +102,7 @@ const BANCOS_OFICIAIS: Record<string, string> = {
 export default function Bancos() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { activeGroupId } = useGroup();
   const [bancos, setBancos] = useState<Banco[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -343,10 +345,12 @@ export default function Bancos() {
         }
 
         // Criar
+        if (!activeGroupId) throw new Error('Sem contexto de grupo');
         const { error } = await supabase
           .from('bancos')
           .insert({
             usuario_id: user.id,
+            owner_group_id: activeGroupId,
             codigo: codigoFinal,
             nome: nome.trim(),
             tipo: tipo,

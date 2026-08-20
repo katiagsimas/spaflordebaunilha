@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserId } from './useUserId';
+import { useGroup } from '@/contexts/GroupContext';
 import { toast } from 'sonner';
 
 export interface UnidadeMedida {
@@ -24,6 +25,7 @@ const UNIDADES_PADRAO = [
 
 export function useUnidadesMedida() {
   const userId = useUserId();
+  const { activeGroupId } = useGroup();
   const queryClient = useQueryClient();
 
   const gerarProximoCodigo = async (): Promise<string> => {
@@ -55,10 +57,12 @@ export function useUnidadesMedida() {
       if (error) throw error;
 
       if (!data || data.length === 0) {
+        if (!activeGroupId) return [];
         // Seed unidades padrão
         const unidadesComUsuario = UNIDADES_PADRAO.map((u, index) => ({
           ...u,
           usuario_id: userId,
+          owner_group_id: activeGroupId,
           codigo: (index + 1).toString().padStart(3, '0'),
           e_padrao: true,
           ativo: true,
@@ -85,10 +89,11 @@ export function useUnidadesMedida() {
     mutationFn: async (
       unidade: Omit<UnidadeMedida, 'id' | 'usuario_id' | 'created_at' | 'updated_at' | 'codigo' | 'ativo'>
     ) => {
+      if (!activeGroupId) throw new Error('Sem contexto de grupo');
       const codigo = await gerarProximoCodigo();
       const { data, error } = await supabase
         .from('unidades_medida')
-        .insert({ ...unidade, usuario_id: userId, codigo, ativo: true })
+        .insert({ ...unidade, usuario_id: userId, owner_group_id: activeGroupId, codigo, ativo: true })
         .select()
         .single();
 

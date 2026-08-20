@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserId } from './useUserId';
+import { useGroup } from '@/contexts/GroupContext';
 import { toast } from 'sonner';
 
 interface Categoria {
@@ -15,6 +16,7 @@ interface Categoria {
 
 export function useCategorias() {
   const userId = useUserId();
+  const { activeGroupId } = useGroup();
   const queryClient = useQueryClient();
 
   const { data: categorias = [], isLoading: loading } = useQuery({
@@ -38,9 +40,16 @@ export function useCategorias() {
 
   const createCategoriaMutation = useMutation({
     mutationFn: async (nome: string) => {
+      if (!activeGroupId) throw new Error('Sem contexto de grupo');
       const { data, error } = await supabase
         .from('categorias')
-        .insert({ nome, usuario_id: userId, ativo: true, padrao_sistema: false })
+        .insert({ 
+          nome, 
+          usuario_id: userId, 
+          owner_group_id: activeGroupId,
+          ativo: true, 
+          padrao_sistema: false 
+        })
         .select()
         .single();
 

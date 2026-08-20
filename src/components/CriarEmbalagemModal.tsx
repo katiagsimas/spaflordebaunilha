@@ -32,6 +32,7 @@ interface CriarEmbalagemModalProps {
   descricaoInicial: string;
   unidades: Unidade[];
   userId: string | undefined;
+  activeGroupId: string | null;
   onEmbalagemCriada: (data: any) => void;
 }
 
@@ -41,6 +42,7 @@ export function CriarEmbalagemModal({
   descricaoInicial,
   unidades,
   userId,
+  activeGroupId,
   onEmbalagemCriada,
 }: CriarEmbalagemModalProps) {
   const [step, setStep] = useState<"tipo" | "detalhe">("tipo");
@@ -76,12 +78,13 @@ export function CriarEmbalagemModal({
         return;
       }
 
-      if (!userId) throw new Error("Não autenticado");
+      if (!userId || !activeGroupId) throw new Error("Não autenticado ou sem contexto de grupo");
 
       const { data, error } = await supabase
         .from("tipos_insumos")
         .insert({
           usuario_id: userId,
+          owner_group_id: activeGroupId,
           tipo: "embalagem",
           descricao: novoTipoDescricao.trim(),
           quantidade_embalagem: qtd,
@@ -131,12 +134,13 @@ export function CriarEmbalagemModal({
         return;
       }
 
-      if (!userId) throw new Error("Não autenticado");
+      if (!userId || !activeGroupId) throw new Error("Não autenticado ou sem contexto de grupo");
 
       const { data, error } = await supabase
         .from("embalagens")
         .insert({
           usuario_id: userId,
+          owner_group_id: activeGroupId,
           tipo_insumo_id: tipoRecemCriado.id,
           marca: novoMarca.trim() || null,
           preco: precoNum,
