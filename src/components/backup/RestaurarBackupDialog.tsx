@@ -45,7 +45,7 @@ export function RestaurarBackupDialog({ open, onOpenChange, alvo, onConfirm, res
     <Dialog open={open} onOpenChange={(v) => (!restaurando ? onOpenChange(v) : null)}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-sfb-vinho">
+          <DialogTitle className="flex items-center gap-2 text-sfb-cacau">
             <ShieldAlert className="h-5 w-5 text-sfb-coral" />
             Restaurar backup
           </DialogTitle>
@@ -56,7 +56,7 @@ export function RestaurarBackupDialog({ open, onOpenChange, alvo, onConfirm, res
 
         {etapa === 1 ? (
           <div className="space-y-4">
-            <div className="rounded-lg border border-sfb-dourado/40 bg-sfb-dourado/10 p-4 space-y-2">
+            <div className="rounded-lg border border-sfb-areia/40 bg-sfb-areia/10 p-4 space-y-2">
               <div className="text-sm">
                 <span className="font-semibold text-sfb-preto">Backup: </span>
                 <code className="text-xs">{alvo.nome}</code>
@@ -76,7 +76,7 @@ export function RestaurarBackupDialog({ open, onOpenChange, alvo, onConfirm, res
               )}
             </div>
 
-            <div className="rounded-lg border border-sfb-coral/40 bg-sfb-coral/10 p-4 flex gap-3">
+            <div className="rounded-lg border border-sfb-coral/40 bg-sfb-terracota/10 p-4 flex gap-3">
               <AlertTriangle className="h-5 w-5 text-sfb-coral shrink-0 mt-0.5" />
               <p className="text-sm text-sfb-preto">
                 <strong>Todos os dados criados ou alterados</strong> depois desse backup serão{" "}
@@ -98,7 +98,7 @@ export function RestaurarBackupDialog({ open, onOpenChange, alvo, onConfirm, res
               <Button
                 onClick={() => setEtapa(2)}
                 disabled={!aceito}
-                className="bg-sfb-vinho hover:bg-sfb-vinho-escuro text-sfb-branco"
+                className="bg-sfb-terracota hover:bg-sfb-terracota-escuro text-sfb-baunilha"
               >
                 Continuar
               </Button>
@@ -139,7 +139,7 @@ export function RestaurarBackupDialog({ open, onOpenChange, alvo, onConfirm, res
               <Button
                 onClick={() => onConfirm(confirmTexto.trim())}
                 disabled={!podeConfirmar || restaurando}
-                className="bg-sfb-coral hover:bg-sfb-coral/90 text-sfb-branco"
+                className="bg-sfb-terracota hover:bg-sfb-terracota/90 text-sfb-baunilha"
               >
                 {restaurando ? (
                   <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Restaurando…</>
