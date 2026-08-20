@@ -29,12 +29,12 @@ export default function CadastrosFinanceiroPage() {
         
         {/* Card: Bancos */}
         <Card 
-          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C9A14A]/60"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C98A75]/60"
           onClick={() => navigate("/financeiro/cadastros/bancos")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 rounded-lg bg-[#FBF6EE] text-[#C98A75] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <Building2 className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
@@ -51,12 +51,12 @@ export default function CadastrosFinanceiroPage() {
 
         {/* Card: Tipos de Documentos */}
         <Card 
-          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C9A14A]/60"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C98A75]/60"
           onClick={() => navigate("/financeiro/cadastros/tipos-documentos")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 rounded-lg bg-[#FBF6EE] text-[#C98A75] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <FileText className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
@@ -73,12 +73,12 @@ export default function CadastrosFinanceiroPage() {
 
         {/* Card: Categorias Plano de Contas */}
         <Card 
-          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C9A14A]/60"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C98A75]/60"
           onClick={() => navigate("/financeiro/cadastros/categorias-plano-contas")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 rounded-lg bg-[#FBF6EE] text-[#C98A75] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <Layers className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
@@ -95,12 +95,12 @@ export default function CadastrosFinanceiroPage() {
 
         {/* Card: Plano de Contas */}
         <Card 
-          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C9A14A]/60"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C98A75]/60"
           onClick={() => navigate("/financeiro/cadastros/plano-contas")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 rounded-lg bg-[#FBF6EE] text-[#C98A75] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <BookOpen className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
@@ -117,12 +117,12 @@ export default function CadastrosFinanceiroPage() {
 
         {/* Card: Juros e Multas */}
         <Card 
-          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C9A14A]/60"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C98A75]/60"
           onClick={() => navigate("/financeiro/cadastros/juros")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 rounded-lg bg-[#FBF6EE] text-[#C98A75] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <Percent className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">

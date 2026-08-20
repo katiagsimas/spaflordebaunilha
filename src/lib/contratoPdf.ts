@@ -10,8 +10,8 @@ interface BusinessInfo {
   assinatura_url?: string | null;
 }
 
-const VINHO = "#5B1A2B";
-const DOURADO = "#C9A14A";
+const VINHO = "#3D2F28";
+const DOURADO = "#C98A75";
 
 function brl(v: number): string {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -78,7 +78,7 @@ export function gerarContratoPDF(
 
   // Corpo
   const corpoRender = renderTemplate(template.corpo, contrato.form_data, business);
-  doc.setTextColor("#121212");
+  doc.setTextColor("#3D2F28");
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
   const lines = doc.splitTextToSize(corpoRender, pageW - marginX * 2);
@@ -95,7 +95,7 @@ export function gerarContratoPDF(
   if (y > pageH - 50) { doc.addPage(); y = marginTop; }
   y += 15;
   const colW = (pageW - marginX * 2 - 10) / 2;
-  doc.setDrawColor("#121212");
+  doc.setDrawColor("#3D2F28");
   doc.line(marginX, y, marginX + colW, y);
   doc.line(marginX + colW + 10, y, pageW - marginX, y);
   doc.setFontSize(9);

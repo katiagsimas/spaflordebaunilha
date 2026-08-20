@@ -22,12 +22,12 @@ export default function PrecificacaoPage() {
 
         {/* Card: Valores de Mão de Obra */}
         <Card 
-          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C9A14A]/60"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C98A75]/60"
           onClick={() => navigate("/configuracoes/precificacao/mao-de-obra")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 rounded-lg bg-[#FBF6EE] text-[#C98A75] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <DollarSign className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
@@ -44,12 +44,12 @@ export default function PrecificacaoPage() {
 
         {/* Card: Unidades de Medidas */}
         <Card 
-          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C9A14A]/60"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C98A75]/60"
           onClick={() => navigate("/configuracoes/unidades-medida")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 rounded-lg bg-[#FBF6EE] text-[#C98A75] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <Ruler className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
@@ -66,12 +66,12 @@ export default function PrecificacaoPage() {
 
         {/* Card: Categorias de Receitas */}
         <Card 
-          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C9A14A]/60"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C98A75]/60"
           onClick={() => navigate("/configuracoes/categorias-receitas")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 rounded-lg bg-[#FBF6EE] text-[#C98A75] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <Tag className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">

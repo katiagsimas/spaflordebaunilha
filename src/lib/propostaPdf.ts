@@ -10,9 +10,9 @@ interface BusinessInfo {
   logomarca_url?: string | null;
 }
 
-const VINHO = "#5B1A2B";
-const DOURADO = "#C9A14A";
-const PRETO = "#121212";
+const VINHO = "#3D2F28";
+const DOURADO = "#C98A75";
+const PRETO = "#3D2F28";
 
 function brl(v: number): string {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });

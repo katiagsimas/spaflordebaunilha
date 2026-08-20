@@ -297,11 +297,11 @@ export function EncomendaStatusCard({
   ];
 
   return (
-    <div className="rounded-xl border border-[#5B1A2B]/10 bg-white shadow-[0_2px_12px_-8px_rgba(91,26,43,0.10)] overflow-hidden">
+    <div className="rounded-xl border border-[#3D2F28]/10 bg-white shadow-[0_2px_12px_-8px_rgba(91,26,43,0.10)] overflow-hidden">
       <button
         type="button"
         onClick={() => setExpanded((s) => !s)}
-        className="w-full p-4 flex items-center gap-3 hover:bg-[#5B1A2B]/[0.02] transition-colors text-left"
+        className="w-full p-4 flex items-center gap-3 hover:bg-[#3D2F28]/[0.02] transition-colors text-left"
         aria-expanded={expanded}
       >
         <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${bg}`}>
@@ -309,15 +309,15 @@ export function EncomendaStatusCard({
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-[11px] uppercase tracking-wide text-foreground/55">{label}</p>
-          <p className="font-display text-[28px] font-normal leading-none text-[#3D0F1C]">{value}</p>
+          <p className="font-display text-[28px] font-normal leading-none text-[#2A1F1A]">{value}</p>
         </div>
         <ChevronDown
-          className={`h-5 w-5 text-[#5B1A2B]/60 transition-transform ${expanded ? "rotate-180" : ""}`}
+          className={`h-5 w-5 text-[#3D2F28]/60 transition-transform ${expanded ? "rotate-180" : ""}`}
         />
       </button>
 
       {expanded && (
-        <div className="border-t border-[#5B1A2B]/10 bg-[#FDF6EE]/40">
+        <div className="border-t border-[#3D2F28]/10 bg-[#FBF6EE]/40">
           {/* Quick chips + ordenação */}
           <div className="px-4 pt-4 flex flex-wrap items-center gap-2">
             {quickChips.map((c) => {
@@ -434,12 +434,12 @@ export function EncomendaStatusCard({
           {/* Lista */}
           <div className="px-4 pb-4">
             {lista.length === 0 ? (
-              <div className="text-center py-10 bg-white rounded-lg border border-[#5B1A2B]/5">
+              <div className="text-center py-10 bg-white rounded-lg border border-[#3D2F28]/5">
                 <ShoppingBag className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
                 <p className="text-sm text-muted-foreground">Nenhuma encomenda encontrada</p>
               </div>
             ) : (
-              <div className="overflow-x-auto bg-white rounded-lg border border-[#5B1A2B]/5">
+              <div className="overflow-x-auto bg-white rounded-lg border border-[#3D2F28]/5">
                 <Table>
                   <TableHeader>
                     <TableRow>

@@ -11,7 +11,7 @@ import {
 } from "recharts";
 
 const MESES = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-const CORES = ["#5B1A2B", "#C9A14A", "#3D0F1C", "#E89B8C", "#D67BA5", "#7A2C40"];
+const CORES = ["#3D2F28", "#C98A75", "#2A1F1A", "#E89B8C", "#D67BA5", "#7A2C40"];
 
 function brl(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -78,8 +78,8 @@ export default function RelatorioPropostas() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="propostas" fill="#C9A14A" name="Propostas" />
-                <Bar dataKey="aceitas" fill="#5B1A2B" name="Aceitas" />
+                <Bar dataKey="propostas" fill="#C98A75" name="Propostas" />
+                <Bar dataKey="aceitas" fill="#3D2F28" name="Aceitas" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>

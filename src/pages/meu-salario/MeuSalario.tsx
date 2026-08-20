@@ -15,17 +15,17 @@ export default function MeuSalario() {
       <div className="mb-6">
 
         <div
-          className="relative overflow-hidden rounded-2xl border border-[#5B1A2B]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
+          className="relative overflow-hidden rounded-2xl border border-[#3D2F28]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
           style={{ background: "#FAEFEB" }}
         >
           <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6 pr-[150px] sm:pr-[200px] lg:pr-[260px] min-h-[130px] sm:min-h-[150px] lg:min-h-[170px]">
             <div className="flex-1 min-w-0">
-              <h1 className="font-display text-2xl font-normal leading-tight text-[#3D0F1C] sm:text-3xl lg:text-[36px]">
+              <h1 className="font-display text-2xl font-normal leading-tight text-[#2A1F1A] sm:text-3xl lg:text-[36px]">
                 Meu Salário
               </h1>
               <div className="mt-2 flex items-center gap-3">
-                <span className="h-px w-8 bg-[#C9A14A] sm:w-10" />
-                <p className="text-xs italic text-[#C9A14A] sm:text-sm">
+                <span className="h-px w-8 bg-[#C98A75] sm:w-10" />
+                <p className="text-xs italic text-[#C98A75] sm:text-sm">
                   Método Renda Doce — quanto sua confeitaria pode te pagar sem sufocar.
                 </p>
               </div>
@@ -52,7 +52,7 @@ export default function MeuSalario() {
             <TabsTrigger
               key={t.v}
               value={t.v}
-              className="rounded-lg px-5 py-2 text-sm font-medium text-[#3D0F1C]/60 hover:text-[#3D0F1C] data-[state=active]:bg-[#3D0F1C] data-[state=active]:text-white data-[state=active]:shadow-none"
+              className="rounded-lg px-5 py-2 text-sm font-medium text-[#2A1F1A]/60 hover:text-[#2A1F1A] data-[state=active]:bg-[#2A1F1A] data-[state=active]:text-white data-[state=active]:shadow-none"
             >
               {t.l}
             </TabsTrigger>
@@ -75,7 +75,7 @@ export default function MeuSalario() {
         type="button"
         onClick={() => window.history.back()}
         aria-label="Voltar"
-        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-[#5B1A2B] hover:bg-[#3D0F1C] text-white shadow-lg flex items-center justify-center transition"
+        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-[#3D2F28] hover:bg-[#2A1F1A] text-white shadow-lg flex items-center justify-center transition"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>

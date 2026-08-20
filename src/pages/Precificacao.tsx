@@ -58,17 +58,17 @@ const MESES_ABREV = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Se
 
 function corMargem(pct: number) {
   if (pct >= 30) return "text-[#2e7d32]";
-  if (pct >= 10) return "text-[#C9A14A]";
-  return "text-[#F28C82]";
+  if (pct >= 10) return "text-[#C98A75]";
+  return "text-[#C98A75]";
 }
 
 function ChartTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg border border-[#5B1A2B]/20 bg-white px-3 py-2 shadow-sm">
-      <p className="text-xs font-medium text-[#3D0F1C] mb-1">{label}</p>
+    <div className="rounded-lg border border-[#3D2F28]/20 bg-white px-3 py-2 shadow-sm">
+      <p className="text-xs font-medium text-[#2A1F1A] mb-1">{label}</p>
       {payload.map((p: any) => (
-        <p key={p.dataKey} className="text-xs text-[#3D0F1C]/80">
+        <p key={p.dataKey} className="text-xs text-[#2A1F1A]/80">
           <span
             className="inline-block w-2 h-2 rounded-sm mr-2 align-middle"
             style={{ backgroundColor: p.color }}
@@ -137,7 +137,7 @@ export default function Precificacao() {
           <button
             key={card.url}
             onClick={() => navigate(card.url)}
-            className="bg-white border-2 border-[#C9A14A]/60 rounded-xl p-5 text-left cursor-pointer transition-all duration-200 hover:border-[#C9A14A] hover:shadow-md flex items-center gap-3"
+            className="bg-white border-2 border-[#C98A75]/60 rounded-xl p-5 text-left cursor-pointer transition-all duration-200 hover:border-[#C98A75] hover:shadow-md flex items-center gap-3"
           >
             <img
               src={card.icon}
@@ -146,7 +146,7 @@ export default function Precificacao() {
               loading="lazy"
             />
             <div className="min-w-0">
-              <h3 className="font-semibold text-[15px] text-[#3D0F1C] leading-tight">
+              <h3 className="font-semibold text-[15px] text-[#2A1F1A] leading-tight">
                 {card.title}
               </h3>
               <p className="text-[12px] text-muted-foreground mt-1 leading-snug">
@@ -164,16 +164,16 @@ export default function Precificacao() {
           {/* Filtros */}
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1 sm:max-w-[45%]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#5B1A2B]/40" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#3D2F28]/40" />
               <Input
                 placeholder="Buscar no Cardápio..."
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
-                className="pl-9 bg-white border-[#5B1A2B]/20 rounded-lg"
+                className="pl-9 bg-white border-[#3D2F28]/20 rounded-lg"
               />
             </div>
             <Select value={statusFiltro} onValueChange={setStatusFiltro}>
-              <SelectTrigger className="bg-white border-[#5B1A2B]/20 rounded-lg sm:w-[160px]">
+              <SelectTrigger className="bg-white border-[#3D2F28]/20 rounded-lg sm:w-[160px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -183,7 +183,7 @@ export default function Precificacao() {
               </SelectContent>
             </Select>
             <Select value={categoriaFiltro} onValueChange={setCategoriaFiltro}>
-              <SelectTrigger className="bg-white border-[#5B1A2B]/20 rounded-lg sm:w-[180px]">
+              <SelectTrigger className="bg-white border-[#3D2F28]/20 rounded-lg sm:w-[180px]">
                 <SelectValue placeholder="Categoria" />
               </SelectTrigger>
               <SelectContent>
@@ -198,11 +198,11 @@ export default function Precificacao() {
           </div>
 
           {/* Análises */}
-          <Card className="bg-white border-[#5B1A2B]/10 rounded-xl overflow-hidden">
+          <Card className="bg-white border-[#3D2F28]/10 rounded-xl overflow-hidden">
             <div className="px-5 pt-5 pb-3 flex items-center gap-2">
-              <CalendarDays className="h-5 w-5 text-[#5B1A2B]" />
+              <CalendarDays className="h-5 w-5 text-[#3D2F28]" />
               <h2
-                className="text-[20px] text-[#3D0F1C]"
+                className="text-[20px] text-[#2A1F1A]"
                 style={{ fontFamily: '"Playfair Display", serif' }}
               >
                 Análises de Preço e Custo
@@ -221,7 +221,7 @@ export default function Precificacao() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-[#FDF6EE] border-b border-[#5B1A2B]/10">
+                    <tr className="bg-[#FBF6EE] border-b border-[#3D2F28]/10">
                       <th className="text-left text-[12px] uppercase tracking-wide text-muted-foreground font-medium px-5 py-3">
                         Produto
                       </th>
@@ -240,18 +240,18 @@ export default function Precificacao() {
                     {resumosFiltrados.map((r) => (
                       <tr
                         key={r.receitaId}
-                        className="border-b border-[#5B1A2B]/[0.05] hover:bg-[#FDF6EE]/40 cursor-pointer transition-colors"
+                        className="border-b border-[#3D2F28]/[0.05] hover:bg-[#FBF6EE]/40 cursor-pointer transition-colors"
                         onClick={() =>
                           navigate(`/precificacao/ficha-tecnica/editar/${r.receitaId}`)
                         }
                       >
-                        <td className="px-5 py-3 text-[14px] text-[#3D0F1C] font-medium">
+                        <td className="px-5 py-3 text-[14px] text-[#2A1F1A] font-medium">
                           {r.nome}
                         </td>
-                        <td className="px-5 py-3 text-[14px] text-[#3D0F1C] text-right">
+                        <td className="px-5 py-3 text-[14px] text-[#2A1F1A] text-right">
                           R$ {r.cmvReal.toFixed(2).replace(".", ",")}
                         </td>
-                        <td className="px-5 py-3 text-[14px] text-[#3D0F1C] text-right">
+                        <td className="px-5 py-3 text-[14px] text-[#2A1F1A] text-right">
                           R$ {r.valorVenda.toFixed(2).replace(".", ",")}
                         </td>
                         <td
@@ -272,14 +272,14 @@ export default function Precificacao() {
         </div>
 
         {/* Coluna direita - gráfico */}
-        <Card className="bg-white border-[#5B1A2B]/10 rounded-xl p-4 flex flex-col h-full min-h-[320px]">
+        <Card className="bg-white border-[#3D2F28]/10 rounded-xl p-4 flex flex-col h-full min-h-[320px]">
           <div className="flex items-center gap-4 mb-3">
             <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-sm bg-[#C9A14A]" />
+              <span className="w-3 h-3 rounded-sm bg-[#C98A75]" />
               <span className="text-[12px] text-muted-foreground">Custo Total</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-sm bg-[#F28C82]" />
+              <span className="w-3 h-3 rounded-sm bg-[#C98A75]" />
               <span className="text-[12px] text-muted-foreground">Preço méd</span>
             </div>
           </div>
@@ -288,27 +288,27 @@ export default function Precificacao() {
               <AreaChart data={chartData} margin={{ top: 8, right: 8, left: -10, bottom: 0 }}>
                 <defs>
                   <linearGradient id="custoGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#C9A14A" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#C9A14A" stopOpacity={0.05} />
+                    <stop offset="5%" stopColor="#C98A75" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#C98A75" stopOpacity={0.05} />
                   </linearGradient>
                   <linearGradient id="precoGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#F28C82" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#F28C82" stopOpacity={0.05} />
+                    <stop offset="5%" stopColor="#C98A75" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#C98A75" stopOpacity={0.05} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
                   vertical={false}
-                  stroke="#5B1A2B"
+                  stroke="#3D2F28"
                   strokeOpacity={0.05}
                 />
                 <XAxis
                   dataKey="mes"
-                  tick={{ fontSize: 11, fill: "#5B1A2B" }}
+                  tick={{ fontSize: 11, fill: "#3D2F28" }}
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
-                  tick={{ fontSize: 11, fill: "#5B1A2B" }}
+                  tick={{ fontSize: 11, fill: "#3D2F28" }}
                   tickLine={false}
                   axisLine={false}
                   width={40}
@@ -318,7 +318,7 @@ export default function Precificacao() {
                   type="monotone"
                   dataKey="custo"
                   name="Custo Total"
-                  stroke="#C9A14A"
+                  stroke="#C98A75"
                   strokeWidth={2}
                   fill="url(#custoGrad)"
                 />
@@ -326,7 +326,7 @@ export default function Precificacao() {
                   type="monotone"
                   dataKey="preco"
                   name="Preço médio"
-                  stroke="#F28C82"
+                  stroke="#C98A75"
                   strokeWidth={2}
                   fill="url(#precoGrad)"
                 />
@@ -340,7 +340,7 @@ export default function Precificacao() {
       <button
         onClick={() => navigate(-1)}
         aria-label="Voltar"
-        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-[#5B1A2B] text-white flex items-center justify-center shadow-lg hover:bg-[#3D0F1C] transition-colors"
+        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-[#3D2F28] text-white flex items-center justify-center shadow-lg hover:bg-[#2A1F1A] transition-colors"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>

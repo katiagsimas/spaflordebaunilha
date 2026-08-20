@@ -12,7 +12,7 @@ const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableE
 Table.displayName = "Table";
 
 const TableHeader = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
-  ({ className, ...props }, ref) => <thead ref={ref} className={cn("bg-[#5B1A2B] text-[#FFF9F5] [&_tr]:border-b-0", className)} {...props} />,
+  ({ className, ...props }, ref) => <thead ref={ref} className={cn("bg-[#3D2F28] text-[#FFFDF9] [&_tr]:border-b-0", className)} {...props} />,
 );
 TableHeader.displayName = "TableHeader";
 

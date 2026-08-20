@@ -20,15 +20,15 @@ export default function Configuracoes() {
       </div>
 
       {/* Card Informativo */}
-      <Card className="bg-[#C9A14A]/10 border border-[#C9A14A]/30 mb-8">
+      <Card className="bg-[#C98A75]/10 border border-[#C98A75]/30 mb-8">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-[#C9A14A] mt-0.5 shrink-0" />
+            <Info className="h-5 w-5 text-[#C98A75] mt-0.5 shrink-0" />
             <div className="space-y-2">
-              <h3 className="font-semibold text-[#5B1A2B]">
+              <h3 className="font-semibold text-[#3D2F28]">
                 💡 Dica: Configure uma vez, use sempre!
               </h3>
-              <p className="text-sm text-[#5B1A2B]">
+              <p className="text-sm text-[#3D2F28]">
                 Configure todos os valores agora e eles serão aplicados automaticamente em todas as suas 
                 fichas técnicas e controles financeiros. Você sempre pode voltar aqui para ajustar conforme seu negócio cresce.
               </p>
@@ -42,12 +42,12 @@ export default function Configuracoes() {
         
         {/* Card 1: CADASTROS BASE */}
         <Card 
-          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C9A14A]/60"
+          className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-[#C98A75]/60"
           onClick={() => navigate("/configuracoes/cadastros-base")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#FDF6EE] text-[#C9A14A] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 rounded-lg bg-[#FBF6EE] text-[#C98A75] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <Package className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
