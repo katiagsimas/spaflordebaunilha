@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: Adicionar a tela de cadastro e edição para produtos de revenda dentro dos cards Natura, Avon e Casa & Estilo, a tela de cadastro deverá conter os seguintes campos: Código, Descrição, Linha, Quantidade em ml ou outra qualquer, Quantidade de Pontos, Categoria (com lista suspensa com as categorias criadas no módulo Cardápio/Categorias), Status (lista suspensa: Ativo / Pausado)
+// Execute esta instrucao no projeto: Quando clico sobre os cards, sobe um alerta informando que o Módulo ainda está em desenvolvimento, favor verificare corrigir
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";

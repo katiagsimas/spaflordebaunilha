@@ -1,6 +1,6 @@
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Utensils, Ruler, Tag, DollarSign, Package } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { BookOpen, Utensils, Ruler, Tag, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Precificacao() {
@@ -22,7 +22,7 @@ export default function Precificacao() {
     {
       title: "Embalagens",
       description: "Controle de embalagens e materiais secundários",
-      icon: Package,
+      icon: Ruler,
       to: "/precificacao/embalagens",
     },
     {
@@ -35,12 +35,12 @@ export default function Precificacao() {
 
   return (
     <div className="min-h-screen bg-background">
-      <PageHeader
-        title="Cardápio & Precificação"
-        description="Gestão de custos e formação de preços dos seus produtos"
-      />
-      
-      <div className="p-4 md:p-6">
+      <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
+        <PageHeader
+          title="Cardápio & Precificação"
+          description="Gestão de custos e formação de preços dos seus produtos"
+        />
+        
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {menuItems.map((item) => (
             <Card 
@@ -70,5 +70,3 @@ export default function Precificacao() {
     </div>
   );
 }
-
-import { Settings } from "lucide-react";

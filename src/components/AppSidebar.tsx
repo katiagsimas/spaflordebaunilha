@@ -196,8 +196,7 @@ export function AppSidebar() {
                       
 
                       const bloqueado = false;
-
-                      const isComingSoon = !item.active && !effectiveIsAdmin;
+                      const isComingSoon = false;
 
                       // Se o usuário é admin e o item é adminOnly+inactive, ele pode acessar
                       const adminUnlocked = item.adminOnly && effectiveIsAdmin;
