@@ -180,13 +180,13 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sfb-terracota" style={{ width: open ? '280px' : undefined }}>
-      <SidebarHeader className="h-14 border-b border-sfb-baunilha/30 px-4 py-0 flex items-center justify-center bg-sfb-terracota">
+      <SidebarHeader className="h-28 border-b border-sfb-baunilha/30 px-4 py-0 flex items-center justify-center bg-sfb-terracota">
         {open && (
           <div className="flex items-center justify-center w-full px-2">
             <img 
               src={logoAssinatura.url} 
               alt="Spa Flor de Baunilha" 
-              className="h-16 w-auto object-contain drop-shadow-sm" 
+              className="h-32 w-auto object-contain drop-shadow-sm" 
             />
           </div>
         )}
