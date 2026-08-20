@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: ué, você não fez nenhuma alteração no projeto???
+// Execute esta instrucao no projeto: Em Cadastros / Categorias, implemente as seguintes Categorias: Perfumaria, Maquiagem, Rosto, Cuidados para o Corpo, Cabelos, Infantil, Presentes, Casa & Estilo
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
