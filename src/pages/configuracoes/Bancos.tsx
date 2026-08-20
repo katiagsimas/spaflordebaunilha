@@ -108,7 +108,7 @@ export default function Bancos() {
 
   // Filtros
   const [termoBusca, setTermoBusca] = useState('');
-  const [filtroStatus, setFiltroStatus] = useState<'todos' | 'habilitado' | 'desabilitado'>('todos');
+  const [filtroStatus, setFiltroStatus] = useState<'todos' | 'habilitado' | 'desabilitado'>('habilitado');
 
   // Modal criar/editar
   const [modalAberto, setModalAberto] = useState(false);
