@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: Em Cadastros / Categorias, implemente as seguintes Categorias: Perfumaria, Maquiagem, Rosto, Cuidados para o Corpo, Cabelos, Infantil, Presentes, Casa & Estilo
+// Execute esta instrucao no projeto: Refine "Categorias de Receitas" para "Categorias", persista este refinamento no banco de dados e e qualquer página do projeto que tenha este texto
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
