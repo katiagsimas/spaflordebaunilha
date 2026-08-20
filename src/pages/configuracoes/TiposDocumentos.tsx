@@ -365,17 +365,6 @@ export default function TiposDocumentos() {
           />
         </div>
         
-        <Select value={filtroTipo} onValueChange={(value: any) => setFiltroTipo(value)}>
-          <SelectTrigger className="w-48">
-            <Filter className="mr-2 h-4 w-4" />
-            <SelectValue placeholder="Tipo" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos os Tipos</SelectItem>
-            <SelectItem value="padrao">Padrão</SelectItem>
-            <SelectItem value="custom">Custom</SelectItem>
-          </SelectContent>
-        </Select>
 
         <Select value={filtroStatus} onValueChange={(value: any) => setFiltroStatus(value)}>
           <SelectTrigger className="w-48">
