@@ -2,97 +2,94 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Spa Flor de Baunilha by Ká Simas — Design System v2 */
+/* Espaço Flor de Baunilha — Design System v3 (Identidade Institucional) */
 
 @layer base {
   :root {
-    /* Paleta Spa Flor de Baunilha — Vinho Premium */
-    --sfb-vinho:        345 55% 23%;   /* #5B1A2B */
-    --sfb-vinho-escuro: 345 55% 15%;   /* #3D0F1C */
-    --sfb-dourado:      42  48% 54%;   /* #C9A14A */
-    --sfb-creme:        38  67% 96%;   /* #FDF6EE */
-    --sfb-preto:        0   0%  7%;    /* #121212 */
-    --sfb-branco:       30  60% 99%;   /* #FFF9F5 */
-    --sfb-coral:        5   82% 73%;   /* #F28C82 — mantido */
-    --sfb-pink:         345 52% 77%;   /* #E7A1AF — mantido */
+    /* Paleta institucional — Espaço Flor de Baunilha */
+    --sfb-baunilha:  36  55% 96%;   /* #FBF6EE — fundo principal */
+    --sfb-areia:     36  27% 79%;   /* #D8CBB9 — fundos secundários, bordas */
+    --sfb-terracota: 14  44% 62%;   /* #C98A75 — destaques, botões, ícones */
+    --sfb-salvia:    112 8%  59%;   /* #8E9E8C — toque botânico */
+    --sfb-cacau:     22  20% 20%;   /* #3D2F28 — textos e títulos */
+
+    /* Aliases legados mapeados para a paleta institucional */
+    --sfb-vinho:        22  20% 20%;   /* cacau */
+    --sfb-vinho-escuro: 22  22% 14%;   /* #2A1F1A */
+    --sfb-dourado:      14  44% 62%;   /* terracota */
+    --sfb-creme:        36  55% 96%;   /* baunilha */
+    --sfb-preto:        22  20% 20%;   /* cacau */
+    --sfb-branco:       40  60% 99%;   /* #FFFDF9 */
+    --sfb-coral:        14  44% 62%;   /* terracota */
+    --sfb-pink:         36  27% 79%;   /* areia */
 
     /*
      * ────────────────────────────────────────────────────────────────
-     * Renda Doce — sub-tema deliberadamente diferenciado
+     * Renda Doce — sub-tema do módulo "Meu Salário"
      * ────────────────────────────────────────────────────────────────
-     * Estes tokens (--rd-*) NÃO fazem parte do design system global
-     * (--sfb-*) por decisão de design. O módulo "Meu Salário" usa uma
-     * paleta própria — "Renda Doce" — com vinho rosado, rosé queimado,
-     * dourado quente e creme suave, criando uma atmosfera mais íntima
-     * e acolhedora para a experiência financeira pessoal da usuária.
-     *
-     * O escopo é isolado via a classe `.renda-doce-scope` aplicada no
-     * container raiz de src/pages/meu-salario/MeuSalario.tsx, garantindo
-     * que estes tokens só afetem este módulo.
-     *
-     * ⚠️  NÃO substituir por tokens --sfb-* — a diferenciação visual é
-     *     intencional. Mantenha a paleta coesa apenas dentro do escopo.
+     * Escopo isolado via `.renda-doce-scope`. Mantém uma atmosfera
+     * mais quente, agora derivada da paleta institucional.
      * ────────────────────────────────────────────────────────────────
      */
-    --rd-vinho:           345 38% 28%;
-    --rd-rose-queimado:   12  45% 55%;
-    --rd-dourado:         40  55% 60%;
-    --rd-creme:           38  50% 96%;
+    --rd-vinho:           22  20% 20%;
+    --rd-rose-queimado:   14  44% 62%;
+    --rd-dourado:         36  27% 79%;
+    --rd-creme:           36  55% 96%;
 
 
     /* Tokens semânticos */
-    --background:         38  67% 96%;   /* creme */
-    --foreground:         0   0%  7%;    /* preto */
+    --background:         36  55% 96%;   /* baunilha */
+    --foreground:         22  20% 20%;   /* cacau */
 
     --card:               0   0%  100%;
-    --card-foreground:    0   0%  7%;
+    --card-foreground:    22  20% 20%;
 
     --popover:            0   0%  100%;
-    --popover-foreground: 0   0%  7%;
+    --popover-foreground: 22  20% 20%;
 
-    --primary:            345 55% 23%;   /* vinho */
-    --primary-foreground: 38  67% 96%;   /* creme */
+    --primary:            14  44% 62%;   /* terracota */
+    --primary-foreground: 36  55% 96%;   /* baunilha */
 
-    --secondary:          345 55% 15%;   /* vinho escuro */
-    --secondary-foreground: 38 67% 96%;
+    --secondary:          36  27% 79%;   /* areia */
+    --secondary-foreground: 22 20% 20%;
 
-    --muted:              345 55% 23% / 0.08;
-    --muted-foreground:   0   0%  7%  / 0.55;
+    --muted:              36  27% 79% / 0.45;
+    --muted-foreground:   22  20% 20%  / 0.60;
 
-    --accent:             42  48% 54%;   /* dourado */
-    --accent-foreground:  0   0%  7%;
+    --accent:             112 8%  59%;   /* sálvia */
+    --accent-foreground:  22  20% 20%;
 
-    --success:            142 44% 47%;
-    --warning:            45  89% 61%;
-    --error:              0   63% 58%;
-    --info:               241 58% 50%;
+    --success:            112 18% 42%;
+    --warning:            35  62% 58%;
+    --error:              6   52% 52%;
+    --info:               200 22% 48%;
 
-    --destructive:        0   63% 58%;
-    --destructive-foreground: 38 67% 96%;
+    --destructive:        6   52% 52%;
+    --destructive-foreground: 36 55% 96%;
 
-    --border:             42  48% 54% / 0.35;   /* dourado suave */
-    --input:              42  48% 54% / 0.35;
-    --ring:               345 55% 23%;           /* vinho */
+    --border:             36  27% 79%;           /* areia */
+    --input:              36  27% 79%;
+    --ring:               14  44% 62%;           /* terracota */
 
     --radius: 0.375rem;
 
-    /* Sidebar — Vinho Profundo */
-    --sidebar-background:          345 55% 23%;   /* vinho */
-    --sidebar-foreground:          38  67% 96%;   /* creme */
-    --sidebar-primary:             42  48% 54%;   /* dourado */
-    --sidebar-primary-foreground:  0   0%  7%;
-    --sidebar-accent:              38  67% 96% / 0.08;
-    --sidebar-accent-foreground:   38  67% 96%;
-    --sidebar-border:              42  48% 54% / 0.25;
-    --sidebar-ring:                42  48% 54%;
+    /* Sidebar — Marrom Cacau */
+    --sidebar-background:          22  20% 20%;   /* cacau */
+    --sidebar-foreground:          36  55% 96%;   /* baunilha */
+    --sidebar-primary:             14  44% 62%;   /* terracota */
+    --sidebar-primary-foreground:  36  55% 96%;
+    --sidebar-accent:              36  55% 96% / 0.08;
+    --sidebar-accent-foreground:   36  55% 96%;
+    --sidebar-border:              14  44% 62% / 0.25;
+    --sidebar-ring:                14  44% 62%;
 
     /* Tipografia */
-    --font-display: 'Playfair Display', Georgia, serif;
-    --font-body: 'Inter', system-ui, sans-serif;
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body: 'Poppins', system-ui, sans-serif;
 
     /* Sombras */
-    --shadow-soft:     0 1px 4px  rgba(91, 26, 43, 0.10);
-    --shadow-elevated: 0 4px 12px rgba(91, 26, 43, 0.16);
+    --shadow-soft:     0 1px 4px  rgba(61, 47, 40, 0.10);
+    --shadow-elevated: 0 4px 12px rgba(61, 47, 40, 0.16);
   }
 
   .dark {
