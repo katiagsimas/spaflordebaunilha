@@ -337,7 +337,7 @@ export default function Financeiro() {
   const coresBanco = [
     { border: 'border-l-blue-500', text: 'text-primary', bg: 'bg-sfb-areia/10 dark:bg-sfb-areia/20' },
     { border: 'border-l-green-500', text: 'text-success', bg: 'bg-success/10 dark:bg-success/20' },
-    { border: 'border-l-sfb-terracota', text: 'text-sfb-terracota', bg: 'bg-sfb-terracota/15 dark:bg-sfb-terracota/20' },
+    { border: 'border-l-sfb-terracota', text: 'text-sfb-terracota', bg: 'bg-sfb-terracota/10 dark:bg-sfb-terracota/20' },
     { border: 'border-l-orange-500', text: 'text-warning', bg: 'bg-warning/10 dark:bg-warning/20' },
     { border: 'border-l-sfb-terracota', text: 'text-sfb-terracota', bg: 'bg-sfb-terracota/10 dark:bg-sfb-terracota/20' },
     { border: 'border-l-cyan-500', text: 'text-cyan-600', bg: 'bg-cyan-50 dark:bg-cyan-950' },
@@ -407,7 +407,7 @@ export default function Financeiro() {
                 <button
                   key={c.title}
                   onClick={() => navigate(c.to)}
-                  className="group flex items-center gap-4 bg-white border-2 border-sfb-terracota/60 rounded-xl p-5 text-left transition-all duration-200 hover:border-sfb-terracota hover:shadow-md"
+                  className="group flex items-center gap-4 bg-white border border-sfb-terracota/40 rounded-xl p-5 text-left transition-all duration-200 hover:border-sfb-terracota hover:shadow-md"
                 >
                   <div className="w-11 h-11 rounded-full bg-sfb-baunilha flex items-center justify-center shrink-0">
                     <Icon className="h-5 w-5 text-sfb-cacau" />

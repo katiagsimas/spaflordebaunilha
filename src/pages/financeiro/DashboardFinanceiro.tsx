@@ -127,7 +127,7 @@ export default function DashboardFinanceiro() {
 
         <Card className={`${
           resumo.saldoLiquido >= 0
-            ? "border-sfb-cacau bg-sfb-cacau/5"
+            ? "border-sfb-cacau bg-sfb-baunilha"
             : "border-sfb-terracota bg-sfb-terracota/10"
         }`}>
           <CardHeader className="pb-2">
