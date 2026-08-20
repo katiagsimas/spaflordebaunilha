@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: Em Cadastros / Unidades de Medidas, cadastre "Mililitros"
+// Execute esta instrucao no projeto: remova "Minilitros"
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
