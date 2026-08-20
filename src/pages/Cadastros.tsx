@@ -19,7 +19,7 @@ export default function Cadastros() {
         {/* HERO BANNER padronizado - Imagem removida conforme solicitação */}
         <HeroBanner
           title="Cadastros"
-          subtitle="Centralize aqui os cadastros base do seu negócio: mão de obra, unidades de medida e categorias de receitas."
+          subtitle="Centralize aqui os cadastros base do seu negócio: mão de obra, unidades de medida e categorias."
         />
 
         {/* CARDS DE NAVEGAÇÃO */}
@@ -84,7 +84,7 @@ export default function Cadastros() {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-display text-[15px] font-semibold text-sfb-cacau leading-tight">
-                  Categorias de Receitas
+                  Categorias
                 </p>
                 <p className="text-[12px] text-muted-foreground mt-1">
                   Organize seus produtos por categorias
