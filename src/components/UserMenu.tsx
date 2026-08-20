@@ -22,10 +22,7 @@ export function getPrimeiroNome(nomeCompleto?: string | null, fallbackEmail?: st
   if (nomeCompleto && nomeCompleto.trim()) {
     return nomeCompleto.trim().split(/\s+/)[0];
   }
-  if (fallbackEmail) {
-    return fallbackEmail.split("@")[0];
-  }
-  return "Confeiteira";
+  return "Spa";
 }
 
 function useProfileMenu(userId?: string) {
@@ -46,19 +43,7 @@ function useProfileMenu(userId?: string) {
 }
 
 export function UserGreeting() {
-  const { user } = useAuth();
-  const { data: profile } = useProfileMenu(user?.id);
-  if (!user) return null;
-  const nomeEmpresa =
-    profile?.nome_confeitaria?.trim() ||
-    profile?.nome_completo?.trim() ||
-    user.email ||
-    "Minha Confeitaria";
-  return (
-    <span className="hidden md:inline text-sm font-display text-sfb-baunilha truncate max-w-[260px]">
-      {nomeEmpresa}
-    </span>
-  );
+  return null;
 }
 
 export function UserMenu() {
