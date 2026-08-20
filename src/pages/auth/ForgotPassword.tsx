@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Loader2, Mail } from 'lucide-react';
-import caixaAcucarIcon from '@/assets/caixa-acucar-logo-full.png';
+import sfbIcon from '@/assets/sfb-logo-full.png';
 import authBrandImage from '@/assets/auth-brand-image.png';
 import authRightBg from '@/assets/auth-right-bg.png';
 import { BackButton } from '@/components/BackButton';
@@ -51,7 +51,7 @@ export default function ForgotPassword() {
           {/* Brand header */}
           <div className="text-center">
             <img
-              src={caixaAcucarIcon}
+              src={sfbIcon}
               alt="Spa Flor de Baunilha"
               className="mx-auto w-full max-w-sm h-auto"
             />
@@ -94,7 +94,7 @@ export default function ForgotPassword() {
         {/* Brand header */}
         <div className="text-center">
           <img
-            src={caixaAcucarIcon}
+            src={sfbIcon}
             alt="Spa Flor de Baunilha"
             className="mx-auto w-full max-w-sm h-auto"
           />
