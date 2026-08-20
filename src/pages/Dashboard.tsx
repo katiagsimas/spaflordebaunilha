@@ -1044,7 +1044,7 @@ export default function Dashboard() {
       <div className="flex items-center justify-between">
         <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} />
         <div className="flex items-center gap-2">
-          <Label className="text-xs font-body uppercase tracking-widest text-sfb-vinho/60">Período</Label>
+          <Label className="text-xs font-body uppercase tracking-widest text-sfb-cacau/60">Período</Label>
           <Select value={anoSelecionado.toString()} onValueChange={(v) => setAnoSelecionado(parseInt(v))}>
             <SelectTrigger className="w-[100px] border-sfb-areia/40 bg-sfb-baunilha text-sfb-cacau hover:border-sfb-terracota">
               <SelectValue />
@@ -1408,16 +1408,16 @@ export default function Dashboard() {
                 <ul className="divide-y divide-dashed divide-sfb-areia/30">
                   {produtos.map((produto, index) => (
                     <li key={produto.id} className="flex items-center gap-3 py-2.5">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sfb-vinho font-display text-sm text-sfb-dourado ring-1 ring-sfb-dourado/60">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sfb-cacau font-display text-sm text-sfb-baunilha ring-1 ring-sfb-areia/60">
                         {index + 1}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate font-display text-base text-sfb-vinho">{produto.nome}</p>
-                        <p className="text-[11px] font-body text-sfb-vinho/60">
+                        <p className="truncate font-display text-base text-sfb-cacau">{produto.nome}</p>
+                        <p className="text-[11px] font-body text-sfb-cacau/60">
                           {produto.quantidade} {produto.quantidade === 1 ? 'venda' : 'vendas'}
                         </p>
                       </div>
-                      <p className="font-display text-base text-sfb-vinho">
+                      <p className="font-display text-base text-sfb-cacau">
                         R$ {produto.receita.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </p>
                     </li>

@@ -271,12 +271,12 @@ export default function ClientesFornecedores() {
                   <TableBody>
                     {clientesFiltrados.map((c) => (
                       <TableRow key={c.id}>
-                        <TableCell className="font-medium text-sfb-vinho-escuro">{c.nome}</TableCell>
-                        <TableCell className="text-sm text-sfb-vinho/80">{c.tipo || "-"}</TableCell>
+                        <TableCell className="font-medium text-sfb-cacau">{c.nome}</TableCell>
+                        <TableCell className="text-sm text-sfb-cacau/80">{c.tipo || "-"}</TableCell>
                         <TableCell className="text-sm">
                           <div className="flex flex-col gap-0.5">
                             {c.telefone && (
-                              <span className="flex items-center gap-1 text-sfb-vinho/80">
+                              <span className="flex items-center gap-1 text-sfb-cacau/80">
                                 <Phone className="h-3 w-3" /> {c.telefone}
                               </span>
                             )}
@@ -334,12 +334,12 @@ export default function ClientesFornecedores() {
                   <TableBody>
                     {fornecedoresFiltrados.map((f) => (
                       <TableRow key={f.id}>
-                        <TableCell className="font-medium text-sfb-vinho-escuro">{f.nome}</TableCell>
-                        <TableCell className="text-sm text-sfb-vinho/80">{f.tipo || "-"}</TableCell>
+                        <TableCell className="font-medium text-sfb-cacau">{f.nome}</TableCell>
+                        <TableCell className="text-sm text-sfb-cacau/80">{f.tipo || "-"}</TableCell>
                         <TableCell className="text-sm">
                           <div className="flex flex-col gap-0.5">
                             {f.telefone && (
-                              <span className="flex items-center gap-1 text-sfb-vinho/80">
+                              <span className="flex items-center gap-1 text-sfb-cacau/80">
                                 <Phone className="h-3 w-3" /> {f.telefone}
                               </span>
                             )}
