@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: o usuário está tentando criar o documento PIX, porém, está subindo mensagem de erro,, cooo se algo estivesse sendoo violado, favor verificar e corrigir
+// Execute esta instrucao no projeto: remova os itens em destaque na captura anexa
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
