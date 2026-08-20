@@ -9,6 +9,7 @@ import { NavLink } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGroup } from "@/contexts/GroupContext";
 import { useQuery } from "@tanstack/react-query";
+import logoAssinatura from "@/assets/logo-assinatura.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useEncomendasHoje } from "@/hooks/useEncomendasHoje";
@@ -181,16 +182,12 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sfb-terracota" style={{ width: open ? '280px' : undefined }}>
       <SidebarHeader className="h-14 border-b border-sfb-baunilha/30 px-4 py-0 flex items-center justify-center bg-sfb-terracota">
         {open && (
-          <div className="flex items-center gap-2.5">
-            <img src="/sfb-logo-dourado.png" alt="Spa Flor de Baunilha" className="h-7 w-7 drop-shadow" />
-            <div className="flex flex-col leading-tight">
-              <span className="font-display text-base text-sfb-baunilha tracking-wide">
-                Spa Flor de Baunilha
-              </span>
-              <span className="text-[9px] font-body font-light text-sfb-baunilha/80 tracking-[0.2em] uppercase">
-                by Spa Flor de Baunilha
-              </span>
-            </div>
+          <div className="flex items-center justify-center w-full px-2">
+            <img 
+              src={logoAssinatura.url} 
+              alt="Spa Flor de Baunilha" 
+              className="h-12 w-auto object-contain drop-shadow-sm" 
+            />
           </div>
         )}
       </SidebarHeader>
