@@ -1,16 +1,8 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Scale, FlaskConical, Cake, ChevronLeft, ShoppingBag, Leaf, Sparkles, Home, Plus, Edit2 } from "lucide-react";
+import { Scale, FlaskConical, Cake, ChevronLeft, ShoppingBag } from "lucide-react";
 
 import { HeroBanner } from "@/components/HeroBanner";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ProdutoRevendaForm } from "@/components/ProdutoRevendaForm";
-import { useProdutosRevenda, type ProdutoRevenda } from "@/hooks/useProdutosRevenda";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 
 
