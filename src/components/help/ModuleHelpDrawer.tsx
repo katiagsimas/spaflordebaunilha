@@ -46,7 +46,7 @@ export const ModuleHelpDrawer: React.FC<ModuleHelpDrawerProps> = ({
           <div className="px-4 pt-4 pb-3 border-b border-[#C98A75]/30">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <h2 className="font-['Playfair_Display'] text-[#3D2F28] text-lg leading-tight">
+                <h2 className="font-['Cormorant_Garamond'] text-[#3D2F28] text-lg leading-tight">
                   {content.moduleTitle}
                 </h2>
                 <p className="text-[10px] text-muted-foreground mt-0.5">

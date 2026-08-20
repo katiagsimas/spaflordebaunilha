@@ -203,7 +203,7 @@ export default function Precificacao() {
               <CalendarDays className="h-5 w-5 text-[#3D2F28]" />
               <h2
                 className="text-[20px] text-[#2A1F1A]"
-                style={{ fontFamily: '"Playfair Display", serif' }}
+                style={{ fontFamily: '"Cormorant Garamond", serif' }}
               >
                 Análises de Preço e Custo
               </h2>

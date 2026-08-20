@@ -757,7 +757,7 @@ export default function SeusDados() {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2 text-[#2A1F1A]">
                   <CalendarDays className="h-5 w-5 text-[#3D2F28]" />
-                  <h2 className="text-[18px]" style={{ fontFamily: "'Playfair Display', serif" }}>
+                  <h2 className="text-[18px]" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                     Resumo do Perfil
                   </h2>
                 </div>
@@ -782,7 +782,7 @@ export default function SeusDados() {
                     <ShieldCheck className="h-6 w-6 text-[#C98A75]" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-[15px] text-[#2A1F1A] mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                    <h3 className="text-[15px] text-[#2A1F1A] mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                       Completude do Perfil
                     </h3>
                     <div className="h-3 rounded-full bg-[#FBF6EE] overflow-hidden">
@@ -814,7 +814,7 @@ export default function SeusDados() {
                     <Clock className="h-6 w-6 text-[#3D2F28]" />
                   </div>
                   <div>
-                    <h3 className="text-[15px] text-[#2A1F1A]" style={{ fontFamily: "'Playfair Display', serif" }}>
+                    <h3 className="text-[15px] text-[#2A1F1A]" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                       Último Acesso
                     </h3>
                     <p className="text-sm text-[#2A1F1A] mt-1">{ultimoAcesso}</p>

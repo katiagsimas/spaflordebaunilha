@@ -39,7 +39,7 @@ const MODULO_ICONS: Record<BackupModuloId, React.ComponentType<{ className?: str
   governanca: Shield,
 };
 
-const PLAYFAIR = "'Playfair Display', serif";
+const PLAYFAIR = "'Cormorant Garamond', serif";
 
 interface BackupRecord {
   id: string;

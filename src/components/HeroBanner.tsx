@@ -15,7 +15,7 @@ interface HeroBannerProps {
  *
  * - Fundo rosado #FAEFEB (customizável via bgColor), rounded-2xl, borda vinho/10, sombra suave
  * - Imagem decorativa no topo (h-24 sm:h-32 lg:h-40)
- * - Título Playfair Display em vinho escuro (#2A1F1A)
+ * - Título Cormorant Garamond em vinho escuro (#2A1F1A)
  * - Fio dourado + subtítulo itálico dourado (#C98A75)
  */
 export function HeroBanner({ image, title, subtitle, imageAlt = "", bgColor = "#FAEFEB" }: HeroBannerProps) {

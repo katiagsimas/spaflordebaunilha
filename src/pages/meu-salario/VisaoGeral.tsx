@@ -23,7 +23,7 @@ import {
   Tooltip,
 } from "recharts";
 
-const PLAYFAIR = "'Playfair Display', serif";
+const PLAYFAIR = "'Cormorant Garamond', serif";
 
 const COR_DOURADO = "#C98A75";
 const COR_VINHO = "#3D2F28";
