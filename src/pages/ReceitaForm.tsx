@@ -14,6 +14,7 @@ import { useReceitasMaoObra } from "@/hooks/useReceitasMaoObra";
 import { MaoObraSection, type MaoObraLinha } from "@/components/MaoObraSection";
 import { CardAnalise } from "@/components/CardAnalise";
 import { useAuth } from "@/contexts/AuthContext";
+import { useGroup } from "@/contexts/GroupContext";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -1990,6 +1991,7 @@ export default function ReceitaForm() {
         descricaoInicial={descricaoInicialIng}
         unidades={unidades}
         userId={user?.id}
+        activeGroupId={activeGroupId}
         onIngredienteCriado={handleIngredienteCriado}
       />
 
@@ -1999,6 +2001,7 @@ export default function ReceitaForm() {
         descricaoInicial={descricaoInicialEmb}
         unidades={unidades}
         userId={user?.id}
+        activeGroupId={activeGroupId}
         onEmbalagemCriada={handleEmbalagemCriada}
       />
     </div>
