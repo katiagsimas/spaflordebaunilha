@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import authSideAsset from '@/assets/capa-autenticacao.png.asset.json';
-import authBgAsset from '@/assets/auth-background.png.asset.json';
+import authBgAsset from '@/assets/auth-background-new.png.asset.json';
 
 interface AuthSplitLayoutProps {
   children: ReactNode;
