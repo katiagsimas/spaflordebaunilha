@@ -764,7 +764,7 @@ export default function SeusDados() {
                 <Button
                   type="submit"
                   disabled={updateProfileMutation.isPending}
-                  className="rounded-lg px-5 py-2.5 text-sm bg-[#2A1F1A] hover:bg-[#3D2F28] text-white"
+                  className="rounded-lg px-5 py-2.5 text-sm bg-sfb-terracota hover:bg-sfb-terracota/90 text-sfb-baunilha"
                 >
                   <Save className="h-4 w-4 mr-2" />
                   {updateProfileMutation.isPending
@@ -830,7 +830,7 @@ export default function SeusDados() {
         type="button"
         onClick={() => navigate(-1)}
         aria-label="Voltar"
-        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-[#3D2F28] hover:bg-[#2A1F1A] text-white shadow-lg flex items-center justify-center transition"
+        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-sfb-cacau hover:bg-sfb-cacau/90 text-sfb-baunilha shadow-lg flex items-center justify-center transition"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>
