@@ -3,7 +3,6 @@ import { useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { LogOut, ArrowUpCircle, Headphones, Crown, User as UserIcon, Mail, CalendarDays, Store, Camera, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { usePlano } from "@/hooks/usePlano";
 import { useGroup } from "@/contexts/GroupContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -32,7 +31,6 @@ function useProfileMenu(userId?: string) {
       if (!userId) return null;
       const { data } = await supabase
         .from("profiles")
-        .select("nome_completo, nome_confeitaria, plano_tipo, plano_inicio, plano_fim, avatar_url")
         .eq("id", userId)
         .single();
       return data;
@@ -49,7 +47,6 @@ export function UserGreeting() {
 export function UserMenu() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const { plano } = usePlano();
   const { isMother, sessionMode, activeGroup, activeRole } = useGroup();
 
   const { data: profile } = useProfileMenu(user?.id);
@@ -225,17 +222,12 @@ export function UserMenu() {
               ) : (
                 <>
                   <p className="text-sm font-semibold text-sfb-vinho-escuro">
-                    {plano?.nome ?? "Carregando..."}
-                    {profile?.plano_tipo && (
                       <span className="ml-1 font-normal text-muted-foreground">
-                        ({profile.plano_tipo === "anual" ? "Anual" : "Mensal"})
                       </span>
                     )}
                   </p>
-                  {(profile?.plano_inicio || profile?.plano_fim) && (
                     <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
                       <CalendarDays className="h-3 w-3" />
-                      {formataData(profile?.plano_inicio)} → {formataData(profile?.plano_fim)}
                     </p>
                   )}
                 </>
@@ -252,7 +244,6 @@ export function UserMenu() {
                 onClick={() => navigate("/upgrade")}
               >
                 <ArrowUpCircle className="h-4 w-4 mr-2 text-sfb-terracota" />
-                Atualizar plano
               </Button>
             )}
             <Button
