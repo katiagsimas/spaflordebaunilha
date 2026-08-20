@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useEstoque } from '@/hooks/useEstoque';
 import { LoadingState } from '@/components/LoadingState';
 import { Package, AlertTriangle, Plus, SlidersHorizontal, Search, CalendarDays, Coins, PackageOpen } from 'lucide-react';
-import heroBanner from '@/assets/estoque-hero-banner.jpg';
+
 import { HeroBanner } from '@/components/HeroBanner';
 import emptyPrateleira from '@/assets/estoque-empty-prateleira.png';
 import valorEstoqueImg from '@/assets/estoque-valor-total.png';
@@ -71,9 +71,8 @@ export default function EstoqueDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* HERO BANNER padronizado */}
+      {/* HERO BANNER padronizado - Imagem removida conforme solicitação */}
       <HeroBanner
-        image={heroBanner}
         title="Estoque"
         subtitle="Controle o estoque de ingredientes e embalagens da sua confeitaria"
       />
