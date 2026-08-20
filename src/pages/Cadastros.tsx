@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Scale, FlaskConical, Cake, ChevronLeft } from "lucide-react";
+import { Scale, FlaskConical, Cake, ChevronLeft, Package, ShoppingBag } from "lucide-react";
 
 import { HeroBanner } from "@/components/HeroBanner";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -92,6 +92,42 @@ export default function Cadastros() {
               </div>
             </div>
           </button>
+        </div>
+
+        {/* Card Agrupador — Produtos de Revenda */}
+        <div className="bg-sfb-areia/20 border-2 border-dashed border-sfb-areia/60 rounded-2xl p-6 space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Package className="h-5 w-5 text-sfb-terracota" />
+            <h3 className="font-display text-lg font-semibold text-sfb-cacau">
+              Produtos de Revenda
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Card Natura */}
+            <div className="bg-white border-2 border-sfb-areia/60 rounded-xl p-5 flex items-center gap-3">
+              <div className="w-[42px] h-[42px] rounded-full bg-sfb-baunilha flex items-center justify-center shrink-0">
+                <ShoppingBag className="h-5 w-5 text-sfb-cacau" />
+              </div>
+              <p className="font-display text-[15px] font-semibold text-sfb-cacau">Natura</p>
+            </div>
+
+            {/* Card Avon */}
+            <div className="bg-white border-2 border-sfb-areia/60 rounded-xl p-5 flex items-center gap-3">
+              <div className="w-[42px] h-[42px] rounded-full bg-sfb-baunilha flex items-center justify-center shrink-0">
+                <ShoppingBag className="h-5 w-5 text-sfb-cacau" />
+              </div>
+              <p className="font-display text-[15px] font-semibold text-sfb-cacau">Avon</p>
+            </div>
+
+            {/* Card Casa & Estilo */}
+            <div className="bg-white border-2 border-sfb-areia/60 rounded-xl p-5 flex items-center gap-3">
+              <div className="w-[42px] h-[42px] rounded-full bg-sfb-baunilha flex items-center justify-center shrink-0">
+                <ShoppingBag className="h-5 w-5 text-sfb-cacau" />
+              </div>
+              <p className="font-display text-[15px] font-semibold text-sfb-cacau">Casa & Estilo</p>
+            </div>
+          </div>
         </div>
       </div>
 
