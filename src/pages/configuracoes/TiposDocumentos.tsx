@@ -104,10 +104,7 @@ export default function TiposDocumentos() {
       const { data, error } = await supabase
         .from('tipos_documento')
         .select('*')
-        .eq('usuario_id', user.id)
-        .order('habilitado', { ascending: false })
-        .order('e_padrao', { ascending: false })
-        .order('descricao');
+        .eq('usuario_id', user.id);
 
       if (error) throw error;
       setTipos(data || []);
