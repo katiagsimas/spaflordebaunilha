@@ -691,7 +691,7 @@ async function enviarEmailBoasVindas(
         <li>Digite o email <strong>${emailSafe}</strong> para receber o link de acesso</li>
       </ol>
       <p><strong>Seu plano:</strong> ${planoNome}</p>
-      <p>Qualquer dúvida, responda este email ou acesse o suporte através do e-mail <a href="mailto:ola@umbrelladoce.com.br" style="color: #D89B8C;">ola@umbrelladoce.com.br</a></p>
+      <p>Qualquer dúvida, responda este email ou acesse o suporte através do e-mail <a href="mailto:ola@spaflordebaunilha.com.br" style="color: #D89B8C;">ola@spaflordebaunilha.com.br</a></p>
       <br/>
       <p>Spa Flor de Baunilha</p>
     </div>
@@ -705,7 +705,7 @@ async function enviarEmailBoasVindas(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Spa Flor de Baunilha <noreply@umbrelladoce.com.br>',
+        from: 'Spa Flor de Baunilha <noreply@spaflordebaunilha.com.br>',
         to: [email],
         subject: 'Seu acesso ao Spa Flor de Baunilha está pronto',
         html,
@@ -814,7 +814,7 @@ async function enviarEmailMudancaPlanoAluna(
       <div style="text-align:center;margin:32px 0;">
         <a href="https://spa.spaflordebaunilha.com.br" style="background:#5B1A2B;color:#FFF9F5;padding:14px 32px;text-decoration:none;border-radius:8px;font-weight:bold;display:inline-block;">Acessar minha conta</a>
       </div>
-      <p style="font-size:13px;color:#555;">Dúvidas? Fale com a gente em <a href="mailto:ola@umbrelladoce.com.br" style="color:#5B1A2B;">ola@umbrelladoce.com.br</a>.</p>
+      <p style="font-size:13px;color:#555;">Dúvidas? Fale com a gente em <a href="mailto:ola@spaflordebaunilha.com.br" style="color:#5B1A2B;">ola@spaflordebaunilha.com.br</a>.</p>
       <p style="margin-top:24px;">Com carinho,<br/><strong>Equipe Spa Flor de Baunilha</strong></p>
     </div>
   `
@@ -824,7 +824,7 @@ async function enviarEmailMudancaPlanoAluna(
       method: 'POST',
       headers: { 'Authorization': `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'Spa Flor de Baunilha <noreply@umbrelladoce.com.br>',
+        from: 'Spa Flor de Baunilha <noreply@spaflordebaunilha.com.br>',
         to: [email],
         subject,
         html,
@@ -903,7 +903,7 @@ async function enviarEmailMudancaPlanoAdmin(
       method: 'POST',
       headers: { 'Authorization': `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'Spa Flor de Baunilha <noreply@umbrelladoce.com.br>',
+        from: 'Spa Flor de Baunilha <noreply@spaflordebaunilha.com.br>',
         to: [emailAdmin],
         subject,
         html,

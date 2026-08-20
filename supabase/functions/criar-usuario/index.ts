@@ -392,7 +392,7 @@ async function enviarEmailBoasVindas(
       </ol>
       <p><strong>Seu plano:</strong> ${planoNome}</p>
       ${''}
-      <p>Qualquer dúvida, responda este email ou acesse o suporte através do e-mail <a href="mailto:ola@umbrelladoce.com.br" style="color: #5B1A2B;">ola@umbrelladoce.com.br</a></p>
+      <p>Qualquer dúvida, responda este email ou acesse o suporte através do e-mail <a href="mailto:ola@spaflordebaunilha.com.br" style="color: #5B1A2B;">ola@spaflordebaunilha.com.br</a></p>
       <br/>
       <p>Spa Flor de Baunilha</p>
     </div>
@@ -406,7 +406,7 @@ async function enviarEmailBoasVindas(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Spa Flor de Baunilha <noreply@umbrelladoce.com.br>',
+        from: 'Spa Flor de Baunilha <noreply@spaflordebaunilha.com.br>',
         to: [email],
         subject: 'Seu acesso ao Spa Flor de Baunilha está pronto',
         html,

@@ -133,7 +133,7 @@ Deno.serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Spa Flor de Baunilha <noreply@umbrelladoce.com.br>',
+        from: 'Spa Flor de Baunilha <noreply@spaflordebaunilha.com.br>',
         to: [email.trim().toLowerCase()],
         subject: 'Redefinição de senha — Spa Flor de Baunilha',
         html,

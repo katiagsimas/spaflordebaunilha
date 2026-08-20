@@ -72,7 +72,7 @@ Verifica profiles.primeiro_acesso === true?
 1. Admin preenche formulário e confirma
 2. Edge function `criar-usuario` é invocada (com rate limit 10 req/60s por IP)
 3. Usuário é criado no Supabase Auth com senha temporária e `primeiro_acesso = true`; e-mails nativos do Supabase ficam suprimidos
-4. Edge function gera link de recovery (`admin.generateLink`) e envia e-mail customizado via Resend (`noreply@umbrelladoce.com.br`) apontando direto para `/auth/reset-password?token_hash=...`
+4. Edge function gera link de recovery (`admin.generateLink`) e envia e-mail customizado via Resend (`noreply@spaflordebaunilha.com.br`) apontando direto para `/auth/reset-password?token_hash=...`
 5. Usuário clica no link, define a própria senha e é redirecionado ao login
 
 ### 3.2 Via Webhook Hotmart (Automático)
@@ -159,7 +159,7 @@ Extrai token_hash da action_link
   ↓
 Constrói URL direta: ${SITE_URL}/auth/reset-password?token_hash=XXX&type=recovery
   ↓
-Envia e-mail personalizado via Resend (noreply@umbrelladoce.com.br)
+Envia e-mail personalizado via Resend (noreply@spaflordebaunilha.com.br)
   ↓
 Tela: "Verifique sua caixa de entrada"
 ```

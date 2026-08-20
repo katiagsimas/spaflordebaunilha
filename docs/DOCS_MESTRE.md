@@ -42,7 +42,7 @@ Sistema principal da **Spa Flor de Baunilha**. Criação de usuários exclusivam
 | PDF | jsPDF + jspdf-autotable |
 | Planilhas | exceljs (via `src/lib/xlsxShim.ts`) |
 | Drag & Drop | @dnd-kit |
-| Emails transacionais | Resend (noreply@umbrelladoce.com.br) |
+| Emails transacionais | Resend (noreply@spaflordebaunilha.com.br) |
 | Agendamento | pg_cron (backups, planos pendentes) |
 | Pagamentos | Hotmart Webhook (compra, renovação, cancelamento) |
 | Monitoramento | Sentry (`@sentry/react` via `VITE_SENTRY_DSN`) |

@@ -154,7 +154,7 @@ Regras (case-insensitive):
 
 ### 3.5 E-mails (Resend)
 
-- Remetente: `Spa Flor de Baunilha <noreply@umbrelladoce.com.br>`
+- Remetente: `Spa Flor de Baunilha <noreply@spaflordebaunilha.com.br>`
 - Secret: `RESEND_API_KEY` (ausente = webhook **não falha**, apenas loga aviso).
 - E-mails enviados:
   - Boas-vindas / primeiro acesso → orienta usar "Esqueci minha senha"

@@ -979,7 +979,7 @@
 |---|------|--------|-----------|
 | 17 | Datas plano na listagem | ✅ | Adicionado `last_login` à interface UserProfile e à query. Campos `plano_inicio`/`plano_fim` já eram buscados — dados estavam NULL no DB para usuários antigos. |
 | 18 | Último Acesso | ✅ | Movido update de `last_login` para AuthContext (evento SIGNED_IN) para capturar todo login, não apenas via Login.tsx. |
-| 19 | Email recuperação via Resend | ✅ | Criada Edge Function `enviar-recuperacao-senha` que gera link via `admin.generateLink(recovery)` e envia via Resend (noreply@umbrelladoce.com.br). ForgotPassword.tsx agora chama esta função. |
+| 19 | Email recuperação via Resend | ✅ | Criada Edge Function `enviar-recuperacao-senha` que gera link via `admin.generateLink(recovery)` e envia via Resend (noreply@spaflordebaunilha.com.br). ForgotPassword.tsx agora chama esta função. |
 | 20 | Diálogo duplicado de senha | ✅ | ResetPassword.tsx agora seta `primeiro_acesso: false` após redefinir senha e faz signOut, evitando que o AlterarSenhaObrigatoria apareça no login subsequente. |
 
 ---
@@ -990,7 +990,7 @@
 |---|------|--------|-----------|
 | 13 | Formulário Criar Usuário | ✅ | Adicionados campos "Data Início" e "Data Expiração" com auto-cálculo baseado na periodicidade (30/365 dias). |
 | 14 | Listagem de usuários | ✅ | Removidas colunas "Confeitaria" e "Cadastrado em". Adicionadas colunas "Início do Plano" e "Expiração do Plano" após Permissões. |
-| 15 | Email de boas-vindas Resend | ✅ | Removido inviteUserByEmail (Magic Link nativo). Novo usuário criado via createUser + generateLink. Email de boas-vindas enviado via Resend API (noreply@umbrelladoce.com.br). |
+| 15 | Email de boas-vindas Resend | ✅ | Removido inviteUserByEmail (Magic Link nativo). Novo usuário criado via createUser + generateLink. Email de boas-vindas enviado via Resend API (noreply@spaflordebaunilha.com.br). |
 | 16 | Edge function criar-usuario | ✅ | Refatorada para usar Resend em vez de invite nativo. Senha temporária aleatória + magic link gerado para primeiro acesso. |
 
 ---
