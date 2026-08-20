@@ -363,7 +363,7 @@ export default function Financeiro() {
   ];
 
   return (
-    <div className="flex h-full overflow-hidden bg-[#FFFDF9]">
+    <div className="flex h-full overflow-hidden bg-sfb-baunilha">
       <div className="flex-1 min-w-0 overflow-auto">
         <div className="container mx-auto px-6 pt-1 pb-6 space-y-6 pb-24">
           {/* ===== HEADER PREMIUM ===== */}
@@ -554,7 +554,7 @@ export default function Financeiro() {
           </button>
           <button
             onClick={() => navigate(-1)}
-            className="w-11 h-11 rounded-full bg-[#3D2F28] text-sfb-baunilha flex items-center justify-center shadow-lg hover:opacity-90 transition"
+            className="w-11 h-11 rounded-full bg-sfb-cacau text-sfb-baunilha flex items-center justify-center shadow-lg hover:opacity-90 transition"
             aria-label="Voltar"
           >
             <ChevronLeft className="h-5 w-5" />

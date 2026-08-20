@@ -52,7 +52,7 @@ export default function EstoqueDashboard() {
       Icon: PackageOpen,
       image: itensCadastradosImg,
       tone: 'text-sfb-cacau',
-      iconWrap: 'bg-[#3D2F28]/10 ring-[#3D2F28]/25',
+      iconWrap: 'bg-sfb-cacau/10 ring-sfb-cacau/25',
       iconColor: 'text-sfb-cacau',
     },
     {
@@ -64,7 +64,7 @@ export default function EstoqueDashboard() {
       iconWrap:
         itensAbaixoMinimo.length > 0
           ? 'bg-sfb-terracota/20 ring-[#C98A75]/40'
-          : 'bg-[#3D2F28]/10 ring-[#3D2F28]/25',
+          : 'bg-sfb-cacau/10 ring-sfb-cacau/25',
       iconColor: itensAbaixoMinimo.length > 0 ? 'text-sfb-terracota' : 'text-sfb-cacau',
     },
   ];
@@ -227,7 +227,7 @@ export default function EstoqueDashboard() {
                         </td>
                         <td className="px-5 py-3 text-right">
                           {abaixoMinimo ? (
-                            <Badge className="gap-1 rounded-md bg-sfb-terracota/20 font-body text-xs text-[#B23A2E] hover:bg-sfb-terracota/30">
+                            <Badge className="gap-1 rounded-md bg-sfb-terracota/20 font-body text-xs text-sfb-terracota hover:bg-sfb-terracota/30">
                               <AlertTriangle className="h-3 w-3" /> Abaixo
                             </Badge>
                           ) : (
@@ -290,7 +290,7 @@ export default function EstoqueDashboard() {
                         {item.unidade}
                       </p>
                     </div>
-                    <Badge className="rounded-md bg-sfb-terracota/30 font-body text-[10px] text-[#B23A2E] hover:bg-sfb-terracota/40">
+                    <Badge className="rounded-md bg-sfb-terracota/30 font-body text-[10px] text-sfb-terracota hover:bg-sfb-terracota/40">
                       Baixo
                     </Badge>
                   </li>

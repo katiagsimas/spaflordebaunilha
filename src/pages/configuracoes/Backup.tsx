@@ -575,7 +575,7 @@ export default function Backup() {
               type="button"
               onClick={escolherPasta}
               disabled={!fsApiSupported || escolhendoPasta}
-              className="inline-flex items-center gap-2 bg-[#3D2F28] hover:bg-sfb-terracota disabled:opacity-50 disabled:cursor-not-allowed text-sfb-baunilha text-xs font-medium rounded-lg px-3 py-2 transition-colors"
+              className="inline-flex items-center gap-2 bg-sfb-cacau hover:bg-sfb-terracota disabled:opacity-50 disabled:cursor-not-allowed text-sfb-baunilha text-xs font-medium rounded-lg px-3 py-2 transition-colors"
             >
               {escolhendoPasta ? (
                 <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Abrindo...</>
@@ -633,12 +633,12 @@ export default function Backup() {
                 <Checkbox
                   checked={checked}
                   onCheckedChange={() => toggleModulo(modulosManual, setModulosManual, mod.id)}
-                  className="border-sfb-cacau/40 data-[state=checked]:bg-[#3D2F28] data-[state=checked]:border-sfb-cacau"
+                  className="border-sfb-cacau/40 data-[state=checked]:bg-sfb-cacau data-[state=checked]:border-sfb-cacau"
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm font-bold text-sfb-cacau">{mod.titulo}</span>
-                    <span className="bg-[#3D2F28]/10 text-sfb-cacau text-[10px] px-2 py-0.5 rounded-full font-medium">
+                    <span className="bg-sfb-cacau/10 text-sfb-cacau text-[10px] px-2 py-0.5 rounded-full font-medium">
                       {mod.tabelas.length} tabelas
                     </span>
                   </div>
@@ -684,7 +684,7 @@ export default function Backup() {
                   onClick={() => downloadBackup(c.id, backups.find((b) => b.id === c.id)?.nome || c.label)}
                   className={`rounded-full px-3 py-1 text-xs transition-colors border ${
                     backupSelecionado === c.id
-                      ? "bg-[#3D2F28] text-sfb-baunilha border-sfb-cacau"
+                      ? "bg-sfb-cacau text-sfb-baunilha border-sfb-cacau"
                       : "bg-sfb-baunilha border-sfb-cacau/15 text-sfb-cacau hover:border-sfb-cacau/40"
                   }`}
                 >
@@ -1113,7 +1113,7 @@ export default function Backup() {
         type="button"
         onClick={() => navigate("/cadastros")}
         aria-label="Voltar"
-        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-[#3D2F28] hover:bg-sfb-terracota text-sfb-baunilha shadow-lg flex items-center justify-center transition"
+        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-sfb-cacau hover:bg-sfb-terracota text-sfb-baunilha shadow-lg flex items-center justify-center transition"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>

@@ -144,7 +144,7 @@ export default function Negociacoes() {
       : Object.entries(CONTRATO_STATUS_LABELS);
 
   return (
-    <div className="min-h-screen bg-[#FFFDF9] pb-24">
+    <div className="min-h-screen bg-sfb-baunilha pb-24">
       <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
         {/* ===== HEADER PREMIUM ===== */}
         <div
