@@ -285,9 +285,6 @@ export default function ResetPassword() {
           </Form>
         </Card>
 
-        <p className="text-center text-xs font-body text-sfb-cacau/50">
-          Sistema de gestão para confeitarias
-        </p>
       </div>
     );
   };

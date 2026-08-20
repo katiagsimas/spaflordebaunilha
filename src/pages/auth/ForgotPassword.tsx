@@ -83,9 +83,6 @@ export default function ForgotPassword() {
             </CardFooter>
           </Card>
 
-          <p className="text-center text-xs font-body text-sfb-cacau/50">
-            Sistema de gestão para confeitarias
-          </p>
         </div>
       );
     }
@@ -155,9 +152,6 @@ export default function ForgotPassword() {
           </form>
         </Card>
 
-        <p className="text-center text-xs font-body text-sfb-cacau/50">
-          Sistema de gestão para confeitarias
-        </p>
       </div>
     );
   };
