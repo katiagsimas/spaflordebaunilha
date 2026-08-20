@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: Este aplicativo será de uso exclusivo para uma consultora de Beleza que realiza vendas de produtos de várias marcas e também presta servços de Spa Facial e Spa dos Pés, sendo assim, precisamos reformular os módulos da Seção "Minha Produção" e paa isso precisamos criar um Plano. A princíppio, essa consultora irá trabalhar com produtos da marca Natura, Avon e Avon Casa & Estilo, além disso, ela venderá kit de escalda pés e terá receitas próprias e esclusivas para escalda pés e outros procedimentos do spa. Como você sugere as alterações nesta seção?
+// Execute esta instrucao no projeto: Reestruture a seção "Minha Produção" para refletir a consultora de beleza (Produtos Natura/Avon/Avon Casa & Estilo) e os serviços de Spa Facial e Spa dos Pés com um fluxo de plano de produção
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
