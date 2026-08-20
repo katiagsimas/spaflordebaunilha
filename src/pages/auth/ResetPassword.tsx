@@ -14,8 +14,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { validarSenhaForte } from '@/lib/validacaoSenha';
 import sfbIcon from '@/assets/sfb-logo-full.png';
-import authBrandImage from '@/assets/auth-brand-image.png';
-import authBackgroundAsset from '@/assets/auth-background.png.asset.json';
+import { AuthSplitLayout } from '@/components/auth/AuthSplitLayout';
+
 
 const resetPasswordSchema = z.object({
   password: z.string().min(6, 'A senha deve ter no mínimo 6 caracteres'),
@@ -284,7 +284,7 @@ export default function ResetPassword() {
           </Form>
         </Card>
 
-        <p className="text-center text-xs font-body text-sfb-creme/40">
+        <p className="text-center text-xs font-body text-sfb-cacau/50">
           Sistema de gestão para confeitarias
         </p>
       </div>
@@ -292,20 +292,9 @@ export default function ResetPassword() {
   };
 
   return (
-    <div 
-      className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-sfb-baunilha"
-      style={{
-        backgroundImage: `url(${authBackgroundAsset.url})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
-    >
-      <div className="absolute inset-0 opacity-[0.04]" style={{
-        backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
-        backgroundSize: '40px 40px'
-      }} />
+    <AuthSplitLayout>
       {renderContent()}
-    </div>
+    </AuthSplitLayout>
   );
+
 }

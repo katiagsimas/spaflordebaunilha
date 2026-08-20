@@ -12,8 +12,8 @@ import sfbLogoFull from '@/assets/sfb-logo-full.png';
 
 import { z } from 'zod';
 import { toast } from 'sonner';
-import authBrandImage from '@/assets/auth-brand-image.png';
-import authBackgroundAsset from '@/assets/auth-background.png.asset.json';
+import { AuthSplitLayout } from '@/components/auth/AuthSplitLayout';
+
 import { URL_UPGRADE_EXTERNO } from '@/lib/constants';
 
 const loginSchema = z.object({
@@ -93,20 +93,8 @@ export default function Login() {
     <>
       <AlterarSenhaObrigatoria open={mostrarAlterarSenha} />
 
-      <div 
-        className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-sfb-baunilha"
-        style={{
-          backgroundImage: `url(${authBackgroundAsset.url})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
-      >
-        {/* Subtle pattern overlay */}
-        <div className="absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
-        }} />
+      <AuthSplitLayout>
+
 
         <div className="w-full max-w-md relative z-10 space-y-8">
             {/* Brand header */}
@@ -215,11 +203,12 @@ export default function Login() {
               </form>
             </Card>
 
-            <p className="text-center text-xs font-body text-sfb-creme/40">
+            <p className="text-center text-xs font-body text-sfb-cacau/50">
               Sistema de gestão para confeitarias
             </p>
         </div>
-      </div>
+      </AuthSplitLayout>
+
     </>
   );
 }
