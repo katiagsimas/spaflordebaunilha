@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: Dentro do card "Produtos para Revenda" crie os cards "Natura", "Avon" e "Casa & Estilo", no mesmo layoout e formato do card Produtos para Revenda, crie-os totalmente vazios
+// Execute esta instrucao no projeto: Em Cadastros, crie o card "Produtos para Revenda" no mesmo estilo e layout dos cards pré existentes (Valores de Mão de Obra, Unidades de Medida e Categorias) crie este card totalmente vazio
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
