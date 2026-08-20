@@ -104,7 +104,10 @@ export default function TiposDocumentos() {
       const { data, error } = await supabase
         .from('tipos_documento')
         .select('*')
-        .eq('usuario_id', user.id);
+        .eq('usuario_id', user.id)
+        .order('habilitado', { ascending: false })
+        .order('e_padrao', { ascending: false })
+        .order('descricao');
 
       if (error) throw error;
       setTipos(data || []);
@@ -142,8 +145,9 @@ export default function TiposDocumentos() {
 
     // Filtro de status (Habilitado ou Desabilitado)
     if (filtroStatus !== 'todos') {
+      const statusDesejado = filtroStatus === 'habilitado';
       resultado = resultado.filter(t => 
-        filtroStatus === 'habilitado' ? t.habilitado : !t.habilitado
+        (t.habilitado === statusDesejado) || (t.habilitado === undefined && statusDesejado === true)
       );
     }
 
@@ -223,7 +227,7 @@ export default function TiposDocumentos() {
             codigo: parseInt(codigoSugerido),
             descricao: descricao.trim(),
             e_padrao: false,
-            habilitado: false,
+            habilitado: true,
           });
 
         if (error) {
