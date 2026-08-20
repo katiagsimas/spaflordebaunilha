@@ -1,0 +1,1 @@
+UPDATE public.unidades_medida SET e_padrao = true WHERE id = '88f1d68d-c645-4519-b587-345caff89256';

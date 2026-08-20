@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: remova "Minilitros"
+// Execute esta instrucao no projeto: Porque para Mililitros não há a identificação "Padrão"?
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
