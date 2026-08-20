@@ -50,8 +50,6 @@ export default function ContasReceberFormModal({
   onCancelar,
 }: ContasReceberFormModalProps) {
   const { toast } = useToast();
-  const { profile: userProfile } = useUserProfile();
-  const onboardingPendente = userProfile && !(userProfile as any).onboarding_concluido;
 
 
   const [dataEmissao, setDataEmissao] = useState(dataEmissaoInicial);
@@ -226,14 +224,6 @@ export default function ContasReceberFormModal({
   };
 
   const handleSalvarParcelamentos = async () => {
-    if (onboardingPendente) {
-      toast({
-        title: 'Ação bloqueada',
-        description: 'Conclua o onboarding para realizar esta ação!',
-        variant: 'destructive',
-      });
-      return;
-    }
 
     try {
       if (parcelasGeradas.length === 0) {

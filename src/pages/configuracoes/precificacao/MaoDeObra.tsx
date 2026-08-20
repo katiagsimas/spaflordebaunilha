@@ -119,19 +119,6 @@ export default function MaoDeObra() {
 
     setDialogOpen(false);
 
-    // Se era o primeiro perfil criado, avança o onboarding
-    if (eraVazio && !editingPerfil && profile?.id) {
-      try {
-        queryClient.removeQueries({ queryKey: ["onboarding-status"] });
-        await queryClient.refetchQueries({ queryKey: ["mao_obra_perfis"], type: "active" });
-        await queryClient.refetchQueries({ queryKey: ["onboarding-status"], type: "active" });
-
-        // Redireciona para o progresso do onboarding
-        setTimeout(() => navigate("/onboarding/progresso", { replace: true }), 50);
-      } catch (e) {
-        console.error("Erro ao avançar onboarding:", e);
-      }
-    }
   };
 
   const handleDeletePerfil = () => {

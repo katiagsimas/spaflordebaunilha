@@ -278,11 +278,6 @@ export default function Backup() {
         ? `salvo em "${backupLocation.getSavedFolderName()}"`
         : "baixado para sua pasta de Downloads";
       toast.success(`Backup "${nomeBackup}" gerado, na nuvem e ${ondeMsg}!`);
-      
-      const eraOnboarding = (profile as any)?.onboarding_concluido !== true;
-      if (eraOnboarding) {
-        setTimeout(() => navigate("/onboarding/progresso", { replace: true }), 1000);
-      }
     } catch (err: any) {
       toast.error("Erro ao realizar backup: " + err.message);
     } finally {
@@ -892,16 +887,10 @@ export default function Backup() {
                         .from("backups" as any)
                         .select("id", { count: "exact", head: true })
                         .eq("usuario_id", user.id) as any);
-                      const eraOnboarding = (count ?? 0) === 0;
-                      if (eraOnboarding) {
+                      const hasBackups = (count ?? 0) > 0;
+                      if (!hasBackups) {
                         toast.info("Gerando seu primeiro backup...");
                         await realizarBackup();
-                      }
-                      await queryClient.invalidateQueries({ queryKey: ["onboarding-status"] });
-                      await queryClient.refetchQueries({ queryKey: ["onboarding-status"], type: "active" });
-                      if (eraOnboarding) {
-                        toast.success("Configuração concluída! Bem-vindo(a) ao Spa Flor de Baunilha 🎉");
-                        setTimeout(() => navigate("/onboarding/concluido", { replace: true }), 50);
                       }
                     }
                   } catch {

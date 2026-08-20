@@ -30,7 +30,7 @@ function formatDateBR(iso?: string | null) {
 
 export default function ClientesFornecedores() {
   const { profile: userProfile } = useUserProfile();
-  const onboardingPendente = userProfile && !(userProfile as any).onboarding_concluido;
+  
 
   const navigate = useNavigate();
 
@@ -189,10 +189,6 @@ export default function ClientesFornecedores() {
                 <Button
                   className="bg-sfb-terracota hover:bg-sfb-terracota/90 text-sfb-baunilha"
                   onClick={() => {
-                    if (onboardingPendente) {
-                      toast.error("Conclua o onboarding para realizar esta ação!");
-                      return;
-                    }
                     navigate(tab === "clientes" ? "/clientes" : "/fornecedores");
                   }}
 

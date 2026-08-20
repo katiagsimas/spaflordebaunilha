@@ -69,7 +69,7 @@ import { BackButton } from '@/components/BackButton';
 
 export default function Embalagens() {
   const { profile: userProfile } = useUserProfile();
-  const onboardingPendente = userProfile && !(userProfile as any).onboarding_concluido;
+  
 
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -287,16 +287,6 @@ export default function Embalagens() {
   };
 
   const handleSalvar = async () => {
-    if (onboardingPendente) {
-      toast({
-        title: 'Ação bloqueada',
-        description: 'Conclua o onboarding para realizar esta ação!',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-
     try {
       if (!tipoSelecionado) {
         toast({

@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 export default function Cadastros() {
   const { profile: userProfile } = useUserProfile();
-  const onboardingPendente = userProfile && !(userProfile as any).onboarding_concluido;
+  
 
   const navigate = useNavigate();
 
@@ -27,10 +27,6 @@ export default function Cadastros() {
           {/* Card 1 — Mão de Obra */}
           <button
             onClick={() => {
-              if (onboardingPendente) {
-                toast.error("Conclua o onboarding para realizar esta ação!");
-                return;
-              }
               navigate("/configuracoes/precificacao/mao-de-obra");
             }}
 
@@ -54,10 +50,6 @@ export default function Cadastros() {
           {/* Card 2 — Unidades de Medidas */}
           <button
             onClick={() => {
-              if (onboardingPendente) {
-                toast.error("Conclua o onboarding para realizar esta ação!");
-                return;
-              }
               navigate("/configuracoes/unidades-medida");
             }}
 
@@ -81,10 +73,6 @@ export default function Cadastros() {
           {/* Card 3 — Categorias */}
           <button
             onClick={() => {
-              if (onboardingPendente) {
-                toast.error("Conclua o onboarding para realizar esta ação!");
-                return;
-              }
               navigate("/configuracoes/categorias-receitas");
             }}
 

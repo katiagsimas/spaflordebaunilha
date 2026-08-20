@@ -2298,36 +2298,6 @@ export type Database = {
           },
         ]
       }
-      onboarding_exception_logs: {
-        Row: {
-          action: string
-          admin_id: string
-          created_at: string
-          details: Json | null
-          id: string
-          route: string
-          user_id: string
-        }
-        Insert: {
-          action: string
-          admin_id: string
-          created_at?: string
-          details?: Json | null
-          id?: string
-          route: string
-          user_id: string
-        }
-        Update: {
-          action?: string
-          admin_id?: string
-          created_at?: string
-          details?: Json | null
-          id?: string
-          route?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       plano_contas: {
         Row: {
           ativo: boolean | null
@@ -2617,10 +2587,6 @@ export type Database = {
           nome_completo: string | null
           nome_confeitaria: string | null
           numero: string | null
-          onboarding_concluido: boolean
-          onboarding_concluido_at: string | null
-          onboarding_iniciado: boolean
-          onboarding_step_status: Json | null
           origem_criacao: string | null
           owner_group_id: string | null
           plano_fim: string | null
@@ -2667,10 +2633,6 @@ export type Database = {
           nome_completo?: string | null
           nome_confeitaria?: string | null
           numero?: string | null
-          onboarding_concluido?: boolean
-          onboarding_concluido_at?: string | null
-          onboarding_iniciado?: boolean
-          onboarding_step_status?: Json | null
           origem_criacao?: string | null
           owner_group_id?: string | null
           plano_fim?: string | null
@@ -2717,10 +2679,6 @@ export type Database = {
           nome_completo?: string | null
           nome_confeitaria?: string | null
           numero?: string | null
-          onboarding_concluido?: boolean
-          onboarding_concluido_at?: string | null
-          onboarding_iniciado?: boolean
-          onboarding_step_status?: Json | null
           origem_criacao?: string | null
           owner_group_id?: string | null
           plano_fim?: string | null
