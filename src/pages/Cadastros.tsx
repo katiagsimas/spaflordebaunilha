@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Scale, FlaskConical, Cake, ChevronLeft, ShoppingBag } from "lucide-react";
+import { Scale, FlaskConical, Cake, ChevronLeft, ShoppingBag, Leaf, Sun, Home } from "lucide-react";
 
 import { HeroBanner } from "@/components/HeroBanner";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -94,27 +94,59 @@ export default function Cadastros() {
           </button>
 
           {/* Card 4 — Produtos para Revenda */}
-          <button
-            onClick={() => {
-              // Card vazio no momento
-              console.log("Produtos para Revenda clicado");
-            }}
-            className="group text-left bg-white border-2 border-sfb-areia/60 rounded-xl p-5 transition-all duration-200 hover:border-sfb-terracota hover:shadow-md"
-          >
-            <div className="flex items-start gap-3">
-              <div className="w-[52px] h-[52px] rounded-full bg-sfb-baunilha flex items-center justify-center shrink-0">
-                <ShoppingBag className="h-6 w-6 text-sfb-cacau" />
+          <div className="group text-left bg-white border-2 border-sfb-areia/60 rounded-xl p-5 transition-all duration-200">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-start gap-3">
+                <div className="w-[52px] h-[52px] rounded-full bg-sfb-baunilha flex items-center justify-center shrink-0">
+                  <ShoppingBag className="h-6 w-6 text-sfb-cacau" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-display text-[15px] font-semibold text-sfb-cacau leading-tight">
+                    Produtos para Revenda
+                  </p>
+                  <p className="text-[12px] text-muted-foreground mt-1">
+                    Gerencie itens adquiridos para revenda direta
+                  </p>
+                </div>
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-display text-[15px] font-semibold text-sfb-cacau leading-tight">
-                  Produtos para Revenda
-                </p>
-                <p className="text-[12px] text-muted-foreground mt-1">
-                  Gerencie itens adquiridos para revenda direta
-                </p>
+
+              {/* Sub-cards vazios */}
+              <div className="grid grid-cols-1 gap-2 mt-2">
+                {/* Natura */}
+                <button
+                  onClick={() => console.log("Natura clicado")}
+                  className="flex items-center gap-3 p-3 bg-sfb-baunilha/30 border border-sfb-areia/40 rounded-lg hover:border-sfb-terracota hover:bg-white transition-all text-left"
+                >
+                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 border border-sfb-areia/20">
+                    <Leaf className="h-4 w-4 text-sfb-cacau" />
+                  </div>
+                  <span className="font-display text-[13px] font-medium text-sfb-cacau">Natura</span>
+                </button>
+
+                {/* Avon */}
+                <button
+                  onClick={() => console.log("Avon clicado")}
+                  className="flex items-center gap-3 p-3 bg-sfb-baunilha/30 border border-sfb-areia/40 rounded-lg hover:border-sfb-terracota hover:bg-white transition-all text-left"
+                >
+                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 border border-sfb-areia/20">
+                    <Sun className="h-4 w-4 text-sfb-cacau" />
+                  </div>
+                  <span className="font-display text-[13px] font-medium text-sfb-cacau">Avon</span>
+                </button>
+
+                {/* Casa & Estilo */}
+                <button
+                  onClick={() => console.log("Casa & Estilo clicado")}
+                  className="flex items-center gap-3 p-3 bg-sfb-baunilha/30 border border-sfb-areia/40 rounded-lg hover:border-sfb-terracota hover:bg-white transition-all text-left"
+                >
+                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 border border-sfb-areia/20">
+                    <Home className="h-4 w-4 text-sfb-cacau" />
+                  </div>
+                  <span className="font-display text-[13px] font-medium text-sfb-cacau">Casa & Estilo</span>
+                </button>
               </div>
             </div>
-          </button>
+          </div>
         </div>
       </div>
 
