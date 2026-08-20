@@ -1,11 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserId } from "./useUserId";
+import { useGroup } from "@/contexts/GroupContext";
 import { toast } from "sonner";
 
 export interface MaoObraPerfil {
   id: string;
   user_id: string;
+  owner_group_id: string | null;
   nome: string;
   valor_hora: number;
   ativo: boolean;
@@ -16,31 +18,33 @@ export interface MaoObraPerfil {
 
 export function useMaoObraPerfis() {
   const userId = useUserId();
+  const { activeGroupId } = useGroup();
   const queryClient = useQueryClient();
 
   const { data: perfis = [], isLoading } = useQuery({
-    queryKey: ["mao_obra_perfis", userId],
+    queryKey: ["mao_obra_perfis", userId, activeGroupId],
     queryFn: async () => {
-      if (!userId) return [];
+      if (!userId || !activeGroupId) return [];
       
       const { data, error } = await supabase
         .from("mao_obra_perfis")
         .select("*")
-        .eq("user_id", userId)
+        .eq("owner_group_id", activeGroupId)
         .order("padrao", { ascending: false })
         .order("nome");
 
       if (error) throw error;
       return data as MaoObraPerfil[];
     },
-    enabled: !!userId,
+    enabled: !!userId && !!activeGroupId,
   });
 
   const perfilPadrao = perfis.find(p => p.padrao);
 
   const createPerfil = useMutation({
-    mutationFn: async (data: Omit<MaoObraPerfil, "id" | "user_id" | "criado_em" | "atualizado_em">) => {
+    mutationFn: async (data: Omit<MaoObraPerfil, "id" | "user_id" | "owner_group_id" | "criado_em" | "atualizado_em">) => {
       if (!userId) throw new Error("User not authenticated");
+      if (!activeGroupId) throw new Error("Active group not found");
 
       // Se é o primeiro perfil, forçar como padrão
       const isFirstPerfil = perfis.length === 0;
@@ -49,6 +53,7 @@ export function useMaoObraPerfis() {
         .from("mao_obra_perfis")
         .insert({
           user_id: userId,
+          owner_group_id: activeGroupId,
           ...data,
           padrao: isFirstPerfil ? true : data.padrao,
         })
@@ -74,6 +79,7 @@ export function useMaoObraPerfis() {
         .from("mao_obra_perfis")
         .update(updates)
         .eq("id", id)
+        .eq("owner_group_id", activeGroupId)
         .select()
         .single();
 
@@ -93,6 +99,8 @@ export function useMaoObraPerfis() {
 
   const deletePerfil = useMutation({
     mutationFn: async (id: string) => {
+      if (!activeGroupId) throw new Error("Active group not found");
+
       // Verificar se o perfil está vinculado a alguma receita
       const { count, error: checkError } = await supabase
         .from("receitas_mao_obra")
@@ -110,7 +118,8 @@ export function useMaoObraPerfis() {
       const { error } = await supabase
         .from("mao_obra_perfis")
         .delete()
-        .eq("id", id);
+        .eq("id", id)
+        .eq("owner_group_id", activeGroupId);
 
       if (error) throw error;
     },
