@@ -8,16 +8,16 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-transparent bg-secondary text-secondary-foreground",
-        secondary: "border-transparent bg-sfb-pink/25 text-foreground",
-        destructive: "border-transparent bg-destructive/20 text-destructive",
-        outline: "text-foreground",
-        pendente: "border-transparent bg-sfb-dourado/25 text-foreground",
-        confirmado: "border-transparent bg-info/15 text-info",
-        producao: "border-transparent bg-sfb-pink/20 text-foreground",
-        pronto: "border-transparent bg-secondary text-secondary-foreground",
-        entregue: "border-transparent bg-foreground/10 text-muted-foreground",
-        cancelado: "border-transparent bg-destructive/15 text-destructive",
+        default: "border-transparent bg-sfb-terracota text-sfb-baunilha",
+        secondary: "border-transparent bg-sfb-areia text-sfb-cacau",
+        destructive: "border-transparent bg-red-100 text-red-800",
+        outline: "text-sfb-cacau border-sfb-areia",
+        pendente: "border-transparent bg-amber-100 text-amber-800",
+        confirmado: "border-transparent bg-sfb-salvia/20 text-sfb-cacau font-semibold",
+        producao: "border-transparent bg-sfb-terracota/20 text-sfb-terracota",
+        pronto: "border-transparent bg-sfb-salvia text-sfb-baunilha",
+        entregue: "border-transparent bg-sfb-areia/50 text-sfb-cacau",
+        cancelado: "border-transparent bg-gray-200 text-gray-500",
       },
     },
     defaultVariants: {
