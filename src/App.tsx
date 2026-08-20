@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: Refine "Categorias de Receitas" para "Categorias", persista este refinamento no banco de dados e e qualquer página do projeto que tenha este texto
+// Execute esta instrucao no projeto: Cadastre as categorias "Plástica dos Pés", "Descartáveis", "Utensílios", "Uso Geral", "Spa Facial", garanta persistência no banco de dados
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
