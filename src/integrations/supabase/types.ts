@@ -3828,7 +3828,7 @@ export type Database = {
         Returns: number
       }
       gerar_proximo_codigo_tipo_documento: {
-        Args: { p_user_id: string }
+        Args: { p_owner_group_id: string; p_user_id: string }
         Returns: number
       }
       get_active_group_id: { Args: { _user_id: string }; Returns: string }
