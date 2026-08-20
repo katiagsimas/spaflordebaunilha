@@ -420,17 +420,6 @@ export default function TiposDocumentos() {
             ) : (
               tiposFiltrados.map(tipo => (
                 <TableRow key={tipo.id}>
-                  <TableCell>
-                    {tipo.e_padrao ? (
-                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
-                        Padrão
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-300">
-                        Custom
-                      </Badge>
-                    )}
-                  </TableCell>
                   <TableCell className="font-mono font-bold">
                     {tipo.codigo}
                   </TableCell>
