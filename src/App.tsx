@@ -329,8 +329,6 @@ const App = () => (
           <Route path="/admin/cofre-backups" element={<ProtectedRoute><Layout><CofreBackups /></Layout></ProtectedRoute>} />
           <Route path="/governanca" element={<ProtectedRoute><Layout><GovernancaHub /></Layout></ProtectedRoute>} />
           
-          {/* Upgrade */}
-          <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
           </Routes>
