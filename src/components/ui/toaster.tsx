@@ -12,7 +12,7 @@ export function Toaster() {
             <div className="grid gap-1">
               {title && <ToastTitle>{title}</ToastTitle>}
               {description && (
-                <ToastDescription className={variant === "default" ? "text-[#FFFDF9]/80" : undefined}>
+                <ToastDescription className={variant === "default" ? "text-sfb-baunilha/80" : undefined}>
                   {description}
                 </ToastDescription>
               )}
