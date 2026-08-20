@@ -175,13 +175,13 @@ export default function ClientesFornecedores() {
               <TabsList className="bg-transparent p-0 h-auto gap-6 rounded-none justify-start">
                 <TabsTrigger
                   value="clientes"
-                  className="relative rounded-md border-0 px-3 pb-2 pt-2 font-display text-[15px] text-sfb-cacau/60 data-[state=active]:bg-sfb-cacau data-[state=active]:text-sfb-baunilha data-[state=active]:font-semibold data-[state=active]:shadow-none transition-all"
+                  className="relative rounded-md border-0 px-3 pb-2 pt-2 font-display text-[15px] text-sfb-cacau/60 data-[state=active]:bg-sfb-terracota data-[state=active]:text-sfb-baunilha data-[state=active]:font-semibold data-[state=active]:shadow-none transition-all"
                 >
                   <Users className="h-4 w-4 mr-2" /> Clientes
                 </TabsTrigger>
                 <TabsTrigger
                   value="fornecedores"
-                  className="relative rounded-md border-0 px-3 pb-2 pt-2 font-display text-[15px] text-sfb-cacau/60 data-[state=active]:bg-sfb-cacau data-[state=active]:text-sfb-baunilha data-[state=active]:font-semibold data-[state=active]:shadow-none transition-all"
+                  className="relative rounded-md border-0 px-3 pb-2 pt-2 font-display text-[15px] text-sfb-cacau/60 data-[state=active]:bg-sfb-terracota data-[state=active]:text-sfb-baunilha data-[state=active]:font-semibold data-[state=active]:shadow-none transition-all"
                 >
                   <Truck className="h-4 w-4 mr-2" /> Fornecedores
                 </TabsTrigger>
