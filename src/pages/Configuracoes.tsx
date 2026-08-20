@@ -1,7 +1,7 @@
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Settings, Shield, HardDrive, UserRound, MapPin, Landmark } from "lucide-react";
+import { Settings, HardDrive, Building2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Configuracoes() {
@@ -65,5 +65,3 @@ export default function Configuracoes() {
     </div>
   );
 }
-
-import { Building2 } from "lucide-react";
