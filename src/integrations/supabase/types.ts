@@ -3827,10 +3827,12 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: number
       }
-      gerar_proximo_codigo_tipo_documento: {
-        Args: { p_user_id: string }
-        Returns: number
-      }
+      gerar_proximo_codigo_tipo_documento:
+        | { Args: { p_user_id: string }; Returns: number }
+        | {
+            Args: { p_owner_group_id: string; p_user_id: string }
+            Returns: number
+          }
       get_active_group_id: { Args: { _user_id: string }; Returns: string }
       get_admin_dashboard_metrics: {
         Args: never
