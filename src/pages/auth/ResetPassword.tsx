@@ -292,20 +292,9 @@ export default function ResetPassword() {
   };
 
   return (
-    <div 
-      className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-sfb-baunilha"
-      style={{
-        backgroundImage: `url(${authBackgroundAsset.url})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
-    >
-      <div className="absolute inset-0 opacity-[0.04]" style={{
-        backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
-        backgroundSize: '40px 40px'
-      }} />
+    <AuthSplitLayout>
       {renderContent()}
-    </div>
+    </AuthSplitLayout>
   );
+
 }
