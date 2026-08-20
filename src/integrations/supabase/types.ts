@@ -2173,6 +2173,7 @@ export type Database = {
         Row: {
           acao: string
           id: string
+          owner_group_id: string | null
           perfil_id: string
           registrado_em: string | null
           user_id: string
@@ -2182,6 +2183,7 @@ export type Database = {
         Insert: {
           acao: string
           id?: string
+          owner_group_id?: string | null
           perfil_id: string
           registrado_em?: string | null
           user_id: string
@@ -2191,6 +2193,7 @@ export type Database = {
         Update: {
           acao?: string
           id?: string
+          owner_group_id?: string | null
           perfil_id?: string
           registrado_em?: string | null
           user_id?: string
@@ -2198,6 +2201,13 @@ export type Database = {
           valor_novo?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "mao_obra_perfis_historico_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "mao_obra_perfis_historico_perfil_id_fkey"
             columns: ["perfil_id"]
