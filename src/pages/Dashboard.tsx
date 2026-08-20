@@ -1212,11 +1212,11 @@ export default function Dashboard() {
           </div>
           <div className="relative px-6 pb-6 pt-4 min-h-[140px]">
             {aniversariantes.length === 0 ? (
-              <p className="pt-2 text-sm font-body italic text-sfb-creme/70">
+              <p className="pt-2 text-sm font-body italic text-sfb-creme/70 pl-[45%] sm:pl-[48%]">
                 Nenhum aniversariante este mês.
               </p>
             ) : (
-              <ul className="divide-y divide-dashed divide-sfb-baunilha/20 pl-[42%]">
+              <ul className="divide-y divide-dashed divide-sfb-baunilha/20 pl-[45%] sm:pl-[48%]">
                 {aniversariantes.slice(0, 3).map((c: any) => {
                   const partes = (c.data_aniversario || "").split("-");
                   const dia = parseInt(partes[2] || "0");
