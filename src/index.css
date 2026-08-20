@@ -73,15 +73,15 @@
 
     --radius: 0.375rem;
 
-    /* Sidebar — Marrom Cacau */
-    --sidebar-background:          22  20% 20%;   /* cacau */
+    /* Sidebar — Terracota */
+    --sidebar-background:          14  44% 62%;   /* terracota */
     --sidebar-foreground:          36  55% 96%;   /* baunilha */
-    --sidebar-primary:             14  44% 62%;   /* terracota */
-    --sidebar-primary-foreground:  36  55% 96%;
-    --sidebar-accent:              36  55% 96% / 0.08;
+    --sidebar-primary:             36  55% 96%;   /* baunilha */
+    --sidebar-primary-foreground:  14  44% 62%;   /* terracota */
+    --sidebar-accent:              36  55% 96% / 0.10;
     --sidebar-accent-foreground:   36  55% 96%;
-    --sidebar-border:              14  44% 62% / 0.25;
-    --sidebar-ring:                14  44% 62%;
+    --sidebar-border:              36  55% 96% / 0.25;
+    --sidebar-ring:                36  55% 96%;
 
     /* Tipografia */
     --font-display: 'Cormorant Garamond', Georgia, serif;
@@ -121,14 +121,14 @@
     --input:              36  27% 79% / 0.18;
     --ring:               14  44% 62%;
 
-    --sidebar-background:          22  22% 12%;
-    --sidebar-foreground:          36  55% 96%;
-    --sidebar-primary:             14  44% 62%;
-    --sidebar-primary-foreground:  22  20% 14%;
-    --sidebar-accent:              36  55% 96% / 0.1;
+    --sidebar-background:          14  44% 62%;   /* terracota */
+    --sidebar-foreground:          36  55% 96%;   /* baunilha */
+    --sidebar-primary:             36  55% 96%;   /* baunilha */
+    --sidebar-primary-foreground:  14  44% 62%;   /* terracota */
+    --sidebar-accent:              36  55% 96% / 0.12;
     --sidebar-accent-foreground:   36  55% 96%;
-    --sidebar-border:              14  44% 62% / 0.2;
-    --sidebar-ring:                14  44% 62%;
+    --sidebar-border:              36  55% 96% / 0.2;
+    --sidebar-ring:                36  55% 96%;
 
     --shadow-soft:     0 1px 4px  rgba(0, 0, 0, 0.35);
     --shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.45);
