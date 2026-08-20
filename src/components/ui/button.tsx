@@ -17,6 +17,7 @@ const buttonVariants = cva(
         link: "text-sfb-terracota underline-offset-4 hover:underline",
         warning: "bg-warning text-foreground hover:bg-warning/90",
         premium: "bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90 shadow-md",
+        vinho: "bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90", // Legacy alias for transition
       },
       size: {
         default: "h-10 px-6 py-3",
