@@ -487,7 +487,7 @@ export default function DRE() {
             <Button onClick={imprimir} variant="outline">
               <Printer className="mr-2 h-4 w-4" /> Imprimir
             </Button>
-            <Button onClick={exportarExcel} className="bg-sfb-vinho hover:bg-sfb-vinho-escuro text-white">
+            <Button onClick={exportarExcel} className="bg-sfb-terracota hover:bg-sfb-terracota-escuro text-sfb-baunilha">
               <Download className="mr-2 h-4 w-4" /> Exportar
             </Button>
           </div>
@@ -584,7 +584,7 @@ export default function DRE() {
                 </TableRow>
 
                 {/* RECEITA LÍQUIDA */}
-                <TableRow className="bg-sfb-dourado/10">
+                <TableRow className="bg-sfb-areia/10">
                   <TableCell className="font-semibold">(=) Receita Líquida</TableCell>
                   {dados.receitaLiquida.map((val, i) => (
                     <TableCell key={i} className={`text-right ${val >= 0 ? 'text-success' : 'text-sfb-coral'}`}>
@@ -708,7 +708,7 @@ export default function DRE() {
                 </TableRow>
 
                 {/* RESULTADO OPERACIONAL */}
-                <TableRow className="bg-sfb-dourado/15">
+                <TableRow className="bg-sfb-areia/15">
                   <TableCell className="font-semibold">(=) Resultado Operacional</TableCell>
                   {dados.resultadoOperacional.map((val, i) => (
                     <TableCell key={i} className={`text-right ${val >= 0 ? 'text-primary' : 'text-sfb-coral'}`}>
@@ -991,7 +991,7 @@ export default function DRE() {
                 </CardContent>
               </Card>
 
-              <Card className="border-sfb-dourado/40 bg-sfb-dourado/10">
+              <Card className="border-sfb-areia/40 bg-sfb-areia/10">
                 <CardContent className="pt-6">
                   <p className="text-sm text-muted-foreground mb-2">
                     Margem de Contribuição (%)

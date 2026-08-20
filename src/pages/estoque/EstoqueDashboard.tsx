@@ -43,7 +43,7 @@ export default function EstoqueDashboard() {
       Icon: Coins,
       image: valorEstoqueImg,
       tone: 'text-[#2A1F1A]',
-      iconWrap: 'bg-[#C98A75]/15 ring-[#C98A75]/40',
+      iconWrap: 'bg-sfb-terracota/15 ring-[#C98A75]/40',
       iconColor: 'text-[#C98A75]',
     },
     {
@@ -63,7 +63,7 @@ export default function EstoqueDashboard() {
       tone: itensAbaixoMinimo.length > 0 ? 'text-[#C98A75]' : 'text-[#2A1F1A]',
       iconWrap:
         itensAbaixoMinimo.length > 0
-          ? 'bg-[#C98A75]/20 ring-[#C98A75]/40'
+          ? 'bg-sfb-terracota/20 ring-[#C98A75]/40'
           : 'bg-[#3D2F28]/10 ring-[#3D2F28]/25',
       iconColor: itensAbaixoMinimo.length > 0 ? 'text-[#C98A75]' : 'text-[#3D2F28]',
     },
@@ -82,7 +82,7 @@ export default function EstoqueDashboard() {
       <div className="flex flex-wrap items-center justify-end gap-2">
         <Button
           onClick={() => navigate('/estoque/entrada')}
-          className="gap-2 rounded-lg bg-[#2A1F1A] text-white hover:bg-[#3D2F28]"
+          className="gap-2 rounded-lg bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90"
         >
           <Plus className="h-4 w-4" /> Nova Entrada
         </Button>
@@ -227,7 +227,7 @@ export default function EstoqueDashboard() {
                         </td>
                         <td className="px-5 py-3 text-right">
                           {abaixoMinimo ? (
-                            <Badge className="gap-1 rounded-md bg-[#C98A75]/20 font-body text-xs text-[#B23A2E] hover:bg-[#C98A75]/30">
+                            <Badge className="gap-1 rounded-md bg-sfb-terracota/20 font-body text-xs text-[#B23A2E] hover:bg-sfb-terracota/30">
                               <AlertTriangle className="h-3 w-3" /> Abaixo
                             </Badge>
                           ) : (
@@ -262,7 +262,7 @@ export default function EstoqueDashboard() {
               </p>
               <Button
                 onClick={() => navigate('/estoque/entrada')}
-                className="mt-5 gap-2 rounded-lg bg-[#2A1F1A] text-white hover:bg-[#3D2F28]"
+                className="mt-5 gap-2 rounded-lg bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90"
               >
                 <Plus className="h-4 w-4" /> Nova Entrada
               </Button>
@@ -277,7 +277,7 @@ export default function EstoqueDashboard() {
                 {itensAbaixoMinimo.slice(0, 6).map((item) => (
                   <li
                     key={item.id}
-                    className="flex items-center justify-between rounded-lg border border-[#C98A75]/25 bg-[#C98A75]/10 px-3 py-2"
+                    className="flex items-center justify-between rounded-lg border border-[#C98A75]/25 bg-sfb-terracota/10 px-3 py-2"
                   >
                     <div className="min-w-0">
                       <p className="truncate font-body text-sm font-medium text-[#2A1F1A]">
@@ -290,7 +290,7 @@ export default function EstoqueDashboard() {
                         {item.unidade}
                       </p>
                     </div>
-                    <Badge className="rounded-md bg-[#C98A75]/30 font-body text-[10px] text-[#B23A2E] hover:bg-[#C98A75]/40">
+                    <Badge className="rounded-md bg-sfb-terracota/30 font-body text-[10px] text-[#B23A2E] hover:bg-sfb-terracota/40">
                       Baixo
                     </Badge>
                   </li>

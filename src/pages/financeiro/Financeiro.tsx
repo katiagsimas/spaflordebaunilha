@@ -335,7 +335,7 @@ export default function Financeiro() {
 
 
   const coresBanco = [
-    { border: 'border-l-blue-500', text: 'text-primary', bg: 'bg-sfb-dourado/10 dark:bg-sfb-dourado/20' },
+    { border: 'border-l-blue-500', text: 'text-primary', bg: 'bg-sfb-areia/10 dark:bg-sfb-areia/20' },
     { border: 'border-l-green-500', text: 'text-success', bg: 'bg-success/10 dark:bg-success/20' },
     { border: 'border-l-sfb-pink', text: 'text-sfb-pink', bg: 'bg-sfb-pink/15 dark:bg-sfb-pink/20' },
     { border: 'border-l-orange-500', text: 'text-warning', bg: 'bg-warning/10 dark:bg-warning/20' },
@@ -377,7 +377,7 @@ export default function Financeiro() {
                   Meu Dinheiro
                 </h1>
                 <div className="mt-2 flex items-center gap-3">
-                  <span className="h-px w-8 bg-[#C98A75] sm:w-10" />
+                  <span className="h-px w-8 bg-sfb-terracota sm:w-10" />
                   <p className="text-xs italic text-[#C98A75] sm:text-sm">
                     Controle total do que entra, sai e vira lucro.
                   </p>
@@ -436,7 +436,7 @@ export default function Financeiro() {
               </div>
               <Button
                 onClick={handleAbrirConfig}
-                className={`bg-[#2A1F1A] hover:bg-[#3D2F28] text-white rounded-lg px-4 py-2 text-sm ${bancosSaldos.length === 0 ? 'animate-pulse' : ''}`}
+                className={`bg-sfb-terracota hover:bg-sfb-terracota/90 text-sfb-baunilha rounded-lg px-4 py-2 text-sm ${bancosSaldos.length === 0 ? 'animate-pulse' : ''}`}
               >
                 <Settings2 className="mr-2 h-4 w-4" />
                 Configure Saldos Iniciais
@@ -547,14 +547,14 @@ export default function Financeiro() {
         <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="w-11 h-11 rounded-full bg-[#C98A75] text-white flex items-center justify-center shadow-lg hover:opacity-90 transition"
+            className="w-11 h-11 rounded-full bg-sfb-terracota text-sfb-baunilha flex items-center justify-center shadow-lg hover:opacity-90 transition"
             aria-label="Topo"
           >
             <ArrowUp className="h-5 w-5" />
           </button>
           <button
             onClick={() => navigate(-1)}
-            className="w-11 h-11 rounded-full bg-[#3D2F28] text-white flex items-center justify-center shadow-lg hover:opacity-90 transition"
+            className="w-11 h-11 rounded-full bg-[#3D2F28] text-sfb-baunilha flex items-center justify-center shadow-lg hover:opacity-90 transition"
             aria-label="Voltar"
           >
             <ChevronLeft className="h-5 w-5" />

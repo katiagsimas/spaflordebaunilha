@@ -78,7 +78,7 @@ export default function FechamentoMes() {
                 </SelectContent>
               </Select>
               {isFechado ? (
-                <Badge className="bg-sfb-dourado text-sfb-preto"><Lock className="h-3 w-3 mr-1" /> Fechado</Badge>
+                <Badge className="bg-sfb-areia text-sfb-cacau"><Lock className="h-3 w-3 mr-1" /> Fechado</Badge>
               ) : (
                 <Badge variant="outline"><Unlock className="h-3 w-3 mr-1" /> Aberto</Badge>
               )}
@@ -92,7 +92,7 @@ export default function FechamentoMes() {
             {fechamento && !isFechado && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button disabled={!podeFechar || fechar.isPending} className="bg-sfb-dourado text-sfb-preto hover:bg-sfb-dourado/90">
+                  <Button disabled={!podeFechar || fechar.isPending} className="bg-sfb-areia text-sfb-cacau hover:bg-sfb-areia/90">
                     <Lock className="h-4 w-4 mr-2" /> Fechar mês
                   </Button>
                 </AlertDialogTrigger>
@@ -261,7 +261,7 @@ export default function FechamentoMes() {
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant={log.acao === "reaberto" ? "outline" : "default"} className={log.acao === "fechado" ? "bg-sfb-dourado text-sfb-preto" : ""}>
+                    <Badge variant={log.acao === "reaberto" ? "outline" : "default"} className={log.acao === "fechado" ? "bg-sfb-areia text-sfb-cacau" : ""}>
                       {log.acao === "reaberto" ? "Reabertura" : "Fechamento"}
                     </Badge>
                     <span className="text-xs text-muted-foreground">

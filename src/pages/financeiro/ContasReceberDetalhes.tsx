@@ -690,7 +690,7 @@ export default function ContasReceberDetalhes() {
       pago: <Badge className="bg-success/15 text-success border-success/40">Pago</Badge>,
       pagamento_parcial: <Badge className="bg-warning/15 text-warning border-warning/40">Pagamento Parcial</Badge>,
       atrasado: <Badge className="bg-sfb-coral/15 text-sfb-coral border-sfb-coral/40">Atrasado</Badge>,
-      adiantado: <Badge className="bg-sfb-dourado/15 text-primary border-sfb-dourado/40">Adiantado</Badge>,
+      adiantado: <Badge className="bg-sfb-areia/15 text-primary border-sfb-areia/40">Adiantado</Badge>,
     };
     return badges[status] || <Badge variant="outline">{status}</Badge>;
   };
@@ -698,7 +698,7 @@ export default function ContasReceberDetalhes() {
   const getBadgeTipoLancamento = (tipo) => {
     const badges = {
       unico: <Badge variant="outline" className="bg-muted/50">Único</Badge>,
-      parcelado: <Badge variant="outline" className="bg-sfb-dourado/15 text-primary border-sfb-dourado/40">Parcelado</Badge>,
+      parcelado: <Badge variant="outline" className="bg-sfb-areia/15 text-primary border-sfb-areia/40">Parcelado</Badge>,
       recorrente: <Badge variant="outline" className="bg-sfb-pink/20 text-sfb-pink border-sfb-pink/40">Recorrente</Badge>,
     };
     return badges[tipo] || <Badge variant="outline">{tipo}</Badge>;
@@ -1027,7 +1027,7 @@ export default function ContasReceberDetalhes() {
           </div>
 
           {parcelas.length > 0 && (
-            <Alert className="mt-4 bg-sfb-dourado/10 border-sfb-dourado/40">
+            <Alert className="mt-4 bg-sfb-areia/10 border-sfb-areia/40">
               <Info className="h-4 w-4 text-primary" />
               <AlertDescription>
                 <div className="grid grid-cols-3 gap-4 text-sm">
@@ -1216,9 +1216,9 @@ export default function ContasReceberDetalhes() {
 
                               {/* Linha de Desconto (se houver) */}
                               {pag.desconto && parseFloat(pag.desconto) > 0 && (
-                                <TableRow key={`desc-${pag.id}`} className="bg-sfb-dourado/10/50">
+                                <TableRow key={`desc-${pag.id}`} className="bg-sfb-areia/10/50">
                                   <TableCell>
-                                    <Badge variant="outline" className="bg-sfb-dourado/15 text-primary border-sfb-dourado/40">
+                                    <Badge variant="outline" className="bg-sfb-areia/15 text-primary border-sfb-areia/40">
                                       Desconto
                                     </Badge>
                                   </TableCell>
@@ -1414,7 +1414,7 @@ export default function ContasReceberDetalhes() {
           {pagamentoEditando && (
             <div className="space-y-4 py-4">
               {/* Info do Pagamento */}
-              <Alert className="bg-sfb-dourado/10 border-sfb-dourado/40">
+              <Alert className="bg-sfb-areia/10 border-sfb-areia/40">
                 <Info className="h-4 w-4 text-primary" />
                 <AlertDescription>
                   <strong>Atenção:</strong> Ao editar, a parcela será recalculada automaticamente.

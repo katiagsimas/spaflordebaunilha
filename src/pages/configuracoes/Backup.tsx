@@ -497,7 +497,7 @@ export default function Backup() {
     <div className="min-h-screen bg-background px-4 md:px-6 pt-1 pb-4 md:pb-6 space-y-6">
       {/* ===== HEADER PREMIUM (mesmo padrão do módulo Encomendas) ===== */}
       <div
-        className="relative overflow-hidden rounded-2xl border border-sfb-dourado/40 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
+        className="relative overflow-hidden rounded-2xl border border-sfb-areia/40 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
         style={{ background: "#FAEFEB" }}
       >
         <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6 pr-[150px] sm:pr-[200px] lg:pr-[260px] min-h-[130px] sm:min-h-[150px] lg:min-h-[170px]">
@@ -506,7 +506,7 @@ export default function Backup() {
               Backup
             </h1>
             <div className="mt-2 flex items-center gap-3">
-              <span className="h-px w-8 bg-[#C98A75] sm:w-10" />
+              <span className="h-px w-8 bg-sfb-terracota sm:w-10" />
               <p className="text-xs italic text-[#C98A75] sm:text-sm">
                 Gerencie backups do seu projeto por módulo
               </p>
@@ -523,7 +523,7 @@ export default function Backup() {
 
 
 
-      <div className="bg-white border border-sfb-dourado/30 rounded-xl p-5">
+      <div className="bg-white border border-sfb-areia/30 rounded-xl p-5">
         <div className="flex items-center gap-2 mb-2">
           <Info className="h-4 w-4 text-[#3D2F28]" />
           <span className="text-sm font-medium text-[#2A1F1A]">Sobre os backups</span>
@@ -536,7 +536,7 @@ export default function Backup() {
       </div>
 
       {/* LOCAL DE SALVAMENTO */}
-      <div className="bg-white border border-sfb-dourado/30 rounded-xl p-5">
+      <div className="bg-white border border-sfb-areia/30 rounded-xl p-5">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div className="flex items-start gap-3 min-w-0">
             {pastaSalvamento ? (
@@ -575,7 +575,7 @@ export default function Backup() {
               type="button"
               onClick={escolherPasta}
               disabled={!fsApiSupported || escolhendoPasta}
-              className="inline-flex items-center gap-2 bg-[#3D2F28] hover:bg-[#2A1F1A] disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-medium rounded-lg px-3 py-2 transition-colors"
+              className="inline-flex items-center gap-2 bg-[#3D2F28] hover:bg-sfb-terracota disabled:opacity-50 disabled:cursor-not-allowed text-sfb-baunilha text-xs font-medium rounded-lg px-3 py-2 transition-colors"
             >
               {escolhendoPasta ? (
                 <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Abrindo...</>
@@ -589,7 +589,7 @@ export default function Backup() {
 
 
       {/* BACKUP MANUAL */}
-      <div className="bg-white border border-sfb-dourado/30 rounded-xl p-5">
+      <div className="bg-white border border-sfb-areia/30 rounded-xl p-5">
         <div className="flex items-start justify-between gap-3 mb-4">
           <div className="flex items-start gap-3">
             <Download className="h-[18px] w-[18px] text-[#C98A75] mt-0.5" />
@@ -656,7 +656,7 @@ export default function Backup() {
           type="button"
           onClick={realizarBackup}
           disabled={realizandoBackup || profileLoading || modulosManual.length === 0}
-          className="w-full bg-[#2A1F1A] hover:bg-[#3D2F28] text-white rounded-xl py-4 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+          className="w-full bg-sfb-terracota hover:bg-sfb-terracota/90 text-sfb-baunilha rounded-xl py-4 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
         >
           {realizandoBackup ? (
             <><Loader2 className="h-4 w-4 animate-spin" /> Gerando backup...</>
@@ -669,7 +669,7 @@ export default function Backup() {
       {/* PAINEIS INFERIORES — Histórico recentes / KPIs / Espaço */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Histórico Recentes */}
-        <div className="bg-white border border-sfb-dourado/30 rounded-xl p-5">
+        <div className="bg-white border border-sfb-areia/30 rounded-xl p-5">
           <h3 className="text-[15px] text-[#2A1F1A] mb-3" style={{ fontFamily: PLAYFAIR }}>
             Histórico de Backups Recentes
           </h3>
@@ -684,7 +684,7 @@ export default function Backup() {
                   onClick={() => downloadBackup(c.id, backups.find((b) => b.id === c.id)?.nome || c.label)}
                   className={`rounded-full px-3 py-1 text-xs transition-colors border ${
                     backupSelecionado === c.id
-                      ? "bg-[#3D2F28] text-white border-[#3D2F28]"
+                      ? "bg-[#3D2F28] text-sfb-baunilha border-[#3D2F28]"
                       : "bg-[#FBF6EE] border-[#3D2F28]/15 text-[#2A1F1A] hover:border-[#3D2F28]/40"
                   }`}
                 >
@@ -715,7 +715,7 @@ export default function Backup() {
         </div>
 
         {/* KPIs */}
-        <div className="bg-white border border-sfb-dourado/30 rounded-xl p-5">
+        <div className="bg-white border border-sfb-areia/30 rounded-xl p-5">
           <div className="grid grid-cols-3 gap-2">
             {[
               { pct: pctSalvos, label: "Dados salvos" },
@@ -751,7 +751,7 @@ export default function Backup() {
         </div>
 
         {/* Espaço */}
-        <div className="bg-white border border-sfb-dourado/30 rounded-xl p-5">
+        <div className="bg-white border border-sfb-areia/30 rounded-xl p-5">
           <h3 className="text-[15px] text-[#2A1F1A] mb-3" style={{ fontFamily: PLAYFAIR }}>
             Espaço
           </h3>
@@ -761,7 +761,7 @@ export default function Backup() {
           </div>
           <div className="h-2.5 rounded-full bg-[#FBF6EE] overflow-hidden">
             <div
-              className="h-full bg-[#C98A75] rounded-full transition-all"
+              className="h-full bg-sfb-terracota rounded-full transition-all"
               style={{ width: `${pctEspaco}%` }}
             />
           </div>
@@ -786,7 +786,7 @@ export default function Backup() {
       {/* Agendamento + Retenção + Restaurar */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Agendamento */}
-        <Card className="border-l-4 border-l-blue-500 border-sfb-dourado/40">
+        <Card className="border-l-4 border-l-blue-500 border-sfb-areia/40">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
@@ -914,7 +914,7 @@ export default function Backup() {
         </Card>
 
         {/* Restaurar */}
-        <Card className="border-l-4 border-l-amber-500 border-sfb-dourado/40">
+        <Card className="border-l-4 border-l-amber-500 border-sfb-areia/40">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
@@ -947,7 +947,7 @@ export default function Backup() {
       </div>
 
       {/* Histórico */}
-      <Card className="border-sfb-dourado/40">
+      <Card className="border-sfb-areia/40">
         <CardHeader>
           <CardTitle className="text-lg">Histórico de backups</CardTitle>
           <CardDescription>Salvos na nuvem do Spa Flor de Baunilha</CardDescription>
@@ -1113,7 +1113,7 @@ export default function Backup() {
         type="button"
         onClick={() => navigate("/cadastros")}
         aria-label="Voltar"
-        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-[#3D2F28] hover:bg-[#2A1F1A] text-white shadow-lg flex items-center justify-center transition"
+        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-[#3D2F28] hover:bg-sfb-terracota text-sfb-baunilha shadow-lg flex items-center justify-center transition"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>

@@ -501,9 +501,9 @@ export default function PlanoContas() {
       />
 
       {/* Alert */}
-      <Alert className="bg-sfb-creme border-2 border-sfb-dourado">
-        <Info className="h-4 w-4 text-sfb-vinho" />
-        <AlertDescription className="text-sfb-preto">
+      <Alert className="bg-sfb-creme border-2 border-sfb-areia">
+        <Info className="h-4 w-4 text-sfb-cacau" />
+        <AlertDescription className="text-sfb-cacau">
           O sistema criou automaticamente {planos.filter(p => p.e_padrao).length} planos de contas padrão 
           para confeitaria. Você pode criar planos personalizados conforme sua necessidade.
         </AlertDescription>
