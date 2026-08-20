@@ -46,19 +46,7 @@ function useProfileMenu(userId?: string) {
 }
 
 export function UserGreeting() {
-  const { user } = useAuth();
-  const { data: profile } = useProfileMenu(user?.id);
-  if (!user) return null;
-  const nomeEmpresa =
-    profile?.nome_confeitaria?.trim() ||
-    profile?.nome_completo?.trim() ||
-    user.email ||
-    "Minha Confeitaria";
-  return (
-    <span className="hidden md:inline text-sm font-display text-sfb-baunilha truncate max-w-[260px]">
-      {nomeEmpresa}
-    </span>
-  );
+  return null;
 }
 
 export function UserMenu() {
