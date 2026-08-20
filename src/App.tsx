@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: Corrija o erro ao criar documentos
+// Execute esta instrucao no projeto: Ainda em Cadastros / Tipos de Documentos, existe um alerta do sistema dizendo que: "O sistema já cadastrou 14 tipos de documentos mais comuns. Você pode criar tipos personalizados conforme sua necessidade.", porém, nenhum documento é demonstrado em tela, favor verificar e corrigir
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";

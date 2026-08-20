@@ -61,7 +61,7 @@ export default function TiposDocumentos() {
   
   // Filtros
   const [filtroTipo, setFiltroTipo] = useState<'todos' | 'padrao' | 'custom'>('todos');
-  const [filtroStatus, setFiltroStatus] = useState<'todos' | 'habilitado' | 'desabilitado'>('todos');
+  const [filtroStatus, setFiltroStatus] = useState<'todos' | 'habilitado' | 'desabilitado'>('habilitado');
 
   // Modal
   const [modalAberto, setModalAberto] = useState(false);
@@ -145,8 +145,9 @@ export default function TiposDocumentos() {
 
     // Filtro de status (Habilitado ou Desabilitado)
     if (filtroStatus !== 'todos') {
+      const statusDesejado = filtroStatus === 'habilitado';
       resultado = resultado.filter(t => 
-        filtroStatus === 'habilitado' ? t.habilitado : !t.habilitado
+        (t.habilitado === statusDesejado) || (t.habilitado === undefined && statusDesejado === true)
       );
     }
 
@@ -226,7 +227,7 @@ export default function TiposDocumentos() {
             codigo: parseInt(codigoSugerido),
             descricao: descricao.trim(),
             e_padrao: false,
-            habilitado: false,
+            habilitado: true,
           });
 
         if (error) {
