@@ -128,8 +128,6 @@ interface UploadImagemItem {
 }
 
 export default function ReceitaForm() {
-  const { profile: userProfile } = useUserProfile();
-  const onboardingPendente = userProfile && !(userProfile as any).onboarding_concluido;
 
 
   const navigate = useNavigate();
@@ -407,10 +405,6 @@ export default function ReceitaForm() {
   };
 
   const handleAddIngrediente = () => {
-    if (onboardingPendente) {
-      toast.error("Conclua o onboarding para realizar esta ação!");
-      return;
-    }
 
     const novoIngrediente: IngredienteReceita = {
       id: Date.now().toString(),
@@ -469,10 +463,6 @@ export default function ReceitaForm() {
   };
 
   const handleAddEmbalagem = () => {
-    if (onboardingPendente) {
-      toast.error("Conclua o onboarding para realizar esta ação!");
-      return;
-    }
 
     const novaEmbalagem: EmbalagemReceita = {
       id: Date.now().toString(),
@@ -507,10 +497,6 @@ export default function ReceitaForm() {
   };
 
   const handleQuantidadeEmbalagemChange = (index: number, quantidade: number) => {
-    if (onboardingPendente) {
-      toast.error("Conclua o onboarding para realizar esta ação!");
-      return;
-    }
 
     const novosEmbalagens = [...embalagens];
 
@@ -728,10 +714,6 @@ export default function ReceitaForm() {
     
     // Se a imagem está no Storage (não é base64), deletar do Storage
     if (imagemUrl && !imagemUrl.startsWith('data:')) {
-    if (onboardingPendente) {
-      toast.error("Conclua o onboarding para realizar esta ação!");
-      return;
-    }
 
     try {
 

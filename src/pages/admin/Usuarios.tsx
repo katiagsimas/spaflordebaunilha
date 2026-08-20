@@ -55,9 +55,6 @@ interface UserProfile {
   last_login?: string | null;
   origem_criacao?: string | null;
   tem_dados?: boolean;
-  onboarding_concluido?: boolean;
-  onboarding_concluido_at?: string | null;
-  onboarding_step_status?: any;
   owner_group_id?: string | null;
 }
 
@@ -104,7 +101,7 @@ export default function Usuarios() {
     queryFn: async () => {
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, email, nome_completo, nome_confeitaria, created_at, ativo, plano_id, plano_inicio, plano_fim, plano_tipo, last_login, origem_criacao, onboarding_concluido, onboarding_concluido_at, onboarding_step_status, owner_group_id')
+        .select('id, email, nome_completo, nome_confeitaria, created_at, ativo, plano_id, plano_inicio, plano_fim, plano_tipo, last_login, origem_criacao, owner_group_id')
         .order('created_at', { ascending: false });
       
       if (profilesError) throw profilesError;
