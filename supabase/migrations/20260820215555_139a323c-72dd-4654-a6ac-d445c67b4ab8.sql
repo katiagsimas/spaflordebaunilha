@@ -1,0 +1,1 @@
+DELETE FROM public.unidades_medida WHERE id = '91f476d3-d5c9-4c8c-af88-37a214fe018c';
