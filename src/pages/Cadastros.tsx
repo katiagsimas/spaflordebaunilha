@@ -16,12 +16,10 @@ export default function Cadastros() {
   return (
     <div className="min-h-screen bg-sfb-baunilha pb-24">
       <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
-        {/* HERO BANNER padronizado */}
+        {/* HERO BANNER padronizado - Imagem removida conforme solicitação */}
         <HeroBanner
-          image={cadastrosHero}
           title="Cadastros"
           subtitle="Centralize aqui os cadastros base do seu negócio: mão de obra, unidades de medida e categorias de receitas."
-          imageAlt="Cadastros"
         />
 
         {/* CARDS DE NAVEGAÇÃO */}
