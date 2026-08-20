@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { LogOut, ArrowUpCircle, Headphones, Crown, User as UserIcon, Mail, CalendarDays, Store, Camera, Loader2 } from "lucide-react";
+import { LogOut, Headphones, Crown, User as UserIcon, Mail, Store, Camera, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGroup } from "@/contexts/GroupContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,6 +31,7 @@ function useProfileMenu(userId?: string) {
       if (!userId) return null;
       const { data } = await supabase
         .from("profiles")
+        .select("nome_completo, nome_confeitaria, avatar_url")
         .eq("id", userId)
         .single();
       return data;
@@ -109,8 +110,6 @@ export function UserMenu() {
   if (!user) return null;
 
   const mostraBadges = (activeGroup && sessionMode === "group") || isMother;
-  const formataData = (iso?: string | null) =>
-    iso ? new Date(iso + "T00:00:00").toLocaleDateString("pt-BR") : "—";
   const iniciais = (primeiroNome || "U").slice(0, 2).toUpperCase();
 
   return (
@@ -183,7 +182,7 @@ export function UserMenu() {
                 {isMother && (
                   <Badge variant="outline" className="text-[10px] border-sfb-baunilha text-sfb-baunilha font-body">
                     <Crown className="h-3 w-3 mr-1" />
-                    MOTHER · Acesso total ao sistema
+                    MOTHER · Acesso total
                   </Badge>
                 )}
               </div>
@@ -208,44 +207,10 @@ export function UserMenu() {
               </p>
               <p className="text-sm text-foreground truncate">{user.email}</p>
             </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-body flex items-center gap-1">
-                <Crown className="h-3 w-3 text-sfb-terracota" /> Plano
-              </p>
-              {isMother ? (
-                <p className="text-sm font-semibold text-sfb-vinho-escuro">
-                  Acesso total ao sistema
-                  <span className="block text-[11px] font-normal text-muted-foreground mt-0.5">
-                    Use o seletor no topo para visualizar como Lite, Business ou Aluna da Imersão.
-                  </span>
-                </p>
-              ) : (
-                <>
-                  <p className="text-sm font-semibold text-sfb-vinho-escuro">
-                      <span className="ml-1 font-normal text-muted-foreground">
-                      </span>
-                    )}
-                  </p>
-                    <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
-                      <CalendarDays className="h-3 w-3" />
-                    </p>
-                  )}
-                </>
-              )}
-            </div>
           </div>
 
           {/* Ações */}
           <div className="p-2 space-y-1">
-            {!isMother && (
-              <Button
-                variant="ghost"
-                className="w-full justify-start font-body text-sm"
-                onClick={() => navigate("/upgrade")}
-              >
-                <ArrowUpCircle className="h-4 w-4 mr-2 text-sfb-terracota" />
-              </Button>
-            )}
             <Button
               variant="ghost"
               className="w-full justify-start font-body text-sm"
