@@ -180,16 +180,16 @@ export function AppSidebar() {
 
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border" style={{ width: open ? '280px' : undefined }}>
-      <SidebarHeader className="h-14 border-b border-sfb-dourado/30 px-4 py-0 flex items-center justify-center bg-sfb-vinho">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sfb-terracota" style={{ width: open ? '280px' : undefined }}>
+      <SidebarHeader className="h-14 border-b border-sfb-baunilha/30 px-4 py-0 flex items-center justify-center bg-sfb-terracota">
         {open && (
           <div className="flex items-center gap-2.5">
             <img src="/sfb-logo-dourado.png" alt="Spa Flor de Baunilha" className="h-7 w-7 drop-shadow" />
             <div className="flex flex-col leading-tight">
-              <span className="font-display text-base text-sfb-creme tracking-wide">
+              <span className="font-display text-base text-sfb-baunilha tracking-wide">
                 Spa Flor de Baunilha
               </span>
-              <span className="text-[9px] font-body font-light text-sfb-dourado/80 tracking-[0.2em] uppercase">
+              <span className="text-[9px] font-body font-light text-sfb-baunilha/80 tracking-[0.2em] uppercase">
                 by Spa Flor de Baunilha
               </span>
             </div>
@@ -203,11 +203,11 @@ export function AppSidebar() {
         {menuSections.map((section, sectionIndex) => (
           <div key={section.label}>
             {sectionIndex > 0 && (
-              /* Separador dourado entre seções */
-              <div className="mx-4 my-2 h-px bg-gradient-to-r from-transparent via-sfb-dourado/40 to-transparent" />
+              /* Separador entre seções */
+              <div className="mx-4 my-2 h-px bg-gradient-to-r from-transparent via-sfb-baunilha/40 to-transparent" />
             )}
             <SidebarGroup>
-              <SidebarGroupLabel className="text-sfb-dourado/70 text-[10px] uppercase tracking-[0.22em] font-display">
+              <SidebarGroupLabel className="text-sfb-baunilha/70 text-[10px] uppercase tracking-[0.22em] font-display">
                 {section.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -237,18 +237,18 @@ export function AppSidebar() {
                               <NavLink
                                 to={item.url}
                                 end
-                                className="flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm opacity-40 cursor-not-allowed text-sfb-creme"
+                                className="flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm opacity-40 cursor-not-allowed text-sfb-baunilha"
                                 onClick={(e) => {
                                   e.preventDefault();
                                   if (isMobile) setOpenMobile(false);
                                   setComingSoonModal({ title: item.title, message: item.comingSoonMessage || '' });
                                 }}
                               >
-                                <Icon className="h-5 w-5 text-sfb-creme/80" />
+                                <Icon className="h-5 w-5 text-sfb-baunilha/80" />
                                 {open && (
                                   <>
                                     <span className="flex-1">{item.title}</span>
-                                    <Lock className="h-3.5 w-3.5 text-sfb-creme/40" />
+                                    <Lock className="h-3.5 w-3.5 text-sfb-baunilha/40" />
                                   </>
                                 )}
                               </NavLink>
@@ -273,31 +273,31 @@ export function AppSidebar() {
                               className={({ isActive }) =>
                                 `relative flex items-center gap-3 px-4 py-2.5 transition-all duration-200 rounded-lg font-body text-sm ${
                                   isActive && !bloqueado
-                                    ? "bg-gradient-to-r from-sfb-dourado/15 via-sfb-dourado/5 to-transparent border-l-2 border-sfb-dourado text-sfb-dourado font-semibold"
-                                    : "text-sfb-creme/80 hover:bg-sfb-dourado/10 hover:text-sfb-creme"
+                                    ? "bg-gradient-to-r from-sfb-baunilha/15 via-sfb-baunilha/5 to-transparent border-l-2 border-sfb-baunilha text-sfb-baunilha font-semibold"
+                                    : "text-sfb-baunilha/80 hover:bg-sfb-baunilha/10 hover:text-sfb-baunilha"
                                 } ${bloqueado ? "opacity-60" : ""}`
                               }
                             >
                               {({ isActive }) => (
                                 <>
-                                  <Icon className={`h-5 w-5 transition-colors ${isActive && !bloqueado ? 'text-sfb-dourado' : 'text-sfb-creme/70 group-hover:text-sfb-dourado'}`} />
+                                  <Icon className={`h-5 w-5 transition-colors ${isActive && !bloqueado ? 'text-sfb-baunilha' : 'text-sfb-baunilha/70 group-hover:text-sfb-baunilha'}`} />
                                   {item.title === "Vendas" && temEncomendasHoje && !bloqueado && !open && (
-                                    <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-sfb-dourado animate-ping" />
+                                    <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-sfb-baunilha animate-ping" />
                                   )}
                                   {open && (
                                     <>
                                       <span className="flex-1">{item.title}</span>
                                       {bloqueado && (
-                                        <Lock className="h-3.5 w-3.5 text-sfb-creme/40" />
+                                        <Lock className="h-3.5 w-3.5 text-sfb-baunilha/40" />
                                       )}
                                       {item.title === "Vendas" && temEncomendasHoje && !bloqueado && (
-                                        <Badge className="bg-sfb-dourado text-sfb-vinho-escuro text-[10px] px-2 py-0.5 rounded-full font-body font-bold animate-pulse ml-1">
+                                        <Badge className="bg-sfb-baunilha text-sfb-terracota text-[10px] px-2 py-0.5 rounded-full font-body font-bold animate-pulse ml-1">
                                           {encomendasHojeQtd} HOJE
                                         </Badge>
                                       )}
                                       {item.title === "Parceiros" && aniversariantesClientes.length > 0 && !bloqueado && (
-                                        <div className="w-5 h-5 rounded-full bg-sfb-dourado flex items-center justify-center animate-bounce ml-1 ring-1 ring-sfb-creme/20">
-                                          <Cake className="h-3 w-3 text-sfb-vinho" />
+                                        <div className="w-5 h-5 rounded-full bg-sfb-baunilha flex items-center justify-center animate-bounce ml-1 ring-1 ring-sfb-baunilha/20">
+                                          <Cake className="h-3 w-3 text-sfb-terracota" />
                                         </div>
                                       )}
                                     </>
@@ -326,7 +326,7 @@ export function AppSidebar() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-display text-xl">
-              {comingSoonModal?.title} <Lock className="h-5 w-5 text-sfb-dourado" />
+              {comingSoonModal?.title} <Lock className="h-5 w-5 text-sfb-terracota" />
             </DialogTitle>
             <DialogDescription className="text-base font-body text-muted-foreground pt-2">
               {comingSoonModal?.message}
@@ -340,7 +340,7 @@ export function AppSidebar() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-display text-xl">
-              {upgradeModal?.title} <Lock className="h-5 w-5 text-sfb-dourado" />
+              {upgradeModal?.title} <Lock className="h-5 w-5 text-sfb-terracota" />
             </DialogTitle>
             <DialogDescription className="text-base font-body text-muted-foreground pt-2">
               Este módulo é exclusivo do <strong>Plano Flor de Baunilha Business</strong>. Faça o upgrade do seu plano para liberar <strong>{upgradeModal?.title}</strong> e todas as ferramentas avançadas do Spa Flor de Baunilha.

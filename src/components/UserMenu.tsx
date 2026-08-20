@@ -55,7 +55,7 @@ export function UserGreeting() {
     user.email ||
     "Minha Confeitaria";
   return (
-    <span className="hidden md:inline text-sm font-display text-sfb-dourado truncate max-w-[260px]">
+    <span className="hidden md:inline text-sm font-display text-sfb-baunilha truncate max-w-[260px]">
       {nomeEmpresa}
     </span>
   );
@@ -136,13 +136,13 @@ export function UserMenu() {
       <Popover>
         <PopoverTrigger asChild>
           <button
-            className="h-9 w-9 rounded-full bg-sfb-dourado/15 hover:bg-sfb-dourado/25 ring-1 ring-sfb-dourado/40 flex items-center justify-center text-sfb-dourado transition-colors overflow-hidden"
+            className="h-9 w-9 rounded-full bg-sfb-baunilha/15 hover:bg-sfb-baunilha/25 ring-1 ring-sfb-baunilha/40 flex items-center justify-center text-sfb-baunilha transition-colors overflow-hidden"
             aria-label="Menu do usuário"
           >
             {profile?.avatar_url ? (
               <Avatar className="h-9 w-9">
                 <AvatarImage src={profile.avatar_url} alt={primeiroNome} />
-                <AvatarFallback className="bg-sfb-dourado/20 text-sfb-dourado text-xs font-semibold">
+                <AvatarFallback className="bg-sfb-baunilha/20 text-sfb-baunilha text-xs font-semibold">
                   {iniciais}
                 </AvatarFallback>
               </Avatar>
@@ -153,15 +153,15 @@ export function UserMenu() {
         </PopoverTrigger>
         <PopoverContent
           align="end"
-          className="w-80 p-0 overflow-hidden border-sfb-dourado/30"
+          className="w-80 p-0 overflow-hidden border-sfb-baunilha/30"
         >
           {/* Header com avatar + saudação + badges */}
-          <div className="bg-gradient-to-b from-sfb-vinho-escuro to-sfb-vinho text-sfb-creme px-4 py-4 space-y-3">
+          <div className="bg-gradient-to-b from-sfb-terracota to-sfb-terracota/90 text-sfb-baunilha px-4 py-4 space-y-3">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <Avatar className="h-14 w-14 ring-2 ring-sfb-dourado/60">
+                <Avatar className="h-14 w-14 ring-2 ring-sfb-baunilha/60">
                   {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt={primeiroNome} />}
-                  <AvatarFallback className="bg-sfb-dourado/20 text-sfb-dourado font-display text-lg">
+                  <AvatarFallback className="bg-sfb-baunilha/20 text-sfb-baunilha font-display text-lg">
                     {iniciais}
                   </AvatarFallback>
                 </Avatar>
@@ -170,7 +170,7 @@ export function UserMenu() {
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
                   aria-label="Alterar foto"
-                  className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-sfb-dourado text-sfb-preto flex items-center justify-center shadow ring-2 ring-sfb-vinho hover:bg-sfb-dourado/90 disabled:opacity-60"
+                  className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-sfb-baunilha text-sfb-terracota flex items-center justify-center shadow ring-2 ring-sfb-terracota hover:bg-sfb-baunilha/90 disabled:opacity-60"
                 >
                   {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
                 </button>
@@ -183,10 +183,10 @@ export function UserMenu() {
                 />
               </div>
               <div className="min-w-0">
-                <p className="text-xs uppercase tracking-wider text-sfb-creme/70 font-body">
+                <p className="text-xs uppercase tracking-wider text-sfb-baunilha/70 font-body">
                   Olá,
                 </p>
-                <p className="font-display text-xl text-sfb-dourado leading-tight truncate">
+                <p className="font-display text-xl text-sfb-baunilha leading-tight truncate">
                   {primeiroNome}!
                 </p>
               </div>
@@ -194,12 +194,12 @@ export function UserMenu() {
             {mostraBadges && (
               <div className="flex items-center gap-2 flex-wrap pt-1">
                 {activeGroup && sessionMode === "group" && (
-                  <Badge variant="outline" className="text-[10px] border-sfb-creme/30 text-sfb-creme/80 font-body">
+                  <Badge variant="outline" className="text-[10px] border-sfb-baunilha/30 text-sfb-baunilha/80 font-body">
                     {activeRole === "ADMIN" ? "Admin" : "Usuário"}
                   </Badge>
                 )}
                 {isMother && (
-                  <Badge variant="outline" className="text-[10px] border-sfb-dourado text-sfb-dourado font-body">
+                  <Badge variant="outline" className="text-[10px] border-sfb-baunilha text-sfb-baunilha font-body">
                     <Crown className="h-3 w-3 mr-1" />
                     MOTHER · Acesso total ao sistema
                   </Badge>
@@ -228,7 +228,7 @@ export function UserMenu() {
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-body flex items-center gap-1">
-                <Crown className="h-3 w-3 text-sfb-dourado" /> Plano
+                <Crown className="h-3 w-3 text-sfb-terracota" /> Plano
               </p>
               {isMother ? (
                 <p className="text-sm font-semibold text-sfb-vinho-escuro">
@@ -266,7 +266,7 @@ export function UserMenu() {
                 className="w-full justify-start font-body text-sm"
                 onClick={() => navigate("/upgrade")}
               >
-                <ArrowUpCircle className="h-4 w-4 mr-2 text-sfb-dourado" />
+                <ArrowUpCircle className="h-4 w-4 mr-2 text-sfb-terracota" />
                 Atualizar plano
               </Button>
             )}
