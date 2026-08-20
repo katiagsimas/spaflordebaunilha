@@ -1,17 +1,19 @@
-I will remove the multi-user and group management features to restrict each group to a single "Master" user.
+# Fix Registration Issues (RLS/owner_group_id)
 
-### UI Changes
-- **Governanca Page:** Remove the "Usuários" card and any references to managing members or permissions.
-- **GruposManager Component:** Disable or remove the "Ver membros" and "Adicionar membro" functionality.
-- **PermissionGuard Component:** Simplify logic to focus on whether a user is the owner/master of the current group.
-- **Navigation/Settings:** Remove links to "Usuários" or "Governança" from general user menus, keeping it only for system administrators (MOTHER role).
+The user is reporting registration errors in the "Cadastros" module. My investigation revealed that several registration tables have RLS policies requiring a non-null `owner_group_id`, but many frontend hooks and components are not providing this field during insert operations.
 
-### Backend/Logic Changes
-- **Edge Functions (criar-usuario):** Update to prevent the creation of "membro" type users. Only "mestre" users (new accounts) will be allowed.
-- **Database Policies:** Ensure that Row Level Security (RLS) strictly enforces that only the `master_user_id` can access group data.
+## Proposed Changes
 
-### Technical Details
-- Modify `src/pages/admin/Governanca.tsx` to hide the member management card.
-- Modify `src/components/admin/GruposManager.tsx` to remove member listing and invitation buttons.
-- Update `supabase/functions/criar-usuario/index.ts` to reject `tipoUsuario: 'membro'`.
-- Review `src/contexts/GroupContext.tsx` to ensure `canManageUsers` and similar helpers reflect this new single-user-per-group policy.
+### 1. Frontend Hooks and Components
+- Update `src/hooks/useCategorias.ts` to include `owner_group_id` using `useGroup`.
+- Update `src/hooks/useUnidadesMedida.ts` to include `owner_group_id`.
+- Update `src/pages/configuracoes/Bancos.tsx` to include `owner_group_id` (this one uses `supabase` directly).
+- Update `src/components/CriarIngredienteModal.tsx` and `src/components/CriarEmbalagemModal.tsx` to accept and use `activeGroupId`.
+
+### 2. Database Cleanup (Supabase Migration)
+- Identify records in `categorias`, `unidades_medida`, `bancos`, `tipos_insumos`, `ingredientes`, and `embalagens` where `owner_group_id` is NULL.
+- Update these records to point to the correct `owner_group_id` based on the `usuario_id` (looking up the user's primary group).
+
+## Technical Details
+- RLS Policy Example: `((owner_group_id IS NOT NULL) AND user_belongs_to_group(auth.uid(), owner_group_id))`
+- The fix involves fetching `activeGroupId` from `GroupContext` and passing it to all `.insert()` calls.
