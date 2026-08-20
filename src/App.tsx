@@ -256,6 +256,7 @@ const App = () => (
           <Route path="/configuracoes/categorias" element={<ProtectedRoute><Layout><Categorias /></Layout></ProtectedRoute>} />
           
           <Route path="/configuracoes/unidades-medida" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros/produtos-revenda" element={<ProtectedRoute><Layout><ProdutosRevenda /></Layout></ProtectedRoute>} />
           
           {/* Precificação - Ingredientes e Embalagens */}
           <Route path="/precificacao/ingredientes" element={<ProtectedRoute><Layout><Ingredientes /></Layout></ProtectedRoute>} />
