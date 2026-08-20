@@ -90,12 +90,12 @@ export default function DashboardFinanceiro() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <TrendingDown className="h-4 w-4 text-sfb-coral" />
+              <TrendingDown className="h-4 w-4 text-sfb-terracota" />
               Total a Pagar
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-sfb-coral">
+            <p className="text-2xl font-bold text-sfb-terracota">
               R$ {resumo.totalPagar.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </p>
           </CardContent>
@@ -127,19 +127,19 @@ export default function DashboardFinanceiro() {
 
         <Card className={`${
           resumo.saldoLiquido >= 0
-            ? "border-primary bg-primary/10"
-            : "border-sfb-coral bg-sfb-coral/10"
+            ? "border-sfb-cacau bg-sfb-cacau/5"
+            : "border-sfb-terracota bg-sfb-terracota/10"
         }`}>
           <CardHeader className="pb-2">
             <CardTitle className={`text-sm font-medium ${
-              resumo.saldoLiquido >= 0 ? "text-primary" : "text-sfb-coral"
+              resumo.saldoLiquido >= 0 ? "text-sfb-cacau" : "text-sfb-terracota"
             }`}>
               Saldo Líquido
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className={`text-2xl font-bold ${
-              resumo.saldoLiquido >= 0 ? "text-primary" : "text-sfb-coral"
+              resumo.saldoLiquido >= 0 ? "text-sfb-cacau" : "text-sfb-terracota"
             }`}>
               R$ {resumo.saldoLiquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </p>
@@ -165,7 +165,7 @@ export default function DashboardFinanceiro() {
                     `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
                   }
                 />
-                <Bar dataKey="valor" fill="hsl(var(--primary))" />
+                <Bar dataKey="valor" fill="var(--sfb-terracota)" />
               </BarChart>
             </ResponsiveContainer>
           </div>

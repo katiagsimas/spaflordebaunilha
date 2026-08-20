@@ -1,34 +1,32 @@
-import { HelpCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { HelpCircle, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface HelpButtonProps {
   isOpen: boolean;
   onClick: () => void;
-  className?: string;
 }
 
-export function HelpButton({ isOpen, onClick, className }: HelpButtonProps) {
+export const HelpButton = ({ isOpen, onClick }: HelpButtonProps) => {
   return (
-    <button
-      type="button"
+    <Button
+      variant="outline"
+      size="sm"
       onClick={onClick}
-      aria-label={isOpen ? "Fechar ajuda" : "Abrir ajuda"}
-      aria-pressed={isOpen}
-      className={cn(
-        "relative inline-flex h-[30px] w-[30px] items-center justify-center rounded-full border-[1.5px] border-[#3D2F28] transition-all duration-200",
-        isOpen
-          ? "bg-[#3D2F28] text-[#FFFDF9]"
-          : "bg-transparent text-[#3D2F28] hover:bg-[#3D2F28]/5",
-        className,
-      )}
+      className={`flex items-center gap-2 border-sfb-terracota/60 text-sfb-terracota hover:bg-sfb-terracota/10 hover:text-sfb-terracota transition-all duration-200 ${
+        isOpen ? "bg-sfb-terracota/10" : ""
+      }`}
     >
-      <HelpCircle className="h-[16px] w-[16px]" strokeWidth={2} />
-      {!isOpen && (
-        <span
-          aria-hidden="true"
-          className="absolute -top-1 -right-1 h-2 w-2 rounded-full border-[1.5px] border-white bg-[#C98A75]"
-        />
+      {isOpen ? (
+        <>
+          <X className="h-4 w-4" />
+          <span>Fechar Ajuda</span>
+        </>
+      ) : (
+        <>
+          <HelpCircle className="h-4 w-4" />
+          <span>Ajuda</span>
+        </>
       )}
-    </button>
+    </Button>
   );
-}
+};

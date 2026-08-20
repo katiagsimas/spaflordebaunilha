@@ -23,11 +23,11 @@ const STATUS_MAP: Record<
   string,
   { label: string; statusKey: string | null; Icon: any; bg: string; color: string }
 > = {
-  total: { label: "Total", statusKey: null, Icon: ClipboardList, bg: "bg-[#3D2F28]/10", color: "text-[#3D2F28]" },
-  pendentes: { label: "Pendentes", statusKey: "pendente", Icon: Clock, bg: "bg-[#C98A75]/15", color: "text-[#C98A75]" },
+  total: { label: "Total", statusKey: null, Icon: ClipboardList, bg: "bg-sfb-cacau/10", color: "text-sfb-cacau" },
+  pendentes: { label: "Pendentes", statusKey: "pendente", Icon: Clock, bg: "bg-sfb-terracota/15", color: "text-sfb-terracota" },
   confirmadas: { label: "Confirmadas", statusKey: "confirmado", Icon: CheckCircle2, bg: "bg-emerald-100", color: "text-emerald-700" },
   entregues: { label: "Entregues", statusKey: "entregue", Icon: Truck, bg: "bg-sky-100", color: "text-sky-700" },
-  canceladas: { label: "Canceladas", statusKey: "cancelado", Icon: XCircle, bg: "bg-[#C98A75]/20", color: "text-[#C98A75]" },
+  canceladas: { label: "Canceladas", statusKey: "cancelado", Icon: XCircle, bg: "bg-sfb-terracota/20", color: "text-sfb-terracota" },
 };
 
 const meses = [
@@ -128,7 +128,7 @@ export default function EncomendasLista() {
           variant="outline"
           size="sm"
           onClick={() => navigate("/encomendas")}
-          className="border-[#3D2F28]/20 text-[#2A1F1A]"
+          className="border-sfb-cacau/20 text-sfb-cacau"
         >
           <ArrowLeft className="h-4 w-4 mr-1.5" />
           Voltar
@@ -137,16 +137,16 @@ export default function EncomendasLista() {
       </div>
 
       {/* Filtro Mês/Ano */}
-      <div className="rounded-2xl border border-[#3D2F28]/10 bg-white px-4 sm:px-5 py-4 shadow-[0_2px_12px_-8px_rgba(91,26,43,0.12)]">
+      <div className="rounded-2xl border border-sfb-cacau/10 bg-white px-4 sm:px-5 py-4 shadow-[0_2px_12px_-8px_rgba(91,26,43,0.12)]">
         <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 sm:gap-x-6">
-          <div className="flex items-center gap-2 text-[#2A1F1A]">
-            <CalendarDays className="h-5 w-5 text-[#3D2F28]" />
+          <div className="flex items-center gap-2 text-sfb-cacau">
+            <CalendarDays className="h-5 w-5 text-sfb-cacau" />
             <span className="font-semibold">Período:</span>
           </div>
           <div className="flex items-center gap-2 flex-1 sm:flex-none">
             <Label className="text-sm text-foreground/60">Ano</Label>
             <Select value={anoSelecionado.toString()} onValueChange={(v) => setAnoSelecionado(parseInt(v))}>
-              <SelectTrigger className="h-9 flex-1 sm:w-28 rounded-md border-[#3D2F28]/20 bg-white text-[#2A1F1A]">
+              <SelectTrigger className="h-9 flex-1 sm:w-28 rounded-md border-sfb-cacau/20 bg-white text-sfb-cacau">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-popover z-50">
@@ -159,7 +159,7 @@ export default function EncomendasLista() {
           <div className="flex items-center gap-2 flex-1 sm:flex-none">
             <Label className="text-sm text-foreground/60">Mês</Label>
             <Select value={mesSelecionado.toString()} onValueChange={(v) => setMesSelecionado(parseInt(v))}>
-              <SelectTrigger className="h-9 flex-1 sm:w-36 rounded-md border-[#3D2F28]/20 bg-white text-[#2A1F1A]">
+              <SelectTrigger className="h-9 flex-1 sm:w-36 rounded-md border-sfb-cacau/20 bg-white text-sfb-cacau">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-popover z-50">

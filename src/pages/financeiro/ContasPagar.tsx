@@ -790,15 +790,15 @@ export default function ContasPagar() {
 
       {/* Dashboard */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="border-l-4 border-l-red-500">
+        <Card className="border-l-4 border-l-sfb-terracota">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-sfb-coral/15 rounded-lg">
-                <TrendingDown className="h-4 w-4 text-sfb-coral" />
+              <div className="p-2 bg-sfb-terracota/15 rounded-lg">
+                <TrendingDown className="h-4 w-4 text-sfb-terracota" />
               </div>
               <div>
                 <p className="text-xs font-medium text-muted-foreground">A Pagar</p>
-                <p className="text-lg font-bold text-sfb-coral">
+                <p className="text-lg font-bold text-sfb-terracota">
                   {formatarValor(dashboard.total_a_pagar)}
                 </p>
               </div>
@@ -838,15 +838,15 @@ export default function ContasPagar() {
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-blue-500">
+        <Card className="border-l-4 border-l-sfb-cacau">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-sfb-areia/15 rounded-lg">
-                <Calendar className="h-4 w-4 text-primary" />
+              <div className="p-2 bg-sfb-cacau/15 rounded-lg">
+                <Calendar className="h-4 w-4 text-sfb-cacau" />
               </div>
               <div>
                 <p className="text-xs font-medium text-muted-foreground">Vence Hoje</p>
-                <p className="text-lg font-bold text-primary">
+                <p className="text-lg font-bold text-sfb-cacau">
                   {formatarValor(dashboard.vencendo_hoje)}
                 </p>
               </div>
@@ -985,7 +985,7 @@ export default function ContasPagar() {
             </Button>
           </CollapsibleTrigger>
 
-          <Button variant="default" size="sm" onClick={limparFiltros}>
+          <Button variant="outline" size="sm" onClick={limparFiltros} className="border-sfb-cacau/30 text-sfb-cacau hover:bg-sfb-baunilha">
             <X className="mr-2 h-4 w-4" />
             Limpar Filtros
           </Button>
