@@ -68,7 +68,7 @@ export function FloatingNavigation() {
           size="icon"
           aria-label="Voltar"
           title="Voltar"
-          className="h-11 w-11 rounded-full bg-sfb-vinho text-sfb-creme shadow-elevated hover:bg-sfb-vinho-escuro hover:text-sfb-creme"
+          className="h-11 w-11 rounded-full bg-sfb-terracota text-sfb-baunilha shadow-elevated hover:bg-sfb-terracota/90 hover:text-sfb-baunilha"
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -79,7 +79,7 @@ export function FloatingNavigation() {
         aria-label="Voltar ao topo"
         title="Voltar ao topo"
         className={cn(
-          "h-11 w-11 rounded-full bg-sfb-dourado text-sfb-preto shadow-elevated hover:brightness-95 transition-opacity",
+          "h-11 w-11 rounded-full bg-sfb-baunilha text-sfb-terracota shadow-elevated hover:brightness-95 transition-opacity",
           showTop ? "opacity-100" : "opacity-0 pointer-events-none",
         )}
       >
