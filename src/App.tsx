@@ -194,7 +194,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
           <FloatingNavigation />
           <footer className="border-t border-sfb-baunilha/30 bg-sfb-terracota text-sfb-baunilha/70 py-3 px-4 text-center text-[11px] font-body">
-            Spa Flor de Baunilha by Ká Simas · CNPJ 65.786.966/0001-41 · Todos os direitos reservados.
+            Spa Flor de Baunilha - Todos os direitos Reservados - 2026
           </footer>
         </div>
       </div>
