@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: Em Cadastros / Produtos para Revenda / Natura, crie uma página dedicada para este card, dentro desta página, teremos o botão e respectivo formulário para cadastro de Novo Produto, bem como a listagem de produtos cadastrados. Faça a mesma implementação nos cards Avon e Casa & Estilo
+// Execute esta instrucao no projeto: Aplique cor de fundo na listagem de produtos
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
