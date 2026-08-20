@@ -743,27 +743,12 @@ export default function Usuarios() {
                               )}
                             </div>
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              {showOnboardingBadges && (
-                                <>
-                                  {profile.onboarding_concluido ? (
-                                    <Badge variant="outline" className="text-[10px] h-4 px-1.5 bg-green-50 text-green-700 border-green-200">
-                                      <CheckCircle2 className="h-2 w-2 mr-0.5" />
-                                      ONBOARDING OK
-                                    </Badge>
-                                  ) : (
-                                    <Badge variant="outline" className="text-[10px] h-4 px-1.5 bg-amber-50 text-amber-700 border-amber-200">
-                                      <Clock className="h-2 w-2 mr-0.5" />
-                                      ONBOARDING PENDENTE
-                                    </Badge>
-                                  )}
                                   {!profile.tem_dados && (
                                     <Badge variant="outline" className="text-[10px] h-4 px-1.5 bg-orange-50 text-orange-700 border-orange-200">
                                       <AlertCircle className="h-2 w-2 mr-0.5" />
                                       SEM CADASTROS
                                     </Badge>
                                   )}
-                                </>
-                              )}
                             </div>
                           </div>
                         </TableCell>
